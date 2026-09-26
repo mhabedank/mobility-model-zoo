@@ -62,6 +62,10 @@ def make_backend(settings: Settings, entry: ModelEntry, backend: str, host: str 
         from jtbd_pilot.labeling.ollama import OllamaBackend
 
         return OllamaBackend(settings, entry, host)
+    if backend == "openai_compat":
+        from jtbd_pilot.labeling.openai_compat import OpenAICompatBackend
+
+        return OpenAICompatBackend(settings, entry)
     if backend == "mock":
         from jtbd_pilot.labeling.mock import MockBackend
 

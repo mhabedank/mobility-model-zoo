@@ -1,0 +1,40 @@
+# Technical spike 002 (constitution v1.2.0 "Technical Spikes"). Results are "spike", never "benchmark".
+# Separate data and benchmark directories keep the spike walled off from pilot-v1.
+root: ..
+benchmark_version: spike-v1
+test_fixture: false
+
+paths:
+  guideline: guideline/guideline-v1.md
+  examples: guideline/examples
+  domain: configs/domain/mobility.yaml
+  models: configs/models.yaml
+  criteria: configs/decision-criteria.yaml
+  budget: configs/budget.yaml
+  data: data/spike
+  benchmarks: data/spike/benchmarks
+  reports: reports
+
+pilot:
+  spike: true
+  bounds: {train_chunks_max: 250, eval_chunks_max: 40}
+  composition:
+    main_size: [30, 40]
+    holdout_size: [0, 0]
+    sub_area_share_of_relevant: [0.0, 1.0]
+    source_type_share: [0.0, 1.0]
+    irrelevant_or_near_miss_share: [0.0, 1.0]
+    non_eu_share: [0.0, 1.0]
+    dach_largest_region: false
+    language_min_share: 0.0
+    token_range: [300, 1500]
+  substitutions: []
+  min_iou: 0.3
+  bootstrap_resamples: 500
+  bootstrap_seed: 20260927
+  underpowered_min_units: 30
+  max_retries: 1
+  max_output_tokens: 4096
+  assumed_output_tokens: 1500
+  consistency_rules: [irrelevant_no_items, enum_values, quantified_has_quantity]
+  redaction_patterns_version: redact-v1

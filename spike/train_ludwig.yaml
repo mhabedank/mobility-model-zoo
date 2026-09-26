@@ -1,0 +1,34 @@
+# Ludwig LoRA fine-tuning for spike 002 (constitution Principle VIII: Ludwig is primary).
+model_type: llm
+base_model: Qwen/Qwen3-4B-Instruct-2507
+input_features:
+  - name: prompt
+    type: text
+output_features:
+  - name: output
+    type: text
+prompt:
+  template: "{prompt}"
+adapter:
+  type: lora
+  r: 16
+  alpha: 32
+  dropout: 0.05
+trainer:
+  type: finetune
+  epochs: 3
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 0.0002
+  learning_rate_scheduler:
+    warmup_fraction: 0.03
+preprocessing:
+  global_max_sequence_length: 8192
+  split:
+    type: random
+    probabilities: [0.95, 0.05, 0.0]
+generation:
+  max_new_tokens: 2048
+  temperature: 0.0
+backend:
+  type: local

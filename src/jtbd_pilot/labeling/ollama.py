@@ -71,6 +71,8 @@ class OllamaBackend:
             "stream": False,
             "options": {"temperature": 0, "num_ctx": self.num_ctx, "seed": 0},
         }
+        if "think" in self.entry.extra:
+            payload["think"] = bool(self.entry.extra["think"])
         start = time.monotonic()
         try:
             response = self.client.post(f"{self.base_url}/api/chat", json=payload)

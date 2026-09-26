@@ -31,6 +31,40 @@ def consensus_paths(settings: Settings, split: str = "main") -> dict[str, Any]:
     }
 
 
+def build_single_reference(settings: Settings, run_a: str) -> dict[str, Any]:
+    """Technical spikes only: one reference run, every relevance judgment and item is consensus."""
+    if not settings.pilot.get("spike"):
+        raise ValidationFailed("a single-reference consensus is allowed only in spike configs")
+    man = load_run_manifest(settings, run_a)
+    if man.role != "reference":
+        raise ValidationFailed("the single reference run needs role=reference")
+    outputs = load_outputs(settings, run_a)
+    consensus: list[dict] = []
+    excluded = sorted(c for c, o in outputs.items() if o.relevant is None)
+    chunks = sorted(c for c, o in outputs.items() if o.relevant is not None)
+    for chunk_id in chunks:
+        out = outputs[chunk_id]
+        consensus.append({"chunk_id": chunk_id, "level": "relevance", "value": out.relevant})
+        for k, item in enumerate(out.valid_items):
+            consensus.append({
+                "chunk_id": chunk_id, "level": "item", "item_key": f"{chunk_id}#{k}",
+                "span": list(item.span), "quote": item.quote, "values": item.attrs(),
+                "refs": {"a": item.index}, "iou": 1.0,
+            })
+    paths = consensus_paths(settings, man.split)
+    write_jsonl(paths["consensus"], consensus)
+    write_jsonl(paths["contested"], [])
+    write_json(paths["meta"], {
+        "reference_runs": [run_a], "run_backends": {run_a: man.backend}, "split": man.split,
+        "chunks": chunks, "excluded_chunks": excluded, "single_reference": True,
+        "invalid_quotes": {run_a: sum(1 for o in outputs.values() for i in o.items if not i.valid)},
+    })
+    return {"split": man.split, "single_reference": run_a,
+            "consensus_relevance": len(chunks),
+            "consensus_items": sum(1 for c in consensus if c["level"] == "item"),
+            "contested": 0, "excluded_chunks": excluded}
+
+
 def build_consensus(settings: Settings, run_a: str, run_b: str) -> dict[str, Any]:
     man_a, man_b = load_run_manifest(settings, run_a), load_run_manifest(settings, run_b)
     if man_a.role != "reference" or man_b.role != "reference":

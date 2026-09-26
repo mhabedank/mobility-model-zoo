@@ -95,12 +95,13 @@ def compute_hashes(settings: Settings) -> dict[str, Any]:
         },
         "chunks": {c.chunk_id: sha256_text(c.text) for c in chunks if c.split == "main"},
         "holdout_chunks": {c.chunk_id: sha256_text(c.text) for c in chunks if c.split == "holdout"},
+        "train_chunks": {c.chunk_id: sha256_text(c.text) for c in chunks if c.split == "train"},
     }
 
 
 def _diff(frozen: dict[str, Any], current: dict[str, Any]) -> list[str]:
     diffs = []
-    for key in ("hashes", "chunks", "holdout_chunks"):
+    for key in ("hashes", "chunks", "holdout_chunks", "train_chunks"):
         a, b = frozen.get(key, {}), current.get(key, {})
         for name in sorted(set(a) | set(b)):
             if a.get(name) != b.get(name):

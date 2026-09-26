@@ -61,9 +61,10 @@
     "split": {
       "enum": [
         "main",
-        "holdout"
+        "holdout",
+        "train"
       ],
-      "description": "Defaults to main at build time; set by `pilot corpus split`."
+      "description": "main (scored), holdout (rerun only), train (technical spikes only: training data, never scored)."
     },
     "sub_area": {
       "enum": [

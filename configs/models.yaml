@@ -57,3 +57,30 @@ models:
     host: spark
     role: baseline
     quantization: Q4_K_M
+  # --- Spike 002 (technical spike only) ---------------------------------------------------------
+  - model_id: teacher-qwen3.6
+    api_model: qwen3.6:35b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "Apache-2.0 (Qwen3.6-35B-A3B model card); outputs unrestricted"
+    think: false
+    num_ctx: 16384
+  - model_id: spike-base
+    api_model: spike-base
+    model_version: Qwen/Qwen3-4B-Instruct-2507
+    family: qwen
+    backend: openai_compat
+    host: spark
+    base_url: http://10.123.47.52:8000/v1
+    role: baseline
+  - model_id: spike-tuned
+    api_model: spike-tuned
+    model_version: Qwen/Qwen3-4B-Instruct-2507 + LoRA spike-v1
+    family: qwen
+    backend: openai_compat
+    host: spark
+    base_url: http://10.123.47.52:8000/v1
+    role: baseline

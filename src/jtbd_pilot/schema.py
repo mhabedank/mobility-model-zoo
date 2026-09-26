@@ -35,9 +35,9 @@ Region = Literal["DACH", "EU_other", "non_EU"]
 Language = Literal["de", "en"]
 RelevanceIntent = Literal["relevant", "irrelevant", "near_miss"]
 PermittedUses = Literal["benchmark_only", "training_allowed"]
-Split = Literal["main", "holdout"]
+Split = Literal["main", "holdout", "train"]
 Role = Literal["reference", "teacher_candidate", "baseline"]
-BackendName = Literal["claude_cli", "openrouter", "ollama", "mock"]
+BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "mock"]
 
 
 def evidence_rank(value: str) -> int:

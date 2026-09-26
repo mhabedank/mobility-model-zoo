@@ -18,10 +18,12 @@ from jtbd_pilot.config import Settings, load_settings
 from jtbd_pilot.errors import PilotError
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="JTBD extraction pilot")
+spike_app = typer.Typer(no_args_is_help=True, help="Technical spike helpers (spec 002)")
 source_app = typer.Typer(no_args_is_help=True, help="Fetch and register sources (crawl once)")
 corpus_app = typer.Typer(no_args_is_help=True, help="Build, redact, split and validate chunks")
 app.add_typer(source_app, name="source")
 app.add_typer(corpus_app, name="corpus")
+app.add_typer(spike_app, name="spike")
 
 
 def _log(message: str) -> None:
@@ -128,6 +130,19 @@ def corpus_build(ctx: typer.Context, selection: Path = typer.Option(..., "--from
     from jtbd_pilot.corpus.build import build_from_selection
 
     _run(ctx, lambda s: build_from_selection(s, selection))
+
+
+@corpus_app.command("autochunk")
+def corpus_autochunk(
+    ctx: typer.Context,
+    snapshot_map: Path = typer.Option(..., "--map"),
+    train: int = typer.Option(..., "--train"),
+    evaluation: int = typer.Option(..., "--eval"),
+    seed: int = typer.Option(..., "--seed"),
+) -> None:
+    from jtbd_pilot.corpus.autochunk import autochunk
+
+    _run(ctx, lambda s: autochunk(s, snapshot_map, train, evaluation, seed))
 
 
 @corpus_app.command("redact")
@@ -257,11 +272,21 @@ def match_cmd(ctx: typer.Context, runs: tuple[str, str] = typer.Option(..., "--r
 
 @app.command("consensus")
 def consensus_cmd(
-    ctx: typer.Context, reference: tuple[str, str] = typer.Option(..., "--reference")
+    ctx: typer.Context,
+    reference: tuple[str, str] = typer.Option((None, None), "--reference"),
+    single: str = typer.Option(None, "--single", help="Spike configs only: one reference run"),
 ) -> None:
-    from jtbd_pilot.consensus import build_consensus
+    from jtbd_pilot.consensus import build_consensus, build_single_reference
+    from jtbd_pilot.errors import UsageError
 
-    _run(ctx, lambda s: build_consensus(s, reference[0], reference[1]))
+    def action(s: Settings) -> Any:
+        if single:
+            return build_single_reference(s, single)
+        if not all(reference):
+            raise UsageError("give --reference <run_a> <run_b> (or --single <run> in a spike)")
+        return build_consensus(s, reference[0], reference[1])
+
+    _run(ctx, action)
 
 
 @app.command("categorize")
@@ -344,6 +369,22 @@ def report_cmd(ctx: typer.Context) -> None:
     from jtbd_pilot.report.render import render_report
 
     _run(ctx, render_report)
+
+
+@spike_app.command("export-sft")
+def spike_export(ctx: typer.Context, run: str = typer.Option(..., "--run"),
+                 out: Path = typer.Option(..., "--out")) -> None:
+    from jtbd_pilot.spike import export_sft
+
+    _run(ctx, lambda s: export_sft(s, run, out))
+
+
+@spike_app.command("report")
+def spike_report_cmd(ctx: typer.Context,
+                     sft_stats: Path = typer.Option(None, "--sft-stats")) -> None:
+    from jtbd_pilot.spike import spike_report
+
+    _run(ctx, lambda s: spike_report(s, sft_stats))
 
 
 @app.command("doctor")

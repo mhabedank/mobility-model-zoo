@@ -59,7 +59,8 @@ def doctor(settings: Settings) -> dict[str, Any]:
     manifest = load_manifest(settings)
     if manifest:
         current = compute_hashes(settings)
-        drift = [k for k in ("hashes", "chunks", "holdout_chunks") if manifest.get(k) != current[k]]
+        drift = [k for k in ("hashes", "chunks", "holdout_chunks", "train_chunks")
+                 if manifest.get(k, {}) != current[k]]
         add("manifest", not drift,
             f"{manifest['version']} state {manifest['state']}, pilot {manifest['pilot_state']}"
             + (f", DRIFT in {drift}" if drift else ""))

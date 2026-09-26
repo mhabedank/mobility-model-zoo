@@ -123,11 +123,15 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
                                  "evidence_type", "evidence_scope")}
 
     agreement_path = settings.analysis_dir / "agreement.json"
-    agreement = read_json(agreement_path) if agreement_path.exists() else compute_agreement(
-        settings, "main")
+    if meta.get("single_reference"):
+        agreement = None  # spike: one reference, no reference-vs-reference agreement exists
+    elif agreement_path.exists():
+        agreement = read_json(agreement_path)
+    else:
+        agreement = compute_agreement(settings, "main")
     model_composite = composite(d["score"] for d in dims.values())
-    frontier_a = agreement["composite_consensus_units"]
-    frontier_b = agreement["composite_all_units"]
+    frontier_a = agreement["composite_consensus_units"] if agreement else None
+    frontier_b = agreement["composite_all_units"] if agreement else None
     rates = load_pass_rates(settings, run_id) or check_run(settings, run_id)["pass_rates"]
     result = {
         "run_id": run_id,

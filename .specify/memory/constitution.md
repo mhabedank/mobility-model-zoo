@@ -1,33 +1,25 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.0.0 → 1.1.0
-Bump rationale: MINOR. A new section was added and Principle VI was materially expanded. No
-principle was removed or redefined incompatibly.
+Version change: 1.1.0 → 1.2.0
+Bump rationale: MINOR. Adds the section "Technical Spikes". No principle is removed or redefined;
+spikes get a narrow, explicit exemption from two gates, with all other principles still binding.
 
-Modified principles:
-- VI. Clean Provenance, Quality First: expanded. It now covers raw snapshots reused across
-  iterations, a retention period per snapshot store, and permitted uses per source
-  (benchmark_only sources never enter training data).
+Modified principles: none (Principle IV and the reporting gate reference the spike exemption).
 
 Added sections:
-- Resources & Cost Discipline: resource inventory, cost order, cash budgets with hard caps,
-  development versus target hardware, use of subscription models, and crawl once.
+- Technical Spikes: bounded end-to-end or exploratory runs that validate tooling before the
+  agreement pilot is complete. Results are labeled "spike", never "benchmark".
 
 Removed sections: none
 
 Templates reviewed (not modified; they read the constitution at runtime):
-- .specify/templates/plan-template.md: the Constitution Check must now also cover the Resources
-  & Cost Discipline section ✅ (it reads the constitution at runtime)
-- .specify/templates/spec-template.md: no structural change needed ✅
-- .specify/templates/tasks-template.md: no direct dependency ✅
+- .specify/templates/plan-template.md ✅ (Constitution Check must cover the spike rules for spikes)
+- .specify/templates/spec-template.md ✅
+- .specify/templates/tasks-template.md ✅
 
 Follow-up TODOs:
-- specs/001-jtbd-extraction-pilot/spec.md must state its cash budget, crawl-once snapshots,
-  permitted uses and the split between development and target hardware (done in the same
-  session).
-- The project name is still taken from the repository directory ("mobility-llm"). Rename it
-  with a PATCH amendment once a final name is chosen.
+- Feature 002 (end-to-end spike) must declare itself a spike and state its size bounds.
 -->
 
 # mobility-llm Constitution
@@ -210,13 +202,37 @@ order and crawling each source once keeps experiments cheap and repeatable. Keep
 and target hardware apart stops fast development machines from hiding a model that is too slow
 for its real target.
 
+## Technical Spikes
+
+A spike is a small, bounded run that tests the whole pipeline or one risky step before the gates
+that normally precede it are met, for example an end-to-end run from sources to a fine-tuned model
+before the agreement pilot is complete.
+
+- A spike MUST be its own feature spec, MUST call itself a spike and MUST state its size bounds
+  (number of chunks for training data and for evaluation) and its cash budget.
+- A spike is exempt from exactly two rules: the gate before large-scale data generation
+  (Principle IV and "Development Workflow & Quality Gates"), and the requirement that reported
+  results use a named, frozen benchmark version (Principle III). Every other principle still
+  applies in full, including verbatim-quote grounding, benchmark labelers never acting as teachers,
+  teacher licensing, clean provenance, crawl once, redaction, local-first cost order and budgets.
+- Spike results MUST be labeled "spike" and MUST NOT be presented as benchmark results, used to
+  pass or fail a gate, or used to change the decision criteria of a pilot.
+- Spike training data and spike models MUST NOT be released and MUST NOT be reused as training
+  data for non-spike models. Spike data follows the same retention rules as other datasets.
+- Spike findings (what broke, what was slow, what cost too much) SHOULD be written down and fed
+  into the next regular spec.
+
+Rationale: An early end-to-end run finds integration problems cheaply. Keeping spikes small,
+labeled and walled off from gates and releases stops them from turning into unmeasured shortcuts.
+
 ## Development Workflow & Quality Gates
 
 - Every spec and every plan MUST list which principles it touches and state how it
   complies. The plan's Constitution Check gate MUST verify this before design work and
   again after it.
 - Gate before large-scale data generation: the inter-model agreement pilot (Principle IV)
-  MUST be complete and every label dimension used for training MUST have passed it.
+  MUST be complete and every label dimension used for training MUST have passed it. Technical
+  spikes are exempt within their stated bounds (see "Technical Spikes").
 - Gate before an experiment: success and kill criteria MUST be recorded, and so MUST the cash
   budget if the experiment incurs cash costs.
 - Gate before reporting a result: deterministic checks, consensus score, contested-item
@@ -242,4 +258,4 @@ for its real target.
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-09-25
+**Version**: 1.2.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-09-27

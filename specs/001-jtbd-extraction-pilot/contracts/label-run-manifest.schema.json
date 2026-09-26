@@ -37,6 +37,7 @@
         "claude_cli",
         "openrouter",
         "ollama",
+        "openai_compat",
         "mock"
       ],
       "description": "`mock` replays fixture responses and is allowed only for tests and dry runs, never in a benchmark version."
@@ -113,7 +114,8 @@
     "split": {
       "enum": [
         "main",
-        "holdout"
+        "holdout",
+        "train"
       ]
     },
     "started_at": {
