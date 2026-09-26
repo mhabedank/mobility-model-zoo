@@ -91,3 +91,26 @@ def test_model_version_change_stops_run(tmp_path, monkeypatch):
     manifest = json.loads((load_settings(config).runs_dir / run_ids(config)["mock-a"]
                            / "manifest.json").read_text())
     assert manifest["status"] == "invalid_version_change"
+
+
+def test_retry_failed_retries_backend_failures_only(tmp_path, monkeypatch):
+    config = copy_fixture(tmp_path)
+    pilot(config, "freeze")
+    from jtbd_pilot.errors import BackendFailure
+    from jtbd_pilot.labeling import mock
+
+    original = mock.MockBackend.call
+
+    def down(self, system, user, schema, chunk_id):
+        if chunk_id == "ch-003":
+            raise BackendFailure("timed out")
+        return original(self, system, user, schema, chunk_id)
+
+    monkeypatch.setattr(mock.MockBackend, "call", down)
+    first = pilot(config, "label", "--role", "baseline", "--backend", "mock", "--model",
+                  "mock-small")
+    assert first["excluded"] == 2  # ch-003 timeout, ch-004 schema failure
+    monkeypatch.setattr(mock.MockBackend, "call", original)
+    second = pilot(config, "label", "--role", "baseline", "--backend", "mock", "--model",
+                   "mock-small", "--retry-failed")
+    assert second["excluded"] == 1 and second["status"] == "complete"

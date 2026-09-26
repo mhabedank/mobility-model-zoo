@@ -29,6 +29,8 @@ def test_redaction_removes_identifiers():
         assert leaked not in out
     assert "In 2023 stieg die Nutzung um 12,5 %." in out
     assert counts["email"] == 1
+    out, _ = redact_text("Corresponding Author: Dr . J. Gruber , johannes.gruber@dlr .de   discussed")
+    assert "gruber@" not in out and "[EMAIL]" in out
 
 
 def test_redact_check_fails_on_residual_and_missing_review(settings):

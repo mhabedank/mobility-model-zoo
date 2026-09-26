@@ -3,7 +3,7 @@
 models:
   # --- Reference labelers --------------------------------------------------------------------
   - model_id: claude-reference
-    api_model: claude-opus-5-5          # pin the exact model in `claude -p --model` (T047, T058)
+    api_model: opus                     # CLI alias; the resolved model id is recorded per run (T047, T058)
     family: anthropic-claude
     backend: claude_cli
     host: subscription

@@ -57,6 +57,15 @@ def usable(window: str) -> bool:
     return letters >= 0.6 and words >= 150 and noise <= 4
 
 
+ON_TOPIC_SHARE = 0.8
+MIN_KEYWORD_HITS = 4
+
+
+def keyword_hits(window: str, keywords: list[str]) -> int:
+    words = re.findall(r"[a-zäöüß-]+", window.lower())
+    return sum(1 for w in words if any(w.startswith(k) for k in keywords))
+
+
 def _pick(pools: dict[str, list[tuple[int, int]]], quota: int, rng: random.Random
           ) -> list[tuple[str, tuple[int, int]]]:
     for windows in pools.values():
@@ -75,7 +84,9 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
     if load_chunks(settings):
         raise ValidationFailed(f"{settings.chunks_dir} already has chunks; autochunk starts empty")
     mapping = read_yaml(map_path)["snapshots"]
-    pools: dict[str, dict[str, list[tuple[int, int]]]] = {"train": {}, "eval": {}}
+    pools: dict[str, dict[str, list[tuple[int, int]]]] = {
+        "train": {}, "eval": {}, "train_off": {}, "eval_off": {}}
+    keywords = [k.lower() for k in settings.domain().get("topic_keywords", [])]
     texts: dict[str, str] = {}
     for snapshot_id, meta in sorted(mapping.items()):
         snapshot = load_snapshot(settings, snapshot_id)
@@ -85,10 +96,17 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
                                    f"{snapshot.permitted_uses} and cannot supply training chunks")
         text = snapshot_text(settings, snapshot_id)
         texts[snapshot_id] = text
-        pools[use][snapshot_id] = [r for r in cut_ranges(text) if usable(text[r[0]:r[1]])]
+        windows = [r for r in cut_ranges(text) if usable(text[r[0]:r[1]])]
+        on = [r for r in windows if keyword_hits(text[r[0]:r[1]], keywords) >= MIN_KEYWORD_HITS]
+        pools[use][snapshot_id] = on
+        pools[f"{use}_off"][snapshot_id] = [r for r in windows if r not in on]
     rng = random.Random(seed)
-    selected = [("main", s, r) for s, r in _pick(pools["eval"], evaluation, rng)]
-    selected += [("train", s, r) for s, r in _pick(pools["train"], train, rng)]
+    selected = []
+    for split, use, quota in (("main", "eval", evaluation), ("train", "train", train)):
+        n_on = round(quota * ON_TOPIC_SHARE)
+        picked = _pick(pools[use], n_on, rng)
+        picked += _pick(pools[f"{use}_off"], quota - len(picked), rng)
+        selected += [(split, s, r) for s, r in picked]
     counts = {"main": 0, "train": 0}
     for n, (split, snapshot_id, (start, end)) in enumerate(selected, start=1):
         meta = mapping[snapshot_id]

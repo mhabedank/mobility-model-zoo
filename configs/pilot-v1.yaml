@@ -40,4 +40,4 @@ pilot:
   max_output_tokens: 4096
   assumed_output_tokens: 1500
   consistency_rules: [irrelevant_no_items, enum_values, quantified_has_quantity]
-  redaction_patterns_version: redact-v1
+  redaction_patterns_version: redact-v2

@@ -50,7 +50,8 @@ class Settings:
 
     @property
     def snapshots_dir(self) -> Path:
-        return self.data_dir / "snapshots"
+        """Snapshots are shared across configs (crawl once); overridable via paths.snapshots."""
+        return self.paths.get("snapshots", self.data_dir / "snapshots")
 
     @property
     def chunks_dir(self) -> Path:

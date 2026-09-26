@@ -21,6 +21,17 @@ from jtbd_pilot.labeling.base import CallResult, parse_json_text
 MIN_INTERVAL_S = 1.5
 
 
+def result_event(events: object) -> dict:
+    """`--output-format json` returns either one result object or a list of events."""
+    if isinstance(events, dict):
+        return events
+    if isinstance(events, list):
+        results = [e for e in events if isinstance(e, dict) and e.get("type") == "result"]
+        if results:
+            return results[-1]
+    raise BackendFailure("claude CLI output contains no result event")
+
+
 class ClaudeCliBackend:
     name = "claude_cli"
     temperature = "not_settable"
@@ -70,16 +81,21 @@ class ClaudeCliBackend:
         if proc.returncode != 0:
             raise BackendFailure(f"claude CLI failed on {chunk_id}: {proc.stderr.strip()[:300]}")
         try:
-            body = json.loads(proc.stdout)
+            events = json.loads(proc.stdout)
         except json.JSONDecodeError as exc:
             raise BackendFailure(f"claude CLI returned non-JSON on {chunk_id}") from exc
+        body = result_event(events)
+        if body.get("is_error"):
+            raise BackendFailure(f"claude CLI reported an error on {chunk_id}: "
+                                 f"{str(body.get('result'))[:200]}")
         candidate = body.get("structured_output")
         if candidate is None:
             candidate = parse_json_text(body.get("result"))
         model_usage = body.get("modelUsage") or {}
         if model_usage:
-            model_version = sorted(model_usage)[0] if len(model_usage) == 1 else ",".join(
-                sorted(model_usage))
+            # The CLI may call a small helper model too; the labeler is the one that wrote the answer.
+            model_version = max(model_usage,
+                                key=lambda m: (model_usage[m] or {}).get("outputTokens", 0))
             version_note = None
         else:
             model_version = self.entry.api_model
@@ -87,7 +103,7 @@ class ClaudeCliBackend:
         if version_note and version_note not in self.deviations:
             self.deviations.append(version_note)
         return CallResult(
-            raw_body=body,
+            raw_body=events,
             parsed_candidate=candidate,
             model_version=model_version,
             usage=body.get("usage") or {},

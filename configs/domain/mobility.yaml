@@ -11,3 +11,9 @@ sub_areas:
   emobility_charging: E-mobility and charging
   car_ownership_use: Car ownership and use
   sharing_platforms: Sharing and platforms
+# Topic cues for automatic chunk selection in technical spikes (not given to any model).
+topic_keywords: [verkehr, mobilität, bus, bahn, zug, öpnv, nahverkehr, deutschlandticket, auto, pkw,
+  fahrzeug, fahrer, pendel, laden, ladesäule, elektro, e-auto, wallbox, paket, zustell, kurier, logistik,
+  lkw, spedition, maut, parken, parkplatz, carsharing, sharing, scooter, fahrrad, rad, straße, autobahn,
+  transport, transit, rider, driver, charging, charger, vehicle, car, truck, trucking, delivery, courier,
+  parking, commute, commuter, travel, trip, mobility, fare, ticket, route, freight, logistics]

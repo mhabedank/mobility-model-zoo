@@ -144,3 +144,12 @@ def test_openai_compat_backend(monkeypatch, tmp_path):
         openai_compat.OpenAICompatBackend(settings, ModelEntry(
             model_id="x", family="q", backend="openai_compat", host="s", role="baseline",
             api_model="x"))
+
+
+def test_claude_result_event_from_event_list():
+    from jtbd_pilot.labeling.claude_cli import result_event
+
+    events = [{"type": "system", "model": "claude-opus-5"},
+              {"type": "result", "structured_output": {"a": 1}, "modelUsage": {"claude-opus-5": {}}}]
+    assert result_event(events)["structured_output"] == {"a": 1}
+    assert result_event({"structured_output": 2})["structured_output"] == 2

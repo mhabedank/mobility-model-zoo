@@ -80,6 +80,7 @@ def label(
     host: str | None = None,
     split: str = "main",
     limit: int | None = None,
+    retry_failed: bool = False,
 ) -> dict[str, Any]:
     entry = settings.model(model_id)
     check_roles(settings, role, entry)
@@ -103,6 +104,14 @@ def label(
         raise ValidationFailed(
             f"{run_id} is invalid (model version changed mid-run); move {run_path} aside and "
             "repeat the run")
+    if manifest and retry_failed:
+        # Backend failures (timeouts, connection errors) are retried; schema failures of the model
+        # answer stay excluded so they keep counting against the model. Raw attempts are kept.
+        kept = [e for e in manifest.excluded_chunks if e.reason.startswith("schema invalid")]
+        manifest.deviations = sorted(set(manifest.deviations) | {
+            f"retried {len(manifest.excluded_chunks) - len(kept)} chunks after backend failures"})
+        manifest.excluded_chunks = kept
+        manifest.status = "running"
     excluded = {e.chunk_id for e in manifest.excluded_chunks} if manifest else set()
     todo = [c for c in chunks
             if c.chunk_id not in excluded and not (parsed_dir / f"{c.chunk_id}.json").exists()]

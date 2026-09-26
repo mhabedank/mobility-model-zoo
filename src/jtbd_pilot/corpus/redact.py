@@ -14,7 +14,7 @@ from jtbd_pilot.config import Settings
 from jtbd_pilot.corpus.store import load_chunks, save_chunk
 from jtbd_pilot.errors import UsageError, ValidationFailed
 
-PATTERNS_VERSION = "redact-v1"
+PATTERNS_VERSION = "redact-v2"
 
 # Order matters: profile URLs before emails before bare handles.
 PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
@@ -27,7 +27,13 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
         ),
         "[PROFILE_URL]",
     ),
-    ("email", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"), "[EMAIL]"),
+    # PDF extraction can insert spaces around dots ("name@dlr .de"), so they are tolerated.
+    (
+        "email",
+        re.compile(r"[A-Za-z0-9._%+-]+\s?@\s?[A-Za-z0-9-]+"
+                   r"(?:\s?\.\s?[A-Za-z0-9-]+)*\s?\.\s?[A-Za-z]{2,}\b"),
+        "[EMAIL]",
+    ),
     ("reddit_user", re.compile(r"(?<![\w/])/?u/[A-Za-z0-9_-]{3,20}\b"), "[USER]"),
     ("at_handle", re.compile(r"(?<![\w.@\[])@[A-Za-z0-9_.]{2,30}\b"), "[USER]"),
     (

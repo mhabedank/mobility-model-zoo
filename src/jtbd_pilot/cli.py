@@ -215,11 +215,13 @@ def label_cmd(
     host: str = typer.Option(None, "--host", help="Override host (e.g. spark, vm)"),
     split: str = typer.Option("main", "--split"),
     limit: int = typer.Option(None, "--limit"),
+    retry_failed: bool = typer.Option(
+        False, "--retry-failed", help="Retry chunks excluded after backend failures"),
 ) -> None:
     from jtbd_pilot.labeling.runner import label
 
     _run(ctx, lambda s: label(s, role=role, backend=backend, model_id=model, host=host,
-                              split=split, limit=limit))
+                              split=split, limit=limit, retry_failed=retry_failed))
 
 
 @app.command("budget")
