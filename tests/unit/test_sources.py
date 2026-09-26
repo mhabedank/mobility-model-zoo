@@ -6,7 +6,13 @@ import yaml
 from jtbd_pilot.config import load_settings
 from jtbd_pilot.errors import CrawlOnceRefused, UsageError, ValidationFailed
 from jtbd_pilot.sources import registry
-from jtbd_pilot.sources.snapshot import create_snapshot
+from jtbd_pilot.sources.snapshot import create_snapshot as _create
+
+BODY = b" Lorem mobility text." * 120
+
+
+def create_snapshot(settings, raw, *args, **kwargs):
+    return _create(settings, raw + BODY, *args, **kwargs)
 
 META = {
     "source_type": "paper",
@@ -66,5 +72,16 @@ def test_retention_is_required(settings):
 def test_snapshot_files_written(settings):
     rec = create_snapshot(settings, b"raw bytes", "txt", "https://example.org/p4", META)
     d = settings.snapshots_dir / rec["snapshot_id"]
-    assert (d / "raw.txt").read_bytes() == b"raw bytes"
+    assert (d / "raw.txt").read_bytes() == b"raw bytes" + BODY
     assert yaml.safe_load((d / "source.yaml").read_text())["permitted_uses"] == "training_allowed"
+
+
+def test_block_pages_and_empty_text_are_refused(settings):
+    before = sorted(settings.snapshots_dir.glob("snap-*"))
+    with pytest.raises(ValidationFailed, match="unusable"):
+        _create(settings, b"Checking your browser before accessing ... " * 50, "txt",
+                "https://example.org/blocked", META)
+    with pytest.raises(ValidationFailed, match="only"):
+        _create(settings, b"too short", "txt", "https://example.org/short", META)
+    assert sorted(settings.snapshots_dir.glob("snap-*")) == before
+    assert registry.latest_for(settings, "https://example.org/blocked") is None

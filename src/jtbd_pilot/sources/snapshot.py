@@ -23,6 +23,26 @@ from jtbd_pilot.schema import SourceSnapshot
 from jtbd_pilot.sources import registry
 
 USER_AGENT = "jtbd-pilot/0.1 (non-commercial research; crawl-once)"
+MIN_TEXT_CHARS = 1500
+BLOCK_MARKERS = (
+    "checking your browser",
+    "recaptcha",
+    "enable javascript",
+    "{{res.",
+    "access denied",
+    "just a moment...",
+)
+
+
+def check_extracted(text: str) -> None:
+    """Refuse bot-challenge pages and empty extractions so they never become snapshots."""
+    head = text[:3000].lower()
+    marker = next((m for m in BLOCK_MARKERS if m in head), None)
+    if marker or len(text.strip()) < MIN_TEXT_CHARS:
+        reason = f"block-page marker {marker!r}" if marker else f"only {len(text.strip())} chars"
+        raise ValidationFailed(
+            f"extracted text looks unusable ({reason}); nothing was stored. Download the document "
+            "manually and use `pilot source register`, or use an official API URL")
 
 
 def extract_text(raw: bytes, ext: str) -> str:
@@ -31,6 +51,13 @@ def extract_text(raw: bytes, ext: str) -> str:
 
         reader = PdfReader(io.BytesIO(raw))
         return "\n\n".join((page.extract_text() or "") for page in reader.pages).strip()
+    if ext == "xml":
+        from xml.etree import ElementTree
+
+        root = ElementTree.fromstring(raw)
+        body = root.find(".//body")
+        parts = [" ".join(p.itertext()).strip() for p in (body if body is not None else root).iter("p")]
+        return "\n\n".join(p for p in parts if p).strip()
     if ext in {"html", "htm"}:
         import trafilatura
 
@@ -58,6 +85,8 @@ def create_snapshot(
     directory = settings.snapshots_dir / snapshot_id
     if directory.exists():
         raise ValidationFailed(f"snapshot {snapshot_id} already exists with identical content")
+    extracted = text if text is not None else extract_text(raw, ext)
+    check_extracted(extracted)
     retrieved_at = datetime.now(UTC).isoformat()
     record = SourceSnapshot.model_validate(
         {
@@ -74,9 +103,7 @@ def create_snapshot(
     )
     directory.mkdir(parents=True)
     (directory / f"raw.{ext}").write_bytes(raw)
-    (directory / "text.txt").write_text(
-        text if text is not None else extract_text(raw, ext), encoding="utf-8"
-    )
+    (directory / "text.txt").write_text(extracted, encoding="utf-8")
     write_yaml(directory / "source.yaml", record.model_dump(mode="json"))
     registry.register(settings, snapshot_id, url, retrieved_at, supersedes)
     return record.model_dump(mode="json")
@@ -105,6 +132,8 @@ def _ext_for(content_type: str, url: str) -> str:
         return "html"
     if "json" in content_type:
         return "json"
+    if "xml" in content_type:
+        return "xml"
     return "txt"
 
 
