@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chunk-record.schema.json",
+  "title": "ChunkRecord",
+  "description": "A redacted, self-contained chunk with collection metadata. Metadata is never predicted by models (Principle VII); relevance_intent is never shown to models.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "chunk_id",
+    "snapshot_id",
+    "ranges",
+    "text",
+    "split",
+    "sub_area",
+    "source_type",
+    "region",
+    "country",
+    "language",
+    "date",
+    "license",
+    "relevance_intent",
+    "redaction"
+  ],
+  "properties": {
+    "chunk_id": {
+      "type": "string",
+      "pattern": "^ch-[0-9]{3,}$"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^snap-[0-9a-f]{12}$"
+    },
+    "ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "integer",
+            "minimum": 0
+          },
+          {
+            "type": "integer",
+            "minimum": 0
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "description": "Character ranges in the snapshot text; several ranges when parent context is included."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "token_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "split": {
+      "enum": [
+        "main",
+        "holdout"
+      ],
+      "description": "Defaults to main at build time; set by `pilot corpus split`."
+    },
+    "sub_area": {
+      "enum": [
+        "public_transport_rural",
+        "logistics_delivery",
+        "emobility_charging",
+        "car_ownership_use",
+        "sharing_platforms",
+        "none"
+      ]
+    },
+    "source_type": {
+      "enum": [
+        "paper",
+        "reddit",
+        "forum_review",
+        "transcript"
+      ]
+    },
+    "region": {
+      "enum": [
+        "DACH",
+        "EU_other",
+        "non_EU"
+      ]
+    },
+    "country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "language": {
+      "enum": [
+        "de",
+        "en"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "license": {
+      "type": "string"
+    },
+    "relevance_intent": {
+      "enum": [
+        "relevant",
+        "irrelevant",
+        "near_miss"
+      ]
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "patterns_version",
+        "manual_review_at",
+        "check_passed"
+      ],
+      "properties": {
+        "patterns_version": {
+          "type": "string"
+        },
+        "manual_review_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "Set by `pilot corpus mark-reviewed`; must be non-null before `redact-check` passes."
+        },
+        "check_passed": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

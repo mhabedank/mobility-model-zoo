@@ -1,0 +1,14 @@
+snapshot_id: snap-5a1d2fba5c2f
+origin_url: https://example.org/forum/charging
+source_type: forum_review
+retrieved_at: '2026-09-26T10:00:00+00:00'
+raw_path: snapshots/snap-5a1d2fba5c2f/raw.txt
+text_path: snapshots/snap-5a1d2fba5c2f/text.txt
+raw_sha256: 5a1d2fba5c2ffe429305fe7ac3d5e275061c8fededbc2483490fde14091d7ed2
+license: CC-BY-SA-4.0
+legal_basis: fixture
+access_terms_checked: fixture 2026-09-26
+permitted_uses: training_allowed
+retention_until: '2027-09-26'
+supersedes: null
+update_reason: null

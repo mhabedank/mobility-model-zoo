@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "decision-criteria.schema.json",
+  "title": "DecisionCriteria",
+  "description": "Go / revise / rethink thresholds (FR-030) and the fine-tuning rule (FR-031). Frozen by hash before the first labeling run (Principle IV).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "thresholds",
+    "rethink_below",
+    "revise_band",
+    "max_reruns",
+    "finetuning_optional",
+    "underpowered_min_units"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relevance_kappa",
+        "evidence_type_weighted_kappa",
+        "kind_kappa",
+        "actor_type_kappa",
+        "evidence_scope_kappa",
+        "item_matching_f1"
+      ],
+      "properties": {
+        "relevance_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "evidence_type_weighted_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "kind_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "actor_type_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "evidence_scope_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "item_matching_f1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "rethink_below": {
+      "type": "object",
+      "required": [
+        "evidence_type_weighted_kappa"
+      ],
+      "properties": {
+        "evidence_type_weighted_kappa": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      }
+    },
+    "revise_band": {
+      "type": "object",
+      "required": [
+        "evidence_type_weighted_kappa"
+      ],
+      "properties": {
+        "evidence_type_weighted_kappa": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            },
+            {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "max_reruns": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rerun_decision_split": {
+      "const": "holdout"
+    },
+    "finetuning_optional": {
+      "type": "object",
+      "required": [
+        "min_quality_ratio",
+        "min_throughput_ratio",
+        "quality_reference",
+        "throughput_reference"
+      ],
+      "properties": {
+        "min_quality_ratio": {
+          "type": "number"
+        },
+        "min_throughput_ratio": {
+          "type": "number"
+        },
+        "quality_reference": {
+          "const": "frontier_vs_frontier_composite"
+        },
+        "throughput_reference": {
+          "const": "frontier_reference_chunks_per_min"
+        }
+      }
+    },
+    "underpowered_min_units": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rationale": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# Cash budget for the pilot (spec SC-009; constitution: Resources & Cost Discipline).
+budget_eur: 20
+# Hard spending limit set on the OpenRouter key in the OpenRouter UI (T046).
+key_cap_eur: 12
+key_cap_set_on: null        # fill in the date the cap was set in the OpenRouter UI
+openrouter_fee: 0.055       # 5.5% on card credit purchases (research.md R8)
+usd_to_eur: 0.92            # conversion used for OpenRouter's USD cost reporting; update before use
+# Prices in EUR per million tokens. Fill in the GPT mini-tier price from the OpenRouter model list (T046).
+prices:
+  gpt-mini-reference:
+    input: null
+    cached_input: null
+    output: null

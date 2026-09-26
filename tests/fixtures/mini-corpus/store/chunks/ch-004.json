@@ -1,0 +1,30 @@
+{
+  "chunk_id": "ch-004",
+  "snapshot_id": "snap-803639cc50bf",
+  "ranges": [
+    [
+      0,
+      53
+    ],
+    [
+      62,
+      211
+    ]
+  ],
+  "text": "Frage: Lohnt sich ein eigenes Auto noch in der Stadt?\n\nSeit wir das Auto verkauft haben, sparen wir rund 300 Euro im Monat. Parkplätze in unserem Viertel kosten inzwischen 200 Euro Anwohnergebühr im Jahr.",
+  "token_count": 51,
+  "split": "main",
+  "sub_area": "car_ownership_use",
+  "source_type": "reddit",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-01-15",
+  "license": "Reddit User Content",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v1",
+    "manual_review_at": "2026-09-26T10:00:00+00:00",
+    "check_passed": true
+  }
+}

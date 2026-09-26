@@ -1,0 +1,14 @@
+snapshot_id: snap-aa7ba010a62a
+origin_url: https://example.org/forum/mustang
+source_type: forum_review
+retrieved_at: '2026-09-26T10:00:00+00:00'
+raw_path: snapshots/snap-aa7ba010a62a/raw.txt
+text_path: snapshots/snap-aa7ba010a62a/text.txt
+raw_sha256: aa7ba010a62a1d927f786ec6745296c1988eff1316f3c581fe2747aca7cff8c7
+license: CC-BY-SA-4.0
+legal_basis: fixture
+access_terms_checked: fixture 2026-09-26
+permitted_uses: training_allowed
+retention_until: '2027-09-26'
+supersedes: null
+update_reason: null

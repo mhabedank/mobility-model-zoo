@@ -1,0 +1,14 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "Im Landkreis fährt der letzte Bus um 18 Uhr.",
+      "actor": "residents",
+      "actor_type": "individual",
+      "statement": "Last bus at 6 pm.",
+      "evidence_type": "anecdote",
+      "evidence_scope": "single"
+    }
+  ]
+}

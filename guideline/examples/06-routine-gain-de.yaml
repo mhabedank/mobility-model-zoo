@@ -1,0 +1,31 @@
+title: Routine and gain, observation vs number without measurement
+text: Seit zwei Jahren fahre ich jeden Tag mit dem E-Bike zur Arbeit. Ich spare mir die Parkplatzsuche
+  und bin fast immer schneller als mit dem Auto. Gefühlt ist die Hälfte meiner Kollegen inzwischen auch
+  umgestiegen.
+output:
+  relevant: true
+  items:
+  - kind: job
+    quote: Seit zwei Jahren fahre ich jeden Tag mit dem E-Bike zur Arbeit.
+    actor: e-bike commuter
+    actor_type: individual
+    statement: I commute to work by e-bike every day.
+    evidence_type: routine
+    evidence_scope: quantified
+  - kind: gain
+    quote: Ich spare mir die Parkplatzsuche und bin fast immer schneller als mit dem Auto.
+    actor: e-bike commuter
+    actor_type: individual
+    statement: By e-bike I avoid searching for parking and am usually faster than by car.
+    evidence_type: routine
+    evidence_scope: single
+  - kind: job
+    quote: Gefühlt ist die Hälfte meiner Kollegen inzwischen auch umgestiegen.
+    actor: colleagues
+    actor_type: individual
+    statement: About half of my colleagues now also commute by bike, by my own impression.
+    evidence_type: opinion
+    evidence_scope: quantified
+note: '''jeden Tag'' and ''fast immer'' mark routine. ''Gefühlt die Hälfte'' is a personal estimate, not
+  a measurement; as it is a felt impression, take the lower grade (opinion). The quantity word ''Hälfte''
+  makes the scope quantified.'

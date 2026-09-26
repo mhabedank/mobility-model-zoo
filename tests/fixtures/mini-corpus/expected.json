@@ -1,0 +1,39 @@
+{
+  "_comment": "Hand-computed values for the mini corpus (see tests/fixtures/mini-corpus/README.md for the derivation).",
+  "reference": {
+    "relevance_kappa": 1.0,
+    "item_matching_f1": 0.9230769230769231,
+    "matched_pairs": 6,
+    "valid_items": {"mock-a": 7, "mock-b": 6},
+    "invalid_quotes": {"mock-a": 0, "mock-b": 1},
+    "kind_kappa": 0.7142857142857143,
+    "actor_type_kappa": 1.0,
+    "evidence_type_quadratic_kappa": 0.75,
+    "evidence_type_linear_kappa": 0.7391304347826086,
+    "evidence_scope_kappa": 1.0,
+    "composite_all_units": 0.8978937728937729,
+    "consensus_items": 6,
+    "consensus_relevance": 5,
+    "contested": [
+      {"chunk_id": "ch-001", "dimensions": ["kind"]},
+      {"chunk_id": "ch-002", "dimensions": ["evidence_type"]},
+      {"chunk_id": "ch-002", "dimensions": ["item_existence"]}
+    ],
+    "evidence_level_counts": {"opinion": 0, "anecdote": 2, "routine": 1, "observation": 1, "measurement": 1},
+    "decision": "go"
+  },
+  "baseline_mock_small": {
+    "relevance_kappa": -0.1111111111111111,
+    "item_matching_f1": 0.6666666666666666,
+    "kind_kappa": 1.0,
+    "actor_type_kappa": 1.0,
+    "evidence_type_quadratic_kappa": 0.8571428571428572,
+    "evidence_scope_kappa": 1.0,
+    "composite": 0.7354497354497355,
+    "neutral_contested_hits": {"item_existence": 1, "evidence_type": 1},
+    "schema_valid_pass_rate": 0.8,
+    "frontier_composite_consensus_units": 1.0,
+    "quality_ratio_a": 0.7354497354497355,
+    "quality_ratio_b": 0.8190910633264003
+  }
+}

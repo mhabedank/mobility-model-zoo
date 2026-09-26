@@ -1,0 +1,26 @@
+{
+  "chunk_id": "ch-001",
+  "snapshot_id": "snap-b8ce3db5e85b",
+  "ranges": [
+    [
+      0,
+      216
+    ]
+  ],
+  "text": "Im Landkreis fährt der letzte Bus um 18 Uhr. Wer abends aus der Stadt zurück will, muss ein Taxi nehmen oder bei Nachbarn mitfahren. Ich pendle jeden Tag 40 Kilometer zur Arbeit, weil es keine andere Verbindung gibt.",
+  "token_count": 54,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-01-15",
+  "license": "public-domain (§ 5 UrhG)",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v1",
+    "manual_review_at": "2026-09-26T10:00:00+00:00",
+    "check_passed": true
+  }
+}

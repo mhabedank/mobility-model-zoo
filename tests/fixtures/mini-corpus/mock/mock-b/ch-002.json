@@ -1,0 +1,23 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "Public chargers at the supermarket are broken about half the time I visit.",
+      "actor": "EV driver",
+      "actor_type": "individual",
+      "statement": "Public chargers are frequently broken.",
+      "evidence_type": "observation",
+      "evidence_scope": "quantified"
+    },
+    {
+      "kind": "pain",
+      "quote": "Chargers are never maintained by the operator.",
+      "actor": "EV driver",
+      "actor_type": "individual",
+      "statement": "Operators do not maintain chargers.",
+      "evidence_type": "opinion",
+      "evidence_scope": "single"
+    }
+  ]
+}

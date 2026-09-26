@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "label-run-manifest.schema.json",
+  "title": "LabelRunManifest",
+  "description": "Provenance of one model's pass over one split (Principle IX, FR-018).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "role",
+    "backend",
+    "model_id",
+    "model_version",
+    "family",
+    "host",
+    "settings",
+    "guideline_sha256",
+    "schema_sha256",
+    "criteria_sha256",
+    "split",
+    "started_at",
+    "cost_eur"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "reference",
+        "teacher_candidate",
+        "baseline"
+      ]
+    },
+    "backend": {
+      "enum": [
+        "claude_cli",
+        "openrouter",
+        "ollama",
+        "mock"
+      ],
+      "description": "`mock` replays fixture responses and is allowed only for tests and dry runs, never in a benchmark version."
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "model_version": {
+      "type": "string",
+      "description": "As reported by the backend (response model ID or Ollama digest)."
+    },
+    "family": {
+      "type": "string"
+    },
+    "host": {
+      "type": "string"
+    },
+    "quantization": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "settings": {
+      "type": "object",
+      "required": [
+        "temperature",
+        "structured_output"
+      ],
+      "properties": {
+        "temperature": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "const": "not_settable"
+            }
+          ]
+        },
+        "structured_output": {
+          "enum": [
+            "json_schema_strict",
+            "json_schema_grammar",
+            "post_validation"
+          ]
+        },
+        "max_output_tokens": {
+          "type": "integer"
+        },
+        "seed": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "max_retries": {
+          "type": "integer"
+        }
+      }
+    },
+    "guideline_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "schema_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "criteria_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "split": {
+      "enum": [
+        "main",
+        "holdout"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "cost_eur": {
+      "type": "number",
+      "minimum": 0
+    },
+    "excluded_chunks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "chunk_id",
+          "reason"
+        ],
+        "properties": {
+          "chunk_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "license_basis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deviations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prompt_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "enum": [
+        "running",
+        "complete",
+        "invalid_version_change"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "teacher_candidate"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "license_basis"
+        ],
+        "properties": {
+          "license_basis": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "ollama"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "quantization"
+        ],
+        "properties": {
+          "quantization": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

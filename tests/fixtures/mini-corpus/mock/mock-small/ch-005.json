@@ -1,0 +1,14 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "63% reported that they regularly cannot find a legal place to stop for deliveries",
+      "actor": "couriers",
+      "actor_type": "worker",
+      "statement": "Couriers lack stopping places.",
+      "evidence_type": "observation",
+      "evidence_scope": "quantified"
+    }
+  ]
+}

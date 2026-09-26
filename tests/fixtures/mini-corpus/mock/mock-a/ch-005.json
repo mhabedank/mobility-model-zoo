@@ -1,0 +1,23 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "63% reported that they regularly cannot find a legal place to stop for deliveries",
+      "actor": "parcel couriers",
+      "actor_type": "worker",
+      "statement": "Couriers cannot find legal stopping places.",
+      "evidence_type": "measurement",
+      "evidence_scope": "quantified"
+    },
+    {
+      "kind": "job",
+      "quote": "Couriers described double parking as the only way to meet their delivery targets.",
+      "actor": "parcel couriers",
+      "actor_type": "worker",
+      "statement": "Meet delivery targets despite lack of parking.",
+      "evidence_type": "observation",
+      "evidence_scope": "multiple"
+    }
+  ]
+}

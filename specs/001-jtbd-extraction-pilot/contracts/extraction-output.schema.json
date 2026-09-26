@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "extraction-output.schema.json",
+  "title": "ExtractionOutput",
+  "description": "Output of every model for one chunk. The same schema is the prompt contract for all backends. An empty items list is a valid result (Principle II).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "relevant",
+    "items"
+  ],
+  "properties": {
+    "relevant": {
+      "type": "boolean",
+      "description": "Whether the chunk is relevant to the problem domain."
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Item"
+      }
+    }
+  },
+  "$defs": {
+    "Item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "quote",
+        "actor",
+        "actor_type",
+        "statement",
+        "evidence_type",
+        "evidence_scope"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "job",
+            "pain",
+            "gain"
+          ]
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verbatim substring of the chunk text, in the source language."
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Who has the job, pain or gain, as named or described in the text."
+        },
+        "actor_type": {
+          "enum": [
+            "individual",
+            "worker",
+            "organization",
+            "public_sector",
+            "society"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Normalized statement in English."
+        },
+        "evidence_type": {
+          "enum": [
+            "opinion",
+            "anecdote",
+            "routine",
+            "observation",
+            "measurement"
+          ],
+          "description": "Ordinal, lowest to highest. Take the lower grade when uncertain."
+        },
+        "evidence_scope": {
+          "enum": [
+            "single",
+            "multiple",
+            "quantified"
+          ]
+        }
+      }
+    }
+  }
+}

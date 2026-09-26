@@ -1,0 +1,26 @@
+{
+  "chunk_id": "ch-002",
+  "snapshot_id": "snap-5a1d2fba5c2f",
+  "ranges": [
+    [
+      0,
+      189
+    ]
+  ],
+  "text": "Public chargers at the supermarket are broken about half the time I visit. The app says available, but the screen is dead. I now plan every longer trip around fast chargers on the motorway.",
+  "token_count": 47,
+  "split": "main",
+  "sub_area": "emobility_charging",
+  "source_type": "forum_review",
+  "region": "EU_other",
+  "country": "NL",
+  "language": "en",
+  "date": "2026-01-15",
+  "license": "CC-BY-SA-4.0",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v1",
+    "manual_review_at": "2026-09-26T10:00:00+00:00",
+    "check_passed": true
+  }
+}

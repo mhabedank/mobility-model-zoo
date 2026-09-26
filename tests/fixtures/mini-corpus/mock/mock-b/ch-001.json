@@ -1,0 +1,23 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "Im Landkreis fährt der letzte Bus um 18 Uhr.",
+      "actor": "residents",
+      "actor_type": "individual",
+      "statement": "No bus after 6 pm.",
+      "evidence_type": "anecdote",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "pain",
+      "quote": "Ich pendle jeden Tag 40 Kilometer zur Arbeit",
+      "actor": "commuter",
+      "actor_type": "individual",
+      "statement": "Long daily commute without alternatives.",
+      "evidence_type": "routine",
+      "evidence_scope": "quantified"
+    }
+  ]
+}

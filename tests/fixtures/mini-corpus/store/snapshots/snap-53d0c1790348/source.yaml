@@ -1,0 +1,14 @@
+snapshot_id: snap-53d0c1790348
+origin_url: https://example.org/paper/couriers
+source_type: paper
+retrieved_at: '2026-09-26T10:00:00+00:00'
+raw_path: snapshots/snap-53d0c1790348/raw.txt
+text_path: snapshots/snap-53d0c1790348/text.txt
+raw_sha256: 53d0c179034843be5fc0e0f752f80d81dd9c1b96c8207cc2877e680edb161b5a
+license: CC-BY-4.0
+legal_basis: fixture
+access_terms_checked: fixture 2026-09-26
+permitted_uses: training_allowed
+retention_until: '2027-09-26'
+supersedes: null
+update_reason: null

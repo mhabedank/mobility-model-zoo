@@ -1,0 +1,14 @@
+snapshot_id: snap-b8ce3db5e85b
+origin_url: https://example.org/protokoll-1
+source_type: transcript
+retrieved_at: '2026-09-26T10:00:00+00:00'
+raw_path: snapshots/snap-b8ce3db5e85b/raw.txt
+text_path: snapshots/snap-b8ce3db5e85b/text.txt
+raw_sha256: b8ce3db5e85b6f522b2a66551f08510d978e8a24cd2b53eba9a6563eb1ea8f3a
+license: public-domain (§ 5 UrhG)
+legal_basis: fixture
+access_terms_checked: fixture 2026-09-26
+permitted_uses: training_allowed
+retention_until: '2027-09-26'
+supersedes: null
+update_reason: null

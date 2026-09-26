@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source-snapshot.schema.json",
+  "title": "SourceSnapshot",
+  "description": "Complete raw copy of a fetched source, stored once (crawl once, FR-013a).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "snapshot_id",
+    "origin_url",
+    "source_type",
+    "retrieved_at",
+    "raw_path",
+    "raw_sha256",
+    "license",
+    "legal_basis",
+    "access_terms_checked",
+    "permitted_uses",
+    "retention_until"
+  ],
+  "properties": {
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^snap-[0-9a-f]{12}$"
+    },
+    "origin_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "source_type": {
+      "enum": [
+        "paper",
+        "reddit",
+        "forum_review",
+        "transcript"
+      ]
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "raw_path": {
+      "type": "string"
+    },
+    "text_path": {
+      "type": "string"
+    },
+    "raw_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "license": {
+      "type": "string"
+    },
+    "legal_basis": {
+      "type": "string"
+    },
+    "access_terms_checked": {
+      "type": "string",
+      "description": "ToS / robots.txt note with the date checked."
+    },
+    "permitted_uses": {
+      "enum": [
+        "benchmark_only",
+        "training_allowed"
+      ]
+    },
+    "retention_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "update_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "source_type": {
+            "const": "reddit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "permitted_uses": {
+            "const": "benchmark_only"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "supersedes"
+        ],
+        "properties": {
+          "supersedes": {
+            "type": "string"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "update_reason"
+        ],
+        "properties": {
+          "update_reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+snapshot_id: snap-803639cc50bf
+origin_url: https://www.reddit.com/r/example/comments/abc123/
+source_type: reddit
+retrieved_at: '2026-09-26T10:00:00+00:00'
+raw_path: snapshots/snap-803639cc50bf/raw.txt
+text_path: snapshots/snap-803639cc50bf/text.txt
+raw_sha256: 803639cc50bf958d92ecd3090c292893b19a0a01f05c01756d90ef565e829629
+license: Reddit User Content
+legal_basis: fixture
+access_terms_checked: fixture 2026-09-26
+permitted_uses: benchmark_only
+retention_until: '2027-09-26'
+supersedes: null
+update_reason: null

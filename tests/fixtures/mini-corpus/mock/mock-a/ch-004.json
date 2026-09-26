@@ -1,0 +1,14 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "gain",
+      "quote": "sparen wir rund 300 Euro im Monat",
+      "actor": "household",
+      "actor_type": "individual",
+      "statement": "Saving about 300 euro per month without a car.",
+      "evidence_type": "anecdote",
+      "evidence_scope": "quantified"
+    }
+  ]
+}

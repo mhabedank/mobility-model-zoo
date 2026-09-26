@@ -1,0 +1,18 @@
+models:
+- model_id: mock-a
+  family: fam-a
+  backend: mock
+  host: local
+  role: reference
+  benchmark_labeler: true
+- model_id: mock-b
+  family: fam-b
+  backend: mock
+  host: local
+  role: reference
+  benchmark_labeler: true
+- model_id: mock-small
+  family: fam-c
+  backend: mock
+  host: local
+  role: baseline

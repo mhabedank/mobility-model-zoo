@@ -1,0 +1,13 @@
+# Problem domain given to every model (Principle I: a domain, never a persona).
+# Domain-specific content lives only here and in guideline/, so later domains need no code changes.
+name: Mobility
+definition: >-
+  Mobility: moving people and goods, including vehicles, transport services, infrastructure,
+  parking, energy and charging, logistics, work in these fields, regulation, and economic and
+  societal effects.
+sub_areas:
+  public_transport_rural: Public transport and rural mobility
+  logistics_delivery: Logistics and delivery
+  emobility_charging: E-mobility and charging
+  car_ownership_use: Car ownership and use
+  sharing_platforms: Sharing and platforms

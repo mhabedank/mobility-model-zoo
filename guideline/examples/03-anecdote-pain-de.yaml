@@ -1,0 +1,32 @@
+title: German anecdote, pain vs negated gain
+text: Letzten Freitag stand ich wieder eine Stunde am Bahnsteig, weil der Regionalzug ausgefallen ist.
+  Eine Info in der App gab es nicht. Ich wünsche mir einfach, dass man bei Ausfällen rechtzeitig Bescheid
+  bekommt.
+output:
+  relevant: true
+  items:
+  - kind: pain
+    quote: Letzten Freitag stand ich wieder eine Stunde am Bahnsteig, weil der Regionalzug ausgefallen
+      ist.
+    actor: rail commuter
+    actor_type: individual
+    statement: A cancelled regional train left me waiting on the platform for an hour.
+    evidence_type: anecdote
+    evidence_scope: quantified
+  - kind: pain
+    quote: Eine Info in der App gab es nicht.
+    actor: rail commuter
+    actor_type: individual
+    statement: The app gave no information about the cancellation.
+    evidence_type: anecdote
+    evidence_scope: single
+  - kind: gain
+    quote: Ich wünsche mir einfach, dass man bei Ausfällen rechtzeitig Bescheid bekommt.
+    actor: rail commuter
+    actor_type: individual
+    statement: I want to be informed in time when trains are cancelled.
+    evidence_type: opinion
+    evidence_scope: single
+note: The missing app information is a present problem, so it is a pain, not a negated gain. The wish
+  is an explicitly desired improvement, so it is a gain at opinion level. 'eine Stunde' is a quantity,
+  so the first item is quantified.

@@ -1,0 +1,26 @@
+{
+  "chunk_id": "ch-003",
+  "snapshot_id": "snap-aa7ba010a62a",
+  "ranges": [
+    [
+      0,
+      114
+    ]
+  ],
+  "text": "I spent the winter restoring the chrome on my 1967 Mustang. The paint finally matches the original factory colour.",
+  "token_count": 28,
+  "split": "main",
+  "sub_area": "none",
+  "source_type": "forum_review",
+  "region": "non_EU",
+  "country": "US",
+  "language": "en",
+  "date": "2026-01-15",
+  "license": "CC-BY-SA-4.0",
+  "relevance_intent": "near_miss",
+  "redaction": {
+    "patterns_version": "redact-v1",
+    "manual_review_at": "2026-09-26T10:00:00+00:00",
+    "check_passed": true
+  }
+}

@@ -1,0 +1,22 @@
+# Initial decision criteria (FR-030, FR-031). Frozen by `pilot freeze` before the first labeling run.
+version: criteria-v1
+thresholds:
+  relevance_kappa: 0.8
+  evidence_type_weighted_kappa: 0.6
+  kind_kappa: 0.6
+  actor_type_kappa: 0.6
+  evidence_scope_kappa: 0.6
+  item_matching_f1: 0.7
+rethink_below:
+  evidence_type_weighted_kappa: 0.4
+revise_band:
+  evidence_type_weighted_kappa: [0.4, 0.6]   # [low inclusive, high exclusive)
+max_reruns: 1
+rerun_decision_split: holdout
+finetuning_optional:
+  min_quality_ratio: 0.85
+  min_throughput_ratio: 10
+  quality_reference: frontier_vs_frontier_composite
+  throughput_reference: frontier_reference_chunks_per_min
+underpowered_min_units: 30
+rationale: Initial values from the pilot spec, confirmed 2026-09-25.
