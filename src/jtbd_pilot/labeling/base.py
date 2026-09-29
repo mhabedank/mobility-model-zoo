@@ -31,10 +31,13 @@ class Backend(Protocol):
 
 
 def parse_json_text(text: str | None) -> Any | None:
-    """Decode a model's text answer as JSON, tolerating a surrounding code fence."""
+    """Decode a model's text answer as JSON, tolerating a surrounding code fence and a leading
+    (usually empty) `<think>...</think>` block, which Qwen3 chat templates teach fine-tuned models."""
     if text is None:
         return None
     candidate = text.strip()
+    if "</think>" in candidate:
+        candidate = candidate.split("</think>", 1)[1].strip()
     fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", candidate, re.DOTALL)
     if fence:
         candidate = fence.group(1)

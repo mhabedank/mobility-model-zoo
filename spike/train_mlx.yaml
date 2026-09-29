@@ -1,0 +1,19 @@
+# MLX LoRA fine-tuning for spike 002 on the MacBook (M3 Pro, 36 GB), second attempt.
+# Deviation from Ludwig (Principle VIII): see specs/002-e2e-spike/plan.md, Complexity Tracking.
+# Run: uv run --with mlx-lm==0.31.3 python spike/train_mlx.py spike/train_mlx.yaml
+# LoRA r16/alpha32 (scale 2.0), lr 2e-4, effective batch 8 as in spike/train_ludwig.yaml.
+model: mlx-community/Qwen3-4B-Instruct-2507-4bit
+data: data/spike/sft/mlx            # train.jsonl / valid.jsonl, chat "messages" format
+adapter_path: data/spike/adapter-mlx-v2
+num_layers: -1
+lora_parameters:
+  rank: 16
+  scale: 2.0
+  dropout: 0.05
+epochs: 3
+grad_accumulation_steps: 8
+learning_rate: 2.0e-4
+max_seq_length: 8192
+steps_per_report: 10
+save_every: 61                      # a third of an epoch; select_checkpoint.py picks the best
+seed: 42

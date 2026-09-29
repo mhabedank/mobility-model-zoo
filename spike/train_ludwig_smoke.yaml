@@ -1,3 +1,4 @@
+# Smoke test on the Spark: 1 epoch over the 8 longest examples (smoke.jsonl), memory check only.
 # Ludwig LoRA fine-tuning for spike 002 (constitution Principle VIII: Ludwig is primary).
 model_type: llm
 base_model: Qwen/Qwen3-4B-Instruct-2507
@@ -16,7 +17,7 @@ adapter:
   dropout: 0.05
 trainer:
   type: finetune
-  epochs: 3
+  epochs: 1
   batch_size: 1
   gradient_accumulation_steps: 8
   # Memory: without these, fp32 activations of ~5.5k-token examples filled the Spark's 119 GB and
@@ -31,7 +32,7 @@ preprocessing:
   global_max_sequence_length: 8192
   split:
     type: random
-    probabilities: [0.95, 0.05, 0.0]
+    probabilities: [1.0, 0.0, 0.0]
 generation:
   max_new_tokens: 2048
   temperature: 0.0

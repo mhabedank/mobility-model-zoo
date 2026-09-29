@@ -178,7 +178,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - `pilot corpus validate [--split]` checks each FR-002 to FR-007 target and metadata completeness per split
   - prints a composition table (sub-area, source type, language, region, relevance intent) and writes `data/analysis/composition-<split>.json`
   - exit 1 on a miss, or when a substitution is recorded (for example Reddit replaced by Stack Exchange) without an explanation
-- [ ] T030 [US1] **(ops)** Apply for Reddit data access through "Reddit for Researchers" and register an OAuth app. Record the status and date in `data/sources/reddit-access.md`. If access is not granted before T034 starts, use the fallback from research.md R2 (Stack Exchange, CC BY-SA) and record the substitution.
+- [X] T030 [US1] **(ops)** ~~Dropped on 2026-09-29 (project decision, spec.md Clarifications): no Reddit; forum_review substitutes via `configs/pilot-v1.yaml`.~~ Apply for Reddit data access through "Reddit for Researchers" and register an OAuth app. Record the status and date in `data/sources/reddit-access.md`. If access is not granted before T034 starts, use the fallback from research.md R2 (Stack Exchange, CC BY-SA) and record the substitution.
 - [ ] T031 [US1] **(ops)** Build the source plan `data/sources/source-plan.yaml`. It covers:
   - for each sub-area × source type cell: candidate sources and URLs, license or legal basis, `permitted_uses`, and the date the terms and robots.txt were checked (research.md R3)
   - papers and studies chosen so that observation and measurement evidence is likely to appear in at least 30 consensus items (FR-008)
@@ -448,7 +448,7 @@ description: "Task list for the JTBD Extraction Pilot"
 
 - **Setup (Phase 1)**: no dependencies.
 - **Foundational (Phase 2)**: depends on Setup and blocks every story.
-- **US1 (Phase 3)**: depends on Foundational. The ops tasks T030–T035 take calendar time, and the Reddit access request (T030) should start **first**.
+- **US1 (Phase 3)**: depends on Foundational. The ops tasks T031–T035 take calendar time (T030, the Reddit access request, was dropped).
 - **US2 (Phase 4)**: the code (T036–T056) can be built in parallel with US1 on the mini corpus. Labeling the real corpus (T057–T059) needs US1 to be complete.
 - **US3 (Phase 5)**: needs the contested set from T059.
 - **US4 (Phase 6)**: the code (T065–T070) can be built in parallel with US2 and US3. Scoring the real runs (T073) needs the consensus from T059 and `pilot freeze --benchmark`. Performance (T074) needs T073 for the digests.
@@ -505,7 +505,7 @@ Task: "Ollama backend in src/jtbd_pilot/labeling/ollama.py"
 ### MVP first (US1 + US2: the riskiest assumption)
 
 1. Phase 1 and Phase 2.
-2. Start T030 (the Reddit access request) immediately, because the approval takes calendar time.
+2. (T030, the Reddit access request, was dropped on 2026-09-29.)
 3. Build the US2 code against the mini corpus while US1 ops (T031–T035) collect the corpus.
 4. Freeze (T057), then label with both references (T059).
 5. **Stop and review the agreement.** This already answers the pilot's core question.

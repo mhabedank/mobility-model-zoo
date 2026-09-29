@@ -114,3 +114,12 @@ def test_retry_failed_retries_backend_failures_only(tmp_path, monkeypatch):
     second = pilot(config, "label", "--role", "baseline", "--backend", "mock", "--model",
                    "mock-small", "--retry-failed")
     assert second["excluded"] == 1 and second["status"] == "complete"
+
+
+def test_parse_json_text_tolerates_think_block_and_fence():
+    from jtbd_pilot.labeling.base import parse_json_text
+
+    assert parse_json_text('<think>\n\n</think>\n\n{"relevant": false, "items": []}') == {
+        "relevant": False, "items": []}
+    assert parse_json_text('</think>\n```json\n{"a": 1}\n```') == {"a": 1}
+    assert parse_json_text("no json") is None

@@ -24,6 +24,10 @@ The pilot tests this assumption on about 150 Mobility text chunks before any tra
 - Q: How many Revise cycles are allowed before the pilot moves to Rethink? → A: Exactly one rerun. If a dimension still misses its threshold on the holdout, the outcome for that dimension is Rethink.
 - Q: How is a small-model or teacher-candidate item scored when it matches a contested reference item? → A: Neutrally. It counts as neither hit nor error, and it is counted and reported separately.
 
+### Session 2026-09-29 (after the spike)
+
+- Q: Do we apply for Reddit data access? → A: No. Reddit is dropped for pilot-v1; its share is covered by forums and reviews through the documented source-type substitution (FR-004, `configs/pilot-v1.yaml`). The Reddit fetcher and its `benchmark_only` guard stay in the code but are not used.
+
 ### Session 2026-09-25 (resources)
 
 Context: constitution v1.1.0 adds the Resources & Cost Discipline section. The resources are a DGX Spark (128 GB), a Claude subscription and an OpenRouter account.

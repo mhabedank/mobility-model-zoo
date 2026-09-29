@@ -32,6 +32,12 @@ class OpenAICompatBackend:
         self.client = OpenAI(base_url=base_url, api_key=os.environ.get("OPENAI_COMPAT_KEY", "EMPTY"))
         self.max_tokens = int(settings.pilot.get("max_output_tokens", 4096))
         self.deviations: list[str] = []
+        if entry.extra.get("schema_enforced") is False:
+            # e.g. mlx_lm.server ignores response_format: the schema is only in the prompt and the
+            # output is validated afterwards.
+            self.structured_output = "post_validation"
+            self.deviations.append(f"{entry.model_id}: server does not enforce the JSON schema; "
+                                   "outputs validated after generation")
 
     def call(self, system: str, user: str, schema: dict, chunk_id: str) -> CallResult:
         start = time.monotonic()
@@ -45,6 +51,9 @@ class OpenAICompatBackend:
                 response_format={"type": "json_schema",
                                  "json_schema": {"name": "extraction_output", "strict": True,
                                                  "schema": schema}},
+                # Server-specific fields, e.g. {"adapters": path} for mlx_lm.server, whose
+                # --adapter-path is ignored for "default_model" in 0.31.3.
+                extra_body=self.entry.extra.get("extra_body"),
             )
         except Exception as exc:  # noqa: BLE001 - surface any client/server error as backend failure
             raise BackendFailure(f"{self.entry.model_id} call failed on {chunk_id}: {exc}") from exc

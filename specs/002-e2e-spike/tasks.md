@@ -21,11 +21,11 @@
 
 ## Phase 2: Run (ops)
 
-- [ ] S009 Write the snapshot map `data/spike/snapshot-map.yaml` (plan id, sub-area, language, region, date). Then autochunk about 200 training and 35 evaluation chunks
-- [ ] S010 Run redact, spot-check about 10 chunks, then mark-reviewed and redact-check
-- [ ] S011 Run `pilot freeze` for the spike version
-- [ ] S012 Label the evaluation chunks with Claude as the reference, then build the consensus (single reference) and run `freeze --benchmark`
-- [ ] S013 Label the training chunks and the evaluation chunks with the teacher `qwen3.6:35b` on the Spark
+- [X] S009 Write the snapshot map `data/spike/snapshot-map.yaml` (plan id, sub-area, language, region, date). Then autochunk about 200 training and 35 evaluation chunks (done: 200 train + 35 eval chunks, topic-keyword bias; first attempt discarded)
+- [X] S010 Run redact, spot-check about 10 chunks, then mark-reviewed and redact-check (done: redact-v2, spot check of 6 chunks plus an '@' scan)
+- [X] S011 Run `pilot freeze` for the spike version (done)
+- [X] S012 Label the evaluation chunks with Claude as the reference, then build the consensus (single reference) and run `freeze --benchmark` (done: Claude 35/35, 380 consensus items, benchmark spike-v1 frozen)
+- [X] S013 Label the training chunks and the evaluation chunks with the teacher `qwen3.6:35b` on the Spark (done: 193/200 train chunks, 35/35 eval; plus teacher comparison glm-4.7-flash and qwen3.8:27b, see findings)
 - [ ] S014 Export SFT data, copy it to the Spark, and train LoRA (Ludwig, or the fallback)
 - [ ] S015 Serve the base model and the adapter with vLLM, label the evaluation chunks with both, and score all three models
 - [ ] S016 Write the spike report and the findings

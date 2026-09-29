@@ -58,3 +58,36 @@ def locate(
         if not used or span not in used:
             return span
     return spans[0]
+
+
+REPAIR_MIN_SCORE = 90.0
+
+
+def repair(quote: str, text: str, min_score: float = REPAIR_MIN_SCORE) -> tuple[int, int] | None:
+    """Span of the passage in `text` that `quote` most likely means, for training data only.
+
+    Teacher quotes often differ from the source by PDF hyphenation, an ellipsis or a changed word.
+    The caller replaces the quote with `text[start:end]`, so the repaired quote is verbatim again
+    (Principle II). Returns None when no passage matches closely enough.
+    """
+    from rapidfuzz import fuzz
+
+    needle = normalize(quote)
+    haystack, index = normalize_with_map(text)
+    if len(needle) < 10 or not haystack:
+        return None
+    match = fuzz.partial_ratio_alignment(needle, haystack)
+    if match is None or match.score < min_score:
+        return None
+    start, end = match.dest_start, match.dest_end
+    # The alignment window has the quote's length; widen or narrow both ends to the best fit.
+    slack = max(5, len(needle) // 10)
+    best = fuzz.ratio(needle, haystack[start:end])
+    for s in range(max(0, start - slack), start + slack + 1):
+        for e in range(max(s + 1, end - slack), min(len(haystack), end + slack) + 1):
+            score = fuzz.ratio(needle, haystack[s:e])
+            if score > best:
+                best, start, end = score, s, e
+    if not 0.8 <= (end - start) / len(needle) <= 1.25:
+        return None
+    return index[start], index[end - 1] + 1

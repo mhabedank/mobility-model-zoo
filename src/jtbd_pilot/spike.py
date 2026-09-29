@@ -17,6 +17,7 @@ from jtbd_pilot.errors import ValidationFailed
 from jtbd_pilot.freeze import load_manifest
 from jtbd_pilot.jsonio import read_json, write_json, write_jsonl
 from jtbd_pilot.labeling.prompt import build_system_prompt
+from jtbd_pilot.quotes import repair
 from jtbd_pilot.runs import load_outputs, load_run_manifest, run_dir
 
 DIMS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type", "evidence_scope")
@@ -28,7 +29,8 @@ def chatml(system: str, user: str) -> str:
             "<|im_start|>assistant\n")
 
 
-def export_sft(settings: Settings, run_id: str, out: Path) -> dict[str, Any]:
+def export_sft(settings: Settings, run_id: str, out: Path, repair_quotes: bool = True
+               ) -> dict[str, Any]:
     run = load_run_manifest(settings, run_id)
     if run.role != "teacher_candidate":
         raise ValidationFailed("training data may only come from a teacher_candidate run (FR-S03)")
@@ -36,16 +38,31 @@ def export_sft(settings: Settings, run_id: str, out: Path) -> dict[str, Any]:
         raise ValidationFailed("SFT export uses the train split only")
     chunks = chunk_map(settings, "train")
     system = build_system_prompt(settings)
-    rows, dropped_items, skipped = [], 0, []
+    rows, skipped, emptied = [], [], []
+    repaired = dropped_items = 0
+    fields = ("kind", "quote", "actor", "actor_type", "statement", "evidence_type",
+              "evidence_scope")
     for chunk_id, out_ in sorted(load_outputs(settings, run_id).items()):
         if out_.relevant is None:
             skipped.append(chunk_id)
             continue
-        items = [] if not out_.relevant else [
-            {k: getattr(i, k) for k in ("kind", "quote", "actor", "actor_type", "statement",
-                                        "evidence_type", "evidence_scope")}
-            for i in out_.valid_items]
-        dropped_items += len(out_.items) - (len(items) if out_.relevant else 0)
+        text = chunks[chunk_id].text
+        items = []
+        for item in out_.items if out_.relevant else []:
+            entry = {k: getattr(item, k) for k in fields}
+            if not item.valid:
+                # Training data only: replace a near-miss quote with the verbatim source passage.
+                span = repair(item.quote, text) if repair_quotes else None
+                if span is None:
+                    dropped_items += 1
+                    continue
+                entry["quote"] = text[span[0]:span[1]]
+                repaired += 1
+            items.append(entry)
+        if out_.relevant and out_.items and not items:
+            # Every teacher item was dropped: "relevant but empty" would teach finding nothing.
+            emptied.append(chunk_id)
+            continue
         answer = json.dumps({"relevant": out_.relevant, "items": items}, ensure_ascii=False)
         user = chunks[chunk_id].text
         rows.append({
@@ -57,7 +74,9 @@ def export_sft(settings: Settings, run_id: str, out: Path) -> dict[str, Any]:
             "output": answer,
         })
     write_jsonl(out, rows)
-    stats = {"run_id": run_id, "examples": len(rows), "dropped_unverified_items": dropped_items,
+    stats = {"run_id": run_id, "examples": len(rows), "repaired_quotes": repaired,
+             "dropped_unverified_items": dropped_items,
+             "skipped_examples_all_items_dropped": emptied,
              "skipped_chunks_without_valid_output": skipped, "path": str(out),
              "exported_at": datetime.now(UTC).isoformat()}
     write_json(out.with_suffix(".stats.json"), stats)

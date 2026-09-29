@@ -26,9 +26,9 @@ pilot:
     dach_largest_region: true
     language_min_share: 0.35
     token_range: [300, 1500]
-  # Documented source-type substitutions, e.g. if Reddit access is not granted (research.md R2):
-  # - {source_type: reddit, replaced_by: forum_review, explanation: "..."}
-  substitutions: []
+  # Documented source-type substitutions (research.md R2)
+  substitutions:
+    - {source_type: reddit, replaced_by: forum_review, explanation: "Reddit dropped for pilot-v1 by project decision on 2026-09-29 (no Reddit for Researchers application); user voices come from forums and reviews whose terms allow text and data mining."}
   holdout_size: 30
   # Matching and statistics (research.md R4, R5)
   min_iou: 0.3

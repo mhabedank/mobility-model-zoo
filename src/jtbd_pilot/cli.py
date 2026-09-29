@@ -375,10 +375,14 @@ def report_cmd(ctx: typer.Context) -> None:
 
 @spike_app.command("export-sft")
 def spike_export(ctx: typer.Context, run: str = typer.Option(..., "--run"),
-                 out: Path = typer.Option(..., "--out")) -> None:
+                 out: Path = typer.Option(..., "--out"),
+                 repair_quotes: bool = typer.Option(
+                     True, "--repair/--no-repair",
+                     help="Replace near-miss teacher quotes with the verbatim source passage")
+                 ) -> None:
     from jtbd_pilot.spike import export_sft
 
-    _run(ctx, lambda s: export_sft(s, run, out))
+    _run(ctx, lambda s: export_sft(s, run, out, repair_quotes))
 
 
 @spike_app.command("report")

@@ -64,6 +64,8 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 
 ## R2 Reddit
 
+> **Update 2026-09-29:** Reddit is dropped for pilot-v1 (project decision, no access request). The substitution `reddit → forum_review` is recorded in `configs/pilot-v1.yaml`. The decision below remains the rule if Reddit is used later.
+
 - **Decision**:
   - Reddit text is retrieved **only** through the official Reddit Data API, after applying through **Reddit for Researchers**, which has been required for academic use since 2025.
   - Every Reddit snapshot is `benchmark_only`.

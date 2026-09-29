@@ -68,19 +68,64 @@ models:
     license_basis: "Apache-2.0 (Qwen3.6-35B-A3B model card); outputs unrestricted"
     think: false
     num_ctx: 16384
+  # Teacher comparison on the 35 evaluation chunks (2026-09-28). Licenses from the Ollama manifests.
+  - model_id: teacher-qwen3.8
+    api_model: qwen3.8:27b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b); dense 27B"
+    think: false
+    num_ctx: 16384
+  - model_id: teacher-glm4.7
+    api_model: glm-4.7-flash:latest
+    family: glm
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "MIT (Ollama manifest of glm-4.7-flash); MoE 30B"
+    think: false
+    num_ctx: 16384
+  # Spike runs on the MacBook (M3 Pro) with mlx_lm.server after the Spark hung during training
+  # (2026-09-27). One server per model; mlx_lm.server serves its CLI model as "default_model" and
+  # ignores response_format.
   - model_id: spike-base
-    api_model: spike-base
-    model_version: Qwen/Qwen3-4B-Instruct-2507
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit
     family: qwen
     backend: openai_compat
-    host: spark
-    base_url: http://10.123.47.52:8000/v1
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8080/v1
+    schema_enforced: false
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
     role: baseline
   - model_id: spike-tuned
-    api_model: spike-tuned
-    model_version: Qwen/Qwen3-4B-Instruct-2507 + LoRA spike-v1
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit + LoRA spike-v1 attempt 2, best checkpoint (data/spike/adapter-mlx-v2-best)
     family: qwen
     backend: openai_compat
-    host: spark
-    base_url: http://10.123.47.52:8000/v1
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8082/v1
+    schema_enforced: false
+    # mlx_lm.server 0.31.3 ignores --adapter-path for "default_model"; pass the adapter per request.
+    extra_body: {adapters: data/spike/adapter-mlx-v2-best}
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  # Exploratory: checkpoint after 100 of 549 steps (see data/spike/findings.md, relevance collapse).
+  - model_id: spike-tuned-ck100
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit + LoRA spike-v1 checkpoint 100 (data/spike/adapter-mlx-ck100)
+    family: qwen
+    backend: openai_compat
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8082/v1
+    schema_enforced: false
+    extra_body: {adapters: data/spike/adapter-mlx-ck100}
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
     role: baseline

@@ -1,0 +1,28 @@
+# Training image for the DGX Spark: NGC PyTorch plus Ludwig, installed once instead of on every run.
+# Build (on the Spark): docker build -f Dockerfile.ludwig -t spike-ludwig:0.17.9 ~/spike
+FROM nvcr.io/nvidia/pytorch:25.09-py3
+
+RUN pip install --no-cache-dir "ludwig[llm]==0.17.9"
+
+# Qwen has no BOS token: Ludwig 0.17.9 compares against None and crashes in torch.where.
+# Fall back to position 0 (what Ludwig does when no BOS is found anyway).
+RUN f="$(python -c 'import ludwig.utils.llm_utils as m; print(m.__file__)' | tail -1)" && \
+    sed -i "s/bos_idxs = torch.where(input_ids_no_padding == tokenizer.bos_token_id)\[0\]/bos_idxs = torch.where(input_ids_no_padding == tokenizer.bos_token_id)[0] if tokenizer.bos_token_id is not None else []/" "$f" && \
+    grep -q "if tokenizer.bos_token_id is not None else \[\]" "$f"
+
+# Hard cap for PyTorch's share of the Spark's unified memory: past TORCH_MEM_FRACTION the run fails
+# with a CUDA out-of-memory error instead of starving the whole machine (second line of defense
+# next to the watchdog in train.sh).
+RUN printf '%s\n' \
+    'import os' \
+    'fraction = os.environ.get("TORCH_MEM_FRACTION")' \
+    'if fraction:' \
+    '    import torch' \
+    '    if torch.cuda.is_available():' \
+    '        torch.cuda.set_per_process_memory_fraction(float(fraction))' \
+    > "$(python -c 'import site; print(site.getsitepackages()[0])')/sitecustomize.py"
+
+ENV TORCH_MEM_FRACTION=0.55 \
+    PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+WORKDIR /work
