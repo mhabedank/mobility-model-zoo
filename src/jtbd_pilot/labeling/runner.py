@@ -8,6 +8,7 @@ model-version change mid-run stops the run (exit 6).
 from __future__ import annotations
 
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
 from statistics import mean
 from typing import Any
@@ -72,6 +73,39 @@ def _next_attempt(raw_dir, chunk_id: str) -> int:
     return len(list(raw_dir.glob(f"{chunk_id}.a*.json"))) + 1
 
 
+
+def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
+                 retries: int) -> tuple[str, float, list[str]]:
+    """All attempts for one chunk. Returns the last error ("" on success), cost, model versions."""
+    last_error, spent, versions = "no attempt", 0.0, []
+    for _ in range(retries + 1):
+        attempt = _next_attempt(raw_dir, chunk.chunk_id)
+        record: dict[str, Any] = {"chunk_id": chunk.chunk_id, "attempt": attempt,
+                                  "request_ts": datetime.now(UTC).isoformat()}
+        try:
+            result = model.call(system, chunk.text, schema, chunk.chunk_id)
+        except BackendFailure as exc:
+            last_error = str(exc)
+            write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
+                       {**record, "error": last_error, "parsed_candidate": None}, exclusive=True)
+            continue
+        spent += result.cost_eur
+        versions.append(result.model_version)
+        write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json", {
+            **record, "latency_ms": round(result.latency_ms, 1),
+            "model_version": result.model_version, "usage": result.usage,
+            "backend_meta": result.meta, "cost_eur": result.cost_eur,
+            "raw_body": result.raw_body, "parsed_candidate": result.parsed_candidate,
+        }, exclusive=True)
+        try:
+            output = ExtractionOutput.model_validate(result.parsed_candidate)
+        except Exception as exc:  # noqa: BLE001 - schema failure of the model answer
+            last_error = f"schema invalid: {str(exc)[:200]}"
+            continue
+        write_json(parsed_dir / f"{chunk.chunk_id}.json", output.model_dump(mode="json"))
+        return "", spent, versions
+    return last_error, spent, versions
+
 def label(
     settings: Settings,
     role: str,
@@ -81,6 +115,7 @@ def label(
     split: str = "main",
     limit: int | None = None,
     retry_failed: bool = False,
+    workers: int = 1,
 ) -> dict[str, Any]:
     entry = settings.model(model_id)
     check_roles(settings, role, entry)
@@ -156,48 +191,31 @@ def label(
     spent = 0.0
     done = 0
     try:
-        for chunk in todo:
-            last_error = "no attempt"
-            for _ in range(retries + 1):
-                attempt = _next_attempt(raw_dir, chunk.chunk_id)
-                record: dict[str, Any] = {"chunk_id": chunk.chunk_id, "attempt": attempt,
-                                          "request_ts": datetime.now(UTC).isoformat()}
-                try:
-                    result = model.call(system, chunk.text, schema, chunk.chunk_id)
-                except BackendFailure as exc:
-                    last_error = str(exc)
-                    write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
-                               {**record, "error": last_error, "parsed_candidate": None},
-                               exclusive=True)
-                    continue
-                spent += result.cost_eur
-                write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json", {
-                    **record, "latency_ms": round(result.latency_ms, 1),
-                    "model_version": result.model_version, "usage": result.usage,
-                    "backend_meta": result.meta, "cost_eur": result.cost_eur,
-                    "raw_body": result.raw_body, "parsed_candidate": result.parsed_candidate,
-                }, exclusive=True)
-                if manifest.model_version == "pending":
-                    manifest.model_version = result.model_version
-                elif manifest.model_version != result.model_version:
-                    manifest.status = "invalid_version_change"
-                    raise BackendFailure(
-                        f"model version changed from {manifest.model_version} to "
-                        f"{result.model_version} during {run_id}; the run must be repeated")
-                try:
-                    output = ExtractionOutput.model_validate(result.parsed_candidate)
-                except Exception as exc:  # noqa: BLE001 - schema failure of the model answer
-                    last_error = f"schema invalid: {str(exc)[:200]}"
-                    continue
-                write_json(parsed_dir / f"{chunk.chunk_id}.json", output.model_dump(mode="json"))
-                last_error = ""
-                break
-            if last_error:
-                manifest.excluded_chunks.append(
-                    ExcludedChunk(chunk_id=chunk.chunk_id, reason=last_error))
-            done += 1
-            manifest.deviations = sorted(set(manifest.deviations) | set(model.deviations))
-            write_json(manifest_file, manifest.model_dump(mode="json"))
+        # Model calls may run in parallel (slow reasoning models); manifest, budget and the
+        # version check stay in this thread.
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            futures = {pool.submit(_label_chunk, model, system, schema, chunk, raw_dir,
+                                   parsed_dir, retries): chunk for chunk in todo}
+            for future in as_completed(futures):
+                chunk = futures[future]
+                last_error, cost, versions = future.result()
+                spent += cost
+                for version in versions:
+                    if manifest.model_version == "pending":
+                        manifest.model_version = version
+                    elif manifest.model_version != version:
+                        manifest.status = "invalid_version_change"
+                        for other in futures:
+                            other.cancel()
+                        raise BackendFailure(
+                            f"model version changed from {manifest.model_version} to "
+                            f"{version} during {run_id}; the run must be repeated")
+                if last_error:
+                    manifest.excluded_chunks.append(
+                        ExcludedChunk(chunk_id=chunk.chunk_id, reason=last_error))
+                done += 1
+                manifest.deviations = sorted(set(manifest.deviations) | set(model.deviations))
+                write_json(manifest_file, manifest.model_dump(mode="json"))
     finally:
         manifest.cost_eur = round(manifest.cost_eur + spent, 6)
         excluded_now = {e.chunk_id for e in manifest.excluded_chunks}

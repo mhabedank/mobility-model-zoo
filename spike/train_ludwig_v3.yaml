@@ -1,0 +1,42 @@
+# Ludwig LoRA fine-tuning for spike 002, attempt 3 (students v3a/v3b): token-weighted loss via the
+# image patch (spike/ludwig_token_loss.py), no validation split, final weights after 3 epochs.
+model_type: llm
+base_model: Qwen/Qwen3-4B-Instruct-2507
+input_features:
+  - name: prompt
+    type: text
+output_features:
+  - name: output
+    type: text
+prompt:
+  template: "{prompt}"
+adapter:
+  type: lora
+  r: 16
+  alpha: 32
+  dropout: 0.05
+trainer:
+  type: finetune
+  epochs: 3
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  # Memory: without these, fp32 activations of ~5.5k-token examples filled the Spark's 119 GB and
+  # hung the machine (2026-09-27). Checkpointing keeps only layer inputs; AMP computes in half
+  # precision.
+  enable_gradient_checkpointing: true
+  use_mixed_precision: true
+  early_stop: -1
+  evaluate_training_set: false
+  learning_rate: 0.0002
+  learning_rate_scheduler:
+    warmup_fraction: 0.03
+preprocessing:
+  global_max_sequence_length: 8192
+  split:
+    type: random
+    probabilities: [1.0, 0.0, 0.0]
+generation:
+  max_new_tokens: 2048
+  temperature: 0.0
+backend:
+  type: local

@@ -75,7 +75,8 @@ class Settings:
 
     @property
     def ledger_path(self) -> Path:
-        return self.data_dir / "budget" / "ledger.jsonl"
+        # One cash budget across pilot and spikes: a spike config points this at the pilot ledger.
+        return self.paths.get("ledger", self.data_dir / "budget" / "ledger.jsonl")
 
     @property
     def benchmarks_dir(self) -> Path:

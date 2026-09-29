@@ -60,7 +60,7 @@ The cash budget is at most €20. The expected spend is about €8.
 - It measures chunks/min, output tok/s, p50/p95 latency and peak RSS for each small model on the reference VM.
 
 **Constraints**:
-- Cash budget ≤ €20, with a hard cap of €12 on the OpenRouter key.
+- Cash budget ≤ €20, with a hard cap on the OpenRouter key: USD 20 (≈ €18.40, no reset) since 2026-09-29, raised from €12 for headroom.
 - Each source is fetched only once.
 - Every model's raw output is stored unmodified.
 - Criteria are hash-frozen before labeling.

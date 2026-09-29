@@ -13,6 +13,7 @@ paths:
   budget: configs/budget.yaml
   data: data/spike
   snapshots: data/snapshots        # reuse the pilot's snapshots (crawl once)
+  ledger: data/budget/ledger.jsonl # one cash budget for pilot and spike (EUR 20, key cap EUR 12)
   benchmarks: data/spike/benchmarks
   reports: reports
 

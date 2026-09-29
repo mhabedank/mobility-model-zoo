@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs on the DGX Spark: LoRA fine-tuning with Ludwig inside an NVIDIA PyTorch container.
-# Usage: CONFIG=train_ludwig.yaml DATASET=sft.jsonl MIN_FREE_GB=30 MAX_MINUTES=600 \
+# Usage: CONFIG=train_ludwig.yaml DATASET=sft.jsonl TOKEN_NORM=614 MIN_FREE_GB=30 MAX_MINUTES=600 \
 #          setsid nohup bash ~/spike/train.sh > ~/spike/train.out 2>&1 < /dev/null &
 #
 # The Spark shares 119 GB between CPU and GPU, and a container memory limit does not cover GPU
@@ -13,6 +13,7 @@ set -euo pipefail
 IMAGE="${IMAGE:-spike-ludwig:0.17.9}"   # built from Dockerfile.ludwig (Ludwig + BOS patch)
 CONFIG="${CONFIG:-train_ludwig.yaml}"
 DATASET="${DATASET:-sft.jsonl}"
+TOKEN_NORM="${TOKEN_NORM:-1}"    # mean answer tokens of DATASET (token-weighted loss patch)
 NAME=spike-train
 MIN_FREE_GB="${MIN_FREE_GB:-30}"
 MAX_MINUTES="${MAX_MINUTES:-600}"
@@ -29,7 +30,7 @@ done
 
 docker run -d --rm --name "$NAME" --gpus all --ipc=host --memory 80g \
   -v "$HOME/spike:/work" -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
-  -w /work -e CONFIG="$CONFIG" -e DATASET="$DATASET" "$IMAGE" bash -lc '
+  -w /work -e CONFIG="$CONFIG" -e DATASET="$DATASET" -e LUDWIG_LOSS_TOKEN_NORM="$TOKEN_NORM" "$IMAGE" bash -lc '
     ludwig train --config "$CONFIG" --dataset "$DATASET" --output_directory results \
       2>&1 | tee train.log'
 

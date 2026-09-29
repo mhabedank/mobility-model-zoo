@@ -217,11 +217,13 @@ def label_cmd(
     limit: int = typer.Option(None, "--limit"),
     retry_failed: bool = typer.Option(
         False, "--retry-failed", help="Retry chunks excluded after backend failures"),
+    workers: int = typer.Option(1, "--workers", help="Parallel model calls (chunks at a time)"),
 ) -> None:
     from jtbd_pilot.labeling.runner import label
 
     _run(ctx, lambda s: label(s, role=role, backend=backend, model_id=model, host=host,
-                              split=split, limit=limit, retry_failed=retry_failed))
+                              split=split, limit=limit, retry_failed=retry_failed,
+                              workers=workers))
 
 
 @app.command("budget")

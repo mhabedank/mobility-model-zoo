@@ -10,6 +10,10 @@ RUN f="$(python -c 'import ludwig.utils.llm_utils as m; print(m.__file__)' | tai
     sed -i "s/bos_idxs = torch.where(input_ids_no_padding == tokenizer.bos_token_id)\[0\]/bos_idxs = torch.where(input_ids_no_padding == tokenizer.bos_token_id)[0] if tokenizer.bos_token_id is not None else []/" "$f" && \
     grep -q "if tokenizer.bos_token_id is not None else \[\]" "$f"
 
+# Token-weighted LLM loss (see ludwig_token_loss.py); train.sh sets LUDWIG_LOSS_TOKEN_NORM.
+COPY ludwig_token_loss.py /opt/ludwig_token_loss.py
+RUN python /opt/ludwig_token_loss.py
+
 # Hard cap for PyTorch's share of the Spark's unified memory: past TORCH_MEM_FRACTION the run fails
 # with a CUDA out-of-memory error instead of starving the whole machine (second line of defense
 # next to the watchdog in train.sh).

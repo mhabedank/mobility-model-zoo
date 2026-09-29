@@ -33,14 +33,23 @@ class OpenRouterBackend:
         budget = settings.budget()
         self.usd_to_eur = float(budget.get("usd_to_eur", 1.0))
         self.price = (budget.get("prices") or {}).get(entry.model_id) or {}
-        self.max_tokens = int(settings.pilot.get("max_output_tokens", 4096))
+        self.max_tokens = int(entry.extra.get("max_output_tokens")
+                              or settings.pilot.get("max_output_tokens", 4096))
         self.deviations: list[str] = []
         self.provider = {
-            "order": entry.extra.get("provider_order", ["openai"]),
             "allow_fallbacks": False,
             "require_parameters": True,
             "data_collection": "deny",
         }
+        order = entry.extra.get("provider_order", ["openai"])
+        if order:
+            self.provider["order"] = order
+        else:
+            # Open-weight teacher candidates: OpenRouter picks one provider that meets the
+            # requirements; the provider that answered is recorded per response.
+            self.deviations.append(f"{entry.model_id}: provider chosen by OpenRouter per request")
+        if entry.extra.get("quantizations"):
+            self.provider["quantizations"] = entry.extra["quantizations"]
 
     def _cost_from_prices(self, usage) -> float:
         if not self.price or self.price.get("input") is None:
@@ -60,6 +69,10 @@ class OpenRouterBackend:
         effort = self.entry.extra.get("reasoning_effort")
         if effort:
             extra_body["reasoning"] = {"effort": effort}
+        if self.entry.extra.get("reasoning") is not None:
+            # e.g. {enabled: false}: teacher candidates answer without a thinking phase, like the
+            # local teachers (think: false), so reasoning tokens cannot eat the output budget.
+            extra_body["reasoning"] = self.entry.extra["reasoning"]
         start = time.monotonic()
         try:
             response = self.client.chat.completions.create(

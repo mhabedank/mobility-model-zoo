@@ -42,7 +42,9 @@ def parse_json_text(text: str | None) -> Any | None:
     if fence:
         candidate = fence.group(1)
     try:
-        return json.loads(candidate)
+        # strict=False: accept a raw line break inside a string (small fine-tuned models emit them
+        # when quotes span PDF line breaks); the content is the same.
+        return json.loads(candidate, strict=False)
     except json.JSONDecodeError:
         return None
 

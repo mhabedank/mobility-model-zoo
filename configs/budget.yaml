@@ -1,8 +1,8 @@
 # Cash budget for the pilot (spec SC-009; constitution: Resources & Cost Discipline).
 budget_eur: 20
 # Hard spending limit set on the OpenRouter key in the OpenRouter UI (T046).
-key_cap_eur: 12
-key_cap_set_on: null        # fill in the date the cap was set in the OpenRouter UI
+key_cap_eur: 18.4                  # USD 20 on the key (no reset), raised from EUR 12 on 2026-09-29 for headroom
+key_cap_set_on: 2026-09-29  # USD 20 hard limit, no reset (checked via OpenRouter /api/v1/key)
 openrouter_fee: 0.055       # 5.5% on card credit purchases (research.md R8)
 usd_to_eur: 0.92            # conversion used for OpenRouter's USD cost reporting; update before use
 # Prices in EUR per million tokens. Fill in the GPT mini-tier price from the OpenRouter model list (T046).
@@ -11,3 +11,11 @@ prices:
     input: null
     cached_input: null
     output: null
+  # Teacher candidates, list prices USD->EUR 0.92 (upper bound; the ledger uses OpenRouter's reported cost)
+  teacher-or-deepseek-v4.1-flash: {input: 0.276, cached_input: null, output: 1.104}
+  teacher-or-glm-5.3: {input: 1.288, cached_input: null, output: 4.048}
+  teacher-or-glm-5.3-flash: {input: 0.138, cached_input: null, output: 0.46}
+  teacher-or-qwen3.8-flash: {input: 0.138, cached_input: null, output: 0.432}
+  teacher-or-qwen3.8-27b: {input: 0.092, cached_input: null, output: 4.048}
+  teacher-or-mimo-v2.6-pro: {input: 0.396, cached_input: null, output: 0.8}
+  teacher-or-hy4-preview: {input: 0.764, cached_input: null, output: 2.3}

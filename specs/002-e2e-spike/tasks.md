@@ -26,6 +26,6 @@
 - [X] S011 Run `pilot freeze` for the spike version (done)
 - [X] S012 Label the evaluation chunks with Claude as the reference, then build the consensus (single reference) and run `freeze --benchmark` (done: Claude 35/35, 380 consensus items, benchmark spike-v1 frozen)
 - [X] S013 Label the training chunks and the evaluation chunks with the teacher `qwen3.6:35b` on the Spark (done: 193/200 train chunks, 35/35 eval; plus teacher comparison glm-4.7-flash and qwen3.8:27b, see findings)
-- [ ] S014 Export SFT data, copy it to the Spark, and train LoRA (Ludwig, or the fallback)
-- [ ] S015 Serve the base model and the adapter with vLLM, label the evaluation chunks with both, and score all three models
-- [ ] S016 Write the spike report and the findings
+- [X] S014 Export SFT data, copy it to the Spark, and train LoRA (Ludwig, or the fallback) (done: Ludwig 0.17.9 with token-weighted loss patch; v3a on qwen3.8 teacher data, v3b on a four-teacher ensemble, see findings)
+- [X] S015 Serve the base model and the adapter with vLLM, label the evaluation chunks with both, and score all three models (done: base 0.56, v3a 0.62, v3b 0.64)
+- [X] S016 Write the spike report and the findings (reports/spike-v2/spike-report.md)

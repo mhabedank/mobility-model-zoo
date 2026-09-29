@@ -56,7 +56,9 @@ def export_sft(settings: Settings, run_id: str, out: Path, repair_quotes: bool =
                 if span is None:
                     dropped_items += 1
                     continue
-                entry["quote"] = text[span[0]:span[1]]
+                # Verbatim passage with whitespace runs collapsed (still passes the quote check),
+                # so training targets never contain PDF line breaks.
+                entry["quote"] = " ".join(text[span[0]:span[1]].split())
                 repaired += 1
             items.append(entry)
         if out_.relevant and out_.items and not items:

@@ -123,3 +123,25 @@ def test_parse_json_text_tolerates_think_block_and_fence():
         "relevant": False, "items": []}
     assert parse_json_text('</think>\n```json\n{"a": 1}\n```') == {"a": 1}
     assert parse_json_text("no json") is None
+
+
+def test_parse_json_text_accepts_raw_line_break_in_string():
+    from jtbd_pilot.labeling.base import parse_json_text
+
+    assert parse_json_text('{"quote": "wer -\nden"}') == {"quote": "wer -\nden"}
+
+
+def test_parallel_workers_give_the_same_outputs(tmp_path):
+    serial, parallel = copy_fixture(tmp_path / "a"), copy_fixture(tmp_path / "b")
+    for config, workers in ((serial, "1"), (parallel, "3")):
+        pilot(config, "freeze")
+        result = pilot(config, "label", "--role", "reference", "--backend", "mock", "--model",
+                       "mock-a", "--workers", workers)
+        assert result["status"] == "complete" and result["processed_now"] == 5
+
+    def parsed(config):
+        run = run_ids(config)["mock-a"]
+        parsed_dir = load_settings(config).runs_dir / run / "parsed"
+        return {p.name: p.read_text() for p in parsed_dir.iterdir()}
+
+    assert parsed(serial) == parsed(parallel)
