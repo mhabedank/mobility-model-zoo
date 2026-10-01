@@ -60,3 +60,40 @@ def test_empty_output_on_empty_consensus_counts_as_correct():
 def test_target_dataclass_defaults():
     t = Target((0, 5), "pain")
     assert t.values == {} and t.contested_existence is False
+
+
+def test_teacher_scored_raw_and_after_quote_repair(tmp_path):
+    config = copy_fixture(tmp_path)
+    reference_chain(config)
+    pilot(config, "agreement")
+    pilot(config, "label", "--role", "teacher_candidate", "--backend", "mock",
+          "--model", "mock-teacher-y")
+    run = run_ids(config)["mock-teacher-y"]
+    manifest_path = config.parent / "store" / "runs" / run / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["cost_eur"] = 0.5
+    manifest_path.write_text(json.dumps(manifest))
+    checks = pilot(config, "check", "--run", run)
+    score = pilot(config, "score", "--run", run)
+    repaired = score["repaired"]
+    # mock-teacher-y has one near-miss quote ("pendel" for "pendle") in ch-001.
+    assert repaired["repair_stats"] == {"invalid_quotes": 1, "repaired": 1, "dropped": 0}
+    assert (repaired["dimensions"]["item_matching"]["score"]
+            > score["dimensions"]["item_matching"]["score"])
+    assert repaired["composite"] > score["composite"]
+    assert repaired["quality_ratio_a"] == pytest.approx(
+        repaired["composite"] / score["frontier_composite_consensus_units"], abs=1e-6)
+    # Check pass rates stay on the raw output.
+    assert score["check_pass_rates"]["quote_verbatim"] == checks["pass_rates"]["quote_verbatim"]
+    assert score["check_pass_rates"]["quote_verbatim"]["rate"] < 1
+    assert score["cost_per_chunk_eur"] == pytest.approx(0.5 / 5)
+
+
+def test_baseline_has_no_repaired_view(tmp_path):
+    config = copy_fixture(tmp_path)
+    reference_chain(config)
+    pilot(config, "label", "--role", "baseline", "--backend", "mock", "--model", "mock-small")
+    run = run_ids(config)["mock-small"]
+    score = pilot(config, "score", "--run", run)
+    assert "repaired" not in score
+    assert score["cost_per_chunk_eur"] == 0

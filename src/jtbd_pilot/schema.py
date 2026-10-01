@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 Kind = Literal["job", "pain", "gain"]
 ActorType = Literal["individual", "worker", "organization", "public_sector", "society"]
@@ -37,7 +37,7 @@ RelevanceIntent = Literal["relevant", "irrelevant", "near_miss"]
 PermittedUses = Literal["benchmark_only", "training_allowed"]
 Split = Literal["main", "holdout", "train"]
 Role = Literal["reference", "teacher_candidate", "baseline"]
-BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "mock"]
+BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "ensemble", "mock"]
 
 
 def evidence_rank(value: str) -> int:
@@ -187,6 +187,7 @@ class LabelRunManifest(BaseModel):
     license_basis: str | None = None
     deviations: list[str] = Field(default_factory=list)
     status: Literal["running", "complete", "invalid_version_change"] = "running"
+    derived_from: list[str] | None = Field(default=None, min_length=2)
 
     @model_validator(mode="after")
     def _rules(self) -> LabelRunManifest:
@@ -194,7 +195,19 @@ class LabelRunManifest(BaseModel):
             raise ValueError("teacher_candidate runs require license_basis")
         if self.backend == "ollama" and not self.quantization:
             raise ValueError("ollama runs require quantization")
+        if self.backend == "ensemble":
+            if not self.derived_from:
+                raise ValueError("ensemble runs require derived_from (FR-019b)")
+            if self.role != "teacher_candidate":
+                raise ValueError("ensemble runs must have role teacher_candidate")
         return self
+
+    @model_serializer(mode="wrap")
+    def _omit_derived_from(self, handler):
+        data = handler(self)
+        if data.get("derived_from") is None:
+            data.pop("derived_from", None)  # the contract allows only an array
+        return data
 
 
 class DecisionThresholds(BaseModel):
@@ -217,6 +230,59 @@ class FinetuningRule(BaseModel):
     throughput_reference: Literal["frontier_reference_chunks_per_min"]
 
 
+class TeacherFitness(BaseModel):
+    """FR-031a: when a teacher candidate is fit to generate training data."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_quality_ratio: float = Field(ge=0)
+    min_schema_valid: float = Field(ge=0, le=1)
+    tie_margin: float = Field(ge=0)
+    score_view: Literal["repaired"]
+
+
+class QuoteRepair(BaseModel):
+    """FR-026a: repair of near-miss teacher quotes, for the teacher scoring view only."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_score: float = Field(ge=0, le=100)
+    min_length_ratio: float = Field(gt=0)
+    max_length_ratio: float = Field(gt=0)
+
+
+class TieBreak(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: list[str] = Field(min_length=1)
+    actor_type: list[str] = Field(min_length=1)
+    evidence_type: list[str] = Field(min_length=1)
+    evidence_scope: list[str] = Field(min_length=1)
+
+
+class TeacherEnsemble(BaseModel):
+    """FR-019b: offline ensemble of the single teacher candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    model_id: str
+    members: list[str] = Field(min_length=1)
+    min_votes: int = Field(ge=1)
+    tie_break: TieBreak
+    quote_priority: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _orders(self) -> TeacherEnsemble:
+        if len(set(self.members)) != len(self.members):
+            raise ValueError("teacher_ensemble.members must be unique")
+        orders = {f"tie_break.{d}": getattr(self.tie_break, d) for d in ATTRIBUTE_DIMENSIONS}
+        orders["quote_priority"] = self.quote_priority
+        for name, order in orders.items():
+            if len(order) != len(self.members) or set(order) != set(self.members):
+                raise ValueError(f"teacher_ensemble.{name} must be a permutation of members")
+        return self
+
+
 class DecisionCriteria(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -228,4 +294,7 @@ class DecisionCriteria(BaseModel):
     rerun_decision_split: Literal["holdout"] = "holdout"
     finetuning_optional: FinetuningRule
     underpowered_min_units: int
+    teacher_fitness: TeacherFitness
+    quote_repair: QuoteRepair
+    teacher_ensemble: TeacherEnsemble
     rationale: str | None = None

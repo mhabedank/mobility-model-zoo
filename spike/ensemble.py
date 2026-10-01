@@ -1,8 +1,9 @@
 # ruff: noqa: E501 - table output
 """Offline test of teacher ensembles on the 35 evaluation chunks (no model calls, no cost).
 
-Combines the stored outputs of several teacher runs and scores each combination against the
-Claude consensus exactly like a single model:
+Combines the stored outputs of several teacher runs with `jtbd_pilot.ensemble.combine` (the
+pilot's `pilot ensemble`) and scores each combination against the Claude consensus exactly like a
+single model:
 - relevance: majority vote (ties count as relevant),
 - items: items of all models are grouped by span overlap (IoU >= min_iou, one item per model and
   group); a group is kept when at least `min_votes` models found it,
@@ -23,19 +24,17 @@ from __future__ import annotations
 
 import json
 import sys
-from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
 from jtbd_pilot.config import load_settings
 from jtbd_pilot.consensus import load_consensus
 from jtbd_pilot.corpus.store import chunk_map
+from jtbd_pilot.ensemble import combine
 from jtbd_pilot.jsonio import write_json, write_jsonl
 from jtbd_pilot.labeling.prompt import build_system_prompt
-from jtbd_pilot.matching import iou
 from jtbd_pilot.metrics import CATEGORY_LABELS, EVIDENCE_LABELS, composite, f1_stat, kappa_stat
-from jtbd_pilot.quotes import repair
-from jtbd_pilot.runs import ChunkOutput, LocatedItem, load_outputs
+from jtbd_pilot.runs import ChunkOutput, load_outputs
 from jtbd_pilot.scoring import RELEVANCE_LABELS, score_units
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -66,68 +65,7 @@ STRATEGIES = [  # name, models, min_votes
     ("all5, >=3", list(MODELS), 3),
     ("cheap: mimo+deepseek+glmflash+qwen38, >=2", ["mimo", "deepseek", "glmflash", "qwen38"], 2),
 ]
-ATTRS = ("kind", "actor_type", "evidence_type", "evidence_scope")
 EXPORT = ("cheap: mimo+deepseek+glmflash+qwen38, >=2", ["mimo", "deepseek", "glmflash", "qwen38"], 2)
-
-
-def with_repair(out: ChunkOutput, text: str) -> list[LocatedItem]:
-    items = []
-    for it in out.items:
-        span = it.span or repair(it.quote, text)
-        if span is None:
-            continue
-        items.append(LocatedItem(it.index, it.kind, text[span[0]:span[1]], it.actor, it.actor_type,
-                                 it.statement, it.evidence_type, it.evidence_scope, span))
-    return items
-
-
-def vote(values: dict[str, str], priority: list[str]) -> str:
-    counts = Counter(values.values())
-    best = max(counts.values())
-    tied = {v for v, n in counts.items() if n == best}
-    for model in priority:
-        if model in values and values[model] in tied:
-            return values[model]
-    return next(iter(tied))
-
-
-def combine(outputs: dict[str, dict[str, ChunkOutput]], models: list[str], min_votes: int,
-            chunks: dict, min_iou: float) -> dict[str, ChunkOutput]:
-    result = {}
-    for chunk_id, chunk in chunks.items():
-        present = {m: outputs[m][chunk_id] for m in models if chunk_id in outputs[m]}
-        if not present:
-            continue
-        votes = [o.relevant for o in present.values() if o.relevant is not None]
-        relevant = sum(votes) * 2 >= len(votes) if votes else None
-        if not relevant:
-            result[chunk_id] = ChunkOutput(chunk_id, relevant)
-            continue
-        groups: list[dict[str, LocatedItem]] = []
-        for m, o in present.items():
-            for it in with_repair(o, chunk.text) if o.relevant else []:
-                best, best_iou = None, min_iou
-                for g in groups:
-                    if m in g:
-                        continue
-                    score = max(iou(it.span, x.span) for x in g.values())
-                    if score >= best_iou:
-                        best, best_iou = g, score
-                if best is None:
-                    groups.append({m: it})
-                else:
-                    best[m] = it
-        items = []
-        for n, g in enumerate(groups):
-            if len(g) < min_votes:
-                continue
-            rep = g[next(m for m in QUOTE_PRIORITY + models if m in g)]
-            attrs = {a: vote({m: getattr(x, a) for m, x in g.items()}, DIM_PRIORITY[a]) for a in ATTRS}
-            items.append(LocatedItem(n, attrs["kind"], rep.quote, rep.actor, attrs["actor_type"],
-                                     rep.statement, attrs["evidence_type"], attrs["evidence_scope"],
-                                     rep.span))
-        result[chunk_id] = ChunkOutput(chunk_id, True, items)
-    return result
 
 
 def scores(outputs: dict[str, ChunkOutput], consensus, contested, chunk_ids, min_iou) -> dict:
@@ -156,7 +94,7 @@ def export(settings, out: Path, min_iou: float) -> None:
     name, models, min_votes = EXPORT
     chunks = chunk_map(settings, "train")
     outputs = {m: load_outputs(settings, RUN.format(MODELS[m], "train")) for m in models}
-    combined = combine(outputs, models, min_votes, chunks, min_iou)
+    combined = combine(outputs, models, min_votes, chunks, min_iou, DIM_PRIORITY, QUOTE_PRIORITY)
     system = build_system_prompt(settings)
     rows, skipped = [], []
     for chunk_id, out_ in sorted(combined.items()):
@@ -194,7 +132,7 @@ def main() -> None:
     outputs = {m: load_outputs(settings, RUN.format(mid, "main")) for m, mid in MODELS.items()}
     rows = []
     for name, models, min_votes in STRATEGIES:
-        combined = combine(outputs, models, min_votes, chunks, min_iou)
+        combined = combine(outputs, models, min_votes, chunks, min_iou, DIM_PRIORITY, QUOTE_PRIORITY)
         rows.append({"strategy": name, **scores(combined, consensus, contested, meta["chunks"], min_iou)})
     out = ROOT / "data/spike/ensemble.json"
     out.write_text(json.dumps(rows, indent=2))

@@ -77,4 +77,7 @@ def make_backend(settings: Settings, entry: ModelEntry, backend: str, host: str 
         return MockBackend(settings, entry)
     from jtbd_pilot.errors import UsageError
 
+    if backend == "ensemble":
+        raise UsageError(f"{entry.model_id} is derived from other runs: use `pilot ensemble`")
+
     raise UsageError(f"unknown backend {backend}")

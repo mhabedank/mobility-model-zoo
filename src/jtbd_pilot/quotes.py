@@ -61,14 +61,19 @@ def locate(
 
 
 REPAIR_MIN_SCORE = 90.0
+REPAIR_MIN_LENGTH_RATIO = 0.8
+REPAIR_MAX_LENGTH_RATIO = 1.25
 
 
-def repair(quote: str, text: str, min_score: float = REPAIR_MIN_SCORE) -> tuple[int, int] | None:
+def repair(quote: str, text: str, min_score: float = REPAIR_MIN_SCORE,
+           min_length_ratio: float = REPAIR_MIN_LENGTH_RATIO,
+           max_length_ratio: float = REPAIR_MAX_LENGTH_RATIO) -> tuple[int, int] | None:
     """Span of the passage in `text` that `quote` most likely means, for training data only.
 
     Teacher quotes often differ from the source by PDF hyphenation, an ellipsis or a changed word.
     The caller replaces the quote with `text[start:end]`, so the repaired quote is verbatim again
-    (Principle II). Returns None when no passage matches closely enough.
+    (Principle II). Returns None when no passage matches closely enough. The pilot passes the
+    frozen `quote_repair` criteria (FR-026a); the defaults are the spike's values.
     """
     from rapidfuzz import fuzz
 
@@ -88,6 +93,6 @@ def repair(quote: str, text: str, min_score: float = REPAIR_MIN_SCORE) -> tuple[
             score = fuzz.ratio(needle, haystack[s:e])
             if score > best:
                 best, start, end = score, s, e
-    if not 0.8 <= (end - start) / len(needle) <= 1.25:
+    if not min_length_ratio <= (end - start) / len(needle) <= max_length_ratio:
         return None
     return index[start], index[end - 1] + 1

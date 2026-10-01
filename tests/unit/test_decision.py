@@ -12,6 +12,13 @@ CRITERIA = DecisionCriteria.model_validate({
     "finetuning_optional": {"min_quality_ratio": 0.85, "min_throughput_ratio": 10,
                             "quality_reference": "frontier_vs_frontier_composite",
                             "throughput_reference": "frontier_reference_chunks_per_min"},
+    "teacher_fitness": {"min_quality_ratio": 0.9, "min_schema_valid": 0.98, "tie_margin": 0.02,
+                        "score_view": "repaired"},
+    "quote_repair": {"min_score": 90, "min_length_ratio": 0.8, "max_length_ratio": 1.25},
+    "teacher_ensemble": {"model_id": "t-ens", "members": ["t1", "t2"], "min_votes": 2,
+                         "tie_break": {d: ["t1", "t2"] for d in ("kind", "actor_type",
+                                                              "evidence_type", "evidence_scope")},
+                         "quote_priority": ["t2", "t1"]},
 })
 GOOD = {"relevance": 0.9, "item_matching": 0.8, "kind": 0.7, "actor_type": 0.7,
         "evidence_type": 0.7, "evidence_scope": 0.7}

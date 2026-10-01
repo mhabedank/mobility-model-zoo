@@ -226,6 +226,14 @@ def label_cmd(
                               workers=workers))
 
 
+@app.command("ensemble")
+def ensemble_cmd(ctx: typer.Context, split: str = typer.Option("main", "--split")) -> None:
+    """Build the offline teacher ensemble from its frozen member runs (FR-019b)."""
+    from jtbd_pilot.ensemble import build_ensemble
+
+    _run(ctx, lambda s: build_ensemble(s, split))
+
+
 @app.command("budget")
 def budget_cmd(
     ctx: typer.Context,

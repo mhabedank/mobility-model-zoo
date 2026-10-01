@@ -3,6 +3,10 @@
 Same metric per dimension as reference agreement, on consensus units. Items matching a contested
 reference item are scored neutrally (neither hit nor error) and counted. A chunk without a valid
 output counts against the model.
+
+Teacher candidates also get a `repaired` view (FR-026a): near-miss quotes are repaired with the
+frozen `quote_repair` rule before scoring, because training data is built from repaired quotes.
+Check pass rates always refer to the raw output.
 """
 
 from __future__ import annotations
@@ -14,6 +18,7 @@ from typing import Any
 from jtbd_pilot.checks import check_run, load_pass_rates
 from jtbd_pilot.config import Settings
 from jtbd_pilot.consensus import load_consensus
+from jtbd_pilot.corpus.store import chunk_map
 from jtbd_pilot.errors import ValidationFailed
 from jtbd_pilot.freeze import verify_benchmark_frozen
 from jtbd_pilot.jsonio import read_json, write_json
@@ -27,7 +32,7 @@ from jtbd_pilot.metrics import (
     kappa_stat,
     summarize,
 )
-from jtbd_pilot.runs import load_outputs, load_run_manifest
+from jtbd_pilot.runs import ChunkOutput, load_outputs, load_run_manifest
 from jtbd_pilot.schema import evidence_rank
 
 RELEVANCE_LABELS = ["false", "true", "invalid"]
@@ -94,19 +99,13 @@ def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[st
     return units, neutral
 
 
-def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
-    manifest = verify_benchmark_frozen(settings)
-    run = load_run_manifest(settings, run_id)
-    if run.split != "main":
-        raise ValidationFailed("scoring uses the frozen main-split benchmark")
-    if run.status != "complete":
-        raise ValidationFailed(f"{run_id} is not complete (status {run.status})")
-    if run.role == "reference":
-        raise ValidationFailed("reference runs are part of the consensus; use `pilot agreement`")
-    consensus, contested, meta = load_consensus(settings, "main")
-    outputs = load_outputs(settings, run_id)
-    units, neutral = score_units(consensus, contested, meta["chunks"], outputs,
-                                 float(settings.pilot.get("min_iou", 0.3)))
+def _ratio(value: float | None, reference: float | None) -> float | None:
+    return round(value / reference, 6) if value is not None and reference else None
+
+
+def _dimensions(settings: Settings, consensus: list[dict], contested: list[dict],
+                chunk_ids: list[str], outputs: dict, min_iou: float) -> tuple[dict, Counter]:
+    units, neutral = score_units(consensus, contested, chunk_ids, outputs, min_iou)
     dims = {
         "relevance": summarize(units["relevance"], kappa_stat(RELEVANCE_LABELS), "kappa",
                                settings),
@@ -121,6 +120,40 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
                                       "quadratic_weighted_kappa", settings)
     dims = {d: dims[d] for d in ("relevance", "item_matching", "kind", "actor_type",
                                  "evidence_type", "evidence_scope")}
+    return dims, neutral
+
+
+def repaired_view(settings: Settings, outputs: dict[str, ChunkOutput]
+                  ) -> tuple[dict[str, ChunkOutput], Counter]:
+    """Outputs with near-miss quotes repaired by the frozen `quote_repair` rule (FR-026a)."""
+    from jtbd_pilot.ensemble import with_repair
+
+    rule = settings.criteria().quote_repair
+    chunks = chunk_map(settings, "main")
+    stats: Counter = Counter()
+    repaired = {}
+    for chunk_id, out in outputs.items():
+        if out.relevant is None:
+            repaired[chunk_id] = out
+            continue
+        items = with_repair(out, chunks[chunk_id].text, rule, stats)
+        repaired[chunk_id] = ChunkOutput(chunk_id, out.relevant, items)
+    return repaired, stats
+
+
+def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
+    manifest = verify_benchmark_frozen(settings)
+    run = load_run_manifest(settings, run_id)
+    if run.split != "main":
+        raise ValidationFailed("scoring uses the frozen main-split benchmark")
+    if run.status != "complete":
+        raise ValidationFailed(f"{run_id} is not complete (status {run.status})")
+    if run.role == "reference":
+        raise ValidationFailed("reference runs are part of the consensus; use `pilot agreement`")
+    consensus, contested, meta = load_consensus(settings, "main")
+    outputs = load_outputs(settings, run_id)
+    min_iou = float(settings.pilot.get("min_iou", 0.3))
+    dims, neutral = _dimensions(settings, consensus, contested, meta["chunks"], outputs, min_iou)
 
     agreement_path = settings.analysis_dir / "agreement.json"
     if meta.get("single_reference"):
@@ -132,6 +165,19 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
     model_composite = composite(d["score"] for d in dims.values())
     frontier_a = agreement["composite_consensus_units"] if agreement else None
     frontier_b = agreement["composite_all_units"] if agreement else None
+    repaired = None
+    if run.role == "teacher_candidate":
+        repaired_outputs, stats = repaired_view(settings, outputs)
+        repaired_dims, _ = _dimensions(settings, consensus, contested, meta["chunks"],
+                                       repaired_outputs, min_iou)
+        repaired_composite = composite(d["score"] for d in repaired_dims.values())
+        repaired = {
+            "dimensions": repaired_dims,
+            "composite": repaired_composite,
+            "quality_ratio_a": _ratio(repaired_composite, frontier_a),
+            "quality_ratio_b": _ratio(repaired_composite, frontier_b),
+            "repair_stats": {k: stats[k] for k in ("invalid_quotes", "repaired", "dropped")},
+        }
     rates = load_pass_rates(settings, run_id) or check_run(settings, run_id)["pass_rates"]
     result = {
         "run_id": run_id,
@@ -145,15 +191,16 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
         "composite": model_composite,
         "frontier_composite_consensus_units": frontier_a,
         "frontier_composite_all_units": frontier_b,
-        "quality_ratio_a": round(model_composite / frontier_a, 6)
-        if model_composite is not None and frontier_a else None,
-        "quality_ratio_b": round(model_composite / frontier_b, 6)
-        if model_composite is not None and frontier_b else None,
+        "quality_ratio_a": _ratio(model_composite, frontier_a),
+        "quality_ratio_b": _ratio(model_composite, frontier_b),
         "neutral_contested_hits": dict(neutral),
         "check_pass_rates": rates,
         "excluded_chunks": len(run.excluded_chunks),
         "license_basis": run.license_basis,
         "quantization": run.quantization,
+        "cost_per_chunk_eur": round(run.cost_eur / len(outputs), 6) if outputs else None,
     }
+    if repaired is not None:
+        result["repaired"] = repaired
     write_json(settings.analysis_dir / "scores" / f"{run_id}.json", result)
     return result

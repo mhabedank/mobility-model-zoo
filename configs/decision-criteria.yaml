@@ -1,4 +1,4 @@
-# Initial decision criteria (FR-030, FR-031). Frozen by `pilot freeze` before the first labeling run.
+# Initial decision criteria (FR-030, FR-031, FR-031a; ensemble FR-019b; quote repair FR-026a). Frozen by `pilot freeze` before the first labeling run.
 version: criteria-v1
 thresholds:
   relevance_kappa: 0.8
@@ -19,4 +19,23 @@ finetuning_optional:
   quality_reference: frontier_vs_frontier_composite
   throughput_reference: frontier_reference_chunks_per_min
 underpowered_min_units: 30
-rationale: Initial values from the pilot spec, confirmed 2026-09-25.
+teacher_fitness:                  # FR-031a
+  min_quality_ratio: 0.90         # repaired composite / frontier-vs-frontier composite (ratio a)
+  min_schema_valid: 0.98
+  tie_margin: 0.02                # within this composite gap the cheaper candidate is recommended
+  score_view: repaired
+quote_repair:                     # FR-026a, teacher scoring view only
+  min_score: 90                   # rapidfuzz partial-ratio alignment, 0-100
+  min_length_ratio: 0.8
+  max_length_ratio: 1.25
+teacher_ensemble:                 # FR-019b; orders from the spike (research.md R10), not tuned on pilot data
+  model_id: teacher-ensemble
+  members: [teacher-or-mimo-v2.6-pro, teacher-or-deepseek-v4.1-flash, teacher-or-glm-5.3-flash, teacher-qwen3.8]
+  min_votes: 2
+  tie_break:
+    kind: [teacher-or-deepseek-v4.1-flash, teacher-or-mimo-v2.6-pro, teacher-qwen3.8, teacher-or-glm-5.3-flash]
+    actor_type: [teacher-or-mimo-v2.6-pro, teacher-or-deepseek-v4.1-flash, teacher-or-glm-5.3-flash, teacher-qwen3.8]
+    evidence_type: [teacher-or-glm-5.3-flash, teacher-or-mimo-v2.6-pro, teacher-qwen3.8, teacher-or-deepseek-v4.1-flash]
+    evidence_scope: [teacher-or-mimo-v2.6-pro, teacher-or-glm-5.3-flash, teacher-qwen3.8, teacher-or-deepseek-v4.1-flash]
+  quote_priority: [teacher-or-deepseek-v4.1-flash, teacher-qwen3.8, teacher-or-mimo-v2.6-pro, teacher-or-glm-5.3-flash]
+rationale: Initial values from the pilot spec, confirmed 2026-09-25; teacher fitness, quote repair and ensemble rule added 2026-09-29 (spec clarification after the spike), before the first freeze.

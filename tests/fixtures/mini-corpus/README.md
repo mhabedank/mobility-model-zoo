@@ -1,6 +1,6 @@
 # Mini corpus fixture
 
-Five chunks with mocked answers from two reference "models" (`mock-a`, `mock-b`) and one baseline (`mock-small`). `pilot.yaml` sets `test_fixture: true`, so the mock chain may freeze a `test_only` benchmark. The chunk store lives in `store/` (not `data/`, which is gitignored).
+Five chunks with mocked answers from two reference "models" (`mock-a`, `mock-b`), one baseline (`mock-small`) and two teacher candidates (`mock-teacher-x`, a copy of `mock-small`; `mock-teacher-y`, a copy of `mock-a` with one near-miss quote in ch-001, "pendel" for "pendle"). `mock-ensemble` is their offline ensemble (`pilot ensemble`, rule in `decision-criteria.yaml`). `pilot.yaml` sets `test_fixture: true`, so the mock chain may freeze a `test_only` benchmark. The chunk store lives in `store/` (not `data/`, which is gitignored).
 
 ## Built-in cases
 

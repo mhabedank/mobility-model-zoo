@@ -16,3 +16,21 @@ models:
   backend: mock
   host: local
   role: baseline
+- model_id: mock-teacher-x
+  family: fam-x
+  backend: mock
+  host: local
+  role: teacher_candidate
+  license_basis: "MIT (fixture)"
+- model_id: mock-teacher-y
+  family: fam-y
+  backend: mock
+  host: local
+  role: teacher_candidate
+  license_basis: "Apache-2.0 (fixture)"
+- model_id: mock-ensemble
+  family: ensemble
+  backend: ensemble
+  host: local
+  role: teacher_candidate
+  license_basis: "derived from mock-teacher-x and mock-teacher-y"

@@ -1,0 +1,23 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "Public chargers at the supermarket are broken about half the time I visit.",
+      "actor": "driver",
+      "actor_type": "individual",
+      "statement": "Chargers broken.",
+      "evidence_type": "anecdote",
+      "evidence_scope": "quantified"
+    },
+    {
+      "kind": "job",
+      "quote": "I now plan every longer trip around fast chargers on the motorway.",
+      "actor": "driver",
+      "actor_type": "individual",
+      "statement": "Plan trips around fast chargers.",
+      "evidence_type": "routine",
+      "evidence_scope": "multiple"
+    }
+  ]
+}

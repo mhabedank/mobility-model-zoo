@@ -168,6 +168,14 @@ models:
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {enabled: false}
     max_output_tokens: 8192
+  # Offline ensemble (FR-019b) of the four teachers named in decision-criteria.yaml
+  # (teacher_ensemble.members); built by `pilot ensemble` from their runs. No model calls.
+  - model_id: teacher-ensemble
+    family: ensemble
+    backend: ensemble
+    host: local
+    role: teacher_candidate
+    license_basis: "derived; the members' license bases are joined in the run manifest"
   # Spike attempt 3 on the Spark: Ludwig (token-weighted loss patch), served by vLLM with guided
   # JSON decoding. Base and students use the same bf16 base model.
   - model_id: spike-base-spark
