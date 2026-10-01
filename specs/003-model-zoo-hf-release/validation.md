@@ -46,10 +46,30 @@ On 2026-10-01: `uv run ruff check` passes, `uv run pytest` passes (252 tests), `
 
 ## Real runs against the Hugging Face Hub
 
-Pending. They need the owner's steps T012 (repository rename), T013 (organization and tokens) and T038 (merge into `main`).
+### T039: sandbox-pipeline-tiny 0.1.0, quickstart scenarios 2–5 (2026-10-02, UTC times)
 
-| Task | Scenario | Result |
-|------|----------|--------|
-| T039 | quickstart 2–5: stage, tag, preview, publish, refusals; SC-001, SC-007 | pending |
-| T047 | quickstart 3 again with the full card; SC-002 | pending |
-| T058 | quickstart 6: second version and history | pending |
+| Step | Result |
+|------|--------|
+| `zoo init-model` (release token) | private repo `mobility-model-zoo/sandbox-pipeline-tiny-staging` created |
+| `zoo stage` (staging token, write access to that repo only) | 2 files staged at `3fb95e9e…`; record updated |
+| `zoo check` locally against the Hub | all 14 rules PASS, including rule 5 (staged files), 10b (Hub validation: no errors, no warnings) and 12 (usage example in a fresh environment against the private staging repo) |
+| Merge of PR #1 with a merge commit | recipe commit `fab92337` is in the history of `main` |
+| Tag `sandbox-pipeline-tiny/v0.1.0` → `release-verify` ([run 36932724704](https://github.com/mhabedank/mobility-model-zoo/actions/runs/36932724704)) | success in 31 s; all 14 rules PASS; preview at `rc-v0.1.0`, card sha256 `47cd4e66…`; example outputs are real model outputs |
+| `release-publish` started 22:08:50 ([run 36933250179](https://github.com/mhabedank/mobility-model-zoo/actions/runs/36933250179)) | success; private repo `mobility-model-zoo/sandbox-pipeline-tiny` created; one commit `c52119f7…` with `README.md`, `config.json`, `model.safetensors`; tag `v0.1.0` on it; record committed to `main` (`ed44862`) at 22:09:10. **Approval to visible tag: 20 s (SC-007: under 30 minutes)** |
+| Download by version | `snapshot_download(..., revision="v0.1.0")` and `PipelineTestModel.from_pretrained(..., revision="v0.1.0")` work; prediction as on the card |
+| Second publish of 0.1.0 | exit 3 (rule 4: tag exists); repo unchanged (SC-006) |
+| Wrong `--confirm` | exit 4, nothing uploaded |
+| No `HF_RELEASE_TOKEN` | exit 5 with a clear message |
+| `zoo audit` | tag points to the recorded commit, card hash matches, staging and sandbox repos are private |
+
+Not repeated against the real Hub, covered by automated tests with FakeHub: a preview built from another commit (`test_preview_from_another_commit_is_refused`) and a staged file that does not match its checksum (`test_rule_5_staged_file_mismatch`, `test_build_refuses_mismatching_staged_files`).
+
+**SC-001 (feature 003 part): met.** The test model is published to a private repository in the organization under `v0.1.0`, through the pipeline, with zero manual upload steps; the span draft's dry run reports only fields that feature 004 delivers.
+
+### T047: full card with Hub validation (SC-002)
+
+The 0.1.0 card already has every section of contracts/model-card.md (the full template was built before the first real run), and the Hub's `validate-yaml` returned no errors and no warnings in `release-verify`. **SC-002: met for the sandbox card.** No separate 0.1.1 run was needed.
+
+### T058: second version and history (quickstart scenario 6)
+
+Pending.
