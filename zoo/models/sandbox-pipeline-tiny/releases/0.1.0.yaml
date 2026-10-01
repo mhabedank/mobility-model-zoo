@@ -1,17 +1,23 @@
 model: sandbox-pipeline-tiny
 version: 0.1.0
-date: 2026-10-01
+date: 2026-10-02
 status: experimental
 change_type: initial
 changes: First test release.
 output_format_version: sandbox-v1
 sandbox: true
-files: []
+files:
+- path: config.json
+  sha256: 28822c8f307ce08bf5f313fc86b7bcfdee9eae0908afcef4ec08dd632ebbf864
+  size_bytes: 43
+- path: model.safetensors
+  sha256: b935f58f619525768b04446c2a04fa532beec257e8520593070f483bcfddcf86
+  size_bytes: 8560
 staging:
   repo: mobility-model-zoo/sandbox-pipeline-tiny-staging
-  revision: ''
+  revision: 3fb95e9ea8cc8a8ab78d8dd074f256538746ae17
 recipe:
-  git_commit: ''
+  git_commit: fab92337beb8937587c48417ffab0564b55db55a
   config: src/mobility_model_zoo/sandbox/build_test_model.py
   doc: docs/adding-a-model.md
 provenance:

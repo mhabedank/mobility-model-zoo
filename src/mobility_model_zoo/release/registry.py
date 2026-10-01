@@ -46,8 +46,15 @@ def load_yaml(path: Path) -> Any:
     return yaml.load(path.read_text(encoding="utf-8"), Loader=_Loader)
 
 
+class _Dumper(yaml.SafeDumper):
+    """SafeDumper that writes date strings unquoted (they are read back as strings by _Loader)."""
+
+
+_Dumper.yaml_implicit_resolvers = _Loader.yaml_implicit_resolvers
+
+
 def dump_yaml(data: Any) -> str:
-    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100)
+    return yaml.dump(data, Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100)
 
 
 @cache
