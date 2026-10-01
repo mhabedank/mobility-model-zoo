@@ -1,0 +1,31 @@
+{
+  "kind": "performance",
+  "model": "sandbox-pipeline-tiny",
+  "version": "0.2.0",
+  "synthetic": true,
+  "source_run": null,
+  "metrics": [
+    {
+      "name": "seconds_per_text",
+      "value": 0.01,
+      "unit": "s",
+      "description": "Synthetic time per example text (test number)",
+      "reference": null,
+      "benchmark": null,
+      "n_items": 3,
+      "hardware": "GitHub-hosted ubuntu-latest runner, CPU",
+      "date": "2026-10-02"
+    },
+    {
+      "name": "peak_memory_mb",
+      "value": 300,
+      "unit": "MB",
+      "description": "Synthetic peak memory (test number)",
+      "reference": null,
+      "benchmark": null,
+      "n_items": 3,
+      "hardware": "GitHub-hosted ubuntu-latest runner, CPU",
+      "date": "2026-10-02"
+    }
+  ]
+}
