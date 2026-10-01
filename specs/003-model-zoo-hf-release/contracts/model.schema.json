@@ -149,9 +149,12 @@
             },
             {
               "pattern": "\\{revision\\}"
+            },
+            {
+              "pattern": "\\{text\\}"
             }
           ],
-          "description": "Python code with placeholders {repo_id} and {revision}; the card fills in the public repo and v<version>, the gate the staging repo and revision and runs it (SC-004)"
+          "description": "Python code with placeholders {repo_id}, {revision} and {text}. {text} stands for a Python string literal. The card fills in the public repo, v<version> and the first example text; the gate fills in the staging repo and revision, runs it once per example text and uses the printed output as that example's output (SC-004, FR-018)"
         },
         "limitations": {
           "type": "string",

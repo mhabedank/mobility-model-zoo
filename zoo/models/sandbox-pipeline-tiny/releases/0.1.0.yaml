@@ -1,0 +1,32 @@
+model: sandbox-pipeline-tiny
+version: 0.1.0
+date: 2026-10-01
+status: experimental
+change_type: initial
+changes: First test release.
+output_format_version: sandbox-v1
+sandbox: true
+files: []
+staging:
+  repo: mobility-model-zoo/sandbox-pipeline-tiny-staging
+  revision: ''
+recipe:
+  git_commit: ''
+  config: src/mobility_model_zoo/sandbox/build_test_model.py
+  doc: docs/adding-a-model.md
+provenance:
+  sources: []
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: synthetic
+  reference: none (synthetic test numbers)
+  results: results/0.1.0/quality.json
+performance:
+  hardware: GitHub-hosted ubuntu-latest runner, CPU
+  budget:
+    ram_gb: 1
+    gpu: false
+  results: results/0.1.0/performance.json
+published: null
+deprecated: null

@@ -1,0 +1,128 @@
+---
+{{ front_matter }}---
+
+# {{ m.title }}
+
+**Version {{ r.version }}** · {{ r.date }} · status: **{{ r.status }}** · topic: [{{ topic.title }}]({{ topic_url }}) · task: `{{ m.task }}`
+
+> **{{ banner.title }}** {{ banner.text }}
+
+## Summary
+
+{{ m.summary }}
+
+`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
+
+## Intended use
+
+{{ m.card.intended_use }}
+
+## Out-of-scope use
+
+{{ m.card.out_of_scope }}
+
+## Input and output
+
+{{ m.card.input_output }}
+
+## How to run it
+
+```bash
+{{ install }}
+```
+
+```python
+{{ how_to_run }}
+```
+
+The tag `v{{ r.version }}` always points to this version. For strict reproducibility, pin the commit hash of that tag instead (`revision="<commit>"`).
+
+## Examples
+
+{% for ex in examples %}
+### Example {{ loop.index }}: `{{ ex.name }}`
+
+Input:
+
+```text
+{{ ex.text }}
+```
+
+Output:
+
+```json
+{{ ex.output }}
+```
+{% endfor %}
+
+## Quality
+
+These numbers are agreement with {{ r.evaluation.reference }}; they are not measured against human ground truth. Benchmark: `{{ r.evaluation.benchmark }}`.{% if quality.synthetic %} **Synthetic test numbers.**{% endif %}
+
+| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
+|--------|-------|------------------|-----------|-----------|-------|------|
+{% for q in quality.metrics %}| `{{ q.name }}` | {{ q.value | num }} | {{ q.description }} | {{ q.reference }} | {{ q.benchmark }} | {{ q.n_items }} | {{ q.date }} |
+{% endfor %}
+
+## Speed and memory
+
+Budget: {{ r.performance.budget.ram_gb | num }} GB RAM, no GPU. Measured on: {{ r.performance.hardware }}.{% if performance.synthetic %} **Synthetic test numbers.**{% endif %}
+
+| Metric | Value | Unit | What it measures | Hardware | Items | Date |
+|--------|-------|------|------------------|----------|-------|------|
+{% for p in performance.metrics %}| `{{ p.name }}` | {{ p.value | num }} | {{ p.unit or "" }} | {{ p.description }} | {{ p.hardware }} | {{ p.n_items or "" }} | {{ p.date }} |
+{% endfor %}
+
+## Limitations and risks
+
+{{ m.card.limitations }}
+
+## Training data provenance
+
+{% if r.provenance.sources %}
+| Source | License | Permitted use | Count |
+|--------|---------|---------------|-------|
+{% for s in r.provenance.sources %}| {{ s.origin }} | {{ s.license }} | {{ s.permitted_use }} | {{ s.count }} |
+{% endfor %}
+{% else %}
+No training sources: {% if r.sandbox %}this is a synthetic pipeline test model.{% else %}none recorded.{% endif %}
+{% endif %}
+
+{% if r.provenance.teachers %}
+| Teacher | License basis | Training on outputs permitted |
+|---------|---------------|-------------------------------|
+{% for t in r.provenance.teachers %}| `{{ t.model_id }}` | {{ t.license_basis }} | {{ "yes" if t.training_on_outputs_permitted else "no" }} |
+{% endfor %}
+{% endif %}
+
+The training data itself is not published. Datasets stay internal so that the people who wrote the source texts are protected and source terms are respected (project constitution, Principle VI); the model, the method, the prompts and the evaluation results are published.
+
+## Training recipe
+
+- Recipe: [{{ r.recipe.doc }}]({{ repo_url }}/blob/{{ r.recipe.git_commit }}/{{ r.recipe.doc }})
+- Configuration: [{{ r.recipe.config }}]({{ repo_url }}/blob/{{ r.recipe.git_commit }}/{{ r.recipe.config }})
+- Commit: `{{ r.recipe.git_commit }}`
+
+## Version history
+
+| Version | Date | Status | Change | Changes |{% for name in history.metric_names %} `{{ name }}` |{% endfor %}
+
+|---------|------|--------|--------|---------|{% for name in history.metric_names %}------|{% endfor %}
+
+{% for row in history.rows %}| {{ row.version }} | {{ row.date }} | {{ row.status }} | {{ row.change_type }} | {{ row.changes }} |{% for value in row.cells %} {{ value }} |{% endfor %}
+
+{% endfor %}
+
+## License
+
+{{ m.license }}{% if m.license_exception %} ({{ m.license_exception }}){% endif %}
+
+## Citation
+
+```bibtex
+{{ m.card.citation | trim }}
+```
+
+## About the zoo
+
+Part of [mobility-model-zoo](https://huggingface.co/{{ org }}), a collection of small, fast mobility models grouped by topic. Topic collection: [{{ topic.title }}]({{ topic_url }}). Source code, recipes and release records: [{{ repo_url }}]({{ repo_url }}).

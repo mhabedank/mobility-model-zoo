@@ -1,0 +1,76 @@
+name: release-publish
+
+# Starting this workflow is the owner's approval (specs/003-model-zoo-hf-release, research R5).
+# publish: publishes exactly the reviewed preview of release-verify (no rebuild).
+# deprecate: marks a published version as deprecated (card-only commit; files and tags unchanged).
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [publish, deprecate]
+        default: publish
+      model:
+        description: Model name, e.g. sandbox-pipeline-tiny
+        required: true
+      version:
+        description: Version, e.g. 0.1.0
+        required: true
+      confirm:
+        description: "publish: repeat <model>/v<version>"
+        required: false
+      reason:
+        description: "deprecate: why"
+        required: false
+      successor:
+        description: "deprecate: version to use instead (optional)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.model }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_RELEASE_TOKEN: ${{ secrets.HF_RELEASE_TOKEN }}
+      ACTION: ${{ inputs.action }}
+      MODEL: ${{ inputs.model }}
+      VERSION: ${{ inputs.version }}
+      CONFIRM: ${{ inputs.confirm }}
+      REASON: ${{ inputs.reason }}
+      SUCCESSOR: ${{ inputs.successor }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gate rule 8 needs the full history
+          ref: ${{ inputs.action == 'publish' && format('refs/tags/{0}/v{1}', inputs.model, inputs.version) || 'main' }}
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra release
+      - name: Publish the reviewed preview
+        if: inputs.action == 'publish'
+        run: uv run zoo publish "$MODEL" "$VERSION" --confirm "$CONFIRM"
+      - name: Deprecate
+        if: inputs.action == 'deprecate'
+        run: |
+          args=(--reason "$REASON")
+          if [ -n "$SUCCESSOR" ]; then args+=(--successor "$SUCCESSOR"); fi
+          uv run zoo deprecate "$MODEL" "$VERSION" "${args[@]}"
+      - name: Commit the updated release record and overview to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zoo
+          git stash
+          git checkout main
+          git stash pop
+          git add zoo
+          git commit -m "Record $ACTION of $MODEL v$VERSION"
+          git push origin main

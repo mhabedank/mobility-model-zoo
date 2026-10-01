@@ -1,0 +1,58 @@
+name: release-verify
+
+# A tag <model>/v<version> starts the release gate, the build and the preview of the model card on
+# the staging branch rc-v<version>. Nothing is published here (specs/003-model-zoo-hf-release).
+on:
+  push:
+    tags: ["*/v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_RELEASE_TOKEN: ${{ secrets.HF_RELEASE_TOKEN }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gate rule 8 needs the full history
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra release
+      - name: Model and version from the tag
+        run: |
+          echo "MODEL=${TAG%%/v*}" >> "$GITHUB_ENV"
+          echo "VERSION=${TAG##*/v}" >> "$GITHUB_ENV"
+      - name: Gate and build
+        run: uv run zoo build "$MODEL" "$VERSION" --out build 2> >(tee gate.log >&2)
+      - name: Preview on the staging branch
+        run: uv run zoo preview "$MODEL" "$VERSION" --build build 2> >(tee preview.log >&2)
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Release gate for \`$TAG\`"
+            echo
+            echo '```'
+            cat gate.log 2>/dev/null || echo "(no gate output)"
+            echo '```'
+            echo
+            echo "## Preview"
+            echo
+            cat preview.log 2>/dev/null || echo "(no preview)"
+            echo
+            echo "To approve, start **release-publish** with model \`$MODEL\`, version \`$VERSION\` and confirm \`$TAG\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-${{ github.run_id }}
+          path: |
+            build/README.md
+            build/build.json
+          if-no-files-found: ignore

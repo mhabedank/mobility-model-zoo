@@ -23,6 +23,7 @@ VALIDATE_YAML_URL = "https://huggingface.co/api/validate-yaml"
 RELEASE_TOKEN = "HF_RELEASE_TOKEN"
 STAGING_TOKEN = "HF_STAGING_TOKEN"
 
+
 def token_from_env(name: str) -> str:
     token = os.environ.get(name, "").strip()
     if not token:
@@ -53,13 +54,9 @@ def _wrap[T](fn: Callable[..., T]) -> Callable[..., T]:
                 raise CredentialError(
                     f"Hugging Face refused the token ({status}) in {fn.__name__}"
                 ) from None
-            raise HubError(
-                f"Hugging Face error in {fn.__name__}: {status} {type(e).__name__}"
-            ) from None
+            raise HubError(f"Hugging Face error in {fn.__name__}: {status} {type(e).__name__}") from None
         except (httpx.HTTPError, OSError) as e:
-            raise HubError(
-                f"Hugging Face unreachable in {fn.__name__}: {type(e).__name__}"
-            ) from None
+            raise HubError(f"Hugging Face unreachable in {fn.__name__}: {type(e).__name__}") from None
 
     return inner
 
@@ -76,7 +73,7 @@ class Hub:
     # ---- repositories --------------------------------------------------------------------------
     @_wrap
     def visibility(self, repo: str) -> str | None:
-        """"private", "public", or None if the repo does not exist (or is not visible)."""
+        """ "private", "public", or None if the repo does not exist (or is not visible)."""
         from huggingface_hub.errors import RepositoryNotFoundError
 
         try:
@@ -131,8 +128,7 @@ class Hub:
         from huggingface_hub import CommitOperationAdd
 
         ops = [
-            CommitOperationAdd(path_in_repo=p, path_or_fileobj=str(f))
-            for p, f in sorted(files.items())
+            CommitOperationAdd(path_in_repo=p, path_or_fileobj=str(f)) for p, f in sorted(files.items())
         ]
         info = self._api.create_commit(repo, ops, commit_message=message, revision=branch)
         return info.oid

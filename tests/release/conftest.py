@@ -71,3 +71,28 @@ def make_env(root: Path) -> ZooEnv:
 @pytest.fixture
 def zoo_env(tmp_path: Path) -> ZooEnv:
     return make_env(tmp_path)
+
+
+class FakeRunner:
+    """Stands in for the clean-environment runner: returns a deterministic output per code."""
+
+    def __init__(self, returncode: int = 0):
+        self.returncode = returncode
+        self.calls: list[str] = []
+
+    def run(self, code: str) -> tuple[int, str, str]:
+        self.calls.append(code)
+        if self.returncode:
+            return self.returncode, "", "Traceback: boom"
+        digest = hashlib.sha256(code.encode()).hexdigest()[:8]
+        return 0, f'{{"items": [], "run": "{digest}"}}\n', ""
+
+
+@pytest.fixture
+def runner() -> FakeRunner:
+    return FakeRunner()
+
+
+def lines() -> tuple[list[str], callable]:
+    out: list[str] = []
+    return out, out.append
