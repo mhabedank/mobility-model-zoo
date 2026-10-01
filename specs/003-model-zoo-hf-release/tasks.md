@@ -21,8 +21,8 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 
 **Purpose**: Governance and license before any code changes.
 
-- [ ] T001 Amend `.specify/memory/constitution.md` to 1.3.0 (research R13): preamble and "Project Scope" describe the multi-topic zoo `mobility-model-zoo`; Principles I, II, VII and X apply to the `productdev` JTBD models; III, IV, V, VI, VIII, IX, Resources, Technical Spikes and Gates apply zoo-wide, with JTBD-specific wording made task-neutral; Principle IX adds "published versions are immutable", "publication only through the release pipeline with owner approval" and "datasets are never published"; a new section states the task/release split (one build-and-measure tool per task, shared by all its models; one common release record and gate for every model; shared code is extracted only when a second task needs it). Update the Sync Impact Report, version 1.3.0, Last Amended 2026-10-01.
-- [ ] T002 [P] Add the Apache-2.0 license text as `LICENSE` at the repository root (FR-003b).
+- [X] T001 Amend `.specify/memory/constitution.md` to 1.3.0 (research R13): preamble and "Project Scope" describe the multi-topic zoo `mobility-model-zoo`; Principles I, II, VII and X apply to the `productdev` JTBD models; III, IV, V, VI, VIII, IX, Resources, Technical Spikes and Gates apply zoo-wide, with JTBD-specific wording made task-neutral; Principle IX adds "published versions are immutable", "publication only through the release pipeline with owner approval" and "datasets are never published"; a new section states the task/release split (one build-and-measure tool per task, shared by all its models; one common release record and gate for every model; shared code is extracted only when a second task needs it). Update the Sync Impact Report, version 1.3.0, Last Amended 2026-10-01.
+- [X] T002 [P] Add the Apache-2.0 license text as `LICENSE` at the repository root (FR-003b).
 
 ---
 
@@ -32,7 +32,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 
 ### Branches
 
-- [ ] T003 **(ops)** Set up branches (plan step 0): on `001-jtbd-extraction-pilot`, commit the open work (`README.md`, `spike/*.py`, `spike/*.sh`, `specs/003-model-zoo-hf-release/`) after checking that no file under `data/` or `.env` is staged; push; fast-forward `main` with `git push origin 001-jtbd-extraction-pilot:main` (`main` is 9 commits behind and has not diverged); create `003-model-zoo-hf-release` from `main` and push it. All 003 work happens on that branch. The open 001 ops tasks continue on `main` after the 003 merge (T038).
+- [X] T003 **(ops)** Set up branches (plan step 0): on `001-jtbd-extraction-pilot`, commit the open work (`README.md`, `spike/*.py`, `spike/*.sh`, `specs/003-model-zoo-hf-release/`) after checking that no file under `data/` or `.env` is staged; push; fast-forward `main` with `git push origin 001-jtbd-extraction-pilot:main` (`main` is 9 commits behind and has not diverged); create `003-model-zoo-hf-release` from `main` and push it. All 003 work happens on that branch. The open 001 ops tasks continue on `main` after the 003 merge (T038).
 
 ### Rename (one commit, full test suite green)
 

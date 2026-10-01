@@ -1,35 +1,57 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.1.0 → 1.2.0
-Bump rationale: MINOR. Adds the section "Technical Spikes". No principle is removed or redefined;
-spikes get a narrow, explicit exemption from two gates, with all other principles still binding.
+Version change: 1.2.0 → 1.3.0
+Bump rationale: MINOR. The project becomes a multi-topic model zoo (`mobility-model-zoo`). No
+principle is removed or redefined: the JTBD-specific principles keep their full force for the
+product development JTBD models, and the shared principles now apply to every model in the zoo.
+Principle IX is expanded with release rules.
 
-Modified principles: none (Principle IV and the reporting gate reference the spike exemption).
+Modified principles:
+- IX. Reproducible, Dated Releases: adds immutable published versions, publication only through
+  the release pipeline with owner approval, and the ban on publishing datasets.
+- Core Principles: a scope note states which principles apply zoo-wide and which apply to the
+  product development JTBD models.
+
+Modified sections:
+- Preamble and "Project Scope & Iterative Delivery": describe the zoo, its topics and the JTBD
+  extraction task as the first task.
 
 Added sections:
-- Technical Spikes: bounded end-to-end or exploratory runs that validate tooling before the
-  agreement pilot is complete. Results are labeled "spike", never "benchmark".
+- Tasks and Releases: one build-and-measure tool per task, shared by all its models; one common
+  release record and release gate for every model; shared code is extracted only when a second
+  task needs it.
 
 Removed sections: none
 
 Templates reviewed (not modified; they read the constitution at runtime):
-- .specify/templates/plan-template.md ✅ (Constitution Check must cover the spike rules for spikes)
+- .specify/templates/plan-template.md ✅ (Constitution Check must name the task a model belongs to)
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
 Follow-up TODOs:
-- Feature 002 (end-to-end spike) must declare itself a spike and state its size bounds.
+- Feature 004 (production span model) must use the release record and gate from feature 003.
 -->
 
-# mobility-llm Constitution
+# mobility-model-zoo Constitution
 
-An open-source extraction engine for a problem discovery framework. It extracts
-jobs-to-be-done, pains and gains with graded evidence from heterogeneous texts (papers,
-forums, Reddit, chats) using a small, fast model that runs locally. The first domain is
-Mobility.
+An open-source collection of small, fast machine learning models for mobility, grouped by topic.
+Each model solves one task, runs locally and is released with a versioned, honest model card.
+
+The first topic is product development (`productdev`). Its first task is an extraction engine for
+a problem discovery framework: it extracts jobs-to-be-done, pains and gains with graded evidence
+from heterogeneous texts (papers, forums, reviews, chats). Later topics, for example cyber security
+or IoT, add their own tasks.
 
 ## Core Principles
+
+Scope of the principles: Principles I, II, VII and X are written for the JTBD extraction task and
+apply to every model of that task. Principles III, IV, V, VI, VIII and IX, and every section below
+the principles, apply to every model in the zoo. Where a zoo-wide principle names frontier labeling
+(III, IV), a task whose reference is not frontier labeling (for example a dataset with ground-truth
+labels) MUST name its reference in its spec and apply the same rules to it: a fixed, frozen
+reference, honest naming of what the reference is, separate reporting of disputed items, and
+quality-vs-throughput reporting.
 
 ### I. Problem-First, Not Persona-First
 
@@ -146,6 +168,11 @@ same way.
   and the benchmark itself.
 - Releases are dated snapshots with no maintenance promise.
 - Retraining on a new base model MUST follow a documented, repeatable recipe.
+- A published model version MUST be immutable. A fix is a new version; a broken version is
+  marked deprecated, never silently overwritten or deleted.
+- Models MUST be published only through the release pipeline, after its release gate passes and
+  after the project owner approves the reviewed model card.
+- Datasets, training data, raw source text and labeling outputs MUST NOT be published.
 
 Rationale: Frontier models and base models change quickly. Frozen, dated artifacts keep
 results comparable and let the benchmark itself be audited later.
@@ -161,16 +188,34 @@ Rationale: A narrow task is what makes a small, fast model feasible and measurab
 
 ## Project Scope & Iterative Delivery
 
+- The zoo is organized in topics. Each model belongs to exactly one topic and is named
+  `<topic>-<task>-<variant>`. A new topic MUST NOT require changes to existing models.
 - The project proceeds iteratively: each iteration starts with the simplest setup that
   yields measurable results, then improves step by step.
 - Each iteration MUST produce a measurable result against the current frozen benchmark
   before the next layer of complexity is added.
-- In scope: extraction of jobs-to-be-done, pains, gains and actors, each with verbatim
-  evidence and an evidence grade, from heterogeneous texts in a given problem domain.
-- Out of scope for the extraction engine: deduplication, clustering, persona building,
+- JTBD extraction task, in scope: extraction of jobs-to-be-done, pains, gains and actors, each
+  with verbatim evidence and an evidence grade, from heterogeneous texts in a given problem
+  domain.
+- JTBD extraction task, out of scope: deduplication, clustering, persona building,
   prioritization, and any attribute available as collection metadata.
 - Mobility is the first domain. Domain-specific choices MUST be isolated in configuration,
   prompts or data so that later domains do not require changes to the engine.
+- Every new task MUST define its scope (in and out) in its first spec.
+
+## Tasks and Releases
+
+- How a model is built and measured belongs to its task. Each task has one build-and-measure
+  tool (for JTBD extraction: `jtbd`), shared by every model of that task, so that all models of a
+  task use the same benchmark version and the same evaluation harness (Principle VIII).
+- How a model is released is the same for every model, whatever its task: one release record per
+  version in the repository, one release gate (`zoo check`) and one release pipeline.
+- Code shared between tasks is extracted into a common module only when a second task needs it,
+  not in advance.
+
+Rationale: Tasks differ in data, references and metrics, so a single build pipeline for all of
+them would be the wrong abstraction. Releases must look the same everywhere, because that is what
+users of the zoo rely on.
 
 ## Resources & Cost Discipline
 
@@ -258,4 +303,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 1.2.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-09-27
+**Version**: 1.3.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-01
