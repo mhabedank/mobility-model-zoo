@@ -70,6 +70,14 @@ Not repeated against the real Hub, covered by automated tests with FakeHub: a pr
 
 The 0.1.0 card already has every section of contracts/model-card.md (the full template was built before the first real run), and the Hub's `validate-yaml` returned no errors and no warnings in `release-verify`. **SC-002: met for the sandbox card.** No separate 0.1.1 run was needed.
 
-### T058: second version and history (quickstart scenario 6)
+### T058: second version and history (quickstart scenario 6, 2026-10-02)
 
-Pending.
+| Step | Result |
+|------|--------|
+| `zoo stage` 0.2.0 (weights rebuilt with seed 1) | the record template set `change_type: minor` (a published version exists); all 14 rules PASS locally |
+| PR #2 merged with a merge commit; tag `sandbox-pipeline-tiny/v0.2.0` → `release-verify` ([run 36933737009](https://github.com/mhabedank/mobility-model-zoo/actions/runs/36933737009)) | success; the preview's version history lists 0.2.0 (`item_f1` 0.55) and 0.1.0 (0.5) side by side |
+| `release-publish` ([run 36933828272](https://github.com/mhabedank/mobility-model-zoo/actions/runs/36933828272)) | success; tag `v0.2.0` at `0c30a3a6…`; record committed to `main` (`c374031`) |
+| Download by version | `revision="v0.1.0"` still returns the 0.1.0 weights (`b935f58f…`) and their predictions; `v0.2.0` and the default branch return the new weights (`42a54eee…`) (FR-008) |
+| `zoo audit` | both versions OK |
+
+**US4 acceptance scenarios 1 and 2: met.**

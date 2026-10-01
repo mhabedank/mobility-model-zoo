@@ -160,7 +160,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 - [X] T055 [US4] Add the version history section to `model_card.md.j2` and `card.py`: one row per published version from all release records of the model plus the version being built, with metrics read from each version's `quality.json`.
 - [X] T056 [US4] Implement `zoo deprecate <model> <version> --reason <text> [--successor <version>]` in `src/mobility_model_zoo/release/publish.py`: update the record and push one card-only commit to `main` of the public repo (no tag change): with the deprecation banner if `<version>` is the latest published version, otherwise only its updated row in the version history. Add a `deprecate` job to `.github/workflows/release-publish.yml` triggered by an input `action: deprecate`.
 - [X] T057 [P] [US4] Implement `src/mobility_model_zoo/release/audit.py` and `zoo audit [<model>]`; also check that every `*-staging` repo and every sandbox repo is still private (FR-006a). Write `.github/workflows/zoo-audit.yml` (weekly schedule and `workflow_dispatch`, secret `HF_RELEASE_TOKEN`).
-- [ ] T058 [US4] **(ops)** Run quickstart.md scenario 6 with `sandbox-pipeline-tiny` 0.2.0 and record the result in `specs/003-model-zoo-hf-release/validation.md`.
+- [X] T058 [US4] **(ops)** Run quickstart.md scenario 6 with `sandbox-pipeline-tiny` 0.2.0 and record the result in `specs/003-model-zoo-hf-release/validation.md`.
 
 **Checkpoint**: All four stories work independently with the sandbox model.
 
