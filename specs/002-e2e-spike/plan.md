@@ -1,5 +1,7 @@
 # Implementation Plan: End-to-end spike
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 **Branch**: `002-e2e-spike` | **Date**: 2026-09-27 | **Spec**: [spec.md](spec.md) | **Type**: technical spike
 
 ## Summary

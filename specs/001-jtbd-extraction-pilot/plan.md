@@ -1,5 +1,7 @@
 # Implementation Plan: JTBD Extraction Pilot
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 **Branch**: `001-jtbd-extraction-pilot` | **Date**: 2026-09-25, updated 2026-09-29 after the spike | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/001-jtbd-extraction-pilot/spec.md`

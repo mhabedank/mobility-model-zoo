@@ -1,5 +1,7 @@
 # Quickstart: Validating the JTBD Extraction Pilot
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 This guide proves that the pilot tooling works end to end. It lists commands and expected outcomes, not implementation. Command details are in [contracts/cli.md](contracts/cli.md), and record shapes are in [data-model.md](data-model.md).
 
 ## Prerequisites

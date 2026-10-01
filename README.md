@@ -18,10 +18,10 @@ Prerequisites:
 - For performance runs only: a Linux VM with 8 GB RAM, 4 vCPU and no GPU, with Ollama installed
 
 ```bash
-uv sync
+uv sync --all-extras
 cp .env.example .env   # then fill in the keys and hosts
 uv run pytest
-uv run pilot --help
+uv run jtbd --help
 ```
 
 The CLI contract is in [contracts/cli.md](specs/001-jtbd-extraction-pilot/contracts/cli.md). The validation walkthrough is in [quickstart.md](specs/001-jtbd-extraction-pilot/quickstart.md).
@@ -66,8 +66,8 @@ Each request then takes the analysis time only: 0.72 s for the interview, about 
 ## Data handling
 
 - `data/` holds snapshots, chunks, raw model responses and analysis. It is gitignored and is **never** committed or published (Principle VI).
-- Each source is fetched **once** and stored as a complete raw snapshot. Its `source.yaml` records the origin, license, legal basis, permitted uses (`benchmark_only` or `training_allowed`) and `retention_until`. `pilot source fetch` refuses a second fetch of the same canonical URL unless it is given `--update --reason`.
-- Usernames and direct identifiers are removed before labeling (`pilot corpus redact`, manual review, `pilot corpus redact-check`).
+- Each source is fetched **once** and stored as a complete raw snapshot. Its `source.yaml` records the origin, license, legal basis, permitted uses (`benchmark_only` or `training_allowed`) and `retention_until`. `jtbd source fetch` refuses a second fetch of the same canonical URL unless it is given `--update --reason`.
+- Usernames and direct identifiers are removed before labeling (`jtbd corpus redact`, manual review, `jtbd corpus redact-check`).
 - Reddit content comes only through the official Data API, is always `benchmark_only`, and is deleted or access-restricted when the research ends (§ 60d UrhG). Arctic Shift is used only to find thread IDs.
 - When a snapshot's `retention_until` date has passed, delete its directory under `data/snapshots/`, together with the chunks and runs derived from it. The benchmark manifest in `benchmarks/` keeps only hashes, never text.
 - Raw model responses under `data/runs/*/raw/` are never edited.

@@ -1,5 +1,7 @@
 # Feature Specification: End-to-end spike (sources → teacher data → fine-tuned model)
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 **Feature Branch**: `002-e2e-spike`
 **Created**: 2026-09-27
 **Status**: Draft
