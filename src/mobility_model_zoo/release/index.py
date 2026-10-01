@@ -27,13 +27,13 @@ def render(reg: Registry) -> str:
                 latest, status = "–", "not published"
             link = f"[{model['repos']['public']}](https://huggingface.co/{model['repos']['public']})"
             rows.append(f"| `{name}` | {model['task']} | {latest} | {status} | {link} |")
-        parts.append(f"\n## {topic['title']} (`{topic['id']}`)\n\n{topic['description']}\n")
+        parts.append(f"## {topic['title']} (`{topic['id']}`)\n\n{topic['description']}\n")
         if rows:
-            parts.append("\n| Model | Task | Latest version | Status | Hugging Face |")
+            parts.append("| Model | Task | Latest version | Status | Hugging Face |")
             parts.append("|-------|------|----------------|--------|--------------|")
             parts.extend(rows)
         else:
-            parts.append("\nNo models yet.")
+            parts.append("No models yet.")
         parts.append("")
     return "\n".join(parts).rstrip("\n") + "\n"
 

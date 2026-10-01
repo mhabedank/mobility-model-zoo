@@ -15,7 +15,14 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Protocol
 
 from mobility_model_zoo.release import card as cards
-from mobility_model_zoo.release.errors import GateFailed, ImmutabilityRefused, UsageError, ZooError
+from mobility_model_zoo.release.errors import (
+    CredentialError,
+    GateFailed,
+    HubError,
+    ImmutabilityRefused,
+    UsageError,
+    ZooError,
+)
 from mobility_model_zoo.release.registry import (
     ORG,
     RESULT_KINDS,
@@ -107,9 +114,14 @@ class Gate:
         return self.hub is None
 
     # ---- rules ---------------------------------------------------------------------------------
+    _blocked: bool = False
+
     def rule_1(self) -> list[str]:
+        """Schema validity. Invalid topics or model files block every other rule; an invalid release
+        record does not, so that a draft record shows every gap at once."""
         failures = [f"zoo/topics.yaml {e}" for e in schema_errors("topics", self.reg.topics_raw())]
         failures += [f"model.yaml {e}" for e in schema_errors("model", self.model)]
+        self._blocked = bool(failures)
         failures += [
             f"releases/{self.version}.yaml {e}" for e in schema_errors("release-record", self.record)
         ]
@@ -384,16 +396,18 @@ class Gate:
             if self.only is not None and number not in self.only:
                 self.results[number] = ("SKIP", "not part of this step")
                 continue
-            if number != 1 and failures.get(1):
-                self.results[number] = ("SKIP", "needs valid files (rule 1)")
+            if number != 1 and self._blocked:
+                self.results[number] = ("SKIP", "needs a valid model.yaml and topics.yaml (rule 1)")
                 continue
             try:
                 found = getattr(self, f"rule_{number}")()
             except Skip as e:
                 self.results[number] = ("SKIP", str(e))
                 continue
-            except ZooError:
-                raise
+            except (CredentialError, HubError):
+                raise  # the Hub, not the release, is the problem: exit 5 or 6
+            except ZooError as e:
+                found = [str(e)]
             except Exception as e:  # a rule must never crash the gate silently
                 found = [f"rule crashed: {type(e).__name__}: {e}"]
             failures[number] = found
