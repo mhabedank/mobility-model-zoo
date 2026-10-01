@@ -13,7 +13,7 @@ import shutil
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 
 import httpx
 
@@ -22,9 +22,6 @@ from mobility_model_zoo.release.errors import CredentialError, HubError
 VALIDATE_YAML_URL = "https://huggingface.co/api/validate-yaml"
 RELEASE_TOKEN = "HF_RELEASE_TOKEN"
 STAGING_TOKEN = "HF_STAGING_TOKEN"
-
-T = TypeVar("T")
-
 
 def token_from_env(name: str) -> str:
     token = os.environ.get(name, "").strip()
@@ -41,7 +38,7 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _wrap(fn: Callable[..., T]) -> Callable[..., T]:
+def _wrap[T](fn: Callable[..., T]) -> Callable[..., T]:
     """Map Hub errors to CredentialError (exit 5) or HubError (exit 6), never echoing a token."""
 
     @functools.wraps(fn)
@@ -53,10 +50,16 @@ def _wrap(fn: Callable[..., T]) -> Callable[..., T]:
         except HfHubHTTPError as e:
             status = e.response.status_code if e.response is not None else None
             if status in (401, 403):
-                raise CredentialError(f"Hugging Face refused the token ({status}) in {fn.__name__}")
-            raise HubError(f"Hugging Face error in {fn.__name__}: {status} {type(e).__name__}")
+                raise CredentialError(
+                    f"Hugging Face refused the token ({status}) in {fn.__name__}"
+                ) from None
+            raise HubError(
+                f"Hugging Face error in {fn.__name__}: {status} {type(e).__name__}"
+            ) from None
         except (httpx.HTTPError, OSError) as e:
-            raise HubError(f"Hugging Face unreachable in {fn.__name__}: {type(e).__name__}")
+            raise HubError(
+                f"Hugging Face unreachable in {fn.__name__}: {type(e).__name__}"
+            ) from None
 
     return inner
 
@@ -127,7 +130,10 @@ class Hub:
         """Upload `files` (repo path -> local file) as one commit on `branch`; return the commit."""
         from huggingface_hub import CommitOperationAdd
 
-        ops = [CommitOperationAdd(path_in_repo=p, path_or_fileobj=str(f)) for p, f in sorted(files.items())]
+        ops = [
+            CommitOperationAdd(path_in_repo=p, path_or_fileobj=str(f))
+            for p, f in sorted(files.items())
+        ]
         info = self._api.create_commit(repo, ops, commit_message=message, revision=branch)
         return info.oid
 
