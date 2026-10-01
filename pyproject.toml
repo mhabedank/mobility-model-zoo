@@ -67,6 +67,8 @@ torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 [tool.ruff]
 line-length = 105
 target-version = "py312"
+# Golden model cards must stay byte-exact (ruff would format their code blocks)
+extend-exclude = ["tests/release/fixtures"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

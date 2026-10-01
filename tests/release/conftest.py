@@ -4,6 +4,7 @@ history that contains the recipe, and a FakeHub whose staging repo holds the sta
 from __future__ import annotations
 
 import hashlib
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -84,7 +85,8 @@ class FakeRunner:
         self.calls.append(code)
         if self.returncode:
             return self.returncode, "", "Traceback: boom"
-        digest = hashlib.sha256(code.encode()).hexdigest()[:8]
+        stable = re.sub(r"[0-9a-f]{40}", "<sha>", code)  # independent of fake commit ids
+        digest = hashlib.sha256(stable.encode()).hexdigest()[:8]
         return 0, f'{{"items": [], "run": "{digest}"}}\n', ""
 
 

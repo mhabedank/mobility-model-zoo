@@ -109,8 +109,6 @@ class Gate:
     # ---- rules ---------------------------------------------------------------------------------
     def rule_1(self) -> list[str]:
         failures = [f"zoo/topics.yaml {e}" for e in schema_errors("topics", self.reg.topics_raw())]
-        self.model = self.reg.model_raw(self.name)
-        self.record = self.reg.record_raw(self.name, self.version)
         failures += [f"model.yaml {e}" for e in schema_errors("model", self.model)]
         failures += [
             f"releases/{self.version}.yaml {e}" for e in schema_errors("release-record", self.record)
@@ -380,6 +378,8 @@ class Gate:
     def run(self, say: Callable[[str], None] | None = None) -> None:
         say = say or (lambda line: print(line, file=sys.stderr))
         failures: dict[int, list[str]] = {}
+        self.model = self.reg.model_raw(self.name)
+        self.record = self.reg.record_raw(self.name, self.version)
         for number in self.ORDER:
             if self.only is not None and number not in self.only:
                 self.results[number] = ("SKIP", "not part of this step")

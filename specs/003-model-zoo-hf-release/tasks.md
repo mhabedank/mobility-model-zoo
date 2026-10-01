@@ -107,7 +107,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 
 ### Tests for User Story 2
 
-- [ ] T040 [P] [US2] Write `tests/release/test_card_build.py`: a golden file `tests/release/fixtures/golden/sandbox-pipeline-tiny-0.1.0.README.md` equals the rendered card; every section heading from contracts/model-card.md is present and non-empty; no literal number appears in `model_card.md.j2`; the word "accuracy" does not appear in any rendered card; the quality section starts with "These numbers are agreement with <reference>; they are not measured against human ground truth." (contracts/model-card.md).
+- [X] T040 [P] [US2] Write `tests/release/test_card_build.py`: a golden file `tests/release/fixtures/golden/sandbox-pipeline-tiny-0.1.0.README.md` equals the rendered card; every section heading from contracts/model-card.md is present and non-empty; no literal number appears in `model_card.md.j2`; the word "accuracy" does not appear in any rendered card; the quality section starts with "These numbers are agreement with <reference>; they are not measured against human ground truth." (contracts/model-card.md).
 - [X] T041 [P] [US2] Extend `tests/release/test_gate_rules.py` with rules 9, 10, 12 and 13: a card number not present in the results files fails rule 9; a quality metric without `reference`, `benchmark` or `n_items` fails rule 9; a `FakeHub.validate_yaml` warning fails rule 10b (warnings count as failures); a `how_to_run` that raises fails rule 12; fewer than three examples fail rule 13.
 
 ### Implementation for User Story 2
@@ -131,7 +131,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 
 ### Tests for User Story 3
 
-- [ ] T048 [P] [US3] Write `tests/release/test_index.py`: `MODELS.md` has one table per non-sandbox topic with name, task, latest version, status and link; sandbox models are absent; a fixture registry with an added topic `iot` and model `iot-anomaly-test` validates and indexes without changing any code; publishing a model of a topic without `hf_collection` creates the collection once and writes its slug to `topics.yaml`, and a second model reuses it (FakeHub).
+- [X] T048 [P] [US3] Write `tests/release/test_index.py`: `MODELS.md` has one table per non-sandbox topic with name, task, latest version, status and link; sandbox models are absent; a fixture registry with an added topic `iot` and model `iot-anomaly-test` validates and indexes without changing any code; publishing a model of a topic without `hf_collection` creates the collection once and writes its slug to `topics.yaml`, and a second model reuses it (FakeHub).
 
 ### Implementation for User Story 3
 
@@ -152,7 +152,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 
 ### Tests for User Story 4
 
-- [ ] T053 [P] [US4] Write `tests/release/test_versions.py`: `change_type` rules (a changed `output_format_version` requires `major` from 1.0.0 on and at least `minor` below; `initial` only for the first version; `patch` only when files and results are unchanged); publishing 0.1.0 after 0.2.0 exits 3; the version history section lists every published version with date, status, change type, changes and the main quality metrics side by side; `zoo deprecate` sets `status: deprecated` with `reason` and `successor`, produces one card-only commit on `main`, and leaves files and tags unchanged; deprecating the latest version shows the banner, deprecating an older version only changes its history row; `zoo audit` fails when a staging or sandbox repo is public, when a tag points to a commit other than `published.repo_commit` or when the card hash differs.
+- [X] T053 [P] [US4] Write `tests/release/test_versions.py`: `change_type` rules (a changed `output_format_version` requires `major` from 1.0.0 on and at least `minor` below; `initial` only for the first version; `patch` only when files and results are unchanged); publishing 0.1.0 after 0.2.0 exits 3; the version history section lists every published version with date, status, change type, changes and the main quality metrics side by side; `zoo deprecate` sets `status: deprecated` with `reason` and `successor`, produces one card-only commit on `main`, and leaves files and tags unchanged; deprecating the latest version shows the banner, deprecating an older version only changes its history row; `zoo audit` fails when a staging or sandbox repo is public, when a tag points to a commit other than `published.repo_commit` or when the card hash differs.
 
 ### Implementation for User Story 4
 
@@ -174,7 +174,7 @@ description: "Tasks for feature 003: mobility model zoo with versioned Hugging F
 - [ ] T060 Run `uv run zoo check productdev-jtbd-span-xlmr 0.1.0 --offline` (quickstart.md scenario 7). The only failures must be the fields feature 004 delivers. Write the list to `specs/003-model-zoo-hf-release/handover-004.md` (FR-020).
 - [X] T061 [P] Implement `src/mobility_model_zoo/release/history.py` and `zoo history-check` (research R11): scan all commits on all refs for forbidden paths (anything under `data/`, `.env`, `*.jsonl`, `*.safetensors`, `*.pt`, snapshot and raw-response directories) and run `gitleaks detect --log-opts=--all` for secrets; print offending commits; exit 0 or 1. Test with a temporary git repository in `tests/release/test_history.py`.
 - [ ] T062 **(ops)** Run `uv run zoo history-check` once and record the result in `specs/003-model-zoo-hf-release/handover-004.md` (FR-003c). If anything is found, list the commits and the planned fix (history rewrite or fresh public repository); do not make the repository public in this feature.
-- [ ] T063 [P] Add a test `tests/release/test_no_secrets_in_logs.py`: run `zoo check`, `zoo build` and `zoo publish` against `FakeHub` with a sentinel token value and assert it never appears in stdout or stderr (FR-012).
+- [X] T063 [P] Add a test `tests/release/test_no_secrets_in_logs.py`: run `zoo check`, `zoo build` and `zoo publish` against `FakeHub` with a sentinel token value and assert it never appears in stdout or stderr (FR-012).
 - [ ] T064 Run `uv run ruff check`, `uv run pytest` and `uv run zoo validate --all`; all pass.
 - [ ] T065 Traceability check: every FR and SC in spec.md maps to at least one task, artifact or test; write the table to `specs/003-model-zoo-hf-release/validation.md`. SC-003 (reader test) is prepared as a questionnaire in `specs/003-model-zoo-hf-release/reader-test.md` with the seven questions from the spec and is run in feature 004 on the public span model card.
 
