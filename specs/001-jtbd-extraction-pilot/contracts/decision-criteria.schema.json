@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "decision-criteria.schema.json",
   "title": "DecisionCriteria",
-  "description": "Go / revise / rethink thresholds (FR-030) and the fine-tuning rule (FR-031). Frozen by hash before the first labeling run (Principle IV).",
+  "description": "Go / revise / rethink thresholds (FR-030), the fine-tuning rule (FR-031), teacher fitness (FR-031a), the teacher ensemble rule (FR-019b) and the quote-repair rule (FR-026a). Frozen by hash before the first labeling run (Principle IV).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,7 +12,10 @@
     "revise_band",
     "max_reruns",
     "finetuning_optional",
-    "underpowered_min_units"
+    "underpowered_min_units",
+    "teacher_fitness",
+    "quote_repair",
+    "teacher_ensemble"
   ],
   "properties": {
     "version": {
@@ -136,6 +139,141 @@
     },
     "rationale": {
       "type": "string"
+    },
+    "teacher_fitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "FR-031a: a teacher candidate is fit if its repaired composite reaches min_quality_ratio of the frontier-vs-frontier composite on consensus units (ratio a) and its schema-valid rate is at least min_schema_valid. Among fit candidates the highest composite is recommended; within tie_margin the lower cost per chunk wins.",
+      "required": [
+        "min_quality_ratio",
+        "min_schema_valid",
+        "tie_margin",
+        "score_view"
+      ],
+      "properties": {
+        "min_quality_ratio": {
+          "type": "number",
+          "minimum": 0
+        },
+        "min_schema_valid": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "tie_margin": {
+          "type": "number",
+          "minimum": 0
+        },
+        "score_view": {
+          "const": "repaired"
+        }
+      }
+    },
+    "quote_repair": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "FR-026a: teacher scoring view only. A non-verbatim quote is replaced by the source passage it matches if the fuzzy score (0-100) is at least min_score and the passage length is within the length ratios; otherwise the item is dropped.",
+      "required": [
+        "min_score",
+        "min_length_ratio",
+        "max_length_ratio"
+      ],
+      "properties": {
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "min_length_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_length_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "teacher_ensemble": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "FR-019b: offline ensemble of the single teacher candidates. Items are grouped by span IoU (min_iou from the pilot config), one item per member and group, kept with at least min_votes members; attributes by majority vote, ties broken by tie_break order; quote, actor and statement taken from the first member in quote_priority.",
+      "required": [
+        "model_id",
+        "members",
+        "min_votes",
+        "tie_break",
+        "quote_priority"
+      ],
+      "properties": {
+        "model_id": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "min_votes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tie_break": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "actor_type",
+            "evidence_type",
+            "evidence_scope"
+          ],
+          "properties": {
+            "kind": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "actor_type": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "evidence_type": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "evidence_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        },
+        "quote_priority": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
     }
   }
 }

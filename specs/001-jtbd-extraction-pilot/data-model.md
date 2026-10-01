@@ -56,7 +56,10 @@ A self-contained text unit cut from a snapshot. Contract: [chunk-record.schema.j
 | `sha256` | string | set by `pilot freeze` |
 | `frozen_at` | datetime | set once and never changed. A change creates a new version with a `rationale` |
 
-The decision criteria follow [decision-criteria.schema.json](contracts/decision-criteria.schema.json).
+The decision criteria follow [decision-criteria.schema.json](contracts/decision-criteria.schema.json). Besides the FR-030/FR-031 thresholds they hold three blocks that are frozen with them (FR-015):
+- `teacher_fitness` (FR-031a): `min_quality_ratio` 0.90, `min_schema_valid` 0.98, `tie_margin` 0.02, `score_view: repaired`
+- `quote_repair` (FR-026a): `min_score` 90, `min_length_ratio` 0.8, `max_length_ratio` 1.25
+- `teacher_ensemble` (FR-019b): `members` (model IDs), `min_votes` 2, `tie_break` (member order per attribute dimension), `quote_priority` (member order)
 
 ## LabelRun
 
@@ -66,23 +69,25 @@ One model's pass over a split. Contract: [label-run-manifest.schema.json](contra
 |-------|------|-------|
 | `run_id` | string | `run-<role>-<model-slug>-<date>` |
 | `role` | enum | `reference`, `teacher_candidate`, `baseline` |
-| `backend` | enum | `claude_cli`, `openrouter`, `ollama` |
+| `backend` | enum | `claude_cli`, `openrouter`, `ollama`, `openai_compat`, `ensemble` (derived, no model calls), `mock` (tests only) |
+| `derived_from` | run_id[] | required when `backend` is `ensemble`: the member runs, all complete, same split and same frozen hashes |
 | `model_id` | string | the requested ID |
 | `model_version` | string | as reported by the backend: the Claude response model ID, the OpenRouter response model or version, or the Ollama digest |
 | `family` | string | e.g. `anthropic-claude`, `openai-gpt`, `qwen`, `glm` |
 | `host` | string | `subscription`, the OpenRouter provider name, or `spark` / `vm-<type>` |
 | `quantization` | string? | required for `ollama` |
-| `settings` | object | temperature (or `"not_settable"`), max tokens, structured-output mode, seed |
+| `settings` | object | temperature (or `"not_settable"`), max tokens, structured-output mode, seed; for OpenRouter also `reasoning` and the allowed `quantizations`; for `ensemble` the frozen rule (`min_votes`, `min_iou`) |
 | `guideline_sha256`, `schema_sha256`, `criteria_sha256` | string | must match the frozen values |
 | `split` | enum | `main` or `holdout` |
 | `started_at`, `finished_at` | datetime | |
-| `cost_eur` | number | 0 for `claude_cli` and `ollama` |
-| `license_basis` | string? | required for `teacher_candidate` |
+| `cost_eur` | number | 0 for `claude_cli` and `ollama`; for `ensemble` the sum of its members' costs |
+| `license_basis` | string? | required for `teacher_candidate`; for `ensemble` the members' bases joined |
 
 **Rules**:
 - The two `reference` runs must come from different `family` values.
 - A `teacher_candidate` family must differ from both reference families.
 - A model used as `reference` is flagged `benchmark_labeler` and can never be a `teacher_candidate`.
+- An `ensemble` run has role `teacher_candidate`, has no `raw/` responses (only `parsed/`), and its members must be exactly `teacher_ensemble.members` from the frozen criteria.
 
 ## RawResponse
 
@@ -134,7 +139,9 @@ Fields:
 - `frontier_composite_consensus_units`: frontier-versus-frontier composite with the same metrics on the same consensus units (basis of FR-031 ratio a)
 - `frontier_composite_all_units`: frontier-versus-frontier composite on all units (basis of FR-031 ratio b)
 - `neutral_contested_hits`, per dimension
-- `check_pass_rates`
+- `check_pass_rates` (always on the raw output, FR-026a)
+- `cost_per_chunk_eur`: run `cost_eur` divided by processed chunks (tie-break in FR-031a)
+- `repaired` (only for `teacher_candidate`, FR-026a): the same `dimensions`, `composite`, `quality_ratio_a` and `quality_ratio_b` after quote repair, plus `repair_stats` {`invalid_quotes`, `repaired`, `dropped`}. For an ensemble the raw and repaired views are equal, because it is built from repaired items.
 
 ## PerfMeasurement
 
@@ -144,7 +151,7 @@ Fields: `run_id`, `hardware` (VM type, vCPU, RAM, CPU model), `model_digest` (mu
 
 Append-only JSONL with these fields: `ts`, `item` (a run ID or `vm`), `estimated_eur`, `actual_eur`, `cumulative_eur`, `cap_eur`.
 
-The guard refuses a run when `cumulative + estimated > budget` (€20), and also when it would exceed the key cap (€12).
+The guard refuses a run when `cumulative + estimated > budget` (€20), and also when it would exceed the key cap (`key_cap_eur`, €18.40 since 2026-09-29).
 
 ## BenchmarkVersion
 
@@ -160,6 +167,7 @@ Fields:
 - `path`: which rows of the decision table fired
 - `decision`: `go`, `revise` or `rethink`, per dimension and overall
 - `finetuning`: `optional` or `required` (FR-031), with `quality_ratio_a` (against the consensus units, which decides the classification), `quality_ratio_b` (against all units, reported only), `throughput_ratio` (against GPT mini-tier chunks/min) and the model the ratios refer to
+- `teacher_fitness` (FR-031a): the rule, one row per teacher candidate (`model_id`, repaired `quality_ratio_a`, `schema_valid` rate, `cost_per_chunk_eur`, `fit`, and the reasons when not fit) and `recommended` (model ID or null, with the tie-break applied)
 - `rerun`: `none` or `holdout`
 - `deviations`: documented rationales
 

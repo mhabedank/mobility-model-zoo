@@ -79,7 +79,7 @@ Adds the consensus and contested hashes after `pilot consensus` and sets the ben
 
 ## Labeling
 
-### `pilot label --role <reference|teacher_candidate|baseline> --backend <claude_cli|openrouter|ollama|mock> --model <id> [--host <name>] [--split main|holdout] [--limit n]`
+### `pilot label --role <reference|teacher_candidate|baseline> --backend <claude_cli|openrouter|ollama|openai_compat|mock> --model <id> [--host <name>] [--split main|holdout] [--limit n] [--workers n] [--retry-failed]`
 
 - **Preconditions**:
   - The frozen hashes match (exit `3` otherwise).
@@ -90,17 +90,18 @@ Adds the consensus and contested hashes after `pilot consensus` and sets the ben
   - `data/runs/<run_id>/manifest.json` ([label-run-manifest](label-run-manifest.schema.json))
   - `raw/<chunk_id>.json`, never modified
   - `parsed/<chunk_id>.json` ([extraction-output](extraction-output.schema.json))
-- **Resumable**: chunks that already have a raw response are skipped.
+- **Resumable**: chunks that already have a raw response are skipped. `--retry-failed` retries chunks excluded after backend failures (not schema failures).
+- **Workers**: `--workers n` labels chunks in parallel; the manifest, budget and model-version guard stay in one thread. Outputs are identical to a sequential run.
 - **Backend specifics**:
   - `claude_cli`: `claude -p --output-format json --json-schema <schema> --system-prompt-file <prompt> --tools "" --model <id> --setting-sources "" --strict-mcp-config --disable-slash-commands --no-session-persistence` in an empty temp directory (no `--bare`, because bare mode ignores the subscription login). The chunk goes in through stdin. Temperature is recorded as `not_settable`.
-  - `openrouter`: `response_format` json_schema strict, `temperature: 0`, `provider: {order: [<fixed>], allow_fallbacks: false, data_collection: "deny"}`.
+  - `openrouter`: `response_format` json_schema strict, `temperature: 0`, `provider: {order: [<fixed>], allow_fallbacks: false, require_parameters: true, data_collection: "deny"}`. Teacher candidates set no fixed provider order (recorded as a deviation) but an allowed `quantizations` list, and a per-model `reasoning` setting with a larger `max_output_tokens` (research.md R1).
   - `ollama`: `format: <schema>`, `options.temperature: 0`. The model digest is recorded.
   - `mock`: replays fixture responses. For tests and `--dry-run` only. `pilot freeze --benchmark` accepts mock runs **only** when the config sets `test_fixture: true`. The resulting benchmark is marked `test_only` and can never serve as a real benchmark version. In any other config, mock runs are refused.
 - **Model-version guard**: if the model version reported by the backend changes during a run, the run stops with exit `6` and must be repeated (spec Edge Cases).
 
 ### `pilot budget [--estimate --model <model_id> [--chunks n]] [--add <item> --eur <x>]`
 
-- Shows the ledger, the cumulative spend, the budget (€20) and the key cap (€12).
+- Shows the ledger, the cumulative spend, the budget (€20) and the key cap (USD 20 ≈ €18.40 since 2026-09-29, before that €12).
 - With `--estimate`, it computes the projected cost of a run and exits `4` if the run would exceed either limit.
 - With `--add`, it records a manual charge such as the reference VM.
 
@@ -116,7 +117,8 @@ Analysis outputs live under `data/analysis/<benchmark version>/`.
 | `pilot consensus --reference <a> <b>` | matches | `data/analysis/consensus.jsonl` and `contested.jsonl` |
 | `pilot categorize --export \| --import <csv> \| --check \| --freetext` | contested.jsonl | file-based assignment of one primary category per contested entry, stored in `contested-categories.jsonl` next to `categories.yaml` (contested.jsonl itself stays unchanged because it is hashed). `--freetext` writes the FR-025 sample |
 | `pilot agreement [--split main\|holdout]` | consensus meta (names the reference runs), matches and parsed outputs; the main split requires the frozen benchmark | per-dimension agreement with n and CI, plus breakdowns by language, source type and region |
-| `pilot score --run <id>` | frozen benchmark | [ModelScore](../data-model.md#modelscore), with contested items scored neutrally |
+| `pilot ensemble [--split main]` | the complete member runs named in `teacher_ensemble.members` of the frozen criteria | a derived teacher-candidate run `data/runs/<run_id>/` with `manifest.json` (`backend: ensemble`, `derived_from`) and `parsed/`; no model calls, cost €0 beyond the members (FR-019b). Exit `1` if a member run is missing or incomplete, exit `3` on a frozen-hash mismatch |
+| `pilot score --run <id>` | frozen benchmark | [ModelScore](../data-model.md#modelscore), with contested items scored neutrally. For teacher candidates it also writes the `repaired` view with the frozen `quote_repair` rule (FR-026a); check pass rates stay raw |
 
 ## Performance
 
@@ -135,7 +137,7 @@ Measures the frontier reference throughput at concurrency 1.
 ### `pilot decide`
 
 - Applies the frozen decision criteria mechanically.
-- Writes `data/analysis/decision.json` ([PilotDecision](../data-model.md#pilotdecision)), which includes the path through the decision table.
+- Writes `data/analysis/decision.json` ([PilotDecision](../data-model.md#pilotdecision)), which includes the path through the decision table and the FR-031a teacher-fitness classification with the recommended teacher.
 
 ### `pilot report`
 

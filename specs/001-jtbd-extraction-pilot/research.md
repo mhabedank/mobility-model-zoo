@@ -27,26 +27,34 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
   - GPT-5.5 plus a holdout-only rerun (about €13–16), rejected by the user.
   - GPT-6 Astra with a higher budget, rejected.
 
-### Teacher candidates (local, DGX Spark)
+### Teacher candidates (updated 2026-09-29 after the spike)
 
-- **Decision**: two families, **Qwen** and **GLM**. Both run locally on the Spark through Ollama.
-- **Primary picks**:
-  - **Qwen3.5-122B-A10B** (Apache 2.0, about 61–81 GB at Q4, about 30 tok/s on the Spark)
-  - **GLM-4.5-Air**, 106B-A12B (MIT, about 53–65 GB at Q4)
-- **Fallbacks** (already installed):
-  - `qwen3.8:27b` (Apache 2.0, released 14 Aug 2026)
-  - `glm-4.7-flash`, 30B-A3B (MIT)
-- **Verification step**: before pulling the large models, run the primary and fallback models on 5 German sample chunks. Use a large model if its quality is clearly better and a full run takes under about 3 hours.
+- **Decision**: four single-model candidates plus their ensemble (spec FR-019a, FR-019b):
+
+  | Candidate | Backend | Family | License basis | Spike composite (35 chunks, vs Claude) |
+  |---|---|---|---|---|
+  | `qwen3.8:27b` (Q4_K_M) | Ollama on the Spark | qwen | Apache-2.0 | 0.76 |
+  | `xiaomi/mimo-v2.6-pro` | OpenRouter | xiaomi | MIT (XiaomiMiMo/MiMo-V2.6-Pro-RL) | 0.80 |
+  | `deepseek/deepseek-v4.1-flash` | OpenRouter | deepseek | MIT (DeepSeek-V4.1-Flash) | 0.75 |
+  | `z-ai/glm-5.3-flash` | OpenRouter | glm | MIT (GLM-5.3-Flash) | 0.77 |
+  | ensemble of the four, ≥ 2 votes | offline | (members) | members' bases | 0.82 (with quote repair) |
+
+  Single-model values are raw scores. With the same quote repair as the ensemble, mimo alone reaches 0.81 (item F1 0.73) and the ensemble 0.82 (item F1 0.72).
+
+- **OpenRouter settings**: `provider: {allow_fallbacks: false, require_parameters: true, data_collection: "deny", quantizations: [bf16, fp16, fp8, unknown]}`, no fixed provider order (recorded as a deviation), `response_format` json_schema strict, temperature 0, `reasoning: {effort: low}` (these three models cannot switch reasoning off on OpenRouter) and `max_output_tokens: 16384` so reasoning does not consume the answer budget. Parallel workers per run; mimo needs 2 workers because of 429 rate limits.
 - **Rationale**:
-  - Apache 2.0 and MIT place no restrictions on outputs, so training on them is allowed.
-  - Both families differ from Anthropic and OpenAI, and neither is used as a reference, so neither is blocked as a teacher.
-  - Running locally costs nothing.
+  - The spike labeled the same 35 chunks with seven OpenRouter and three local candidates. The OpenRouter models were the best single teachers.
+  - On the spike's 35 chunks the ensemble was only marginally ahead of mimo alone (0.82 vs 0.81 with the same quote repair), which is within noise. But a student trained on ensemble data beat a student trained on single-teacher data (spike v3b 0.64 vs v3a 0.62, trained on qwen3.8 data). Whether the ensemble or a single model is the better teacher is therefore open and is exactly what FR-031a decides on the larger pilot benchmark.
+  - Their weights do not fit the Spark (119 GB usable): MiMo-V2.6-Pro-RL is a 1.02T-total / 42B-active MoE, GLM-5.3-Flash 320B / 18B active, DeepSeek-V4.1-Flash about 284B / 13B active (Hugging Face model cards and Ollama library, checked 2026-10-01). At 4-bit that is roughly 160–550 GB; Ollama lists GLM-5.3-Flash and DeepSeek-V4.1-Flash only as `:cloud` tags, and community 1-bit quantizations (e.g. 82 GB for DeepSeek-V4-Flash) would not be the evaluated model. Pay-per-use is therefore allowed by the cost order. The three full runs cost about €2.
+  - All four families differ from Anthropic and OpenAI, and none is a reference model.
 - **Alternatives considered**:
-  - Mistral Medium 3.5 (128B dense): a modified MIT license with a revenue clause, and slow on the Spark because it is dense.
-  - Qwen3.8-Flash-Next: the "Qwen Community License 1.0" is unverified.
-  - MiniMax M2.7: the license changed to non-commercial.
-  - GLM-4.6/4.7 full, Qwen3-235B and DeepSeek V3/V4: do not fit at Q4.
-  - gpt-oss: an OpenAI family, and OpenAI is a reference family.
+  - The two local candidates of the first plan: `qwen3.6:35b` (spike 0.64) and `glm-4.7-flash` (0.50, marked every chunk relevant). Rejected: clearly weaker.
+  - `z-ai/glm-5.3` (0.78): about 9x the output price of glm-5.3-flash for +0.01, and its reasoning cannot be switched off. Rejected.
+  - `qwen/qwen3.8-27b` in full precision through OpenRouter (0.69): worse than the local Q4 model on this task. Rejected.
+  - `hy4-preview` (0.68): preview model, weaker. Rejected.
+  - `qwen/qwen3.8-flash`: the provider aborts strict JSON-schema requests. Rejected.
+  - Earlier large local picks (Qwen3.5-122B-A10B, GLM-4.5-Air): not measured; superseded because the OpenRouter models above are measured and cheap.
+  - Mistral Medium 3.5 (revenue clause), MiniMax M2.7 (non-commercial), gpt-oss (OpenAI family): excluded as before.
 
 ### Small baselines (≤ about 4B)
 
@@ -145,17 +153,18 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 
 ## R8 Budget
 
-- **Decision**: a cash budget of €20, with a hard cap of €12 on the OpenRouter key.
+- **Decision**: a cash budget of €20, with a hard cap on the OpenRouter key: €12 at first, raised to USD 20 (≈ €18.40, no reset) on 2026-09-29 for the teacher runs.
 
   | Item | Estimate |
   |------|----------|
   | GPT mini, about 220 calls (main, frontier sample, retries) | a few euros (verify the price) |
   | OpenRouter fee | 5.5%, minimum $0.80 |
+  | Three OpenRouter teacher candidates, about 180 calls each (spike: mimo on 200 chunks cost €0.53) | about €2 |
   | VM | about €1 |
   | Rerun buffer (main and holdout) | same order as the GPT line |
   | Claude (subscription) and all Spark runs | €0 |
 
-- The expected total is well under €12. `budget.py` estimates each run's cost from token counts and the recorded price before any call.
+- The expected total is about €10, well under the key cap. `budget.py` estimates each run's cost from token counts and the recorded price before any call.
 - **Rationale**: this follows the cost order and the hard-cap rule in the constitution.
 
 ## R9 Claude through the subscription (headless)
@@ -170,3 +179,21 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 - **Alternatives considered**:
   - The Anthropic API: costs cash.
   - The Agent SDK with a subscription token: works, but adds nothing over the CLI here.
+
+
+## R10 Teacher ensemble and quote repair (added 2026-09-29)
+
+- **Ensemble decision** (FR-019b), computed offline from the four stored teacher runs:
+  - relevance: majority vote; a tie counts as relevant
+  - items: each member's items are grouped by span IoU ≥ `min_iou` (0.3, the FR-020 threshold), at most one item per member and group; a group is kept when at least 2 members found it
+  - attributes: majority vote inside the group; ties go to the member that was strongest on that dimension in the spike (kind: deepseek, mimo, qwen3.8, glm-5.3-flash; actor type: mimo, deepseek, glm-5.3-flash, qwen3.8; evidence type: glm-5.3-flash, mimo, qwen3.8, deepseek; evidence scope: mimo, glm-5.3-flash, qwen3.8, deepseek)
+  - quote, actor and statement: from the member with the most verbatim quotes in the spike (deepseek, qwen3.8, mimo, glm-5.3-flash)
+  - The members, the vote threshold and both orders go into `configs/decision-criteria.yaml` and are frozen with it (FR-015). They come from spike data on other chunks and are **not** tuned on the pilot benchmark.
+- **Quote-repair decision** (FR-026a), for the teacher scoring view only:
+  - a quote that fails the verbatim check is aligned to the chunk with a fuzzy partial match (`rapidfuzz.fuzz.partial_ratio_alignment`); it is accepted if the score is ≥ 90 and the passage is 0.8–1.25 times the quote's length, then refined at the start and end
+  - the repaired quote is the source passage with whitespace collapsed; otherwise the item is dropped
+  - the verbatim-check pass rates always refer to the raw output
+- **Rationale**:
+  - Training data is built from repaired quotes (spike: 297 of 1,125 teacher items repaired, 14 dropped), so the repaired view is what a student learns from. Scoring teachers only raw would understate the usable training data; scoring baselines with repair would hide a real weakness of the model being evaluated.
+  - The spike scored single models and the ensemble with the same repair, so the comparison with the ensemble is fair.
+- **Alternatives considered**: a union of all items (spike: precision 0.67 instead of 0.78), ≥ 3 votes (spike, five members: recall 0.56 instead of 0.73, composite 0.81 instead of 0.82), including glm-5.3 as a fifth member (spike 0.82, but the most expensive model), an LLM judge to merge outputs (costs money and is not deterministic).

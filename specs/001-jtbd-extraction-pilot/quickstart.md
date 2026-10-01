@@ -7,7 +7,7 @@ This guide proves that the pilot tooling works end to end. It lists commands and
 - Python 3.12 and `uv`
 - The `claude` CLI, logged in with the Claude subscription
 - In `.env` (gitignored):
-  - `OPENROUTER_API_KEY`, with a hard spending limit of €12 set on the key in OpenRouter
+  - `OPENROUTER_API_KEY`, with a hard spending limit set on the key in OpenRouter (USD 20 ≈ €18.40, `configs/budget.yaml` key_cap_eur)
   - `OLLAMA_HOST`, pointing to the DGX Spark
 - For performance only: a Linux cloud VM with 8 GB RAM, 4 vCPU and no GPU, with Ollama installed and the same model digests pulled
 
@@ -37,6 +37,10 @@ uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml match --runs <a> <b>
 uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml consensus --reference <a> <b>
 uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml freeze --benchmark   # allowed because pilot.yaml sets test_fixture: true
 uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml agreement
+# teacher candidates (mock) and their ensemble (FR-019a, FR-019b)
+uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml label --role teacher_candidate --backend mock --model <each mock teacher>
+uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml ensemble
+uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml score --run <each teacher run and the ensemble run>
 uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml decide
 uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml report
 ```
@@ -46,6 +50,7 @@ uv run pilot --config tests/fixtures/mini-corpus/pilot.yaml report
 - a contested section
 - check pass rates
 - a decision with its path through the decision table
+- a teacher table with raw and repaired scores, the repair rate, fit / not fit per FR-031a and the recommended teacher
 
 The benchmark manifest is marked `test_only`. The mini corpus includes one irrelevant chunk (the empty result counts as correct) and one fabricated quote (it fails `quote_verbatim`).
 
@@ -57,6 +62,8 @@ The benchmark manifest is marked `test_only`. The mini corpus includes one irrel
 | Reddit permitted use | `pilot source fetch <reddit-url> --type reddit --permitted-uses training_allowed` | exits `1`, because Reddit is forced to `benchmark_only` |
 | Frozen criteria | `pilot freeze`, then edit `configs/decision-criteria.yaml`, then `pilot label ...` | exits `3` (hash mismatch) |
 | Budget | `pilot budget --estimate --model gpt-mini-reference --chunks 100000` | exits `4` before any call |
+| Frozen ensemble | `pilot freeze`, then change `teacher_ensemble.members` in `configs/decision-criteria.yaml`, then `pilot ensemble` | exits `3` (hash mismatch) |
+| Ensemble members | `pilot ensemble` while a member run is missing or incomplete | exits `1` and names the member |
 | Role separation | `pilot label --role teacher_candidate --model <a reference model>` | exits `1` |
 | Holdout lock | `pilot label --split holdout` while the pilot state is not `revise` | exits `1` |
 | Redaction | a chunk containing `u/someuser`, then `pilot corpus redact-check` | exits `1` and names the chunk |
@@ -77,7 +84,10 @@ uv run pilot corpus redact-check
 ```bash
 uv run pilot label --role reference --backend claude_cli --model claude-reference --limit 5
 uv run pilot label --role reference --backend openrouter --model gpt-mini-reference --limit 5
-uv run pilot label --role teacher_candidate --backend ollama --model teacher-qwen --host spark --limit 5
+uv run pilot label --role teacher_candidate --backend ollama --model teacher-qwen3.8 --host spark --limit 5
+uv run pilot label --role teacher_candidate --backend openrouter --model teacher-or-mimo-v2.6-pro --limit 5 --workers 2
+uv run pilot label --role teacher_candidate --backend openrouter --model teacher-or-deepseek-v4.1-flash --limit 5 --workers 4
+uv run pilot label --role teacher_candidate --backend openrouter --model teacher-or-glm-5.3-flash --limit 5 --workers 4
 uv run pilot budget
 ```
 
@@ -85,6 +95,7 @@ uv run pilot budget
 - 5 raw and 5 parsed files per run.
 - The manifests contain the model version or digest.
 - The Claude manifest records `temperature: not_settable`.
+- The OpenRouter teacher manifests record `data_collection: deny`, the allowed quantizations and the reasoning setting, and the deviation "no fixed provider order".
 - The ledger shows only cents of spend.
 
 ## 6. Performance measurement on the reference VM

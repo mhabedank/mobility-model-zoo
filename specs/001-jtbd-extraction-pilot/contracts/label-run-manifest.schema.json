@@ -38,9 +38,10 @@
         "openrouter",
         "ollama",
         "openai_compat",
+        "ensemble",
         "mock"
       ],
-      "description": "`mock` replays fixture responses and is allowed only for tests and dry runs, never in a benchmark version."
+      "description": "`mock` replays fixture responses and is allowed only for tests and dry runs, never in a benchmark version. `ensemble` is a derived teacher-candidate run built offline from `derived_from` (FR-019b); it has no raw responses."
     },
     "model_id": {
       "type": "string"
@@ -176,6 +177,13 @@
         "complete",
         "invalid_version_change"
       ]
+    },
+    "derived_from": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2
     }
   },
   "allOf": [
@@ -214,6 +222,25 @@
         "properties": {
           "quantization": {
             "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "ensemble"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "derived_from"
+        ],
+        "properties": {
+          "role": {
+            "const": "teacher_candidate"
           }
         }
       }

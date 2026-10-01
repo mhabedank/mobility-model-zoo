@@ -84,6 +84,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - teacher A: Qwen, `backend: ollama`, `host: spark`
   - teacher B: GLM, `backend: ollama`, `host: spark`
   - baselines `qwen3.5:4b`, `gemma4:e4b` and `ministral-3:3b`
+  - *(2026-09-29: teacher entries replaced by the spike's `teacher-qwen3.8`, `teacher-or-mimo-v2.6-pro`, `teacher-or-deepseek-v4.1-flash` and `teacher-or-glm-5.3-flash`; see T071.)*
 - [X] T013 [P] Write `tests/unit/test_freeze.py`:
   - canonical hashing is stable across CRLF/LF line endings and YAML key order
   - a changed criteria file produces a mismatch
@@ -256,7 +257,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - the minimum IoU note
 - [X] T044 [P] [US2] **(ops/doc)** Write worked examples in `guideline/examples/`: at least 6 (German and English), among them one correct empty result, one near-miss, one measurement-level item and one item with multiple actors.
 - [X] T045 [US2] Implement `src/jtbd_pilot/labeling/prompt.py`: `build_prompt(guideline, examples, schema)` returns the system prompt, and the user message is the chunk `text` only. It has no persona and no metadata (Principles I and VII). Hash the rendered prompt into the run manifest.
-- [ ] T046 [P] [US2] **(ops)** Choose the GPT mini-tier slug and price from the OpenRouter model list and record them in `configs/models.yaml` and `configs/budget.yaml` (research.md R1 and R8). Set the hard spending limit on the OpenRouter key to €12 in the OpenRouter UI and note the date in `configs/budget.yaml`.
+- [ ] T046 [P] [US2] **(ops)** Choose the GPT mini-tier slug and price from the OpenRouter model list and record them in `configs/models.yaml` and `configs/budget.yaml` (research.md R1 and R8). ~~Set the hard spending limit on the OpenRouter key to €12~~ The key limit is USD 20 (≈ €18.40, no reset) since 2026-09-29 and recorded in `configs/budget.yaml`; only the GPT slug and price remain open.
 - [X] T047 [P] [US2] Implement `src/jtbd_pilot/labeling/claude_cli.py`:
   - runs `claude -p --output-format json --json-schema <schema> --system-prompt-file <prompt> --tools "" --model <id> --setting-sources "" --strict-mcp-config --disable-slash-commands --no-session-persistence` in an empty temp directory (no `--bare`: it ignores the subscription login), with the chunk sent on stdin
   - parses `structured_output` (falling back to `result`)
@@ -327,10 +328,11 @@ description: "Task list for the JTBD Extraction Pilot"
 
 ## Phase 6: User Story 4 - Measure zero-shot small-model baselines and teacher candidates (Priority: P2)
 
-**Goal**: two teacher candidates on the Spark and 2–3 small models (≤ 4B), each scored against the frozen consensus, with performance measured for the small models on the 8 GB reference VM.
+**Goal**: five teacher candidates (local qwen3.8:27b; mimo-v2.6-pro, deepseek-v4.1-flash and glm-5.3-flash through OpenRouter; their offline ensemble, FR-019a/b) and 2–3 small models (≤ 4B), each scored against the frozen consensus (teachers also after quote repair, FR-026a), with performance measured for the small models on the 8 GB reference VM.
 
 **Independent Test**:
-- `pilot score` produces a ModelScore for each run, with every dimension, the neutral contested counts and the check pass rates.
+- `pilot score` produces a ModelScore for each run, with every dimension, the neutral contested counts and the check pass rates; teacher runs also carry the `repaired` view and `repair_stats`.
+- `pilot ensemble` builds the derived ensemble run from the four frozen members, and `pilot score` scores it like any teacher run.
 - `pilot perf` produces PerfMeasurement records whose digests match the Spark quality runs (SC-005, SC-005a).
 
 ### Tests for User Story 4
@@ -345,6 +347,20 @@ description: "Task list for the JTBD Extraction Pilot"
   - p50 and p95 computed from latency lists
   - peak RSS taken from sampled `/proc/<pid>/status` VmRSS values (with a fixture)
   - refusal when the model digest differs from the quality-run digest
+- [ ] T086 [P] [US4] Write `tests/unit/test_ensemble.py` (FR-019b, research.md R10), using hand-built `ChunkOutput`s for three members on one chunk:
+  - an item found by 2 of 3 members is kept, an item found by 1 is dropped (`min_votes: 2`)
+  - at most one item per member and group: two overlapping items of the same member go to different groups
+  - relevance majority, and a 1:1 relevance tie counts as relevant
+  - an attribute tie is broken by the `tie_break` order of that dimension, and quote, actor and statement come from the first member in `quote_priority`
+  - a near-miss quote is repaired to the source passage (whitespace collapsed) before grouping; an unrepairable one is dropped
+  - the ensemble run manifest has `backend: ensemble`, `role: teacher_candidate`, `derived_from` = the member run IDs, `cost_eur` = sum of the members, and no `raw/` directory
+  - `pilot ensemble` exits 1 when a member run is missing or not `complete`, and exits 3 when the frozen criteria hash does not match
+- [ ] T087 [P] [US4] Extend `tests/unit/test_scoring.py` (FR-026a):
+  - a teacher run with one near-miss quote gets a higher repaired item F1 than its raw item F1, and `repair_stats` = {invalid_quotes: 1, repaired: 1, dropped: 0}
+  - `check_pass_rates.quote_verbatim` is identical with and without repair
+  - a `baseline` run has no `repaired` block
+  - `cost_per_chunk_eur` = run `cost_eur` / processed chunks (0 for Ollama)
+- [ ] T088 [P] [US4] Extend `tests/unit/test_quote_repair.py`: `repair()` honours the `min_score`, `min_length_ratio` and `max_length_ratio` parameters (a passage at length ratio 0.79 is refused with defaults 0.8–1.25, accepted with 0.75), and the defaults are unchanged.
 
 ### Implementation for User Story 4
 
@@ -366,9 +382,23 @@ description: "Task list for the JTBD Extraction Pilot"
   - `--model --host vm --warmup 3`: a sequential run over the main split, recording chunks/min, output tok/s, p50 and p95 latency, and peak RSS of the Ollama runner process from `/proc`, sampled every 100 ms, together with the hardware description (VM type, vCPU, RAM, CPU model); refuses on a digest mismatch
   - `--frontier --run <gpt-run> --sample 20`: GPT at concurrency 1, which gives the reference throughput for FR-031
   - writes `data/analysis/perf/<run_id>.json`
-- [ ] T071 [US4] **(ops)** Check the teacher licenses for the exact model files: Qwen3.5-122B-A10B (Apache 2.0) or `qwen3.8:27b`, and GLM-4.5-Air (MIT) or `glm-4.7-flash`. Record `license_basis` in `configs/models.yaml`.
-- [ ] T072 [US4] **(ops)** Pull the teacher candidates on the Spark and run a 5-chunk comparison against the fallbacks (`pilot label --role teacher_candidate --limit 5`). Pick one model per family following research.md R1: use the large model if its quality is clearly better and a full run takes under about 3 hours. Record the choice in `configs/models.yaml`.
-- [ ] T073 [US4] **(ops)** Run both teacher candidates and the three baselines (`qwen3.5:4b`, `gemma4:e4b` and `ministral-3:3b`) on the Spark over the main split with `pilot label`. Then run `pilot check` and `pilot score` for every run. The benchmark was already frozen in T059.
+- [ ] T089 [US4] Extend `src/jtbd_pilot/schema.py`:
+  - `DecisionCriteria` gets three required blocks mirroring `contracts/decision-criteria.schema.json`: `TeacherFitness {min_quality_ratio, min_schema_valid (0–1), tie_margin (≥ 0), score_view: Literal["repaired"]}`, `QuoteRepair {min_score (0–100), min_length_ratio > 0, max_length_ratio > 0}`, `TeacherEnsemble {model_id, members (unique, ≥ 1), min_votes ≥ 1, tie_break {kind, actor_type, evidence_type, evidence_scope}: member lists, quote_priority}`; a validator requires every `tie_break` list and `quote_priority` to be a permutation of `members`
+  - `LabelRunManifest.backend` accepts `ensemble`; new optional `derived_from: list[str]` (≥ 2), required when `backend == "ensemble"`, and then `role` must be `teacher_candidate`
+  - copy the new blocks from `contracts/decision-criteria.example.yaml` into `configs/decision-criteria.yaml` (same `version: criteria-v1`, updated `rationale`; allowed because the criteria are not frozen yet, T057), and add matching blocks for mock teachers to `tests/fixtures/mini-corpus/decision-criteria.yaml`; fix `tests/unit/test_decision.py`'s inline criteria
+  - add a test to `tests/unit/test_schema.py` that `configs/decision-criteria.yaml` and the example validate against the contract
+- [ ] T090 [P] [US4] Parametrize `repair()` in `src/jtbd_pilot/quotes.py` with `min_score`, `min_length_ratio` and `max_length_ratio` (defaults 90, 0.8, 1.25, unchanged behaviour) so T091 and T092 pass the frozen `criteria.quote_repair` values.
+- [ ] T091 [US4] Create `src/jtbd_pilot/ensemble.py` and `pilot ensemble [--split main]` in `src/jtbd_pilot/cli.py`:
+  - move `with_repair`, `vote` and `combine` from `spike/ensemble.py`; replace its hard-coded `MODELS`, `DIM_PRIORITY` and `QUOTE_PRIORITY` with `criteria.teacher_ensemble` (member model IDs → their complete run on the split), `min_iou` from the pilot config, repair parameters from `criteria.quote_repair`
+  - preconditions: `verify_frozen()` (exit 3); every member has exactly one `complete` run on the split with the frozen hashes (exit 1, naming the member)
+  - writes `data/runs/run-teacher_candidate-<teacher_ensemble.model_id>-<split>-<guideline hash[:8]>/manifest.json` (`backend: ensemble`, `role: teacher_candidate`, `family: ensemble`, `model_version` = the members' versions joined, `derived_from`, `cost_eur` = sum of the members, `license_basis` = the members' bases joined, `settings` with `min_votes` and `min_iou`, `status: complete`) and `parsed/<chunk_id>.json`; no `raw/`
+  - `pilot check` must accept a run without `raw/` (schema validity is taken from `parsed/`)
+  - `spike/ensemble.py` imports `combine` and `with_repair` from the package and keeps its own fixed strategy list; its output in `data/spike/ensemble.json` must stay the same (cheap4 ≥ 2 votes: 0.817)
+  - add `teacher-ensemble` (role `teacher_candidate`, backend `ensemble`, family `ensemble`) to `configs/models.yaml` so role checks and the report can resolve it
+- [ ] T092 [US4] Extend `score_run` in `src/jtbd_pilot/scoring.py` (FR-026a): for `role == "teacher_candidate"`, rebuild each output's valid items with `ensemble.with_repair` and the frozen `criteria.quote_repair`, run `score_units` again and add `repaired` = {`dimensions`, `composite`, `quality_ratio_a`, `quality_ratio_b`, `repair_stats`}; keep `check_pass_rates` raw; add `cost_per_chunk_eur` for every run. Baselines get no `repaired` block.
+- [ ] T071 [US4] **(ops)** Confirm the license basis of the four teacher candidates in `configs/models.yaml` against the model cards (qwen3.8:27b Apache-2.0; MiMo-V2.6-Pro-RL, DeepSeek-V4.1-Flash, GLM-5.3-Flash MIT) and that their families (`qwen`, `xiaomi`, `deepseek`, `glm`) differ from both reference families. Record the check date in each `license_basis`.
+- [ ] T072 [US4] **(ops)** Smoke-test the four teachers on 5 main chunks (quickstart.md section 5): `pilot label --role teacher_candidate --backend ollama --model teacher-qwen3.8 --host spark --limit 5`, and `--backend openrouter` for `teacher-or-mimo-v2.6-pro` (`--workers 2`, 429 limits), `teacher-or-deepseek-v4.1-flash` and `teacher-or-glm-5.3-flash` (`--workers 4`). Check the manifests for `data_collection: deny`, quantizations, reasoning setting and the "no fixed provider order" deviation, then `pilot budget`.
+- [ ] T073 [US4] **(ops)** After T059 (benchmark frozen): label the main split with the four teachers (same commands without `--limit`; `--retry-failed` after network or rate-limit failures) and with the three baselines (`qwen3.5:4b`, `gemma4:e4b`, `ministral-3:3b`) on the Spark. Then `pilot ensemble`, and `pilot check` and `pilot score` for every run including the ensemble. At most 2% excluded chunks per teacher (SC-002 applied to teachers).
 - [ ] T074 [US4] **(ops)** Provision the reference VM (Hetzner CX32 class: 8 GB RAM, 4 vCPU, no GPU). Install Ollama, pull the baselines with the **same digests**, and run `pilot perf` for each baseline, plus `pilot perf --frontier` for GPT. Record the VM cost in the ledger with `pilot budget`, then **delete the VM**. If `gemma4:e4b` does not fit, switch to `gemma4:e2b` and document the switch.
 
 **Checkpoint**: baseline and teacher-candidate quality, and baseline performance, are measured against the frozen pilot-v1.
@@ -393,6 +423,12 @@ description: "Task list for the JTBD Extraction Pilot"
   - a second rerun is refused (`max_reruns: 1`)
   - fine-tuning is optional only when quality ratio ≥ 0.85 against the frontier-vs-frontier composite on consensus units (ratio a) **and** throughput ratio ≥ 10 against the frontier reference chunks/min
   - ratio b (all units) is computed and reported but does not change the classification
+- [ ] T093 [P] [US5] Extend `tests/unit/test_decision.py` with table-driven cases for FR-031a `teacher_fitness()`:
+  - repaired ratio a 0.90 and schema_valid 0.98 is fit; 0.899 or 0.979 is not fit, with the failing reason listed
+  - the raw ratio is ignored (a candidate with raw 0.85 and repaired 0.92 is fit)
+  - two fit candidates 0.015 apart: the one with the lower `cost_per_chunk_eur` is recommended; 0.03 apart: the higher composite is recommended
+  - no fit candidate: `recommended` is null
+  - baselines are never classified
 - [X] T076 [P] [US5] Write `tests/integration/test_mini_corpus_report.py`: the full mock chain through `pilot report`. The report must contain these sections: corpus composition, agreement with CI and breakdowns, check results, contested summary, disagreement categories, revisions, baseline and teacher scores, the Pareto figure, the decision path, and the versions. It must contain no "accuracy" wording.
 
 ### Implementation for User Story 5
@@ -407,6 +443,8 @@ description: "Task list for the JTBD Extraction Pilot"
   - the decision uses agreement on the holdout, and agreement on the main split is reported next to it and marked optimistic
   - an optional GPT-5.5 control run on the holdout (about €2.50, research.md R1) only when it is decided before the rerun and the budget guard passes
 - [X] T079 [P] [US5] **Load the `dataviz` skill first.** Then implement `src/jtbd_pilot/report/pareto.py`: a quality-vs-throughput chart with each small model as a point (composite quality against chunks/min on the reference VM), a reference line at 85% of the frontier-vs-frontier composite, and a label with the benchmark version. It writes `reports/pilot-v1/figures/pareto.png`.
+- [ ] T094 [US5] Add `teacher_fitness(criteria, scores)` to `src/jtbd_pilot/decision.py` and store its result as `teacher_fitness` in `data/analysis/decision.json` (data-model.md PilotDecision): rule text, one row per teacher candidate (`model_id`, repaired `quality_ratio_a`, `schema_valid` rate, `cost_per_chunk_eur`, `fit`, `reasons`) and `recommended`.
+- [ ] T095 [US5] Update section 9 of `src/jtbd_pilot/report/render.py`: remove `TEACHER_FITNESS` and `_teacher_fit`; show for each teacher raw and repaired composite, repaired ratio a, schema_valid, quote_verbatim, repair stats, cost per chunk and fit / not fit from `decision.json`, then the recommended teacher and the FR-031a rule; state that the ensemble is derived from its members. Extend the mini-corpus fixture with two mock teacher models (families different from `mock-a`/`mock-b`, license basis set) and their responses under `tests/fixtures/mini-corpus/mock/`, one with a near-miss quote, and extend `tests/integration/test_mini_corpus_report.py` to run `label` for both teachers, `ensemble`, `score` and check the teacher table and the recommendation.
 - [X] T080 [US5] Implement `src/jtbd_pilot/report/render.py`, the `report/template.md` and `pilot report`. The report contains all FR-032 content:
   - composition (from `data/analysis/composition-*.json`)
   - agreement per dimension with CI and breakdowns
@@ -414,7 +452,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - contested summary
   - disagreement categories
   - revisions (from `data/analysis/revisions.md`)
-  - baseline and teacher scores, including a fitness statement for each teacher
+  - baseline and teacher scores, including a fitness statement for each teacher *(replaced by the FR-031a classification in T095)*
   - the Pareto figure
   - the decision path
   - the benchmark and guideline versions
@@ -462,6 +500,8 @@ description: "Task list for the JTBD Extraction Pilot"
 - T016 → T048 and T050 (budget guard).
 - T051 → T052 and T053 → T054 → T055 → T059.
 - T053 → T069 (scoring reuses matching).
+- T086–T088 → T089 → T090 → T091 → T092 → T073 (ensemble and repaired scoring before the teacher runs are scored).
+- T093 → T094 → T095 → T081 (teacher fitness before the report).
 - T059 → T061 → T063 → T064 → T080.
 - T056 (`freeze --benchmark`) → T059 → T068 → T073 → T074 → T077 → T081.
 
@@ -470,8 +510,8 @@ description: "Task list for the JTBD Extraction Pilot"
 - Phase 2: T007–T013, T015 and T019 touch different files.
 - US1: T020 and T021 (tests), then T022–T024 and T026–T029 (separate modules).
 - US2: T036–T042 (tests), then T047, T048, T049, T051 and T052 (separate backends and modules). T044 in parallel with T045.
-- US4: T065–T067 in parallel. The ops runs in T073 can run one after another on the Spark while US3 categorization (T063) runs at the same time.
-- US5: T075, T076 and T079 in parallel.
+- US4: T065–T067 and T086–T088 in parallel; T090 in parallel with T089. The ops runs in T073 can run one after another on the Spark while US3 categorization (T063) runs at the same time.
+- US5: T075, T076, T079 and T093 in parallel.
 
 ## Parallel Example: User Story 2
 
@@ -514,16 +554,17 @@ Task: "Ollama backend in src/jtbd_pilot/labeling/ollama.py"
 
 1. MVP: agreement per dimension on pilot-v1.
 2. US3: disagreement categories and revisions.
-3. US4: teacher candidates and baselines, with performance on the VM.
+3. US4: teacher candidates (four single models and their ensemble) and baselines, with performance on the VM.
 4. US5: decision and report, plus at most one holdout rerun.
 
 ### Budget checkpoints
 
 - After T058 (smoke test): the ledger should show only cents.
 - After T059: GPT spend of a few euros.
+- After T072: the teacher smoke tests cost cents. After T073: the three OpenRouter teachers add about €2.
 - After T074: add the VM at about €1.
 - Before T078 (rerun): run `pilot budget --estimate` for the rerun and the optional GPT-5.5 control.
-- The total must stay at or below €20, and OpenRouter at or below €12.
+- The total must stay at or below €20, and OpenRouter at or below the key cap (€18.40).
 
 ---
 
