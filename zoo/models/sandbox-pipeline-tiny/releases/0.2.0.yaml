@@ -35,5 +35,9 @@ performance:
     ram_gb: 1
     gpu: false
   results: results/0.2.0/performance.json
-published: null
+published:
+  repo_commit: 0c30a3a61a77a90a11354d71f955eefc0c507ba5
+  tag: v0.2.0
+  published_at: 2026-10-01T22:14:48Z
+  card_sha256: 999fb2eadb2519c8244f1a384f7e96a7c3070612630f5c0d8542abc2ca8df769
 deprecated: null
