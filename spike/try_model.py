@@ -26,10 +26,10 @@ import time
 from collections import Counter
 from pathlib import Path
 
-from jtbd_pilot.labeling.base import parse_json_text
-from jtbd_pilot.quotes import locate
-from jtbd_pilot.schema import ExtractionOutput, Item
-from jtbd_pilot.spike import chatml
+from mobility_model_zoo.productdev.jtbd.labeling.base import parse_json_text
+from mobility_model_zoo.productdev.jtbd.quotes import locate
+from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput, Item
+from mobility_model_zoo.productdev.jtbd.spike import chatml
 
 DEFAULT_MODEL = Path("data/models/spike-v3b-mlx-8bit")
 PART_TOKENS = 1200  # training chunks had 300-1500 tokens; longer texts are split into parts

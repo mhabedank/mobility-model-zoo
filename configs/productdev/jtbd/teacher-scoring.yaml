@@ -1,0 +1,11 @@
+# Teacher-scoring configuration (FR-026a quote repair, FR-019b ensemble). Frozen and hashed with the decision criteria by `jtbd freeze` (FR-015).
+version: teacher-scoring-v1
+quote_repair:                     # FR-026a, teacher scoring view only
+  min_score: 90                   # rapidfuzz partial-ratio alignment, 0-100
+  min_length_ratio: 0.8
+  max_length_ratio: 1.25
+teacher_ensemble:                 # FR-019b; ties and quote source follow the alphabetical order of the member IDs
+  model_id: teacher-ensemble
+  members: [teacher-or-deepseek-v4.1-flash, teacher-or-glm-5.3-flash, teacher-or-mimo-v2.6-pro, teacher-qwen3.8]
+  min_votes: 2
+rationale: Values from FR-026a and FR-019b (spec session 2026-10-01); no spike measurement sets any part of this rule.

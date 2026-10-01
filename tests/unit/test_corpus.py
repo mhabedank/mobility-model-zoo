@@ -3,14 +3,14 @@ from datetime import date
 
 import pytest
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.corpus.build import build_from_selection
-from jtbd_pilot.corpus.redact import redact_check, redact_text
-from jtbd_pilot.corpus.split import stratified_holdout
-from jtbd_pilot.corpus.store import load_chunks, save_chunk
-from jtbd_pilot.corpus.validate import check_targets
-from jtbd_pilot.errors import ValidationFailed
-from jtbd_pilot.schema import ChunkRecord
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.corpus.build import build_from_selection
+from mobility_model_zoo.productdev.jtbd.corpus.redact import redact_check, redact_text
+from mobility_model_zoo.productdev.jtbd.corpus.split import stratified_holdout
+from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks, save_chunk
+from mobility_model_zoo.productdev.jtbd.corpus.validate import check_targets
+from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
+from mobility_model_zoo.productdev.jtbd.schema import ChunkRecord
 
 
 @pytest.fixture

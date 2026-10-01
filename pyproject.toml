@@ -1,9 +1,21 @@
 [project]
-name = "jtbd-pilot"
+name = "mobility-model-zoo"
 version = "0.1.0"
-description = "Pilot for JTBD extraction: frontier agreement, zero-shot baselines and go/revise/rethink decision"
+description = "A collection of mobility ML models, grouped by topic"
+license = "Apache-2.0"
 requires-python = ">=3.12"
+# The base install is what model users get: inference only.
 dependencies = [
+    "torch>=2.4",
+    "transformers>=4.46",
+    "huggingface_hub>=1.19",
+    "safetensors>=0.4",
+    "sentencepiece>=0.2",
+]
+
+[project.optional-dependencies]
+# JTBD task tool (`jtbd`): sources, corpus, labeling, scoring, reports
+jtbd = [
     "pydantic>=2.7",
     "typer>=0.12",
     "openai>=1.40",
@@ -20,9 +32,18 @@ dependencies = [
     "python-dotenv>=1.0",
     "rapidfuzz>=3.14.6",
 ]
+# Release tool (`zoo`)
+release = [
+    "jsonschema>=4.23",
+    "pyyaml>=6.0",
+    "jinja2>=3.1",
+    "typer>=0.12",
+    "httpx>=0.27",
+]
 
 [project.scripts]
-pilot = "jtbd_pilot.cli:app"
+jtbd = "mobility_model_zoo.productdev.jtbd.cli:app"
+zoo = "mobility_model_zoo.release.cli:app"
 
 [dependency-groups]
 dev = ["pytest>=8.3", "ruff>=0.6"]
@@ -32,7 +53,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jtbd_pilot"]
+packages = ["src/mobility_model_zoo"]
+
+# CPU-only torch on Linux (CI runners, the reference VM); macOS wheels are CPU/MPS anyway.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 
 [tool.ruff]
 line-length = 105

@@ -1,7 +1,7 @@
 import pytest
 
-from jtbd_pilot.decision import evaluate, finetuning
-from jtbd_pilot.schema import DecisionCriteria
+from mobility_model_zoo.productdev.jtbd.decision import evaluate, finetuning
+from mobility_model_zoo.productdev.jtbd.schema import DecisionCriteria
 
 CRITERIA = DecisionCriteria.model_validate({
     "version": "t", "max_reruns": 1, "underpowered_min_units": 30,
@@ -81,7 +81,7 @@ def teacher(model_id, ratio, schema_valid=0.99, cost=0.01, raw_ratio=None, role=
     (0.90, 0.979, False, "schema_valid 0.979 < 0.98"),
 ])
 def test_teacher_fitness_thresholds(ratio, schema_valid, fit, reason):
-    from jtbd_pilot.decision import teacher_fitness
+    from mobility_model_zoo.productdev.jtbd.decision import teacher_fitness
 
     [row] = teacher_fitness(CRITERIA, [teacher("t", ratio, schema_valid)])["candidates"]
     assert row["fit"] is fit
@@ -89,7 +89,7 @@ def test_teacher_fitness_thresholds(ratio, schema_valid, fit, reason):
 
 
 def test_teacher_fitness_uses_the_repaired_view_only():
-    from jtbd_pilot.decision import teacher_fitness
+    from mobility_model_zoo.productdev.jtbd.decision import teacher_fitness
 
     result = teacher_fitness(CRITERIA, [teacher("t", 0.92, raw_ratio=0.85)])
     assert result["candidates"][0]["fit"] and result["recommended"] == "t"
@@ -97,14 +97,14 @@ def test_teacher_fitness_uses_the_repaired_view_only():
 
 @pytest.mark.parametrize("gap,expected", [(0.015, "cheap"), (0.03, "best")])
 def test_teacher_recommendation_tie_margin(gap, expected):
-    from jtbd_pilot.decision import teacher_fitness
+    from mobility_model_zoo.productdev.jtbd.decision import teacher_fitness
 
     scores = [teacher("best", 0.95, cost=0.02), teacher("cheap", 0.95 - gap, cost=0.001)]
     assert teacher_fitness(CRITERIA, scores)["recommended"] == expected
 
 
 def test_no_fit_teacher_names_missing_dimensions_and_skips_baselines():
-    from jtbd_pilot.decision import teacher_fitness
+    from mobility_model_zoo.productdev.jtbd.decision import teacher_fitness
 
     scores = [teacher("t", 0.8, dims={"kind": 0.5, "relevance": 0.95}),
               teacher("small", 0.5, role="baseline")]

@@ -3,7 +3,7 @@ import json
 import pytest
 from helpers import FIXTURE, copy_fixture, pilot, reference_chain, run_ids
 
-from jtbd_pilot.scoring import Target, score_units
+from mobility_model_zoo.productdev.jtbd.scoring import Target, score_units
 
 EXPECTED = json.loads((FIXTURE / "expected.json").read_text())["baseline_mock_small"]
 

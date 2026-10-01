@@ -5,7 +5,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 MLX_PY="uv run --with mlx-lm==0.31.3 python"
-PILOT="uv run pilot --config configs/spike-v1.yaml"
+PILOT="uv run jtbd --config configs/productdev/jtbd/spike-v1.yaml"
 PORT=8082
 RUN=run-baseline-spike-tuned-main-3223351c
 log() { echo "$(date +%Y-%m-%dT%H:%M:%S) $*"; }

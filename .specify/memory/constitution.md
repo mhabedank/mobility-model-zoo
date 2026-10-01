@@ -114,7 +114,7 @@ the benchmark cannot measure it. Finding that out after generating data wastes t
   via Ollama, or ONNX on CPU). Each spec that introduces or changes a model MUST state its
   concrete memory and hardware budget.
 - Hosted APIs MAY be used for data generation and evaluation.
-- Hosted APIs MUST NOT be a runtime dependency of the extraction engine.
+- Hosted APIs MUST NOT be a runtime dependency of any model in the zoo.
 
 Rationale: The engine is meant to run anywhere, cheaply, on private data, without a
 network dependency or per-call cost.

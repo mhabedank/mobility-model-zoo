@@ -2,7 +2,7 @@ import csv
 
 from helpers import copy_fixture, pilot, reference_chain
 
-from jtbd_pilot.config import load_settings
+from mobility_model_zoo.productdev.jtbd.config import load_settings
 
 
 def _fill(path, mapping):

@@ -1,8 +1,8 @@
 # ruff: noqa: E501 - table output
 """Offline test of teacher ensembles on the 35 evaluation chunks (no model calls, no cost).
 
-Combines the stored outputs of several teacher runs with `jtbd_pilot.ensemble.combine` (the
-pilot's `pilot ensemble`) and scores each combination against the Claude consensus exactly like a
+Combines the stored outputs of several teacher runs with `mobility_model_zoo.productdev.jtbd.ensemble.combine` (the
+pilot's `jtbd ensemble`) and scores each combination against the Claude consensus exactly like a
 single model:
 - relevance: majority vote (ties count as relevant),
 - items: items of all models are grouped by span overlap (IoU >= min_iou, one item per model and
@@ -27,15 +27,21 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.consensus import load_consensus
-from jtbd_pilot.corpus.store import chunk_map
-from jtbd_pilot.ensemble import combine
-from jtbd_pilot.jsonio import write_json, write_jsonl
-from jtbd_pilot.labeling.prompt import build_system_prompt
-from jtbd_pilot.metrics import CATEGORY_LABELS, EVIDENCE_LABELS, composite, f1_stat, kappa_stat
-from jtbd_pilot.runs import ChunkOutput, load_outputs
-from jtbd_pilot.scoring import RELEVANCE_LABELS, score_units
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.consensus import load_consensus
+from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map
+from mobility_model_zoo.productdev.jtbd.ensemble import combine
+from mobility_model_zoo.productdev.jtbd.jsonio import write_json, write_jsonl
+from mobility_model_zoo.productdev.jtbd.labeling.prompt import build_system_prompt
+from mobility_model_zoo.productdev.jtbd.metrics import (
+    CATEGORY_LABELS,
+    EVIDENCE_LABELS,
+    composite,
+    f1_stat,
+    kappa_stat,
+)
+from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, load_outputs
+from mobility_model_zoo.productdev.jtbd.scoring import RELEVANCE_LABELS, score_units
 
 ROOT = Path(__file__).resolve().parent.parent
 RUN = "run-teacher_candidate-{}-{}-3223351c"
@@ -89,7 +95,7 @@ def scores(outputs: dict[str, ChunkOutput], consensus, contested, chunk_ids, min
 
 def export(settings, out: Path, min_iou: float) -> None:
     """Training data from the fixed EXPORT strategy on the train split (same format as export_sft)."""
-    from jtbd_pilot.spike import chatml
+    from mobility_model_zoo.productdev.jtbd.spike import chatml
 
     name, models, min_votes = EXPORT
     chunks = chunk_map(settings, "train")
@@ -122,7 +128,7 @@ def export(settings, out: Path, min_iou: float) -> None:
 
 
 def main() -> None:
-    settings = load_settings(ROOT / "configs/spike-v1.yaml")
+    settings = load_settings(ROOT / "configs/productdev/jtbd/spike-v1.yaml")
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     consensus, contested, meta = load_consensus(settings, "main")
     chunks = chunk_map(settings, "main")

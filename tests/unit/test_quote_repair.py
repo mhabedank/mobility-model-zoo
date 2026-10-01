@@ -1,4 +1,4 @@
-from jtbd_pilot.quotes import repair
+from mobility_model_zoo.productdev.jtbd.quotes import repair
 
 TEXT = ("Wir fordern: Paket-\nboten wirksam schützen und die Qualität der Paketzustellung "
         "verbessern. Außerdem muss der ÖPNV im ländlichen Raum ausgebaut werden.")
@@ -36,7 +36,7 @@ def test_repair_min_score_is_a_parameter():
 
 
 def test_repair_defaults_unchanged():
-    from jtbd_pilot import quotes
+    from mobility_model_zoo.productdev.jtbd import quotes
 
     assert (quotes.REPAIR_MIN_SCORE, quotes.REPAIR_MIN_LENGTH_RATIO,
             quotes.REPAIR_MAX_LENGTH_RATIO) == (90.0, 0.8, 1.25)

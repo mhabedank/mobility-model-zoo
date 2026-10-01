@@ -2,8 +2,8 @@ import json
 
 from helpers import copy_fixture, reference_chain
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.consensus import load_consensus
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.consensus import load_consensus
 
 EXPECTED = json.loads((__import__("helpers").FIXTURE / "expected.json").read_text())["reference"]
 

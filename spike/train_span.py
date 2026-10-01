@@ -8,7 +8,7 @@ Run: uv run --with torch --with transformers --with sentencepiece --with protobu
          python spike/train_span.py [--encoder FacebookAI/xlm-roberta-base] [--epochs 12]
 On another machine (e.g. the DGX Spark, see spike/train_span_spark.sh): export the labeled rows
 here with --export-rows rows.jsonl [--teachers], then train there with --rows rows.jsonl; this
-needs only torch and transformers, not the jtbd_pilot package.
+needs only torch and transformers, not the mobility_model_zoo.productdev.jtbd package.
 """
 
 from __future__ import annotations
@@ -48,9 +48,9 @@ def teacher_labels(settings, chunk_ids: set[str]) -> list[dict]:
     """The same chunks labeled by each single teacher (repaired quotes): more, noisier examples."""
     from ensemble import EXPORT, MODELS, RUN
 
-    from jtbd_pilot.corpus.store import chunk_map
-    from jtbd_pilot.ensemble import with_repair
-    from jtbd_pilot.runs import load_outputs
+    from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map
+    from mobility_model_zoo.productdev.jtbd.ensemble import with_repair
+    from mobility_model_zoo.productdev.jtbd.runs import load_outputs
 
     _, models, _ = EXPORT
     chunks = chunk_map(settings, "train")
@@ -71,9 +71,9 @@ def teacher_labels(settings, chunk_ids: set[str]) -> list[dict]:
 def ensemble_labels(settings) -> list[dict]:
     from ensemble import DIM_PRIORITY, EXPORT, MODELS, QUOTE_PRIORITY, RUN
 
-    from jtbd_pilot.corpus.store import chunk_map
-    from jtbd_pilot.ensemble import combine
-    from jtbd_pilot.runs import load_outputs
+    from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map
+    from mobility_model_zoo.productdev.jtbd.ensemble import combine
+    from mobility_model_zoo.productdev.jtbd.runs import load_outputs
 
     _, models, min_votes = EXPORT
     chunks = chunk_map(settings, "train")
@@ -177,7 +177,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=20261001)
     parser.add_argument("--teachers", action="store_true",
                         help="also train on each single teacher's labels of the train chunks")
-    parser.add_argument("--rows", type=Path, help="train on exported rows (no jtbd_pilot needed)")
+    parser.add_argument("--rows", type=Path,
+                        help="train on exported rows (no mobility_model_zoo package needed)")
     parser.add_argument("--export-rows", type=Path, help="write the labeled rows and stop")
     parser.add_argument("--context", action="store_true",
                         help="unit and attribute heads also see the neighbouring units and the window")
@@ -194,9 +195,9 @@ def main() -> None:
         val_rows = [r for r in rows if r["split"] == "val"]
         train_rows = [r for r in rows if r["split"] == "train"]
     else:
-        from jtbd_pilot.config import load_settings
+        from mobility_model_zoo.productdev.jtbd.config import load_settings
 
-        settings = load_settings(ROOT / "configs/spike-v1.yaml")
+        settings = load_settings(ROOT / "configs/productdev/jtbd/spike-v1.yaml")
         rows = ensemble_labels(settings)
         if args.val_from:
             val_ids = set(json.loads(args.val_from.read_text())["val_chunk_ids"])

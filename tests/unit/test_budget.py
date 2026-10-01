@@ -2,10 +2,10 @@ import shutil
 
 import pytest
 
-from jtbd_pilot import budget
-from jtbd_pilot.config import ModelEntry, load_settings
-from jtbd_pilot.errors import BudgetRefused
-from jtbd_pilot.jsonio import read_jsonl
+from mobility_model_zoo.productdev.jtbd import budget
+from mobility_model_zoo.productdev.jtbd.config import ModelEntry, load_settings
+from mobility_model_zoo.productdev.jtbd.errors import BudgetRefused
+from mobility_model_zoo.productdev.jtbd.jsonio import read_jsonl
 
 
 @pytest.fixture

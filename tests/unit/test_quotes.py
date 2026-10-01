@@ -1,4 +1,4 @@
-from jtbd_pilot.quotes import locate
+from mobility_model_zoo.productdev.jtbd.quotes import locate
 
 TEXT = (
     "Er sagte: „Der Bus kommt\n  nie pünktlich.“ Danach fuhr er Rad. "

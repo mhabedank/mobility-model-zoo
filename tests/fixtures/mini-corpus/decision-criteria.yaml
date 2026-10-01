@@ -1,4 +1,4 @@
-# Initial decision criteria (FR-030, FR-031, FR-031a). Frozen by `pilot freeze` before the first labeling run.
+# Initial decision criteria (FR-030, FR-031, FR-031a). Frozen by `jtbd freeze` before the first labeling run.
 version: criteria-v1
 thresholds:
   relevance_kappa: 0.8

@@ -2,9 +2,9 @@ import shutil
 
 import pytest
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.errors import FrozenHashMismatch, UsageError
-from jtbd_pilot.freeze import freeze_criteria, sha256_canonical, verify_frozen
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.errors import FrozenHashMismatch, UsageError
+from mobility_model_zoo.productdev.jtbd.freeze import freeze_criteria, sha256_canonical, verify_frozen
 
 
 def test_canonical_hash_ignores_line_endings(tmp_path):

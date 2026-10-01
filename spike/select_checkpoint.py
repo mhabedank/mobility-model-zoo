@@ -24,10 +24,10 @@ import yaml
 from mlx_lm import generate, load
 from pydantic import ValidationError
 
-from jtbd_pilot.labeling.base import parse_json_text
-from jtbd_pilot.matching import match_items
-from jtbd_pilot.runs import locate_items
-from jtbd_pilot.schema import ExtractionOutput
+from mobility_model_zoo.productdev.jtbd.labeling.base import parse_json_text
+from mobility_model_zoo.productdev.jtbd.matching import match_items
+from mobility_model_zoo.productdev.jtbd.runs import locate_items
+from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data/spike/checkpoints.json"

@@ -1,7 +1,7 @@
 from helpers import copy_fixture, pilot, reference_chain, run_ids
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.jsonio import write_json
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.jsonio import write_json
 
 SECTIONS = ["## 1. Decision", "## 2. Versions", "## 3. Corpus composition",
             "## 4. Agreement between reference models", "## 5. Deterministic checks",
