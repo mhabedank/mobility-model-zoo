@@ -481,7 +481,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - no dataset is published (Principle VI)
 - [X] T083 [P] Add `pilot doctor` in `src/jtbd_pilot/cli.py`. It checks that `claude` is on PATH and logged in, that the OpenRouter key and cap are configured, that both Ollama hosts are reachable, and that the manifest state matches the files on disk.
 - [ ] T084 Run every step of `specs/001-jtbd-extraction-pilot/quickstart.md`, sections 1 to 6, including every guardrail row in section 3. Record the results in `data/analysis/quickstart-validation.md`.
-- [ ] T085 Run a final traceability check: each FR and SC in spec.md maps to at least one task, artifact or report section, and `pilot budget` shows a total of €20 or less (SC-009).
+- [ ] T085 Run a final traceability check: each FR and SC in spec.md maps to at least one task, artifact or report section, and `pilot budget` shows a total of €20 or less (SC-009). *(2026-10-01: traceability part done, all 51 FR/SC mapped, see `checklists/traceability.md`; the SC-009 budget check waits for the last paid run.)*
 
 ---
 
