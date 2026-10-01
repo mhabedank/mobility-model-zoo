@@ -2,10 +2,10 @@ import shutil
 
 import pytest
 
-from jtbd_pilot import perf
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.errors import ValidationFailed
-from jtbd_pilot.jsonio import write_json
+from mobility_model_zoo.productdev.jtbd import perf
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
+from mobility_model_zoo.productdev.jtbd.jsonio import write_json
 
 
 def test_percentiles():

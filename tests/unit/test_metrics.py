@@ -4,7 +4,7 @@ import math
 import pytest
 from helpers import FIXTURE, copy_fixture, pilot, reference_chain
 
-from jtbd_pilot.metrics import bootstrap_ci, f1_stat, kappa
+from mobility_model_zoo.productdev.jtbd.metrics import bootstrap_ci, f1_stat, kappa
 
 EXPECTED = json.loads((FIXTURE / "expected.json").read_text())["reference"]
 

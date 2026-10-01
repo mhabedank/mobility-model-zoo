@@ -23,10 +23,10 @@ sys.path.insert(0, str(ROOT / "spike"))
 from ensemble import scores  # noqa: E402
 from span_model import load, predict  # noqa: E402
 
-from jtbd_pilot.config import load_settings  # noqa: E402
-from jtbd_pilot.consensus import load_consensus  # noqa: E402
-from jtbd_pilot.corpus.store import chunk_map  # noqa: E402
-from jtbd_pilot.runs import ChunkOutput, LocatedItem  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.config import load_settings  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.consensus import load_consensus  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, LocatedItem  # noqa: E402
 
 
 def main() -> None:
@@ -34,7 +34,7 @@ def main() -> None:
     parser.add_argument("--model", type=Path, default=ROOT / "data/models/span-xlmr")
     parser.add_argument("--device", default="mps" if torch.backends.mps.is_available() else "cpu")
     args = parser.parse_args()
-    settings = load_settings(ROOT / "configs/spike-v1.yaml")
+    settings = load_settings(ROOT / "configs/productdev/jtbd/spike-v1.yaml")
     consensus, contested, meta = load_consensus(settings, "main")
     chunks = chunk_map(settings, "main")
     model, tokenizer = load(args.model, args.device)

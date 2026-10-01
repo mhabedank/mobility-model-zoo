@@ -17,12 +17,18 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.consensus import load_consensus
-from jtbd_pilot.jsonio import read_json
-from jtbd_pilot.metrics import CATEGORY_LABELS, EVIDENCE_LABELS, composite, f1_stat, kappa_stat
-from jtbd_pilot.runs import load_outputs
-from jtbd_pilot.scoring import RELEVANCE_LABELS, score_units
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.consensus import load_consensus
+from mobility_model_zoo.productdev.jtbd.jsonio import read_json
+from mobility_model_zoo.productdev.jtbd.metrics import (
+    CATEGORY_LABELS,
+    EVIDENCE_LABELS,
+    composite,
+    f1_stat,
+    kappa_stat,
+)
+from mobility_model_zoo.productdev.jtbd.runs import load_outputs
+from mobility_model_zoo.productdev.jtbd.scoring import RELEVANCE_LABELS, score_units
 
 ROOT = Path(__file__).resolve().parent.parent
 SPIKE = ROOT / "data/spike"
@@ -305,7 +311,7 @@ if(svg&&hit){{
 
 
 def main() -> None:
-    settings = load_settings(ROOT / "configs/spike-v1.yaml")
+    settings = load_settings(ROOT / "configs/productdev/jtbd/spike-v1.yaml")
     while True:
         tr = training()
         bench = benchmark(settings)

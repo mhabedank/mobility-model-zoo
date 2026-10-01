@@ -1,0 +1,33 @@
+# Draft for feature 004 (production span model). Fields left empty are delivered by 004.
+model: productdev-jtbd-span-xlmr
+version: 0.1.0
+date: 2026-10-01
+status: experimental
+change_type: initial
+changes: First production release of the span extractor, rebuilt without spike data.
+output_format_version: jtbd-span-v1
+sandbox: false
+files: []
+staging:
+  repo: mobility-model-zoo/productdev-jtbd-span-xlmr-staging
+  revision: ''
+recipe:
+  git_commit: ''
+  config: ''
+  doc: ''
+provenance:
+  sources: []
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: pilot-v1
+  reference: the consensus of Claude and GPT (frontier reference models)
+  results: results/0.1.0/quality.json
+performance:
+  hardware: Linux VM, 8 GB RAM, 4 vCPU, no GPU (low-resource reference hardware)
+  budget:
+    ram_gb: 0
+    gpu: false
+  results: results/0.1.0/performance.json
+published: null
+deprecated: null

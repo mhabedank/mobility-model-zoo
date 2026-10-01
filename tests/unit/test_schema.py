@@ -4,7 +4,7 @@ import jsonschema
 import pytest
 from pydantic import ValidationError
 
-from jtbd_pilot.schema import ExtractionOutput, evidence_rank, wire_schema
+from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput, evidence_rank, wire_schema
 
 IGNORED = {"title", "description", "$schema", "$id"}
 
@@ -44,11 +44,11 @@ def test_evidence_rank_is_ordinal():
 
 
 @pytest.mark.parametrize("path,contract,model", [
-    ("configs/decision-criteria.yaml", "decision-criteria", "DecisionCriteria"),
+    ("configs/productdev/jtbd/decision-criteria.yaml", "decision-criteria", "DecisionCriteria"),
     ("specs/001-jtbd-extraction-pilot/contracts/decision-criteria.example.yaml",
      "decision-criteria", "DecisionCriteria"),
     ("tests/fixtures/mini-corpus/decision-criteria.yaml", "decision-criteria", "DecisionCriteria"),
-    ("configs/teacher-scoring.yaml", "teacher-scoring", "TeacherScoring"),
+    ("configs/productdev/jtbd/teacher-scoring.yaml", "teacher-scoring", "TeacherScoring"),
     ("specs/001-jtbd-extraction-pilot/contracts/teacher-scoring.example.yaml",
      "teacher-scoring", "TeacherScoring"),
     ("tests/fixtures/mini-corpus/teacher-scoring.yaml", "teacher-scoring", "TeacherScoring"),
@@ -56,7 +56,7 @@ def test_evidence_rank_is_ordinal():
 def test_config_matches_contract(contracts_dir, path, contract, model):
     import yaml
 
-    from jtbd_pilot import schema
+    from mobility_model_zoo.productdev.jtbd import schema
 
     doc = yaml.safe_load((contracts_dir.parents[2] / path).read_text())
     jsonschema.validate(doc, json.loads((contracts_dir / f"{contract}.schema.json").read_text()))
@@ -66,7 +66,7 @@ def test_config_matches_contract(contracts_dir, path, contract, model):
 def test_ensemble_rule_has_no_order_and_bounded_votes(contracts_dir):
     import yaml
 
-    from jtbd_pilot.schema import TeacherScoring
+    from mobility_model_zoo.productdev.jtbd.schema import TeacherScoring
 
     doc = yaml.safe_load((contracts_dir / "teacher-scoring.example.yaml").read_text())
     with pytest.raises(ValidationError, match="min_votes"):
@@ -78,7 +78,7 @@ def test_ensemble_rule_has_no_order_and_bounded_votes(contracts_dir):
 
 
 def test_ensemble_manifest_rules():
-    from jtbd_pilot.schema import LabelRunManifest
+    from mobility_model_zoo.productdev.jtbd.schema import LabelRunManifest
 
     base = {"run_id": "r", "role": "teacher_candidate", "backend": "ensemble", "model_id": "e",
             "model_version": "a+b", "family": "ensemble", "host": "local",

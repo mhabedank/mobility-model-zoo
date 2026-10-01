@@ -1,0 +1,27 @@
+# Initial decision criteria (FR-030, FR-031, FR-031a). Frozen by `jtbd freeze` before the first labeling run, together with configs/productdev/jtbd/teacher-scoring.yaml.
+version: criteria-v1
+thresholds:
+  relevance_kappa: 0.8
+  evidence_type_weighted_kappa: 0.6
+  kind_kappa: 0.6
+  actor_type_kappa: 0.6
+  evidence_scope_kappa: 0.6
+  item_matching_f1: 0.7
+rethink_below:
+  evidence_type_weighted_kappa: 0.4
+revise_band:
+  evidence_type_weighted_kappa: [0.4, 0.6]   # [low inclusive, high exclusive)
+max_reruns: 1
+rerun_decision_split: holdout
+finetuning_optional:
+  min_quality_ratio: 0.85
+  min_throughput_ratio: 10
+  quality_reference: frontier_vs_frontier_composite
+  throughput_reference: frontier_reference_chunks_per_min
+underpowered_min_units: 30
+teacher_fitness:                  # FR-031a
+  min_quality_ratio: 0.90         # repaired composite / frontier-vs-frontier composite (ratio a)
+  min_schema_valid: 0.98
+  tie_margin: 0.02                # within this composite gap the cheaper candidate is recommended
+  score_view: repaired
+rationale: Initial values from the pilot spec, confirmed 2026-09-25; teacher fitness (FR-031a) added 2026-09-29 and justified from the FR-031 logic on 2026-10-01, before the first freeze.

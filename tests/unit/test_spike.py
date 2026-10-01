@@ -4,11 +4,11 @@ import pytest
 import yaml
 from helpers import copy_fixture, pilot, run_ids
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.corpus.autochunk import cut_ranges, usable
-from jtbd_pilot.corpus.store import load_chunks, save_chunk
-from jtbd_pilot.jsonio import read_jsonl
-from jtbd_pilot.sources.snapshot import create_snapshot
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.corpus.autochunk import cut_ranges, usable
+from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks, save_chunk
+from mobility_model_zoo.productdev.jtbd.jsonio import read_jsonl
+from mobility_model_zoo.productdev.jtbd.sources.snapshot import create_snapshot
 
 PROSE = ("Die Buslinie im Landkreis fährt nur zweimal am Tag. Viele Pendler nehmen deshalb das Auto. "
          * 60)
@@ -110,8 +110,8 @@ def test_single_reference_refused_outside_spike(tmp_path):
 
 
 def test_openai_compat_backend(monkeypatch, tmp_path):
-    from jtbd_pilot.config import ModelEntry
-    from jtbd_pilot.labeling import openai_compat
+    from mobility_model_zoo.productdev.jtbd.config import ModelEntry
+    from mobility_model_zoo.productdev.jtbd.labeling import openai_compat
 
     class Resp:
         id, model, usage = "r1", "served", None
@@ -138,7 +138,7 @@ def test_openai_compat_backend(monkeypatch, tmp_path):
     assert result.parsed_candidate == {"relevant": False, "items": []}
     assert captured["base_url"] == "http://spark:8000/v1" and captured["temperature"] == 0
     assert captured["response_format"]["type"] == "json_schema"
-    from jtbd_pilot.errors import UsageError
+    from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
     with pytest.raises(UsageError):
         openai_compat.OpenAICompatBackend(settings, ModelEntry(
@@ -147,7 +147,7 @@ def test_openai_compat_backend(monkeypatch, tmp_path):
 
 
 def test_claude_result_event_from_event_list():
-    from jtbd_pilot.labeling.claude_cli import result_event
+    from mobility_model_zoo.productdev.jtbd.labeling.claude_cli import result_event
 
     events = [{"type": "system", "model": "claude-opus-5"},
               {"type": "result", "structured_output": {"a": 1}, "modelUsage": {"claude-opus-5": {}}}]

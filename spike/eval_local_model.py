@@ -21,11 +21,11 @@ sys.path.insert(0, str(ROOT / "spike"))
 
 from ensemble import scores  # noqa: E402
 
-from jtbd_pilot.config import load_settings  # noqa: E402
-from jtbd_pilot.consensus import load_consensus  # noqa: E402
-from jtbd_pilot.corpus.store import chunk_map  # noqa: E402
-from jtbd_pilot.runs import ChunkOutput, load_outputs, locate_items  # noqa: E402
-from jtbd_pilot.schema import ExtractionOutput  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.config import load_settings  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.consensus import load_consensus  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, load_outputs, locate_items  # noqa: E402
+from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput  # noqa: E402
 
 V3B_RUN = "run-baseline-spike-v3b-main-3223351c"
 
@@ -37,7 +37,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, default=ROOT / "data/models/spike-v3b-mlx-8bit")
     args = parser.parse_args()
-    settings = load_settings(ROOT / "configs/spike-v1.yaml")
+    settings = load_settings(ROOT / "configs/productdev/jtbd/spike-v1.yaml")
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     consensus, contested, meta = load_consensus(settings, "main")
     chunks = chunk_map(settings, "main")

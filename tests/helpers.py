@@ -4,8 +4,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from jtbd_pilot.cli import app
-from jtbd_pilot.config import load_settings
+from mobility_model_zoo.productdev.jtbd.cli import app
+from mobility_model_zoo.productdev.jtbd.config import load_settings
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "mini-corpus"
 

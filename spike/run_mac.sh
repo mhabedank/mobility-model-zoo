@@ -7,7 +7,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 MLX="uvx --from mlx-lm==0.31.3"
 MODEL=mlx-community/Qwen3-4B-Instruct-2507-4bit
-PILOT="uv run pilot --config configs/spike-v1.yaml"
+PILOT="uv run jtbd --config configs/productdev/jtbd/spike-v1.yaml"
 log() { echo "$(date +%Y-%m-%dT%H:%M:%S) $*"; }
 
 serve() {  # port [adapter]

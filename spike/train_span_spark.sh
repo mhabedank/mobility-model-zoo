@@ -2,7 +2,7 @@
 # Trains the encoder span model on the DGX Spark GPU (NVIDIA PyTorch container).
 # Usage: bash spike/train_span_spark.sh <name> <rows: ensemble|teachers> <encoder> <lr> <epochs> [extra args]
 #   e.g. bash spike/train_span_spark.sh span-large-teachers teachers FacebookAI/xlm-roberta-large 1.5e-5 6
-# Export the rows first (here, with the jtbd_pilot package):
+# Export the rows first (here, with the mobility_model_zoo.productdev.jtbd package):
 #   uv run --with torch --with transformers python spike/train_span.py [--teachers] \
 #       --val-from data/models/span-xlmr-unit/span_model.json --export-rows data/models/spark/rows-<rows>.jsonl
 # Follow:   ssh $SPARK tail -f spike/span/<name>.log

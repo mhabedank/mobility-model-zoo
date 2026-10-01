@@ -3,10 +3,10 @@ import shutil
 import pytest
 import yaml
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.errors import CrawlOnceRefused, UsageError, ValidationFailed
-from jtbd_pilot.sources import registry
-from jtbd_pilot.sources.snapshot import create_snapshot as _create
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.errors import CrawlOnceRefused, UsageError, ValidationFailed
+from mobility_model_zoo.productdev.jtbd.sources import registry
+from mobility_model_zoo.productdev.jtbd.sources.snapshot import create_snapshot as _create
 
 BODY = b" Lorem mobility text." * 120
 

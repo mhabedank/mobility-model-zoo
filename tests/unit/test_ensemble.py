@@ -6,9 +6,9 @@ import jsonschema
 import yaml
 from helpers import copy_fixture, pilot, reference_chain, run_ids
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.ensemble import combine, with_repair
-from jtbd_pilot.runs import ChunkOutput, LocatedItem
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.ensemble import combine, with_repair
+from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, LocatedItem
 
 TEXT = ("Der Bus kommt am Abend nur noch\nalle zwei Stunden. "
         "Viele Pendler nehmen deshalb das Auto. "
@@ -105,7 +105,7 @@ def test_unrepairable_quote_is_dropped_and_counted():
     assert out.items == []
 
 
-# ---- pilot ensemble ----------------------------------------------------------------------------
+# ---- jtbd ensemble ----------------------------------------------------------------------------
 def _teachers(config):
     for model in ("mock-teacher-x", "mock-teacher-y"):
         pilot(config, "label", "--role", "teacher_candidate", "--backend", "mock", "--model", model)

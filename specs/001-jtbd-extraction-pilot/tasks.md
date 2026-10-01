@@ -1,5 +1,7 @@
 ---
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 description: "Task list for the JTBD Extraction Pilot"
 ---
 
@@ -186,10 +188,10 @@ description: "Task list for the JTBD Extraction Pilot"
   - non-European sources for 10–15%
   - near-miss and irrelevant sources, for example cars as hobby objects or motorsport
   - Bundestag protocols (DIP API) and the Scientists for Future podcast for transcripts
-- [ ] T032 [US1] **(ops)** Fetch every source in the plan exactly once with `pilot source fetch`, `pilot source register` or the Reddit fetcher, into `data/snapshots/`, with a `retention_until` for each.
-- [ ] T033 [US1] **(ops)** Write `data/chunks/selection.yaml` (about 180 chunks, with ranges, metadata and relevance intent), then run `pilot corpus build`.
-- [ ] T034 [US1] **(ops)** Run `pilot corpus redact`, manually review every chunk (setting `manual_review_at`), then run `pilot corpus redact-check` until it exits 0. If personal data is found **after** labeling has started: remove or re-redact the chunk, freeze a new version with `pilot freeze --new-version <v> --rationale "re-redaction <chunk_id>"`, relabel that chunk with every run that has already processed it (the old raw responses stay unmodified and are marked superseded), then recompute from `pilot check` onwards (spec Edge Cases).
-- [ ] T035 [US1] **(ops)** Run `pilot corpus split --holdout 30 --seed 20260925`, then `pilot corpus validate --split main` and `--split holdout`. Fix the selection until both exit 0. Keep `data/analysis/composition-main.json` and `composition-holdout.json` for the report.
+- [ ] T032 [US1] **(ops)** Fetch every source in the plan exactly once with `jtbd source fetch`, `jtbd source register` or the Reddit fetcher, into `data/snapshots/`, with a `retention_until` for each.
+- [ ] T033 [US1] **(ops)** Write `data/chunks/selection.yaml` (about 180 chunks, with ranges, metadata and relevance intent), then run `jtbd corpus build`.
+- [ ] T034 [US1] **(ops)** Run `jtbd corpus redact`, manually review every chunk (setting `manual_review_at`), then run `jtbd corpus redact-check` until it exits 0. If personal data is found **after** labeling has started: remove or re-redact the chunk, freeze a new version with `jtbd freeze --new-version <v> --rationale "re-redaction <chunk_id>"`, relabel that chunk with every run that has already processed it (the old raw responses stay unmodified and are marked superseded), then recompute from `jtbd check` onwards (spec Edge Cases).
+- [ ] T035 [US1] **(ops)** Run `jtbd corpus split --holdout 30 --seed 20260925`, then `jtbd corpus validate --split main` and `--split holdout`. Fix the selection until both exit 0. Keep `data/analysis/composition-main.json` and `composition-holdout.json` for the report.
 
 **Checkpoint**: a validated, redacted, snapshot-backed corpus. US1 is complete.
 
@@ -257,7 +259,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - the minimum IoU note
 - [X] T044 [P] [US2] **(ops/doc)** Write worked examples in `guideline/examples/`: at least 6 (German and English), among them one correct empty result, one near-miss, one measurement-level item and one item with multiple actors.
 - [X] T045 [US2] Implement `src/jtbd_pilot/labeling/prompt.py`: `build_prompt(guideline, examples, schema)` returns the system prompt, and the user message is the chunk `text` only. It has no persona and no metadata (Principles I and VII). Hash the rendered prompt into the run manifest.
-- [ ] T046 [P] [US2] **(ops)** Choose the GPT mini-tier slug and price from the OpenRouter model list and record them in `configs/models.yaml` and `configs/budget.yaml` (research.md R1 and R8). ~~Set the hard spending limit on the OpenRouter key to €12~~ The key limit is USD 20 (≈ €18.40, no reset) since 2026-09-29 and recorded in `configs/budget.yaml`; only the GPT slug and price remain open.
+- [ ] T046 [P] [US2] **(ops)** Choose the GPT mini-tier slug and price from the OpenRouter model list and record them in `configs/productdev/jtbd/models.yaml` and `configs/productdev/jtbd/budget.yaml` (research.md R1 and R8). ~~Set the hard spending limit on the OpenRouter key to €12~~ The key limit is USD 20 (≈ €18.40, no reset) since 2026-09-29 and recorded in `configs/productdev/jtbd/budget.yaml`; only the GPT slug and price remain open.
 - [X] T047 [P] [US2] Implement `src/jtbd_pilot/labeling/claude_cli.py`:
   - runs `claude -p --output-format json --json-schema <schema> --system-prompt-file <prompt> --tools "" --model <id> --setting-sources "" --strict-mcp-config --disable-slash-commands --no-session-persistence` in an empty temp directory (no `--bare`: it ignores the subscription login), with the chunk sent on stdin
   - parses `structured_output` (falling back to `result`)
@@ -296,9 +298,9 @@ description: "Task list for the JTBD Extraction Pilot"
   - sets the state to `criteria_frozen`
   - refuses to change the hashes without `--new-version` and `--rationale`
   - `pilot freeze --benchmark` (benchmark stage): adds the consensus and contested hashes plus the reference run IDs to the manifest and sets `state: frozen` (FR-034). `pilot freeze --benchmark` accepts mock runs **only** when the config sets `test_fixture: true`. The resulting benchmark is marked `test_only` and can never serve as a real benchmark version. In any other config, mock runs are refused.
-- [ ] T057 [US2] **(ops)** Run `pilot freeze`. Commit `benchmarks/pilot-v1/manifest.json` **before** any labeling (SC-008, Principle IV).
-- [ ] T058 [US2] **(ops)** Run a smoke test on 5 chunks: `pilot label --role reference --backend claude_cli --limit 5` and `--backend openrouter --limit 5`, then `pilot budget`. Check that the manifests contain the model version and the deviations, and that the spend is only cents. **Explicitly check** that the Claude manifest contains a real model version (see T047). If it does not, fix this before T059.
-- [ ] T059 [US2] **(ops)** Label the full main split with both reference models, using `pilot label --role reference ...` (Claude through the subscription, spread over sessions if the usage limit is hit). At most 2% of chunks may be excluded per model (SC-002). Then run `pilot check` for both runs, followed by `pilot match` and `pilot consensus`, then **`pilot freeze --benchmark`**, and only then `pilot agreement`. This satisfies the constitution gate "before reporting a result" even at the MVP stop. If a redaction issue shows up during this step, follow the re-redaction procedure in T034 before `pilot freeze --benchmark`.
+- [ ] T057 [US2] **(ops)** Run `jtbd freeze`. Commit `benchmarks/pilot-v1/manifest.json` **before** any labeling (SC-008, Principle IV).
+- [ ] T058 [US2] **(ops)** Run a smoke test on 5 chunks: `jtbd label --role reference --backend claude_cli --limit 5` and `--backend openrouter --limit 5`, then `jtbd budget`. Check that the manifests contain the model version and the deviations, and that the spend is only cents. **Explicitly check** that the Claude manifest contains a real model version (see T047). If it does not, fix this before T059.
+- [ ] T059 [US2] **(ops)** Label the full main split with both reference models, using `jtbd label --role reference ...` (Claude through the subscription, spread over sessions if the usage limit is hit). At most 2% of chunks may be excluded per model (SC-002). Then run `jtbd check` for both runs, followed by `jtbd match` and `jtbd consensus`, then **`jtbd freeze --benchmark`**, and only then `jtbd agreement`. This satisfies the constitution gate "before reporting a result" even at the MVP stop. If a redaction issue shows up during this step, follow the re-redaction procedure in T034 before `jtbd freeze --benchmark`.
 
 **Checkpoint**: agreement per dimension exists for the frozen pilot-v1 criteria. The riskiest assumption is measured, and US2 is complete.
 
@@ -401,10 +403,10 @@ description: "Task list for the JTBD Extraction Pilot"
   - `paths.teacher_scoring` in every pilot config (pilot-v1, spike-v1, mini-corpus fixture) and `Settings.teacher_scoring()`
   - `pilot freeze` hashes the file as `hashes.teacher_scoring`, so a change after freezing exits 3
   - `ensemble.py` and `scoring.py` read the rules from it; `combine()` defaults to the alphabetical order of the members, `spike/ensemble.py` passes its spike orders explicitly and its results stay identical
-- [ ] T071 [US4] **(ops)** Confirm the license basis of the four teacher candidates in `configs/models.yaml` against the model cards (qwen3.8:27b Apache-2.0; MiMo-V2.6-Pro-RL, DeepSeek-V4.1-Flash, GLM-5.3-Flash MIT) and that their families (`qwen`, `xiaomi`, `deepseek`, `glm`) differ from both reference families. Record the check date in each `license_basis`.
-- [ ] T072 [US4] **(ops)** Smoke-test the four teachers on 5 main chunks (quickstart.md section 5): `pilot label --role teacher_candidate --backend ollama --model teacher-qwen3.8 --host spark --limit 5`, and `--backend openrouter` for `teacher-or-mimo-v2.6-pro` (`--workers 2`, 429 limits), `teacher-or-deepseek-v4.1-flash` and `teacher-or-glm-5.3-flash` (`--workers 4`). Check the manifests for `data_collection: deny`, quantizations, reasoning setting and the "no fixed provider order" deviation, then `pilot budget`.
-- [ ] T073 [US4] **(ops)** After T059 (benchmark frozen): label the main split with the four teachers (same commands without `--limit`; `--retry-failed` after network or rate-limit failures) and with the three baselines (`qwen3.5:4b`, `gemma4:e4b`, `ministral-3:3b`) on the Spark. Then `pilot ensemble`, and `pilot check` and `pilot score` for every run including the ensemble. At most 2% excluded chunks per teacher (SC-002 applied to teachers).
-- [ ] T074 [US4] **(ops)** Provision the reference VM (Hetzner CX32 class: 8 GB RAM, 4 vCPU, no GPU). Install Ollama, pull the baselines with the **same digests**, and run `pilot perf` for each baseline, plus `pilot perf --frontier` for GPT. Record the VM cost in the ledger with `pilot budget`, then **delete the VM**. If `gemma4:e4b` does not fit, switch to `gemma4:e2b` and document the switch.
+- [ ] T071 [US4] **(ops)** Confirm the license basis of the four teacher candidates in `configs/productdev/jtbd/models.yaml` against the model cards (qwen3.8:27b Apache-2.0; MiMo-V2.6-Pro-RL, DeepSeek-V4.1-Flash, GLM-5.3-Flash MIT) and that their families (`qwen`, `xiaomi`, `deepseek`, `glm`) differ from both reference families. Record the check date in each `license_basis`.
+- [ ] T072 [US4] **(ops)** Smoke-test the four teachers on 5 main chunks (quickstart.md section 5): `jtbd label --role teacher_candidate --backend ollama --model teacher-qwen3.8 --host spark --limit 5`, and `--backend openrouter` for `teacher-or-mimo-v2.6-pro` (`--workers 2`, 429 limits), `teacher-or-deepseek-v4.1-flash` and `teacher-or-glm-5.3-flash` (`--workers 4`). Check the manifests for `data_collection: deny`, quantizations, reasoning setting and the "no fixed provider order" deviation, then `jtbd budget`.
+- [ ] T073 [US4] **(ops)** After T059 (benchmark frozen): label the main split with the four teachers (same commands without `--limit`; `--retry-failed` after network or rate-limit failures) and with the three baselines (`qwen3.5:4b`, `gemma4:e4b`, `ministral-3:3b`) on the Spark. Then `jtbd ensemble`, and `jtbd check` and `jtbd score` for every run including the ensemble. At most 2% excluded chunks per teacher (SC-002 applied to teachers).
+- [ ] T074 [US4] **(ops)** Provision the reference VM (Hetzner CX32 class: 8 GB RAM, 4 vCPU, no GPU). Install Ollama, pull the baselines with the **same digests**, and run `jtbd perf` for each baseline, plus `jtbd perf --frontier` for GPT. Record the VM cost in the ledger with `jtbd budget`, then **delete the VM**. If `gemma4:e4b` does not fit, switch to `gemma4:e2b` and document the switch.
 
 **Checkpoint**: baseline and teacher-candidate quality, and baseline performance, are measured against the frozen pilot-v1.
 
@@ -466,7 +468,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - the budget used, taken from the ledger (SC-009)
 
   It uses agreement wording only and never "accuracy" (FR-033).
-- [ ] T081 [US5] **(ops)** Run `pilot decide` and `pilot report` on pilot-v1. If the decision is `revise`, run T078: apply `data/analysis/revisions.md` to create `guideline/guideline-v2.md`, freeze pilot-v2, relabel the main and holdout splits with both references, then decide and report again. Finalize `reports/pilot-v1/report.md` (and `reports/pilot-v2/report.md` if there was a rerun).
+- [ ] T081 [US5] **(ops)** Run `jtbd decide` and `jtbd report` on pilot-v1. If the decision is `revise`, run T078: apply `data/analysis/revisions.md` to create `guideline/guideline-v2.md`, freeze pilot-v2, relabel the main and holdout splits with both references, then decide and report again. Finalize `reports/pilot-v1/report.md` (and `reports/pilot-v2/report.md` if there was a rerun).
 
 **Checkpoint**: the pilot report with a go / revise / rethink decision is delivered.
 
@@ -481,7 +483,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - no dataset is published (Principle VI)
 - [X] T083 [P] Add `pilot doctor` in `src/jtbd_pilot/cli.py`. It checks that `claude` is on PATH and logged in, that the OpenRouter key and cap are configured, that both Ollama hosts are reachable, and that the manifest state matches the files on disk.
 - [ ] T084 Run every step of `specs/001-jtbd-extraction-pilot/quickstart.md`, sections 1 to 6, including every guardrail row in section 3. Record the results in `data/analysis/quickstart-validation.md`.
-- [ ] T085 Run a final traceability check: each FR and SC in spec.md maps to at least one task, artifact or report section, and `pilot budget` shows a total of €20 or less (SC-009). *(2026-10-01: traceability part done, all 51 FR/SC mapped, see `checklists/traceability.md`; the SC-009 budget check waits for the last paid run.)*
+- [ ] T085 Run a final traceability check: each FR and SC in spec.md maps to at least one task, artifact or report section, and `jtbd budget` shows a total of €20 or less (SC-009). *(2026-10-01: traceability part done, all 51 FR/SC mapped, see `checklists/traceability.md`; the SC-009 budget check waits for the last paid run.)*
 
 ---
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from jtbd_pilot.matching import iou, match_items
+from mobility_model_zoo.productdev.jtbd.matching import iou, match_items
 
 
 @dataclass

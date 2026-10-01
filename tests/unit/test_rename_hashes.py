@@ -1,0 +1,23 @@
+"""The freeze hashes must survive the move of configs and code (feature 003, T004).
+
+Freeze hashes are content-based, so moving files must not change them. The expected values were
+computed from `configs/pilot-v1.yaml` before the rename (now `configs/productdev/jtbd/pilot-v1.yaml`).
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from mobility_model_zoo.productdev.jtbd.config import DEFAULT_CONFIG, load_settings
+from mobility_model_zoo.productdev.jtbd.freeze import schema_sha256, sha256_canonical
+
+ROOT = Path(__file__).resolve().parents[2]
+EXPECTED = json.loads((ROOT / "tests/fixtures/rename-hashes.json").read_text(encoding="utf-8"))
+
+
+def test_default_config_hashes_unchanged_by_rename():
+    settings = load_settings(ROOT / DEFAULT_CONFIG)
+    current = {k: sha256_canonical(settings.paths[k]) for k in EXPECTED if k != "schema"}
+    current["schema"] = schema_sha256()
+    assert current == EXPECTED

@@ -1,0 +1,250 @@
+# Model roster (data-model.md LabelRun). Reference models are benchmark labelers and can never be
+# teachers (spec FR-019). Teacher families must differ from both reference families (FR-019a).
+models:
+  # --- Reference labelers --------------------------------------------------------------------
+  - model_id: claude-reference
+    api_model: opus                     # CLI alias; the resolved model id is recorded per run (T047, T058)
+    family: anthropic-claude
+    backend: claude_cli
+    host: subscription
+    role: reference
+    benchmark_labeler: true
+  - model_id: gpt-mini-reference
+    api_model: null                     # OpenRouter slug of the current GPT mini tier (T046)
+    family: openai-gpt
+    backend: openrouter
+    host: openai
+    role: reference
+    benchmark_labeler: true
+    provider_order: [openai]
+    reasoning_effort: low
+  # --- Teacher candidates (local, DGX Spark; research.md R1, T071/T072) --------------------------
+  - model_id: teacher-qwen
+    api_model: qwen3.8:27b              # primary pick Qwen3.5-122B-A10B if T072 shows it is better
+    family: qwen
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: null                 # e.g. "Apache-2.0, outputs unrestricted" (verify, T071)
+  - model_id: teacher-glm
+    api_model: glm-4.7-flash            # primary pick GLM-4.5-Air if T072 shows it is better
+    family: glm
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: null                 # e.g. "MIT, outputs unrestricted" (verify, T071)
+  # --- Zero-shot baselines (<= ~4B) -------------------------------------------------------------
+  - model_id: baseline-qwen3.5-4b
+    api_model: qwen3.5:4b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+  - model_id: baseline-gemma4-e4b
+    api_model: gemma4:e4b
+    family: gemma
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+  - model_id: baseline-ministral-3b
+    api_model: ministral-3:3b
+    family: mistral
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+  # --- Spike 002 (technical spike only) ---------------------------------------------------------
+  - model_id: teacher-qwen3.6
+    api_model: qwen3.6:35b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "Apache-2.0 (Qwen3.6-35B-A3B model card); outputs unrestricted"
+    think: false
+    num_ctx: 16384
+  # Teacher comparison on the 35 evaluation chunks (2026-09-28). Licenses from the Ollama manifests.
+  - model_id: teacher-qwen3.8
+    api_model: qwen3.8:27b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b); dense 27B"
+    think: false
+    num_ctx: 16384
+  - model_id: teacher-glm4.7
+    api_model: glm-4.7-flash:latest
+    family: glm
+    backend: ollama
+    host: spark
+    role: teacher_candidate
+    quantization: Q4_K_M
+    license_basis: "MIT (Ollama manifest of glm-4.7-flash); MoE 30B"
+    think: false
+    num_ctx: 16384
+  # Teacher candidates on OpenRouter (2026-09-29), open weights only. Provider chosen by OpenRouter
+  # among those with strict JSON schema, no data collection and at least fp8.
+  - model_id: teacher-or-deepseek-v4.1-flash
+    api_model: deepseek/deepseek-v4.1-flash
+    family: deepseek
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash)"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
+    max_output_tokens: 16384
+  - model_id: teacher-or-glm-5.3
+    api_model: z-ai/glm-5.3
+    family: glm
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "GLM-5.3 license (MIT-style; extra terms only for MaaS businesses above USD 10B revenue), HF zai-org/GLM-5.3"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
+    max_output_tokens: 16384
+  - model_id: teacher-or-glm-5.3-flash
+    api_model: z-ai/glm-5.3-flash
+    family: glm
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "MIT (HF zai-org/GLM-5.3-Flash)"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
+    max_output_tokens: 16384
+  - model_id: teacher-or-qwen3.8-flash
+    api_model: qwen/qwen3.8-flash
+    family: qwen
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "qwen-community-1.0 (attribution for commercial use; separate license only for MaaS businesses), HF Qwen/Qwen3.8-Flash-Next"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
+    max_output_tokens: 16384
+  - model_id: teacher-or-qwen3.8-27b
+    api_model: qwen/qwen3.8-27b
+    family: qwen
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "Apache-2.0 (HF Qwen/Qwen3.8-27B); same model as the local Q4_K_M teacher"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {enabled: false}
+    max_output_tokens: 8192
+  - model_id: teacher-or-mimo-v2.6-pro
+    api_model: xiaomi/mimo-v2.6-pro
+    family: xiaomi
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL)"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
+    max_output_tokens: 16384
+  - model_id: teacher-or-hy4-preview
+    api_model: tencent/hy4-preview
+    family: tencent
+    backend: openrouter
+    host: openrouter
+    role: teacher_candidate
+    license_basis: "Apache-2.0 (HF tencent/Hy4-preview); preview release"
+    provider_order: null
+    quantizations: [bf16, fp16, fp8, unknown]
+    reasoning: {enabled: false}
+    max_output_tokens: 8192
+  # Offline ensemble (FR-019b) of the four teachers named in decision-criteria.yaml
+  # (teacher_ensemble.members); built by `jtbd ensemble` from their runs. No model calls.
+  - model_id: teacher-ensemble
+    family: ensemble
+    backend: ensemble
+    host: local
+    role: teacher_candidate
+    license_basis: "derived; the members' license bases are joined in the run manifest"
+  # Spike attempt 3 on the Spark: Ludwig (token-weighted loss patch), served by vLLM with guided
+  # JSON decoding. Base and students use the same bf16 base model.
+  - model_id: spike-base-spark
+    api_model: spike-base-spark
+    model_version: Qwen/Qwen3-4B-Instruct-2507 (bf16, vLLM)
+    family: qwen
+    backend: openai_compat
+    host: spark
+    base_url: http://10.123.47.52:8000/v1
+    quantization: bf16
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  - model_id: spike-v3a
+    api_model: spike-v3a
+    model_version: Qwen/Qwen3-4B-Instruct-2507 + LoRA v3a (Ludwig, qwen3.8:27b teacher data)
+    family: qwen
+    backend: openai_compat
+    host: spark
+    base_url: http://10.123.47.52:8000/v1
+    quantization: bf16
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  - model_id: spike-v3b
+    api_model: spike-v3b
+    model_version: Qwen/Qwen3-4B-Instruct-2507 + LoRA v3b (Ludwig, four-teacher ensemble data)
+    family: qwen
+    backend: openai_compat
+    host: spark
+    base_url: http://10.123.47.52:8000/v1
+    quantization: bf16
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  # Spike runs on the MacBook (M3 Pro) with mlx_lm.server after the Spark hung during training
+  # (2026-09-27). One server per model; mlx_lm.server serves its CLI model as "default_model" and
+  # ignores response_format.
+  - model_id: spike-base
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit
+    family: qwen
+    backend: openai_compat
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8080/v1
+    schema_enforced: false
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  - model_id: spike-tuned
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit + LoRA spike-v1 attempt 2, best checkpoint (data/spike/adapter-mlx-v2-best)
+    family: qwen
+    backend: openai_compat
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8082/v1
+    schema_enforced: false
+    # mlx_lm.server 0.31.3 ignores --adapter-path for "default_model"; pass the adapter per request.
+    extra_body: {adapters: data/spike/adapter-mlx-v2-best}
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline
+  # Exploratory: checkpoint after 100 of 549 steps (see data/spike/findings.md, relevance collapse).
+  - model_id: spike-tuned-ck100
+    api_model: default_model
+    model_version: mlx-community/Qwen3-4B-Instruct-2507-4bit + LoRA spike-v1 checkpoint 100 (data/spike/adapter-mlx-ck100)
+    family: qwen
+    backend: openai_compat
+    host: macbook-m3pro
+    base_url: http://127.0.0.1:8082/v1
+    schema_enforced: false
+    extra_body: {adapters: data/spike/adapter-mlx-ck100}
+    quantization: mlx-4bit
+    license_basis: "Apache-2.0 (Qwen3-4B-Instruct-2507 model card)"
+    role: baseline

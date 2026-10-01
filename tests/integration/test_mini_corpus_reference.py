@@ -3,8 +3,8 @@ import json
 import pytest
 from helpers import FIXTURE, copy_fixture, pilot, reference_chain
 
-from jtbd_pilot.config import load_settings
-from jtbd_pilot.freeze import load_manifest
+from mobility_model_zoo.productdev.jtbd.config import load_settings
+from mobility_model_zoo.productdev.jtbd.freeze import load_manifest
 
 EXPECTED = json.loads((FIXTURE / "expected.json").read_text())["reference"]
 

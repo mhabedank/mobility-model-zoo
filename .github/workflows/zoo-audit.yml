@@ -1,0 +1,25 @@
+name: zoo-audit
+
+# Weekly: every published tag still points to its recorded commit and card, and every staging and
+# sandbox repo is private (specs/003-model-zoo-hf-release, FR-006a, FR-007).
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HF_RELEASE_TOKEN: ${{ secrets.HF_RELEASE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra release
+      - run: uv run zoo audit

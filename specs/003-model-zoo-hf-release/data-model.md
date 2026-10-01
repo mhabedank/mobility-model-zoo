@@ -63,7 +63,7 @@ File: `zoo/models/<model-name>/model.yaml`. Schema: [model.schema.json](contract
 | `card.intended_use` | markdown | Who should use it, for what. |
 | `card.out_of_scope` | markdown | What it must not be used for. |
 | `card.input_output` | markdown | Input format, output format, an example output. |
-| `card.how_to_run` | code block (string) | Copy-paste example. MUST contain the placeholders `{repo_id}` and `{revision}`. The card replaces them with `repos.public` and `v<version>`; the release gate replaces them with `staging.repo` and `staging.revision` and runs the code in a clean environment (SC-004). |
+| `card.how_to_run` | code block (string) | Copy-paste example. MUST contain the placeholders `{repo_id}`, `{revision}` and `{text}` (a Python string literal, e.g. `print(model.predict({text}))`). The card replaces them with `repos.public`, `v<version>` and the first example text; the release gate replaces them with `staging.repo` and `staging.revision`, runs the code in a clean environment once per example text, and uses the printed output as the example's output (SC-004, FR-018). |
 | `card.limitations` | markdown | Known limitations and risks. For the span model, this includes what it does not produce (spec FR-019). |
 | `card.citation` | string (BibTeX) | Citation entry. |
 | `card.install` | string | Install line shown on the card, e.g. `pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"`. `<tag>` is replaced by the release's git tag. |

@@ -1,4 +1,4 @@
-from jtbd_pilot.checks import check_output, has_quantity
+from mobility_model_zoo.productdev.jtbd.checks import check_output, has_quantity
 
 RULES = ["irrelevant_no_items", "enum_values", "quantified_has_quantity"]
 TEXT = "Fast die Hälfte der Ladesäulen war defekt. I waited forever."

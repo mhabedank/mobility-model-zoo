@@ -1,0 +1,1 @@
+Die App zeigt die Verspätung erst an, wenn ich schon am Bahnsteig stehe.

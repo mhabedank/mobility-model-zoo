@@ -2,7 +2,7 @@ import json
 
 from helpers import copy_fixture, pilot, run_ids
 
-from jtbd_pilot.config import load_settings
+from mobility_model_zoo.productdev.jtbd.config import load_settings
 
 
 def test_refuses_without_freeze(tmp_path):
@@ -73,7 +73,7 @@ def test_schema_failure_is_excluded_not_repaired(tmp_path):
 def test_model_version_change_stops_run(tmp_path, monkeypatch):
     config = copy_fixture(tmp_path)
     pilot(config, "freeze")
-    from jtbd_pilot.labeling import mock
+    from mobility_model_zoo.productdev.jtbd.labeling import mock
 
     calls = {"n": 0}
     original = mock.MockBackend.call
@@ -96,8 +96,8 @@ def test_model_version_change_stops_run(tmp_path, monkeypatch):
 def test_retry_failed_retries_backend_failures_only(tmp_path, monkeypatch):
     config = copy_fixture(tmp_path)
     pilot(config, "freeze")
-    from jtbd_pilot.errors import BackendFailure
-    from jtbd_pilot.labeling import mock
+    from mobility_model_zoo.productdev.jtbd.errors import BackendFailure
+    from mobility_model_zoo.productdev.jtbd.labeling import mock
 
     original = mock.MockBackend.call
 
@@ -117,7 +117,7 @@ def test_retry_failed_retries_backend_failures_only(tmp_path, monkeypatch):
 
 
 def test_parse_json_text_tolerates_think_block_and_fence():
-    from jtbd_pilot.labeling.base import parse_json_text
+    from mobility_model_zoo.productdev.jtbd.labeling.base import parse_json_text
 
     assert parse_json_text('<think>\n\n</think>\n\n{"relevant": false, "items": []}') == {
         "relevant": False, "items": []}
@@ -126,7 +126,7 @@ def test_parse_json_text_tolerates_think_block_and_fence():
 
 
 def test_parse_json_text_accepts_raw_line_break_in_string():
-    from jtbd_pilot.labeling.base import parse_json_text
+    from mobility_model_zoo.productdev.jtbd.labeling.base import parse_json_text
 
     assert parse_json_text('{"quote": "wer -\nden"}') == {"quote": "wer -\nden"}
 

@@ -1,5 +1,7 @@
 # CLI Contract: `pilot`
 
+> **Note (feature 003):** Since feature 003 the CLI `pilot` is `jtbd`, the code is in `src/mobility_model_zoo/productdev/jtbd/` and the configs are in `configs/productdev/jtbd/`. Paths and commands below are historical.
+
 This file lists every command the pilot exposes. Each command reads configuration from `configs/` and data from `data/`, writes only to its stated outputs, and is idempotent unless noted otherwise.
 
 ## Common behavior

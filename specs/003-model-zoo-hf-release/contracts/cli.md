@@ -18,7 +18,7 @@
 
 ### `zoo validate [--all | <model>]`
 
-Offline checks only (no network): schemas, name scheme, topic known, version and file name consistent, status vs version, results files present and valid, card renders with every required section, no metric named accuracy. Runs in normal CI on every push. Exit 0 or 1.
+Offline checks only (no network): schemas, name scheme, topic known, version and file name consistent, status vs version, results files present and valid, card renders with every required section, no metric named accuracy. Runs in normal CI on every push. Exit 0 or 1. Records that are not staged yet (empty `staging.revision`) are drafts and are skipped; published records are skipped. Use `zoo check --offline` on a draft to see what is missing.
 
 ### `zoo init-model <model>`
 
