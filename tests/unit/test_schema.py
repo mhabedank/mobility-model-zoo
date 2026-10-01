@@ -43,31 +43,38 @@ def test_evidence_rank_is_ordinal():
             ("opinion", "anecdote", "routine", "observation", "measurement")] == [0, 1, 2, 3, 4]
 
 
-@pytest.mark.parametrize("path", [
-    "configs/decision-criteria.yaml",
-    "specs/001-jtbd-extraction-pilot/contracts/decision-criteria.example.yaml",
-    "tests/fixtures/mini-corpus/decision-criteria.yaml",
+@pytest.mark.parametrize("path,contract,model", [
+    ("configs/decision-criteria.yaml", "decision-criteria", "DecisionCriteria"),
+    ("specs/001-jtbd-extraction-pilot/contracts/decision-criteria.example.yaml",
+     "decision-criteria", "DecisionCriteria"),
+    ("tests/fixtures/mini-corpus/decision-criteria.yaml", "decision-criteria", "DecisionCriteria"),
+    ("configs/teacher-scoring.yaml", "teacher-scoring", "TeacherScoring"),
+    ("specs/001-jtbd-extraction-pilot/contracts/teacher-scoring.example.yaml",
+     "teacher-scoring", "TeacherScoring"),
+    ("tests/fixtures/mini-corpus/teacher-scoring.yaml", "teacher-scoring", "TeacherScoring"),
 ])
-def test_decision_criteria_match_contract(contracts_dir, path):
+def test_config_matches_contract(contracts_dir, path, contract, model):
     import yaml
 
-    from jtbd_pilot.schema import DecisionCriteria
+    from jtbd_pilot import schema
 
     doc = yaml.safe_load((contracts_dir.parents[2] / path).read_text())
-    contract = json.loads((contracts_dir / "decision-criteria.schema.json").read_text())
-    jsonschema.validate(doc, contract)
-    DecisionCriteria.model_validate(doc)
+    jsonschema.validate(doc, json.loads((contracts_dir / f"{contract}.schema.json").read_text()))
+    getattr(schema, model).model_validate(doc)
 
 
-def test_ensemble_orders_must_be_permutations_of_members(contracts_dir):
+def test_ensemble_rule_has_no_order_and_bounded_votes(contracts_dir):
     import yaml
 
-    from jtbd_pilot.schema import DecisionCriteria
+    from jtbd_pilot.schema import TeacherScoring
 
-    doc = yaml.safe_load((contracts_dir / "decision-criteria.example.yaml").read_text())
-    doc["teacher_ensemble"]["quote_priority"] = doc["teacher_ensemble"]["quote_priority"][:-1]
-    with pytest.raises(ValidationError, match="quote_priority"):
-        DecisionCriteria.model_validate(doc)
+    doc = yaml.safe_load((contracts_dir / "teacher-scoring.example.yaml").read_text())
+    with pytest.raises(ValidationError, match="min_votes"):
+        TeacherScoring.model_validate({**doc, "teacher_ensemble": {
+            **doc["teacher_ensemble"], "min_votes": 5}})
+    with pytest.raises(ValidationError, match="tie_break"):
+        TeacherScoring.model_validate({**doc, "teacher_ensemble": {
+            **doc["teacher_ensemble"], "tie_break": {}}})
 
 
 def test_ensemble_manifest_rules():

@@ -1,4 +1,4 @@
-"""Hash-freezing of guideline, schema, criteria, budget and chunks (Principle IV, FR-015, FR-034).
+"""Hash-freezing of guideline, schema, criteria, teacher scoring, budget, chunks (FR-015, FR-034).
 
 The manifest lives at benchmarks/<version>/manifest.json. benchmarks/current names the active
 version. It stores hashes only, never text.
@@ -90,6 +90,7 @@ def compute_hashes(settings: Settings) -> dict[str, Any]:
             "examples": sha256_canonical(settings.paths["examples"]),
             "schema": schema_sha256(),
             "criteria": sha256_canonical(settings.paths["criteria"]),
+            "teacher_scoring": sha256_canonical(settings.paths["teacher_scoring"]),
             "budget": sha256_canonical(settings.paths["budget"]),
             "domain": sha256_canonical(settings.paths["domain"]),
         },

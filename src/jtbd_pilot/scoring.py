@@ -5,8 +5,8 @@ reference item are scored neutrally (neither hit nor error) and counted. A chunk
 output counts against the model.
 
 Teacher candidates also get a `repaired` view (FR-026a): near-miss quotes are repaired with the
-frozen `quote_repair` rule before scoring, because training data is built from repaired quotes.
-Check pass rates always refer to the raw output.
+frozen `quote_repair` rule of the teacher-scoring configuration before scoring, because training
+data is built from repaired quotes. Check pass rates always refer to the raw output.
 """
 
 from __future__ import annotations
@@ -128,7 +128,7 @@ def repaired_view(settings: Settings, outputs: dict[str, ChunkOutput]
     """Outputs with near-miss quotes repaired by the frozen `quote_repair` rule (FR-026a)."""
     from jtbd_pilot.ensemble import with_repair
 
-    rule = settings.criteria().quote_repair
+    rule = settings.teacher_scoring().quote_repair
     chunks = chunk_map(settings, "main")
     stats: Counter = Counter()
     repaired = {}

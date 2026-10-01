@@ -69,7 +69,7 @@ Makes a stratified main/holdout split by sub-area × source type × language. Ho
 
 ### `pilot freeze`
 
-- Hashes the guideline, the extraction-output schema, `decision-criteria.yaml`, `budget.yaml` and the main chunk IDs and texts.
+- Hashes the guideline, the extraction-output schema, `decision-criteria.yaml`, `teacher-scoring.yaml`, `budget.yaml` and the main chunk IDs and texts.
 - Writes `benchmarks/pilot-v1/manifest.json` in state `criteria_frozen`.
 - Refuses if the manifest is already frozen and the hashes differ. A new version (`--new-version pilot-v2 --rationale <text>`) is required in that case.
 
@@ -117,8 +117,8 @@ Analysis outputs live under `data/analysis/<benchmark version>/`.
 | `pilot consensus --reference <a> <b>` | matches | `data/analysis/consensus.jsonl` and `contested.jsonl` |
 | `pilot categorize --export \| --import <csv> \| --check \| --freetext` | contested.jsonl | file-based assignment of one primary category per contested entry, stored in `contested-categories.jsonl` next to `categories.yaml` (contested.jsonl itself stays unchanged because it is hashed). `--freetext` writes the FR-025 sample |
 | `pilot agreement [--split main\|holdout]` | consensus meta (names the reference runs), matches and parsed outputs; the main split requires the frozen benchmark | per-dimension agreement with n and CI, plus breakdowns by language, source type and region |
-| `pilot ensemble [--split main]` | the complete member runs named in `teacher_ensemble.members` of the frozen criteria | a derived teacher-candidate run `data/runs/<run_id>/` with `manifest.json` (`backend: ensemble`, `derived_from`) and `parsed/`; no model calls, cost €0 beyond the members (FR-019b). Exit `1` if a member run is missing or incomplete, exit `3` on a frozen-hash mismatch |
-| `pilot score --run <id>` | frozen benchmark | [ModelScore](../data-model.md#modelscore), with contested items scored neutrally. For teacher candidates it also writes the `repaired` view with the frozen `quote_repair` rule (FR-026a); check pass rates stay raw |
+| `pilot ensemble [--split main]` | the complete member runs named in `teacher_ensemble.members` of the frozen teacher-scoring configuration | a derived teacher-candidate run `data/runs/<run_id>/` with `manifest.json` (`backend: ensemble`, `derived_from`) and `parsed/`; no model calls, cost €0 beyond the members (FR-019b). Exit `1` if a member run is missing or incomplete, exit `3` on a frozen-hash mismatch |
+| `pilot score --run <id>` | frozen benchmark | [ModelScore](../data-model.md#modelscore), with contested items scored neutrally. For teacher candidates it also writes the `repaired` view with the frozen `quote_repair` rule of the teacher-scoring configuration (FR-026a); check pass rates stay raw |
 
 ## Performance
 

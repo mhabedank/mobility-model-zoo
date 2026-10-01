@@ -16,9 +16,15 @@ def test_full_mock_chain_report(tmp_path):
     pilot(config, "corpus", "validate", "--split", "main")
     pilot(config, "agreement")
     pilot(config, "label", "--role", "baseline", "--backend", "mock", "--model", "mock-small")
-    run = run_ids(config)["mock-small"]
-    pilot(config, "check", "--run", run)
-    pilot(config, "score", "--run", run)
+    for teacher in ("mock-teacher-x", "mock-teacher-y"):
+        pilot(config, "label", "--role", "teacher_candidate", "--backend", "mock",
+              "--model", teacher)
+    pilot(config, "ensemble")
+    ids = run_ids(config)
+    scores = {}
+    for model in ("mock-small", "mock-teacher-x", "mock-teacher-y", "mock-ensemble"):
+        pilot(config, "check", "--run", ids[model])
+        scores[model] = pilot(config, "score", "--run", ids[model])
     settings = load_settings(config)
     write_json(settings.analysis_dir / "perf" / "mock-small.json",
                {"model_id": "mock-small", "chunks_per_min": 12.0, "latency_p95_ms": 900.0,
@@ -28,11 +34,23 @@ def test_full_mock_chain_report(tmp_path):
     decision = pilot(config, "decide")
     assert decision["decision"] == "go"
     assert decision["finetuning"]["status"] == "required"  # ratio a 0.735 < 0.85
+    # mock-teacher-y copies a reference with one near-miss quote; mock-teacher-x copies mock-small.
+    assert scores["mock-teacher-y"]["repaired"]["composite"] > scores["mock-teacher-y"]["composite"]
+    assert scores["mock-teacher-y"]["repaired"]["repair_stats"]["repaired"] == 1
+    fitness = decision["teacher_fitness"]
+    assert {r["model_id"]: r["fit"] for r in fitness["candidates"]} == {
+        "mock-teacher-x": False, "mock-teacher-y": True, "mock-ensemble": False}
+    assert fitness["recommended"] == "mock-teacher-y"
     result = pilot(config, "report")
     text = (settings.reports_dir / "mini-v1" / "report.md").read_text()
     for section in SECTIONS:
         assert section in text
     assert "Test-only benchmark" in text
+    assert "### Teacher fitness (FR-031a)" in text
+    assert "Recommended teacher: **mock-teacher-y**." in text
+    assert "- `mock-teacher-x` misses: " in text and "schema_valid 0.800 < 0.98" in text
+    assert "`mock-ensemble` is the offline ensemble (FR-019b)" in text
+    assert "| mock-teacher-y | 0.985 | 1.000 | 1.000 | 1.000 | 0.857 | 1 / 0 | 0.000 | fit |" in text
     assert "accuracy" not in text.lower()
     assert result["figure"] and (settings.reports_dir / "mini-v1" / "figures" / "pareto.png").exists()
 

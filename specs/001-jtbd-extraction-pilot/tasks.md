@@ -351,10 +351,10 @@ description: "Task list for the JTBD Extraction Pilot"
   - an item found by 2 of 3 members is kept, an item found by 1 is dropped (`min_votes: 2`)
   - at most one item per member and group: two overlapping items of the same member go to different groups
   - relevance majority, and a 1:1 relevance tie counts as relevant
-  - an attribute tie is broken by the `tie_break` order of that dimension, and quote, actor and statement come from the first member in `quote_priority`
+  - members are processed in alphabetical order of their model IDs; an attribute tie goes to the alphabetically first member, and quote, actor and statement come from the alphabetically first member in the group (FR-019b, spec session 2026-10-01)
   - a near-miss quote is repaired to the source passage (whitespace collapsed) before grouping; an unrepairable one is dropped
   - the ensemble run manifest has `backend: ensemble`, `role: teacher_candidate`, `derived_from` = the member run IDs, `cost_eur` = sum of the members, and no `raw/` directory
-  - `pilot ensemble` exits 1 when a member run is missing or not `complete`, and exits 3 when the frozen criteria hash does not match
+  - `pilot ensemble` exits 1 when a member run is missing or not `complete`, and exits 3 when the frozen teacher-scoring hash does not match
 - [X] T087 [P] [US4] Extend `tests/unit/test_scoring.py` (FR-026a):
   - a teacher run with one near-miss quote gets a higher repaired item F1 than its raw item F1, and `repair_stats` = {invalid_quotes: 1, repaired: 1, dropped: 0}
   - `check_pass_rates.quote_verbatim` is identical with and without repair
@@ -383,19 +383,24 @@ description: "Task list for the JTBD Extraction Pilot"
   - `--frontier --run <gpt-run> --sample 20`: GPT at concurrency 1, which gives the reference throughput for FR-031
   - writes `data/analysis/perf/<run_id>.json`
 - [X] T089 [US4] Extend `src/jtbd_pilot/schema.py`:
-  - `DecisionCriteria` gets three required blocks mirroring `contracts/decision-criteria.schema.json`: `TeacherFitness {min_quality_ratio, min_schema_valid (0–1), tie_margin (≥ 0), score_view: Literal["repaired"]}`, `QuoteRepair {min_score (0–100), min_length_ratio > 0, max_length_ratio > 0}`, `TeacherEnsemble {model_id, members (unique, ≥ 1), min_votes ≥ 1, tie_break {kind, actor_type, evidence_type, evidence_scope}: member lists, quote_priority}`; a validator requires every `tie_break` list and `quote_priority` to be a permutation of `members`
+  - `DecisionCriteria` gets the required block `TeacherFitness {min_quality_ratio, min_schema_valid (0–1), tie_margin (≥ 0), score_view: Literal["repaired"]}` mirroring `contracts/decision-criteria.schema.json`
+  - new `TeacherScoring {version, quote_repair: QuoteRepair {min_score (0–100), min_length_ratio > 0, max_length_ratio > 0}, teacher_ensemble: TeacherEnsemble {model_id, members (unique, ≥ 2), min_votes (1 … len(members))}, rationale?}` mirroring `contracts/teacher-scoring.schema.json`; no order fields (FR-019b, spec session 2026-10-01)
   - `LabelRunManifest.backend` accepts `ensemble`; new optional `derived_from: list[str]` (≥ 2), required when `backend == "ensemble"`, and then `role` must be `teacher_candidate`
-  - copy the new blocks from `contracts/decision-criteria.example.yaml` into `configs/decision-criteria.yaml` (same `version: criteria-v1`, updated `rationale`; allowed because the criteria are not frozen yet, T057), and add matching blocks for mock teachers to `tests/fixtures/mini-corpus/decision-criteria.yaml`; fix `tests/unit/test_decision.py`'s inline criteria
-  - add a test to `tests/unit/test_schema.py` that `configs/decision-criteria.yaml` and the example validate against the contract
-- [X] T090 [P] [US4] Parametrize `repair()` in `src/jtbd_pilot/quotes.py` with `min_score`, `min_length_ratio` and `max_length_ratio` (defaults 90, 0.8, 1.25, unchanged behaviour) so T091 and T092 pass the frozen `criteria.quote_repair` values.
+  - copy `teacher_fitness` from `contracts/decision-criteria.example.yaml` into `configs/decision-criteria.yaml` (same `version: criteria-v1`, updated `rationale`; allowed because the criteria are not frozen yet, T057) and `contracts/teacher-scoring.example.yaml` to `configs/teacher-scoring.yaml`; add the same blocks for mock teachers to the mini-corpus fixture; fix `tests/unit/test_decision.py`'s inline criteria
+  - add tests to `tests/unit/test_schema.py` that the criteria and teacher-scoring files (configs, examples, fixture) validate against their contracts
+- [X] T090 [P] [US4] Parametrize `repair()` in `src/jtbd_pilot/quotes.py` with `min_score`, `min_length_ratio` and `max_length_ratio` (defaults 90, 0.8, 1.25, unchanged behaviour) so T091 and T092 pass the frozen `teacher_scoring.quote_repair` values.
 - [X] T091 [US4] Create `src/jtbd_pilot/ensemble.py` and `pilot ensemble [--split main]` in `src/jtbd_pilot/cli.py`:
-  - move `with_repair`, `vote` and `combine` from `spike/ensemble.py`; replace its hard-coded `MODELS`, `DIM_PRIORITY` and `QUOTE_PRIORITY` with `criteria.teacher_ensemble` (member model IDs → their complete run on the split), `min_iou` from the pilot config, repair parameters from `criteria.quote_repair`
+  - move `with_repair`, `vote` and `combine` from `spike/ensemble.py`; the pilot takes the members from `teacher_scoring.teacher_ensemble` (member model IDs → their complete run on the split), sorted alphabetically, with alphabetical tie-break and quote source; `min_iou` from the pilot config, repair parameters from `teacher_scoring.quote_repair`
   - preconditions: `verify_frozen()` (exit 3); every member has exactly one `complete` run on the split with the frozen hashes (exit 1, naming the member)
   - writes `data/runs/run-teacher_candidate-<teacher_ensemble.model_id>-<split>-<guideline hash[:8]>/manifest.json` (`backend: ensemble`, `role: teacher_candidate`, `family: ensemble`, `model_version` = the members' versions joined, `derived_from`, `cost_eur` = sum of the members, `license_basis` = the members' bases joined, `settings` with `min_votes` and `min_iou`, `status: complete`) and `parsed/<chunk_id>.json`; no `raw/`
   - `pilot check` must accept a run without `raw/` (schema validity is taken from `parsed/`)
-  - `spike/ensemble.py` imports `combine` and `with_repair` from the package and keeps its own fixed strategy list; its output in `data/spike/ensemble.json` must stay the same (cheap4 ≥ 2 votes: 0.817)
+  - `spike/ensemble.py` imports `combine` from the package and passes its own spike orders and strategy list; its output in `data/spike/ensemble.json` must stay the same (cheap4 ≥ 2 votes: 0.817)
   - add `teacher-ensemble` (role `teacher_candidate`, backend `ensemble`, family `ensemble`) to `configs/models.yaml` so role checks and the report can resolve it
-- [X] T092 [US4] Extend `score_run` in `src/jtbd_pilot/scoring.py` (FR-026a): for `role == "teacher_candidate"`, rebuild each output's valid items with `ensemble.with_repair` and the frozen `criteria.quote_repair`, run `score_units` again and add `repaired` = {`dimensions`, `composite`, `quality_ratio_a`, `quality_ratio_b`, `repair_stats`}; keep `check_pass_rates` raw; add `cost_per_chunk_eur` for every run. Baselines get no `repaired` block.
+- [X] T092 [US4] Extend `score_run` in `src/jtbd_pilot/scoring.py` (FR-026a): for `role == "teacher_candidate"`, rebuild each output's valid items with `ensemble.with_repair` and the frozen `teacher_scoring.quote_repair`, run `score_units` again and add `repaired` = {`dimensions`, `composite`, `quality_ratio_a`, `quality_ratio_b`, `repair_stats`}; keep `check_pass_rates` raw; add `cost_per_chunk_eur` for every run. Baselines get no `repaired` block.
+- [X] T096 [US4] Move the ensemble and quote-repair rules out of the decision criteria into `configs/teacher-scoring.yaml` (FR-015, FR-019b, FR-026a, spec session 2026-10-01):
+  - `paths.teacher_scoring` in every pilot config (pilot-v1, spike-v1, mini-corpus fixture) and `Settings.teacher_scoring()`
+  - `pilot freeze` hashes the file as `hashes.teacher_scoring`, so a change after freezing exits 3
+  - `ensemble.py` and `scoring.py` read the rules from it; `combine()` defaults to the alphabetical order of the members, `spike/ensemble.py` passes its spike orders explicitly and its results stay identical
 - [ ] T071 [US4] **(ops)** Confirm the license basis of the four teacher candidates in `configs/models.yaml` against the model cards (qwen3.8:27b Apache-2.0; MiMo-V2.6-Pro-RL, DeepSeek-V4.1-Flash, GLM-5.3-Flash MIT) and that their families (`qwen`, `xiaomi`, `deepseek`, `glm`) differ from both reference families. Record the check date in each `license_basis`.
 - [ ] T072 [US4] **(ops)** Smoke-test the four teachers on 5 main chunks (quickstart.md section 5): `pilot label --role teacher_candidate --backend ollama --model teacher-qwen3.8 --host spark --limit 5`, and `--backend openrouter` for `teacher-or-mimo-v2.6-pro` (`--workers 2`, 429 limits), `teacher-or-deepseek-v4.1-flash` and `teacher-or-glm-5.3-flash` (`--workers 4`). Check the manifests for `data_collection: deny`, quantizations, reasoning setting and the "no fixed provider order" deviation, then `pilot budget`.
 - [ ] T073 [US4] **(ops)** After T059 (benchmark frozen): label the main split with the four teachers (same commands without `--limit`; `--retry-failed` after network or rate-limit failures) and with the three baselines (`qwen3.5:4b`, `gemma4:e4b`, `ministral-3:3b`) on the Spark. Then `pilot ensemble`, and `pilot check` and `pilot score` for every run including the ensemble. At most 2% excluded chunks per teacher (SC-002 applied to teachers).
@@ -423,7 +428,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - a second rerun is refused (`max_reruns: 1`)
   - fine-tuning is optional only when quality ratio ≥ 0.85 against the frontier-vs-frontier composite on consensus units (ratio a) **and** throughput ratio ≥ 10 against the frontier reference chunks/min
   - ratio b (all units) is computed and reported but does not change the classification
-- [ ] T093 [P] [US5] Extend `tests/unit/test_decision.py` with table-driven cases for FR-031a `teacher_fitness()`:
+- [X] T093 [P] [US5] Extend `tests/unit/test_decision.py` with table-driven cases for FR-031a `teacher_fitness()`:
   - repaired ratio a 0.90 and schema_valid 0.98 is fit; 0.899 or 0.979 is not fit, with the failing reason listed
   - the raw ratio is ignored (a candidate with raw 0.85 and repaired 0.92 is fit)
   - two fit candidates 0.015 apart: the one with the lower `cost_per_chunk_eur` is recommended; 0.03 apart: the higher composite is recommended
@@ -443,8 +448,8 @@ description: "Task list for the JTBD Extraction Pilot"
   - the decision uses agreement on the holdout, and agreement on the main split is reported next to it and marked optimistic
   - an optional GPT-5.5 control run on the holdout (about €2.50, research.md R1) only when it is decided before the rerun and the budget guard passes
 - [X] T079 [P] [US5] **Load the `dataviz` skill first.** Then implement `src/jtbd_pilot/report/pareto.py`: a quality-vs-throughput chart with each small model as a point (composite quality against chunks/min on the reference VM), a reference line at 85% of the frontier-vs-frontier composite, and a label with the benchmark version. It writes `reports/pilot-v1/figures/pareto.png`.
-- [ ] T094 [US5] Add `teacher_fitness(criteria, scores)` to `src/jtbd_pilot/decision.py` and store its result as `teacher_fitness` in `data/analysis/decision.json` (data-model.md PilotDecision): rule text, one row per teacher candidate (`model_id`, repaired `quality_ratio_a`, `schema_valid` rate, `cost_per_chunk_eur`, `fit`, `reasons`) and `recommended`.
-- [ ] T095 [US5] Update section 9 of `src/jtbd_pilot/report/render.py`: remove `TEACHER_FITNESS` and `_teacher_fit`; show for each teacher raw and repaired composite, repaired ratio a, schema_valid, quote_verbatim, repair stats, cost per chunk and fit / not fit from `decision.json`, then the recommended teacher and the FR-031a rule; state that the ensemble is derived from its members. Extend the mini-corpus fixture with two mock teacher models (families different from `mock-a`/`mock-b`, license basis set) and their responses under `tests/fixtures/mini-corpus/mock/`, one with a near-miss quote, and extend `tests/integration/test_mini_corpus_report.py` to run `label` for both teachers, `ensemble`, `score` and check the teacher table and the recommendation.
+- [X] T094 [US5] Add `teacher_fitness(criteria, scores)` to `src/jtbd_pilot/decision.py` and store its result as `teacher_fitness` in `data/analysis/decision.json` (data-model.md PilotDecision): rule text, one row per teacher candidate (`model_id`, repaired `quality_ratio_a`, `schema_valid` rate, `cost_per_chunk_eur`, `fit`, `reasons`) and `recommended`.
+- [X] T095 [US5] Update section 9 of `src/jtbd_pilot/report/render.py`: remove `TEACHER_FITNESS` and `_teacher_fit`; show for each teacher raw and repaired composite, repaired ratio a, schema_valid, quote_verbatim, repair stats, cost per chunk and fit / not fit from `decision.json`, then the recommended teacher and the FR-031a rule; state that the ensemble is derived from its members. Extend the mini-corpus fixture with two mock teacher models (families different from `mock-a`/`mock-b`, license basis set) and their responses under `tests/fixtures/mini-corpus/mock/`, one with a near-miss quote, and extend `tests/integration/test_mini_corpus_report.py` to run `label` for both teachers, `ensemble`, `score` and check the teacher table and the recommendation.
 - [X] T080 [US5] Implement `src/jtbd_pilot/report/render.py`, the `report/template.md` and `pilot report`. The report contains all FR-032 content:
   - composition (from `data/analysis/composition-*.json`)
   - agreement per dimension with CI and breakdowns
@@ -500,7 +505,7 @@ description: "Task list for the JTBD Extraction Pilot"
 - T016 → T048 and T050 (budget guard).
 - T051 → T052 and T053 → T054 → T055 → T059.
 - T053 → T069 (scoring reuses matching).
-- T086–T088 → T089 → T090 → T091 → T092 → T073 (ensemble and repaired scoring before the teacher runs are scored).
+- T086–T088 → T089 → T090 → T091 → T092 → T096 → T073 (ensemble and repaired scoring before the teacher runs are scored).
 - T093 → T094 → T095 → T081 (teacher fitness before the report).
 - T059 → T061 → T063 → T064 → T080.
 - T056 (`freeze --benchmark`) → T059 → T068 → T073 → T074 → T077 → T081.

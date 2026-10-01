@@ -8,6 +8,7 @@ paths:
   domain: domain.yaml
   models: models.yaml
   criteria: decision-criteria.yaml
+  teacher_scoring: teacher-scoring.yaml
   budget: budget.yaml
   data: store
   benchmarks: benchmarks

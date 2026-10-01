@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "teacher-scoring.schema.json",
+  "title": "TeacherScoring",
+  "description": "Teacher-scoring configuration: the quote-repair rule (FR-026a) and the ensemble rule (FR-019b). Kept apart from the decision criteria and frozen and hashed together with them before the first labeling run (FR-015). No value measured in a spike may set any part of it (constitution, Technical Spikes).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "quote_repair",
+    "teacher_ensemble"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "quote_repair": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "FR-026a: teacher scoring view only. A non-verbatim quote is replaced by the source passage it matches if the fuzzy score (0-100) is at least min_score and the passage length is within the length ratios; otherwise the item is dropped.",
+      "required": [
+        "min_score",
+        "min_length_ratio",
+        "max_length_ratio"
+      ],
+      "properties": {
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "min_length_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_length_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "teacher_ensemble": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "FR-019b: offline ensemble of the single teacher candidates. Members are processed in alphabetical order of their model IDs; items are grouped by span IoU (min_iou from the pilot config), at most one item per member and group, and kept with at least min_votes members; relevance and attributes by majority vote, a relevance tie counts as relevant. Attribute ties are broken by the alphabetical order of the member model IDs; quote, actor and statement come from the alphabetically first member in the group. No order is configurable, so no spike value can enter the rule.",
+      "required": [
+        "model_id",
+        "members",
+        "min_votes"
+      ],
+      "properties": {
+        "model_id": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "min_votes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "rationale": {
+      "type": "string"
+    }
+  }
+}

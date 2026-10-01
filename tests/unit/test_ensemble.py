@@ -18,8 +18,6 @@ CAR = "Viele Pendler nehmen deshalb das Auto."
 CHARGER = "Die Ladesäule am Bahnhof ist oft defekt."
 CHUNKS = {"c1": SimpleNamespace(text=TEXT)}
 MEMBERS = ["m1", "m2", "m3"]
-TIE_BREAK = {"kind": ["m3", "m2", "m1"], "actor_type": ["m1", "m2", "m3"],
-             "evidence_type": ["m1", "m2", "m3"], "evidence_scope": ["m1", "m2", "m3"]}
 
 
 def item(passage, kind="pain", actor="pendler", n=0, quote=None, verbatim=True, **attrs):
@@ -31,10 +29,9 @@ def item(passage, kind="pain", actor="pendler", n=0, quote=None, verbatim=True, 
                        (start, start + len(passage)) if verbatim else None)
 
 
-def run(outputs, min_votes=2, quote_priority=("m1", "m2", "m3"), members=MEMBERS):
+def run(outputs, min_votes=2, members=MEMBERS, **orders):
     wrapped = {m: {"c1": ChunkOutput("c1", rel, items)} for m, (rel, items) in outputs.items()}
-    return combine(wrapped, list(members), min_votes, CHUNKS, 0.3, TIE_BREAK,
-                   list(quote_priority))["c1"]
+    return combine(wrapped, list(members), min_votes, CHUNKS, 0.3, **orders)["c1"]
 
 
 def test_item_needs_min_votes():
@@ -62,14 +59,24 @@ def test_relevance_majority_and_tie_counts_as_relevant():
     assert excluded.relevant is None
 
 
-def test_attribute_tie_break_and_quote_priority():
-    out = run({"m1": (True, [item(BUS, kind="pain", actor="from m1", evidence_type="routine")]),
+def test_ties_and_quote_follow_alphabetical_member_order():
+    outputs = {"m3": (True, []),
                "m2": (True, [item(BUS, kind="job", actor="from m2", evidence_type="opinion")]),
-               "m3": (True, [])}, quote_priority=("m2", "m1", "m3"))
-    [result] = out.items
-    assert result.kind == "job"  # tie: m3 is first in the kind order but has no item, then m2
-    assert result.evidence_type == "routine"  # tie: m1 first
-    assert result.actor == "from m2" and result.statement == "from m2 says"
+               "m1": (True, [item(BUS, kind="pain", actor="from m1", evidence_type="routine")])}
+    for members in (["m1", "m2", "m3"], ["m3", "m2", "m1"]):
+        [result] = run(outputs, members=members).items
+        assert (result.kind, result.evidence_type) == ("pain", "routine")  # m1 wins both ties
+        assert result.actor == "from m1" and result.statement == "from m1 says"
+
+
+def test_explicit_orders_for_the_spike():
+    outputs = {"m1": (True, [item(BUS, kind="pain", actor="from m1")]),
+               "m2": (True, [item(BUS, kind="job", actor="from m2")]),
+               "m3": (True, [])}
+    tie_break = {d: ["m2", "m1", "m3"] for d in ("kind", "actor_type", "evidence_type",
+                                                  "evidence_scope")}
+    [result] = run(outputs, tie_break=tie_break, quote_priority=["m2", "m1", "m3"]).items
+    assert result.kind == "job" and result.actor == "from m2"
 
 
 def test_majority_beats_tie_break():
@@ -81,8 +88,7 @@ def test_majority_beats_tie_break():
 
 def test_near_miss_quote_is_repaired_before_grouping():
     near_miss = item(BUS, quote="Der Bus kommt am Abend nur noch alle 2 Stunden.", verbatim=False)
-    out = run({"m1": (True, [near_miss]), "m2": (True, [item(BUS)]), "m3": (True, [])},
-              quote_priority=("m1", "m2", "m3"))
+    out = run({"m1": (True, [near_miss]), "m2": (True, [item(BUS)]), "m3": (True, [])})
     [result] = out.items
     assert result.quote == "Der Bus kommt am Abend nur noch alle zwei Stunden."
     assert TEXT[result.span[0]:result.span[1]] == BUS
@@ -143,14 +149,14 @@ def test_pilot_ensemble_needs_complete_member_runs(tmp_path):
     pilot(config, "ensemble", expect=1)
 
 
-def test_pilot_ensemble_refuses_changed_criteria(tmp_path):
+def test_pilot_ensemble_refuses_changed_teacher_scoring(tmp_path):
     config = copy_fixture(tmp_path)
     reference_chain(config)
     _teachers(config)
-    criteria = config.parent / "decision-criteria.yaml"
-    doc = yaml.safe_load(criteria.read_text())
+    teacher_scoring = config.parent / "teacher-scoring.yaml"
+    doc = yaml.safe_load(teacher_scoring.read_text())
     doc["teacher_ensemble"]["min_votes"] = 1
-    criteria.write_text(yaml.safe_dump(doc))
+    teacher_scoring.write_text(yaml.safe_dump(doc))
     pilot(config, "ensemble", expect=3)
 
 

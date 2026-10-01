@@ -9,6 +9,7 @@ paths:
   domain: configs/domain/mobility.yaml
   models: configs/models.yaml
   criteria: configs/decision-criteria.yaml
+  teacher_scoring: configs/teacher-scoring.yaml
   budget: configs/budget.yaml
   data: data
   benchmarks: benchmarks

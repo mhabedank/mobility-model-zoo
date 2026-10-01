@@ -62,7 +62,7 @@ The benchmark manifest is marked `test_only`. The mini corpus includes one irrel
 | Reddit permitted use | `pilot source fetch <reddit-url> --type reddit --permitted-uses training_allowed` | exits `1`, because Reddit is forced to `benchmark_only` |
 | Frozen criteria | `pilot freeze`, then edit `configs/decision-criteria.yaml`, then `pilot label ...` | exits `3` (hash mismatch) |
 | Budget | `pilot budget --estimate --model gpt-mini-reference --chunks 100000` | exits `4` before any call |
-| Frozen ensemble | `pilot freeze`, then change `teacher_ensemble.members` in `configs/decision-criteria.yaml`, then `pilot ensemble` | exits `3` (hash mismatch) |
+| Frozen ensemble | `pilot freeze`, then change `teacher_ensemble.members` in `configs/teacher-scoring.yaml`, then `pilot ensemble` | exits `3` (hash mismatch) |
 | Ensemble members | `pilot ensemble` while a member run is missing or incomplete | exits `1` and names the member |
 | Role separation | `pilot label --role teacher_candidate --model <a reference model>` | exits `1` |
 | Holdout lock | `pilot label --split holdout` while the pilot state is not `revise` | exits `1` |

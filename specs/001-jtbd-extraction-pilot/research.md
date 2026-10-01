@@ -181,14 +181,14 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
   - The Agent SDK with a subscription token: works, but adds nothing over the CLI here.
 
 
-## R10 Teacher ensemble and quote repair (added 2026-09-29)
+## R10 Teacher ensemble and quote repair (added 2026-09-29, revised 2026-10-01)
 
 - **Ensemble decision** (FR-019b), computed offline from the four stored teacher runs:
   - relevance: majority vote; a tie counts as relevant
-  - items: each member's items are grouped by span IoU ≥ `min_iou` (0.3, the FR-020 threshold), at most one item per member and group; a group is kept when at least 2 members found it
-  - attributes: majority vote inside the group; ties go to the member that was strongest on that dimension in the spike (kind: deepseek, mimo, qwen3.8, glm-5.3-flash; actor type: mimo, deepseek, glm-5.3-flash, qwen3.8; evidence type: glm-5.3-flash, mimo, qwen3.8, deepseek; evidence scope: mimo, glm-5.3-flash, qwen3.8, deepseek)
-  - quote, actor and statement: from the member with the most verbatim quotes in the spike (deepseek, qwen3.8, mimo, glm-5.3-flash)
-  - The members, the vote threshold and both orders go into `configs/decision-criteria.yaml` and are frozen with it (FR-015). They come from spike data on other chunks and are **not** tuned on the pilot benchmark.
+  - items: members are processed in alphabetical order of their model IDs; each item joins the group it overlaps most with span IoU ≥ `min_iou` (0.3, the FR-020 threshold), at most one item per member and group, otherwise it opens a new group; a group is kept when at least 2 members found it
+  - attributes: majority vote inside the group; ties go to the alphabetically first member model ID
+  - quote, actor and statement: from the alphabetically first member in the group
+  - The members and the vote threshold go into `configs/teacher-scoring.yaml`, a file of its own that is frozen and hashed together with `configs/decision-criteria.yaml` (FR-015). The rule has no configurable order, so no spike measurement can enter it (constitution, Technical Spikes; spec session 2026-10-01).
 - **Quote-repair decision** (FR-026a), for the teacher scoring view only:
   - a quote that fails the verbatim check is aligned to the chunk with a fuzzy partial match (`rapidfuzz.fuzz.partial_ratio_alignment`); it is accepted if the score is ≥ 90 and the passage is 0.8–1.25 times the quote's length, then refined at the start and end
   - the repaired quote is the source passage with whitespace collapsed; otherwise the item is dropped
@@ -197,3 +197,4 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
   - Training data is built from repaired quotes (spike: 297 of 1,125 teacher items repaired, 14 dropped), so the repaired view is what a student learns from. Scoring teachers only raw would understate the usable training data; scoring baselines with repair would hide a real weakness of the model being evaluated.
   - The spike scored single models and the ensemble with the same repair, so the comparison with the ensemble is fair.
 - **Alternatives considered**: a union of all items (spike: precision 0.67 instead of 0.78), ≥ 3 votes (spike, five members: recall 0.56 instead of 0.73, composite 0.81 instead of 0.82), including glm-5.3 as a fifth member (spike 0.82, but the most expensive model), an LLM judge to merge outputs (costs money and is not deterministic).
+- **Superseded 2026-10-01**: tie-break and quote orders taken from the spike (the member strongest on each dimension, the member with the most verbatim quotes). They were spike measurements, which the constitution does not allow in a pilot rule; the alphabetical order is neutral. The spike script `spike/ensemble.py` keeps its own orders and results.

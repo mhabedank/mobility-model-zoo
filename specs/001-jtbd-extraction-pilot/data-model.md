@@ -52,14 +52,15 @@ A self-contained text unit cut from a snapshot. Contract: [chunk-record.schema.j
 | Field | Type | Rules |
 |-------|------|-------|
 | `version` | string | e.g. `guideline-v1` |
-| `path` | path | `guideline/guideline-v1.md` or `configs/decision-criteria.yaml` |
+| `path` | path | `guideline/guideline-v1.md`, `configs/decision-criteria.yaml` or `configs/teacher-scoring.yaml` |
 | `sha256` | string | set by `pilot freeze` |
 | `frozen_at` | datetime | set once and never changed. A change creates a new version with a `rationale` |
 
-The decision criteria follow [decision-criteria.schema.json](contracts/decision-criteria.schema.json). Besides the FR-030/FR-031 thresholds they hold three blocks that are frozen with them (FR-015):
-- `teacher_fitness` (FR-031a): `min_quality_ratio` 0.90, `min_schema_valid` 0.98, `tie_margin` 0.02, `score_view: repaired`
+The decision criteria follow [decision-criteria.schema.json](contracts/decision-criteria.schema.json). Besides the FR-030/FR-031 thresholds they hold `teacher_fitness` (FR-031a): `min_quality_ratio` 0.90, `min_schema_valid` 0.98, `tie_margin` 0.02, `score_view: repaired`.
+
+The teacher-scoring configuration follows [teacher-scoring.schema.json](contracts/teacher-scoring.schema.json). It is a separate file, frozen and hashed together with the criteria (FR-015), and no spike value sets any part of it:
 - `quote_repair` (FR-026a): `min_score` 90, `min_length_ratio` 0.8, `max_length_ratio` 1.25
-- `teacher_ensemble` (FR-019b): `members` (model IDs), `min_votes` 2, `tie_break` (member order per attribute dimension), `quote_priority` (member order)
+- `teacher_ensemble` (FR-019b): `model_id`, `members` (model IDs), `min_votes` 2. There is no configurable order: members are processed, and attribute ties broken, in alphabetical order of their model IDs, and quote, actor and statement come from the alphabetically first member in a group.
 
 ## LabelRun
 
@@ -87,7 +88,7 @@ One model's pass over a split. Contract: [label-run-manifest.schema.json](contra
 - The two `reference` runs must come from different `family` values.
 - A `teacher_candidate` family must differ from both reference families.
 - A model used as `reference` is flagged `benchmark_labeler` and can never be a `teacher_candidate`.
-- An `ensemble` run has role `teacher_candidate`, has no `raw/` responses (only `parsed/`), and its members must be exactly `teacher_ensemble.members` from the frozen criteria.
+- An `ensemble` run has role `teacher_candidate`, has no `raw/` responses (only `parsed/`), and its members must be exactly `teacher_ensemble.members` from the frozen teacher-scoring configuration.
 
 ## RawResponse
 
@@ -155,7 +156,7 @@ The guard refuses a run when `cumulative + estimated > budget` (€20), and also
 
 ## BenchmarkVersion
 
-Fields: `version` (e.g. `pilot-v1`), `test_only` (true only for fixture configs with `test_fixture: true`), `chunk_ids` plus hashes, guideline, schema and criteria hashes, the reference run IDs, consensus and contested hashes, `frozen_at`.
+Fields: `version` (e.g. `pilot-v1`), `test_only` (true only for fixture configs with `test_fixture: true`), `chunk_ids` plus hashes, guideline, schema, criteria and teacher-scoring hashes, the reference run IDs, consensus and contested hashes, `frozen_at`.
 
 **State**: `draft → frozen`. Freezing happens once reference labeling and consensus are done, and before baseline scoring. Any change creates `pilot-v2`.
 
@@ -180,5 +181,5 @@ collecting ──► criteria_frozen ──► labeled ──► evaluated ─�
 ```
 
 - In `decided`, a dimension that still fails after `rerun_holdout` becomes `rethink` (FR-030: at most one rerun).
-- `criteria_frozen` requires hashes for the guideline, schema, decision criteria and budget.
+- `criteria_frozen` requires hashes for the guideline, schema, decision criteria, teacher-scoring configuration and budget.
 - `labeled` requires both reference runs to be complete, with at most 2% of chunks excluded per model (SC-002).

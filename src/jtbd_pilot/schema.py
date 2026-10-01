@@ -251,36 +251,37 @@ class QuoteRepair(BaseModel):
     max_length_ratio: float = Field(gt=0)
 
 
-class TieBreak(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    kind: list[str] = Field(min_length=1)
-    actor_type: list[str] = Field(min_length=1)
-    evidence_type: list[str] = Field(min_length=1)
-    evidence_scope: list[str] = Field(min_length=1)
-
-
 class TeacherEnsemble(BaseModel):
-    """FR-019b: offline ensemble of the single teacher candidates."""
+    """FR-019b: offline ensemble of the single teacher candidates.
+
+    There is no configurable order: members are processed, and ties broken, in alphabetical order
+    of their model IDs, so no spike measurement can enter the rule.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     model_id: str
-    members: list[str] = Field(min_length=1)
+    members: list[str] = Field(min_length=2)
     min_votes: int = Field(ge=1)
-    tie_break: TieBreak
-    quote_priority: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _orders(self) -> TeacherEnsemble:
+    def _rules(self) -> TeacherEnsemble:
         if len(set(self.members)) != len(self.members):
             raise ValueError("teacher_ensemble.members must be unique")
-        orders = {f"tie_break.{d}": getattr(self.tie_break, d) for d in ATTRIBUTE_DIMENSIONS}
-        orders["quote_priority"] = self.quote_priority
-        for name, order in orders.items():
-            if len(order) != len(self.members) or set(order) != set(self.members):
-                raise ValueError(f"teacher_ensemble.{name} must be a permutation of members")
+        if self.min_votes > len(self.members):
+            raise ValueError("teacher_ensemble.min_votes exceeds the number of members")
         return self
+
+
+class TeacherScoring(BaseModel):
+    """Teacher-scoring configuration (FR-019b, FR-026a), frozen with the decision criteria."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    version: str
+    quote_repair: QuoteRepair
+    teacher_ensemble: TeacherEnsemble
+    rationale: str | None = None
 
 
 class DecisionCriteria(BaseModel):
@@ -295,6 +296,4 @@ class DecisionCriteria(BaseModel):
     finetuning_optional: FinetuningRule
     underpowered_min_units: int
     teacher_fitness: TeacherFitness
-    quote_repair: QuoteRepair
-    teacher_ensemble: TeacherEnsemble
     rationale: str | None = None

@@ -86,7 +86,7 @@ Constitution version: **1.2.0** (re-checked 2026-09-29; the 1.2.0 technical-spik
 | I. Problem-First | yes | ✅ | ✅ | The prompt is the guideline plus the domain definition from `configs/domain/mobility.yaml`. There is no persona input. Actor fields are output only ([extraction-output schema](contracts/extraction-output.schema.json)). |
 | II. Grounded Evidence | yes | ✅ | ✅ | The quote locator maps each quote to a span, and items that fail it are invalid. Empty item lists are valid and scored as correct. The guideline requires "lower grade when uncertain". |
 | III. Measure Before Optimizing | yes | ✅ | ⚠ deviation documented | Claude and GPT form the reference. Contested entries are stored and reported separately. Checks are reported independently. The Pareto chart is in the report. The report template says "agreement with frontier models". Both labelers are recorded as `benchmark_labeler` and blocked from the teacher role in `configs/models.yaml`. |
-| IV. Riskiest Assumption First | yes | ✅ | ✅ | `pilot freeze` hashes the guideline, schema and decision criteria, and `pilot label` refuses to run without a matching frozen hash. |
+| IV. Riskiest Assumption First | yes | ✅ | ✅ | `pilot freeze` hashes the guideline, schema, decision criteria and teacher-scoring configuration, and `pilot label` refuses to run without a matching frozen hash. |
 | V. Small and Local | yes | ✅ | ✅ | Performance is measured on the reference VM (8 GB, no GPU). The Spark is used only for quality runs with identical model digests. Hosted APIs are used only for labeling. |
 | VI. Clean Provenance | yes | ✅ | ✅ | Each snapshot records license, legal basis, `permitted_uses` and retention. Reddit comes through the official API and is `benchmark_only`. Redaction plus `redact-check`. `data/` is gitignored and nothing is published. The license basis is recorded for every teacher candidate (qwen3.8: Apache-2.0; mimo, deepseek, glm-5.3-flash: MIT); the ensemble lists its members' license bases. |
 | VII. Metadata over Inference | yes | ✅ | ✅ | Metadata lives only in the chunk records and is never in the output schema. |
@@ -115,6 +115,8 @@ specs/001-jtbd-extraction-pilot/
 │   ├── label-run-manifest.schema.json
 │   ├── decision-criteria.schema.json
 │   ├── decision-criteria.example.yaml
+│   ├── teacher-scoring.schema.json
+│   ├── teacher-scoring.example.yaml
 │   └── cli.md
 ├── checklists/requirements.md
 └── tasks.md             # Phase 2 (/speckit-tasks)
@@ -126,7 +128,8 @@ specs/001-jtbd-extraction-pilot/
 configs/
 ├── domain/mobility.yaml        # domain definition and sub-areas (Principle I, domain isolated in config)
 ├── models.yaml                 # backends, model IDs, hosts, digests, roles
-├── decision-criteria.yaml      # FR-030/FR-031/FR-031a thresholds, ensemble and quote-repair rules (frozen)
+├── decision-criteria.yaml      # FR-030/FR-031/FR-031a thresholds (frozen)
+├── teacher-scoring.yaml        # FR-019b ensemble and FR-026a quote-repair rules (frozen with the criteria)
 ├── budget.yaml                 # cash budget, key cap, prices
 └── pilot-v1.yaml               # run settings, composition targets, IoU threshold
 guideline/

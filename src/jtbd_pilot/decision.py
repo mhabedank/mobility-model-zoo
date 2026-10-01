@@ -1,5 +1,8 @@
 """Go / revise / rethink decision derived mechanically from the frozen criteria (FR-030, FR-031).
 
+Teacher candidates are classified as fit or not fit to generate training data (FR-031a); this
+classification is reported alongside the decision and does not change it.
+
 After one holdout rerun the decision uses the holdout agreement, and a dimension that still misses
 its threshold leads to rethink. A second rerun is never offered.
 """
@@ -98,6 +101,65 @@ def finetuning(criteria: DecisionCriteria, scores: list[dict], perf: dict[str, d
     }
 
 
+def teacher_fitness(criteria: DecisionCriteria, scores: list[dict],
+                    frontier_dims: dict[str, float | None] | None = None) -> dict[str, Any]:
+    """FR-031a on the repaired view: fit, reasons when not fit, and the recommended teacher.
+
+    `frontier_dims` are the frontier-versus-frontier scores on consensus units; with them the
+    reasons name the dimensions that miss the quality ratio.
+    """
+    rule = criteria.teacher_fitness
+    rows = []
+    for s in scores:
+        if s["role"] != "teacher_candidate":
+            continue
+        view = s.get("repaired") or {}
+        ratio = view.get("quality_ratio_a")
+        schema_valid = ((s.get("check_pass_rates") or {}).get("schema_valid") or {}).get("rate")
+        reasons = []
+        if not view:
+            reasons.append("no repaired score (run `pilot score` again)")
+        elif ratio is None:
+            reasons.append("repaired quality_ratio_a not available")
+        elif ratio < rule.min_quality_ratio:
+            reasons.append(f"repaired quality_ratio_a {ratio:.3f} < {rule.min_quality_ratio}")
+            for dim, ref in (frontier_dims or {}).items():
+                score = (view.get("dimensions", {}).get(dim) or {}).get("score")
+                if ref is not None and (score is None or score < rule.min_quality_ratio * ref):
+                    shown = "n/a" if score is None else f"{score:.3f}"
+                    reasons.append(f"{dim} {shown} < {rule.min_quality_ratio} x frontier "
+                                   f"{ref:.3f}")
+        if schema_valid is None or schema_valid < rule.min_schema_valid:
+            shown = "n/a" if schema_valid is None else f"{schema_valid:.3f}"
+            reasons.append(f"schema_valid {shown} < {rule.min_schema_valid}")
+        rows.append({
+            "model_id": s["model_id"],
+            "composite": view.get("composite"),
+            "quality_ratio_a": ratio,
+            "schema_valid": schema_valid,
+            "cost_per_chunk_eur": s.get("cost_per_chunk_eur"),
+            "fit": not reasons,
+            "reasons": reasons,
+        })
+    fit = [r for r in rows if r["fit"]]
+    recommended = None
+    if fit:
+        best = max(r["composite"] for r in fit)
+        close = [r for r in fit if best - r["composite"] <= rule.tie_margin + 1e-12]
+        recommended = min(close, key=lambda r: (
+            r["cost_per_chunk_eur"] if r["cost_per_chunk_eur"] is not None else float("inf"),
+            -r["composite"], r["model_id"]))["model_id"]
+    return {
+        "rule": f"fit if the repaired composite reaches quality_ratio_a >= "
+                f"{rule.min_quality_ratio} (against the frontier-vs-frontier composite on "
+                f"consensus units) and schema_valid >= {rule.min_schema_valid}; among fit "
+                f"candidates the highest repaired composite is recommended, and within "
+                f"{rule.tie_margin} of it the lowest cost per chunk",
+        "candidates": rows,
+        "recommended": recommended,
+    }
+
+
 def load_scores(settings: Settings) -> list[dict]:
     directory = settings.analysis_dir / "scores"
     return [read_json(p) for p in sorted(directory.glob("*.json"))] if directory.exists() else []
@@ -129,6 +191,8 @@ def decide(settings: Settings) -> dict[str, Any]:
     result = evaluate(criteria, agreement["dimensions"], reruns)
     perf, frontier = load_perf(settings)
     scores = load_scores(settings)
+    main_path = settings.analysis_dir / "agreement.json"  # teachers are scored on the main split
+    main_agreement = read_json(main_path) if main_path.exists() else {}
     result.update({
         "benchmark_version": manifest["version"],
         "test_only": manifest.get("test_only", False),
@@ -137,6 +201,8 @@ def decide(settings: Settings) -> dict[str, Any]:
         "reruns": reruns,
         "rerun": "holdout" if result["decision"] == "revise" else "none",
         "finetuning": finetuning(criteria, scores, perf, frontier),
+        "teacher_fitness": teacher_fitness(criteria, scores, main_agreement.get(
+            "consensus_unit_scores")),
         "deviations": sorted({d for s in _run_manifests(settings) for d in s.get("deviations", [])}),
     })
     if reruns and split != "main":

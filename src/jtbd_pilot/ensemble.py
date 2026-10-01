@@ -2,12 +2,14 @@
 
 The ensemble is computed from the stored outputs of the member runs, without model calls:
 - relevance: majority vote (ties count as relevant),
-- items: the members' items are grouped by span overlap (IoU >= min_iou, at most one item per
-  member and group); a group is kept when at least `min_votes` members found it,
-- attributes: majority vote inside the group; ties go to the first member in `tie_break[dim]`,
-- quote, actor and statement: from the first member in `quote_priority` that is in the group.
-Near-miss quotes are repaired to the verbatim source passage before grouping; unrepairable items
-are dropped.
+- items: members are processed in alphabetical order of their model IDs; each item joins the
+  group it overlaps most (IoU >= min_iou, at most one item per member and group), otherwise it
+  opens a new group; a group is kept when at least `min_votes` members found it,
+- attributes: majority vote inside the group; ties go to the alphabetically first member,
+- quote, actor and statement: from the alphabetically first member in the group.
+The rule has no configurable order, so no spike measurement can enter it (spec session
+2026-10-01). Near-miss quotes are repaired to the verbatim source passage before grouping;
+unrepairable items are dropped.
 """
 
 from __future__ import annotations
@@ -71,9 +73,18 @@ def vote(values: dict[str, str], priority: list[str]) -> str:
 
 
 def combine(outputs: Mapping[str, Mapping[str, ChunkOutput]], members: list[str], min_votes: int,
-            chunks: Mapping, min_iou: float, tie_break: Mapping[str, list[str]],
-            quote_priority: list[str], rule: QuoteRepair | None = None) -> dict[str, ChunkOutput]:
-    """Ensemble output per chunk. A chunk without a valid output from any member is excluded."""
+            chunks: Mapping, min_iou: float, tie_break: Mapping[str, list[str]] | None = None,
+            quote_priority: list[str] | None = None, rule: QuoteRepair | None = None
+            ) -> dict[str, ChunkOutput]:
+    """Ensemble output per chunk. A chunk without a valid output from any member is excluded.
+
+    Members are processed in the given order. Without `tie_break` and `quote_priority` (the
+    pilot) ties and the quote source follow the alphabetical order of the members; the spike
+    script passes its own orders.
+    """
+    alphabetical = sorted(members)
+    tie_break = tie_break or {a: alphabetical for a in ATTRIBUTE_DIMENSIONS}
+    quote_priority = quote_priority or alphabetical
     result = {}
     for chunk_id, chunk in chunks.items():
         present = {m: outputs[m][chunk_id] for m in members if chunk_id in outputs[m]}
@@ -135,18 +146,19 @@ def _member_runs(settings: Settings, members: list[str], split: str,
 def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
     """Write the derived ensemble run from the frozen `teacher_ensemble` rule (FR-019b)."""
     frozen = verify_frozen(settings)
-    criteria = settings.criteria()
-    rule = criteria.teacher_ensemble
+    scoring = settings.teacher_scoring()
+    rule = scoring.teacher_ensemble
+    members = sorted(rule.members)
     entry = settings.model(rule.model_id)
     if entry.backend != "ensemble" or entry.role != "teacher_candidate":
         raise ValidationFailed(f"{rule.model_id} must be configured with backend ensemble and "
                                "role teacher_candidate")
-    runs = _member_runs(settings, rule.members, split, frozen)
+    runs = _member_runs(settings, members, split, frozen)
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     chunks = chunk_map(settings, split)
     outputs = {m: load_outputs(settings, run.run_id) for m, run in runs.items()}
-    combined = combine(outputs, rule.members, rule.min_votes, chunks, min_iou,
-                       rule.tie_break.model_dump(), rule.quote_priority, criteria.quote_repair)
+    combined = combine(outputs, members, rule.min_votes, chunks, min_iou,
+                       rule=scoring.quote_repair)
 
     run_id = run_id_for("teacher_candidate", rule.model_id, split, frozen["hashes"]["guideline"])
     run_path = settings.runs_dir / run_id
@@ -158,7 +170,7 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
         role="teacher_candidate",
         backend="ensemble",
         model_id=rule.model_id,
-        model_version=" + ".join(f"{m}={runs[m].model_version}" for m in rule.members),
+        model_version=" + ".join(f"{m}={runs[m].model_version}" for m in members),
         family=entry.family,
         host=entry.host,
         settings=RunSettings(temperature="not_settable", structured_output="post_validation",
@@ -172,10 +184,10 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
         cost_eur=round(sum(r.cost_eur for r in runs.values()), 6),
         excluded_chunks=[{"chunk_id": c, "reason": "no valid output from any member"}
                          for c, o in sorted(combined.items()) if o.relevant is None],
-        license_basis="; ".join(f"{m}: {runs[m].license_basis}" for m in rule.members),
+        license_basis="; ".join(f"{m}: {runs[m].license_basis}" for m in members),
         deviations=sorted({d for r in runs.values() for d in r.deviations}),
         status="complete",
-        derived_from=[runs[m].run_id for m in rule.members],
+        derived_from=[runs[m].run_id for m in members],
     )
     for chunk_id, out in sorted(combined.items()):
         if out.relevant is None:

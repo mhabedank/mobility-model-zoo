@@ -27,10 +27,6 @@ DIM_NAMES = {
     "evidence_type": "Evidence type",
     "evidence_scope": "Evidence scope",
 }
-TEACHER_FITNESS = ("A teacher candidate is marked fit when quality_ratio_a >= 0.85 (the FR-031 "
-                   "quality bar), quote_verbatim >= 0.95, schema_valid >= 0.98 and a license basis "
-                   "is recorded. This is an indicative statement, not part of the go/revise/rethink "
-                   "decision.")
 
 
 def _fmt(x: Any, digits: int = 3) -> str:
@@ -51,14 +47,48 @@ def _read(path: Path) -> Any | None:
     return read_json(path) if path.exists() else None
 
 
-def _teacher_fit(score: dict) -> str:
-    rates = score.get("check_pass_rates") or {}
-    quote = (rates.get("quote_verbatim") or {}).get("rate")
-    schema = (rates.get("schema_valid") or {}).get("rate")
-    fit = (score.get("quality_ratio_a") is not None and score["quality_ratio_a"] >= 0.85
-           and quote is not None and quote >= 0.95 and schema is not None and schema >= 0.98
-           and bool(score.get("license_basis")))
-    return "fit" if fit else "not fit"
+def _rate(score: dict, check: str) -> float | None:
+    return ((score.get("check_pass_rates") or {}).get(check) or {}).get("rate")
+
+
+def _teacher_lines(settings: Settings, teachers: list[dict], fitness: dict | None) -> list[str]:
+    """FR-031a classification on the repaired view, with raw scores and repair rates (FR-026a)."""
+    rows_by_model = {r["model_id"]: r for r in (fitness or {}).get("candidates", [])}
+    rows = []
+    for t in teachers:
+        repaired = t.get("repaired") or {}
+        stats = repaired.get("repair_stats") or {}
+        row = rows_by_model.get(t["model_id"])
+        rows.append([t["model_id"], t["composite"], repaired.get("composite"),
+                     repaired.get("quality_ratio_a"), _rate(t, "schema_valid"),
+                     _rate(t, "quote_verbatim"),
+                     f"{stats.get('repaired', 0)} / {stats.get('dropped', 0)}",
+                     t.get("cost_per_chunk_eur"),
+                     "n/a" if row is None else ("fit" if row["fit"] else "not fit")])
+    lines = ["", "### Teacher fitness (FR-031a)", ""]
+    lines += _table(["Teacher", "Composite (raw)", "Composite (repaired)", "Ratio a (repaired)",
+                     "Schema valid", "Quote verbatim (raw)", "Repaired / dropped quotes",
+                     "EUR per chunk", "FR-031a"], rows)
+    if fitness:
+        lines += ["", f"Rule: {fitness['rule']}."]
+        if fitness["recommended"]:
+            lines.append(f"Recommended teacher: **{fitness['recommended']}**.")
+        else:
+            lines.append("**No teacher candidate is fit.**")
+        for row in fitness["candidates"]:
+            if not row["fit"]:
+                lines.append(f"- `{row['model_id']}` misses: {'; '.join(row['reasons'])}")
+    for t in teachers:
+        path = settings.runs_dir / t["run_id"] / "manifest.json"
+        derived = read_json(path).get("derived_from") if path.exists() else None
+        if derived:
+            lines += ["", f"`{t['model_id']}` is the offline ensemble (FR-019b) of "
+                      + ", ".join(f"`{r}`" for r in derived)
+                      + "; it makes no model calls, and its cost is the sum of its members."]
+    lines += ["", "Raw scores and the verbatim check use the outputs as returned; the repaired "
+              "view replaces near-miss quotes by the source passage (FR-026a), as the training "
+              "data will. The classification does not change the go/revise/rethink decision."]
+    return lines
 
 
 def render_report(settings: Settings) -> dict[str, Any]:
@@ -193,9 +223,7 @@ def render_report(settings: Settings) -> dict[str, Any]:
                          "Chunks/min (VM)", "p95 ms", "Peak RSS MB"], rows)
         teachers = [s for s in scores if s["role"] == "teacher_candidate"]
         if teachers:
-            lines += ["", TEACHER_FITNESS, ""]
-            lines += [f"- `{t['model_id']}` ({t['family']}, {t.get('license_basis') or 'no license'}"
-                      f"): **{_teacher_fit(t)}**" for t in teachers]
+            lines += _teacher_lines(settings, teachers, decision.get("teacher_fitness"))
         lines += ["", "Contested reference items matched by a model are scored neutrally "
                   "(FR-028); counts per model: " + "; ".join(
                       f"{s['model_id']} {s['neutral_contested_hits']}" for s in scores) + "."]

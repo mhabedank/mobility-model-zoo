@@ -1,0 +1,10 @@
+# Teacher-scoring configuration for the mock teachers (FR-026a, FR-019b).
+version: teacher-scoring-v1
+quote_repair:
+  min_score: 90
+  min_length_ratio: 0.8
+  max_length_ratio: 1.25
+teacher_ensemble:
+  model_id: mock-ensemble
+  members: [mock-teacher-y, mock-teacher-x]
+  min_votes: 2

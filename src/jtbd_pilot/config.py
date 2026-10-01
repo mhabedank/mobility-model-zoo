@@ -15,7 +15,7 @@ import yaml
 from dotenv import load_dotenv
 
 from jtbd_pilot.errors import UsageError
-from jtbd_pilot.schema import DecisionCriteria
+from jtbd_pilot.schema import DecisionCriteria, TeacherScoring
 
 DEFAULT_CONFIG = Path("configs/pilot-v1.yaml")
 
@@ -96,6 +96,9 @@ class Settings:
     def criteria(self) -> DecisionCriteria:
         return DecisionCriteria.model_validate(self.load_yaml("criteria"))
 
+    def teacher_scoring(self) -> TeacherScoring:
+        return TeacherScoring.model_validate(self.load_yaml("teacher_scoring"))
+
     def budget(self) -> dict[str, Any]:
         return self.load_yaml("budget")
 
@@ -130,8 +133,8 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
     raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     base = (path.parent / raw.get("root", ".")).resolve()
     paths = {key: (base / value).resolve() for key, value in (raw.get("paths") or {}).items()}
-    required = {"guideline", "examples", "domain", "models", "criteria", "budget", "data",
-                "benchmarks", "reports"}
+    required = {"guideline", "examples", "domain", "models", "criteria", "teacher_scoring",
+                "budget", "data", "benchmarks", "reports"}
     missing = required - paths.keys()
     if missing:
         raise UsageError(f"config {path} is missing paths: {sorted(missing)}")
