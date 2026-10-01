@@ -1,0 +1,35 @@
+name: sandbox-pipeline-tiny
+topic: sandbox
+task: pipeline
+variant: tiny
+title: Pipeline test model (tiny)
+summary: A tiny deterministic test model. It exists only to test the release pipeline and is never public.
+license: Apache-2.0
+license_exception: null
+base_model: null
+base_model_license: null
+languages: [de, en]
+pipeline_tag: token-classification
+library_name: pytorch
+tags: [pipeline-test]
+repos:
+  public: mobility-model-zoo/sandbox-pipeline-tiny
+  staging: mobility-model-zoo/sandbox-pipeline-tiny-staging
+card:
+  intended_use: Testing the release pipeline of the mobility model zoo.
+  out_of_scope: Any real use. The model has random weights and its outputs mean nothing.
+  input_output: "Input: a text. Output: JSON with one item per sentence (`kind`, `quote`, `score`)."
+  install: pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from mobility_model_zoo.sandbox.model import PipelineTestModel
+
+    model = PipelineTestModel.from_pretrained("{repo_id}", revision="{revision}")
+    print(model.predict("Der Bus fährt nur zweimal am Tag. Das ist zu selten."))
+  limitations: Random weights. The outputs are deterministic but meaningless.
+  citation: |
+    @misc{mobility-model-zoo,
+      title  = {mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo}
+    }

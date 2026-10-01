@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model.schema.json",
+  "title": "Model (zoo/models/<name>/model.yaml)",
+  "type": "object",
+  "required": [
+    "name",
+    "topic",
+    "task",
+    "variant",
+    "title",
+    "summary",
+    "license",
+    "license_exception",
+    "base_model",
+    "base_model_license",
+    "languages",
+    "pipeline_tag",
+    "library_name",
+    "tags",
+    "repos",
+    "card"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]{1,15}-[a-z0-9]+(-[a-z0-9]+)+$",
+      "maxLength": 80
+    },
+    "topic": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]{1,15}$"
+    },
+    "task": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+$"
+    },
+    "variant": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX id"
+    },
+    "license_exception": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Required (non-null) if license is not Apache-2.0"
+    },
+    "base_model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Hugging Face id; null only for sandbox models"
+    },
+    "base_model_license": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Null only in the sandbox topic (gate rule 6)"
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]{2}$"
+      }
+    },
+    "pipeline_tag": {
+      "type": "string"
+    },
+    "library_name": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repos": {
+      "type": "object",
+      "required": [
+        "public",
+        "staging"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "public": {
+          "type": "string",
+          "pattern": "^mobility-model-zoo/[a-z0-9-]+$"
+        },
+        "staging": {
+          "type": "string",
+          "pattern": "^mobility-model-zoo/[a-z0-9-]+-staging$"
+        }
+      }
+    },
+    "card": {
+      "type": "object",
+      "required": [
+        "intended_use",
+        "out_of_scope",
+        "input_output",
+        "install",
+        "how_to_run",
+        "limitations",
+        "citation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "intended_use": {
+          "type": "string",
+          "minLength": 1
+        },
+        "out_of_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_output": {
+          "type": "string",
+          "minLength": 1
+        },
+        "install": {
+          "type": "string",
+          "pattern": "<tag>"
+        },
+        "how_to_run": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            {
+              "pattern": "\\{repo_id\\}"
+            },
+            {
+              "pattern": "\\{revision\\}"
+            }
+          ],
+          "description": "Python code with placeholders {repo_id} and {revision}; the card fills in the public repo and v<version>, the gate the staging repo and revision and runs it (SC-004)"
+        },
+        "limitations": {
+          "type": "string",
+          "minLength": 1
+        },
+        "citation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "license": {
+            "not": {
+              "const": "Apache-2.0"
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "license_exception": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

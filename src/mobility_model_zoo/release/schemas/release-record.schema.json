@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release-record.schema.json",
+  "title": "Release record (zoo/models/<name>/releases/<version>.yaml)",
+  "type": "object",
+  "required": ["model", "version", "date", "status", "change_type", "changes", "output_format_version",
+               "sandbox", "files", "staging", "recipe", "provenance", "evaluation", "performance",
+               "published", "deprecated"],
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gitsha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+  },
+  "properties": {
+    "model": {"type": "string"},
+    "version": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"},
+    "date": {"type": "string", "format": "date"},
+    "status": {"enum": ["experimental", "released", "deprecated"]},
+    "change_type": {"enum": ["initial", "major", "minor", "patch"]},
+    "changes": {"type": "string", "minLength": 1},
+    "output_format_version": {"type": "string", "minLength": 1},
+    "sandbox": {"type": "boolean"},
+    "files": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["path", "sha256", "size_bytes"], "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string", "pattern": "^[^/][^\\\\]*$"},
+          "sha256": {"$ref": "#/$defs/sha256"},
+          "size_bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "staging": {
+      "type": "object", "required": ["repo", "revision"], "additionalProperties": false,
+      "properties": {"repo": {"type": "string"}, "revision": {"$ref": "#/$defs/gitsha"}}
+    },
+    "recipe": {
+      "type": "object", "required": ["git_commit", "config", "doc"], "additionalProperties": false,
+      "properties": {"git_commit": {"$ref": "#/$defs/gitsha"}, "config": {"type": "string"}, "doc": {"type": "string"}}
+    },
+    "provenance": {
+      "type": "object", "required": ["sources", "teachers", "spike_data"], "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["origin", "license", "permitted_use", "count"], "additionalProperties": false,
+            "properties": {
+              "origin": {"type": "string"}, "license": {"type": "string"},
+              "permitted_use": {"enum": ["training_allowed", "benchmark_only"]},
+              "count": {"type": "integer", "minimum": 0}
+            }
+          }
+        },
+        "teachers": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["model_id", "license_basis", "training_on_outputs_permitted"],
+            "additionalProperties": false,
+            "properties": {
+              "model_id": {"type": "string"}, "license_basis": {"type": "string"},
+              "training_on_outputs_permitted": {"type": "boolean"}
+            }
+          }
+        },
+        "spike_data": {"type": "boolean"}
+      }
+    },
+    "evaluation": {
+      "type": "object", "required": ["benchmark", "reference", "results"], "additionalProperties": false,
+      "properties": {"benchmark": {"type": "string"}, "reference": {"type": "string"}, "results": {"type": "string"}}
+    },
+    "performance": {
+      "type": "object", "required": ["hardware", "budget", "results"], "additionalProperties": false,
+      "properties": {
+        "hardware": {"type": "string"},
+        "budget": {
+          "type": "object", "required": ["ram_gb", "gpu"], "additionalProperties": false,
+          "properties": {"ram_gb": {"type": "number", "exclusiveMinimum": 0}, "gpu": {"const": false}}
+        },
+        "results": {"type": "string"}
+      }
+    },
+    "published": {
+      "type": ["object", "null"],
+      "required": ["repo_commit", "tag", "published_at", "card_sha256"], "additionalProperties": false,
+      "properties": {
+        "repo_commit": {"$ref": "#/$defs/gitsha"}, "tag": {"type": "string"},
+        "published_at": {"type": "string", "format": "date-time"}, "card_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "deprecated": {
+      "type": ["object", "null"],
+      "required": ["reason", "successor"], "additionalProperties": false,
+      "properties": {"reason": {"type": "string", "minLength": 1}, "successor": {"type": ["string", "null"]}}
+    }
+  }
+}
