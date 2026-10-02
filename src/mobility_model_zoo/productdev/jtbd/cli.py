@@ -373,11 +373,20 @@ def perf_cmd(
     frontier: bool = typer.Option(False, "--frontier"),
     run: str = typer.Option(None, "--run"),
     sample: int = typer.Option(20, "--sample"),
+    backend: str = typer.Option(None, "--backend", help="`span` for a span-model directory"),
+    model_dir: Path = typer.Option(None, "--model-dir", help="Span model files (--backend span)"),
+    text: Path = typer.Option(None, "--text", help="Latency text (default: the 9k perf text)"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd import perf
     from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
     def action(s: Settings) -> Any:
+        if backend == "span":
+            if not model_dir:
+                raise UsageError("--backend span requires --model-dir")
+            return perf.perf_span(s, model_dir, hardware, text, quality_run)
+        if backend:
+            raise UsageError(f"unknown --backend {backend!r} (only `span`)")
         if frontier:
             if not run:
                 raise UsageError("--frontier requires --run <gpt-run>")

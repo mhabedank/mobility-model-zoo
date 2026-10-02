@@ -66,3 +66,43 @@ def tune_cmd(ctx: typer.Context, model_dir: Path = typer.Option(..., "--model-di
     from mobility_model_zoo.productdev.jtbd.span.commands import tune_command
 
     _run(ctx, lambda s: tune_command(s, model_dir, recipe))
+
+
+@app.command("label")
+def label_cmd(ctx: typer.Context, model_dir: Path = typer.Option(..., "--model-dir"),
+              split: str = typer.Option("main", "--split"),
+              change: str = typer.Option(..., "--candidate-change",
+                                         help="What this candidate changes and why"),
+              recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Evaluate a candidate on the benchmark: a student run with backend span."""
+    from mobility_model_zoo.productdev.jtbd.span.evaluate import label_span
+
+    _run(ctx, lambda s: label_span(s, model_dir, split, change, recipe))
+
+
+@app.command("select")
+def select_cmd(ctx: typer.Context, recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Apply the recipe's selection rule to every evaluated candidate."""
+    from mobility_model_zoo.productdev.jtbd.span.results import select
+
+    _run(ctx, lambda s: select(s, recipe))
+
+
+@app.command("results")
+def results_cmd(ctx: typer.Context, run: str = typer.Option(..., "--run"),
+                perf: Path = typer.Option(..., "--perf", help="Perf file of the same model"),
+                version: str = typer.Option(..., "--version"),
+                recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Write the zoo results files (quality.json, performance.json) for a version."""
+    from mobility_model_zoo.productdev.jtbd.span.results import write_results
+
+    _run(ctx, lambda s: write_results(s, run, perf, version, recipe))
+
+
+@app.command("release-check")
+def release_check_cmd(ctx: typer.Context, version: str = typer.Option(..., "--version"),
+                      recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Evaluate the release bar from the results files (exit 1 if any condition fails)."""
+    from mobility_model_zoo.productdev.jtbd.span.results import release_check
+
+    _run(ctx, lambda s: release_check(s, version, recipe))
