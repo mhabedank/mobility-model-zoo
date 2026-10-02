@@ -43,12 +43,16 @@ def run_id_for(role: str, model_id: str, split: str, guideline_sha: str) -> str:
 
 
 def check_roles(settings: Settings, role: str, entry: ModelEntry) -> None:
-    if entry.role != role:
+    # A teacher (feature 004) is a teacher candidate the pilot recommended.
+    configured = ("teacher_candidate", "teacher") if role == "teacher" else (role,)
+    if entry.role not in configured:
         raise ValidationFailed(f"{entry.model_id} is configured with role {entry.role}, not {role}")
+    if role == "student":
+        raise ValidationFailed("student runs are written by `jtbd span label`")
     models = settings.models()
     if role == "reference" and not entry.benchmark_labeler:
         raise ValidationFailed(f"reference model {entry.model_id} must be benchmark_labeler: true")
-    if role == "teacher_candidate":
+    if role in ("teacher_candidate", "teacher"):
         if entry.benchmark_labeler:
             raise ValidationFailed(
                 f"{entry.model_id} is a benchmark labeler and can never be a teacher (FR-019)")
@@ -124,6 +128,10 @@ def label(
     entry = settings.model(model_id)
     check_roles(settings, role, entry)
     frozen = verify_frozen(settings)
+    if role == "teacher":
+        from mobility_model_zoo.productdev.jtbd.span.gates import check_teacher
+
+        check_teacher(settings, entry, split, frozen)
     if split == "holdout" and frozen.get("pilot_state") not in ("revise", "rerun_holdout"):
         raise ValidationFailed("holdout chunks are locked until the pilot state is `revise`")
     chunks = load_chunks(settings, split)

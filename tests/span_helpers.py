@@ -122,3 +122,86 @@ def write_span_run(settings, run_id: str, outputs: dict, dimensions: tuple[str, 
         excluded_chunks=[ExcludedChunk(chunk_id=c, reason="fixture") for c in excluded])
     write_json(directory / "manifest.json", manifest.model_dump(mode="json"))
     return run_id
+
+
+# ---- training dataset fixtures (feature 004, T019-T026) --------------------------------------------
+PROSE = ("Die Busse im Landkreis fahren abends nur noch selten, und viele Menschen pendeln deshalb "
+         "mit dem eigenen Auto zur Arbeit. Drivers say the depot chargers fail too often and they "
+         "lose hours every week waiting for a free charging point. ")
+
+
+def prose(seed_word: str, chars: int = 4200) -> str:
+    """Prose-like text (enough letters and words for autochunk) made unique by `seed_word`."""
+    text = ""
+    n = 0
+    while len(text) < chars:
+        n += 1
+        text += f"{seed_word} {n}. " + PROSE
+    return text
+
+
+def span_train_env(tmp_path: Path, **span_train) -> tuple[Path, Path]:
+    """(benchmark config, training config): the mini corpus as the benchmark, and a training
+    dataset config sharing its snapshot store, with sampled redaction review."""
+    import shutil
+
+    import yaml
+    from helpers import FIXTURE
+
+    work = tmp_path / "mini"
+    shutil.copytree(FIXTURE, work)
+    raw = yaml.safe_load((work / "pilot.yaml").read_text())
+    raw["benchmark_version"] = "train-test-v1"
+    raw["paths"].update(data="train_store", snapshots="store/snapshots",
+                        ledger="store/budget/ledger.jsonl", benchmarks="train_store/benchmarks")
+    raw["span_train"] = {
+        "dataset": "train-test-v1", "exclude_benchmark": "pilot.yaml",
+        "redaction": {"version": "redact-v2", "review": "sampled",
+                      "sample": {"fraction": 0.5, "min": 2,
+                                 "always_review_source_types": ["forum_review"]}},
+        "validation": {"fraction_of_snapshots": 0.34, "seed": 1},
+        "min_usable_chunks": 2, **span_train}
+    (work / "span.yaml").write_text(yaml.safe_dump(raw, allow_unicode=True))
+    return work / "pilot.yaml", work / "span.yaml"
+
+
+def make_snapshot(settings, url: str, text: str, source_type: str = "paper",
+                  permitted: str = "training_allowed") -> str:
+    from mobility_model_zoo.productdev.jtbd.sources.snapshot import create_snapshot
+
+    record = create_snapshot(settings, text.encode("utf-8"), "txt", url, {
+        "source_type": source_type, "license": "CC-BY-4.0", "legal_basis": "fixture",
+        "access_terms_checked": "fixture", "permitted_uses": permitted,
+        "retention_until": "2030-01-01"})
+    return record["snapshot_id"]
+
+
+def snapshot_map(path: Path, snapshot_ids: list[str], language: str = "en") -> Path:
+    import yaml
+
+    path.write_text(yaml.safe_dump({"snapshots": {s: {
+        "plan_id": f"T{n}", "use": "train", "sub_area": "public_transport_rural",
+        "language": language, "region": "DACH", "country": "DE", "date": "2025-01-01"}
+        for n, s in enumerate(snapshot_ids)}}))
+    return path
+
+
+def write_train_chunks(settings, specs: list[tuple[str, str, str]], text: str | None = None
+                       ) -> list[str]:
+    """Training chunks from (snapshot_id, language, source_type) specs (for tests)."""
+    from mobility_model_zoo.productdev.jtbd.corpus.store import save_chunk
+    from mobility_model_zoo.productdev.jtbd.schema import ChunkRecord
+
+    ids = []
+    for n, (snapshot_id, language, source_type) in enumerate(specs, start=1):
+        body = text or f"Chunk {n}. " + PROSE
+        save_chunk(settings, ChunkRecord.model_validate({
+            "chunk_id": f"ch-{n:03d}", "snapshot_id": snapshot_id, "ranges": [(0, len(body))],
+            "text": body, "token_count": len(body) // 4, "split": "train",
+            "sub_area": "public_transport_rural", "source_type": source_type, "region": "DACH",
+            "country": "DE", "language": language, "date": "2025-01-01", "license": "CC-BY-4.0",
+            "relevance_intent": "relevant",
+            "redaction": {"patterns_version": "redact-v2", "manual_review_at": None,
+                          "check_passed": False}}))
+        ids.append(f"ch-{n:03d}")
+    return ids
