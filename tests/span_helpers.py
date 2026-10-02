@@ -62,3 +62,63 @@ def build_tiny_model(directory: Path, dimensions: tuple[str, ...] = ALL, seed: i
     tiny_extractor(dimensions, seed, thresholds or {"unit": 0.0, "relevance": 0.0}) \
         .save_pretrained(directory)
     return directory
+
+
+def span_outputs_from_mock(mock_dir: Path, chunks: dict, dimensions: tuple[str, ...]) -> dict:
+    """jtbd-span-v1 outputs with the spans and labels of a mock model's answers (for tests).
+
+    Chunks whose mock answer is not valid JSON are left out (they become excluded chunks).
+    """
+    import json as _json
+
+    from mobility_model_zoo.productdev.jtbd.quotes import locate
+
+    outputs = {}
+    for chunk_id, chunk in chunks.items():
+        answer = _json.loads((mock_dir / f"{chunk_id}.json").read_text())
+        if "__raw__" in answer:
+            continue
+        items, used = [], []
+        for item in answer["items"]:
+            span = locate(item["quote"], chunk.text, used)
+            if not span:
+                continue
+            used.append(span)
+            items.append({"kind": item["kind"], "quote": chunk.text[span[0]:span[1]],
+                          "start": span[0], "end": span[1], "score": 0.9,
+                          **{d: item[d] for d in dimensions}})
+        outputs[chunk_id] = {"output_format_version": "jtbd-span-v1",
+                             "relevant": answer["relevant"], "relevance_probability": 0.5,
+                             "dimensions": list(dimensions),
+                             "items": sorted(items, key=lambda i: i["start"])}
+    return outputs
+
+
+def write_span_run(settings, run_id: str, outputs: dict, dimensions: tuple[str, ...],
+                   excluded: list[str] = (), sha: str = "a" * 64) -> str:
+    """A complete student run with backend `span` on the main split (for tests)."""
+    from datetime import UTC, datetime
+
+    from mobility_model_zoo.productdev.jtbd.freeze import load_manifest, schema_sha256
+    from mobility_model_zoo.productdev.jtbd.jsonio import write_json
+    from mobility_model_zoo.productdev.jtbd.schema import (
+        ExcludedChunk,
+        LabelRunManifest,
+        RunSettings,
+    )
+
+    frozen = load_manifest(settings)
+    directory = settings.runs_dir / run_id
+    for chunk_id, output in outputs.items():
+        write_json(directory / "parsed" / f"{chunk_id}.json", output)
+    manifest = LabelRunManifest(
+        run_id=run_id, role="student", backend="span", model_id="productdev-jtbd-span-xlmr",
+        model_version=sha[:12], family="xlm-roberta", host="local",
+        settings=RunSettings(temperature=0.0, structured_output="post_validation",
+                             dimensions=list(dimensions), model_sha256=sha),
+        guideline_sha256=frozen["hashes"]["guideline"], schema_sha256=schema_sha256(),
+        criteria_sha256=frozen["hashes"]["criteria"], split="main",
+        started_at=datetime.now(UTC), finished_at=datetime.now(UTC), status="complete",
+        excluded_chunks=[ExcludedChunk(chunk_id=c, reason="fixture") for c in excluded])
+    write_json(directory / "manifest.json", manifest.model_dump(mode="json"))
+    return run_id

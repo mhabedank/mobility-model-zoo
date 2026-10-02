@@ -11,7 +11,7 @@ from mobility_model_zoo.productdev.jtbd.config import Settings
 from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map
 from mobility_model_zoo.productdev.jtbd.jsonio import read_json, write_json, write_jsonl
 from mobility_model_zoo.productdev.jtbd.quotes import locate
-from mobility_model_zoo.productdev.jtbd.runs import load_run_manifest, run_dir
+from mobility_model_zoo.productdev.jtbd.runs import load_run_manifest, produced_dimensions, run_dir
 from mobility_model_zoo.productdev.jtbd.schema import (
     ACTOR_TYPES,
     EVIDENCE_ORDER,
@@ -91,6 +91,44 @@ def check_output(chunk_id: str, candidate: Any, text: str, rules: list[str]) -> 
     return rows
 
 
+def check_span_output(chunk_id: str, candidate: Any, text: str,
+                      dimensions: list[str]) -> list[dict]:
+    """Checks of a jtbd-span-v1 output (feature 004): schema, verbatim spans, consistency."""
+    import jsonschema
+
+    from mobility_model_zoo.productdev.jtbd.span.extractor import SCHEMA_PATH
+
+    rows: list[dict] = []
+    errors = sorted(jsonschema.Draft202012Validator(json.loads(SCHEMA_PATH.read_text()))
+                    .iter_errors(candidate), key=str)
+    rows.append({"chunk_id": chunk_id, "check": "schema_valid", "passed": not errors,
+                 "detail": str(errors[0].message)[:300] if errors else None})
+    if errors or not isinstance(candidate, dict):
+        return rows
+    items = candidate["items"]
+    for n, item in enumerate(items):
+        start, end = item["start"], item["end"]
+        rows.append({"chunk_id": chunk_id, "item_index": n, "check": "quote_verbatim",
+                     "passed": start < end <= len(text) and text[start:end] == item["quote"]})
+        attrs = sorted(k for k in item if k in ENUMS and k != "kind")
+        rows.append({"chunk_id": chunk_id, "item_index": n, "check": "consistency.span_dimensions",
+                     "passed": attrs == sorted(dimensions), "detail": ",".join(attrs) or None})
+    ordered = all(a["end"] <= b["start"] for a, b in zip(items, items[1:], strict=False))
+    rows.append({"chunk_id": chunk_id, "check": "consistency.span_order", "passed": ordered})
+    rows.append({"chunk_id": chunk_id, "check": "consistency.span_dimensions_declared",
+                 "passed": sorted(candidate["dimensions"]) == sorted(dimensions)})
+    rows.append({"chunk_id": chunk_id, "check": "consistency.irrelevant_no_items",
+                 "passed": candidate["relevant"] or not items})
+    return rows
+
+
+def consistency_rate(rates: dict[str, dict[str, Any]]) -> float | None:
+    """Share of passed rows over every `consistency.*` check."""
+    rows = [v for k, v in rates.items() if k.startswith("consistency.")]
+    n = sum(v["n"] for v in rows)
+    return round(sum(v["passed"] for v in rows) / n, 6) if n else None
+
+
 def pass_rates(rows: list[dict]) -> dict[str, dict[str, Any]]:
     grouped: dict[str, list[bool]] = defaultdict(list)
     for row in rows:
@@ -106,6 +144,7 @@ def check_run(settings: Settings, run_id: str) -> dict[str, Any]:
     directory = run_dir(settings, run_id)
     chunks = chunk_map(settings, manifest.split)
     rules = settings.pilot.get("consistency_rules", [])
+    span_dims = produced_dimensions(manifest)
     rows: list[dict] = []
     for chunk_id, chunk in sorted(chunks.items()):
         parsed = directory / "parsed" / f"{chunk_id}.json"
@@ -115,7 +154,10 @@ def check_run(settings: Settings, run_id: str) -> dict[str, Any]:
             attempted, candidate = _last_raw(directory, chunk_id)
             if not attempted:
                 continue  # chunk not labeled (yet)
-        rows.extend(check_output(chunk_id, candidate, chunk.text, rules))
+        if span_dims is not None:
+            rows.extend(check_span_output(chunk_id, candidate, chunk.text, span_dims))
+        else:
+            rows.extend(check_output(chunk_id, candidate, chunk.text, rules))
     for row in rows:
         row["run_id"] = run_id
     out_dir = settings.analysis_dir / "checks"

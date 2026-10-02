@@ -6,6 +6,7 @@ must equal contracts/extraction-output.schema.json (checked in tests/unit/test_s
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime
 from typing import Literal
 
@@ -36,8 +37,11 @@ Language = Literal["de", "en"]
 RelevanceIntent = Literal["relevant", "irrelevant", "near_miss"]
 PermittedUses = Literal["benchmark_only", "training_allowed"]
 Split = Literal["main", "holdout", "train"]
-Role = Literal["reference", "teacher_candidate", "baseline"]
-BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "ensemble", "mock"]
+# teacher: the pilot-recommended teacher labeling a training split; student: a trained model of
+# the task (feature 004). span: outputs written by `jtbd span label`, not by a labeling backend.
+Role = Literal["reference", "teacher_candidate", "baseline", "teacher", "student"]
+BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "ensemble", "mock",
+                      "span"]
 
 
 def evidence_rank(value: str) -> int:
@@ -191,15 +195,26 @@ class LabelRunManifest(BaseModel):
 
     @model_validator(mode="after")
     def _rules(self) -> LabelRunManifest:
-        if self.role == "teacher_candidate" and not self.license_basis:
-            raise ValueError("teacher_candidate runs require license_basis")
+        if self.role in ("teacher_candidate", "teacher") and not self.license_basis:
+            raise ValueError(f"{self.role} runs require license_basis")
+        if self.role == "teacher" and self.split != "train":
+            raise ValueError("teacher runs label the train split only")
+        if (self.backend == "span") != (self.role == "student"):
+            raise ValueError("student runs, and only they, use the span backend")
+        if self.backend == "span":
+            dims = getattr(self.settings, "dimensions", None)
+            sha = getattr(self.settings, "model_sha256", None)
+            if not isinstance(dims, list) or not set(dims) <= set(ATTRIBUTE_DIMENSIONS[1:]):
+                raise ValueError("span runs require settings.dimensions (attribute dimensions)")
+            if not (isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{64}", sha)):
+                raise ValueError("span runs require settings.model_sha256 (64 hex characters)")
         if self.backend == "ollama" and not self.quantization:
             raise ValueError("ollama runs require quantization")
         if self.backend == "ensemble":
             if not self.derived_from:
                 raise ValueError("ensemble runs require derived_from (FR-019b)")
-            if self.role != "teacher_candidate":
-                raise ValueError("ensemble runs must have role teacher_candidate")
+            if self.role not in ("teacher_candidate", "teacher"):
+                raise ValueError("ensemble runs must have role teacher_candidate or teacher")
         return self
 
     @model_serializer(mode="wrap")

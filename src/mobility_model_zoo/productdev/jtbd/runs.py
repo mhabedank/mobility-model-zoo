@@ -16,14 +16,20 @@ from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput, LabelRun
 
 @dataclass
 class LocatedItem:
+    """One item with its character span (None: the quote is not in the text).
+
+    `actor` and `statement` are None only for span-model runs (backend `span`), which produce
+    neither; attributes are None for dimensions such a model does not produce.
+    """
+
     index: int
     kind: str
     quote: str
-    actor: str
-    actor_type: str
-    statement: str
-    evidence_type: str
-    evidence_scope: str
+    actor: str | None
+    actor_type: str | None
+    statement: str | None
+    evidence_type: str | None
+    evidence_scope: str | None
     span: tuple[int, int] | None
 
     @property
@@ -72,6 +78,29 @@ def locate_items(output: ExtractionOutput, text: str) -> list[LocatedItem]:
     return items
 
 
+def span_items(output: dict[str, Any], text: str) -> list[LocatedItem]:
+    """Items of a jtbd-span-v1 output. A span item's quote is `text[start:end]`; an item whose
+    offsets do not reproduce its quote gets no span (it fails the verbatim check)."""
+    items = []
+    for n, item in enumerate(output.get("items", [])):
+        start, end = item.get("start"), item.get("end")
+        ok = (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text)
+              and text[start:end] == item.get("quote"))
+        items.append(LocatedItem(
+            index=n, kind=item.get("kind"), quote=item.get("quote", ""), actor=None,
+            actor_type=item.get("actor_type"), statement=None,
+            evidence_type=item.get("evidence_type"), evidence_scope=item.get("evidence_scope"),
+            span=(start, end) if ok else None))
+    return items
+
+
+def produced_dimensions(manifest: LabelRunManifest) -> list[str] | None:
+    """Attribute dimensions a span run produces; None for every other run (all dimensions)."""
+    if manifest.backend != "span":
+        return None
+    return list(getattr(manifest.settings, "dimensions", []))
+
+
 def load_outputs(settings: Settings, run_id: str) -> dict[str, ChunkOutput]:
     """All chunks of the run's split. Excluded chunks have relevant=None and no items."""
     manifest = load_run_manifest(settings, run_id)
@@ -84,6 +113,11 @@ def load_outputs(settings: Settings, run_id: str) -> dict[str, ChunkOutput]:
         if chunk_id in excluded or not parsed_path.exists():
             if chunk_id in excluded:
                 outputs[chunk_id] = ChunkOutput(chunk_id, None)
+            continue
+        if manifest.backend == "span":
+            raw = read_json(parsed_path)
+            outputs[chunk_id] = ChunkOutput(chunk_id, bool(raw.get("relevant")),
+                                            span_items(raw, chunk.text))
             continue
         output = ExtractionOutput.model_validate(read_json(parsed_path))
         outputs[chunk_id] = ChunkOutput(chunk_id, output.relevant,
