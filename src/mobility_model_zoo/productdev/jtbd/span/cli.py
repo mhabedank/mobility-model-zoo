@@ -106,3 +106,20 @@ def release_check_cmd(ctx: typer.Context, version: str = typer.Option(..., "--ve
     from mobility_model_zoo.productdev.jtbd.span.results import release_check
 
     _run(ctx, lambda s: release_check(s, version, recipe))
+
+
+@app.command("pareto")
+def pareto_cmd(ctx: typer.Context, recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Quality-vs-throughput figure with every candidate and the zero-shot baselines."""
+    from mobility_model_zoo.productdev.jtbd.span.results import pareto
+
+    _run(ctx, lambda s: pareto(s, recipe))
+
+
+@app.command("record")
+def record_cmd(ctx: typer.Context, version: str = typer.Option(..., "--version"),
+               recipe: str = typer.Option(None, "--recipe")) -> None:
+    """Fill the release record (provenance, teachers, recipe, evaluation, performance)."""
+    from mobility_model_zoo.productdev.jtbd.span.results import write_record
+
+    _run(ctx, lambda s: write_record(s, version, recipe))

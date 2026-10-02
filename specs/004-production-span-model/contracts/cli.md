@@ -44,6 +44,8 @@ Runs in a child process with `torch.set_num_threads(vcpus)`. Records `load_time_
 | `span label` | Run the model on a benchmark split; write a `student` run with backend `span` | `--model-dir <dir> --split main --candidate-change "<text>"` | split is not `main` (the holdout stays unused); the candidate cap is reached; model already evaluated (same hash) |
 | `span results` | Write the zoo results files for a version | `--run <student run> --perf <perf file> --version 0.1.0` | score or perf file missing; perf hash ≠ run hash |
 | `span select` | Apply `selection.rule` to every candidate with a score and a perf file; print the ranking; write `selected: true` for the result | `--config span-train-v1.yaml` | a candidate lacks a score or perf file |
+| `span pareto` | Quality-vs-throughput figure and points: every evaluated candidate next to the zero-shot baselines, comparison composite over the model's dimensions | `--recipe` | a candidate lacks a score or perf file |
+| `span record` | Fill the release record from the selected candidate: recipe commit, provenance sources, teachers with license basis, benchmark, reference, hardware, RAM budget | `--version 0.1.0` | no selected candidate; no provenance.json or perf file; a teacher without license basis |
 | `span release-check` | Evaluate the release bar from the results files; print each condition with pass or fail and every `release_bar_changes` entry | `--version 0.1.0` | any condition fails |
 
 `span train` and `span label` record the git commit and refuse to run on a dirty working tree for files under `src/` and `configs/`.

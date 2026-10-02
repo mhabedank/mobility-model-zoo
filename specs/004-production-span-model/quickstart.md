@@ -65,6 +65,7 @@ Expected: `span train` refuses if the release bar was committed after the curren
 ```bash
 uv run jtbd perf --backend span --model-dir <dir> --hardware "ref-vm 8GB 4vCPU"   # for each candidate in candidates.json
 uv run jtbd span select
+uv run jtbd span pareto
 ```
 
 Expected: `latency_9k_chars_s ≤ 10`, `peak_rss_mb ≤ 4096`, model hash equals the quality run's, for every candidate; the Pareto figure and points are written; `jtbd span select` marks one candidate or none. Then delete the VM and record its cost with `jtbd budget --add`.

@@ -229,12 +229,7 @@ def write_results(settings: Settings, run_id: str, perf_path: Path, version: str
                            "85% of the reference value: the pilot's bar for a usable small model",
                            n_items=chunks, **q))
 
-    hardware = perf["hardware"]
-    hw = (f"{hardware.get('label') or 'unlabeled'} ({hardware.get('machine')}, "
-          f"{hardware.get('vcpus')} vCPU"
-          + (f", {round(hardware['mem_total_mb'] / 1024)} GB RAM" if hardware.get("mem_total_mb")
-             else "") + ", CPU only)")
-    p = {"hardware": hw}
+    p = {"hardware": hardware_text(perf)}
     perf_metrics = [
         _metric("latency_9k_chars_s", perf["latency_9k_chars_s"],
                 f"Median time to process a {perf['text_chars']}-character text, model loaded",
@@ -258,6 +253,15 @@ def write_results(settings: Settings, run_id: str, perf_path: Path, version: str
     return {"quality": str(out_dir / "quality.json"),
             "performance": str(out_dir / "performance.json"),
             "metrics": len(metrics) + len(perf_metrics)}
+
+
+def hardware_text(perf: dict[str, Any]) -> str:
+    """One line naming the measurement hardware (results files and release record)."""
+    hardware = perf["hardware"]
+    return (f"{hardware.get('label') or 'unlabeled'} ({hardware.get('machine')}, "
+            f"{hardware.get('vcpus')} vCPU"
+            + (f", {round(hardware['mem_total_mb'] / 1024)} GB RAM"
+               if hardware.get("mem_total_mb") else "") + ", CPU only)")
 
 
 def _metric_value(metrics: list[dict[str, Any]], name: str) -> float | None:
@@ -301,3 +305,113 @@ def release_check(settings: Settings, version: str, recipe_file: str | None = No
         raise ValidationFailed(f"the release bar is missed: {failed}; the model is not published "
                                "(FR-015)")
     return result
+
+
+FIGURE = Path("docs/recipes/figures/productdev-jtbd-span-xlmr-pareto")
+
+
+def pareto(settings: Settings, recipe_file: str | None = None) -> dict[str, Any]:
+    """Quality-vs-throughput front: every evaluated candidate next to the zero-shot baselines,
+    on the same benchmark version and the same dimensions (constitution: gate before reporting)."""
+    from mobility_model_zoo.productdev.jtbd.decision import load_perf
+    from mobility_model_zoo.productdev.jtbd.report.pareto import draw, pareto_front
+
+    recipe = load_recipe(settings, recipe_file)
+    candidates = load_candidates(dataset_settings(settings, recipe))
+    if not candidates:
+        raise ValidationFailed("no evaluated candidates; run `jtbd span label` first")
+    students, names, version = [], None, None
+    for candidate in candidates:
+        score = _score_file(settings, candidate["run_id"])
+        perf = _perf_file(settings, candidate["model_sha256"])
+        if perf is None:
+            raise ValidationFailed(f"candidate {candidate['candidate_id']} has no perf file")
+        names = score["comparison_composite"]["dimensions"]
+        version = score["benchmark_version"]
+        students.append((f"{candidate['candidate_id']} (span)", perf["chunks_per_min"],
+                         score["comparison_composite"]["value"]))
+    baseline_perf, _ = load_perf(settings)
+    table = comparisons(settings, names)
+    baselines = [(b["model_id"], baseline_perf[b["model_id"]]["chunks_per_min"],
+                  b["comparison_composite"]) for b in table["baselines"]
+                 if b["model_id"] in baseline_perf
+                 and baseline_perf[b["model_id"]].get("chunks_per_min")
+                 and b["comparison_composite"] is not None]
+    out = settings.base / FIGURE
+    dims_text = ", ".join(n.replace("_", " ") for n in names)
+    figure = draw(baselines, out.with_suffix(".png"), version=version,
+                  quality_bar=table["reference_share_mark"], throughput_bar=None,
+                  students=students,
+                  title=f"Quality vs throughput, span candidates and baselines ({version})",
+                  ylabel=f"Comparison composite ({dims_text})")
+    points = {"benchmark_version": version, "dimensions": names,
+              "reference_85pct": table["reference_share_mark"],
+              "baselines": [{"model_id": n, "chunks_per_min": x, "comparison_composite": y}
+                            for n, x, y in baselines],
+              "candidates": [{"model_id": n, "chunks_per_min": x, "comparison_composite": y}
+                             for n, x, y in students],
+              "front": [n for n, _, _ in pareto_front(baselines + students)]}
+    write_json(out.with_suffix(".json"), points)
+    return {"figure": str(figure), "points": str(out.with_suffix(".json")),
+            "front": points["front"]}
+
+
+def write_record(settings: Settings, version: str, recipe_file: str | None = None
+                 ) -> dict[str, Any]:
+    """Fill the release record from the measured data (T045); `zoo stage` adds files/staging."""
+    import json
+
+    import yaml
+
+    from mobility_model_zoo.productdev.jtbd.span.extractor import CONFIG_FILE
+
+    recipe = load_recipe(settings, recipe_file)
+    dataset = dataset_settings(settings, recipe)
+    selected = [c for c in load_candidates(dataset) if c.get("selected")]
+    if len(selected) != 1:
+        raise ValidationFailed("no selected candidate; run `jtbd span select`")
+    candidate = selected[0]
+    span_config = json.loads((Path(candidate["model_dir"]) / CONFIG_FILE).read_text())
+    provenance_path = dataset.data_dir / "analysis" / "provenance.json"
+    if not provenance_path.exists():
+        raise ValidationFailed("no provenance.json; run `jtbd span data-check`")
+    provenance = read_json(provenance_path)
+    decision = read_json(settings.analysis_dir / "decision.json")
+    recommended = (decision.get("teacher_fitness") or {}).get("recommended")
+    ensemble = settings.teacher_scoring().teacher_ensemble
+    teacher_ids = sorted(ensemble.members) if recommended == ensemble.model_id else [recommended]
+    teachers = []
+    for model_id in teacher_ids:
+        basis = settings.model(model_id).license_basis
+        if not basis:
+            raise ValidationFailed(f"no license_basis recorded for teacher {model_id}")
+        teachers.append({"model_id": model_id, "license_basis": basis,
+                         "training_on_outputs_permitted": True})
+    perf = _perf_file(settings, candidate["model_sha256"])
+    if perf is None:
+        raise ValidationFailed("the selected candidate has no perf file")
+    score = _score_file(settings, candidate["run_id"])
+    model = recipe["model"]
+    path = settings.base / "zoo" / "models" / model / "releases" / f"{version}.yaml"
+    record = yaml.safe_load(path.read_text(encoding="utf-8"))
+    record["date"] = _today()
+    record["recipe"] = {"git_commit": span_config["recipe_commit"],
+                        "config": span_config.get("recipe", "configs/productdev/jtbd/span-xlmr.yaml"),
+                        "doc": "docs/recipes/productdev-jtbd-span-xlmr.md"}
+    record["provenance"] = {
+        "sources": [{"origin": s["origin"], "license": s["license"],
+                     "permitted_use": s["permitted_use"], "count": s["count"]}
+                    for s in provenance["sources"]],
+        "teachers": teachers, "spike_data": False}
+    record["evaluation"] = {**record.get("evaluation", {}),
+                            "benchmark": score["benchmark_version"],
+                            "reference": reference_label(settings, _agreement(settings)),
+                            "results": f"results/{version}/quality.json"}
+    record["performance"] = {"hardware": hardware_text(perf),
+                             "budget": {"ram_gb": recipe["release_bar"]["max_peak_ram_gb"],
+                                        "gpu": False},
+                             "results": f"results/{version}/performance.json"}
+    path.write_text(yaml.safe_dump(record, sort_keys=False, allow_unicode=True),
+                    encoding="utf-8")
+    return {"record": str(path), "candidate": candidate["candidate_id"],
+            "teachers": teacher_ids, "sources": len(record["provenance"]["sources"])}
