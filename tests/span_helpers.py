@@ -205,3 +205,64 @@ def write_train_chunks(settings, specs: list[tuple[str, str, str]], text: str | 
                           "check_passed": False}}))
         ids.append(f"ch-{n:03d}")
     return ids
+
+
+DIMENSIONS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type",
+              "evidence_scope")
+
+
+def pilot_decision(recommended: str | None = "mock-teacher-y", failed: tuple[str, ...] = ()
+                   ) -> dict:
+    return {"decision": "go",
+            "per_dimension": {d: {"passed": d not in failed} for d in DIMENSIONS},
+            "teacher_fitness": {"recommended": recommended}}
+
+
+def write_recipe(path: Path, dimensions: list[str] | None, **overrides) -> Path:
+    """A copy of configs/productdev/jtbd/span-xlmr.yaml with test overrides."""
+    import yaml
+    from helpers import FIXTURE
+
+    repo = FIXTURE.parents[2]
+    recipe = yaml.safe_load((repo / "configs/productdev/jtbd/span-xlmr.yaml").read_text())
+    recipe["dimensions"] = dimensions
+    for key, value in overrides.items():
+        recipe[key] = {**recipe[key], **value} if isinstance(value, dict) else value
+    path.write_text(yaml.safe_dump(recipe, sort_keys=False))
+    return path
+
+
+def teacher_env(tmp_path: Path, recommended: str = "mock-teacher-y") -> tuple[Path, Path, str]:
+    """(benchmark config, training config, teacher run id): a decided pilot on the mini corpus
+    and a training dataset whose chunks repeat the benchmark texts (so the mock teacher's answers
+    fit), each from its own snapshot, reviewed, frozen and labeled by the recommended teacher."""
+    from helpers import pilot, reference_chain
+
+    from mobility_model_zoo.productdev.jtbd.config import load_settings
+    from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks
+    from mobility_model_zoo.productdev.jtbd.jsonio import write_json
+
+    bench, train = span_train_env(tmp_path)
+    reference_chain(bench)
+    write_json(load_settings(bench).analysis_dir / "decision.json", pilot_decision(recommended))
+    settings = load_settings(train)
+    for chunk in load_chunks(load_settings(bench), "main"):
+        n = int(chunk.chunk_id[3:])
+        write_train_chunks_from(settings, chunk, f"snap-{n:012d}")
+    pilot(train, "corpus", "review-sample", "--seed", "1")
+    pilot(train, "corpus", "mark-reviewed", "--all")
+    pilot(train, "corpus", "redact-check")
+    pilot(train, "freeze")
+    out = pilot(train, "label", "--role", "teacher", "--backend", "mock", "--model", recommended,
+                "--split", "train")
+    return bench, train, out["run_id"]
+
+
+def write_train_chunks_from(settings, chunk, snapshot_id: str) -> None:
+    from mobility_model_zoo.productdev.jtbd.corpus.store import save_chunk
+
+    data = chunk.model_dump(mode="json")
+    data.update(snapshot_id=snapshot_id, split="train",
+                redaction={"patterns_version": "redact-v2", "manual_review_at": None,
+                           "check_passed": False})
+    save_chunk(settings, type(chunk).model_validate(data))
