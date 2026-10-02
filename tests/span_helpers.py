@@ -232,7 +232,8 @@ def write_recipe(path: Path, dimensions: list[str] | None, **overrides) -> Path:
     return path
 
 
-def teacher_env(tmp_path: Path, recommended: str = "mock-teacher-y") -> tuple[Path, Path, str]:
+def teacher_env(tmp_path: Path, recommended: str = "mock-teacher-y",
+                failed: tuple[str, ...] = ()) -> tuple[Path, Path, str]:
     """(benchmark config, training config, teacher run id): a decided pilot on the mini corpus
     and a training dataset whose chunks repeat the benchmark texts (so the mock teacher's answers
     fit), each from its own snapshot, reviewed, frozen and labeled by the recommended teacher."""
@@ -244,7 +245,8 @@ def teacher_env(tmp_path: Path, recommended: str = "mock-teacher-y") -> tuple[Pa
 
     bench, train = span_train_env(tmp_path)
     reference_chain(bench)
-    write_json(load_settings(bench).analysis_dir / "decision.json", pilot_decision(recommended))
+    write_json(load_settings(bench).analysis_dir / "decision.json",
+               pilot_decision(recommended, failed))
     settings = load_settings(train)
     for chunk in load_chunks(load_settings(bench), "main"):
         n = int(chunk.chunk_id[3:])
@@ -266,3 +268,45 @@ def write_train_chunks_from(settings, chunk, snapshot_id: str) -> None:
                 redaction={"patterns_version": "redact-v2", "manual_review_at": None,
                            "check_passed": False})
     save_chunk(settings, type(chunk).model_validate(data))
+
+
+def build_tiny_encoder(directory: Path) -> Path:
+    """A local base encoder (random tiny XLM-RoBERTa plus tokenizer) for training tests."""
+    extractor = tiny_extractor(())
+    extractor.model.encoder.save_pretrained(directory)
+    extractor.tokenizer.save_pretrained(directory)
+    return directory
+
+
+def git_commit_all(directory: Path, message: str = "fixture") -> str:
+    import subprocess
+
+    def git(*args: str) -> str:
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.org",
+                               *args], cwd=directory, check=True, capture_output=True,
+                              text=True).stdout.strip()
+
+    if not (directory / ".git").exists():
+        git("init", "-q")
+    git("add", "-A")
+    git("commit", "-q", "--allow-empty", "-m", message)
+    return git("rev-parse", "HEAD")
+
+
+def trained_env(tmp_path: Path, dims: tuple[str, ...] = ("actor_type",), **recipe_overrides):
+    """A teacher-labeled, frozen training dataset and a committed recipe with a tiny local
+    encoder: (train config, recipe path, work dir)."""
+    from helpers import pilot
+
+    failed = tuple(d for d in ("actor_type", "evidence_type", "evidence_scope") if d not in dims)
+    _, train, run = teacher_env(tmp_path, failed=failed)
+    work = train.parent
+    encoder = build_tiny_encoder(work / "tiny-encoder")
+    recipe = write_recipe(work / "recipe.yaml", list(dims),
+                          base_encoder={"name": str(encoder), "revision": None},
+                          training={"batch_size": 2, "max_epochs": 2},
+                          **recipe_overrides)
+    pilot(train, "span", "build-rows", "--run", run, "--recipe", str(recipe))
+    pilot(train, "span", "freeze-data")
+    git_commit_all(work)
+    return train, recipe, work
