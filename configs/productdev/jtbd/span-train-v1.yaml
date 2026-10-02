@@ -1,0 +1,51 @@
+# Training dataset span-train-v1 for the production span model (feature 004, research R1-R4, R17).
+# Its own data directory keeps the training chunks out of the pilot benchmark's frozen hashes.
+# Snapshots and the ledger are shared with the pilot (crawl once; one ledger, named budgets).
+root: ../../..
+benchmark_version: span-train-v1
+test_fixture: false
+budget_name: span-xlmr-0.1.0
+
+paths:
+  guideline: guideline/guideline-v1.md
+  examples: guideline/examples
+  domain: configs/productdev/jtbd/domain/mobility.yaml
+  models: configs/productdev/jtbd/models.yaml
+  criteria: configs/productdev/jtbd/decision-criteria.yaml
+  teacher_scoring: configs/productdev/jtbd/teacher-scoring.yaml
+  budget: configs/productdev/jtbd/budget-span-xlmr.yaml
+  data: data/span-train-v1
+  snapshots: data/snapshots
+  ledger: data/budget/ledger.jsonl
+  benchmarks: data/span-train-v1/benchmarks
+  reports: reports
+
+span_train:
+  dataset: span-train-v1
+  # Training snapshots must not share a source with this benchmark's main or holdout chunks (R2).
+  # If the pilot's final decision uses a rerun, point this at that version's config (T036).
+  exclude_benchmark: configs/productdev/jtbd/pilot-v1.yaml
+  redaction:
+    version: redact-v2
+    review: sampled
+    sample: {fraction: 0.10, min: 100, always_review_source_types: [forum_review]}
+  # Reported by `jtbd span data-check`, not enforced.
+  composition_targets:
+    min_share_per_language: {de: 0.30, en: 0.30}
+    min_offtopic_share: 0.15
+    min_source_types: 3
+    all_sub_areas: true
+  validation: {fraction_of_snapshots: 0.10, seed: 20261002}
+  min_usable_chunks: 600
+  retention:
+    rule: "while a model trained on it is current"
+    review_by_months_after_freeze: 24
+
+pilot:
+  # Labeling settings, as in pilot-v1.yaml (the teacher labels the training split the same way).
+  min_iou: 0.3
+  max_retries: 2
+  max_output_tokens: 4096
+  assumed_output_tokens: 1500
+  consistency_rules: [irrelevant_no_items, enum_values, quantified_has_quantity]
+  redaction_patterns_version: redact-v2

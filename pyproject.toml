@@ -77,3 +77,6 @@ ignore = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Slow tests build fresh environments; run them with `uv run pytest -m slow`.
+markers = ["slow: builds a fresh virtual environment (minutes, needs network)"]
+addopts = "-m 'not slow'"

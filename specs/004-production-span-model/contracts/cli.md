@@ -1,6 +1,6 @@
 # CLI contract: `jtbd` additions for the span model
 
-Exit codes follow the existing `jtbd` convention: 0 success, 1 check failed or refused, 2 usage or configuration error. Every command takes `--config` (default `configs/productdev/jtbd/pilot-v1.yaml` unless stated).
+Exit codes follow the existing `jtbd` convention: 0 success, 1 check failed or refused, 2 usage or configuration error. `--config` is a global option and goes before the subcommand (`jtbd --config <file> span train …`); default `configs/productdev/jtbd/pilot-v1.yaml` unless stated.
 
 ## Changed commands
 

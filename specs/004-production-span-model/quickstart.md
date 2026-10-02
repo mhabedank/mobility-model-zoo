@@ -18,9 +18,9 @@ Expected: all pass. The end-to-end test uses the tiny random fixture model: `ext
 ## 2. Harness accepts a span run
 
 ```bash
-uv run jtbd span label --model-dir tests/fixtures/span/tiny --split main --config tests/fixtures/span/bench.yaml --candidate-change "fixture"
-uv run jtbd check --run <run_id> --config tests/fixtures/span/bench.yaml
-uv run jtbd score --run <run_id> --config tests/fixtures/span/bench.yaml
+uv run jtbd --config tests/fixtures/span/bench.yaml span label --model-dir tests/fixtures/span/tiny --split main --candidate-change "fixture"
+uv run jtbd --config tests/fixtures/span/bench.yaml check --run <run_id>
+uv run jtbd --config tests/fixtures/span/bench.yaml score --run <run_id>
 ```
 
 Expected: exit 0; the score file lists non-produced dimensions as `not_produced` and contains `comparison_composite` with its dimension set. A fourth `span label` on a fixture with cap 3 exits 1.
@@ -28,11 +28,11 @@ Expected: exit 0; the score file lists non-produced dimensions as `not_produced`
 ## 3. Training corpus guards
 
 ```bash
-uv run jtbd corpus autochunk --config configs/productdev/jtbd/span-train-v1.yaml --map <map.yaml> --exclude-benchmark configs/productdev/jtbd/pilot-v1.yaml
-uv run jtbd corpus redact --config configs/productdev/jtbd/span-train-v1.yaml
-uv run jtbd corpus review-sample --config configs/productdev/jtbd/span-train-v1.yaml --seed 20261002
-uv run jtbd corpus redact-check --config configs/productdev/jtbd/span-train-v1.yaml
-uv run jtbd span data-check --config configs/productdev/jtbd/span-train-v1.yaml
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml corpus autochunk --map <map.yaml> --exclude-benchmark configs/productdev/jtbd/pilot-v1.yaml
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml corpus redact
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml corpus review-sample --seed 20261002
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml corpus redact-check
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml span data-check
 ```
 
 Expected: a map entry that reuses a benchmark snapshot (or its origin URL) is refused with exit 1; after review of the sample, `redact-check` and `data-check` exit 0, and `provenance.json` shows about 1,000 chunks, zero shared or spike sources and the composition against its targets.
@@ -40,11 +40,11 @@ Expected: a map entry that reuses a benchmark snapshot (or its origin URL) is re
 ## 4. Teacher guard and labeling (after the pilot)
 
 ```bash
-uv run jtbd label --role teacher --model <not recommended> --split train --config configs/productdev/jtbd/span-train-v1.yaml   # exit 1
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml label --role teacher --model <not recommended> --split train   # exit 1
 uv run jtbd budget --estimate --model <recommended> --chunks 1000
-uv run jtbd label --role teacher --model <recommended> --split train --config configs/productdev/jtbd/span-train-v1.yaml
-uv run jtbd span build-rows --run <teacher run> --config configs/productdev/jtbd/span-train-v1.yaml
-uv run jtbd span freeze-data --config configs/productdev/jtbd/span-train-v1.yaml
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml label --role teacher --model <recommended> --split train
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml span build-rows --run <teacher run>
+uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml span freeze-data
 ```
 
 Expected: the non-recommended model is refused; `rows.stats.json` reports repaired and dropped items and the validation rows (about 10% of snapshots).
@@ -94,4 +94,4 @@ Expected: verify workflow builds the preview; after the owner's approval the mod
 
 - On a clean CPU machine: install with the card's install line, run the card's usage example on example 1, compare with the card's output (SC-005).
 - Reader test with `specs/003-model-zoo-hf-release/reader-test.md`: at least 6 of 7 correct (SC-004).
-- `jtbd budget` for budget `span-xlmr-0.1.0`: total ≤ €20 (SC-007).
+- `uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml budget`: total ≤ €20 (SC-007).

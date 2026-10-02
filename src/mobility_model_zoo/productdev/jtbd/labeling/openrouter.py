@@ -23,9 +23,10 @@ class OpenRouterBackend:
     def __init__(self, settings: Settings, entry: ModelEntry):
         from openai import OpenAI
 
-        key = os.environ.get("OPENROUTER_API_KEY")
+        key_env = settings.budget().get("api_key_env", "OPENROUTER_API_KEY")
+        key = os.environ.get(key_env)
         if not key:
-            raise UsageError("OPENROUTER_API_KEY is not set (see .env.example)")
+            raise UsageError(f"{key_env} is not set (see .env.example)")
         if not entry.api_model:
             raise UsageError(f"set api_model (OpenRouter slug) for {entry.model_id} (T046)")
         self.entry = entry

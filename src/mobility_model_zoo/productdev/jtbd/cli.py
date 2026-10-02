@@ -225,9 +225,11 @@ def label_cmd(
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.labeling.runner import label
 
-    _run(ctx, lambda s: label(s, role=role, backend=backend, model_id=model, host=host,
-                              split=split, limit=limit, retry_failed=retry_failed,
-                              workers=workers))
+    def action(s: Settings) -> Any:
+        return label(s, role=role, backend=backend, model_id=model, host=host, split=split,
+                     limit=limit, retry_failed=retry_failed, workers=workers)
+
+    _run(ctx, action)
 
 
 @app.command("ensemble")

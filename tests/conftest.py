@@ -18,3 +18,20 @@ def fixture_dir() -> Path:
     return FIXTURE
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+
+@pytest.fixture(scope="session")
+def tiny_span_model(tmp_path_factory):
+    """Factory: a tiny random span model directory per tuple of produced dimensions (cached)."""
+    from span_helpers import build_tiny_model
+
+    cache: dict = {}
+
+    def make(dimensions=("actor_type", "evidence_type", "evidence_scope")) -> Path:
+        key = tuple(dimensions)
+        if key not in cache:
+            name = "tiny-" + ("-".join(key) or "none")
+            cache[key] = build_tiny_model(tmp_path_factory.mktemp(name), key)
+        return cache[key]
+
+    return make
