@@ -1,6 +1,7 @@
 """GPT reference labeler through OpenRouter (research.md R1, R8).
 
-Fixed provider without fallbacks, strict JSON-schema output, temperature 0, no data collection.
+Fixed provider without fallbacks, strict JSON-schema output, temperature 0 (unless the model takes
+no temperature, recorded as a deviation), no data collection.
 """
 
 from __future__ import annotations
@@ -51,6 +52,12 @@ class OpenRouterBackend:
             self.deviations.append(f"{entry.model_id}: provider chosen by OpenRouter per request")
         if entry.extra.get("quantizations"):
             self.provider["quantizations"] = entry.extra["quantizations"]
+        if "temperature" in entry.extra and entry.extra["temperature"] is None:
+            # Reasoning models such as the GPT-5 family take no temperature; with
+            # require_parameters every endpoint would be filtered out.
+            self.temperature = "not_settable"
+            self.deviations.append(f"{entry.model_id}: no temperature parameter (not supported "
+                                   "by the model); provider default sampling")
 
     def _cost_from_prices(self, usage) -> float:
         if not self.price or self.price.get("input") is None:
@@ -74,13 +81,14 @@ class OpenRouterBackend:
             # e.g. {enabled: false}: teacher candidates answer without a thinking phase, like the
             # local teachers (think: false), so reasoning tokens cannot eat the output budget.
             extra_body["reasoning"] = self.entry.extra["reasoning"]
+        sampling = {} if self.temperature == "not_settable" else {"temperature": self.temperature}
         start = time.monotonic()
         try:
             response = self.client.chat.completions.create(
                 model=self.entry.api_model,
                 messages=[{"role": "system", "content": system},
                           {"role": "user", "content": user}],
-                temperature=0,
+                **sampling,
                 max_tokens=self.max_tokens,
                 response_format={
                     "type": "json_schema",
