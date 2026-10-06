@@ -16,6 +16,7 @@ organisations, brands, places and roads without house numbers.
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, datetime
 from typing import Any
 
@@ -96,17 +97,31 @@ def ask(base_url: str, model: str, text: str, timeout: float = 600) -> dict[str,
                          and isinstance(f.get("text"), str) and f["text"].strip()]}
 
 
+def _is_placeholder(needle: str) -> bool:
+    return needle.startswith("[") and needle.endswith("]")
+
+
+def _pattern(needle: str) -> re.Pattern[str]:
+    """Whole-word match: a short name such as "Al" must not hit "Alle"."""
+    return re.compile(rf"(?<!\w){re.escape(needle)}(?!\w)")
+
+
+def present_findings(text: str, findings: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Findings that occur in the text as whole words and are not placeholders already."""
+    return [f for f in findings
+            if len(needle := f["text"].strip()) >= 2 and not _is_placeholder(needle)
+            and _pattern(needle).search(text)]
+
+
 def apply(text: str, findings: list[dict[str, str]]) -> tuple[str, int]:
-    """Replace every exact occurrence of each finding (longest first). Returns (text, count)."""
+    """Replace every whole-word occurrence of each finding (longest first). Returns (text, count)."""
     count = 0
     for finding in sorted(findings, key=lambda f: -len(f["text"])):
         needle = finding["text"].strip()
-        if len(needle) < 2 or needle.startswith("[") and needle.endswith("]"):
+        if len(needle) < 2 or _is_placeholder(needle):
             continue
-        hits = text.count(needle)
-        if hits:
-            text = text.replace(needle, PLACEHOLDERS[finding["category"]])
-            count += hits
+        text, hits = _pattern(needle).subn(PLACEHOLDERS[finding["category"]], text)
+        count += hits
     return text, count
 
 
@@ -131,7 +146,7 @@ def pii_review(settings: Settings, model_id: str, host: str | None = None,
         for _ in range(MAX_PASSES):
             answer = call(text)
             # Strings the model lists but that are not in the text are not personal data in it.
-            present = [f for f in answer["findings"] if f["text"].strip() in text]
+            present = present_findings(text, answer["findings"])
             new_text, count = apply(text, present)
             passes.append({"findings": answer["findings"], "present": len(present),
                            "replaced": count})

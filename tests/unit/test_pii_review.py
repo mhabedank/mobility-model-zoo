@@ -5,7 +5,7 @@ from helpers import copy_fixture, pilot
 from span_helpers import write_train_chunks
 
 from mobility_model_zoo.productdev.jtbd.config import load_settings
-from mobility_model_zoo.productdev.jtbd.corpus.pii import apply, pii_review
+from mobility_model_zoo.productdev.jtbd.corpus.pii import apply, pii_review, present_findings
 from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks
 from mobility_model_zoo.productdev.jtbd.jsonio import read_json
 
@@ -38,6 +38,18 @@ def test_apply_replaces_longest_first_and_skips_placeholders():
                 {"text": "[PERSON]", "category": "person_name"}]
     text, n = apply("Erika Muster sagt hallo.", findings)
     assert text == "[PERSON] sagt hallo." and n == 1
+
+
+def test_only_whole_words_are_replaced():
+    text, n = apply("Al sagt: Alle Busse fahren, auch in Altona. Al!",
+                    [{"text": "Al", "category": "person_name"}])
+    assert text == "[PERSON] sagt: Alle Busse fahren, auch in Altona. [PERSON]!" and n == 2
+
+
+def test_a_reported_placeholder_or_a_word_fragment_is_not_present():
+    findings = [{"text": "[PERSON]", "category": "person_name"},
+                {"text": "Al", "category": "person_name"}]
+    assert present_findings("[PERSON] sagt: Alle Busse fahren.", findings) == []
 
 
 def test_review_redacts_until_clean_and_keeps_an_audit_trail(tmp_path):
