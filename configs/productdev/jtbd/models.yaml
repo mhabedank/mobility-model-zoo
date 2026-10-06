@@ -124,7 +124,11 @@ models:
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
-    max_output_tokens: 16384
+    # pilot-v2 smoke test (2026-10-06): 10 calls on 5 chunks used all 16,384 output tokens for
+    # reasoning and returned no answer; reasoning can neither be disabled (HTTP 400) nor capped
+    # (reasoning.max_tokens ignored). The full run only completes the frozen ensemble rule, so the
+    # limit is lowered to keep the expected failures cheap. Recorded as a deviation in the report.
+    max_output_tokens: 4096
   - model_id: teacher-or-qwen3.8-flash
     api_model: qwen/qwen3.8-flash
     family: qwen
