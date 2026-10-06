@@ -7,8 +7,8 @@ test_fixture: false
 budget_name: span-xlmr-0.1.0
 
 paths:
-  guideline: guideline/guideline-v1.md
-  examples: guideline/examples
+  guideline: guideline/guideline-v2.md   # as pilot-v2, which evaluated the teacher
+  examples: guideline/examples-v2
   domain: configs/productdev/jtbd/domain/mobility.yaml
   models: configs/productdev/jtbd/models.yaml
   criteria: configs/productdev/jtbd/decision-criteria.yaml
