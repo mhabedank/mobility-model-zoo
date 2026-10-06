@@ -26,6 +26,7 @@ for model in ${PERF_MODELS:-}; do
     emit "$model" "data/analysis/$VERSION/perf/$model.json"
   else
     echo "=== PERF_ERROR $model ==="; tail -c 2000 /tmp/out.json; echo
+    echo "--- ollama log ---"; grep -v -E "GIN|level=DEBUG" /tmp/ollama.log | tail -40
   fi
   ollama rm "$api" > /dev/null 2>&1 || true
 done

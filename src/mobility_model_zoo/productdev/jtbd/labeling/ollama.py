@@ -62,6 +62,9 @@ class OllamaBackend:
         # so a model that loops stops at the same limit as the hosted ones (2026-10-06).
         self.max_tokens = int(entry.extra.get("max_output_tokens")
                               or settings.pilot.get("max_output_tokens", 4096))
+        # Set by `jtbd perf` to the CPUs the process may use: in a container Ollama otherwise
+        # starts one thread per host CPU and is throttled by the CPU quota.
+        self.num_thread: int | None = None
         self.digest = model_digest(self.base_url, entry.api_model)
         details = model_details(self.base_url, entry.api_model)
         self.quantization = details.get("quantization_level") or entry.quantization
@@ -78,6 +81,8 @@ class OllamaBackend:
             "options": {"temperature": 0, "num_ctx": self.num_ctx, "seed": 0,
                         "num_predict": self.max_tokens},
         }
+        if self.num_thread:
+            payload["options"]["num_thread"] = self.num_thread
         if "think" in self.entry.extra:
             payload["think"] = bool(self.entry.extra["think"])
         start = time.monotonic()

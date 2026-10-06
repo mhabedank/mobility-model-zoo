@@ -115,6 +115,12 @@ def hardware_info(label: str | None) -> dict[str, Any]:
                 break
     except OSError:
         info["note"] = "/proc not available; run perf on the Linux reference VM"
+    try:  # a container's memory limit (cgroup v2); MemTotal shows the host
+        limit = Path("/sys/fs/cgroup/memory.max").read_text().strip()
+        if limit != "max":
+            info["mem_limit_mb"] = round(int(limit) / 1024 / 1024)
+    except (OSError, ValueError):
+        pass
     return info
 
 
@@ -142,6 +148,7 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
             f"digest on {host} ({digest[:12]}) differs from quality run {quality.run_id} "
             f"({quality.model_version[:12]}); pull the identical model file")
     backend = OllamaBackend(settings, entry, host)
+    backend.num_thread = available_cpus()
     system, schema = build_system_prompt(settings), wire_schema()
     chunks = load_chunks(settings, "main")
     for chunk in chunks[:warmup]:
@@ -159,6 +166,7 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
         "model_digest": digest,
         "quality_run": quality.run_id,
         "host": host,
+        "num_thread": backend.num_thread,
         "hardware": hardware_info(hardware),
         "warmup_chunks": warmup,
         "n_chunks": len(chunks),
