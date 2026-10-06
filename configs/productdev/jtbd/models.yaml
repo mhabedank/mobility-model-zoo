@@ -53,6 +53,16 @@ models:
     role: baseline
     quantization: Q4_K_M
     think: false                        # as the local teachers; with thinking on, qwen3.5:4b reasoned until the context was full (2026-10-06)
+  - model_id: baseline-gemma4-e2b
+    api_model: gemma4:e2b
+    family: gemma
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+    think: false
+    # Replaces gemma4:e4b on the reference machine (T074 rule): e4b has 7.5B parameters and its
+    # runner failed (HTTP 500) under the 8 GB limit on 2026-10-06.
   - model_id: baseline-ministral-3b
     api_model: ministral-3:3b
     family: mistral
