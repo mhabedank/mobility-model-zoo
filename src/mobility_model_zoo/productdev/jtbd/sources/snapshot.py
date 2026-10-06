@@ -45,6 +45,81 @@ def check_extracted(text: str) -> None:
             "manually and use `jtbd source register`, or use an official API URL")
 
 
+# Post bodies of forum software, by XPath. Quoted earlier posts are removed (their text is
+# already in the thread), and author names stay out of the text.
+FORUM_POSTS = (
+    ("phpbb", "//div[@class='content'][ancestor::div[starts-with(@id, 'post_content') or "
+              "starts-with(@id, 'p')]]"),
+    ("mylittleforum", "//div[@class='thread-posting']//div[@class='body']"),
+    ("phpbb-postbody", "//div[contains(concat(' ', normalize-space(@class), ' '), ' postbody ')]"
+                       "//div[@class='content']"),
+    ("woltlab", "//div[contains(concat(' ', normalize-space(@class), ' '), ' messageText ')]"),
+)
+QUOTE_XPATH = (".//blockquote | .//div[contains(@class, 'quote')] | .//cite"
+               " | .//span[@class='citation']")
+# Never part of a post's text: signatures can carry names and links.
+DROP_XPATH = ".//div[contains(@class, 'signature')]"
+MIN_FORUM_POSTS = 2
+
+
+def _post_text(node) -> str:
+    for br in node.xpath(".//br"):
+        br.tail = "\n" + (br.tail or "")
+    lines = (" ".join(line.split()) for line in node.text_content().splitlines())
+    return "\n".join(line for line in lines if line).strip()
+
+
+def _key(text: str) -> str:
+    return " ".join(text.split())[:200]
+
+
+def forum_posts(html_text: str) -> str | None:
+    """The thread's post texts, one block per post, if the page is a known forum layout.
+
+    A quote is dropped when its text is already in another post of the page (a reply quoting an
+    earlier post); a quote of something not on the page (for example an e-mail) is kept.
+    """
+    import copy
+
+    import lxml.html
+
+    try:
+        tree = lxml.html.fromstring(html_text)
+    except (ValueError, lxml.etree.ParserError):
+        return None
+    for _name, xpath in FORUM_POSTS:
+        posts = tree.xpath(xpath)
+        if len(posts) < MIN_FORUM_POSTS:
+            continue
+        for post in posts:
+            for node in post.xpath(DROP_XPATH):
+                node.drop_tree()
+        own = []
+        for post in posts:
+            bare = copy.deepcopy(post)
+            for quote in bare.xpath(QUOTE_XPATH):
+                quote.drop_tree()
+            own.append(_key(_post_text(bare)))
+        texts = []
+        for n, post in enumerate(posts):
+            others = " ".join(k for m, k in enumerate(own) if m != n)
+            for quote in post.xpath(QUOTE_XPATH):
+                if quote.getparent() is None:
+                    continue
+                body = copy.deepcopy(quote)
+                for cite in body.xpath(".//cite"):
+                    cite.drop_tree()  # "alice wrote:" is not part of the quoted text
+                quoted = _key(_post_text(body))[:80]
+                if not quoted or quoted in others or quote.tag == "cite":
+                    quote.drop_tree()
+            text = _post_text(post)
+            if text:
+                texts.append(text)
+        if len(texts) >= MIN_FORUM_POSTS:
+            return "\n\n".join(texts)
+    return None
+
+
 def extract_text(raw: bytes, ext: str) -> str:
     if ext == "pdf":
         from pypdf import PdfReader
@@ -61,7 +136,11 @@ def extract_text(raw: bytes, ext: str) -> str:
     if ext in {"html", "htm"}:
         import trafilatura
 
-        text = trafilatura.extract(raw.decode("utf-8", errors="replace"), include_comments=True)
+        html_text = raw.decode("utf-8", errors="replace")
+        posts = forum_posts(html_text)
+        if posts:
+            return posts
+        text = trafilatura.extract(html_text, include_comments=True)
         return (text or "").strip()
     return raw.decode("utf-8", errors="replace").strip()
 
