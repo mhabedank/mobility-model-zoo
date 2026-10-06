@@ -42,3 +42,6 @@ pilot:
   assumed_output_tokens: 1500
   consistency_rules: [irrelevant_no_items, enum_values, quantified_has_quantity]
   redaction_patterns_version: redact-v2
+  # Every chunk is reviewed by a local model (`jtbd corpus pii-review`), not by hand
+  # (research R7, amended 2026-10-06).
+  redaction_review: model

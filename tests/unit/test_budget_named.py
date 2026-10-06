@@ -68,19 +68,19 @@ def test_unknown_top_level_and_span_train_keys_fail(work):
         load_settings(work / "bad2.yaml")
 
 
-def test_span_train_v1_config_loads_with_sampled_review():
+def test_span_train_v1_config_loads_with_model_review():
     settings = load_settings(REPO / "configs/productdev/jtbd/span-train-v1.yaml")
     assert settings.budget_name == "span-xlmr-0.1.0"
-    assert settings.redaction_review == "sampled"
+    assert settings.redaction_review == "model"  # amended 2026-10-06
     assert settings.span_train["min_usable_chunks"] == 600
     assert settings.span_train["validation"]["seed"] == 20261002
     assert settings.budget()["api_key_env"] == "OPENROUTER_API_KEY_SPAN"
     assert settings.data_dir.name == "span-train-v1"
 
 
-def test_pilot_configs_keep_full_review():
-    for name in ("pilot-v1.yaml", "spike-v1.yaml"):
+def test_pilot_uses_model_review_and_the_spike_keeps_full_review():
+    for name, review in (("pilot-v1.yaml", "model"), ("spike-v1.yaml", "full")):
         settings = load_settings(REPO / "configs/productdev/jtbd" / name)
         assert settings.span_train is None
-        assert settings.redaction_review == "full"
+        assert settings.redaction_review == review
         assert settings.budget_name == "pilot-v1"

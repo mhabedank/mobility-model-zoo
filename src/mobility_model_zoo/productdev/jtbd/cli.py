@@ -174,6 +174,19 @@ def corpus_mark_reviewed(
     _run(ctx, lambda s: mark_reviewed(s, chunk_ids or [], all_chunks))
 
 
+@corpus_app.command("pii-review")
+def corpus_pii_review(
+    ctx: typer.Context,
+    model: str = typer.Option("teacher-qwen3.8", "--model", help="Local Ollama model_id"),
+    host: str = typer.Option(None, "--host", help="Override host (default: the model's)"),
+    all_chunks: bool = typer.Option(False, "--all", help="Review reviewed chunks again"),
+) -> None:
+    """Model-assisted removal of personal data (configs with redaction review `model`)."""
+    from mobility_model_zoo.productdev.jtbd.corpus.pii import pii_review
+
+    _run(ctx, lambda s: pii_review(s, model, host, only_unreviewed=not all_chunks))
+
+
 @corpus_app.command("review-sample")
 def corpus_review_sample(ctx: typer.Context, seed: int = typer.Option(..., "--seed")) -> None:
     """Draw the manual-review sample once (training datasets with sampled review)."""

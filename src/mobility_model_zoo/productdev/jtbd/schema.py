@@ -102,6 +102,9 @@ class Redaction(BaseModel):
 
     patterns_version: str
     manual_review_at: datetime | None = None
+    # Model-assisted review (`jtbd corpus pii-review`), replacing manual review (2026-10-06).
+    model_review_at: datetime | None = None
+    model_review_model: str | None = None
     check_passed: bool = False
 
 

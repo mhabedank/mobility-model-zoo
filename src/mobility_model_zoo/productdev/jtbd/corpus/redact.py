@@ -162,7 +162,8 @@ def mark_reviewed(settings: Settings, chunk_ids: list[str], all_chunks: bool) ->
 def redact_check(settings: Settings) -> dict[str, Any]:
     failures = []
     chunks = load_chunks(settings)
-    sampled = settings.redaction_review == "sampled"
+    mode = settings.redaction_review
+    sampled = mode == "sampled"
     to_review: set[str] | None = None
     if sampled:
         if not sample_path(settings).exists():
@@ -170,10 +171,15 @@ def redact_check(settings: Settings) -> dict[str, Any]:
                                    "review-sample --seed <n>`")
         to_review = set(read_json(sample_path(settings))["chunk_ids"])
     for chunk in chunks:
-        problems = identifier_scan(chunk.text) if sampled else residual_patterns(chunk.text)
-        needs_review = to_review is None or chunk.chunk_id in to_review
-        if needs_review and chunk.redaction.manual_review_at is None:
-            problems.append("no_manual_review")
+        problems = (residual_patterns(chunk.text) if mode == "full"
+                    else identifier_scan(chunk.text))
+        if mode == "model":
+            if chunk.redaction.model_review_at is None:
+                problems.append("no_model_review")
+        else:
+            needs_review = to_review is None or chunk.chunk_id in to_review
+            if needs_review and chunk.redaction.manual_review_at is None:
+                problems.append("no_manual_review")
         chunk.redaction.check_passed = not problems
         save_chunk(settings, chunk)
         if problems:

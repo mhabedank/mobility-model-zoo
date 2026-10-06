@@ -120,8 +120,12 @@ class Settings:
 
     @property
     def redaction_review(self) -> str:
-        """`full` (every chunk reviewed by hand) or `sampled` (training datasets, research R4)."""
-        return (self.span_train or {}).get("redaction", {}).get("review", "full")
+        """How chunks are reviewed after pattern redaction: `full` (every chunk by hand),
+        `sampled` (a sample by hand, training datasets, research R4) or `model` (every chunk by a
+        local model, `jtbd corpus pii-review`; decision of 2026-10-06)."""
+        if self.span_train is not None:
+            return self.span_train.get("redaction", {}).get("review", "full")
+        return self.pilot.get("redaction_review", "full")
 
     def domain(self) -> dict[str, Any]:
         return self.load_yaml("domain")
@@ -181,6 +185,6 @@ def _span_train(path: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None
     if unknown:
         raise UsageError(f"config {path} has unknown span_train keys: {sorted(unknown)}")
     merged = {**SPAN_TRAIN_DEFAULTS, **raw}
-    if merged["redaction"].get("review") not in ("full", "sampled"):
-        raise UsageError("span_train.redaction.review must be `full` or `sampled`")
+    if merged["redaction"].get("review") not in ("full", "sampled", "model"):
+        raise UsageError("span_train.redaction.review must be `full`, `sampled` or `model`")
     return merged

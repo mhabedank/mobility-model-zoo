@@ -22,7 +22,8 @@ Phase 0 of [plan.md](plan.md). Each entry: decision, rationale, alternatives con
 
 ## R4 Redaction for the training corpus
 
-- **Decision** (recorded in spec FR-005): Every training chunk goes through pattern redaction (`redact-v2`) and an automated identifier scan (e-mail, `@`-handles, phone numbers, URLs with user paths). Manual review covers a stratified 10% sample (at least 100 chunks) plus every chunk from forum and review sources, where usernames occur. The config declares `redaction.review: sampled`; `redact-check` accepts sampled review only for configs that declare it, and the pilot keeps full review.
+- **Amended 2026-10-06**: manual review is replaced by the model-assisted review of 001 research R7 (`jtbd corpus pii-review`, config `redaction.review: model`); the sampled policy below stays available but is not used.
+- **Original decision** (recorded in spec FR-005): Every training chunk goes through pattern redaction (`redact-v2`) and an automated identifier scan (e-mail, `@`-handles, phone numbers, URLs with user paths). Manual review covers a stratified 10% sample (at least 100 chunks) plus every chunk from forum and review sources, where usernames occur. The config declares `redaction.review: sampled`; `redact-check` accepts sampled review only for configs that declare it, and the pilot keeps full review.
 - **Rationale**: The constitution requires identifiers to be removed before labeling; it does not prescribe full manual review. Reviewing 1,000 long chunks by hand would take days, while most sources (papers, parliamentary records, reports) carry no usernames. The spike used pattern redaction plus a spot check without findings.
 - **Alternatives**: Full manual review (rejected: cost without matching benefit); no manual review (rejected: forum text is the high-risk part).
 

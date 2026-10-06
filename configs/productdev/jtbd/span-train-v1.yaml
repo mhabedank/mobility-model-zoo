@@ -27,8 +27,7 @@ span_train:
   exclude_benchmark: configs/productdev/jtbd/pilot-v1.yaml
   redaction:
     version: redact-v2
-    review: sampled
-    sample: {fraction: 0.10, min: 100, always_review_source_types: [forum_review]}
+    review: model   # `jtbd corpus pii-review` on every chunk (amended 2026-10-06, FR-005)
   # Reported by `jtbd span data-check`, not enforced.
   composition_targets:
     min_share_per_language: {de: 0.30, en: 0.30}
