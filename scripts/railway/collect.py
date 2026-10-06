@@ -20,10 +20,14 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--service", default="jtbd-perf")
     parser.add_argument("--lines", default="5000")
+    parser.add_argument("--deployment-id", default=None,
+                        help="read this deployment (default: Railway's latest successful one, "
+                             "which is the previous one while a new deployment builds)")
     args = parser.parse_args()
-    log = subprocess.run(["railway", "logs", "--service", args.service, "--deployment",
-                          "--lines", args.lines], capture_output=True, text=True,
-                         cwd="/tmp", check=True).stdout
+    cmd = ["railway", "logs", "--service", args.service, "--deployment", "--lines", args.lines]
+    if args.deployment_id:
+        cmd.insert(2, args.deployment_id)
+    log = subprocess.run(cmd, capture_output=True, text=True, cwd="/tmp", check=True).stdout
     version = (ROOT / "benchmarks/current").read_text().strip()
     out = ROOT / "data/analysis" / version / "perf"
     out.mkdir(parents=True, exist_ok=True)
