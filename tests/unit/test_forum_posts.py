@@ -83,3 +83,13 @@ def test_namespaced_parliament_xml_paragraphs_are_extracted():
       <debate><debateBody><speech by="#x"><from>Chair</from><p>We are in public session.</p>
       <p>The taxi licence costs too much.</p></speech></debateBody></debate></akomaNtoso>"""
     assert extract_text(xml, "xml") == "We are in public session.\n\nThe taxi licence costs too much."
+
+
+def test_base64_html_inside_json_is_extracted():
+    import base64
+    import json
+
+    html = ("<html><body><p>Q1 Chair: Welcome.</p><p>Paul: As a taxi driver I wait two hours "
+            "at the airport rank every night before I get a fare. " * 20 + "</p></body></html>")
+    doc = {"data": base64.b64encode(html.encode()).decode(), "fileName": "x.html"}
+    assert "taxi driver I wait two hours" in extract_text(json.dumps(doc).encode(), "json")

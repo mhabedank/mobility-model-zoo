@@ -179,7 +179,7 @@ def extract_text(raw: bytes, ext: str) -> str:
         text = trafilatura.extract(html_text, include_comments=True)
         return (text or "").strip()
     if ext == "json":
-        for extract in (regulations_comment, lemmy_comments):
+        for extract in (regulations_comment, lemmy_comments, embedded_document):
             text = extract(raw)
             if text is not None:
                 return text
@@ -358,3 +358,19 @@ def lemmy_comments(raw: bytes) -> str | None:
                  if not line.lstrip().startswith(">")]
         parts.append("\n".join(" ".join(line.split()) for line in lines if line.strip()))
     return "\n\n".join(part.strip() for part in parts if part.strip())
+
+
+def embedded_document(raw: bytes) -> str | None:
+    """A document delivered base64-encoded inside JSON (UK Parliament Committees API:
+    `{"data": "<base64 HTML>", "fileDataFormat": ...}`), extracted like the file itself."""
+    import base64
+    import json
+
+    try:
+        doc = json.loads(raw)
+        payload = base64.b64decode(doc["data"], validate=True)
+    except (ValueError, KeyError, TypeError):
+        return None
+    name = str(doc.get("fileName") or "")
+    kind = "pdf" if payload[:4] == b"%PDF" or name.lower().endswith(".pdf") else "html"
+    return extract_text(payload, kind)
