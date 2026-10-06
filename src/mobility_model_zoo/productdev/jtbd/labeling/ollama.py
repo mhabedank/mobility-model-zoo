@@ -58,6 +58,10 @@ class OllamaBackend:
         self.host_name = host or entry.host
         self.base_url = resolve_host(self.host_name)
         self.num_ctx = int(entry.extra.get("num_ctx", 16384))
+        # The output limit the manifest records (settings.max_output_tokens) is enforced here too,
+        # so a model that loops stops at the same limit as the hosted ones (2026-10-06).
+        self.max_tokens = int(entry.extra.get("max_output_tokens")
+                              or settings.pilot.get("max_output_tokens", 4096))
         self.digest = model_digest(self.base_url, entry.api_model)
         details = model_details(self.base_url, entry.api_model)
         self.quantization = details.get("quantization_level") or entry.quantization
@@ -71,7 +75,8 @@ class OllamaBackend:
                          {"role": "user", "content": user}],
             "format": schema,
             "stream": False,
-            "options": {"temperature": 0, "num_ctx": self.num_ctx, "seed": 0},
+            "options": {"temperature": 0, "num_ctx": self.num_ctx, "seed": 0,
+                        "num_predict": self.max_tokens},
         }
         if "think" in self.entry.extra:
             payload["think"] = bool(self.entry.extra["think"])
