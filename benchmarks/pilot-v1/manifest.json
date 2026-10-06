@@ -1,7 +1,7 @@
 {
   "version": "pilot-v1",
-  "state": "criteria_frozen",
-  "pilot_state": "criteria_frozen",
+  "state": "frozen",
+  "pilot_state": "revise",
   "test_only": false,
   "frozen_at": "2026-10-06T10:17:37.627253+00:00",
   "hashes": {
@@ -198,7 +198,15 @@
     "ch-172": "483a5650e9e18b6614d76379b33abed5f6e77daa34a9e15702dbaf41d588cb38"
   },
   "train_chunks": {},
-  "benchmark": null,
+  "benchmark": {
+    "reference_runs": [
+      "run-reference-claude-reference-main-3223351c",
+      "run-reference-gpt-mini-reference-main-3223351c"
+    ],
+    "consensus_sha256": "c899aebd82d49cbe448e5b7aa7663584245bbc48d81467888cf273f1d4595745",
+    "contested_sha256": "09ba2d95f01f77166cebf7a2ba8ec708e05f2ff5782a33141def5c926a60fa3e",
+    "frozen_at": "2026-10-06T10:45:16.343157+00:00"
+  },
   "supersedes": null,
   "rationale": null,
   "reruns": 0,
@@ -206,6 +214,14 @@
     {
       "ts": "2026-10-06T10:17:37.627260+00:00",
       "event": "criteria_frozen"
+    },
+    {
+      "ts": "2026-10-06T10:45:16.343164+00:00",
+      "event": "benchmark_frozen"
+    },
+    {
+      "ts": "2026-10-06T10:46:18.521698+00:00",
+      "event": "decision: revise"
     }
   ]
 }
