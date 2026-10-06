@@ -74,7 +74,7 @@ def test_span_train_v1_config_loads_with_model_review():
     assert settings.redaction_review == "model"  # amended 2026-10-06
     assert settings.span_train["min_usable_chunks"] == 600
     assert settings.span_train["validation"]["seed"] == 20261002
-    assert settings.budget()["api_key_env"] == "OPENROUTER_API_KEY_SPAN"
+    assert settings.budget()["api_key_env"] == "OPENROUTER_API_KEY"  # shared key (2026-10-06)
     assert settings.data_dir.name == "span-train-v1"
 
 
