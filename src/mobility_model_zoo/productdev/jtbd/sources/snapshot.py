@@ -160,9 +160,14 @@ def extract_text(raw: bytes, ext: str) -> str:
     if ext == "xml":
         from xml.etree import ElementTree
 
+        def local(tag: object) -> str:
+            return tag.rsplit("}", 1)[-1] if isinstance(tag, str) else ""
+
         root = ElementTree.fromstring(raw)
-        body = root.find(".//body")
-        parts = [" ".join(p.itertext()).strip() for p in (body if body is not None else root).iter("p")]
+        # JATS (<body>) and Akoma Ntoso parliamentary records (<debateBody>), with or without
+        # XML namespaces; paragraphs are <p>.
+        body = next((e for e in root.iter() if local(e.tag) in ("body", "debateBody")), root)
+        parts = [" ".join(p.itertext()).strip() for p in body.iter() if local(p.tag) == "p"]
         return "\n\n".join(p for p in parts if p).strip()
     if ext in {"html", "htm"}:
         import trafilatura

@@ -76,3 +76,10 @@ def test_lemmy_comment_list_without_names_quotes_or_deleted():
          "creator": {"name": "carol"}, "post": post}]}
     text = extract_text(json.dumps(doc).encode(), "json")
     assert text == "Car payments\n\nThe bus is fine.\n\nI sold my car."
+
+
+def test_namespaced_parliament_xml_paragraphs_are_extracted():
+    xml = b"""<akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0">
+      <debate><debateBody><speech by="#x"><from>Chair</from><p>We are in public session.</p>
+      <p>The taxi licence costs too much.</p></speech></debateBody></debate></akomaNtoso>"""
+    assert extract_text(xml, "xml") == "We are in public session.\n\nThe taxi licence costs too much."
