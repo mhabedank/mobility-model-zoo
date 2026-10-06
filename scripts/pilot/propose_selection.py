@@ -44,7 +44,7 @@ MODEL = "qwen3.8:27b"
 SEED = 20261006
 MAX_CANDIDATES = 16       # per snapshot (large transcripts: keyword windows plus a few random)
 MAX_PER_SNAPSHOT = 4
-MAX_PER_FORUM_SNAPSHOT = 2
+MAX_PER_FORUM_SNAPSHOT = 4
 
 SCHEMA = {
     "type": "object",
@@ -187,6 +187,70 @@ def entry_date(e: dict, meta: dict) -> str:
     return str(meta["retrieved_at"])[:10]
 
 
+def penalty(chosen: list[dict], total: int) -> float:
+    """Distance of a selection from the composition targets, with inner margins so that a
+    stratified main/holdout split stays inside the ranges. Lower is better; quality breaks ties."""
+    n = len(chosen)
+    rel = [c for c in chosen if c["relevance"] == "relevant"]
+    types = Counter(c["source_type"] for c in chosen)
+    areas = Counter(c["sub_area"] for c in rel)
+
+    def outside(value: float, low: float, high: float) -> float:
+        return max(0.0, low - value) + max(0.0, value - high)
+
+    p = abs(total - n) * 0.05
+    for area in SUB_AREAS:
+        p += outside(areas[area] / max(1, len(rel)), 0.17, 0.23) * 4
+    for stype in ("paper", "transcript"):
+        p += outside(types[stype] / n, 0.20, 0.30) * 3
+    p += outside(types["forum_review"] / n, 0.20, 0.60) * 3
+    p += outside((n - len(rel)) / n, 0.17, 0.23) * 4
+    p += outside(sum(c["region"] == "non_EU" for c in chosen) / n, 0.11, 0.14) * 4
+    for lang in ("de", "en"):
+        p += outside(sum(c["language"] == lang for c in chosen) / n, 0.38, 1.0) * 3
+    regions = Counter(c["region"] for c in chosen)
+    if regions["DACH"] <= max(regions["EU_other"], regions["non_EU"]):
+        p += 1
+    p -= sum(c["affected_voice"] * 0.5 + c["quality"] * 0.1 for c in chosen) / n * 0.01
+    return p
+
+
+def rebalance(chosen: list[dict], pool: list[dict], total: int, rng: random.Random,
+              rounds: int = 20000) -> list[dict]:
+    """Improve the greedy selection by single swaps (and additions up to `total`) that lower the
+    penalty, respecting the per-snapshot limits."""
+    chosen, pool = list(chosen), list(pool)
+    per_snap = Counter(c["snapshot_id"] for c in chosen)
+
+    def fits(c: dict, out: dict | None = None) -> bool:
+        limit = MAX_PER_FORUM_SNAPSHOT if c["source_type"] == "forum_review" else MAX_PER_SNAPSHOT
+        used = per_snap[c["snapshot_id"]] - (out is not None and out["snapshot_id"] ==
+                                              c["snapshot_id"])
+        return used < limit
+
+    best = penalty(chosen, total)
+    for _ in range(rounds):
+        new = rng.choice(pool)
+        if len(chosen) < total and rng.random() < 0.3:
+            if not fits(new):
+                continue
+            trial, out = chosen + [new], None
+        else:
+            out = rng.choice(chosen)
+            if not fits(new, out):
+                continue
+            trial = [c for c in chosen if c is not out] + [new]
+        score = penalty(trial, total)
+        if score < best:
+            best, chosen = score, trial
+            pool.remove(new)
+            per_snap[new["snapshot_id"]] += 1
+            if out is not None:
+                pool.append(out)
+                per_snap[out["snapshot_id"]] -= 1
+    return chosen
+
+
 def stage_select(total: int) -> None:
     entries = {e["snapshot_id"]: e for e in plan_entries()}
     cands = [json.loads(line) for line in (OUT / "candidates.jsonl").read_text().splitlines()]
@@ -218,11 +282,11 @@ def stage_select(total: int) -> None:
         d = 0.0
         for k, v in target["source_type"].items():
             d += max(0.0, v - counts[("type", k)]) * 2
-        d += max(0.0, target["off"] - counts["off"]) * 3
+        d += max(0.0, target["off"] - counts["off"]) * 6
         d += max(0.0, target["non_EU"] - counts["non_EU"]) * 3
         d += max(0.0, target["en"] - counts["en"]) * 2
         for area in SUB_AREAS:
-            d += max(0.0, target["sub_area"] - counts[("area", area)]) * 2
+            d += max(0.0, target["sub_area"] - counts[("area", area)]) * 4
         return d
 
     def add(counts: Counter, c: dict) -> Counter:
@@ -237,7 +301,7 @@ def stage_select(total: int) -> None:
 
     def overshoot(counts: Counter, c: dict) -> bool:
         n = sum(counts[("type", k)] for k in target["source_type"]) + 1
-        caps = {"paper": 0.32, "transcript": 0.32, "forum_review": 0.62}
+        caps = {"paper": 0.31, "transcript": 0.31, "forum_review": 0.62}
         if counts[("type", c["source_type"])] + 1 > caps[c["source_type"]] * total:
             return True
         if c["relevance"] != "relevant" and counts["off"] + 1 > 0.24 * total:
@@ -270,6 +334,7 @@ def stage_select(total: int) -> None:
         counts = add(counts, best)
         per_snap[best["snapshot_id"]] += 1
 
+    chosen = rebalance(chosen, cands, total, rng)
     chosen.sort(key=lambda c: (c["source_type"], c["snapshot_id"], c["start"]))
     chunks = []
     for n, c in enumerate(chosen, 1):

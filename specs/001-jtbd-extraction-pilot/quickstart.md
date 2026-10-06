@@ -103,7 +103,7 @@ uv run pilot budget
 ## 6. Performance measurement on the reference VM
 
 ```bash
-uv run pilot perf --model baseline-qwen3.5-4b --host vm --warmup 3 --hardware hetzner-cx32
+uv run pilot perf --model baseline-qwen3.5-4b --host vm --warmup 3 --hardware "railway, 8 GB RAM limit, 4 vCPU limit, no GPU"
 uv run pilot perf --frontier --run <gpt-run> --sample 20
 ```
 

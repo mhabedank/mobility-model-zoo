@@ -47,3 +47,14 @@ def test_process_rss_reads_proc():
     import os
 
     assert process_rss_mb(os.getpid()) > 0
+
+
+def test_available_cpus_reads_the_container_quota(tmp_path):
+    from mobility_model_zoo.productdev.jtbd.perf import available_cpus
+
+    quota = tmp_path / "cpu.max"
+    quota.write_text("400000 100000\n")
+    assert 1 <= available_cpus(quota) <= 4  # the CPU affinity may be lower still
+    quota.write_text("max 100000\n")
+    assert available_cpus(quota) >= 1
+    assert available_cpus(tmp_path / "missing") >= 1

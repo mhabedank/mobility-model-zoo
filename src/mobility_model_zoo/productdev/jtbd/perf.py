@@ -85,9 +85,25 @@ class PeakSampler:
         self._thread.join()
 
 
+def available_cpus(cgroup: Path = Path("/sys/fs/cgroup/cpu.max")) -> int:
+    """CPUs this process may use: the container's CPU quota (cgroup v2) if one is set, else the
+    CPU affinity, else os.cpu_count(). Containers such as Railway services report the host's CPUs
+    in os.cpu_count()."""
+    counts = []
+    try:
+        quota, period = cgroup.read_text().split()[:2]
+        if quota != "max":
+            counts.append(max(1, math.ceil(int(quota) / int(period))))
+    except (OSError, ValueError):
+        pass
+    if hasattr(os, "sched_getaffinity"):
+        counts.append(len(os.sched_getaffinity(0)))
+    return min(counts) if counts else os.cpu_count() or 1
+
+
 def hardware_info(label: str | None) -> dict[str, Any]:
     info: dict[str, Any] = {"label": label, "machine": platform.machine(),
-                            "vcpus": os.cpu_count()}
+                            "vcpus": available_cpus(), "host_cpus": os.cpu_count()}
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
             if line.startswith("model name"):
@@ -243,7 +259,7 @@ def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
         raise ValidationFailed(f"perf text not found: {text_path}")
     text = text_path.read_text(encoding="utf-8")
     chunks = [c.text for c in load_chunks(settings, "main")]
-    threads = os.cpu_count() or 1
+    threads = available_cpus()
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump({"model_dir": str(model_dir), "text": text, "chunks": chunks,
                    "threads": threads, "repeats": repeats}, f)

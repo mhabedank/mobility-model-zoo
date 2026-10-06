@@ -135,6 +135,7 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 
 - **Decision**:
   - A rented Linux VM with 8 GB RAM, 4 vCPU and no GPU (Hetzner CX32 class, about €0.01 per hour). The exact type and CPU model are recorded.
+  - *Amended 2026-10-06*: the owner's provider is Railway, not Hetzner. The reference machine is a temporary Railway service (Docker image with Ollama and the repository) with its limits set to 8 GB RAM and 4 vCPU, no GPU, reached with `railway ssh`. Railway vCPUs are shared, so the CPU model from `/proc/cpuinfo` and the limits are recorded with every result, and each measurement is repeated once to show the spread. Cost at Railway's per-minute rates is about USD 0.25 per hour at full use. The service is deleted afterwards ("The VM is deleted" below means this service).
   - Ollama with the **same digests** as the Spark quality runs.
   - 3 warm-up chunks, then a sequential run over the main split.
   - Metrics: chunks/min, output tok/s, p50 and p95 latency, and peak RSS of the runner process (sampled from `/proc`).
