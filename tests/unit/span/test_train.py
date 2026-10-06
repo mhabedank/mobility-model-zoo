@@ -91,10 +91,20 @@ def test_refuses_too_few_rows_unfrozen_data_and_failed_core_dimension(tmp_path):
     train(config, recipe, work / "m", expect=1)
 
 
-@pytest.mark.parametrize("missing", ["relevance"])
+@pytest.mark.parametrize("missing", ["relevance", "kind"])
 def test_core_dimension_names(missing):
     from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
     from mobility_model_zoo.productdev.jtbd.span.gates import passed_attributes
 
     with pytest.raises(ValidationFailed, match=missing):
         passed_attributes({"per_dimension": {missing: {"passed": False}}})
+
+
+def test_failed_item_matching_does_not_stop_the_feature():
+    from mobility_model_zoo.productdev.jtbd.span.gates import passed_attributes
+
+    passed = {"passed": True}
+    decision = {"per_dimension": {"relevance": passed, "kind": passed, "actor_type": passed,
+                                  "evidence_type": {"passed": False},
+                                  "item_matching": {"passed": False}}}
+    assert passed_attributes(decision) == ["actor_type"]

@@ -14,7 +14,9 @@ from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
 from mobility_model_zoo.productdev.jtbd.freeze import load_manifest
 from mobility_model_zoo.productdev.jtbd.jsonio import read_json
 
-CORE = ("relevance", "item_matching", "kind")
+# The model's core output stops the feature when it fails (spec edge cases). Item matching is
+# always produced but is no stop criterion: a failed item matching is reported as a limitation.
+CORE = ("relevance", "kind")
 ATTRIBUTES = ("actor_type", "evidence_type", "evidence_scope")
 
 
