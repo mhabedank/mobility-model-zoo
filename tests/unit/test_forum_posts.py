@@ -93,3 +93,18 @@ def test_base64_html_inside_json_is_extracted():
             "at the airport rank every night before I get a fare. " * 20 + "</p></body></html>")
     doc = {"data": base64.b64encode(html.encode()).decode(), "fileName": "x.html"}
     assert "taxi driver I wait two hours" in extract_text(json.dumps(doc).encode(), "json")
+
+
+def test_docx_paragraphs_are_extracted():
+    import io
+    import zipfile
+
+    body = ('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:body><w:p><w:r><w:t>Interviewer: How do you get to work?</w:t></w:r></w:p>'
+            '<w:p><w:r><w:t>P: By bus, </w:t></w:r><w:r><w:t>but it is late.</w:t></w:r></w:p>'
+            '</w:body></w:document>')
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("word/document.xml", body)
+    assert extract_text(buffer.getvalue(), "docx") == (
+        "Interviewer: How do you get to work?\n\nP: By bus, but it is late.")

@@ -151,7 +151,22 @@ def _drop_previews(texts: list[str]) -> list[str]:
     return kept
 
 
+def docx_text(raw: bytes) -> str:
+    """Paragraph texts of a .docx file (standard library only)."""
+    import zipfile
+    from xml.etree import ElementTree
+
+    ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        root = ElementTree.fromstring(archive.read("word/document.xml"))
+    paragraphs = ("".join(t.text or "" for t in p.iter(f"{ns}t")).strip()
+                  for p in root.iter(f"{ns}p"))
+    return "\n\n".join(p for p in paragraphs if p).strip()
+
+
 def extract_text(raw: bytes, ext: str) -> str:
+    if ext == "docx":
+        return docx_text(raw)
     if ext == "pdf":
         from pypdf import PdfReader
 
@@ -265,6 +280,8 @@ def _robots_allows(url: str) -> bool:
 
 def _ext_for(content_type: str, url: str) -> str:
     content_type = content_type.lower()
+    if "wordprocessingml" in content_type or ".docx" in url.lower():
+        return "docx"
     if "pdf" in content_type or url.lower().endswith(".pdf"):
         return "pdf"
     if "html" in content_type:
