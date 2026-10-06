@@ -1,0 +1,7 @@
+title: 'Near-miss: car as hobby (irrelevant, empty result)'
+text: 'Finally finished the chrome bumpers on my ''67 Mustang this weekend. Took three winters, but the
+  paint now matches the original factory colour. Next up: the interior.'
+output:
+  relevant: false
+  items: []
+note: A vehicle as a hobby object is a near-miss. Irrelevant chunks always have an empty item list.

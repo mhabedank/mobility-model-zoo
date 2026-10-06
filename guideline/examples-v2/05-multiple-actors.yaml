@@ -1,0 +1,38 @@
+title: Several actors in one text
+text: Couriers told us they double park because there is simply no loading zone on most streets. The city,
+  in turn, says it cannot create more loading zones without removing residents' parking spaces, which
+  council members fear would be unpopular.
+output:
+  relevant: true
+  items:
+  - kind: pain
+    quote: Couriers told us they double park because there is simply no loading zone on most streets.
+    actor: couriers
+    actor_type: worker
+    statement: Couriers have no loading zones and must double park.
+    evidence_type: observation
+    evidence_scope: multiple
+  - kind: job
+    quote: Couriers told us they double park because there is simply no loading zone on most streets.
+    actor: couriers
+    actor_type: worker
+    statement: Couriers need to stop close to delivery addresses.
+    evidence_type: observation
+    evidence_scope: multiple
+  - kind: pain
+    quote: The city, in turn, says it cannot create more loading zones without removing residents' parking
+      spaces
+    actor: city administration
+    actor_type: public_sector
+    statement: The city cannot add loading zones without removing residents' parking.
+    evidence_type: opinion
+    evidence_scope: multiple
+  - kind: pain
+    quote: which council members fear would be unpopular
+    actor: council members
+    actor_type: public_sector
+    statement: Council members fear that removing parking would be unpopular.
+    evidence_type: opinion
+    evidence_scope: multiple
+note: One quote supports both a job and the pain that blocks it, so two items share it. Each actor gets
+  its own items. The couriers' report is relayed by the author, so it is an observation, not an anecdote. The city's statement is a general claim about all loading zones, so its scope is multiple.

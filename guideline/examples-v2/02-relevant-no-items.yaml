@@ -1,0 +1,8 @@
+title: Relevant, but nothing to extract (empty result)
+text: Ab dem 15. Dezember gilt der neue Fahrplan. Die Linie 42 fährt dann über den Bahnhof Nord statt
+  über die Hauptstraße. Die Haltestelle Rathaus entfällt.
+output:
+  relevant: true
+  items: []
+note: The text is about public transport, but it only announces a change. No actor states a job, pain
+  or gain, so the correct result is an empty list.

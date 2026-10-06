@@ -1,0 +1,22 @@
+title: Measurement from a survey
+text: In our 2024 survey of 1,203 households in rural Lower Saxony, 38% said they could not reach a doctor
+  by public transport within one hour. Households without a car were twice as likely to report missed
+  medical appointments.
+output:
+  relevant: true
+  items:
+  - kind: pain
+    quote: 38% said they could not reach a doctor by public transport within one hour
+    actor: rural households
+    actor_type: individual
+    statement: Many rural households cannot reach a doctor by public transport within an hour.
+    evidence_type: measurement
+    evidence_scope: quantified
+  - kind: pain
+    quote: Households without a car were twice as likely to report missed medical appointments.
+    actor: households without a car
+    actor_type: individual
+    statement: Households without a car miss medical appointments more often.
+    evidence_type: measurement
+    evidence_scope: quantified
+note: The numbers come from a defined survey, so the evidence type is measurement.
