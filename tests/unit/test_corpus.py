@@ -6,7 +6,7 @@ import pytest
 from mobility_model_zoo.productdev.jtbd.config import load_settings
 from mobility_model_zoo.productdev.jtbd.corpus.build import build_from_selection
 from mobility_model_zoo.productdev.jtbd.corpus.redact import redact_check, redact_text
-from mobility_model_zoo.productdev.jtbd.corpus.split import stratified_holdout
+from mobility_model_zoo.productdev.jtbd.corpus.split import balance_flag, stratified_holdout
 from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks, save_chunk
 from mobility_model_zoo.productdev.jtbd.corpus.validate import check_targets
 from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
@@ -102,3 +102,11 @@ def test_build_cuts_ranges_from_snapshot(settings, tmp_path):
     chunk = {c.chunk_id: c for c in load_chunks(settings)}["ch-099"]
     assert chunk.source_type == "reddit" and "\n\n" in chunk.text
     assert chunk.redaction.check_passed is False
+
+
+def test_balance_flag_swaps_within_a_stratum_only():
+    keys = {f"c{i}": ("a",) for i in range(6)} | {f"d{i}": ("b",) for i in range(4)}
+    flagged = {"c4", "c5", "d3", "d2"}  # 4 of 10 -> 2 of a holdout of 5
+    picked = balance_flag({"c0", "c1", "c2", "d0", "d1"}, keys, flagged, 5)
+    assert len(picked) == 5 and len(picked & flagged) == 2
+    assert sum(keys[c] == ("a",) for c in picked) == 3  # strata sizes unchanged
