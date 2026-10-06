@@ -12,7 +12,6 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from urllib import robotparser
 from urllib.parse import urlsplit
 
 import httpx
@@ -263,10 +262,53 @@ def create_snapshot(
     return record.model_dump(mode="json")
 
 
+def robots_allows(robots_txt: str, url: str, agent: str = USER_AGENT) -> bool:
+    """RFC 9309 matching: the group for our agent (else `*`), `*` and `$` wildcards, the longest
+    matching rule wins, and Allow wins a tie. (urllib.robotparser knows no wildcards and uses the
+    first match, so it wrongly blocks paths such as Zenodo's `Allow: /api/records/*/files`.)"""
+    import re
+
+    parts = urlsplit(url)
+    path = (parts.path or "/") + (f"?{parts.query}" if parts.query else "")
+    groups: list[tuple[list[str], list[tuple[str, str]]]] = []
+    agents: list[str] = []
+    rules: list[tuple[str, str]] = []
+    for raw_line in robots_txt.splitlines():
+        line = raw_line.split("#", 1)[0].strip()
+        if ":" not in line:
+            continue
+        key, value = (x.strip() for x in line.split(":", 1))
+        key = key.lower()
+        if key == "user-agent":
+            if rules:
+                groups.append((agents, rules))
+                agents, rules = [], []
+            agents.append(value.lower())
+        elif key in ("allow", "disallow") and agents:
+            rules.append((key, value))
+    if agents:
+        groups.append((agents, rules))
+    token = agent.split("/")[0].lower()
+    chosen = [r for a, r in groups if any(x != "*" and x in token for x in a)]
+    if not chosen:
+        chosen = [r for a, r in groups if "*" in a]
+    best: tuple[int, bool] | None = None
+    for key, pattern in (rule for group in chosen for rule in group):
+        if not pattern:
+            continue  # an empty Disallow allows everything
+        regex = "^" + re.escape(pattern).replace(r"\*", ".*")
+        if regex.endswith(r"\$"):
+            regex = regex[:-2] + "$"
+        if re.match(regex, path):
+            candidate = (len(pattern), key == "allow")
+            if best is None or candidate > best:
+                best = candidate
+    return True if best is None else best[1]
+
+
 def _robots_allows(url: str) -> bool:
     parts = urlsplit(url)
     robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
-    parser = robotparser.RobotFileParser()
     try:
         response = httpx.get(robots_url, headers={"User-Agent": USER_AGENT}, timeout=20,
                              follow_redirects=True)
@@ -274,8 +316,7 @@ def _robots_allows(url: str) -> bool:
         return True
     if response.status_code >= 400:
         return True
-    parser.parse(response.text.splitlines())
-    return parser.can_fetch(USER_AGENT, url)
+    return robots_allows(response.text, url)
 
 
 def _ext_for(content_type: str, url: str) -> str:

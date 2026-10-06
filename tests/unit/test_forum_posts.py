@@ -108,3 +108,18 @@ def test_docx_paragraphs_are_extracted():
         archive.writestr("word/document.xml", body)
     assert extract_text(buffer.getvalue(), "docx") == (
         "Interviewer: How do you get to work?\n\nP: By bus, but it is late.")
+
+
+def test_robots_rules_follow_rfc_9309():
+    from mobility_model_zoo.productdev.jtbd.sources.snapshot import robots_allows
+
+    zenodo = ("User-agent: *\nDisallow: /api\nAllow: /api/records/*/files\n"
+              "Disallow: /api/records/*/files-archive\n")
+    assert robots_allows(zenodo, "https://zenodo.org/api/records/1/files/a.docx/content")
+    assert not robots_allows(zenodo, "https://zenodo.org/api/records/1/files-archive")
+    assert not robots_allows(zenodo, "https://zenodo.org/api/search")
+    specific = "User-agent: jtbd-pilot\nDisallow: /\n\nUser-agent: *\nAllow: /\n"
+    assert not robots_allows(specific, "https://x.org/a")
+    assert robots_allows("User-agent: *\nDisallow:\n", "https://x.org/a")
+    assert not robots_allows("User-agent: *\nDisallow: /*.pdf$\n", "https://x.org/a.pdf")
+    assert robots_allows("User-agent: *\nDisallow: /*.pdf$\n", "https://x.org/a.pdf?x=1")
