@@ -10,7 +10,7 @@ models:
     role: reference
     benchmark_labeler: true
   - model_id: gpt-mini-reference
-    api_model: null                     # OpenRouter slug of the current GPT mini tier (T046)
+    api_model: openai/gpt-5.4-mini      # current GPT mini tier on OpenRouter (T046, chosen 2026-10-06)
     family: openai-gpt
     backend: openrouter
     host: openai
