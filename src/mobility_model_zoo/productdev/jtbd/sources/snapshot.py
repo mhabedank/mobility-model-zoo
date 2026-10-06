@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -54,6 +55,10 @@ FORUM_POSTS = (
     ("phpbb-postbody", "//div[contains(concat(' ', normalize-space(@class), ' '), ' postbody ')]"
                        "//div[@class='content']"),
     ("woltlab", "//div[contains(concat(' ', normalize-space(@class), ' '), ' messageText ')]"),
+    ("vbulletin5", "//div[contains(concat(' ', normalize-space(@class), ' '), "
+                   "' js-post__content-text ')]"),
+    # Consultation portals (Baden-Württemberg Beteiligungsportal): comments only, not the bill.
+    ("comment-list", "//*[contains(concat(' ', normalize-space(@class), ' '), ' comment__text ')]"),
 )
 QUOTE_XPATH = (".//blockquote | .//div[contains(@class, 'quote')] | .//cite"
                " | .//span[@class='citation']")
@@ -115,9 +120,35 @@ def forum_posts(html_text: str) -> str | None:
             text = _post_text(post)
             if text:
                 texts.append(text)
+        texts = _drop_previews(texts)
         if len(texts) >= MIN_FORUM_POSTS:
             return "\n\n".join(texts)
     return None
+
+
+_PREVIEW_END = re.compile(r"\s*(?:\[…\]|\[\.\.\.\]|…)?\s*(?:Weiterlesen|Read more|Mehr anzeigen)\s*$")
+
+
+_TOGGLE = re.compile(r"^.*?(?:\[…\]|…)\s*\n(?:Weiterlesen|Read more)\n(.*?)\n?"
+                     r"(?:Einklappen|Show less)?$", re.S)
+
+
+def _drop_previews(texts: list[str]) -> list[str]:
+    """Drop truncated previews ("… Weiterlesen") and texts repeated verbatim (moderation
+    notices). A post holding preview and full text keeps only the full text."""
+    texts = [m.group(1).strip() if (m := _TOGGLE.match(t)) else t for t in texts]
+    counts: dict[str, int] = {}
+    for text in texts:
+        counts[_key(text)] = counts.get(_key(text), 0) + 1
+    texts = [t for t in texts if counts[_key(t)] == 1]
+    kept = []
+    for n, text in enumerate(texts):
+        if _PREVIEW_END.search(text):
+            stem = _key(_PREVIEW_END.sub("", text).rstrip(" .…[]"))[:60]
+            if any(m != n and _key(other).startswith(stem) for m, other in enumerate(texts)):
+                continue
+        kept.append(text)
+    return kept
 
 
 def extract_text(raw: bytes, ext: str) -> str:
@@ -142,7 +173,31 @@ def extract_text(raw: bytes, ext: str) -> str:
             return posts
         text = trafilatura.extract(html_text, include_comments=True)
         return (text or "").strip()
+    if ext == "json":
+        for extract in (regulations_comment, lemmy_comments):
+            text = extract(raw)
+            if text is not None:
+                return text
     return raw.decode("utf-8", errors="replace").strip()
+
+
+def regulations_comment(raw: bytes) -> str | None:
+    """The comment text of a regulations.gov API v4 comment document (no submitter name)."""
+    import html
+    import json
+    import re
+
+    try:
+        doc = json.loads(raw)
+        comment = doc["data"]["attributes"]["comment"]
+    except (ValueError, KeyError, TypeError):
+        return None
+    if not isinstance(comment, str):
+        return None
+    text = re.sub(r"<br\s*/?>|</p>", "\n", comment, flags=re.I)
+    text = html.unescape(re.sub(r"<[^>]+>", " ", text))
+    lines = (" ".join(line.split()) for line in text.splitlines())
+    return "\n".join(line for line in lines if line).strip()
 
 
 def create_snapshot(
@@ -271,3 +326,30 @@ def list_snapshots(settings: Settings, permitted_uses: str | None = None) -> lis
             }
         )
     return out
+
+
+def lemmy_comments(raw: bytes) -> str | None:
+    """Post title, post body and comment texts of a Lemmy API v3 comment list, in thread order.
+
+    Author names, deleted and removed comments are left out; Markdown quotes ("> ...") of other
+    comments are dropped.
+    """
+    import json
+
+    try:
+        doc = json.loads(raw)
+        views = doc["comments"]
+    except (ValueError, KeyError, TypeError):
+        return None
+    if not isinstance(views, list) or not views or "comment" not in views[0]:
+        return None
+    post = views[0].get("post") or {}
+    parts = [post.get("name") or "", post.get("body") or ""]
+    for view in sorted(views, key=lambda v: v["comment"].get("path", "")):
+        comment = view["comment"]
+        if comment.get("deleted") or comment.get("removed"):
+            continue
+        lines = [line for line in (comment.get("content") or "").splitlines()
+                 if not line.lstrip().startswith(">")]
+        parts.append("\n".join(" ".join(line.split()) for line in lines if line.strip()))
+    return "\n\n".join(part.strip() for part in parts if part.strip())

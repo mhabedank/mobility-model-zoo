@@ -28,3 +28,51 @@ def test_posts_are_extracted_without_names_and_duplicate_quotes():
 def test_non_forum_pages_fall_back():
     assert forum_posts("<html><body><p>Ein Artikel.</p></body></html>") is None
     assert extract_text(PAGE.encode(), "html").startswith("Der Bus kommt")
+
+
+def test_regulations_comment_keeps_only_the_comment_text():
+    import json
+
+    from mobility_model_zoo.productdev.jtbd.sources.snapshot import regulations_comment
+
+    doc = {"data": {"attributes": {"title": "Jane Doe - Comments", "firstName": "Jane",
+                                   "comment": "I drive 11 hours a day.<br/>Parking is full by 6 pm."}}}
+    text = regulations_comment(json.dumps(doc).encode())
+    assert text == "I drive 11 hours a day.\nParking is full by 6 pm."
+    assert regulations_comment(b'{"data": []}') is None
+
+
+def test_truncated_previews_are_dropped():
+    page = """<div class="comment__text">Sammeltaxis sind beliebt. In der Praxis […]
+    Weiterlesen</div>
+    <div class="comment__text">Sammeltaxis sind beliebt. In der Praxis sind es Taxifahrten.</div>
+    <div class="comment__text">Ein zweiter Kommentar.</div>"""
+    assert forum_posts(page).split("\n\n") == [
+        "Sammeltaxis sind beliebt. In der Praxis sind es Taxifahrten.", "Ein zweiter Kommentar."]
+
+
+def test_toggle_posts_keep_the_full_text_and_repeated_notices_go():
+    page = """<div class="comment__text">Sammeltaxis sind beliebt. […]<br>Weiterlesen<br>
+    Sammeltaxis sind beliebt. In der Praxis sind es Taxifahrten.<br>Einklappen</div>
+    <div class="comment__text">Bitte beachten Sie die Netiquette.</div>
+    <div class="comment__text">Ein zweiter Kommentar.</div>
+    <div class="comment__text">Bitte beachten Sie die Netiquette.</div>"""
+    assert forum_posts(page).split("\n\n") == [
+        "Sammeltaxis sind beliebt. In der Praxis sind es Taxifahrten.", "Ein zweiter Kommentar."]
+
+
+def test_lemmy_comment_list_without_names_quotes_or_deleted():
+    import json
+
+    from mobility_model_zoo.productdev.jtbd.sources.snapshot import extract_text
+
+    post = {"name": "Car payments", "body": ""}
+    doc = {"comments": [
+        {"comment": {"content": "> quoted\nI sold my car.", "path": "0.2", "deleted": False,
+                     "removed": False}, "creator": {"name": "alice"}, "post": post},
+        {"comment": {"content": "The bus is fine.", "path": "0.1", "deleted": False,
+                     "removed": False}, "creator": {"name": "bob"}, "post": post},
+        {"comment": {"content": "gone", "path": "0.3", "deleted": True, "removed": False},
+         "creator": {"name": "carol"}, "post": post}]}
+    text = extract_text(json.dumps(doc).encode(), "json")
+    assert text == "Car payments\n\nThe bus is fine.\n\nI sold my car."
