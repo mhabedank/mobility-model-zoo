@@ -1,7 +1,7 @@
 {
   "version": "pilot-v2",
-  "state": "criteria_frozen",
-  "pilot_state": "revise",
+  "state": "frozen",
+  "pilot_state": "decided",
   "test_only": false,
   "frozen_at": "2026-10-06T11:53:48.644863+00:00",
   "hashes": {
@@ -198,7 +198,15 @@
     "ch-172": "483a5650e9e18b6614d76379b33abed5f6e77daa34a9e15702dbaf41d588cb38"
   },
   "train_chunks": {},
-  "benchmark": null,
+  "benchmark": {
+    "reference_runs": [
+      "run-reference-claude-reference-main-6b5662fa",
+      "run-reference-gpt-mini-reference-main-6b5662fa"
+    ],
+    "consensus_sha256": "b5e8a6a9214d68c27de4024778ca9d8f6c71c0132b9ce9ad3797d7f8c4aeb192",
+    "contested_sha256": "68f4a31acbe2b30db97dee8a684b7e4e2c7c3bceb271df24514d851b0675a70f",
+    "frozen_at": "2026-10-06T12:27:00.698471+00:00"
+  },
   "supersedes": "pilot-v1",
   "rationale": "Decision revise on pilot-v1 (2026-10-06): relevance, item matching, evidence type and evidence scope below thresholds. guideline-v2 applies revisions R1-R6 from data/analysis/pilot-v1/revisions.md, derived from the model-categorized contested set. Same corpus and split; the decision uses holdout agreement (one rerun allowed).",
   "reruns": 1,
@@ -206,6 +214,22 @@
     {
       "ts": "2026-10-06T11:53:48.644871+00:00",
       "event": "criteria_frozen"
+    },
+    {
+      "ts": "2026-10-06T11:53:56.081649+00:00",
+      "event": "holdout labeling started by run-reference-claude-reference-holdout-6b5662fa"
+    },
+    {
+      "ts": "2026-10-06T11:53:56.350161+00:00",
+      "event": "holdout labeling started by run-reference-gpt-mini-reference-holdout-6b5662fa"
+    },
+    {
+      "ts": "2026-10-06T12:27:00.698479+00:00",
+      "event": "benchmark_frozen"
+    },
+    {
+      "ts": "2026-10-06T12:27:41.562509+00:00",
+      "event": "decision: rethink"
     }
   ]
 }
