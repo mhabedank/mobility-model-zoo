@@ -76,7 +76,7 @@ models:
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
-    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b); dense 27B"
+    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b; HF Qwen/Qwen3.8-27B license tag apache-2.0, checked 2026-10-06); dense 27B"
     think: false
     num_ctx: 16384
   - model_id: teacher-glm4.7
@@ -97,7 +97,7 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash)"
+    license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash); HF deepseek-ai/DeepSeek-V4.1-Flash license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
@@ -119,7 +119,7 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF zai-org/GLM-5.3-Flash)"
+    license_basis: "MIT (HF zai-org/GLM-5.3-Flash); HF zai-org/GLM-5.3-Flash license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
@@ -152,7 +152,7 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL)"
+    license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL); HF XiaomiMiMo/MiMo-V2.6-Pro-RL license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
