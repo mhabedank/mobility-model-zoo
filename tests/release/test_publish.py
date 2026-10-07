@@ -197,3 +197,35 @@ def test_stage_refuses_forbidden_files(zoo_env, tmp_path, bad):
     with pytest.raises(GateFailed):
         ops.stage(zoo_env.reg, zoo_env.model, "0.2.0", src, zoo_env.hub, quiet)
     assert zoo_env.hub.writes == []
+
+
+def test_failure_after_tagging_then_rerun_finishes(zoo_env, tmp_path, monkeypatch):
+    """A run that fails after the tag (here: writing the record; in 0.1.0 of scout-large: adding the
+    collection) is resumed: no new commit, no second tag, record and index are written."""
+    verified(zoo_env, tmp_path)
+    write_record = zoo_env.reg.write_record
+    calls = {"n": 0}
+
+    def flaky(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise HubError("collection refused")
+        return write_record(*args, **kwargs)
+
+    monkeypatch.setattr(zoo_env.reg, "write_record", flaky)
+    with pytest.raises(HubError):
+        ops.publish(zoo_env.reg, zoo_env.model, zoo_env.version, CONFIRM, zoo_env.hub, quiet)
+    tags_after_failure = dict(zoo_env.hub.repos[PUBLIC].tags)
+    commits_after_failure = len(zoo_env.hub.repos[PUBLIC].commits)
+    commit = ops.publish(zoo_env.reg, zoo_env.model, zoo_env.version, CONFIRM, zoo_env.hub, quiet)
+    assert zoo_env.hub.repos[PUBLIC].tags == tags_after_failure == {"v0.1.0": commit}
+    assert len(zoo_env.hub.repos[PUBLIC].commits) == commits_after_failure
+    assert zoo_env.record()["published"]["repo_commit"] == commit
+
+
+def test_existing_tag_on_another_commit_still_fails(zoo_env, tmp_path):
+    verified(zoo_env, tmp_path)
+    zoo_env.hub.create_repo(PUBLIC, private=True)
+    zoo_env.hub.repos[PUBLIC].tags["v0.1.0"] = "deadbeef"
+    with pytest.raises(ImmutabilityRefused, match="tag v0.1.0 already exists"):
+        ops.publish(zoo_env.reg, zoo_env.model, zoo_env.version, CONFIRM, zoo_env.hub, quiet)
