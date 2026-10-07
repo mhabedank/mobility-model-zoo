@@ -106,7 +106,7 @@ model-index:
 
 Finds jobs-to-be-done, pains and gains in German and English mobility texts and quotes them verbatim, with actor type, evidence type and evidence scope. On the frozen benchmark pilot-v2 (guideline v2) it reaches a comparison composite of 0.72, against 0.67 for the best zero-shot small model, measured as agreement with two frontier reference models (Claude and the GPT mini tier). It reads a 9,240-character interview in 8.1 s on 4 CPU cores with 2.5 GB of memory, in 0.84 s on the GPU of a MacBook M3 Pro and in 0.12 s on a DGX Spark, where it processes 1,260 texts per minute; the generative models of the pilot manage between 0.4 and 10 per minute.
 
-![Quality against texts per minute for scout-large on four machines and for the generative models of the pilot](https://raw.githubusercontent.com/mhabedank/mobility-model-zoo/refs/tags/scout-large/v0.1.0/docs/recipes/figures/scout-large-quality-speed.png)
+![Quality against texts per minute for scout-large on a MacBook GPU and a DGX Spark GPU and for the generative models of the pilot](https://raw.githubusercontent.com/mhabedank/mobility-model-zoo/refs/tags/scout-large/v0.1.0/docs/recipes/figures/scout-large-quality-speed.png)
 
 ![Time to process 10,000 texts for scout-large on four machines and for the generative models of the pilot](https://raw.githubusercontent.com/mhabedank/mobility-model-zoo/refs/tags/scout-large/v0.1.0/docs/recipes/figures/scout-large-10k-texts.png)
 

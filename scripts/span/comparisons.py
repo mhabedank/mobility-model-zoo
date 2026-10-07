@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import statistics
 from datetime import date
 from pathlib import Path
@@ -231,14 +232,14 @@ def figure_quality_speed(data: dict, out: Path) -> None:
     plain = FuncFormatter(lambda v, _: f"{v:g}")
     ax.xaxis.set_major_formatter(plain)
     items = []
-    scout = sorted(data["scout"], key=lambda s: s["chunks_per_min"])
-    ax.plot([s["chunks_per_min"] for s in scout], [s["quality"] for s in scout], color=SCOUT,
-            linewidth=1.5, zorder=2)
+    # Two points only (owner's choice, 2026-10-07): the GPUs a team is likely to use. The CPU
+    # measurements, including the reference machine, are in the 10,000-texts figure.
+    scout = sorted((s for s in data["scout"] if s["key"] in ("mac_m3pro_gpu", "dgx_spark_gpu")),
+                   key=lambda s: s["chunks_per_min"])
     ax.scatter([s["chunks_per_min"] for s in scout], [s["quality"] for s in scout], marker="D",
                s=80, color=SCOUT, edgecolors=SURFACE, linewidths=1.5, zorder=4,
                label="scout-large (this model)")
-    short = {"": "4 vCPU\n(reference)", "mac_m3pro_cpu": "Mac\nCPU", "mac_m3pro_gpu": "Mac\nGPU",
-             "dgx_spark_gpu": "DGX Spark\nGPU"}
+    short = {"mac_m3pro_gpu": "MacBook M3 Pro\n(GPU)", "dgx_spark_gpu": "DGX Spark\n(GPU)"}
     rated = [o for o in data["others"] if o["quality"] is not None]
     ax.scatter([o["chunks_per_min"] for o in rated], [o["quality"] for o in rated], s=56,
                color=OTHER, edgecolors=SURFACE, linewidths=1.5, zorder=3,
@@ -266,7 +267,8 @@ def figure_quality_speed(data: dict, out: Path) -> None:
                             textcoords="offset points", ha="center", va="top", fontsize=8.5,
                             color=TEXT_PRIMARY)
         boxes.append(label.get_window_extent(renderer).expanded(1.05, 1.1))
-    label = ax.annotate("scout-large (this model)", (scout[-1]["chunks_per_min"], scout[-1]["quality"]),
+    mid = math.sqrt(scout[0]["chunks_per_min"] * scout[-1]["chunks_per_min"])
+    label = ax.annotate("scout-large (this model)", (mid, scout[-1]["quality"]),
                         xytext=(0, 14), textcoords="offset points", ha="center", va="bottom",
                         fontsize=9.5, color=SCOUT, fontweight="bold")
     boxes.append(label.get_window_extent(renderer).expanded(1.05, 1.1))
