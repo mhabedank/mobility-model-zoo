@@ -82,14 +82,14 @@ SMALL = [
     ("ministral_3b", "Ministral 3B, 4 vCPU", "baseline-ministral-3b"),
     ("gemma4_e2b", "Gemma4 E2B, 4 vCPU", "baseline-gemma4-e2b"),
 ]
-# Same size class as scout-large (0.3-1.2B), added for the 0.1.1 card: quality from their
-# benchmark runs, speed from those runs on the DGX Spark (two calls in parallel).
+# Same size class as scout-large (0.3-1.2B), added for the 0.1.1 card: the newest model of each
+# family at this size in October 2026 (Qwen3 0.6B and Llama 3.2 1B were run but left out as
+# superseded). Quality from their benchmark runs, speed from their benchmark runs on the DGX Spark.
 SIZE_CLASS = [
     ("qwen3_5_0_8b", "Qwen3.5 0.8B", "baseline-qwen3.5-0.8b"),
-    ("qwen3_0_6b", "Qwen3 0.6B", "baseline-qwen3-0.6b"),
     ("gemma3_270m", "Gemma3 270M", "baseline-gemma3-270m"),
     ("gemma3_1b", "Gemma3 1B", "baseline-gemma3-1b"),
-    ("llama3_2_1b", "Llama 3.2 1B", "baseline-llama3.2-1b"),
+    ("lfm2_5_1_2b", "LFM2.5 1.2B", "baseline-lfm2.5-1.2b"),
     ("granite4_350m", "Granite 4 350M", "baseline-granite4-350m"),
 ]
 

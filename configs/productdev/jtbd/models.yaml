@@ -121,6 +121,15 @@ models:
     role: baseline
     quantization: BF16
     think: false
+  - model_id: baseline-lfm2.5-1.2b
+    api_model: hf.co/LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
+    family: lfm
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q8_0
+    license_basis: "LFM Open License v1.0 (evaluation only here)"
+    # Liquid AI, released 2026-01-20; the strongest 1B-class model at the time (added 2026-10-07).
   # --- Spike 002 (technical spike only) ---------------------------------------------------------
   - model_id: teacher-qwen3.6
     api_model: qwen3.6:35b
