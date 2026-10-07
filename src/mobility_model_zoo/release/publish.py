@@ -219,21 +219,36 @@ def publish(
             upload[f["path"]] = local
 
         card = readme.read_text(encoding="utf-8")
-        Gate(reg, name, version, hub=hub, card=card, only=PUBLISH_RULES, git=git).run(say)
-
         public = model["repos"]["public"]
         sandbox = model["topic"] == "sandbox"
+        tag = f"v{version}"
+        # An earlier run that failed after tagging (for example while adding the collection) is
+        # resumed: the tag must point at main and main must hold exactly this version's files.
+        # Any other existing tag still fails rule 4.
+        resumed = False
+        if not record.get("published") and hub.visibility(public) is not None:
+            refs = hub.refs(public)
+            head = refs["branches"].get("main")
+            resumed = bool(head and refs["tags"].get(tag) == head
+                           and _same_files(hub, public, head, upload))
+        rules = PUBLISH_RULES - {4} if resumed else PUBLISH_RULES
+        Gate(reg, name, version, hub=hub, card=card, only=rules, git=git).run(say)
+
         if hub.visibility(public) is None:
             hub.create_repo(public, private=sandbox)
             say(f"created {'private' if sandbox else 'public'} repo {public}")
         head = hub.refs(public)["branches"].get("main")
-        if head and _same_files(hub, public, head, upload):
+        if resumed:
             commit = head
-            say(f"{public}@main already holds this version (earlier run); only tagging")
+            say(f"{public} {tag} already points at this version (interrupted run); finishing")
         else:
-            commit = hub.commit(public, upload, f"Release {name} v{version}")
-        hub.create_tag(public, f"v{version}", commit)
-        say(f"published {public} v{version} at {commit}")
+            if head and _same_files(hub, public, head, upload):
+                commit = head
+                say(f"{public}@main already holds this version (earlier run); only tagging")
+            else:
+                commit = hub.commit(public, upload, f"Release {name} v{version}")
+            hub.create_tag(public, tag, commit)
+        say(f"published {public} {tag} at {commit}")
 
     if not sandbox:
         add_to_collection(reg, model, hub, say)
