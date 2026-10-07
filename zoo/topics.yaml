@@ -2,7 +2,7 @@ topics:
 - id: productdev
   title: Product development
   description: Models that support product discovery in mobility, starting with jobs-to-be-done extraction.
-  hf_collection: null
+  hf_collection: mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8
 - id: sandbox
   title: Pipeline tests
   description: Test models for the release pipeline. Never public.

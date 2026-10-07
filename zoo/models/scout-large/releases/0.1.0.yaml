@@ -28,7 +28,7 @@ staging:
 recipe:
   git_commit: 4a7091af7166b9e5a6c802e7d5c6ec9f9a45de46
   config: configs/productdev/jtbd/span-xlmr.yaml
-  doc: docs/recipes/productdev-jtbd-span-xlmr.md   # its path at the training commit; renamed docs/recipes/scout-large.md later
+  doc: docs/recipes/productdev-jtbd-span-xlmr.md
 provenance:
   sources:
   - origin: https://committees-api.parliament.uk/api/OralEvidence/13304/Document/Html
@@ -396,5 +396,9 @@ performance:
     ram_gb: 4
     gpu: false
   results: results/0.1.0/performance.json
-published: null
+published:
+  repo_commit: e79568a84e08282374539c1740fa3118dc4dbb45
+  tag: v0.1.0
+  published_at: 2026-10-07T11:01:52Z
+  card_sha256: 77760cba42aa54a1ffcc638b6a4182145435acfe58c93a8b344326beb022d3b2
 deprecated: null
