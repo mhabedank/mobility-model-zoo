@@ -212,6 +212,24 @@ FIXED = {
 }
 
 
+# Groups of the comparison, in legend order: (marker, colour, legend text).
+GROUPS = {
+    "frontier": ("o", REF, "frontier models (Claude, GPT): reference, = 1.0"),
+    "large": ("o", OTHER, "large open LLMs (27B and up, hosted or on the DGX), zero-shot"),
+    "small": ("s", "#1f9e89", "small LLMs (2-8B), zero-shot"),
+    "size": ("^", SIZE, "LLMs of scout's size (0.3-1.2B), zero-shot"),
+}
+LARGE = {"mimo", "deepseek", "qwen3_8_27b_dgx"}
+
+
+def group_of(o: dict) -> str:
+    if o["quality"] is None:
+        return "frontier"
+    if o.get("size_class"):
+        return "size"
+    return "large" if o["id"] in LARGE else "small"
+
+
 def place_labels(fig, ax, items: list[tuple[str, float, float, str]], boxes: list,
                  extra_points: list) -> None:
     """Labels with leader lines; each takes the first free position around its point, avoiding
@@ -275,23 +293,25 @@ def figure_quality_speed(data: dict, out: Path) -> None:
                s=80, color=SCOUT, edgecolors=SURFACE, linewidths=1.5, zorder=4,
                label="scout-large (this model)")
     short = {"mac_m3pro_gpu": "MacBook M3 Pro\n(GPU)", "dgx_spark_gpu": "DGX Spark\n(GPU)"}
-    rated = [o for o in data["others"] if o["quality"] is not None and not o.get("size_class")]
-    ax.scatter([o["chunks_per_min"] for o in rated], [o["quality"] for o in rated], s=56,
-               color=OTHER, edgecolors=SURFACE, linewidths=1.5, zorder=3,
-               label="larger generative LLMs (2-27B and hosted), zero-shot")
-    items += [(o["label"], o["chunks_per_min"], o["quality"], TEXT_SECONDARY) for o in rated]
-    same = [o for o in data["others"] if o.get("size_class")]
-    ax.scatter([o["chunks_per_min"] for o in same], [o["quality"] for o in same], s=56,
-               marker="^", color=SIZE, edgecolors=SURFACE, linewidths=1.5, zorder=3,
-               label="generative LLMs of scout's size (0.3-1.2B), zero-shot")
-    items += [(o["label"].removesuffix(", DGX Spark"), o["chunks_per_min"], o["quality"],
-               TEXT_SECONDARY) for o in same]
-    refs = [o for o in data["others"] if o["quality"] is None]
+    groups = {g: [o for o in data["others"] if group_of(o) == g] for g in GROUPS}
+    for g, (marker, color, legend_text) in GROUPS.items():
+        members = groups[g]
+        if not members or g == "frontier":
+            continue
+        ax.scatter([o["chunks_per_min"] for o in members], [o["quality"] for o in members], s=56,
+                   marker=marker, color=color, edgecolors=SURFACE, linewidths=1.5, zorder=3,
+                   label=legend_text)
+        items += [(o["label"].removesuffix(", DGX Spark") if g == "size" else o["label"],
+                   o["chunks_per_min"], o["quality"], TEXT_SECONDARY) for o in members]
+    refs = groups["frontier"]
     ax.scatter([o["chunks_per_min"] for o in refs], [1.0] * len(refs), s=56, facecolors="none",
-               edgecolors=REF, linewidths=1.5, zorder=3, label="reference models (define 1.0)")
+               edgecolors=REF, linewidths=1.5, zorder=3, label=GROUPS["frontier"][2])
     ref_labels = [(o["label"].removesuffix(" (reference)"), o["chunks_per_min"]) for o in refs]
+    ax.axhspan(0.97, 1.03, color=REF, alpha=0.08, zorder=1, linewidth=0)
+    ax.annotate("frontier models (they define the benchmark: 1.0)", (0.21, 1.035),
+                fontsize=8, color=TEXT_SECONDARY, va="bottom", style="italic")
     ax.set_xlim(0.2, 4000)
-    ax.set_ylim(0, 1.12)
+    ax.set_ylim(0, 1.15)
     ax.set_xlabel("Texts per minute, one at a time (log scale)", color=TEXT_SECONDARY, fontsize=9)
     ax.set_ylabel("Quality: agreement with the reference models", color=TEXT_SECONDARY, fontsize=9)
     ax.set_title("scout-large: good quality, hundreds of times faster", loc="left",
@@ -330,10 +350,9 @@ def figure_quality_speed(data: dict, out: Path) -> None:
 
 
 def figure_10k(data: dict, out: Path) -> None:
-    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True, False)
+    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True, "scout")
             for s in data["scout"]]
-    rows += [(o["label"], o["chunks_per_min"], False, o.get("size_class", False))
-             for o in data["others"]]
+    rows += [(o["label"], o["chunks_per_min"], False, group_of(o)) for o in data["others"]]
     rows.sort(key=lambda r: -r[1])
     fig, ax = plt.subplots(figsize=(8.6, 7.2), dpi=150)
     fig.patch.set_facecolor(SURFACE)
@@ -343,7 +362,7 @@ def figure_10k(data: dict, out: Path) -> None:
     minutes = [10_000 / r[1] for r in rows]
     y = range(len(rows))
     ax.barh(list(y), minutes, height=0.62,
-            color=[SCOUT if r[2] else SIZE if r[3] else OTHER for r in rows])
+            color=[SCOUT if r[2] else GROUPS[r[3]][1] for r in rows])
     ax.set_yticks(list(y), [r[0] for r in rows], fontsize=8.5)
     for tick, row in zip(ax.get_yticklabels(), rows, strict=True):
         tick.set_color(TEXT_PRIMARY if row[2] else TEXT_SECONDARY)
@@ -361,10 +380,12 @@ def figure_10k(data: dict, out: Path) -> None:
                  fontsize=12)
     from matplotlib.patches import Patch
 
-    legend = ax.legend(handles=[Patch(color=SCOUT, label="scout-large (this model)"),
-                                Patch(color=SIZE, label="generative LLMs of scout's size"),
-                                Patch(color=OTHER, label="larger generative LLMs")],
-                       loc="upper right", fontsize=8, frameon=False)
+    present = {r[3] for r in rows}
+    bar_names = {"frontier": "frontier models (reference)", "large": "large open LLMs",
+                 "small": "small LLMs (2-8B)", "size": "LLMs of scout's size (0.3-1.2B)"}
+    handles = [Patch(color=SCOUT, label="scout-large (this model)")]
+    handles += [Patch(color=GROUPS[g][1], label=bar_names[g]) for g in GROUPS if g in present]
+    legend = ax.legend(handles=handles, loc="upper right", fontsize=8, frameon=False)
     for text in legend.get_texts():
         text.set_color(TEXT_SECONDARY)
     fig.tight_layout()
