@@ -1,32 +1,399 @@
-# Draft for feature 004 (production span model). Fields left empty are delivered by 004.
 model: scout-large
 version: 0.1.0
-date: 2026-10-01
+date: 2026-10-07
 status: experimental
 change_type: initial
 changes: First production release of the span extractor, rebuilt without spike data.
 output_format_version: jtbd-span-v1
 sandbox: false
-files: []
+files:
+- path: config.json
+  sha256: 6f960c72a10b4cf6a10c8fe4970e6b0039e4a48636b433d77e178c9889cfa94d
+  size_bytes: 749
+- path: model.safetensors
+  sha256: 932c33e3a85a437078a581467b202bdd625a97f6c39d191bace19b2ac3d762cb
+  size_bytes: 2239713956
+- path: span_config.json
+  sha256: c1e999ebe697a902b5e63f018be26670434c8af94d9de0ad332c16653cd90829
+  size_bytes: 5676
+- path: tokenizer.json
+  sha256: acbd420e2269cdc1ef45332d3d5c418be4aef6b8cb5a0b7ccae0893485307153
+  size_bytes: 17098086
+- path: tokenizer_config.json
+  sha256: 5d84c938d902dbd684af806ccc920e4c99812d897b0f271eebf856361a4337f6
+  size_bytes: 343
 staging:
   repo: mobility-model-zoo/scout-large-staging
-  revision: ''
+  revision: 3ef5eb14e42bb6120a2289e577b55b8614538ac4
 recipe:
-  git_commit: ''
-  config: ''
-  doc: ''
+  git_commit: 4a7091af7166b9e5a6c802e7d5c6ec9f9a45de46
+  config: configs/productdev/jtbd/span-xlmr.yaml
+  doc: docs/recipes/scout-large.md
 provenance:
-  sources: []
-  teachers: []
+  sources:
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/13304/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/13735/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/15426/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/15514/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 15
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/16532/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 15
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/16765/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/17341/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 15
+  - origin: https://committees-api.parliament.uk/api/OralEvidence/17431/Document/Html
+    license: Open Parliament Licence v3.0
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport/2025-07-02/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 17
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport/2025-12-17/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport/2026-01-21/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 15
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_and_communications/2022-09-14/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_tourism_and_sport/2017-12-13/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_tourism_and_sport/2019-02-27/debate/mul@/main.xml
+    license: Oireachtas (Open Data) PSI Licence (CC BY 4.0)
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://doi.org/10.1016/j.tranpol.2020.11.004
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 14
+  - origin: https://doi.org/10.1186/s42774-020-00054-7
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 2
+  - origin: https://dserver.bundestag.de/btp/20/20022.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://dserver.bundestag.de/btp/20/20030.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20054.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://dserver.bundestag.de/btp/20/20062.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://dserver.bundestag.de/btp/20/20066.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://dserver.bundestag.de/btp/20/20074.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20102.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20114.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20118.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://dserver.bundestag.de/btp/20/20122.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://dserver.bundestag.de/btp/20/20130.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20142.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://dserver.bundestag.de/btp/20/20154.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://dserver.bundestag.de/btp/20/20178.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://dserver.bundestag.de/btp/20/20182.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 19
+  - origin: https://dserver.bundestag.de/btp/20/20194.pdf
+    license: amtliches Werk § 5 UrhG
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://record.senedd.wales/Committee/15088
+    license: Senedd Commission copyright (free reproduction with acknowledgement)
+    permitted_use: training_allowed
+    count: 17
+  - origin: https://www.europarl.europa.eu/doceo/document/CRE-9-2024-02-27-ITM-003_EN.html
+    license: © European Union, reuse with attribution
+    permitted_use: training_allowed
+    count: 12
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-112shrg73204/html/CHRG-112shrg73204.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-114hhrg20105/html/CHRG-114hhrg20105.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-115hhrg27720/html/CHRG-115hhrg27720.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-116hhrg41285/html/CHRG-116hhrg41285.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-116shrg52614/html/CHRG-116shrg52614.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-117hhrg46928/html/CHRG-117hhrg46928.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 18
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-118hhrg55550/html/CHRG-118hhrg55550.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 16
+  - origin: https://www.govinfo.gov/content/pkg/CHRG-118hhrg56115/html/CHRG-118hhrg56115.htm
+    license: public domain (17 U.S.C. § 105)
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://www.parlament.gv.at/dokument/XXVIII/NRSITZ/57/fname_1729016.pdf
+    license: amtliches Werk (§ 7 öUrhG)
+    permitted_use: training_allowed
+    count: 1
+  - origin: https://www.parlament.gv.at/gegenstand/XXVIII/NRSITZ/57
+    license: freies Werk § 7 öUrhG
+    permitted_use: training_allowed
+    count: 3
+  - origin: https://www.parliament.scot/api/sitecore/CustomMedia/OfficialReport?meetingId=16372
+    license: Scottish Parliament copyright licence (commercial and non-commercial reuse)
+    permitted_use: training_allowed
+    count: 20
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG01_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 10
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG02_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG03_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 11
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG04_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 8
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG05_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG06_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 6
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG07_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 8
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG08_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 6
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG09_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_BG10_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE01_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE02_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE03_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 6
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE04_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 4
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE05_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 4
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE06_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 5
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE07_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 5
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE08_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE09_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE10_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 17
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_IE11_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 15
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT01_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 12
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT02_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT03_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 10
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT04_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT05_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT06_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 11
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT07_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 10
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT08_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 12
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT09_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 11
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_LT10_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 8
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT01_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT02_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT03_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 10
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT04_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT05_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 8
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT06_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 9
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT07_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 8
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT08_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT09_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT10_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 7
+  - origin: https://zenodo.org/api/records/15325897/files/Mobility_PT11_anonymised.docx/content
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 5
+  teachers:
+  - model_id: teacher-or-mimo-v2.6-pro
+    license_basis: MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL); HF XiaomiMiMo/MiMo-V2.6-Pro-RL license tag mit,
+      checked 2026-10-06
+    training_on_outputs_permitted: true
   spike_data: false
 evaluation:
-  benchmark: pilot-v1
-  reference: the consensus of Claude and GPT (frontier reference models)
+  benchmark: pilot-v2
+  reference: the consensus of claude-reference and gpt-mini-reference (frontier reference models)
   results: results/0.1.0/quality.json
 performance:
-  hardware: Linux VM, 8 GB RAM, 4 vCPU, no GPU (low-resource reference hardware)
+  hardware: railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC
+    9655 96-Core Processor, CPU only)
   budget:
-    ram_gb: 0
+    ram_gb: 4
     gpu: false
   results: results/0.1.0/performance.json
 published: null
