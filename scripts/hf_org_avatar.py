@@ -21,7 +21,10 @@ req = urllib.request.Request(
             "messages": [{"role": "user", "content": prompt}],
         }
     ).encode(),
-    headers={"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}", "Content-Type": "application/json"},
+    headers={
+        "Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}",
+        "Content-Type": "application/json",
+    },
 )
 resp = json.load(urllib.request.urlopen(req, timeout=180))
 images = resp["choices"][0]["message"].get("images", [])
