@@ -146,8 +146,8 @@ The spike code in `spike/span_model.py`, `spike/train_span.py`, `spike/eval_span
 ## Phase 7: Polish & cross-cutting concerns
 
 - [ ] T058 [P] Run `uv run ruff check` and `uv run pytest` (including `slow`); all green.
-- [ ] T059 [P] Run every quickstart scenario in `specs/004-production-span-model/quickstart.md` that has not been run as part of a task, and record the results in `specs/004-production-span-model/validation.md`.
-- [ ] T060 Traceability check: every FR and SC in spec.md maps to at least one task, artifact or test; write the table to `specs/004-production-span-model/validation.md`. Include the budget total from `uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml budget` (SC-007, ≤ €20) and the zero-violation counts from `provenance.json` (SC-006).
+- [X] T059 [P] Run every quickstart scenario in `specs/004-production-span-model/quickstart.md` that has not been run as part of a task, and record the results in `specs/004-production-span-model/validation.md`.
+- [X] T060 Traceability check: every FR and SC in spec.md maps to at least one task, artifact or test; write the table to `specs/004-production-span-model/validation.md`. Include the budget total from `uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml budget` (SC-007, ≤ €20) and the zero-violation counts from `provenance.json` (SC-006).
 - [ ] T061 [P] Update `.specify/memory/constitution.md`: remove the resolved follow-up TODO "Feature 004 (production span model) must use the release record and gate from feature 003" from the Sync Impact Report (PATCH 1.3.1, rationale recorded), and `specs/003-model-zoo-hf-release/handover-004.md` with a closing line pointing to the published version.
 
 ---
