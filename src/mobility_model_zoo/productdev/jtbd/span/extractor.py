@@ -87,10 +87,9 @@ class SpanExtractor:
             if ATTRIBUTE_LABELS.get(name) != labels:
                 raise ValueError(f"{CONFIG_FILE} has unknown labels for dimension {name!r}")
 
+        import torch
         from safetensors.torch import load_file
         from transformers import AutoConfig, AutoTokenizer
-
-        import torch
 
         # Built on the meta device and filled with the file's tensors (assign=True), so the
         # weights are in memory once, not as a random initialisation plus the loaded copy
