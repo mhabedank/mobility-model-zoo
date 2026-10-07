@@ -32,11 +32,19 @@ for model in ${PERF_MODELS:-}; do
 done
 for dir in ${PERF_SPAN:-}; do
   name=$(basename "$dir")
-  # Model directories are too large for `railway up`; they are uploaded into the running
-  # container with `railway service files upload`, followed by an empty `.ready` file.
-  echo "=== WAITING_FOR_MODEL $dir ==="
-  until [ -f "models/$dir/.ready" ]; do sleep 10; done
-  rm -f "models/$dir/.ready"
+  # Model directories are too large for `railway up`. They come from the private staging repo
+  # (PERF_SPAN_REPO, branch candidate-<name suffix>, read with HF_STAGING_TOKEN, a temporary
+  # service variable), or are uploaded into the container followed by an empty `.ready` file.
+  if [ -n "${PERF_SPAN_REPO:-}" ]; then
+    rev="candidate-${name##*-}"
+    echo "=== DOWNLOAD $dir from $PERF_SPAN_REPO@$rev ==="
+    uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('$PERF_SPAN_REPO', revision='$rev', local_dir='models/$dir', token=__import__('os').environ['HF_STAGING_TOKEN'])" \
+      || { echo "=== PERF_ERROR span-$name download ==="; continue; }
+  else
+    echo "=== WAITING_FOR_MODEL $dir ==="
+    until [ -f "models/$dir/.ready" ]; do sleep 10; done
+    rm -f "models/$dir/.ready"
+  fi
   # The benchmark config: its runs hold the student run, its main split the throughput chunks.
   for repeat in 1 2; do  # measured twice to show the spread on shared vCPUs (R6 as amended)
     if uv run jtbd --config "$CONFIG" perf --backend span --model-dir "models/$dir" \
