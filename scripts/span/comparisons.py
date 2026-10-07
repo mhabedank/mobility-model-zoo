@@ -44,7 +44,7 @@ SHA = "932c33e3a85a"
 REFERENCE = "the consensus of claude-reference and gpt-mini-reference (frontier reference models)"
 
 SURFACE, TEXT_PRIMARY, TEXT_SECONDARY, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
-SCOUT, OTHER, REF = "#eb6834", "#2a78d6", "#8a8984"
+SCOUT, OTHER, REF, SIZE = "#eb6834", "#2a78d6", "#8a8984", "#7a5fc4"
 
 # Scout on four machines: (metric suffix, perf file suffix, label, hardware text)
 SCOUT_HW = [
@@ -81,6 +81,16 @@ SMALL = [
     ("qwen3_5_4b", "Qwen3.5 4B, 4 vCPU", "baseline-qwen3.5-4b"),
     ("ministral_3b", "Ministral 3B, 4 vCPU", "baseline-ministral-3b"),
     ("gemma4_e2b", "Gemma4 E2B, 4 vCPU", "baseline-gemma4-e2b"),
+]
+# Same size class as scout-large (0.3-1.2B), added for the 0.1.1 card: quality from their
+# benchmark runs, speed from those runs on the DGX Spark (two calls in parallel).
+SIZE_CLASS = [
+    ("qwen3_5_0_8b", "Qwen3.5 0.8B", "baseline-qwen3.5-0.8b"),
+    ("qwen3_0_6b", "Qwen3 0.6B", "baseline-qwen3-0.6b"),
+    ("gemma3_270m", "Gemma3 270M", "baseline-gemma3-270m"),
+    ("gemma3_1b", "Gemma3 1B", "baseline-gemma3-1b"),
+    ("llama3_2_1b", "Llama 3.2 1B", "baseline-llama3.2-1b"),
+    ("granite4_350m", "Granite 4 350M", "baseline-granite4-350m"),
 ]
 
 
@@ -127,6 +137,14 @@ def collect() -> dict:
         others.append({"id": key, "label": label, "hardware": p["hardware"]["label"],
                        "chunks_per_min": p["chunks_per_min"], "n": p["n_chunks"],
                        "how": "jtbd perf on the reference machine, one chunk at a time",
+                       "quality": composite(qrun), "quality_run": qrun})
+    for key, label, model in SIZE_CLASS:
+        qrun = run_id("baseline", model)
+        lat, n = median_latency_s(qrun)
+        others.append({"id": key, "label": f"{label}, DGX Spark", "hardware": SPARK_OLLAMA,
+                       "chunks_per_min": 60 / lat, "n": n, "size_class": True,
+                       "how": "60 / median call latency while labeling the benchmark, two calls "
+                              "in parallel",
                        "quality": composite(qrun), "quality_run": qrun})
     return {"scout": scout, "others": others}
 
@@ -240,17 +258,23 @@ def figure_quality_speed(data: dict, out: Path) -> None:
                s=80, color=SCOUT, edgecolors=SURFACE, linewidths=1.5, zorder=4,
                label="scout-large (this model)")
     short = {"mac_m3pro_gpu": "MacBook M3 Pro\n(GPU)", "dgx_spark_gpu": "DGX Spark\n(GPU)"}
-    rated = [o for o in data["others"] if o["quality"] is not None]
+    rated = [o for o in data["others"] if o["quality"] is not None and not o.get("size_class")]
     ax.scatter([o["chunks_per_min"] for o in rated], [o["quality"] for o in rated], s=56,
                color=OTHER, edgecolors=SURFACE, linewidths=1.5, zorder=3,
-               label="generative LLMs, zero-shot")
+               label="larger generative LLMs (2-27B and hosted), zero-shot")
     items += [(o["label"], o["chunks_per_min"], o["quality"], TEXT_SECONDARY) for o in rated]
+    same = [o for o in data["others"] if o.get("size_class")]
+    ax.scatter([o["chunks_per_min"] for o in same], [o["quality"] for o in same], s=56,
+               marker="^", color=SIZE, edgecolors=SURFACE, linewidths=1.5, zorder=3,
+               label="generative LLMs of scout's size (0.3-1.2B), zero-shot")
+    items += [(o["label"].removesuffix(", DGX Spark"), o["chunks_per_min"], o["quality"],
+               TEXT_SECONDARY) for o in same]
     refs = [o for o in data["others"] if o["quality"] is None]
     ax.scatter([o["chunks_per_min"] for o in refs], [1.0] * len(refs), s=56, facecolors="none",
                edgecolors=REF, linewidths=1.5, zorder=3, label="reference models (define 1.0)")
     items += [(o["label"], o["chunks_per_min"], 1.0, TEXT_SECONDARY) for o in refs]
     ax.set_xlim(0.2, 4000)
-    ax.set_ylim(0.5, 1.05)
+    ax.set_ylim(0, 1.05)
     ax.set_xlabel("Texts per minute, one at a time (log scale)", color=TEXT_SECONDARY, fontsize=9)
     ax.set_ylabel("Quality: agreement with the reference models", color=TEXT_SECONDARY, fontsize=9)
     ax.set_title("scout-large: good quality, hundreds of times faster", loc="left",
@@ -282,17 +306,20 @@ def figure_quality_speed(data: dict, out: Path) -> None:
 
 
 def figure_10k(data: dict, out: Path) -> None:
-    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True) for s in data["scout"]]
-    rows += [(o["label"], o["chunks_per_min"], False) for o in data["others"]]
+    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True, False)
+            for s in data["scout"]]
+    rows += [(o["label"], o["chunks_per_min"], False, o.get("size_class", False))
+             for o in data["others"]]
     rows.sort(key=lambda r: -r[1])
-    fig, ax = plt.subplots(figsize=(8.6, 5.4), dpi=150)
+    fig, ax = plt.subplots(figsize=(8.6, 7.2), dpi=150)
     fig.patch.set_facecolor(SURFACE)
     style(ax)
     ax.set_xscale("log")
     ax.grid(True, axis="x", which="major", color=GRID, linewidth=0.8)
     minutes = [10_000 / r[1] for r in rows]
     y = range(len(rows))
-    ax.barh(list(y), minutes, color=[SCOUT if r[2] else OTHER for r in rows], height=0.62)
+    ax.barh(list(y), minutes, height=0.62,
+            color=[SCOUT if r[2] else SIZE if r[3] else OTHER for r in rows])
     ax.set_yticks(list(y), [r[0] for r in rows], fontsize=8.5)
     for tick, row in zip(ax.get_yticklabels(), rows, strict=True):
         tick.set_color(TEXT_PRIMARY if row[2] else TEXT_SECONDARY)
@@ -308,6 +335,14 @@ def figure_10k(data: dict, out: Path) -> None:
     ax.set_xlabel("Time for 10,000 texts, one at a time (log scale)", color=TEXT_SECONDARY, fontsize=9)
     ax.set_title("Time to read 10,000 interview excerpts", loc="left", color=TEXT_PRIMARY,
                  fontsize=12)
+    from matplotlib.patches import Patch
+
+    legend = ax.legend(handles=[Patch(color=SCOUT, label="scout-large (this model)"),
+                                Patch(color=SIZE, label="generative LLMs of scout's size"),
+                                Patch(color=OTHER, label="larger generative LLMs")],
+                       loc="lower right", fontsize=8, frameon=False)
+    for text in legend.get_texts():
+        text.set_color(TEXT_SECONDARY)
     fig.tight_layout()
     fig.savefig(out, facecolor=SURFACE)
     plt.close(fig)
