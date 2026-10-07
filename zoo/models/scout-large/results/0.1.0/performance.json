@@ -11,7 +11,7 @@
       "unit": "s",
       "description": "Median time to process a 9240-character text, model loaded",
       "date": "2026-10-07",
-      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
     },
     {
       "name": "load_time_s",
@@ -19,7 +19,7 @@
       "unit": "s",
       "description": "Time to load the model from local files",
       "date": "2026-10-07",
-      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
     },
     {
       "name": "peak_ram_gb",
@@ -27,7 +27,7 @@
       "unit": "GB",
       "description": "Peak memory of the process while loading and processing",
       "date": "2026-10-07",
-      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
     },
     {
       "name": "chunks_per_min",
@@ -36,7 +36,7 @@
       "description": "Throughput over the 150 benchmark chunks",
       "date": "2026-10-07",
       "n_items": 150,
-      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
     }
   ]
 }

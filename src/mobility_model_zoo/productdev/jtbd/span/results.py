@@ -259,10 +259,13 @@ def write_results(settings: Settings, run_id: str, perf_path: Path, version: str
 def hardware_text(perf: dict[str, Any]) -> str:
     """One line naming the measurement hardware (results files and release record)."""
     hardware = perf["hardware"]
+    # A container's memory limit, not the host's MemTotal, is the RAM the model had.
+    mem_mb = hardware.get("mem_limit_mb") or hardware.get("mem_total_mb")
     return (f"{hardware.get('label') or 'unlabeled'} ({hardware.get('machine')}, "
             f"{hardware.get('vcpus')} vCPU"
-            + (f", {round(hardware['mem_total_mb'] / 1024)} GB RAM"
-               if hardware.get("mem_total_mb") else "") + ", CPU only)")
+            + (f", {mem_mb * 1048576 / 1e9:.1f} GB RAM" if mem_mb else "")
+            + (f", {hardware['cpu_model']}" if hardware.get("cpu_model") else "")
+            + ", CPU only)")
 
 
 def _metric_value(metrics: list[dict[str, Any]], name: str) -> float | None:

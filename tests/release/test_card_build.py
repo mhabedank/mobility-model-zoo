@@ -54,3 +54,22 @@ def test_no_accuracy_and_the_agreement_sentence(zoo_env):
     assert "accuracy" not in card.lower()
     assert "These numbers are agreement with" in card
     assert "they are not measured against human ground truth." in card
+
+
+def test_metrics_without_optional_fields_render(zoo_env):
+    """`n_items`, `hardware`, `reference` and `benchmark` are optional in the results schema; the
+    card leaves the cell empty instead of failing (found with scout-large 0.1.0, 2026-10-07)."""
+    import json
+
+    path = zoo_env.reg.results_path(zoo_env.model, zoo_env.version, "performance")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for metric in data["metrics"]:
+        metric.pop("n_items", None)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    qpath = zoo_env.reg.results_path(zoo_env.model, zoo_env.version, "quality")
+    quality = json.loads(qpath.read_text(encoding="utf-8"))
+    for key in ("n_items", "reference", "benchmark"):
+        quality["metrics"][0].pop(key, None)
+    qpath.write_text(json.dumps(quality), encoding="utf-8")
+    card = cards.render(cards.CardInput(zoo_env.reg, zoo_env.model, zoo_env.version))
+    assert card_structure(card) == []
