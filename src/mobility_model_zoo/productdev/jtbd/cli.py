@@ -390,6 +390,8 @@ def perf_cmd(
     model_dir: Path = typer.Option(None, "--model-dir", help="Span model files (--backend span)"),
     text: Path = typer.Option(None, "--text", help="Latency text (default: the 9k perf text)"),
     device: str = typer.Option("cpu", "--device", help="cpu, mps or cuda (--backend span)"),
+    suffix: str = typer.Option(None, "--suffix",
+                               help="Name suffix for measurements off the reference hardware"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd import perf
     from mobility_model_zoo.productdev.jtbd.errors import UsageError
@@ -398,7 +400,8 @@ def perf_cmd(
         if backend == "span":
             if not model_dir:
                 raise UsageError("--backend span requires --model-dir")
-            return perf.perf_span(s, model_dir, hardware, text, quality_run, device=device)
+            return perf.perf_span(s, model_dir, hardware, text, quality_run, device=device,
+                                  suffix=suffix)
         if backend:
             raise UsageError(f"unknown --backend {backend!r} (only `span`)")
         if frontier:

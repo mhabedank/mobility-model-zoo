@@ -9,7 +9,7 @@ pinned: false
 
 # Mobility Model Zoo
 
-Small, fast machine learning models for mobility: public transport, cycling, shared and on-demand mobility. Every model runs locally on ordinary hardware, is versioned, and ships with a model card that says what it does, how good it is and measured against what, how fast it is on which hardware, and where it fails.
+Small, fast machine learning models for mobility in the broad sense: from product development and data analysis to vehicles, IoT and embedded systems. Every model runs locally, from a laptop down to a microcontroller, is versioned, and ships with a model card that says what it does, how good it is and measured against what, how fast it is on which hardware, and where it fails.
 
 ## Topics
 
@@ -17,7 +17,7 @@ Small, fast machine learning models for mobility: public transport, cycling, sha
 |-------|----------------|
 | **Product development** (`productdev`) | Product discovery in mobility. First task: extracting jobs-to-be-done, pains and gains with verbatim evidence from interviews, reviews and forum posts (German and English). |
 
-More topics follow as separate collections. Existing models do not change when a topic is added.
+More topics follow as separate collections, for example automotive security with tiny models on embedded hardware. Existing models do not change when a topic is added.
 
 ## How we publish
 

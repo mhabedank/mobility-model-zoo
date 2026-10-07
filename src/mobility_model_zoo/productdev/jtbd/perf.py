@@ -251,7 +251,8 @@ def _student_run(settings: Settings, sha: str, quality_run: str | None):
 
 def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
               text_file: Path | None = None, quality_run: str | None = None,
-              repeats: int = LATENCY_REPEATS, device: str = "cpu") -> dict[str, Any]:
+              repeats: int = LATENCY_REPEATS, device: str = "cpu",
+              suffix: str | None = None) -> dict[str, Any]:
     """Speed and peak memory of a span model in a child process (research R13, FR-014)."""
     import json
     import subprocess
@@ -299,8 +300,9 @@ def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
         "peak_rss_sampled_mb": None if sampled is None else round(sampled, 1),
         "measured_at": datetime.now(UTC).isoformat(),
     }
-    # The reference measurement (CPU) keeps the plain name the release bar reads; other devices
-    # are additional measurements (development hardware) and carry the device in the name.
-    suffix = "" if device == "cpu" else f"-{device}"
-    write_json(settings.analysis_dir / "perf" / f"{run.model_id}-{sha[:12]}{suffix}.json", result)
+    # The reference measurement keeps the plain name the release bar reads. Measurements on other
+    # hardware carry a suffix (given, or the device), so they never overwrite it.
+    tag = suffix or ("" if device == "cpu" else device)
+    name = f"{run.model_id}-{sha[:12]}" + (f"-{tag}" if tag else "")
+    write_json(settings.analysis_dir / "perf" / f"{name}.json", result)
     return result
