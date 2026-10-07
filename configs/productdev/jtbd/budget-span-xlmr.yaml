@@ -1,0 +1,19 @@
+# Cash budget of feature 004 (spec SC-007; constitution: Resources & Cost Discipline).
+# Used by configs/productdev/jtbd/span-train-v1.yaml (budget_name span-xlmr-0.1.0). The ledger is
+# shared with the pilot; its rows carry the budget name, so the two budgets are counted apart.
+budget_eur: 20
+# Owner decision 2026-10-06: no separate key; the span budget uses the pilot's OpenRouter key
+# (hard limit USD 20, about EUR 18.40, shared). The ledger still counts the budgets apart. The
+# guard cap below is what was left on the key after the pilot's labeling (EUR 18.40 - 5.15 spent,
+# rounded down), so the guard refuses before the shared key limit is reached.
+key_cap_eur: 13.0
+key_cap_set_on: 2026-10-06
+api_key_env: OPENROUTER_API_KEY
+openrouter_fee: 0.055
+usd_to_eur: 0.92
+# EUR per million tokens; copied from budget.yaml (list prices, upper bound; the ledger uses
+# OpenRouter's reported cost). Only the recommended teacher's entries are needed.
+prices:
+  teacher-or-deepseek-v4.1-flash: {input: 0.276, cached_input: null, output: 1.104}
+  teacher-or-glm-5.3-flash: {input: 0.138, cached_input: null, output: 0.46}
+  teacher-or-mimo-v2.6-pro: {input: 0.396, cached_input: null, output: 0.8}

@@ -135,6 +135,7 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 
 - **Decision**:
   - A rented Linux VM with 8 GB RAM, 4 vCPU and no GPU (Hetzner CX32 class, about €0.01 per hour). The exact type and CPU model are recorded.
+  - *Amended 2026-10-06*: the owner's provider is Railway, not Hetzner. The reference machine is a temporary Railway service (Docker image with Ollama and the repository) with its limits set to 8 GB RAM and 4 vCPU, no GPU, reached with `railway ssh`. Railway vCPUs are shared, so the CPU model from `/proc/cpuinfo` and the limits are recorded with every result, and each measurement is repeated once to show the spread. Cost at Railway's per-minute rates is about USD 0.25 per hour at full use. The service is deleted afterwards ("The VM is deleted" below means this service).
   - Ollama with the **same digests** as the Spark quality runs.
   - 3 warm-up chunks, then a sequential run over the main split.
   - Metrics: chunks/min, output tok/s, p50 and p95 latency, and peak RSS of the runner process (sampled from `/proc`).
@@ -147,8 +148,8 @@ Date: 2026-09-25. Sources were checked through web research and the locally inst
 
 - **Decision**:
   - Versioned regex patterns for `u/…` and `@…` handles, emails, phone numbers and profile URLs, and names in quoted signatures where they can be found.
-  - A manual review of each chunk, with a timestamp.
-  - `redact-check` as a hard gate before freezing.
+  - ~~A manual review of each chunk, with a timestamp.~~ **Amended 2026-10-06 (owner decision: no manual review):** a model-assisted review of each chunk (`jtbd corpus pii-review`): a local model on the DGX Spark (`teacher-qwen3.8`, temperature 0, schema-constrained) lists personal data of private individuals (names, usernames, e-mail, phone, street address, licence plate, other personal IDs); each listed string is replaced by a placeholder and the chunk is reviewed again until nothing is found (at most 3 passes). Public roles in official records (members of parliament, ministers, invited experts) and cited authors are not redacted. Every pass is stored in `<analysis>/pii-review/` for audit; the text never leaves the local network. Forum snapshots already exclude author names and signatures at extraction. A smoke test on 2026-10-06 found all five identifiers in a synthetic forum post and none in parliamentary and paper text.
+  - `redact-check` as a hard gate before freezing: pattern and identifier scan clean, and a model review on record for every chunk (config `pilot.redaction_review: model`).
 - **Rationale**: Principle VI and FR-012 require verifiable removal.
 
 ## R8 Budget

@@ -137,6 +137,21 @@
         },
         "check_passed": {
           "type": "boolean"
+        },
+        "model_review_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "Set by `jtbd corpus pii-review` (model-assisted review, since 2026-10-06); with redaction review `model` it must be non-null before `redact-check` passes."
+        },
+        "model_review_model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "model_id of the local model that reviewed the chunk."
         }
       }
     }

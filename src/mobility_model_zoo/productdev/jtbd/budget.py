@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from mobility_model_zoo.productdev.jtbd.config import ModelEntry, Settings
+from mobility_model_zoo.productdev.jtbd.config import DEFAULT_BUDGET, ModelEntry, Settings
 from mobility_model_zoo.productdev.jtbd.errors import BudgetRefused, UsageError
 from mobility_model_zoo.productdev.jtbd.jsonio import append_jsonl, read_jsonl
 
@@ -17,7 +17,9 @@ PAID_BACKENDS = {"openrouter"}
 
 
 def ledger_rows(settings: Settings) -> list[dict[str, Any]]:
-    return list(read_jsonl(settings.ledger_path))
+    """Rows of the active budget. Rows without a budget name belong to the pilot budget."""
+    return [r for r in read_jsonl(settings.ledger_path)
+            if r.get("budget", DEFAULT_BUDGET) == settings.budget_name]
 
 
 def _charge(row: dict[str, Any]) -> float:
@@ -93,6 +95,7 @@ def record(
         "backend": backend,
         "estimated_eur": round(estimated_eur, 6),
         "actual_eur": None if actual_eur is None else round(actual_eur, 6),
+        "budget": settings.budget_name,
     }
     row["cumulative_eur"] = round(spent(settings) + _charge(row), 6)
     row["cap_eur"] = float(settings.budget()["budget_eur"])
@@ -103,6 +106,7 @@ def record(
 def summary(settings: Settings) -> dict[str, Any]:
     budget = settings.budget()
     return {
+        "budget": settings.budget_name,
         "budget_eur": budget["budget_eur"],
         "key_cap_eur": budget["key_cap_eur"],
         "spent_eur": spent(settings),

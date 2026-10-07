@@ -16,6 +16,7 @@ import typer
 
 from mobility_model_zoo.productdev.jtbd.config import Settings, load_settings
 from mobility_model_zoo.productdev.jtbd.errors import PilotError
+from mobility_model_zoo.productdev.jtbd.span.cli import app as span_app
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -28,6 +29,8 @@ corpus_app = typer.Typer(no_args_is_help=True, help="Build, redact, split and va
 app.add_typer(source_app, name="source")
 app.add_typer(corpus_app, name="corpus")
 app.add_typer(spike_app, name="spike")
+
+app.add_typer(span_app, name="span")
 
 
 def _log(message: str) -> None:
@@ -143,10 +146,14 @@ def corpus_autochunk(
     train: int = typer.Option(..., "--train"),
     evaluation: int = typer.Option(..., "--eval"),
     seed: int = typer.Option(..., "--seed"),
+    exclude_benchmark: Path = typer.Option(
+        None, "--exclude-benchmark",
+        help="Benchmark config whose main and holdout sources may not supply training chunks "
+             "(default: span_train.exclude_benchmark of the config)"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.corpus.autochunk import autochunk
 
-    _run(ctx, lambda s: autochunk(s, snapshot_map, train, evaluation, seed))
+    _run(ctx, lambda s: autochunk(s, snapshot_map, train, evaluation, seed, exclude_benchmark))
 
 
 @corpus_app.command("redact")
@@ -165,6 +172,27 @@ def corpus_mark_reviewed(
     from mobility_model_zoo.productdev.jtbd.corpus.redact import mark_reviewed
 
     _run(ctx, lambda s: mark_reviewed(s, chunk_ids or [], all_chunks))
+
+
+@corpus_app.command("pii-review")
+def corpus_pii_review(
+    ctx: typer.Context,
+    model: str = typer.Option("teacher-qwen3.8", "--model", help="Local Ollama model_id"),
+    host: str = typer.Option(None, "--host", help="Override host (default: the model's)"),
+    all_chunks: bool = typer.Option(False, "--all", help="Review reviewed chunks again"),
+) -> None:
+    """Model-assisted removal of personal data (configs with redaction review `model`)."""
+    from mobility_model_zoo.productdev.jtbd.corpus.pii import pii_review
+
+    _run(ctx, lambda s: pii_review(s, model, host, only_unreviewed=not all_chunks))
+
+
+@corpus_app.command("review-sample")
+def corpus_review_sample(ctx: typer.Context, seed: int = typer.Option(..., "--seed")) -> None:
+    """Draw the manual-review sample once (training datasets with sampled review)."""
+    from mobility_model_zoo.productdev.jtbd.corpus.redact import review_sample
+
+    _run(ctx, lambda s: review_sample(s, seed))
 
 
 @corpus_app.command("redact-check")
@@ -225,9 +253,11 @@ def label_cmd(
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.labeling.runner import label
 
-    _run(ctx, lambda s: label(s, role=role, backend=backend, model_id=model, host=host,
-                              split=split, limit=limit, retry_failed=retry_failed,
-                              workers=workers))
+    def action(s: Settings) -> Any:
+        return label(s, role=role, backend=backend, model_id=model, host=host, split=split,
+                     limit=limit, retry_failed=retry_failed, workers=workers)
+
+    _run(ctx, action)
 
 
 @app.command("ensemble")
@@ -356,11 +386,24 @@ def perf_cmd(
     frontier: bool = typer.Option(False, "--frontier"),
     run: str = typer.Option(None, "--run"),
     sample: int = typer.Option(20, "--sample"),
+    backend: str = typer.Option(None, "--backend", help="`span` for a span-model directory"),
+    model_dir: Path = typer.Option(None, "--model-dir", help="Span model files (--backend span)"),
+    text: Path = typer.Option(None, "--text", help="Latency text (default: the 9k perf text)"),
+    device: str = typer.Option("cpu", "--device", help="cpu, mps or cuda (--backend span)"),
+    suffix: str = typer.Option(None, "--suffix",
+                               help="Name suffix for measurements off the reference hardware"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd import perf
     from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
     def action(s: Settings) -> Any:
+        if backend == "span":
+            if not model_dir:
+                raise UsageError("--backend span requires --model-dir")
+            return perf.perf_span(s, model_dir, hardware, text, quality_run, device=device,
+                                  suffix=suffix)
+        if backend:
+            raise UsageError(f"unknown --backend {backend!r} (only `span`)")
         if frontier:
             if not run:
                 raise UsageError("--frontier requires --run <gpt-run>")

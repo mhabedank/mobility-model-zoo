@@ -25,7 +25,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "pattern": "^[a-z][a-z0-9]{1,15}-[a-z0-9]+(-[a-z0-9]+)+$",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$",
       "maxLength": 80
     },
     "topic": {
@@ -163,6 +163,29 @@
         "citation": {
           "type": "string",
           "minLength": 1
+        },
+        "figures": {
+          "type": "array",
+          "maxItems": 4,
+          "description": "Optional figures shown under the summary (feature 004, 2026-10-07). Each path is a PNG committed in the repository; the card links it at the release tag, so the image cannot change after publication.",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "alt"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^docs/[a-z0-9/_.-]+\\.png$"
+              },
+              "alt": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       }
     }

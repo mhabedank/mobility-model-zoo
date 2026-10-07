@@ -4,8 +4,8 @@ benchmark_version: pilot-v1
 test_fixture: false
 
 paths:
-  guideline: guideline/guideline-v1.md
-  examples: guideline/examples
+  guideline: guideline/guideline-v2.md   # pilot-v2 rerun (T081); pilot-v1 used guideline-v1.md
+  examples: guideline/examples-v2   # pilot-v1 used guideline/examples
   domain: configs/productdev/jtbd/domain/mobility.yaml
   models: configs/productdev/jtbd/models.yaml
   criteria: configs/productdev/jtbd/decision-criteria.yaml
@@ -42,3 +42,6 @@ pilot:
   assumed_output_tokens: 1500
   consistency_rules: [irrelevant_no_items, enum_values, quantified_has_quantity]
   redaction_patterns_version: redact-v2
+  # Every chunk is reviewed by a local model (`jtbd corpus pii-review`), not by hand
+  # (research R7, amended 2026-10-06).
+  redaction_review: model

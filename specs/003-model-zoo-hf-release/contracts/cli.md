@@ -81,7 +81,7 @@ Scans all commits on all refs for forbidden paths and secrets (research R11). Pr
 | # | Rule | Spec |
 |---|------|------|
 | 1 | `topics.yaml`, `model.yaml` and the release record are valid against their schemas | FR-006 |
-| 2 | Name follows `<topic>-<task>-<variant>`; topic exists; name equals directory, record `model`, tag prefix and repo names | FR-003a |
+| 2 | Name follows `<name>-<variant>` (amended 2026-10-07; topic and task are fields); topic exists; name equals directory, record `model`, tag prefix and repo names | FR-003a |
 | 3 | Tag version equals file name equals `version`; status matches version (FR-005a); `change_type` matches the previous version and `output_format_version` | FR-005 |
 | 4 | Tag `v<version>` absent from the public repo; version greater than every published version | FR-007, FR-008 |
 | 5 | Every file in `files[]` exists at `staging.revision` with the recorded sha256 and size; no extra files | FR-006a, FR-009 |

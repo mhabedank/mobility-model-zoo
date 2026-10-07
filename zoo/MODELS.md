@@ -8,4 +8,4 @@ Models that support product discovery in mobility, starting with jobs-to-be-done
 
 | Model | Task | Latest version | Status | Hugging Face |
 |-------|------|----------------|--------|--------------|
-| `productdev-jtbd-span-xlmr` | jtbd | – | not published | [mobility-model-zoo/productdev-jtbd-span-xlmr](https://huggingface.co/mobility-model-zoo/productdev-jtbd-span-xlmr) |
+| `scout-large` | jtbd | – | not published | [mobility-model-zoo/scout-large](https://huggingface.co/mobility-model-zoo/scout-large) |

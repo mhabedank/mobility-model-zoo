@@ -129,11 +129,12 @@ def combine(outputs: Mapping[str, Mapping[str, ChunkOutput]], members: list[str]
 
 
 def _member_runs(settings: Settings, members: list[str], split: str,
-                 frozen: dict[str, Any]) -> dict[str, LabelRunManifest]:
+                 frozen: dict[str, Any], role: str = "teacher_candidate"
+                 ) -> dict[str, LabelRunManifest]:
     hashes = frozen["hashes"]
     runs = {}
     for member in members:
-        run_id = run_id_for("teacher_candidate", member, split, hashes["guideline"])
+        run_id = run_id_for(role, member, split, hashes["guideline"])
         if not (settings.runs_dir / run_id / "manifest.json").exists():
             raise ValidationFailed(f"ensemble member {member}: no run {run_id}")
         run = load_run_manifest(settings, run_id)
@@ -149,7 +150,11 @@ def _member_runs(settings: Settings, members: list[str], split: str,
 
 
 def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
-    """Write the derived ensemble run from the frozen `teacher_ensemble` rule (FR-019b)."""
+    """Write the derived ensemble run from the frozen `teacher_ensemble` rule (FR-019b).
+
+    On the train split (feature 004) the members are `teacher` runs and the ensemble must be the
+    pilot's recommended teacher.
+    """
     frozen = verify_frozen(settings)
     scoring = settings.teacher_scoring()
     rule = scoring.teacher_ensemble
@@ -158,21 +163,26 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
     if entry.backend != "ensemble" or entry.role != "teacher_candidate":
         raise ValidationFailed(f"{rule.model_id} must be configured with backend ensemble and "
                                "role teacher_candidate")
-    runs = _member_runs(settings, members, split, frozen)
+    role = "teacher" if split == "train" else "teacher_candidate"
+    if role == "teacher":
+        from mobility_model_zoo.productdev.jtbd.span.gates import check_teacher
+
+        check_teacher(settings, entry, split, frozen)
+    runs = _member_runs(settings, members, split, frozen, role)
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     chunks = chunk_map(settings, split)
     outputs = {m: load_outputs(settings, run.run_id) for m, run in runs.items()}
     combined = combine(outputs, members, rule.min_votes, chunks, min_iou,
                        rule=scoring.quote_repair)
 
-    run_id = run_id_for("teacher_candidate", rule.model_id, split, frozen["hashes"]["guideline"])
+    run_id = run_id_for(role, rule.model_id, split, frozen["hashes"]["guideline"])
     run_path = settings.runs_dir / run_id
     if run_path.exists():
         shutil.rmtree(run_path)  # derived and deterministic: rebuilt from the members
     now = datetime.now(UTC)
     manifest = LabelRunManifest(
         run_id=run_id,
-        role="teacher_candidate",
+        role=role,
         backend="ensemble",
         model_id=rule.model_id,
         model_version=" + ".join(f"{m}={runs[m].model_version}" for m in members),

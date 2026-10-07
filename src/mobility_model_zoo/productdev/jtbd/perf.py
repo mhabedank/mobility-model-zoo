@@ -85,9 +85,25 @@ class PeakSampler:
         self._thread.join()
 
 
+def available_cpus(cgroup: Path = Path("/sys/fs/cgroup/cpu.max")) -> int:
+    """CPUs this process may use: the container's CPU quota (cgroup v2) if one is set, else the
+    CPU affinity, else os.cpu_count(). Containers such as Railway services report the host's CPUs
+    in os.cpu_count()."""
+    counts = []
+    try:
+        quota, period = cgroup.read_text().split()[:2]
+        if quota != "max":
+            counts.append(max(1, math.ceil(int(quota) / int(period))))
+    except (OSError, ValueError):
+        pass
+    if hasattr(os, "sched_getaffinity"):
+        counts.append(len(os.sched_getaffinity(0)))
+    return min(counts) if counts else os.cpu_count() or 1
+
+
 def hardware_info(label: str | None) -> dict[str, Any]:
     info: dict[str, Any] = {"label": label, "machine": platform.machine(),
-                            "vcpus": os.cpu_count()}
+                            "vcpus": available_cpus(), "host_cpus": os.cpu_count()}
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
             if line.startswith("model name"):
@@ -99,6 +115,12 @@ def hardware_info(label: str | None) -> dict[str, Any]:
                 break
     except OSError:
         info["note"] = "/proc not available; run perf on the Linux reference VM"
+    try:  # a container's memory limit (cgroup v2); MemTotal shows the host
+        limit = Path("/sys/fs/cgroup/memory.max").read_text().strip()
+        if limit != "max":
+            info["mem_limit_mb"] = round(int(limit) / 1024 / 1024)
+    except (OSError, ValueError):
+        pass
     return info
 
 
@@ -126,6 +148,7 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
             f"digest on {host} ({digest[:12]}) differs from quality run {quality.run_id} "
             f"({quality.model_version[:12]}); pull the identical model file")
     backend = OllamaBackend(settings, entry, host)
+    backend.num_thread = available_cpus()
     system, schema = build_system_prompt(settings), wire_schema()
     chunks = load_chunks(settings, "main")
     for chunk in chunks[:warmup]:
@@ -143,6 +166,7 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
         "model_digest": digest,
         "quality_run": quality.run_id,
         "host": host,
+        "num_thread": backend.num_thread,
         "hardware": hardware_info(hardware),
         "warmup_chunks": warmup,
         "n_chunks": len(chunks),
@@ -189,4 +213,96 @@ def perf_frontier(settings: Settings, run_id: str, sample: int) -> dict[str, Any
         "measured_at": datetime.now(UTC).isoformat(),
     }
     write_json(settings.analysis_dir / "perf" / "frontier.json", result)
+    return result
+
+
+DEFAULT_PERF_TEXT = Path("configs/productdev/jtbd/perf/interview-9k-de.txt")
+LATENCY_REPEATS = 5
+
+
+def process_rss_mb(pid: int, proc_root: Path = Path("/proc")) -> float | None:
+    """VmRSS of one process in MB; None when /proc is unavailable."""
+    try:
+        for line in (proc_root / str(pid) / "status").read_text().splitlines():
+            if line.startswith("VmRSS:"):
+                return int(line.split()[1]) / 1024
+    except (OSError, ValueError):
+        return None
+    return None
+
+
+def _student_run(settings: Settings, sha: str, quality_run: str | None):
+    if quality_run:
+        run = load_run_manifest(settings, quality_run)
+    else:
+        found = [read_json(p)["run_id"] for p in sorted(settings.runs_dir.glob("run-*/manifest.json"))
+                 if read_json(p).get("backend") == "span"
+                 and read_json(p).get("settings", {}).get("model_sha256") == sha]
+        if len(found) != 1:
+            raise ValidationFailed(f"found {len(found)} span quality runs for model {sha[:12]}; "
+                                   "evaluate it with `jtbd span label` first or pass --quality-run")
+        run = load_run_manifest(settings, found[0])
+    expected = getattr(run.settings, "model_sha256", None)
+    if expected != sha:
+        raise ValidationFailed(f"model.safetensors ({sha[:12]}) differs from the files of the "
+                               f"quality run {run.run_id} ({str(expected)[:12]})")
+    return run
+
+
+def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
+              text_file: Path | None = None, quality_run: str | None = None,
+              repeats: int = LATENCY_REPEATS, device: str = "cpu",
+              suffix: str | None = None) -> dict[str, Any]:
+    """Speed and peak memory of a span model in a child process (research R13, FR-014)."""
+    import json
+    import subprocess
+    import sys
+    import tempfile
+
+    from mobility_model_zoo.productdev.jtbd.span.evaluate import model_sha256
+
+    sha = model_sha256(model_dir)
+    run = _student_run(settings, sha, quality_run)
+    text_path = Path(text_file) if text_file else settings.base / DEFAULT_PERF_TEXT
+    if not text_path.exists():
+        raise ValidationFailed(f"perf text not found: {text_path}")
+    text = text_path.read_text(encoding="utf-8")
+    chunks = [c.text for c in load_chunks(settings, "main")]
+    threads = available_cpus()
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+        json.dump({"model_dir": str(model_dir), "text": text, "chunks": chunks,
+                   "threads": threads, "repeats": repeats, "device": device}, f)
+        job = f.name
+    child = subprocess.Popen([sys.executable, "-m",
+                              "mobility_model_zoo.productdev.jtbd.span.perfworker", job],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    sampled: float | None = None
+    while child.poll() is None:
+        value = process_rss_mb(child.pid)
+        if value is not None:
+            sampled = value if sampled is None else max(sampled, value)
+        time.sleep(0.05)
+    out, err = child.communicate()
+    Path(job).unlink(missing_ok=True)
+    if child.returncode != 0:
+        raise ValidationFailed(f"perf worker failed: {err.strip()[-500:]}")
+    measured = json.loads(out.strip().splitlines()[-1])
+    peak = max(v for v in (sampled, measured["ru_maxrss_mb"]) if v is not None)
+    result = {
+        "model_id": run.model_id,
+        "backend": "span",
+        "model_sha256": sha,
+        "quality_run": run.run_id,
+        "hardware": hardware_info(hardware),
+        "text_file": str(text_path),
+        **measured,
+        "peak_rss_mb": round(peak, 1),
+        "peak_rss_sampled_mb": None if sampled is None else round(sampled, 1),
+        "measured_at": datetime.now(UTC).isoformat(),
+    }
+    # The reference measurement keeps the plain name the release bar reads. Measurements on other
+    # hardware carry a suffix (given, or the device), so they never overwrite it.
+    tag = suffix or ("" if device == "cpu" else device)
+    name = f"{run.model_id}-{sha[:12]}" + (f"-{tag}" if tag else "")
+    write_json(settings.analysis_dir / "perf" / f"{name}.json", result)
     return result

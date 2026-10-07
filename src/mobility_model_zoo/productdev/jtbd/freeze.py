@@ -121,7 +121,8 @@ def freeze_criteria(
     settings: Settings, new_version: str | None = None, rationale: str | None = None
 ) -> dict[str, Any]:
     current = compute_hashes(settings)
-    if not current["chunks"] and not settings.test_fixture:
+    training_dataset = settings.span_train is not None and bool(current["train_chunks"])
+    if not current["chunks"] and not settings.test_fixture and not training_dataset:
         raise ValidationFailed("no main chunks found; build and split the corpus before freezing")
     existing = load_manifest(settings)
     if existing and not new_version:

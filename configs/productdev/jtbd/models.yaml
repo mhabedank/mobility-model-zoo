@@ -10,7 +10,7 @@ models:
     role: reference
     benchmark_labeler: true
   - model_id: gpt-mini-reference
-    api_model: null                     # OpenRouter slug of the current GPT mini tier (T046)
+    api_model: openai/gpt-5.4-mini      # current GPT mini tier on OpenRouter (T046, chosen 2026-10-06)
     family: openai-gpt
     backend: openrouter
     host: openai
@@ -18,6 +18,7 @@ models:
     benchmark_labeler: true
     provider_order: [openai]
     reasoning_effort: low
+    temperature: null                   # GPT-5 models take no temperature (smoke test T058, 2026-10-06)
   # --- Teacher candidates (local, DGX Spark; research.md R1, T071/T072) --------------------------
   - model_id: teacher-qwen
     api_model: qwen3.8:27b              # primary pick Qwen3.5-122B-A10B if T072 shows it is better
@@ -43,6 +44,7 @@ models:
     host: spark
     role: baseline
     quantization: Q4_K_M
+    think: false                        # as the local teachers; with thinking on, qwen3.5:4b reasoned until the context was full (2026-10-06)
   - model_id: baseline-gemma4-e4b
     api_model: gemma4:e4b
     family: gemma
@@ -50,6 +52,17 @@ models:
     host: spark
     role: baseline
     quantization: Q4_K_M
+    think: false                        # as the local teachers; with thinking on, qwen3.5:4b reasoned until the context was full (2026-10-06)
+  - model_id: baseline-gemma4-e2b
+    api_model: gemma4:e2b
+    family: gemma
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+    think: false
+    # Replaces gemma4:e4b on the reference machine (T074 rule): e4b has 7.5B parameters and its
+    # runner failed (HTTP 500) under the 8 GB limit on 2026-10-06.
   - model_id: baseline-ministral-3b
     api_model: ministral-3:3b
     family: mistral
@@ -57,6 +70,7 @@ models:
     host: spark
     role: baseline
     quantization: Q4_K_M
+    think: false                        # as the local teachers; with thinking on, qwen3.5:4b reasoned until the context was full (2026-10-06)
   # --- Spike 002 (technical spike only) ---------------------------------------------------------
   - model_id: teacher-qwen3.6
     api_model: qwen3.6:35b
@@ -76,7 +90,7 @@ models:
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
-    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b); dense 27B"
+    license_basis: "Apache-2.0 (Ollama manifest of qwen3.8:27b; HF Qwen/Qwen3.8-27B license tag apache-2.0, checked 2026-10-06); dense 27B"
     think: false
     num_ctx: 16384
   - model_id: teacher-glm4.7
@@ -97,7 +111,7 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash)"
+    license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash); HF deepseek-ai/DeepSeek-V4.1-Flash license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
@@ -119,11 +133,15 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF zai-org/GLM-5.3-Flash)"
+    license_basis: "MIT (HF zai-org/GLM-5.3-Flash); HF zai-org/GLM-5.3-Flash license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
-    max_output_tokens: 16384
+    # pilot-v2 smoke test (2026-10-06): 10 calls on 5 chunks used all 16,384 output tokens for
+    # reasoning and returned no answer; reasoning can neither be disabled (HTTP 400) nor capped
+    # (reasoning.max_tokens ignored). The full run only completes the frozen ensemble rule, so the
+    # limit is lowered to keep the expected failures cheap. Recorded as a deviation in the report.
+    max_output_tokens: 4096
   - model_id: teacher-or-qwen3.8-flash
     api_model: qwen/qwen3.8-flash
     family: qwen
@@ -152,7 +170,7 @@ models:
     backend: openrouter
     host: openrouter
     role: teacher_candidate
-    license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL)"
+    license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL); HF XiaomiMiMo/MiMo-V2.6-Pro-RL license tag mit, checked 2026-10-06"
     provider_order: null
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)

@@ -54,3 +54,43 @@ def test_no_accuracy_and_the_agreement_sentence(zoo_env):
     assert "accuracy" not in card.lower()
     assert "These numbers are agreement with" in card
     assert "they are not measured against human ground truth." in card
+
+
+def test_metrics_without_optional_fields_render(zoo_env):
+    """`n_items`, `hardware`, `reference` and `benchmark` are optional in the results schema; the
+    card leaves the cell empty instead of failing (found with scout-large 0.1.0, 2026-10-07)."""
+    import json
+
+    path = zoo_env.reg.results_path(zoo_env.model, zoo_env.version, "performance")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for metric in data["metrics"]:
+        metric.pop("n_items", None)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    qpath = zoo_env.reg.results_path(zoo_env.model, zoo_env.version, "quality")
+    quality = json.loads(qpath.read_text(encoding="utf-8"))
+    for key in ("n_items", "reference", "benchmark"):
+        quality["metrics"][0].pop(key, None)
+    qpath.write_text(json.dumps(quality), encoding="utf-8")
+    card = cards.render(cards.CardInput(zoo_env.reg, zoo_env.model, zoo_env.version))
+    assert card_structure(card) == []
+
+
+def test_figures_link_the_release_tag_and_must_exist(zoo_env):
+    from mobility_model_zoo.release.registry import dump_yaml
+
+    data = zoo_env.reg.model_raw(zoo_env.model)
+    data["card"]["figures"] = [{"path": "docs/figures/speed.png", "alt": "Speed"}]
+    (zoo_env.reg.model_dir(zoo_env.model) / "model.yaml").write_text(dump_yaml(data), encoding="utf-8")
+    card = cards.render(cards.CardInput(zoo_env.reg, zoo_env.model, zoo_env.version))
+    tag = f"{zoo_env.model}/v{zoo_env.version}"
+    raw = "https://raw.githubusercontent.com/mhabedank/mobility-model-zoo"
+    assert f"![Speed]({raw}/refs/tags/{tag}/docs/figures/speed.png)" in card
+    import pytest
+
+    from mobility_model_zoo.release.errors import GateFailed
+
+    gate = Gate(zoo_env.reg, zoo_env.model, zoo_env.version, hub=zoo_env.hub, runner=FakeRunner())
+    with pytest.raises(GateFailed) as exc:
+        gate.run(lambda line: None)
+    assert any("figure docs/figures/speed.png is not in the repository" in f
+               for f in exc.value.failures)

@@ -1,0 +1,187 @@
+FIKTIVES INTERVIEW – Fußgängeralltag in Berlin
+================================================
+
+Hinweis: Dieses Interview ist frei erfunden. Personen, Aussagen und Details
+sind fiktiv und dienen nur als Testmaterial.
+
+Datum:        12. September 2026
+Ort:          Café am Boxhagener Platz, Berlin-Friedrichshain
+Dauer:        ca. 40 Minuten
+Interviewer:  Jonas (Product Owner, Mobilitäts-App)
+Befragte:     Ilka, 41, Grafikerin, wohnt in Neukölln (Reuterkiez),
+              besitzt kein Auto, geht die meisten Wege zu Fuß,
+              ein Kind (6 Jahre)
+
+------------------------------------------------
+
+JONAS: Danke, dass du dir Zeit nimmst. Ich will heute nichts verkaufen und
+nichts testen. Mich interessiert einfach, wie du dich in Berlin zu Fuß
+bewegst. Magst du mir erzählen, wie dein gestriger Tag aussah, was Wege
+angeht?
+
+ILKA: Klar. Gestern war ein ganz normaler Donnerstag. Um halb acht bin ich
+mit meiner Tochter los zur Grundschule, das sind ungefähr zehn Minuten zu
+Fuß. Danach bin ich weiter zum Hermannplatz, U-Bahn bis Kottbusser Tor, und
+von dort zu Fuß ins Büro in Kreuzberg. Nachmittags dasselbe rückwärts, plus
+Einkaufen auf der Sonnenallee. Abends noch mal mit dem Hund raus. Ich
+schätze, ich war insgesamt so zwei Stunden zu Fuß unterwegs.
+
+JONAS: Lass uns beim Schulweg anfangen. Wie läuft der ab?
+
+ILKA: Der Weg an sich ist kurz, aber er ist der stressigste des Tages. Wir
+müssen über die Weserstraße, und da gibt es keine Ampel, nur einen
+Zebrastreifen, den die Hälfte der Autofahrer ignoriert. Morgens stehen da
+außerdem Lieferwagen in zweiter Reihe, und die Kinder sind hinter denen
+einfach unsichtbar. Ich halte meine Tochter da immer an der Hand, obwohl sie
+eigentlich schon alleine gehen will.
+
+JONAS: Was meinst du mit „eigentlich schon alleine gehen will“?
+
+ILKA: Sie ist sechs, die anderen Kinder aus ihrer Klasse gehen teilweise
+schon allein. Ich würde sie gern lassen. Aber solange ich bei dieser einen
+Kreuzung kein gutes Gefühl habe, geht das nicht. Das ist so ein Punkt, der
+mich wirklich beschäftigt. Ich will ihr Selbstständigkeit geben, aber ich
+will auch nachts nicht wach liegen.
+
+JONAS: Hast du schon irgendwas versucht, um das zu lösen?
+
+ILKA: Ich habe im Frühjahr mal einen anderen Weg ausprobiert, über die
+Pannierstraße, da gibt es eine Ampel. Das sind aber vier Minuten mehr, und
+dort ist der Gehweg so schmal und voller abgestellter E-Scooter, dass wir
+teilweise auf die Straße ausweichen mussten. Also eigentlich nicht besser.
+Ich habe auch mal eine Mail ans Bezirksamt geschrieben wegen eines
+Lotsen oder einer Ampel. Antwort kam nach drei Monaten, sinngemäß: wird
+geprüft.
+
+JONAS: Du hast die E-Scooter erwähnt. Wie oft spielt das eine Rolle?
+
+ILKA: Jeden Tag. Wirklich jeden Tag. Die liegen quer auf dem Gehweg, stehen
+vor Hauseingängen, an Bushaltestellen. Mit Kind an der Hand oder mit
+Einkaufstaschen musst du ständig Slalom laufen. Was mich am meisten nervt:
+Ich habe eine Nachbarin, die im Rollstuhl sitzt, und die kommt an manchen
+Tagen einfach nicht aus ihrer Straße raus. Ich habe schon öfter Scooter für
+sie weggeräumt. Das ist ja nicht mein Job, aber was soll man machen.
+
+JONAS: Erzähl mir vom Umstieg am Hermannplatz.
+
+ILKA: Hermannplatz ist Chaos, aber ein bekanntes Chaos. Ich weiß, welcher
+Ausgang wohin führt, ich weiß, wo die Leute stehen bleiben. Schwierig wird
+es, wenn ich mit Kinderwagen unterwegs war, als meine Tochter kleiner war.
+Der Aufzug war gefühlt jeden zweiten Monat kaputt. Dann stehst du unten,
+und die BVG-App sagt dir, der Aufzug funktioniert. Ich habe damals oft
+Fremde gefragt, ob sie mir beim Tragen helfen. Die Berliner sind da
+übrigens netter als ihr Ruf.
+
+JONAS: Wie hast du damals herausgefunden, ob ein Aufzug geht?
+
+ILKA: Gar nicht zuverlässig. Ich hab mir angewöhnt, eine Station früher
+oder später auszusteigen, wo ich wusste, dass es eine Rampe gibt oder der
+Aufzug neuer ist. Das hat manchmal zwanzig Minuten extra gekostet. Es gibt
+da so einen Twitter-Account, also inzwischen Mastodon, der kaputte Aufzüge
+sammelt, den habe ich morgens gecheckt. Aber das ist halt Glück, ob da
+jemand was gepostet hat.
+
+JONAS: Und der Fußweg vom Kotti ins Büro?
+
+ILKA: Den mag ich eigentlich. Zehn Minuten am Landwehrkanal entlang, wenn
+das Wetter passt. Das ist so meine Zeit, um im Kopf vom Mama-Modus in den
+Arbeitsmodus zu wechseln. Ich höre einen Podcast oder gar nichts. Wenn es
+regnet, nehme ich den direkteren Weg über die Skalitzer, aber der ist laut
+und eng, und unter der Hochbahn tropft es.
+
+JONAS: Was macht einen Weg für dich gut oder schlecht?
+
+ILKA: Gut ist, wenn ich nicht ständig aufpassen muss. Wenn ich einfach
+gehen kann. Breiter Gehweg, ein paar Bäume, nicht zu viele Ampeln, auf
+die ich ewig warten muss. Schlecht ist alles, wo ich dauernd um Sachen
+herum muss: Baustellen, die den Gehweg komplett sperren und kein
+Ersatzweg ausgeschildert ist. Radfahrer auf dem Gehweg, weil der Radweg
+zugeparkt ist. Und Ampeln, bei denen die Grünphase für Fußgänger so kurz
+ist, dass du es mit Kind nicht über die ganze Straße schaffst. Am
+Kottbusser Damm, Ecke Hasenheide, stehst du dann auf der Mittelinsel
+zwischen zwei Spuren und die Autos rauschen vorbei.
+
+JONAS: Kannst du dich an das letzte Mal erinnern, als eine Baustelle dich
+richtig ausgebremst hat?
+
+ILKA: Ja, letzte Woche. Auf der Sonnenallee war der Gehweg auf einmal
+komplett gesperrt, Bauzaun, und das Schild sagte „Fußgänger andere
+Straßenseite benutzen“. Nur dass es auf hundert Meter keinen Übergang gab.
+Ich bin dann wie alle anderen zwischen den parkenden Autos durch über die
+Straße. Mit zwei vollen Einkaufstaschen. Das ist so typisch: Für Autos gibt
+es eine ordentliche Umleitung mit gelben Schildern, für Fußgänger gibt es
+ein laminiertes A4-Blatt.
+
+JONAS: Wie planst du deine Wege? Nutzt du dafür irgendwas?
+
+ILKA: Ehrlich gesagt plane ich kaum. Die Alltagswege kenne ich auswendig.
+Google Maps nutze ich nur, wenn ich irgendwo hin muss, wo ich noch nie war.
+Und dann ärgere ich mich meistens, weil es mich den kürzesten Weg schickt,
+nicht den angenehmsten. Einmal hat es mich nachts durch eine total dunkle
+Unterführung am Ostkreuz geschickt. Bin ich nicht durch, bin
+zurückgegangen und hab einen Umweg gemacht.
+
+JONAS: Was war da genau das Problem?
+
+ILKA: Allein, nachts, kein Licht, niemand sonst unterwegs. Da gehe ich
+nicht durch. Das ist für mich als Frau ein echtes Kriterium, über das die
+Apps einfach nicht nachdenken. Abends ist mir „belebt und hell“ wichtiger
+als „drei Minuten schneller“. Ich schreibe dann auch oft einer Freundin,
+wenn ich losgehe und wenn ich ankomme.
+
+JONAS: Machst du das regelmäßig?
+
+ILKA: Ab etwa zehn Uhr abends eigentlich immer, wenn ich allein unterwegs
+bin. Wir haben so eine Abmachung, „bin los“ und „bin da“. Das ist halb
+Ritual, halb echte Sicherheit.
+
+JONAS: Lass uns noch über die Jahreszeiten reden. Ist Winter anders?
+
+ILKA: Komplett anders. Berlin räumt die Straßen, aber Gehwege sind Sache
+der Hauseigentümer, und das funktioniert mal so, mal so. Letzten Januar war
+unsere Straße eine Woche lang eine Eisbahn. Ich bin zweimal fast hingefallen,
+einmal mit Kind. Ältere Leute aus dem Haus sind in der Zeit gar nicht mehr
+rausgegangen. Ich hab für die mit eingekauft. Und im Herbst ist es das
+nasse Laub auf dem Kopfsteinpflaster, das ist rutschig wie Seife.
+
+JONAS: Wenn du an das letzte Jahr denkst, was war die größte Frustration
+beim Zu-Fuß-Gehen?
+
+ILKA: Dass ich das Gefühl habe, als Fußgängerin bin ich die Letzte, an die
+gedacht wird. Ich gehe ja nicht zu Fuß, weil ich muss, sondern weil es in
+Berlin für kurze Wege einfach das Schnellste ist und weil ich es mag. Aber
+die Stadt behandelt den Gehweg wie eine Restfläche, wo man alles abstellt,
+was woanders keinen Platz hat: Scooter, Mülltonnen, Fahrräder, Baustellen,
+Gastrotische. Ich passe mich an, ich laufe drum rum, aber es kostet jeden
+Tag ein bisschen Nerven.
+
+JONAS: Und was war richtig gut?
+
+ILKA: Die neue Fußgängerzone im Bergmannkiez, also die Abschnitte, die sie
+verkehrsberuhigt haben. Da gehe ich jetzt manchmal extra hin, am Wochenende,
+mit Kind. Die Kinder können da einfach rennen. Das hat mir gezeigt, wie
+entspannt das sein könnte. Und die längeren Grünphasen an der
+Warschauer Brücke, die sie irgendwann umgestellt haben. Ich weiß nicht,
+ob das Absicht war, aber seitdem ist das viel angenehmer.
+
+JONAS: Wenn du einen Wunsch frei hättest, egal wie unrealistisch?
+
+ILKA: Dass meine Tochter alleine zur Schule gehen kann und ich nicht
+nervös bin. Das klingt banal, aber das ist es eigentlich. Alles andere,
+die Scooter, die Baustellen, das kriege ich als Erwachsene irgendwie hin.
+Aber wenn ein sechsjähriges Kind den Weg nicht sicher allein gehen kann,
+dann stimmt was nicht.
+
+JONAS: Eine letzte Frage: Gibt es etwas, das ich nicht gefragt habe, aber
+hätte fragen sollen?
+
+ILKA: Vielleicht, wie viel man als Fußgänger eigentlich für andere
+mitmacht. Ich räume Scooter weg, ich helfe Leuten mit Kinderwagen die
+Treppe hoch, ich kaufe für die Nachbarn ein, wenn es glatt ist. Das ist so
+eine unsichtbare Arbeit, die alle machen, die viel zu Fuß gehen. Die taucht
+in keiner Statistik auf.
+
+JONAS: Danke dir, Ilka. Das war sehr aufschlussreich.
+
+ILKA: Gern. Und wenn ihr was baut: Bitte nicht noch eine App, die mir den
+kürzesten Weg zeigt.

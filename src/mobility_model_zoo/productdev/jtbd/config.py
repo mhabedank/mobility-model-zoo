@@ -18,6 +18,20 @@ from mobility_model_zoo.productdev.jtbd.errors import UsageError
 from mobility_model_zoo.productdev.jtbd.schema import DecisionCriteria, TeacherScoring
 
 DEFAULT_CONFIG = Path("configs/productdev/jtbd/pilot-v1.yaml")
+# Each config spends from one named budget (its own budget file); the ledger is shared and
+# its rows carry the budget name. Rows without a name belong to the pilot budget.
+DEFAULT_BUDGET = "pilot-v1"
+TOP_LEVEL_KEYS = {"root", "benchmark_version", "test_fixture", "paths", "pilot", "budget_name",
+                  "span_train"}
+# Defaults of a training dataset config (feature 004, data-model.md "Training dataset").
+SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
+    "redaction": {"version": "redact-v2", "review": "full"},
+    "composition_targets": {},
+    "validation": {"fraction_of_snapshots": 0.10, "seed": 0},
+    "min_usable_chunks": 600,
+    "retention": {},
+}
+SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", *SPAN_TRAIN_DEFAULTS}
 
 
 @dataclass
@@ -42,6 +56,8 @@ class Settings:
     test_fixture: bool
     paths: dict[str, Path]
     pilot: dict[str, Any]
+    budget_name: str = DEFAULT_BUDGET
+    span_train: dict[str, Any] | None = None
 
     # ---- derived paths -------------------------------------------------------------------------
     @property
@@ -102,6 +118,15 @@ class Settings:
     def budget(self) -> dict[str, Any]:
         return self.load_yaml("budget")
 
+    @property
+    def redaction_review(self) -> str:
+        """How chunks are reviewed after pattern redaction: `full` (every chunk by hand),
+        `sampled` (a sample by hand, training datasets, research R4) or `model` (every chunk by a
+        local model, `jtbd corpus pii-review`; decision of 2026-10-06)."""
+        if self.span_train is not None:
+            return self.span_train.get("redaction", {}).get("review", "full")
+        return self.pilot.get("redaction_review", "full")
+
     def domain(self) -> dict[str, Any]:
         return self.load_yaml("domain")
 
@@ -131,6 +156,9 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
     if not path.exists():
         raise UsageError(f"config not found: {path}")
     raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    unknown = set(raw) - TOP_LEVEL_KEYS
+    if unknown:
+        raise UsageError(f"config {path} has unknown keys: {sorted(unknown)}")
     base = (path.parent / raw.get("root", ".")).resolve()
     paths = {key: (base / value).resolve() for key, value in (raw.get("paths") or {}).items()}
     required = {"guideline", "examples", "domain", "models", "criteria", "teacher_scoring",
@@ -145,4 +173,18 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
         test_fixture=bool(raw.get("test_fixture", False)),
         paths=paths,
         pilot=raw.get("pilot") or {},
+        budget_name=raw.get("budget_name") or DEFAULT_BUDGET,
+        span_train=_span_train(path, raw.get("span_train")),
     )
+
+
+def _span_train(path: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raw is None:
+        return None
+    unknown = set(raw) - SPAN_TRAIN_KEYS
+    if unknown:
+        raise UsageError(f"config {path} has unknown span_train keys: {sorted(unknown)}")
+    merged = {**SPAN_TRAIN_DEFAULTS, **raw}
+    if merged["redaction"].get("review") not in ("full", "sampled", "model"):
+        raise UsageError("span_train.redaction.review must be `full`, `sampled` or `model`")
+    return merged

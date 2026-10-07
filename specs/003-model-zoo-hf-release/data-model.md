@@ -44,7 +44,7 @@ File: `zoo/models/<model-name>/model.yaml`. Schema: [model.schema.json](contract
 
 | Field | Type | Rule |
 |-------|------|------|
-| `name` | string | `<topic>-<task>-<variant>`: pattern `^[a-z][a-z0-9]{1,15}-[a-z0-9]+(-[a-z0-9]+)+$`. Equals the directory name. The first segment MUST be a topic `id`. Never changes after the first publication (FR-003a). |
+| `name` | string | `<name>-<variant>` (amended 2026-10-07): pattern `^[a-z][a-z0-9]*(-[a-z0-9]+)+$`, ending with `-<variant>`. Equals the directory name. The first segment MUST be a topic `id`. Never changes after the first publication (FR-003a). |
 | `topic` | string | Topic `id`. MUST equal the first segment of `name`. |
 | `task` | string | Short task id, e.g. `jtbd`. MUST equal the second segment of `name`. |
 | `variant` | string | Rest of the name, e.g. `span-xlmr`. |

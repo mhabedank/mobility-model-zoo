@@ -11,7 +11,9 @@
 
 {{ m.summary }}
 
-`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
+{% for f in figures %}![{{ f.alt }}]({{ f.url }})
+
+{% endfor %}`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
 
 ## Intended use
 
@@ -61,7 +63,7 @@ These numbers are agreement with {{ r.evaluation.reference }}; they are not meas
 
 | Metric | Value | What it measures | Reference | Benchmark | Items | Date |
 |--------|-------|------------------|-----------|-----------|-------|------|
-{% for q in quality.metrics %}| `{{ q.name }}` | {{ q.value | num }} | {{ q.description }} | {{ q.reference }} | {{ q.benchmark }} | {{ q.n_items }} | {{ q.date }} |
+{% for q in quality.metrics %}| `{{ q.name }}` | {{ q.value | num }} | {{ q.description }} | {{ q.reference if q.reference is defined else "" }} | {{ q.benchmark if q.benchmark is defined else "" }} | {{ q.n_items if q.n_items is defined else "" }} | {{ q.date }} |
 {% endfor %}
 
 ## Speed and memory
@@ -70,7 +72,7 @@ Budget: {{ r.performance.budget.ram_gb | num }} GB RAM, no GPU. Measured on: {{ 
 
 | Metric | Value | Unit | What it measures | Hardware | Items | Date |
 |--------|-------|------|------------------|----------|-------|------|
-{% for p in performance.metrics %}| `{{ p.name }}` | {{ p.value | num }} | {{ p.unit or "" }} | {{ p.description }} | {{ p.hardware }} | {{ p.n_items or "" }} | {{ p.date }} |
+{% for p in performance.metrics %}| `{{ p.name }}` | {{ p.value | num }} | {{ p.unit if p.unit is defined and p.unit else "" }} | {{ p.description }} | {{ p.hardware if p.hardware is defined else "" }} | {{ p.n_items if p.n_items is defined else "" }} | {{ p.date }} |
 {% endfor %}
 
 ## Limitations and risks

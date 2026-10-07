@@ -130,15 +130,14 @@ class Gate:
     def rule_2(self) -> list[str]:
         m, r, name = self.model, self.record, self.name
         failures = []
-        parts = name.split("-")
         if m.get("name") != name:
             failures.append(f"model.yaml name {m.get('name')!r} differs from directory {name!r}")
-        if m.get("topic") != parts[0]:
-            failures.append(f"topic {m.get('topic')!r} must be the first name segment {parts[0]!r}")
         if self.reg.topic(m.get("topic", "")) is None:
             failures.append(f"unknown topic {m.get('topic')!r} (not in zoo/topics.yaml)")
-        if len(parts) < 3 or m.get("task") != parts[1] or m.get("variant") != "-".join(parts[2:]):
-            failures.append("name must be <topic>-<task>-<variant> matching topic, task and variant")
+        # <name>-<variant> (constitution 1.4.0): topic and task are fields and tags, not segments.
+        variant = m.get("variant") or ""
+        if not variant or not name.endswith(f"-{variant}") or name == f"-{variant}":
+            failures.append("name must be <name>-<variant> ending with the model's variant")
         if r.get("model") != name:
             failures.append(f"release record model {r.get('model')!r} differs from {name!r}")
         if m["repos"]["public"] != f"{ORG}/{name}":
@@ -350,6 +349,9 @@ class Gate:
     def rule_10(self) -> list[str]:
         card = self._card()
         failures = card_structure(card)
+        root = self.reg.zoo.parent
+        failures += [f"figure {f['path']} is not in the repository"
+                     for f in self.model["card"].get("figures", []) if not (root / f["path"]).is_file()]
         if self.offline:
             return failures
         verdict = self.hub.validate_yaml(card)

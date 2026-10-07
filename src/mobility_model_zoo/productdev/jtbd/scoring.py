@@ -32,10 +32,43 @@ from mobility_model_zoo.productdev.jtbd.metrics import (
     kappa_stat,
     summarize,
 )
-from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, load_outputs, load_run_manifest
+from mobility_model_zoo.productdev.jtbd.runs import (
+    ChunkOutput,
+    load_outputs,
+    load_run_manifest,
+    produced_dimensions,
+)
 from mobility_model_zoo.productdev.jtbd.schema import evidence_rank
 
 RELEVANCE_LABELS = ["false", "true", "invalid"]
+ALL_DIMENSIONS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type",
+                  "evidence_scope")
+# Always scored; the attribute dimensions only when the model produces them (feature 004).
+CORE_DIMENSIONS = ("relevance", "item_matching", "kind")
+ATTRIBUTES = ("actor_type", "evidence_type", "evidence_scope")
+
+
+def not_produced() -> dict[str, Any]:
+    """Score entry of a dimension the model does not produce: reported, never 0, never mixed in."""
+    return {"status": "not_produced", "score": None, "n": 0}
+
+
+def comparison_composite(dimensions: dict[str, Any], names: list[str] | tuple[str, ...]
+                         ) -> float | None:
+    """The composite over exactly `names` (spec FR-015), from a score file's `dimensions`.
+
+    Every dimension in `names` must be scored; a missing or not-produced one makes the
+    comparison undefined (None) instead of silently shrinking the set.
+    """
+    scores = []
+    for name in names:
+        entry = dimensions.get(name)
+        if not isinstance(entry, dict) or entry.get("status") == "not_produced":
+            return None
+        scores.append(entry.get("score"))
+    if any(v is None for v in scores):
+        return None
+    return composite(scores)
 
 
 @dataclass
@@ -51,7 +84,10 @@ def _relevance_label(value: bool | None) -> str:
 
 
 def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[str],
-                outputs: dict, min_iou: float) -> tuple[dict[str, list], Counter]:
+                outputs: dict, min_iou: float, attributes: tuple[str, ...] = ATTRIBUTES
+                ) -> tuple[dict[str, list], Counter]:
+    """Scoring units per dimension. Attribute dimensions outside `attributes` (not produced by
+    the model) get no units at all."""
     units: dict[str, list] = {d: [] for d in ("relevance", "item_matching", "kind", "actor_type",
                                               "evidence_type", "evidence_scope")}
     neutral: Counter = Counter()
@@ -81,16 +117,19 @@ def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[st
                     continue
                 tp += 1
                 for dim in ("kind", "actor_type", "evidence_scope"):
+                    if dim != "kind" and dim not in attributes:
+                        continue
                     if dim in m.b.values:
                         units[dim].append((chunk_id, (getattr(m.a, dim), m.b.values[dim])))
                     else:
                         neutral[dim] += 1
-                if "evidence_type" in m.b.values:
-                    units["evidence_type"].append((chunk_id, (
-                        evidence_rank(m.a.evidence_type),
-                        evidence_rank(m.b.values["evidence_type"]))))
-                else:
-                    neutral["evidence_type"] += 1
+                if "evidence_type" in attributes:
+                    if "evidence_type" in m.b.values:
+                        units["evidence_type"].append((chunk_id, (
+                            evidence_rank(m.a.evidence_type),
+                            evidence_rank(m.b.values["evidence_type"]))))
+                    else:
+                        neutral["evidence_type"] += 1
             elif m.a:
                 fp += 1
             elif not m.b.contested_existence:
@@ -104,8 +143,9 @@ def _ratio(value: float | None, reference: float | None) -> float | None:
 
 
 def _dimensions(settings: Settings, consensus: list[dict], contested: list[dict],
-                chunk_ids: list[str], outputs: dict, min_iou: float) -> tuple[dict, Counter]:
-    units, neutral = score_units(consensus, contested, chunk_ids, outputs, min_iou)
+                chunk_ids: list[str], outputs: dict, min_iou: float,
+                attributes: tuple[str, ...] = ATTRIBUTES) -> tuple[dict, Counter]:
+    units, neutral = score_units(consensus, contested, chunk_ids, outputs, min_iou, attributes)
     dims = {
         "relevance": summarize(units["relevance"], kappa_stat(RELEVANCE_LABELS), "kappa",
                                settings),
@@ -118,8 +158,8 @@ def _dimensions(settings: Settings, consensus: list[dict], contested: list[dict]
     dims["evidence_type"] = summarize(units["evidence_type"],
                                       kappa_stat(EVIDENCE_LABELS, "quadratic"),
                                       "quadratic_weighted_kappa", settings)
-    dims = {d: dims[d] for d in ("relevance", "item_matching", "kind", "actor_type",
-                                 "evidence_type", "evidence_scope")}
+    dims = {d: dims[d] if d in CORE_DIMENSIONS or d in attributes else not_produced()
+            for d in ALL_DIMENSIONS}
     return dims, neutral
 
 
@@ -150,10 +190,15 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
         raise ValidationFailed(f"{run_id} is not complete (status {run.status})")
     if run.role == "reference":
         raise ValidationFailed("reference runs are part of the consensus; use `jtbd agreement`")
+    if run.role == "teacher":
+        raise ValidationFailed("teacher runs label the training split; they are not scored")
+    produced = produced_dimensions(run)
+    attributes = ATTRIBUTES if produced is None else tuple(a for a in ATTRIBUTES if a in produced)
     consensus, contested, meta = load_consensus(settings, "main")
     outputs = load_outputs(settings, run_id)
     min_iou = float(settings.pilot.get("min_iou", 0.3))
-    dims, neutral = _dimensions(settings, consensus, contested, meta["chunks"], outputs, min_iou)
+    dims, neutral = _dimensions(settings, consensus, contested, meta["chunks"], outputs, min_iou,
+                                attributes)
 
     agreement_path = settings.analysis_dir / "agreement.json"
     if meta.get("single_reference"):
@@ -162,7 +207,8 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
         agreement = read_json(agreement_path)
     else:
         agreement = compute_agreement(settings, "main")
-    model_composite = composite(d["score"] for d in dims.values())
+    model_composite = composite(d["score"] for d in dims.values()
+                                if d.get("status") != "not_produced")
     frontier_a = agreement["composite_consensus_units"] if agreement else None
     frontier_b = agreement["composite_all_units"] if agreement else None
     repaired = None
@@ -202,5 +248,10 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
     }
     if repaired is not None:
         result["repaired"] = repaired
+    if run.role == "student":
+        names = [*CORE_DIMENSIONS, *attributes]
+        result["produced_dimensions"] = list(attributes)
+        result["comparison_composite"] = {"dimensions": names,
+                                          "value": comparison_composite(dims, names)}
     write_json(settings.analysis_dir / "scores" / f"{run_id}.json", result)
     return result

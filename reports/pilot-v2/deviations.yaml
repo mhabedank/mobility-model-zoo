@@ -1,0 +1,11 @@
+# Deviations decided while running pilot-v1 and pilot-v2 (2026-10-06/07). Read by `jtbd report`.
+deviations:
+  - "No manual review (owner decision 2026-10-06): personal data was removed by pattern redaction plus a local model (qwen3.8:27b on the DGX Spark, `jtbd corpus pii-review`), research R7 as amended; the model also redacted some names of public officials, which is stricter than the rule."
+  - "Benchmark chunks were selected by a local model's classification of candidate windows (scripts/pilot/propose_selection.py), not by hand."
+  - "The contested set of pilot-v1 was categorized by the local model qwen3.8:27b (scripts/pilot/categorize_contested.py), not by hand; the free-text sample was not reviewed by a person."
+  - "Reference machine: a Railway service limited to 4 vCPU and 8 GB RAM (AMD EPYC 9655P) instead of a Hetzner CX32; Ollama threads set to the 4 available CPUs (research R6 as amended)."
+  - "gemma4:e4b (7.5B parameters) failed under the 8 GB limit (HTTP 500 from the runner) and was replaced by gemma4:e2b for the throughput chart, with its own quality run; e4b keeps its quality score in section 9."
+  - "Baselines run without thinking (`think: false`), like the local teachers, and with the recorded output limit enforced (num_predict); a first qwen3.5:4b run with thinking on reasoned until the context was full and was discarded."
+  - "teacher-or-glm-5.3-flash spent the whole 16,384-token output budget on reasoning in the smoke test (reasoning cannot be disabled or capped on OpenRouter); its full run used max_output_tokens 4096 only to complete the frozen ensemble rule."
+  - "teacher-or-deepseek-v4.1-flash: 11 chunks (7.3%) were schema-invalid; `--retry-failed` retries only backend failures, so they stayed excluded."
+  - "The split balances the non-EU share by swaps within a stratum (both splits meet the composition targets)."

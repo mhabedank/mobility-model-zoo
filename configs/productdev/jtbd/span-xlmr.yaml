@@ -1,0 +1,37 @@
+# Recipe of the production span model scout-large (feature 004, data-model.md).
+# The release bar and the selection rule are committed before any training run (Principle IV);
+# `jtbd span train` refuses to run if `release_bar` changed since then without an entry in
+# `release_bar_changes`.
+model: scout-large
+base_encoder:
+  name: FacebookAI/xlm-roberta-large
+  revision: c23d21b0620b635a76227c604d44e43a9f0ee389   # main on 2026-10-02
+dataset: span-train-v1
+dataset_config: configs/productdev/jtbd/span-train-v1.yaml
+benchmark_config: configs/productdev/jtbd/pilot-v1.yaml
+# Attribute dimensions that passed the pilot; filled from decision.json after the pilot (T037).
+# relevance, item_matching and kind are always produced.
+dimensions: [actor_type, evidence_type, evidence_scope]   # passed on the pilot-v2 holdout (T037, 2026-10-06)
+windows: {max_length: 512, stride: 128}
+training:
+  lr: 1.5e-5
+  weight_decay: 0.01
+  warmup: 0.10
+  grad_clip: 1.0
+  batch_size: 4
+  max_epochs: 8
+  seed: 20261002
+  bio_loss_weight: 0.5
+  relevance_loss_weight: 0.5
+thresholds:
+  unit_grid: [0.2, 0.3, 0.4, 0.5, 0.6]
+selection:
+  benchmark_candidate_cap: 3
+  rule: "among candidates that meet every release_bar condition, the highest comparison composite; within 0.02, the one with the higher chunks_per_min; if none meets the bar, none is selected"
+  tie_margin: 0.02
+release_bar:
+  beat_every_zero_shot_baseline_on: comparison_composite
+  deterministic_checks: {quotes_verbatim: 1.0, schema_valid: 1.0, consistency: 1.0}
+  max_peak_ram_gb: 4
+  max_latency_s_9k: 10
+release_bar_changes: []

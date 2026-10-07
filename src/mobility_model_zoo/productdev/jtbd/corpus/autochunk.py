@@ -79,11 +79,37 @@ def _pick(pools: dict[str, list[tuple[int, int]]], quota: int, rng: random.Rando
     return picked
 
 
-def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, seed: int
-              ) -> dict[str, Any]:
+def check_separation(settings: Settings, mapping: dict[str, Any],
+                     exclude_benchmark: Path | None) -> dict[str, list[str]]:
+    """Refuse training snapshots that share a source with the benchmark or spike data (R2).
+
+    Runs when `--exclude-benchmark` is given or the config names `span_train.exclude_benchmark`.
+    """
+    from mobility_model_zoo.productdev.jtbd.corpus import separation
+
+    if exclude_benchmark is None and not (settings.span_train or {}).get("exclude_benchmark"):
+        return {}
+    bench = separation.benchmark_sources(settings, exclude_benchmark)
+    spike = separation.spike_snapshot_ids(settings)
+    found = {}
+    for snapshot_id, meta in sorted(mapping.items()):
+        if meta["use"] == "train":
+            rules = separation.violations(settings, snapshot_id, bench, spike)
+            if rules:
+                found[snapshot_id] = rules
+    if found:
+        listed = "; ".join(f"{k} ({', '.join(v)})" for k, v in found.items())
+        raise ValidationFailed(f"training snapshots share a source with the benchmark or spike "
+                               f"data: {listed}")
+    return found
+
+
+def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, seed: int,
+              exclude_benchmark: Path | None = None) -> dict[str, Any]:
     if load_chunks(settings):
         raise ValidationFailed(f"{settings.chunks_dir} already has chunks; autochunk starts empty")
     mapping = read_yaml(map_path)["snapshots"]
+    check_separation(settings, mapping, exclude_benchmark)
     pools: dict[str, dict[str, list[tuple[int, int]]]] = {
         "train": {}, "eval": {}, "train_off": {}, "eval_off": {}}
     keywords = [k.lower() for k in settings.domain().get("topic_keywords", [])]
@@ -104,11 +130,15 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
     selected = []
     for split, use, quota in (("main", "eval", evaluation), ("train", "train", train)):
         n_on = round(quota * ON_TOPIC_SHARE)
-        picked = _pick(pools[use], n_on, rng)
-        picked += _pick(pools[f"{use}_off"], quota - len(picked), rng)
-        selected += [(split, s, r) for s, r in picked]
+        picked = [(s, r, "relevant") for s, r in _pick(pools[use], n_on, rng)]
+        picked += [(s, r, "irrelevant")
+                   for s, r in _pick(pools[f"{use}_off"], quota - len(picked), rng)]
+        selected += [(split, s, r, intent) for s, r, intent in picked]
+    # Training datasets (feature 004) mark off-topic windows, so their share can be reported;
+    # spike chunks keep the uncurated `relevant`.
+    mark_offtopic = settings.span_train is not None
     counts = {"main": 0, "train": 0}
-    for n, (split, snapshot_id, (start, end)) in enumerate(selected, start=1):
+    for n, (split, snapshot_id, (start, end), intent) in enumerate(selected, start=1):
         meta = mapping[snapshot_id]
         snapshot = load_snapshot(settings, snapshot_id)
         text = texts[snapshot_id][start:end].strip()
@@ -126,7 +156,7 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
             "language": meta["language"],
             "date": meta["date"],
             "license": snapshot.license,
-            "relevance_intent": "relevant",
+            "relevance_intent": intent if mark_offtopic else "relevant",
             "redaction": {"patterns_version": settings.pilot.get("redaction_patterns_version",
                                                                  "redact-v1"),
                           "manual_review_at": None, "check_passed": False},
