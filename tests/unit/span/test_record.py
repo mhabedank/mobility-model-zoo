@@ -1,11 +1,9 @@
 """`jtbd span record` fills the release record from the measured data (T045)."""
 
 import json
-import shutil
 from pathlib import Path
 
 import jsonschema
-import yaml
 from helpers import pilot, run_ids
 from span_helpers import build_tiny_model, git_commit_all, teacher_env, write_recipe
 
@@ -28,7 +26,12 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
     pilot(bench, "score", "--run", run_ids(bench)["mock-small"])
     target = work / "zoo/models/scout-large/releases/0.1.0.yaml"
     target.parent.mkdir(parents=True)
-    shutil.copy(DRAFT, target)
+    # The real record is published since 2026-10-07; the test starts from its unpublished state.
+    from mobility_model_zoo.release.registry import dump_yaml, load_yaml
+
+    draft = load_yaml(DRAFT)
+    draft["published"] = None
+    target.write_text(dump_yaml(draft), encoding="utf-8")
     git_commit_all(work)
     model = build_tiny_model(work / "model", ("actor_type",))
     config = json.loads((model / "span_config.json").read_text())
@@ -49,7 +52,7 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
          "permitted_use": "training_allowed", "count": 5}]})
     out = pilot(bench, "span", "record", "--version", "0.1.0", "--recipe", str(recipe))
     assert out["teachers"] == ["mock-teacher-y"]
-    record = yaml.safe_load(target.read_text())
+    record = load_yaml(target)
     assert record["recipe"] == {"git_commit": "a" * 40,
                                 "config": "configs/productdev/jtbd/span-xlmr.yaml",
                                 "doc": "docs/recipes/scout-large.md"}
