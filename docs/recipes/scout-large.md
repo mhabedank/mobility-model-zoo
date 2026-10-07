@@ -1,4 +1,4 @@
-# Recipe: productdev-jtbd-span-xlmr
+# Recipe: scout-large
 
 How the JTBD span extractor is built, measured and staged (feature 004). Every step is a command; every setting lives in a versioned config:
 
@@ -99,7 +99,7 @@ uv run jtbd --config BENCH span release-check --version 0.1.0
 ## 8. Staging
 
 ```bash
-uv run zoo stage productdev-jtbd-span-xlmr 0.1.0 --from data/models/span-xlmr-<selected>
+uv run zoo stage scout-large 0.1.0 --from data/models/span-xlmr-<selected>
 ```
 
 Then the release follows `specs/003-model-zoo-hf-release/quickstart.md`.

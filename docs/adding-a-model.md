@@ -4,7 +4,7 @@ Every model in the zoo is released the same way, whatever its task (constitution
 
 ## Names
 
-A model is named `<topic>-<task>-<variant>` in lowercase with hyphens, for example `productdev-jtbd-span-xlmr`. The name is used for the Hugging Face repository, the release tag and the release record. It **MUST NOT change after the first publication**: renaming would break every link and every pinned download.
+A model is named `<name>-<variant>` in lowercase with hyphens, for example `scout-large`: a short, memorable English name for the model family and a size or variant (constitution 1.4.0). The topic and the task are fields in `model.yaml`; they become Hugging Face tags, and the topic's collection (`hf_collection` in `zoo/topics.yaml`) lists the model. The name is used for the Hugging Face repository, the release tag and the release record. It **MUST NOT change after the first publication**: renaming would break every link and every pinned download.
 
 ## Add a topic
 

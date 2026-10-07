@@ -82,11 +82,11 @@ Expected: exit 0 only if the comparison composite beats every zero-shot baseline
 ## 8. Release (feature 003 pipeline)
 
 ```bash
-uv run zoo init-model productdev-jtbd-span-xlmr
-uv run zoo stage productdev-jtbd-span-xlmr 0.1.0 --from <dir>   # on the Spark
-uv run zoo check productdev-jtbd-span-xlmr 0.1.0                 # online, all 14 rules pass
+uv run zoo init-model scout-large
+uv run zoo stage scout-large 0.1.0 --from <dir>   # on the Spark
+uv run zoo check scout-large 0.1.0                 # online, all 14 rules pass
 uv run zoo history-check                                          # exit 0, then make the repository public
-git tag productdev-jtbd-span-xlmr/v0.1.0 && git push origin productdev-jtbd-span-xlmr/v0.1.0
+git tag scout-large/v0.1.0 && git push origin scout-large/v0.1.0
 ```
 
 Expected: verify workflow builds the preview; after the owner's approval the model is public under `0.1.0` (SC-001); no manual upload.

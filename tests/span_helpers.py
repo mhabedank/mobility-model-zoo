@@ -112,7 +112,7 @@ def write_span_run(settings, run_id: str, outputs: dict, dimensions: tuple[str, 
     for chunk_id, output in outputs.items():
         write_json(directory / "parsed" / f"{chunk_id}.json", output)
     manifest = LabelRunManifest(
-        run_id=run_id, role="student", backend="span", model_id="productdev-jtbd-span-xlmr",
+        run_id=run_id, role="student", backend="span", model_id="scout-large",
         model_version=sha[:12], family="xlm-roberta", host="local",
         settings=RunSettings(temperature=0.0, structured_output="post_validation",
                              dimensions=list(dimensions), model_sha256=sha),

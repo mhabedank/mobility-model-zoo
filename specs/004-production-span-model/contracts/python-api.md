@@ -6,7 +6,7 @@ Module: `mobility_model_zoo.productdev.jtbd.span`. Importable with the base inst
 from mobility_model_zoo.productdev.jtbd.span import SpanExtractor
 
 model = SpanExtractor.from_pretrained(
-    "mobility-model-zoo/productdev-jtbd-span-xlmr",  # or a local directory
+    "mobility-model-zoo/scout-large",  # or a local directory
     revision="0.1.0",                                # tag or commit; ignored for directories
     device="cpu",                                    # default "cpu"; "cuda" and "mps" allowed
 )

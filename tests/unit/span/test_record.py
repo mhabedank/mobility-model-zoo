@@ -15,7 +15,7 @@ from mobility_model_zoo.productdev.jtbd.jsonio import read_json, write_json
 ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = json.loads(
     (ROOT / "specs/003-model-zoo-hf-release/contracts/release-record.schema.json").read_text())
-DRAFT = ROOT / "zoo/models/productdev-jtbd-span-xlmr/releases/0.1.0.yaml"
+DRAFT = ROOT / "zoo/models/scout-large/releases/0.1.0.yaml"
 
 
 def test_record_fills_every_field_feature_004_delivers(tmp_path):
@@ -26,7 +26,7 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
     pilot(bench, "agreement")
     pilot(bench, "label", "--role", "baseline", "--backend", "mock", "--model", "mock-small")
     pilot(bench, "score", "--run", run_ids(bench)["mock-small"])
-    target = work / "zoo/models/productdev-jtbd-span-xlmr/releases/0.1.0.yaml"
+    target = work / "zoo/models/scout-large/releases/0.1.0.yaml"
     target.parent.mkdir(parents=True)
     shutil.copy(DRAFT, target)
     git_commit_all(work)
@@ -52,7 +52,7 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
     record = yaml.safe_load(target.read_text())
     assert record["recipe"] == {"git_commit": "a" * 40,
                                 "config": "configs/productdev/jtbd/span-xlmr.yaml",
-                                "doc": "docs/recipes/productdev-jtbd-span-xlmr.md"}
+                                "doc": "docs/recipes/scout-large.md"}
     assert record["performance"]["budget"] == {"ram_gb": 4, "gpu": False}
     assert record["performance"]["hardware"].startswith("ref vm (")
     assert record["provenance"]["spike_data"] is False

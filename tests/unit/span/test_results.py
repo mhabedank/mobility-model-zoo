@@ -42,13 +42,13 @@ def fake_candidate(bench, train, cid, composite, per_min, rates=1.0, peak_mb=900
     dims = {d: {"score": composite, "metric": "kappa", "n": 10, "ci_low": 0, "ci_high": 1}
             for d in NAMES}
     write_json(settings.analysis_dir / "scores" / f"{run_id}.json", {
-        "run_id": run_id, "role": "student", "model_id": "productdev-jtbd-span-xlmr",
+        "run_id": run_id, "role": "student", "model_id": "scout-large",
         "benchmark_version": "mini-v1", "dimensions": dims, "composite": composite,
         "comparison_composite": {"dimensions": NAMES, "value": composite},
         "check_pass_rates": {"quote_verbatim": {"n": 5, "passed": 5, "rate": rates},
                              "schema_valid": {"n": 5, "passed": 5, "rate": rates},
                              "consistency.span_order": {"n": 5, "passed": 5, "rate": 1.0}}})
-    write_json(settings.analysis_dir / "perf" / f"productdev-jtbd-span-xlmr-{sha[:12]}.json", {
+    write_json(settings.analysis_dir / "perf" / f"scout-large-{sha[:12]}.json", {
         "model_sha256": sha, "chunks_per_min": per_min, "peak_rss_mb": peak_mb,
         "latency_9k_chars_s": latency})
     path = dataset.data_dir / "analysis" / "candidates.json"
@@ -109,7 +109,7 @@ def test_results_files_validate_and_release_check(env):
         write_json(dataset.data_dir / "analysis/candidates.json", candidates)
     pilot(bench, "span", "results", "--run", run, "--perf", str(perf_file), "--version", "0.1.0",
           "--recipe", str(recipe))
-    out_dir = work / "zoo/models/productdev-jtbd-span-xlmr/results/0.1.0"
+    out_dir = work / "zoo/models/scout-large/results/0.1.0"
     quality = read_json(out_dir / "quality.json")
     performance = read_json(out_dir / "performance.json")
     for doc in (quality, performance):
@@ -136,7 +136,7 @@ def test_results_files_validate_and_release_check(env):
 
 def test_release_check_fails_on_a_tie_with_the_best_baseline(env):
     bench, _, recipe, work = env
-    out_dir = work / "zoo/models/productdev-jtbd-span-xlmr/results/0.1.0"
+    out_dir = work / "zoo/models/scout-large/results/0.1.0"
     q = {"reference": "r", "benchmark": "b", "n_items": 5, "date": "2026-10-02",
          "description": "d"}
     write_json(out_dir / "quality.json", {"kind": "quality", "metrics": [

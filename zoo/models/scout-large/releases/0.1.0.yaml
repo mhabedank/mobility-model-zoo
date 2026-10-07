@@ -1,5 +1,5 @@
 # Draft for feature 004 (production span model). Fields left empty are delivered by 004.
-model: productdev-jtbd-span-xlmr
+model: scout-large
 version: 0.1.0
 date: 2026-10-01
 status: experimental
@@ -9,7 +9,7 @@ output_format_version: jtbd-span-v1
 sandbox: false
 files: []
 staging:
-  repo: mobility-model-zoo/productdev-jtbd-span-xlmr-staging
+  repo: mobility-model-zoo/scout-large-staging
   revision: ''
 recipe:
   git_commit: ''

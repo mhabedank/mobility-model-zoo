@@ -12,11 +12,15 @@
 
 The spike (feature 002) showed that a small encoder can find jobs, pains and gains fast: it reads a 9,000-character interview in about two seconds on a laptop CPU, its quotes are always verbatim and its output cannot break. That spike model must never be published, because it was trained on spike data and measured against a single reference model on 35 chunks.
 
-This feature builds the same kind of model again, the regular way: training data from the teacher the agreement pilot (feature 001) recommends, drawn only from sources that permit training, evaluation on the frozen benchmark with the same harness as every other model of the JTBD task, and speed and memory measured on the low-resource reference hardware. It then publishes the model as `mobility-model-zoo/productdev-jtbd-span-xlmr` version `0.1.0`, status "experimental", through the release pipeline built in feature 003.
+This feature builds the same kind of model again, the regular way: training data from the teacher the agreement pilot (feature 001) recommends, drawn only from sources that permit training, evaluation on the frozen benchmark with the same harness as every other model of the JTBD task, and speed and memory measured on the low-resource reference hardware. It then publishes the model as `mobility-model-zoo/scout-large` version `0.1.0`, status "experimental", through the release pipeline built in feature 003.
 
 The feature is done when the model is public on Hugging Face, its page passes the reader test, and the repository is public.
 
 ## Clarifications
+
+### Session 2026-10-07
+
+- Q: What is the model called? → A: `scout-large` (owner decision): a short English name for the model family plus its size, under the constitution 1.4.0 naming rule `<name>-<variant>`. Topic (`productdev`) and task (`jtbd`) are fields of the model description and Hugging Face tags; the topic's Hugging Face collection "Product development" lists the model. The earlier working name was `productdev-jtbd-span-xlmr`; code paths (`mobility_model_zoo.productdev.jtbd.span`) and config file names keep their topic layout.
 
 ### Session 2026-10-02
 
@@ -53,7 +57,7 @@ The project owner tags version `0.1.0` of the span model. The release pipeline f
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained model that meets the release bar (FR-015), **When** the owner tags `productdev-jtbd-span-xlmr` `0.1.0` and approves the built page, **Then** the model and its page are public under that version with no manual upload step.
+1. **Given** a trained model that meets the release bar (FR-015), **When** the owner tags `scout-large` `0.1.0` and approves the built page, **Then** the model and its page are public under that version with no manual upload step.
 2. **Given** the dry run of the release record, **When** it runs, **Then** every release gate rule passes, including the fields that feature 003's dry run reported as missing.
 3. **Given** the public page, **When** a visitor runs the copy-paste example, **Then** it produces output on the example text without a hosted API and without a GPU.
 4. **Given** a model that does not meet the release bar, **When** a release is attempted, **Then** nothing is published and the reason is recorded.
@@ -136,7 +140,7 @@ The span model's code lives in the project's regular package for the JTBD task, 
 ### Release
 
 - **FR-015**: The release bar for `0.1.0` is: the model's comparison composite on the frozen benchmark — the composite over exactly the dimensions the model outputs (relevance, item matching, kind and the produced attributes), computed the same way for every compared model — is higher than that of every zero-shot small baseline in the pilot; 100% of quotes are verbatim, 100% of outputs are schema-valid and 100% pass the consistency check; and the budget in FR-009 is met. A model that misses the bar MUST NOT be published.
-- **FR-016**: The model MUST be published only through the release pipeline of feature 003, as `mobility-model-zoo/productdev-jtbd-span-xlmr` version `0.1.0` with status "experimental", after the release gate passes and the owner approves the page.
+- **FR-016**: The model MUST be published only through the release pipeline of feature 003, as `mobility-model-zoo/scout-large` version `0.1.0` with status "experimental", after the release gate passes and the owner approves the page.
 - **FR-017**: The release record MUST be completed with every field the feature 003 dry run reported as missing: the staged model files with checksums, the recipe commit, configuration and document, the memory budget, the training sources and teacher with their license basis, the quality results and the performance results.
 - **FR-018**: The model page MUST state: the benchmark and guideline version; the reference models; the comparison composite (FR-015) of the model next to the best zero-shot baseline, the teacher and the pilot's 85%-of-reference mark; the dimensions left out and why; what the model does not produce compared with the generative approach (free-text actor, English statement); and speed and memory on the reference hardware. Its three example texts MUST show the published model's real output.
 - **FR-019**: The GitHub repository MUST be made public before the release is approved, after the feature 003 history check is rerun and reports zero findings.
@@ -146,7 +150,7 @@ The span model's code lives in the project's regular package for the JTBD task, 
 - **Training set**: About 1,000 chunks from `training_allowed` sources, labeled by the recommended teacher, with source, language, sub-area, repair counts and retention. Never published.
 - **Span model version**: The trained model files, thresholds and configuration for one version, with the dimensions it outputs and the recipe commit it was built from.
 - **Evaluation result**: Per-dimension agreement, check pass rates and contested counts on a named benchmark version, plus speed and memory on the reference hardware. The source of every number on the page.
-- **Release record**: The feature 003 record for `productdev-jtbd-span-xlmr` `0.1.0`, completed by this feature.
+- **Release record**: The feature 003 record for `scout-large` `0.1.0`, completed by this feature.
 
 ## Success Criteria *(mandatory)*
 

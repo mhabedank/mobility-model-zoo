@@ -6,7 +6,7 @@
 
 ## Summary
 
-The fast span model from the spike is rebuilt as a regular JTBD model and published as `mobility-model-zoo/productdev-jtbd-span-xlmr` `0.1.0` (experimental):
+The fast span model from the spike is rebuilt as a regular JTBD model and published as `mobility-model-zoo/scout-large` `0.1.0` (experimental):
 
 1. **Training corpus** `span-train-v1` (about 1,000 chunks) as its own dataset next to the pilot benchmark, cut only from `training_allowed` snapshots that share no source with the benchmark or holdout, redacted with sampled manual review (research R1–R4, R17).
 2. **Teacher labels** from the teacher the pilot recommends, enforced by a new run role `teacher` (R5); training rows with the frozen quote repair (R7).
@@ -26,7 +26,7 @@ Data generation is blocked until the pilot (feature 001) has frozen its benchmar
 - Training container on the DGX Spark: `nvcr.io/nvidia/pytorch:25.09-py3` with the package installed (R9)
 - Release: the existing `zoo` tool and GitHub workflows from feature 003, unchanged unless a format gap is found
 
-**Storage**: Files. Training dataset under `data/span-train-v1/` (gitignored, never published); model files on the Spark and in the private HF staging repo; results and release record in `zoo/models/productdev-jtbd-span-xlmr/`; configs in `configs/productdev/jtbd/`.
+**Storage**: Files. Training dataset under `data/span-train-v1/` (gitignored, never published); model files on the Spark and in the private HF staging repo; results and release record in `zoo/models/scout-large/`; configs in `configs/productdev/jtbd/`.
 
 **Testing**: `pytest`. Unit tests for unit splitting, windowing and merging, offset alignment, output schema, loading from a directory, dimension handling (failed dimensions absent), source-separation guard, sampled redaction policy, `teacher` role guard, `span` run loading and scoring with missing dimensions, comparison composite, release-bar check. A tiny random-weight model (small encoder config, no download) as a fixture for end-to-end tests of `extract`, `span label`, `check`, `score` and `perf` on CPU. The base-install import test. Manual runs on the Spark and the reference VM per [quickstart.md](quickstart.md).
 
@@ -97,7 +97,7 @@ configs/productdev/jtbd/
 ├── span-xlmr.yaml                       # model recipe: base encoder, hyperparameters, seed, release bar, candidate cap
 ├── budget.yaml                          # + budget block span-xlmr-0.1.0
 └── perf/interview-9k-de.txt             # fixed fictional 9,000-character perf text
-docs/recipes/productdev-jtbd-span-xlmr.md   # recipe.doc: data → rows → train → tune → evaluate → perf → stage
+docs/recipes/scout-large.md   # recipe.doc: data → rows → train → tune → evaluate → perf → stage
 src/mobility_model_zoo/productdev/jtbd/
 ├── span/
 │   ├── __init__.py                      # exports SpanExtractor (base deps only)
@@ -120,7 +120,7 @@ src/mobility_model_zoo/productdev/jtbd/
 ├── perf.py                              # + --backend span (child process, RSS, load time)
 └── cli.py                               # registers `span` sub-app
 scripts/spark/train_span.sh              # runs `jtbd span train` in the NVIDIA container on the Spark
-zoo/models/productdev-jtbd-span-xlmr/
+zoo/models/scout-large/
 ├── model.yaml                           # card texts updated (dimensions, measured speed)
 ├── releases/0.1.0.yaml                  # completed
 └── results/0.1.0/{quality,performance}.json

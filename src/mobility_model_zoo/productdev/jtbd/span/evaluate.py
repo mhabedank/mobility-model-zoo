@@ -29,7 +29,7 @@ from mobility_model_zoo.productdev.jtbd.span.recipe import (
     require_clean_tree,
 )
 
-MODEL_ID = "productdev-jtbd-span-xlmr"
+MODEL_ID = "scout-large"
 
 
 def model_sha256(model_dir: Path) -> str:

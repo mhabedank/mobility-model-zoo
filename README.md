@@ -25,7 +25,7 @@ Later topics, for example cyber security or IoT, are added as a new entry in [zo
   3. The owner reviews the preview and approves by starting `release-publish`, which publishes exactly that preview as one tagged, immutable version.
 
   Step-by-step guide: [docs/adding-a-model.md](docs/adding-a-model.md). Commands and gate rules: [specs/003-model-zoo-hf-release/contracts/cli.md](specs/003-model-zoo-hf-release/contracts/cli.md).
-- Model names follow `<topic>-<task>-<variant>`, for example `productdev-jtbd-span-xlmr`. Names never change after the first publication.
+- Model names follow `<name>-<variant>`, for example `scout-large`; topic and task are tags, and each topic has a Hugging Face collection. Names never change after the first publication.
 - Datasets, training data and raw source texts are never published. Models, methods, prompts and evaluation results are.
 
 ## Setup

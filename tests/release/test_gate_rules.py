@@ -50,7 +50,7 @@ def test_valid_fixture_passes_online(zoo_env, runner):
 
 BROKEN = {
     1: lambda env: edit_model(env, lambda m: m.pop("license")),
-    2: lambda env: edit_model(env, lambda m: m.update(task="other")),
+    2: lambda env: edit_model(env, lambda m: m.update(variant="other")),  # name must end with it
     3: lambda env: edit_record(env, lambda r: r.update(status="released")),
     6: lambda env: edit_record(
         env,

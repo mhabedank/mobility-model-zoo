@@ -1,36 +1,23 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.2.0 → 1.3.0
-Bump rationale: MINOR. The project becomes a multi-topic model zoo (`mobility-model-zoo`). No
-principle is removed or redefined: the JTBD-specific principles keep their full force for the
-product development JTBD models, and the shared principles now apply to every model in the zoo.
-Principle IX is expanded with release rules.
-
-Modified principles:
-- IX. Reproducible, Dated Releases: adds immutable published versions, publication only through
-  the release pipeline with owner approval, and the ban on publishing datasets.
-- Core Principles: a scope note states which principles apply zoo-wide and which apply to the
-  product development JTBD models.
+Version change: 1.3.0 → 1.4.0
+Bump rationale: MINOR. Model naming changes (owner decision 2026-10-07, before any public model):
+a model gets a short English name plus a variant instead of `<topic>-<task>-<variant>`; topic and
+task stay recorded in the model description and become Hugging Face tags, and each topic gets one
+Hugging Face collection. No principle is removed or redefined.
 
 Modified sections:
-- Preamble and "Project Scope & Iterative Delivery": describe the zoo, its topics and the JTBD
-  extraction task as the first task.
+- Project Scope & Iterative Delivery: naming rule `<name>-<variant>`, topic via description,
+  tags and a collection per topic.
 
-Added sections:
-- Tasks and Releases: one build-and-measure tool per task, shared by all its models; one common
-  release record and release gate for every model; shared code is extracted only when a second
-  task needs it.
-
-Removed sections: none
+Previous report (1.2.0 → 1.3.0): the project became the multi-topic `mobility-model-zoo`;
+Principle IX gained release rules; "Tasks and Releases" was added.
 
 Templates reviewed (not modified; they read the constitution at runtime):
-- .specify/templates/plan-template.md ✅ (Constitution Check must name the task a model belongs to)
+- .specify/templates/plan-template.md ✅
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
-
-Follow-up TODOs:
-- Feature 004 (production span model) must use the release record and gate from feature 003.
 -->
 
 # mobility-model-zoo Constitution
@@ -188,8 +175,12 @@ Rationale: A narrow task is what makes a small, fast model feasible and measurab
 
 ## Project Scope & Iterative Delivery
 
-- The zoo is organized in topics. Each model belongs to exactly one topic and is named
-  `<topic>-<task>-<variant>`. A new topic MUST NOT require changes to existing models.
+- The zoo is organized in topics. Each model belongs to exactly one topic. A model is named
+  `<name>-<variant>`: a short, memorable English name for the model family and a size or
+  variant (for example `scout-large`). Topic and task are recorded in the model description,
+  published as Hugging Face tags, and every topic has one Hugging Face collection that lists its
+  models. Names never change after the first publication. A new topic MUST NOT require changes
+  to existing models.
 - The project proceeds iteratively: each iteration starts with the simplest setup that
   yields measurable results, then improves step by step.
 - Each iteration MUST produce a measurable result against the current frozen benchmark
@@ -303,4 +294,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 1.3.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-01
+**Version**: 1.4.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-07

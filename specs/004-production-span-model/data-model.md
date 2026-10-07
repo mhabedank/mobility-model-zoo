@@ -74,7 +74,7 @@ One line in `rows/rows.jsonl`.
 
 | Field | Value or rule |
 |-------|---------------|
-| `model` | `productdev-jtbd-span-xlmr` |
+| `model` | `scout-large` |
 | `base_encoder` | `FacebookAI/xlm-roberta-large` (with revision) |
 | `dataset` | `span-train-v1` |
 | `benchmark_config` | pilot config of the final decision |
@@ -112,7 +112,7 @@ For a set of dimensions `D` (relevance, item matching, kind, plus the produced a
 
 ## Results files (feature 003 schema, contents for this model)
 
-`zoo/models/productdev-jtbd-span-xlmr/results/0.1.0/quality.json`, metrics (all with `reference`, `benchmark`, `n_items`, `date`):
+`zoo/models/scout-large/results/0.1.0/quality.json`, metrics (all with `reference`, `benchmark`, `n_items`, `date`):
 
 - `agreement_relevance`, `agreement_item_matching`, `agreement_kind`, `agreement_<attribute>` for each produced attribute
 - `comparison_composite`

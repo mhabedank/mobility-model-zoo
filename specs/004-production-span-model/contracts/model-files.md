@@ -1,4 +1,4 @@
-# Contract: model files of `productdev-jtbd-span-xlmr`
+# Contract: model files of `scout-large`
 
 One flat directory, uploaded by `zoo stage` and published unchanged. No `README.md` (built by the pipeline), no `build.json`, no `.jsonl`, nothing from `data/`, no pickle files.
 
@@ -14,7 +14,7 @@ One flat directory, uploaded by `zoo stage` and published unchanged. No `README.
 ```json
 {
   "output_format_version": "jtbd-span-v1",
-  "model": "productdev-jtbd-span-xlmr",
+  "model": "scout-large",
   "base_encoder": {"name": "FacebookAI/xlm-roberta-large", "revision": "<commit>"},
   "unit_labels": ["O", "job", "pain", "gain"],
   "bio_labels": ["O", "B-job", "I-job", "B-pain", "I-pain", "B-gain", "I-gain"],

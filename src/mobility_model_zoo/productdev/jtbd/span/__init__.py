@@ -2,7 +2,7 @@
 
     from mobility_model_zoo.productdev.jtbd.span import SpanExtractor
 
-    model = SpanExtractor.from_pretrained("mobility-model-zoo/productdev-jtbd-span-xlmr",
+    model = SpanExtractor.from_pretrained("mobility-model-zoo/scout-large",
                                           revision="0.1.0")
     model.extract(text)
 

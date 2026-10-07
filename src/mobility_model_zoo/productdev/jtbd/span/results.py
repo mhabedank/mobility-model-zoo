@@ -307,7 +307,7 @@ def release_check(settings: Settings, version: str, recipe_file: str | None = No
     return result
 
 
-FIGURE = Path("docs/recipes/figures/productdev-jtbd-span-xlmr-pareto")
+FIGURE = Path("docs/recipes/figures/scout-large-pareto")
 
 
 def pareto(settings: Settings, recipe_file: str | None = None) -> dict[str, Any]:
@@ -397,7 +397,7 @@ def write_record(settings: Settings, version: str, recipe_file: str | None = Non
     record["date"] = _today()
     record["recipe"] = {"git_commit": span_config["recipe_commit"],
                         "config": span_config.get("recipe", "configs/productdev/jtbd/span-xlmr.yaml"),
-                        "doc": "docs/recipes/productdev-jtbd-span-xlmr.md"}
+                        "doc": "docs/recipes/scout-large.md"}
     record["provenance"] = {
         "sources": [{"origin": s["origin"], "license": s["license"],
                      "permitted_use": s["permitted_use"], "count": s["count"]}

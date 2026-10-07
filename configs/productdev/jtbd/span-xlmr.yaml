@@ -1,8 +1,8 @@
-# Recipe of the production span model productdev-jtbd-span-xlmr (feature 004, data-model.md).
+# Recipe of the production span model scout-large (feature 004, data-model.md).
 # The release bar and the selection rule are committed before any training run (Principle IV);
 # `jtbd span train` refuses to run if `release_bar` changed since then without an entry in
 # `release_bar_changes`.
-model: productdev-jtbd-span-xlmr
+model: scout-large
 base_encoder:
   name: FacebookAI/xlm-roberta-large
   revision: c23d21b0620b635a76227c604d44e43a9f0ee389   # main on 2026-10-02
