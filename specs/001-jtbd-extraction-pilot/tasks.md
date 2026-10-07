@@ -468,7 +468,7 @@ description: "Task list for the JTBD Extraction Pilot"
   - the budget used, taken from the ledger (SC-009)
 
   It uses agreement wording only and never "accuracy" (FR-033).
-- [ ] T081 [US5] **(ops)** Run `jtbd decide` and `jtbd report` on pilot-v1. If the decision is `revise`, run T078: apply `data/analysis/revisions.md` to create `guideline/guideline-v2.md`, freeze pilot-v2, relabel the main and holdout splits with both references, then decide and report again. Finalize `reports/pilot-v1/report.md` (and `reports/pilot-v2/report.md` if there was a rerun).
+- [X] T081 *(2026-10-07: final decision on the pilot-v2 holdout: go for relevance, kind, actor type, evidence type and evidence scope; rethink for item matching. Fine-tuning required (no baseline reaches 0.85 of frontier quality or 10x its throughput). Recommended teacher teacher-or-mimo-v2.6-pro. reports/pilot-v2/report.md is final; pilot-v1's numbers are kept in its agreement.json, decision and revisions.md, not as a separate rendered report, because the default config now points at guideline-v2.)* [US5] **(ops)** Run `jtbd decide` and `jtbd report` on pilot-v1. If the decision is `revise`, run T078: apply `data/analysis/revisions.md` to create `guideline/guideline-v2.md`, freeze pilot-v2, relabel the main and holdout splits with both references, then decide and report again. Finalize `reports/pilot-v1/report.md` (and `reports/pilot-v2/report.md` if there was a rerun).
 
 **Checkpoint**: the pilot report with a go / revise / rethink decision is delivered.
 
