@@ -14,4 +14,8 @@ for m in "$ROOT"/data/runs/run-*/manifest.json; do
   d="$OUT/data/runs/$(basename "$(dirname "$m")")"; mkdir -p "$d"; cp "$m" "$d/"
 done
 cp -r "$ROOT/benchmarks" "$OUT/"
+# Span model directories to measure (feature 004): STAGE_MODELS="span-xlmr-c1 ..."
+for m in ${STAGE_MODELS:-}; do
+  mkdir -p "$OUT/models" && cp -r "$ROOT/data/models/$m" "$OUT/models/"
+done
 echo "$OUT"

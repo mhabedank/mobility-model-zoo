@@ -32,12 +32,15 @@ for model in ${PERF_MODELS:-}; do
 done
 for dir in ${PERF_SPAN:-}; do
   name=$(basename "$dir")
-  if uv run jtbd --config configs/productdev/jtbd/span-train-v1.yaml perf --backend span \
-      --model-dir "models/$dir" --hardware "$LABEL" > /tmp/out.json 2>&1; then
-    echo "=== PERF_RESULT span-$name ==="; base64 -w0 /tmp/out.json; echo; echo "=== END span-$name ==="
-  else
-    echo "=== PERF_ERROR span-$name ==="; tail -c 2000 /tmp/out.json; echo
-  fi
+  # The benchmark config: its runs hold the student run, its main split the throughput chunks.
+  for repeat in 1 2; do  # measured twice to show the spread on shared vCPUs (R6 as amended)
+    if uv run jtbd --config "$CONFIG" perf --backend span --model-dir "models/$dir" \
+        --hardware "$LABEL" > /tmp/out.json 2> /tmp/err.log; then
+      emit "span-$name-r$repeat" /tmp/out.json
+    else
+      echo "=== PERF_ERROR span-$name-r$repeat ==="; tail -c 2000 /tmp/err.log; echo
+    fi
+  done
 done
 echo "=== ALL_DONE ==="
 wait

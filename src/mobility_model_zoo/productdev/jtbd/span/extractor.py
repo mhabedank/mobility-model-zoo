@@ -41,6 +41,24 @@ SCORE_DIGITS = 4
 SCHEMA_PATH = Path(__file__).with_name("jtbd-span-v1.schema.json")
 
 
+def _materialize_buffers(model) -> None:
+    """Recreate the encoder's non-persistent buffers, which the weights file does not hold."""
+    import torch
+
+    for name, buffer in list(model.named_buffers()):
+        if not buffer.is_meta:
+            continue
+        module_name, _, attr = name.rpartition(".")
+        module = model.get_submodule(module_name)
+        if attr == "position_ids":
+            value = torch.arange(buffer.shape[-1]).expand(buffer.shape)
+        elif attr == "token_type_ids":
+            value = torch.zeros(buffer.shape, dtype=buffer.dtype)
+        else:
+            raise ValueError(f"buffer {name} is not in {WEIGHTS_FILE} and cannot be recreated")
+        module.register_buffer(attr, value.to(buffer.dtype).contiguous(), persistent=False)
+
+
 class SpanExtractor:
     def __init__(self, model: SpanTagger, tokenizer: Any, config: dict[str, Any],
                  device: str = "cpu"):
@@ -72,16 +90,23 @@ class SpanExtractor:
         from safetensors.torch import load_file
         from transformers import AutoConfig, AutoTokenizer
 
-        model = SpanTagger.from_config(AutoConfig.from_pretrained(directory), dimensions)
+        import torch
+
+        # Built on the meta device and filled with the file's tensors (assign=True), so the
+        # weights are in memory once, not as a random initialisation plus the loaded copy
+        # (peak memory on the reference machine, FR-015).
+        with torch.device("meta"):
+            model = SpanTagger.from_config(AutoConfig.from_pretrained(directory), dimensions)
         state = load_file(str(directory / WEIGHTS_FILE))
         heads = {k.split(".")[2] for k in state if k.startswith("heads.attrs.")}
         if heads != set(model.dimensions):
             raise ValueError(f"attribute heads in {WEIGHTS_FILE} {sorted(heads)} do not match the "
                              f"dimensions in {CONFIG_FILE} {sorted(model.dimensions)}")
         try:
-            model.load_state_dict(state, strict=True)
+            model.load_state_dict(state, strict=True, assign=True)
         except RuntimeError as exc:
             raise ValueError(f"{WEIGHTS_FILE} does not match the model: {exc}") from exc
+        _materialize_buffers(model)
         return cls(model, AutoTokenizer.from_pretrained(directory), config, device)
 
     def save_pretrained(self, directory: str | Path) -> None:
