@@ -1,0 +1,177 @@
+{
+  "kind": "performance",
+  "model": "scout-large",
+  "version": "0.1.1",
+  "synthetic": false,
+  "source_run": "run-student-scout-large-c1-932c33e3a85a-main-6b5662fa",
+  "metrics": [
+    {
+      "name": "latency_9k_chars_s",
+      "value": 8.1057,
+      "unit": "s",
+      "description": "Median time to process a 9240-character text, model loaded",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
+    },
+    {
+      "name": "load_time_s",
+      "value": 12.2319,
+      "unit": "s",
+      "description": "Time to load the model from local files",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
+    },
+    {
+      "name": "peak_ram_gb",
+      "value": 2.488,
+      "unit": "GB",
+      "description": "Peak memory of the process while loading and processing",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
+    },
+    {
+      "name": "chunks_per_min",
+      "value": 21.6204,
+      "unit": "chunks/min",
+      "description": "Throughput over the 150 benchmark chunks",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 8.0 GB RAM, AMD EPYC 9655 96-Core Processor, CPU only)"
+    },
+    {
+      "name": "chunks_per_min_mac_m3pro_cpu",
+      "value": 77.3468,
+      "unit": "chunks/min",
+      "description": "Throughput over the 150 benchmark chunks, one at a time (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, CPU only",
+      "n_items": 150
+    },
+    {
+      "name": "latency_9k_chars_s_mac_m3pro_cpu",
+      "value": 1.9361,
+      "unit": "s",
+      "description": "Median time to process the 9,240-character text, model loaded (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, CPU only",
+      "n_items": null
+    },
+    {
+      "name": "chunks_per_min_mac_m3pro_gpu",
+      "value": 231.1152,
+      "unit": "chunks/min",
+      "description": "Throughput over the 150 benchmark chunks, one at a time (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, GPU (MPS)",
+      "n_items": 150
+    },
+    {
+      "name": "latency_9k_chars_s_mac_m3pro_gpu",
+      "value": 0.8404,
+      "unit": "s",
+      "description": "Median time to process the 9,240-character text, model loaded (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, GPU (MPS)",
+      "n_items": null
+    },
+    {
+      "name": "chunks_per_min_dgx_spark_gpu",
+      "value": 1259.5553,
+      "unit": "chunks/min",
+      "description": "Throughput over the 150 benchmark chunks, one at a time (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU (CUDA)",
+      "n_items": 150
+    },
+    {
+      "name": "latency_9k_chars_s_dgx_spark_gpu",
+      "value": 0.1219,
+      "unit": "s",
+      "description": "Median time to process the 9,240-character text, model loaded (development hardware)",
+      "date": "2026-10-07",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU (CUDA)",
+      "n_items": null
+    },
+    {
+      "name": "comparison_chunks_per_min_claude",
+      "value": 2.934,
+      "unit": "chunks/min",
+      "description": "Claude Opus 5.5 (reference): texts per minute on the benchmark chunks (60 / median call latency while labeling the benchmark)",
+      "date": "2026-10-07",
+      "hardware": "Anthropic, Claude Code CLI (subscription)",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_gpt_mini",
+      "value": 9.6774,
+      "unit": "chunks/min",
+      "description": "GPT-5.4 mini (reference): texts per minute on the benchmark chunks (sample at concurrency 1)",
+      "date": "2026-10-07",
+      "hardware": "OpenAI via OpenRouter",
+      "n_items": 20
+    },
+    {
+      "name": "comparison_chunks_per_min_mimo",
+      "value": 0.9583,
+      "unit": "chunks/min",
+      "description": "MiMo V2.6 Pro (teacher): texts per minute on the benchmark chunks (60 / median call latency while labeling the benchmark)",
+      "date": "2026-10-07",
+      "hardware": "OpenRouter, provider chosen per request",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_deepseek",
+      "value": 0.3978,
+      "unit": "chunks/min",
+      "description": "DeepSeek V4.1 Flash: texts per minute on the benchmark chunks (60 / median call latency while labeling the benchmark)",
+      "date": "2026-10-07",
+      "hardware": "OpenRouter, provider chosen per request",
+      "n_items": 182
+    },
+    {
+      "name": "comparison_chunks_per_min_qwen3_8_27b_dgx",
+      "value": 2.1477,
+      "unit": "chunks/min",
+      "description": "Qwen3.8 27B, DGX Spark: texts per minute on the benchmark chunks (60 / median call latency while labeling the benchmark)",
+      "date": "2026-10-07",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU, Ollama",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_gemma4_e4b_dgx",
+      "value": 7.5089,
+      "unit": "chunks/min",
+      "description": "Gemma4 E4B, DGX Spark: texts per minute on the benchmark chunks (60 / median call latency while labeling the benchmark)",
+      "date": "2026-10-07",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU, Ollama",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_qwen3_5_4b",
+      "value": 0.9249,
+      "unit": "chunks/min",
+      "description": "Qwen3.5 4B, 4 vCPU: texts per minute on the benchmark chunks (jtbd perf on the reference machine, one chunk at a time)",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_ministral_3b",
+      "value": 0.6933,
+      "unit": "chunks/min",
+      "description": "Ministral 3B, 4 vCPU: texts per minute on the benchmark chunks (jtbd perf on the reference machine, one chunk at a time)",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_chunks_per_min_gemma4_e2b",
+      "value": 1.456,
+      "unit": "chunks/min",
+      "description": "Gemma4 E2B, 4 vCPU: texts per minute on the benchmark chunks (jtbd perf on the reference machine, one chunk at a time)",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "n_items": 150
+    }
+  ]
+}
