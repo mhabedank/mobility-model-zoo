@@ -107,7 +107,7 @@ def collect() -> dict:
     scout = []
     for key, suffix, label, hw in SCOUT_HW:
         p = read(ANALYSIS / "perf" / f"scout-large-{SHA}{suffix}.json")
-        scout.append({"key": key, "label": label, "hardware": hw or p["hardware"]["label"],
+        scout.append({"id": key, "label": label, "hardware": hw or p["hardware"]["label"],
                       "chunks_per_min": p["chunks_per_min"],
                       "latency_9k_chars_s": p["latency_9k_chars_s"], "quality": scout_quality})
     others = []
@@ -118,13 +118,13 @@ def collect() -> dict:
         else:
             lat, n = median_latency_s(run)
             cpm, how = 60 / lat, "60 / median call latency while labeling the benchmark"
-        others.append({"key": key, "label": label, "hardware": hw, "chunks_per_min": cpm,
+        others.append({"id": key, "label": label, "hardware": hw, "chunks_per_min": cpm,
                        "n": n, "how": how, "quality": composite(qrun) if qrun else None,
                        "quality_run": qrun})
     for key, label, model in SMALL:
         qrun = run_id("baseline", model)
         p = read(ANALYSIS / "perf" / f"{model}.json")
-        others.append({"key": key, "label": label, "hardware": p["hardware"]["label"],
+        others.append({"id": key, "label": label, "hardware": p["hardware"]["label"],
                        "chunks_per_min": p["chunks_per_min"], "n": p["n_chunks"],
                        "how": "jtbd perf on the reference machine, one chunk at a time",
                        "quality": composite(qrun), "quality_run": qrun})
@@ -138,12 +138,12 @@ def add_metrics(data: dict, version: str) -> None:
     qnames = {m["name"] for m in quality["metrics"]}
     pnames = {m["name"] for m in perf["metrics"]}
     for s in data["scout"]:
-        if not s["key"]:
+        if not s["id"]:
             continue
         for name, value, unit, desc in (
-            (f"chunks_per_min_{s['key']}", s["chunks_per_min"], "chunks/min",
+            (f"chunks_per_min_{s['id']}", s["chunks_per_min"], "chunks/min",
              "Throughput over the 150 benchmark chunks, one at a time (development hardware)"),
-            (f"latency_9k_chars_s_{s['key']}", s["latency_9k_chars_s"], "s",
+            (f"latency_9k_chars_s_{s['id']}", s["latency_9k_chars_s"], "s",
              "Median time to process the 9,240-character text, model loaded (development hardware)"),
         ):
             if name not in pnames:
@@ -151,13 +151,13 @@ def add_metrics(data: dict, version: str) -> None:
                                         "description": desc, "date": today, "hardware": s["hardware"],
                                         "n_items": 150 if name.startswith("chunks") else None})
     for o in data["others"]:
-        name = f"comparison_chunks_per_min_{o['key']}"
+        name = f"comparison_chunks_per_min_{o['id']}"
         if name not in pnames:
             perf["metrics"].append({
                 "name": name, "value": round(o["chunks_per_min"], 4), "unit": "chunks/min",
                 "description": f"{o['label']}: texts per minute on the benchmark chunks ({o['how']})",
                 "date": today, "hardware": o["hardware"], "n_items": o["n"]})
-        qname = f"comparison_composite_{o['key']}"
+        qname = f"comparison_composite_{o['id']}"
         if o["quality"] is not None and qname not in qnames:
             quality["metrics"].append({
                 "name": qname, "value": round(o["quality"], 6), "unit": None,
@@ -234,7 +234,7 @@ def figure_quality_speed(data: dict, out: Path) -> None:
     items = []
     # Two points only (owner's choice, 2026-10-07): the GPUs a team is likely to use. The CPU
     # measurements, including the reference machine, are in the 10,000-texts figure.
-    scout = sorted((s for s in data["scout"] if s["key"] in ("mac_m3pro_gpu", "dgx_spark_gpu")),
+    scout = sorted((s for s in data["scout"] if s["id"] in ("mac_m3pro_gpu", "dgx_spark_gpu")),
                    key=lambda s: s["chunks_per_min"])
     ax.scatter([s["chunks_per_min"] for s in scout], [s["quality"] for s in scout], marker="D",
                s=80, color=SCOUT, edgecolors=SURFACE, linewidths=1.5, zorder=4,
@@ -263,7 +263,7 @@ def figure_quality_speed(data: dict, out: Path) -> None:
     renderer = fig.canvas.get_renderer()
     boxes = []
     for s in scout:
-        label = ax.annotate(short[s["key"]], (s["chunks_per_min"], s["quality"]), xytext=(0, -12),
+        label = ax.annotate(short[s["id"]], (s["chunks_per_min"], s["quality"]), xytext=(0, -12),
                             textcoords="offset points", ha="center", va="top", fontsize=8.5,
                             color=TEXT_PRIMARY)
         boxes.append(label.get_window_extent(renderer).expanded(1.05, 1.1))
