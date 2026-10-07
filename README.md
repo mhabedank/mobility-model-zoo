@@ -43,6 +43,17 @@ A model user only needs the base install, as shown on each model card.
 
 ## Topic: product development, task: JTBD extraction (`jtbd`)
 
+**Published model: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large)** (v0.1.0, experimental). It finds jobs, pains and gains in German and English mobility texts and quotes them verbatim, with actor type, evidence type and evidence scope. On the frozen benchmark `pilot-v2` it reaches a comparison composite of 0.72 (best zero-shot small model 0.67); it reads a 9,240-character interview in 8.1 s on 4 CPU cores, 0.84 s on a MacBook M3 Pro GPU and 0.12 s on a DGX Spark. Usage, quality, speed and limits: the [model card](https://huggingface.co/mobility-model-zoo/scout-large); how it was built: [docs/recipes/scout-large.md](docs/recipes/scout-large.md); collection: [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8).
+
+```python
+from mobility_model_zoo.productdev.jtbd.span import SpanExtractor
+
+model = SpanExtractor.from_pretrained("mobility-model-zoo/scout-large", revision="v0.1.0")
+print(model.extract("Nach 22 Uhr fährt kein Bus mehr, also nehme ich das Auto."))
+```
+
+Build commands (feature 004): `jtbd span …` (data-check, build-rows, freeze-data, train, tune, label, select, results, release-check, pareto, record) and `scripts/spark/train_span.sh` for training on the DGX Spark. Pilot report: [reports/pilot-v2/report.md](reports/pilot-v2/report.md).
+
 The `jtbd` tool (called `pilot` during the proof of concept) runs the agreement pilot and the measurement chain for the JTBD extraction models: fetch sources once, build and redact chunks, freeze guideline and criteria, label with reference models, teachers and small models, check, match, build the consensus, score, measure speed, decide and report. Code: `src/mobility_model_zoo/productdev/jtbd/`. Configuration: `configs/productdev/jtbd/`.
 
 - Pilot spec, plan and tasks: [specs/001-jtbd-extraction-pilot/](specs/001-jtbd-extraction-pilot/)
@@ -53,7 +64,7 @@ Additional prerequisites for labeling and measurement:
 - The `claude` CLI, logged in with the Claude subscription (Claude reference labeler)
 - An OpenRouter key with a **hard spending limit** (GPT reference labeler and teachers)
 - Ollama on the DGX Spark (teacher candidates, baseline quality runs)
-- For performance runs only: a Linux VM with 8 GB RAM, 4 vCPU and no GPU, with Ollama installed
+- For performance runs only: a reference machine with 8 GB RAM, 4 vCPU and no GPU (for 0.1.0 a temporary Railway service, `deploy/railway-perf/`)
 
 ```bash
 cp .env.example .env   # then fill in the keys and hosts
@@ -62,7 +73,7 @@ uv run jtbd doctor
 
 ## Spikes (not released)
 
-The spike models below are technical spikes (feature 002). Their results are spike results, not benchmark results, and spike models are never published (constitution, "Technical Spikes"). The fast span model is being rebuilt as a production model in feature 004.
+The spike models below are technical spikes (feature 002). Their results are spike results, not benchmark results, and spike models are never published (constitution, "Technical Spikes"). The fast span model below is history: it was rebuilt without spike data as the published production model [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) (feature 004).
 
 ### Try the spike model locally
 
@@ -105,7 +116,7 @@ Each request then takes the analysis time only: 0.72 s for the interview, about 
 
 - `data/` holds snapshots, chunks, raw model responses and analysis. It is gitignored and is **never** committed or published (Principle VI).
 - Each source is fetched **once** and stored as a complete raw snapshot. Its `source.yaml` records the origin, license, legal basis, permitted uses (`benchmark_only` or `training_allowed`) and `retention_until`. `jtbd source fetch` refuses a second fetch of the same canonical URL unless it is given `--update --reason`.
-- Usernames and direct identifiers are removed before labeling (`jtbd corpus redact`, manual review, `jtbd corpus redact-check`).
+- Usernames and direct identifiers are removed before labeling (`jtbd corpus redact`, then `jtbd corpus pii-review` with a local model instead of a manual review, then `jtbd corpus redact-check`).
 - Reddit content comes only through the official Data API, is always `benchmark_only`, and is deleted or access-restricted when the research ends (§ 60d UrhG). Arctic Shift is used only to find thread IDs.
 - When a snapshot's `retention_until` date has passed, delete its directory under `data/snapshots/`, together with the chunks and runs derived from it. The benchmark manifest in `benchmarks/` keeps only hashes, never text.
 - Raw model responses under `data/runs/*/raw/` are never edited.

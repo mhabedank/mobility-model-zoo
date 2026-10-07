@@ -71,6 +71,65 @@ models:
     role: baseline
     quantization: Q4_K_M
     think: false                        # as the local teachers; with thinking on, qwen3.5:4b reasoned until the context was full (2026-10-06)
+  # --- Size-class comparison (0.3-1.2B, like scout-large's 560M); added 2026-10-07 for the
+  # scout-large 0.1.1 card, after the pilot's decision, which they do not change.
+  - model_id: baseline-qwen3.5-0.8b
+    api_model: qwen3.5:0.8b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q8_0
+    think: false
+  - model_id: baseline-qwen3-0.6b
+    api_model: qwen3:0.6b
+    family: qwen
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+    think: false
+  - model_id: baseline-gemma3-270m
+    api_model: gemma3:270m
+    family: gemma
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q8_0
+    think: false
+  - model_id: baseline-gemma3-1b
+    api_model: gemma3:1b
+    family: gemma
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q4_K_M
+    think: false
+  - model_id: baseline-llama3.2-1b
+    api_model: llama3.2:1b
+    family: llama
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q8_0
+    think: false
+  - model_id: baseline-granite4-350m
+    api_model: granite4:350m
+    family: granite
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: BF16
+    think: false
+  - model_id: baseline-lfm2.5-1.2b
+    api_model: hf.co/LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
+    family: lfm
+    backend: ollama
+    host: spark
+    role: baseline
+    quantization: Q8_0
+    license_basis: "LFM Open License v1.0 (evaluation only here)"
+    # Liquid AI, released 2026-01-20; the strongest 1B-class model at the time (added 2026-10-07).
   # --- Spike 002 (technical spike only) ---------------------------------------------------------
   - model_id: teacher-qwen3.6
     api_model: qwen3.6:35b

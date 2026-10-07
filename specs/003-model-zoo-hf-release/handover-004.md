@@ -37,6 +37,5 @@ Only fields that feature 004 delivers are missing. No gap in the release record 
 
 ## Open steps for the owner
 
-- Make the repository public before the first public release (FR-003c), after a fresh `zoo history-check`.
-- Add `mobility-model-zoo/productdev-jtbd-span-xlmr-staging` to `HF_STAGING_TOKEN` after `zoo init-model productdev-jtbd-span-xlmr`.
-- Run the reader test (SC-003) with [reader-test.md](reader-test.md) on the public card.
+- Done 2026-10-07: repository public after `zoo history-check`; staging repo created (renamed `scout-large-staging`) and added to `HF_STAGING_TOKEN`; `scout-large` 0.1.0 published (https://huggingface.co/mobility-model-zoo/scout-large) and listed in the "Product development" collection.
+- Open: the reader test (SC-003) with [reader-test.md](reader-test.md) on the public card.

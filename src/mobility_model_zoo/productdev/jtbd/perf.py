@@ -139,7 +139,8 @@ def _quality_run(settings: Settings, model_id: str, quality_run: str | None):
 
 
 def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
-               quality_run: str | None, hardware: str | None) -> dict[str, Any]:
+               quality_run: str | None, hardware: str | None,
+               sample: int | None = None, suffix: str | None = None) -> dict[str, Any]:
     entry = settings.model(model_id)
     quality = _quality_run(settings, model_id, quality_run)
     digest = model_digest(resolve_host(host), entry.api_model)
@@ -151,12 +152,13 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
     backend.num_thread = available_cpus()
     system, schema = build_system_prompt(settings), wire_schema()
     chunks = load_chunks(settings, "main")
+    measured = chunks[:sample] if sample else chunks  # a sample: the first n main chunks
     for chunk in chunks[:warmup]:
         backend.call(system, chunk.text, schema, chunk.chunk_id)
     latencies, out_tokens = [], 0
     start = time.monotonic()
     with PeakSampler() as sampler:
-        for chunk in chunks:
+        for chunk in measured:
             result = backend.call(system, chunk.text, schema, chunk.chunk_id)
             latencies.append(result.latency_ms)
             out_tokens += int(result.usage.get("completion_tokens") or 0)
@@ -169,16 +171,17 @@ def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
         "num_thread": backend.num_thread,
         "hardware": hardware_info(hardware),
         "warmup_chunks": warmup,
-        "n_chunks": len(chunks),
+        "n_chunks": len(measured),
         "wall_seconds": round(wall_s, 2),
-        "chunks_per_min": round(len(chunks) / wall_s * 60, 4) if wall_s else None,
+        "chunks_per_min": round(len(measured) / wall_s * 60, 4) if wall_s else None,
         "output_tok_per_s": round(out_tokens / wall_s, 3) if wall_s else None,
         "latency_p50_ms": percentile(latencies, 50),
         "latency_p95_ms": percentile(latencies, 95),
         "peak_rss_mb": round(sampler.peak, 1) if sampler.peak is not None else None,
         "measured_at": datetime.now(UTC).isoformat(),
     }
-    write_json(settings.analysis_dir / "perf" / f"{model_id}.json", result)
+    name = model_id + (f"-{suffix}" if suffix else "")
+    write_json(settings.analysis_dir / "perf" / f"{name}.json", result)
     return result
 
 

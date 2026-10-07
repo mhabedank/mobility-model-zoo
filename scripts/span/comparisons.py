@@ -44,7 +44,7 @@ SHA = "932c33e3a85a"
 REFERENCE = "the consensus of claude-reference and gpt-mini-reference (frontier reference models)"
 
 SURFACE, TEXT_PRIMARY, TEXT_SECONDARY, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
-SCOUT, OTHER, REF = "#eb6834", "#2a78d6", "#8a8984"
+SCOUT, OTHER, REF, SIZE = "#eb6834", "#2a78d6", "#8a8984", "#7a5fc4"
 
 # Scout on four machines: (metric suffix, perf file suffix, label, hardware text)
 SCOUT_HW = [
@@ -81,6 +81,16 @@ SMALL = [
     ("qwen3_5_4b", "Qwen3.5 4B, 4 vCPU", "baseline-qwen3.5-4b"),
     ("ministral_3b", "Ministral 3B, 4 vCPU", "baseline-ministral-3b"),
     ("gemma4_e2b", "Gemma4 E2B, 4 vCPU", "baseline-gemma4-e2b"),
+]
+# Same size class as scout-large (0.3-1.2B), added for the 0.1.1 card: the newest model of each
+# family at this size in October 2026 (Qwen3 0.6B and Llama 3.2 1B were run but left out as
+# superseded). Quality from their benchmark runs, speed from their benchmark runs on the DGX Spark.
+SIZE_CLASS = [
+    ("qwen3_5_0_8b", "Qwen3.5 0.8B", "baseline-qwen3.5-0.8b"),
+    ("gemma3_270m", "Gemma3 270M", "baseline-gemma3-270m"),
+    ("gemma3_1b", "Gemma3 1B", "baseline-gemma3-1b"),
+    ("lfm2_5_1_2b", "LFM2.5 1.2B", "baseline-lfm2.5-1.2b"),
+    ("granite4_350m", "Granite 4 350M", "baseline-granite4-350m"),
 ]
 
 
@@ -127,6 +137,16 @@ def collect() -> dict:
         others.append({"id": key, "label": label, "hardware": p["hardware"]["label"],
                        "chunks_per_min": p["chunks_per_min"], "n": p["n_chunks"],
                        "how": "jtbd perf on the reference machine, one chunk at a time",
+                       "quality": composite(qrun), "quality_run": qrun})
+    for key, label, model in SIZE_CLASS:
+        qrun = run_id("baseline", model)
+        if not (ANALYSIS / "scores" / f"{qrun}.json").exists():
+            continue  # not scored yet
+        lat, n = median_latency_s(qrun)
+        others.append({"id": key, "label": f"{label}, DGX Spark", "hardware": SPARK_OLLAMA,
+                       "chunks_per_min": 60 / lat, "n": n, "size_class": True,
+                       "how": "60 / median call latency while labeling the benchmark, two calls "
+                              "in parallel",
                        "quality": composite(qrun), "quality_run": qrun})
     return {"scout": scout, "others": others}
 
@@ -184,16 +204,43 @@ def style(ax) -> None:
     ax.set_axisbelow(True)
 
 
+# Label positions chosen by hand where automatic placement crosses leader lines.
+FIXED = {
+    "Ministral 3B, 4 vCPU": ((6, -36), "left"),
+    "Gemma4 E2B, 4 vCPU": ((12, -3), "left"),
+    "Qwen3.5 4B, 4 vCPU": ((10, 8), "left"),
+}
+
+
+# Groups of the comparison, in legend order: (marker, colour, legend text).
+GROUPS = {
+    "frontier": ("o", REF, "frontier models (Claude, GPT): reference, = 1.0"),
+    "large": ("o", OTHER, "large open LLMs (27B and up, hosted or on the DGX), zero-shot"),
+    "small": ("s", "#1f9e89", "small LLMs (2-8B), zero-shot"),
+    "size": ("^", SIZE, "LLMs of scout's size (0.3-1.2B), zero-shot"),
+}
+LARGE = {"mimo", "deepseek", "qwen3_8_27b_dgx"}
+
+
+def group_of(o: dict) -> str:
+    if o["quality"] is None:
+        return "frontier"
+    if o.get("size_class"):
+        return "size"
+    return "large" if o["id"] in LARGE else "small"
+
+
 def place_labels(fig, ax, items: list[tuple[str, float, float, str]], boxes: list,
                  extra_points: list) -> None:
     """Labels with leader lines; each takes the first free position around its point, avoiding
     the boxes and points given; otherwise the position with the least overlap."""
     renderer = fig.canvas.get_renderer()
     points = [ax.transData.transform((x, y)) for _, x, y, _ in items] + extra_points
-    offsets = [((10, 10), "left"), ((10, -18), "left"), ((-10, 10), "right"),
-               ((-10, -18), "right"), ((14, 24), "left"), ((-14, 24), "right"),
-               ((14, -32), "left"), ((-14, -32), "right"), ((24, 38), "left"),
-               ((24, -46), "left"), ((-24, 38), "right"), ((-24, -46), "right")]
+    offsets = [((10, 8), "left"), ((10, -16), "left"), ((-10, 8), "right"),
+               ((-10, -16), "right"), ((14, 22), "left"), ((-14, 22), "right"),
+               ((14, -30), "left"), ((-14, -30), "right"), ((24, 36), "left"),
+               ((24, -44), "left"), ((-24, 36), "right"), ((-24, -44), "right"),
+               ((36, 0), "left"), ((-36, 0), "right")]
     leader = {"arrowstyle": "-", "color": TEXT_SECONDARY, "linewidth": 0.6, "shrinkA": 0,
               "shrinkB": 5}
     def overlap(a, b) -> float:
@@ -203,6 +250,12 @@ def place_labels(fig, ax, items: list[tuple[str, float, float, str]], boxes: lis
 
     inside = ax.get_window_extent(renderer)
     for name, x, y, color in sorted(items, key=lambda i: (-i[2], i[1])):
+        if name in FIXED:
+            (dx, dy), ha = FIXED[name]
+            label = ax.annotate(name, (x, y), xytext=(dx, dy), textcoords="offset points",
+                                fontsize=8.5, color=color, ha=ha, arrowprops=leader)
+            boxes.append(label.get_window_extent(renderer).expanded(1.03, 1.2))
+            continue
         best = None
         for (dx, dy), ha in offsets:
             label = ax.annotate(name, (x, y), xytext=(dx, dy), textcoords="offset points",
@@ -240,17 +293,25 @@ def figure_quality_speed(data: dict, out: Path) -> None:
                s=80, color=SCOUT, edgecolors=SURFACE, linewidths=1.5, zorder=4,
                label="scout-large (this model)")
     short = {"mac_m3pro_gpu": "MacBook M3 Pro\n(GPU)", "dgx_spark_gpu": "DGX Spark\n(GPU)"}
-    rated = [o for o in data["others"] if o["quality"] is not None]
-    ax.scatter([o["chunks_per_min"] for o in rated], [o["quality"] for o in rated], s=56,
-               color=OTHER, edgecolors=SURFACE, linewidths=1.5, zorder=3,
-               label="generative LLMs, zero-shot")
-    items += [(o["label"], o["chunks_per_min"], o["quality"], TEXT_SECONDARY) for o in rated]
-    refs = [o for o in data["others"] if o["quality"] is None]
+    groups = {g: [o for o in data["others"] if group_of(o) == g] for g in GROUPS}
+    for g, (marker, color, legend_text) in GROUPS.items():
+        members = groups[g]
+        if not members or g == "frontier":
+            continue
+        ax.scatter([o["chunks_per_min"] for o in members], [o["quality"] for o in members], s=56,
+                   marker=marker, color=color, edgecolors=SURFACE, linewidths=1.5, zorder=3,
+                   label=legend_text)
+        items += [(o["label"].removesuffix(", DGX Spark") if g == "size" else o["label"],
+                   o["chunks_per_min"], o["quality"], TEXT_SECONDARY) for o in members]
+    refs = groups["frontier"]
     ax.scatter([o["chunks_per_min"] for o in refs], [1.0] * len(refs), s=56, facecolors="none",
-               edgecolors=REF, linewidths=1.5, zorder=3, label="reference models (define 1.0)")
-    items += [(o["label"], o["chunks_per_min"], 1.0, TEXT_SECONDARY) for o in refs]
+               edgecolors=REF, linewidths=1.5, zorder=3, label=GROUPS["frontier"][2])
+    ref_labels = [(o["label"].removesuffix(" (reference)"), o["chunks_per_min"]) for o in refs]
+    ax.axhspan(0.97, 1.03, color=REF, alpha=0.08, zorder=1, linewidth=0)
+    ax.annotate("frontier models (they define the benchmark: 1.0)", (0.21, 1.035),
+                fontsize=8, color=TEXT_SECONDARY, va="bottom", style="italic")
     ax.set_xlim(0.2, 4000)
-    ax.set_ylim(0.5, 1.05)
+    ax.set_ylim(0, 1.15)
     ax.set_xlabel("Texts per minute, one at a time (log scale)", color=TEXT_SECONDARY, fontsize=9)
     ax.set_ylabel("Quality: agreement with the reference models", color=TEXT_SECONDARY, fontsize=9)
     ax.set_title("scout-large: good quality, hundreds of times faster", loc="left",
@@ -272,7 +333,14 @@ def figure_quality_speed(data: dict, out: Path) -> None:
                         xytext=(0, 14), textcoords="offset points", ha="center", va="bottom",
                         fontsize=9.5, color=SCOUT, fontweight="bold")
     boxes.append(label.get_window_extent(renderer).expanded(1.05, 1.1))
+    for n, (name, x) in enumerate(sorted(ref_labels, key=lambda r: r[1])):
+        # left circle labelled to its left, right circle to its right
+        dx, ha = (-9, "right") if n == 0 else (9, "left")
+        label = ax.annotate(name, (x, 1.0), xytext=(dx, 0), textcoords="offset points",
+                            ha=ha, va="center", fontsize=8.5, color=TEXT_SECONDARY)
+        boxes.append(label.get_window_extent(renderer).expanded(1.05, 1.15))
     scout_points = [ax.transData.transform((s["chunks_per_min"], s["quality"])) for s in scout]
+    scout_points += [ax.transData.transform((x, 1.0)) for _, x in ref_labels]
     place_labels(fig, ax, items, boxes, scout_points)
     fig.text(0.01, 0.005, f"Frozen benchmark {BENCH}, 150 texts. Quality of LLMs is zero-shot; "
              "LLM speed = 60 / median call latency.", fontsize=7, color=TEXT_SECONDARY)
@@ -282,17 +350,19 @@ def figure_quality_speed(data: dict, out: Path) -> None:
 
 
 def figure_10k(data: dict, out: Path) -> None:
-    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True) for s in data["scout"]]
-    rows += [(o["label"], o["chunks_per_min"], False) for o in data["others"]]
+    rows = [(f"scout-large · {s['label']}", s["chunks_per_min"], True, "scout")
+            for s in data["scout"]]
+    rows += [(o["label"], o["chunks_per_min"], False, group_of(o)) for o in data["others"]]
     rows.sort(key=lambda r: -r[1])
-    fig, ax = plt.subplots(figsize=(8.6, 5.4), dpi=150)
+    fig, ax = plt.subplots(figsize=(8.6, 7.2), dpi=150)
     fig.patch.set_facecolor(SURFACE)
     style(ax)
     ax.set_xscale("log")
     ax.grid(True, axis="x", which="major", color=GRID, linewidth=0.8)
     minutes = [10_000 / r[1] for r in rows]
     y = range(len(rows))
-    ax.barh(list(y), minutes, color=[SCOUT if r[2] else OTHER for r in rows], height=0.62)
+    ax.barh(list(y), minutes, height=0.62,
+            color=[SCOUT if r[2] else GROUPS[r[3]][1] for r in rows])
     ax.set_yticks(list(y), [r[0] for r in rows], fontsize=8.5)
     for tick, row in zip(ax.get_yticklabels(), rows, strict=True):
         tick.set_color(TEXT_PRIMARY if row[2] else TEXT_SECONDARY)
@@ -308,6 +378,16 @@ def figure_10k(data: dict, out: Path) -> None:
     ax.set_xlabel("Time for 10,000 texts, one at a time (log scale)", color=TEXT_SECONDARY, fontsize=9)
     ax.set_title("Time to read 10,000 interview excerpts", loc="left", color=TEXT_PRIMARY,
                  fontsize=12)
+    from matplotlib.patches import Patch
+
+    present = {r[3] for r in rows}
+    bar_names = {"frontier": "frontier models (reference)", "large": "large open LLMs",
+                 "small": "small LLMs (2-8B)", "size": "LLMs of scout's size (0.3-1.2B)"}
+    handles = [Patch(color=SCOUT, label="scout-large (this model)")]
+    handles += [Patch(color=GROUPS[g][1], label=bar_names[g]) for g in GROUPS if g in present]
+    legend = ax.legend(handles=handles, loc="upper right", fontsize=8, frameon=False)
+    for text in legend.get_texts():
+        text.set_color(TEXT_SECONDARY)
     fig.tight_layout()
     fig.savefig(out, facecolor=SURFACE)
     plt.close(fig)

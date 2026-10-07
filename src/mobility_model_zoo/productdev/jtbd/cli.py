@@ -385,7 +385,8 @@ def perf_cmd(
     hardware: str = typer.Option(None, "--hardware", help="VM type label, e.g. hetzner-cx32"),
     frontier: bool = typer.Option(False, "--frontier"),
     run: str = typer.Option(None, "--run"),
-    sample: int = typer.Option(20, "--sample"),
+    sample: int = typer.Option(None, "--sample",
+                               help="Chunks to measure: frontier default 20, local default all"),
     backend: str = typer.Option(None, "--backend", help="`span` for a span-model directory"),
     model_dir: Path = typer.Option(None, "--model-dir", help="Span model files (--backend span)"),
     text: Path = typer.Option(None, "--text", help="Latency text (default: the 9k perf text)"),
@@ -407,10 +408,11 @@ def perf_cmd(
         if frontier:
             if not run:
                 raise UsageError("--frontier requires --run <gpt-run>")
-            return perf.perf_frontier(s, run, sample)
+            return perf.perf_frontier(s, run, sample or 20)
         if not model:
             raise UsageError("--model is required")
-        return perf.perf_local(s, model, host, warmup, quality_run, hardware)
+        return perf.perf_local(s, model, host, warmup, quality_run, hardware, sample=sample,
+                               suffix=suffix)
 
     _run(ctx, action)
 
