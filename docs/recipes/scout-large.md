@@ -108,6 +108,9 @@ Change `base_encoder` (name and revision) in `span-xlmr.yaml`, commit it, and re
 
 ## Numbers of version 0.1.0
 
+Version 0.1.0 was trained at commit `4a7091a`, where this document was still named `docs/recipes/productdev-jtbd-span-xlmr.md` (the model was renamed `scout-large` on 2026-10-07, before its first publication); the release record points to that path at that commit.
+
+
 - **Benchmark**: `pilot-v2` (guideline v2), 150 main chunks; reference: consensus of Claude (`claude-opus-5-5`) and `openai/gpt-5.4-mini`.
 - **Training data** (`span-train-v1`): 1,100 chunks from 87 `training_allowed` snapshots (UK and Scottish parliamentary evidence, Irish and US hearings, Bundestag plenary protocols of the 20th Bundestag, CC BY citizen interviews and papers); 28% German, 72% English; 1,084 transcript and 16 paper chunks; 20% marked off-topic. Personal-data review changed 202 chunks (895 replacements).
 - **Teacher**: `teacher-or-mimo-v2.6-pro` (the pilot's recommendation), all 1,100 chunks labeled, none excluded, EUR 3.55.

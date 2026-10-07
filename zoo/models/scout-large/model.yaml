@@ -31,7 +31,7 @@ card:
     model = SpanExtractor.from_pretrained("{repo_id}", revision="{revision}")
     print(json.dumps(model.extract({text}), ensure_ascii=False, indent=2))
   limitations: |
-    - Quality numbers are agreement with frontier reference models (Claude and, for budget reasons, the mini tier of the GPT family) on the frozen benchmark pilot-v2 with guideline v2, not accuracy against human judgement.
+    - Quality numbers are agreement with frontier reference models (Claude and, for budget reasons, the mini tier of the GPT family) on the frozen benchmark pilot-v2 with guideline v2, not a check against human judgement.
     - Its weakest dimensions are relevance (kappa 0.54) and item matching (F1 0.59): it does not always agree with the references on whether a text is about mobility needs at all, or on which statements count as items. Even the two reference models disagree on which statements are items; the pilot recorded item matching as an open question.
     - It does not produce a free-text actor or an English statement of the job, pain or gain, which the generative approach does; it gives the actor type and the verbatim quote only.
     - Items are whole sentences or clauses; a job that spans several sentences is split.

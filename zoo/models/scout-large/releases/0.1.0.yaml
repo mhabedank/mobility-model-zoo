@@ -28,7 +28,7 @@ staging:
 recipe:
   git_commit: 4a7091af7166b9e5a6c802e7d5c6ec9f9a45de46
   config: configs/productdev/jtbd/span-xlmr.yaml
-  doc: docs/recipes/scout-large.md
+  doc: docs/recipes/productdev-jtbd-span-xlmr.md   # its path at the training commit; renamed docs/recipes/scout-large.md later
 provenance:
   sources:
   - origin: https://committees-api.parliament.uk/api/OralEvidence/13304/Document/Html
