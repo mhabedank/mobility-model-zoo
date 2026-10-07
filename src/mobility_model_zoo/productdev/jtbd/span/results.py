@@ -21,6 +21,7 @@ from mobility_model_zoo.productdev.jtbd.jsonio import read_json, write_json
 from mobility_model_zoo.productdev.jtbd.runs import load_run_manifest
 from mobility_model_zoo.productdev.jtbd.scoring import comparison_composite
 from mobility_model_zoo.productdev.jtbd.span.evaluate import (
+    MODEL_ID,
     dataset_settings,
     load_candidates,
     save_candidates,
@@ -328,7 +329,8 @@ def pareto(settings: Settings, recipe_file: str | None = None) -> dict[str, Any]
             raise ValidationFailed(f"candidate {candidate['candidate_id']} has no perf file")
         names = score["comparison_composite"]["dimensions"]
         version = score["benchmark_version"]
-        students.append((f"{candidate['candidate_id']} (span)", perf["chunks_per_min"],
+        students.append((f"{MODEL_ID} ({candidate['candidate_id']})",
+                         perf["chunks_per_min"],
                          score["comparison_composite"]["value"]))
     baseline_perf, _ = load_perf(settings)
     table = comparisons(settings, names)
@@ -338,12 +340,12 @@ def pareto(settings: Settings, recipe_file: str | None = None) -> dict[str, Any]
                  and baseline_perf[b["model_id"]].get("chunks_per_min")
                  and b["comparison_composite"] is not None]
     out = settings.base / FIGURE
-    dims_text = ", ".join(n.replace("_", " ") for n in names)
-    figure = draw(baselines, out.with_suffix(".png"), version=version,
+    shown = [(n.removeprefix("baseline-"), x, y) for n, x, y in baselines]  # shorter labels
+    figure = draw(shown, out.with_suffix(".png"), version=version,
                   quality_bar=table["reference_share_mark"], throughput_bar=None,
                   students=students,
                   title=f"Quality vs throughput, span candidates and baselines ({version})",
-                  ylabel=f"Comparison composite ({dims_text})")
+                  ylabel=f"Comparison composite ({len(names)} dimensions)")
     points = {"benchmark_version": version, "dimensions": names,
               "reference_85pct": table["reference_share_mark"],
               "baselines": [{"model_id": n, "chunks_per_min": x, "comparison_composite": y}

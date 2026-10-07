@@ -49,8 +49,8 @@ def test_candidates_are_plotted_with_the_baselines(tmp_path):
     assert (work / "docs/recipes/figures/scout-large-pareto.png").stat().st_size
     assert points["dimensions"] == NAMES and points["benchmark_version"] == "mini-v1"
     assert [p["model_id"] for p in points["baselines"]] == ["mock-small"]
-    assert [p["model_id"] for p in points["candidates"]] == ["c1 (span)", "c2 (span)"]
-    assert "c1 (span)" in out["front"] and "c2 (span)" not in out["front"]
+    assert [p["model_id"] for p in points["candidates"]] == ["scout-large (c1)", "scout-large (c2)"]
+    assert "scout-large (c1)" in out["front"] and "scout-large (c2)" not in out["front"]
 
 
 def test_pareto_front_keeps_undominated_points():

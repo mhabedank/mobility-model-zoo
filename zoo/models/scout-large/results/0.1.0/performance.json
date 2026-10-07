@@ -1,0 +1,42 @@
+{
+  "kind": "performance",
+  "model": "scout-large",
+  "version": "0.1.0",
+  "synthetic": false,
+  "source_run": "run-student-scout-large-c1-932c33e3a85a-main-6b5662fa",
+  "metrics": [
+    {
+      "name": "latency_9k_chars_s",
+      "value": 8.1057,
+      "unit": "s",
+      "description": "Median time to process a 9240-character text, model loaded",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+    },
+    {
+      "name": "load_time_s",
+      "value": 12.2319,
+      "unit": "s",
+      "description": "Time to load the model from local files",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+    },
+    {
+      "name": "peak_ram_gb",
+      "value": 2.488,
+      "unit": "GB",
+      "description": "Peak memory of the process while loading and processing",
+      "date": "2026-10-07",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+    },
+    {
+      "name": "chunks_per_min",
+      "value": 21.6204,
+      "unit": "chunks/min",
+      "description": "Throughput over the 150 benchmark chunks",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU (x86_64, 4 vCPU, 323 GB RAM, CPU only)"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "benchmark_version": "pilot-v2",
+  "dimensions": [
+    "relevance",
+    "item_matching",
+    "kind",
+    "actor_type",
+    "evidence_type",
+    "evidence_scope"
+  ],
+  "reference_85pct": 0.85,
+  "baselines": [
+    {
+      "model_id": "baseline-qwen3.5-4b",
+      "chunks_per_min": 0.9249,
+      "comparison_composite": 0.615253
+    },
+    {
+      "model_id": "baseline-ministral-3b",
+      "chunks_per_min": 0.6933,
+      "comparison_composite": 0.604384
+    },
+    {
+      "model_id": "baseline-gemma4-e2b",
+      "chunks_per_min": 1.456,
+      "comparison_composite": 0.567877
+    }
+  ],
+  "candidates": [
+    {
+      "model_id": "scout-large (c1)",
+      "chunks_per_min": 21.6204,
+      "comparison_composite": 0.723395
+    }
+  ],
+  "front": [
+    "scout-large (c1)"
+  ]
+}

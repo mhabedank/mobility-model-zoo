@@ -115,6 +115,12 @@ Breakdowns (score / n):
 | run-reference-gpt-mini-reference-main-6b5662fa | consistency.quantified_has_quantity | 0.909 | 165 |
 | run-reference-gpt-mini-reference-main-6b5662fa | quote_verbatim | 0.849 | 1348 |
 | run-reference-gpt-mini-reference-main-6b5662fa | schema_valid | 1.000 | 150 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | consistency.irrelevant_no_items | 1.000 | 150 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | consistency.span_dimensions | 1.000 | 1441 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | consistency.span_dimensions_declared | 1.000 | 150 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | consistency.span_order | 1.000 | 150 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | quote_verbatim | 1.000 | 1441 |
+| run-student-scout-large-c1-932c33e3a85a-main-6b5662fa | schema_valid | 1.000 | 150 |
 | run-teacher_candidate-teacher-ensemble-main-6b5662fa | consistency.enum_values | 1.000 | 1488 |
 | run-teacher_candidate-teacher-ensemble-main-6b5662fa | consistency.irrelevant_no_items | 1.000 | 150 |
 | run-teacher_candidate-teacher-ensemble-main-6b5662fa | consistency.quantified_has_quantity | 0.914 | 244 |
@@ -159,6 +165,7 @@ No revisions file (`revisions.md`) yet.
 | baseline-gemma4-e4b | baseline | 0.679 | 0.638 | 0.814 | 0.701 | 0.398 | 0.772 | 0.667 | 0.667 | 0.969 | n/a | n/a | n/a |
 | baseline-ministral-3b | baseline | 0.530 | 0.457 | 0.725 | 0.735 | 0.684 | 0.495 | 0.604 | 0.604 | 0.878 | 0.693 | 137400.408 | 4900.000 |
 | baseline-qwen3.5-4b | baseline | 0.527 | 0.526 | 0.729 | 0.611 | 0.836 | 0.463 | 0.615 | 0.615 | 0.893 | 0.925 | 128599.887 | 4411.500 |
+| scout-large | student | 0.539 | 0.588 | 0.832 | 0.774 | 0.849 | 0.758 | 0.723 | 0.723 | 1.051 | 21.620 | n/a | 2547.500 |
 | teacher-ensemble | teacher_candidate | 1.000 | 0.779 | 0.922 | 0.949 | 0.944 | 0.909 | 0.917 | 0.917 | 1.332 | n/a | n/a | n/a |
 | teacher-or-deepseek-v4.1-flash | teacher_candidate | 0.658 | 0.700 | 0.919 | 0.944 | 0.916 | 0.877 | 0.836 | 0.836 | 1.214 | n/a | n/a | n/a |
 | teacher-or-glm-5.3-flash | teacher_candidate | 0.079 | 0.000 | n/a | n/a | n/a | n/a | 0.039 | 0.039 | 0.057 | n/a | n/a | n/a |
@@ -185,7 +192,7 @@ Recommended teacher: **teacher-or-mimo-v2.6-pro**.
 
 Raw scores and the verbatim check use the outputs as returned; the repaired view replaces near-miss quotes by the source passage (FR-026a), as the training data will. The classification does not change the go/revise/rethink decision.
 
-Contested reference items matched by a model are scored neutrally (FR-028); counts per model: baseline-gemma4-e2b {'evidence_scope': 77, 'evidence_type': 105, 'item_existence': 281, 'kind': 46, 'actor_type': 47, 'relevance': 3}; baseline-gemma4-e4b {'item_existence': 390, 'evidence_scope': 108, 'evidence_type': 154, 'kind': 60, 'actor_type': 72, 'relevance': 3}; baseline-ministral-3b {'evidence_scope': 49, 'evidence_type': 93, 'item_existence': 216, 'actor_type': 50, 'kind': 37, 'relevance': 3}; baseline-qwen3.5-4b {'item_existence': 251, 'evidence_scope': 72, 'evidence_type': 99, 'actor_type': 38, 'kind': 37, 'relevance': 3}; teacher-ensemble {'evidence_scope': 135, 'evidence_type': 188, 'item_existence': 619, 'actor_type': 104, 'kind': 83, 'relevance': 3}; teacher-or-deepseek-v4.1-flash {'evidence_scope': 131, 'evidence_type': 169, 'item_existence': 573, 'actor_type': 86, 'kind': 73, 'relevance': 3}; teacher-or-glm-5.3-flash {'relevance': 3}; teacher-or-mimo-v2.6-pro {'evidence_scope': 138, 'evidence_type': 187, 'item_existence': 599, 'actor_type': 98, 'kind': 85, 'relevance': 3}; teacher-qwen3.8 {'evidence_scope': 113, 'evidence_type': 169, 'item_existence': 383, 'actor_type': 86, 'kind': 65, 'relevance': 3}.
+Contested reference items matched by a model are scored neutrally (FR-028); counts per model: baseline-gemma4-e2b {'evidence_scope': 77, 'evidence_type': 105, 'item_existence': 281, 'kind': 46, 'actor_type': 47, 'relevance': 3}; baseline-gemma4-e4b {'item_existence': 390, 'evidence_scope': 108, 'evidence_type': 154, 'kind': 60, 'actor_type': 72, 'relevance': 3}; baseline-ministral-3b {'evidence_scope': 49, 'evidence_type': 93, 'item_existence': 216, 'actor_type': 50, 'kind': 37, 'relevance': 3}; baseline-qwen3.5-4b {'item_existence': 251, 'evidence_scope': 72, 'evidence_type': 99, 'actor_type': 38, 'kind': 37, 'relevance': 3}; scout-large {'evidence_scope': 105, 'evidence_type': 145, 'item_existence': 486, 'actor_type': 81, 'kind': 73, 'relevance': 3}; teacher-ensemble {'evidence_scope': 135, 'evidence_type': 188, 'item_existence': 619, 'actor_type': 104, 'kind': 83, 'relevance': 3}; teacher-or-deepseek-v4.1-flash {'evidence_scope': 131, 'evidence_type': 169, 'item_existence': 573, 'actor_type': 86, 'kind': 73, 'relevance': 3}; teacher-or-glm-5.3-flash {'relevance': 3}; teacher-or-mimo-v2.6-pro {'evidence_scope': 138, 'evidence_type': 187, 'item_existence': 599, 'actor_type': 98, 'kind': 85, 'relevance': 3}; teacher-qwen3.8 {'evidence_scope': 113, 'evidence_type': 169, 'item_existence': 383, 'actor_type': 86, 'kind': 65, 'relevance': 3}.
 
 Frontier reference throughput (GPT mini tier, concurrency 1): 9.677 chunks/min. hosted throughput depends on routing and provider rate limits.
 

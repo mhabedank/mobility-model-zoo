@@ -83,10 +83,6 @@ def draw(points: list[tuple[str, float, float]], out: Path, *, version: str,
         legend = ax.legend(loc="lower right", fontsize=8, frameon=False)
         for text in legend.get_texts():
             text.set_color(TEXT_SECONDARY)
-    for name, x, y in points + students:
-        ax.annotate(name, (x, y), xytext=(6, 6), textcoords="offset points", fontsize=9,
-                    color=TEXT_PRIMARY)
-
     ax.set_xlabel("Throughput on reference VM (chunks per minute, log scale)",
                   color=TEXT_SECONDARY, fontsize=9)
     ax.set_ylabel(ylabel or "Composite agreement with consensus", color=TEXT_SECONDARY,
@@ -95,6 +91,31 @@ def draw(points: list[tuple[str, float, float]], out: Path, *, version: str,
                  loc="left", color=TEXT_PRIMARY, fontsize=11)
     ys = [p[2] for p in points + students] + ([quality_bar] if quality_bar is not None else [])
     ax.set_ylim(min(0.0, min(ys) - 0.05), max(1.0, max(ys) + 0.05))
+    # Each label takes the first of four positions around its point that overlaps no label or
+    # point drawn before it.
+    fig.tight_layout()
+    fig.canvas.draw()  # final limits and layout, so label boxes are measured where drawn
+    renderer = fig.canvas.get_renderer()
+    taken = [ax.transData.transform((x, y)) for _, x, y in points + students]
+    boxes: list = []
+    offsets = [((10, 12), "left"), ((10, -20), "left"), ((-10, 12), "right"), ((-10, -20), "right")]
+    leader = {"arrowstyle": "-", "color": TEXT_SECONDARY, "linewidth": 0.6, "shrinkA": 0,
+              "shrinkB": 4}
+    for name, x, y in sorted(points + students, key=lambda p: (p[1], p[2])):
+        for (dx, dy), ha in offsets:
+            label = ax.annotate(name, (x, y), xytext=(dx, dy), textcoords="offset points",
+                                fontsize=9, color=TEXT_PRIMARY, ha=ha, arrowprops=leader)
+            box = label.get_window_extent(renderer).expanded(1.02, 1.1)
+            hits_point = any(box.contains(px, py) for px, py in taken)
+            if not hits_point and not any(box.overlaps(b) for b in boxes):
+                break
+            label.remove()
+        else:
+            label = ax.annotate(name, (x, y), xytext=(10, 12), textcoords="offset points",
+                                fontsize=9, color=TEXT_PRIMARY, arrowprops=leader)
+            box = label.get_window_extent(renderer)
+        boxes.append(box)
+
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(out, facecolor=SURFACE)
