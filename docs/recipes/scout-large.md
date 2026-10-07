@@ -94,6 +94,21 @@ uv run jtbd --config BENCH span results --run <selected run> --perf <perf file> 
 uv run jtbd --config BENCH span release-check --version 0.1.0
 ```
 
+Speed on development hardware and the comparison with the generative models of the pilot (figures for the card, added to the results files; run after `span results`, which rewrites them):
+
+```bash
+uv run jtbd --config BENCH perf --backend span --model-dir data/models/span-xlmr-c1 --device mps \
+    --hardware "MacBook Pro, Apple M3 Pro, 36 GB, mps"                       # also --device cpu --suffix mac-cpu
+# on the DGX Spark, in the NVIDIA PyTorch container:
+uv run jtbd --config BENCH perf --backend span --model-dir data/models/span-xlmr-c1 --device cuda \
+    --suffix dgx-spark-gpu --hardware "NVIDIA DGX Spark (GB10), GPU"
+uv run python scripts/span/comparisons.py --version 0.1.0
+```
+
+![Quality and speed](figures/scout-large-quality-speed.png)
+
+![Time for 10,000 texts](figures/scout-large-10k-texts.png)
+
 ## 8. Staging
 
 ```bash

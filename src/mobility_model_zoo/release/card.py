@@ -75,6 +75,14 @@ def install_line(model: dict[str, Any], version: str) -> str:
     return model["card"]["install"].replace("<tag>", f"{model['name']}/v{version}")
 
 
+def figure_urls(model: dict[str, Any], version: str) -> list[dict[str, str]]:
+    """Figures linked at the release tag on GitHub, so a published card's images never change."""
+    raw = REPO_URL.replace("https://github.com/", "https://raw.githubusercontent.com/")
+    tag = f"{model['name']}/v{version}"
+    return [{"alt": f["alt"], "url": f"{raw}/refs/tags/{tag}/{f['path']}"}
+            for f in model["card"].get("figures", [])]
+
+
 def topic_url(topic: dict[str, Any]) -> str:
     if topic.get("hf_collection"):
         return f"https://huggingface.co/collections/{topic['hf_collection']}"
@@ -194,6 +202,7 @@ def render(inp: CardInput) -> str:
         banner=_banner(model, record, inp.deprecated_banner),
         front_matter=front_matter(model, record, quality),
         install=install_line(model, version),
+        figures=figure_urls(model, version),
         how_to_run=fill(
             model["card"]["how_to_run"], model["repos"]["public"], f"v{version}", first_text
         ).strip(),

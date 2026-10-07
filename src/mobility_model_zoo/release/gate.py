@@ -349,6 +349,9 @@ class Gate:
     def rule_10(self) -> list[str]:
         card = self._card()
         failures = card_structure(card)
+        root = self.reg.zoo.parent
+        failures += [f"figure {f['path']} is not in the repository"
+                     for f in self.model["card"].get("figures", []) if not (root / f["path"]).is_file()]
         if self.offline:
             return failures
         verdict = self.hub.validate_yaml(card)

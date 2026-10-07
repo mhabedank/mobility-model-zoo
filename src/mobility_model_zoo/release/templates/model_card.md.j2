@@ -11,7 +11,9 @@
 
 {{ m.summary }}
 
-`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
+{% for f in figures %}![{{ f.alt }}]({{ f.url }})
+
+{% endfor %}`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
 
 ## Intended use
 

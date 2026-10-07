@@ -154,6 +154,76 @@
       "n_items": 150,
       "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
       "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_mimo",
+      "value": 0.909491,
+      "unit": null,
+      "description": "Same composite for MiMo V2.6 Pro (teacher) (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_deepseek",
+      "value": 0.835701,
+      "unit": null,
+      "description": "Same composite for DeepSeek V4.1 Flash (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_qwen3_8_27b_dgx",
+      "value": 0.890416,
+      "unit": null,
+      "description": "Same composite for Qwen3.8 27B, DGX Spark (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_gemma4_e4b_dgx",
+      "value": 0.667169,
+      "unit": null,
+      "description": "Same composite for Gemma4 E4B, DGX Spark (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_qwen3_5_4b",
+      "value": 0.615253,
+      "unit": null,
+      "description": "Same composite for Qwen3.5 4B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_ministral_3b",
+      "value": 0.604384,
+      "unit": null,
+      "description": "Same composite for Ministral 3B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_gemma4_e2b",
+      "value": 0.567877,
+      "unit": null,
+      "description": "Same composite for Gemma4 E2B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
     }
   ]
 }
