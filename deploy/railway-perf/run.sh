@@ -32,6 +32,11 @@ for model in ${PERF_MODELS:-}; do
 done
 for dir in ${PERF_SPAN:-}; do
   name=$(basename "$dir")
+  # Model directories are too large for `railway up`; they are uploaded into the running
+  # container with `railway service files upload`, followed by an empty `.ready` file.
+  echo "=== WAITING_FOR_MODEL $dir ==="
+  until [ -f "models/$dir/.ready" ]; do sleep 10; done
+  rm -f "models/$dir/.ready"
   # The benchmark config: its runs hold the student run, its main split the throughput chunks.
   for repeat in 1 2; do  # measured twice to show the spread on shared vCPUs (R6 as amended)
     if uv run jtbd --config "$CONFIG" perf --backend span --model-dir "models/$dir" \
