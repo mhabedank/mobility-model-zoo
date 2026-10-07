@@ -12,7 +12,7 @@ from mobility_model_zoo.productdev.jtbd.consensus import load_consensus
 from mobility_model_zoo.productdev.jtbd.decision import load_perf, load_scores
 from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
 from mobility_model_zoo.productdev.jtbd.freeze import load_manifest
-from mobility_model_zoo.productdev.jtbd.jsonio import read_json
+from mobility_model_zoo.productdev.jtbd.jsonio import read_json, read_yaml
 from mobility_model_zoo.productdev.jtbd.report.pareto import draw
 
 DISCLAIMER = (
@@ -253,6 +253,10 @@ def render_report(settings: Settings) -> dict[str, Any]:
     deviations = list(decision.get("deviations", []))
     deviations.insert(0, "GPT reference is the mini tier of the current generation, not the "
                          "flagship (budget; plan.md Complexity Tracking, FR-017)")
+    # Deviations decided during the runs, written down next to the report (committed).
+    extra = out_dir / "deviations.yaml"
+    if extra.exists():
+        deviations += [str(d) for d in (read_yaml(extra) or {}).get("deviations", [])]
     lines += ["## 11. Deviations", ""] + [f"- {d}" for d in deviations] + [""]
     money = budget.summary(settings)
     lines += ["## 12. Budget", "",
