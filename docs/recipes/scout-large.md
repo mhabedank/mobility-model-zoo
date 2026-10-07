@@ -24,9 +24,7 @@ Training chunks come only from `training_allowed` snapshots that share no source
 uv run jtbd --config TRAIN corpus autochunk --map data/span-train-v1/autochunk-map.yaml \
     --train 1000 --eval 0 --seed 20261002            # --exclude-benchmark defaults to the config
 uv run jtbd --config TRAIN corpus redact
-uv run jtbd --config TRAIN corpus review-sample --seed 20261002   # drawn once
-# review every sampled chunk by hand, then:
-uv run jtbd --config TRAIN corpus mark-reviewed <chunk ids>
+uv run jtbd --config TRAIN corpus pii-review --model teacher-qwen3.8   # local model, every chunk
 uv run jtbd --config TRAIN corpus redact-check
 uv run jtbd --config TRAIN span data-check       # writes data/span-train-v1/analysis/provenance.json
 uv run jtbd --config TRAIN freeze                # freezes guideline, schema and the training chunks
@@ -34,7 +32,7 @@ uv run jtbd --config TRAIN freeze                # freezes guideline, schema and
 
 `autochunk` starts from an empty chunk directory. To add sources, fetch them once (`jtbd source fetch/register --permitted-uses training_allowed`), add them to the map, delete `data/span-train-v1/chunks/` and cut again before any review.
 
-Redaction: every chunk passes the pattern redaction and an automated identifier scan; a stratified 10% sample (at least 100) and every forum or review chunk is reviewed by hand (spec FR-005).
+Redaction: every chunk passes the pattern redaction, then a local model on the development hardware lists personal data about private individuals and each finding is replaced by a placeholder, until the model finds nothing (spec FR-005 as amended 2026-10-06: no manual review). The text never leaves the local network for this step; every pass is stored for audit.
 
 ## 2. Teacher labels (after the pilot has decided)
 
@@ -79,14 +77,14 @@ At most three candidates are evaluated on the benchmark, each with its reason wr
 
 ## 6. Speed and memory on the reference VM
 
-On the reference VM (8 GB RAM, 4 vCPU, no GPU), for every evaluated candidate:
+On the reference machine (8 GB RAM, 4 vCPU, no GPU), for every evaluated candidate. For 0.1.0 this was a temporary Railway service with these limits (`deploy/railway-perf/`, staged by `scripts/railway/stage.sh`, results read back by `scripts/railway/collect.py`); the model files came from a branch of the private staging repository:
 
 ```bash
 uv run jtbd --config BENCH perf --backend span --model-dir data/models/span-xlmr-<c> \
     --hardware "<provider type>, 8 GB RAM, 4 vCPU, no GPU"
 ```
 
-Delete the VM afterwards and record its cost: `uv run jtbd --config TRAIN budget --add "reference VM" --eur <n>`.
+Delete the machine afterwards and record its cost: `uv run jtbd --config TRAIN budget --add "reference VM" --eur <n>`.
 
 ## 7. Selection, results and release bar
 
@@ -110,4 +108,11 @@ Change `base_encoder` (name and revision) in `span-xlmr.yaml`, commit it, and re
 
 ## Numbers of version 0.1.0
 
-To be filled in when the model is built (T048): dataset size and composition, repair rate, candidates evaluated, selected epoch, thresholds.
+- **Benchmark**: `pilot-v2` (guideline v2), 150 main chunks; reference: consensus of Claude (`claude-opus-5-5`) and `openai/gpt-5.4-mini`.
+- **Training data** (`span-train-v1`): 1,100 chunks from 87 `training_allowed` snapshots (UK and Scottish parliamentary evidence, Irish and US hearings, Bundestag plenary protocols of the 20th Bundestag, CC BY citizen interviews and papers); 28% German, 72% English; 1,084 transcript and 16 paper chunks; 20% marked off-topic. Personal-data review changed 202 chunks (895 replacements).
+- **Teacher**: `teacher-or-mimo-v2.6-pro` (the pilot's recommendation), all 1,100 chunks labeled, none excluded, EUR 3.55.
+- **Rows**: 995 training and 105 validation rows (9 validation snapshots); 11,740 teacher items, 852 repaired by the frozen quote-repair rule (7.3%), 16 dropped.
+- **Candidates evaluated on the benchmark**: one (`c1`, recipe defaults); no second candidate was needed.
+- **Training**: XLM-RoBERTa-large, 8 epochs on the DGX Spark (about 5 minutes per epoch); best validation epoch 7 (validation score 0.743).
+- **Thresholds** (tuned on the validation rows): unit 0.5, relevance 0.700.
+- **Results**: comparison composite 0.723 (best zero-shot baseline 0.667); quotes, schema and consistency 100%; on the reference machine 8.1 s for the 9,240-character text, 2.5 GB peak memory, 21.6 chunks per minute.
