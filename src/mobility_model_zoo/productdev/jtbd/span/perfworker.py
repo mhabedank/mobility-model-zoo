@@ -20,8 +20,9 @@ def main() -> None:
     torch.set_num_threads(int(job["threads"]))
     from mobility_model_zoo.productdev.jtbd.span.extractor import SpanExtractor
 
+    device = job.get("device", "cpu")
     start = time.perf_counter()
-    model = SpanExtractor.from_pretrained(job["model_dir"])
+    model = SpanExtractor.from_pretrained(job["model_dir"], device=device)
     load_time = time.perf_counter() - start
     text = job["text"]
     model.extract(text)  # warm-up
@@ -34,6 +35,11 @@ def main() -> None:
     for chunk in job["chunks"]:
         model.extract(chunk)
     wall = time.perf_counter() - start
+    gpu_mb = None
+    if device == "cuda":
+        gpu_mb = torch.cuda.max_memory_allocated() / (1024 * 1024)
+    elif device == "mps":
+        gpu_mb = torch.mps.driver_allocated_memory() / (1024 * 1024)  # at the end, not a peak
     maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     maxrss_mb = maxrss / (1024 * 1024) if sys.platform == "darwin" else maxrss / 1024
     print(json.dumps({
@@ -46,6 +52,8 @@ def main() -> None:
         "chunks_per_min": round(len(job["chunks"]) / wall * 60, 4) if wall else None,
         "ru_maxrss_mb": round(maxrss_mb, 1),
         "threads": torch.get_num_threads(),
+        "device": device,
+        "gpu_memory_mb": None if gpu_mb is None else round(gpu_mb, 1),
     }))
 
 

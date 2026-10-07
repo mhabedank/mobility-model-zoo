@@ -1,8 +1,8 @@
 ---
 title: README
 emoji: 🚏
-colorFrom: green
-colorTo: yellow
+colorFrom: blue
+colorTo: green
 sdk: static
 pinned: false
 ---

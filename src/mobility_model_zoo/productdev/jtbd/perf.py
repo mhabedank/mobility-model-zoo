@@ -251,7 +251,7 @@ def _student_run(settings: Settings, sha: str, quality_run: str | None):
 
 def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
               text_file: Path | None = None, quality_run: str | None = None,
-              repeats: int = LATENCY_REPEATS) -> dict[str, Any]:
+              repeats: int = LATENCY_REPEATS, device: str = "cpu") -> dict[str, Any]:
     """Speed and peak memory of a span model in a child process (research R13, FR-014)."""
     import json
     import subprocess
@@ -270,7 +270,7 @@ def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
     threads = available_cpus()
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump({"model_dir": str(model_dir), "text": text, "chunks": chunks,
-                   "threads": threads, "repeats": repeats}, f)
+                   "threads": threads, "repeats": repeats, "device": device}, f)
         job = f.name
     child = subprocess.Popen([sys.executable, "-m",
                               "mobility_model_zoo.productdev.jtbd.span.perfworker", job],
@@ -299,5 +299,8 @@ def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
         "peak_rss_sampled_mb": None if sampled is None else round(sampled, 1),
         "measured_at": datetime.now(UTC).isoformat(),
     }
-    write_json(settings.analysis_dir / "perf" / f"{run.model_id}-{sha[:12]}.json", result)
+    # The reference measurement (CPU) keeps the plain name the release bar reads; other devices
+    # are additional measurements (development hardware) and carry the device in the name.
+    suffix = "" if device == "cpu" else f"-{device}"
+    write_json(settings.analysis_dir / "perf" / f"{run.model_id}-{sha[:12]}{suffix}.json", result)
     return result
