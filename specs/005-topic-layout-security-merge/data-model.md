@@ -41,10 +41,12 @@ Unchanged fields from feature 003, plus `runtime` and `card.device_usage` ([rele
 
 | name | topic | task | runtime | license | library_name | pipeline_tag | languages | base_model |
 |---|---|---|---|---|---|---|---|---|
-| `picket-forest` | security | can-ids | mcu | Apache-2.0 | scikit-learn | tabular-classification | [] | null |
-| `picket-mlp` | security | can-ids | mcu | Apache-2.0 | tflite | tabular-classification | [] | null |
-| `hum-fan` | condition-monitoring | sound-anomaly | mcu | CC-BY-SA-4.0 (`license_exception`: MIMII share-alike) | tflite | audio-classification | [] | null |
-| `pace-cnn` | condition-monitoring | activity | mcu | Apache-2.0 | tflite | time-series-classification | [] | null |
+| `picket-forest` | security | can-ids | mcu | Apache-2.0 | sklearn | tabular-classification | [] | null |
+| `picket-mlp` | security | can-ids | mcu | Apache-2.0 | litert | tabular-classification | [] | null |
+| `hum-fan` | condition-monitoring | sound-anomaly | mcu | CC-BY-SA-4.0 (`license_exception`: MIMII share-alike) | litert | audio-classification | [] | null |
+| `pace-cnn` | condition-monitoring | activity | mcu | Apache-2.0 | litert | other (free tag `time-series-classification`) | [] | null |
+
+`library_name` and `pipeline_tag` values were checked on 2026-10-08 against the Hugging Face library list (`huggingface.js` `model-libraries.ts`: `sklearn`, `litert`) and the official pipeline tags (`tabular-classification`, `audio-classification`; there is no `time-series-classification`, so `pace-cnn` uses `other`).
 
 Each gets `releases/0.1.0.yaml` as a draft (status `experimental`, `published: null`) with provenance, evaluation and performance budget filled from the research results, `files: []` and `staging: null` until a retraining run stages files. `zoo check` then reports the missing evidence (SC-004).
 
@@ -63,6 +65,8 @@ datasets:
     license_check: api             # api | manual
     license_checked: 2026-10-07    # last check date (manual: by a person; api: by CI)
     permitted_use: training_allowed  # training_allowed | benchmark_only
+    redistribution: unclear        # allowed | not_allowed | unclear
+    redistribution_basis: "CC BY 4.0 permits redistribution with attribution; provider terms not yet checked"
     commercial_use: true
     attribution: "Verma et al., ORNL"
     citation: "…"
@@ -73,7 +77,7 @@ datasets:
     used_by: [picket-mlp]
 ```
 
-Rules: `permitted_use: training_allowed` requires `commercial_use: true` and a license without `NC` or `ND`; `rejected` and `broken_at_source` require `reason`; `license_check: manual` requires `license_checked`; ids are unique across all topic files.
+Rules: `redistribution: allowed` requires a non-empty `redistribution_basis` naming the license clause and the date of the check (constitution VI); every entry starts as `unclear` in this feature, and no dataset is published here (FR-011). `permitted_use: training_allowed` requires `commercial_use: true` and a license without `NC` or `ND`; `rejected` and `broken_at_source` require `reason`; `license_check: manual` requires `license_checked`; ids are unique across all topic files.
 
 Initial declarations:
 

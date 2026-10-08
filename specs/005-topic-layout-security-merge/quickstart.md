@@ -56,7 +56,7 @@ git status --porcelain | wc -l               # 0: nothing landed in the reposito
 uv run edge build -t native && uv run pytest -m hil --hil-board sim -q
 uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick     # optional, needs QEMU
 for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done
-uv run zoo build pace-cnn 0.1.0 --out /tmp/pace-cnn-card   # renders the mcu card (build needs no Hub access)
+uv run pytest tests/release/test_card_mcu.py -q              # renders the mcu card of the fixture model (zoo build needs staged files)
 ```
 
 Expected: `zoo check` exits 2 for each model with a concrete list (files not staged, no real-board latency), never with a schema error; the rendered card shows the KB budget, the origin column and the ground-truth quality sentence.

@@ -9,7 +9,7 @@
 The zoo repository is reorganised by topic, and the content of `mhabedank/mobility-security-ml` is merged into it with its history:
 
 1. **Layout** (R3, R14): every topic gets `topics/<topic>/` (README, research, datasets, reports, recipes). The productdev material moves there from the top level without touching published release records; `model.yaml` figure paths and every config, script and test reference follow; `zoo deprecate` renders from the tagged `model.yaml`.
-2. **Constitution 1.5.0** (R12): JTBD-specific rules are scoped to model-labeled tasks; ground-truth tasks, microcontroller budgets, dataset declarations, share-alike licensing and the topic layout are added.
+2. **Constitution 2.0.0** (R12, done before implementation on 2026-10-08): model-labeled vs. ground-truth tasks, metric naming instead of an accuracy ban, tools and budgets per task, measurement origin, dataset storage outside git with a redistribution check, topic layout.
 3. **History import** (R1, R4): both source branches are rewritten with `git filter-repo` to the zoo paths ([contracts/path-map.md](contracts/path-map.md)) and merged with unrelated histories. Raw dataset frames, firmware images, generated sources, weights and the separate Hugging Face pipeline are stripped from every commit.
 4. **Integration** (R5, R9, R11, R15, R16): code becomes `mobility_model_zoo.{datasets, edge.int8, edge.bench, security.can_ids, condition_monitoring.*}` with CLIs `zoo data`, `edge`, `security`, `condmon`; overlapping code is reduced to one implementation per concern; tests, extras and lint follow the zoo's conventions.
 5. **Datasets** (R10): per-topic `datasets.yaml`, shared downloader writing outside the repository, license verification in CI, a training guard for `benchmark_only` data.
@@ -50,18 +50,18 @@ The zoo repository is reorganised by topic, and the content of `mhabedank/mobili
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Constitution version **1.4.0**, amended to **1.5.0** by this feature (R12). Tasks touched: `jtbd` (paths only), new `can-ids`, `sound-anomaly`, `activity`; release through `zoo`.
+Constitution version **2.0.0** (amended from 1.4.0 on 2026-10-08 as a separate step before implementation, R12). Tasks touched: `jtbd` (paths only), new `can-ids`, `sound-anomaly`, `activity`; release through `zoo`.
 
 | Principle | Touched | Pre-design | Post-design | How the plan complies |
 |-----------|---------|------------|-------------|-----------------------|
 | I. Problem-First | no | ✅ | ✅ | Scoped to model-labeled tasks by the existing scope note; no change for JTBD. |
 | II. Grounded Evidence | no | ✅ | ✅ | As I. |
-| III. Measure Before Optimizing | yes | ⚠ conflict | ✅ amended | Ground-truth tasks have no frontier consensus; amendment 1.5.0 names dataset labels as their reference (R12). Each new task gets a frozen benchmark name and protocol before any result is reported (R8). |
-| IV. Riskiest Assumption First | yes | ⚠ conflict | ✅ amended | The agreement pilot applies to model-labeled tasks; ground-truth tasks need no inter-model pilot (R12). |
-| V. Small and Local | yes | ⚠ gap | ✅ amended | Budgets in KB with named target boards; measurement origin recorded; release beyond `experimental` needs a real board (gate rule 15). |
-| VI. Clean Provenance | yes | ✅ | ✅ | Dataset declarations with license, permitted use, commercial use, retention (R10); downloads outside the repository; raw frames stripped from history (R4); share-alike enforced (rule 6); no dataset mirroring (FR-011). |
+| III. Measure Before Optimizing | yes | ⚠ conflict (1.4.0) | ✅ (2.0.0) | Each new task names dataset labels as its frozen reference and gets a benchmark name and protocol before any result is reported (R8); metrics state their reference; old-repo numbers are reports, not benchmark results (R8). |
+| IV. Riskiest Assumption First | yes | ⚠ conflict (1.4.0) | ✅ (2.0.0) | The agreement pilot applies to model-labeled tasks; each task document names its riskiest assumption (for `can-ids`: transfer to unseen vehicles and attacks). |
+| V. Small and Local, Budgets per Task | yes | ⚠ gap (1.4.0) | ✅ (2.0.0) | Each task document defines its budgets (KB flash and RAM, latency) and reference board; measurement origin recorded; release beyond `experimental` needs a real board (gate rule 15). |
+| VI. Clean Provenance | yes | ✅ | ✅ | Dataset declarations with license, permitted use, commercial use, retention (R10); downloads outside the repository; raw frames stripped from history (R4); share-alike enforced (rule 6); `redistribution` recorded per dataset, all `unclear` for now; no dataset published (FR-011). |
 | VII. Metadata over Inference | no | ✅ | ✅ | Scoped to JTBD. |
-| VIII. Fair Comparison | yes | ⚠ conflict | ✅ amended | One protocol per task; both CAN models on both test sets (R8). Ludwig stays the text default; edge tasks choose scikit-learn/emlearn and Keras/TFLite with justification in their task documents (R12). |
+| VIII. Fair Comparison | yes | ⚠ conflict (1.4.0) | ✅ (2.0.0) | One protocol per task; both CAN models on both test sets (R8). Tools follow the task: scikit-learn/emlearn for trees, Keras/LiteRT for int8 nets, justified in the task documents. |
 | IX. Reproducible, Dated Releases | yes | ✅ | ✅ | Only the zoo pipeline publishes; volta's `hub` and `train` workflows dropped (R17); weights come from a retraining run at a zoo commit (R4); published versions untouched (R14). |
 | X. Scope Discipline | no | ✅ | ✅ | Scoped to JTBD; each new task states scope in its task document. |
 | Project Scope | yes | ✅ | ✅ | `<name>-<variant>` names (R7); one collection per topic; a new topic changes no existing model; topic layout added by amendment. |
@@ -70,7 +70,7 @@ Constitution version **1.4.0**, amended to **1.5.0** by this feature (R12). Task
 | Technical Spikes | yes | ✅ | ✅ | `spike/` moves unchanged; `src/` still never imports it (test path updated). |
 | Development Workflow & Quality Gates | yes | ✅ | ✅ | Plan lists principles; amendment carries version bump and rationale; gate before reporting a result scoped per reference kind. |
 
-Gate result: pass, with the four conflicts resolved by the constitution amendment that is part of this feature (FR-026) rather than by deviations.
+Gate result: pass against constitution 2.0.0; no deviations.
 
 ## Project Structure
 
@@ -133,7 +133,7 @@ tests/{unit, release, integration, datasets, edge/{int8,bench,hil}, security/can
 | Phase | Content | Done when |
 |---|---|---|
 | 1 Layout | productdev move, reference updates, figure path pattern, deprecate-from-tag, `zoo validate` topic folder check, topic READMEs, `docs/layout.md` | tests green, `zoo validate --all` ok |
-| 2 Constitution | amendment 1.5.0 with rationale | version bumped, sync report at top |
+| 2 Constitution | amendment 2.0.0 with rationale (done, `d5ec1c1`) | version bumped, sync report at top |
 | 3 Import goldberg | `scripts/import/` driver with path map and strip list; filter-repo; merge | `git log --follow` shows original commits; no stripped path in history |
 | 4 Import volta | same | same |
 | 5 Integration | package renames, imports, split `train_real.py`, CLIs, extras, ruff, tests moved, pytest plugin via `-p`, generated firmware sources at build time, synthetic refs regenerated | default `pytest` green incl. imported tests; `edge run -b sim` green |
@@ -146,4 +146,4 @@ tests/{unit, release, integration, datasets, edge/{int8,bench,hil}, security/can
 
 ## Complexity Tracking
 
-No unjustified violation. The four principle conflicts (III, IV, V, VIII) are resolved by the constitution amendment 1.5.0 that this feature carries (FR-026, R12); the simpler alternative, a recorded deviation per model, was rejected because every edge model would repeat it.
+No unjustified violation. The four conflicts with 1.4.0 (III, IV, V, VIII) were resolved by constitution 2.0.0, amended as its own step before implementation (FR-026, R12); the simpler alternative, a recorded deviation per model, was rejected because every edge model would repeat it.

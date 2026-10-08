@@ -44,9 +44,9 @@ See [data-model.md](../data-model.md), "Dataset declaration".
 | 1 | conditional checks: `languages` non-empty for python; `{text}` in `how_to_run` for python; `device_usage` present for mcu; budget variant matches `runtime` |
 | 6 | for every source with `dataset`: the declaration exists, its license equals the source license, `permitted_use` is `training_allowed`, `status` is `active`; if any source license is share-alike (`CC-BY-SA-*`), the model license equals it; a non-commercial license (`*-NC-*`) as a training source fails |
 | 7 | unchanged (`training_allowed` only) |
-| 10 | quality sentence: `model_consensus` keeps the fixed agreement sentence and the "accuracy" ban; `ground_truth` requires the sentence "Quality is measured against the labels of the datasets named below, on test data not used for training." and allows "accuracy" |
+| 10 | quality sentence per reference (constitution 2.0.0, III metric naming): `model_consensus` keeps the fixed agreement sentence and refuses "accuracy" in metric names, because agreement is not accuracy; `ground_truth` requires the sentence "Quality is measured against the labels of the datasets named below, on test data not used for training." and allows "accuracy"; every quality metric needs a `reference` |
 | 12 | `mcu`: instead of running the Python snippet, load the staged int8 model with the host reference and run the first example |
-| 13 | `mcu`: examples are `examples/*.json` with `input` (int8 vector) and `expected` (output); each must match bit-exactly on the host reference; at least 3 |
+| 13 | `mcu`: examples are `examples/*.json` with `input` (int8 vector), `expected` (output) and `source`; `source` is `synthetic` (random or generated vectors) or a dataset id whose declaration has `redistribution: allowed`; each must match bit-exactly on the host reference; at least 3 |
 | 15 (new) | device evidence for `mcu`: performance metrics include `flash_kb`, `ram_kb` and `latency_us` with `origin` and `hardware`; unless `status` is `experimental`, at least one `latency_us` has `origin: real_board` |
 
 ## Model card template

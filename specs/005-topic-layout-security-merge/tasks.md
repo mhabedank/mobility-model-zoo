@@ -33,19 +33,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 **Purpose**: Constitution and import tooling. **No story work starts before this phase is complete.**
 
-- [ ] T004 Amend `.specify/memory/constitution.md` to **1.5.0** (MINOR) per research R12. Edit, keeping all other text:
-  - **Sync report**: a new sync-impact report at the top, with the rationale.
-  - **Scope note** (lines 35–41): Principles I, II, VII, X and the agreement pilot apply to model-labeled tasks; ground-truth tasks name dataset labels as their reference.
-  - **Principle III**: ground-truth tasks report against dataset labels and may say accuracy.
-  - **Principle V**: per-runtime budgets. Python: GB RAM, CPU/GPU. Microcontroller: KB flash and RAM on a named board. Every measurement records its origin: real board, emulator or simulator.
-  - **Principle VI**: per-topic dataset declarations; share-alike carries over to the model license; NC data is `benchmark_only`.
-  - **Principle VIII**: Ludwig is the default for text models; other tasks choose their framework with a justification in their first spec.
-  - **Principle IX**: raw-label retention applies to model-labeled tasks.
-  - **Resources**: add CI runners and the bench boards.
-  - **Project Scope**: one topic = one collection = one `topics/<topic>/` folder; top level only for shared material.
-  - **Gate before reporting a result**: split by reference kind.
-  - **Footer**: `**Version**: 1.5.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-08`.
-- [ ] T005 [P] Update `README.md` link text if it quotes the constitution version, and add a test `tests/unit/test_constitution_version.py` that the footer version of `.specify/memory/constitution.md` equals `1.5.0` and the sync report mentions "1.4.0 → 1.5.0".
+- [X] T004 Amend `.specify/memory/constitution.md` from 1.4.0 to **2.0.0** (MAJOR), done as a separate step with `/speckit-constitution` on 2026-10-08 (commit `d5ec1c1`). It follows the owner directions and covers: the model-labeled vs. ground-truth scope note; metric naming instead of an accuracy ban (III); the agreement pilot only for model-labeled tasks (IV); budgets and tools per task (V, VIII); measurement origin; dataset storage outside git with a redistribution check (VI, IX); the topic layout; resources; quality gates per reference kind (research R12).
+- [ ] T005 [P] Update `README.md` link text if it quotes the constitution version, and add a test `tests/unit/test_constitution_version.py` that the footer version of `.specify/memory/constitution.md` equals `2.0.0` and the sync report mentions "1.4.0 → 2.0.0".
 - [ ] T006 Write the path maps as data: `scripts/import/path-map-goldberg.yaml` and `scripts/import/path-map-volta.yaml`, each with `renames:` (list of `{from, to}`, directories end in `/`), `strip:` (list of globs) and `drop:` (files neither renamed nor stripped, with a `reason`), copied exactly from contracts/path-map.md sections B and C.
 - [ ] T007 Implement `scripts/import/import_branch.py` (stdlib plus `pyyaml`). Arguments: `--source /tmp/msml`, `--branch <ref>`, `--map <yaml>`, `--out <dir>`. Steps:
   1. Fresh `git clone --no-local --single-branch --branch <ref>` into `<out>`.
@@ -60,7 +49,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - the merge log lists all three paths.
 - [ ] T009 [P] Implement `scripts/import/check_merge_log.py`: reads `topics/security/research/merge-log.md` (Markdown table generated from the two CSVs) and the source branches; exits 0 only if every path of both branches appears with a new path or a reason (SC-001). Test in `tests/unit/test_check_merge_log.py` on a fixture table.
 
-**Checkpoint**: The constitution allows ground-truth edge tasks; the import tool is tested.
+**Checkpoint**: Constitution 2.0.0 is in force; the import tool is tested.
 
 ---
 
@@ -122,7 +111,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `topics/security/datasets.yaml` and `topics/condition-monitoring/datasets.yaml`, each `datasets: []`.
   - Empty folders with a `.gitkeep`: `research/`, `reports/`, `recipes/`, `tasks/`.
 - [ ] T020 [P] [US1] Write `docs/layout.md`: the top-level rule (shared vs. per topic, research R3), the tree from contracts/path-map.md section D, and where a new topic or task puts code, configs, research, datasets, reports, recipes and firmware. Link it from `README.md` and `docs/adding-a-model.md` (FR-005).
-- [ ] T021 [US1] Run the full suite, `zoo validate --all` and `uv run zoo audit` (uses `HF_RELEASE_TOKEN` from `.env`). Record the results under "US1" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: same pass count as T001 plus the new tests, and audit ok for `scout-large` 0.1.0 and 0.1.1.
+- [ ] T021 [US1] Run the full suite, `zoo validate --all` and `uv run zoo audit` (uses `HF_RELEASE_TOKEN` from `.env`). Check links with `scripts/import/check_card_links.py`: it downloads the published READMEs of `mobility-model-zoo/scout-large` at `v0.1.0` and `v0.1.1` and sends an HTTP HEAD (GET as fallback) to every link; GitHub links pinned to commits or tags must answer 200. Record the results under "US1" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: same pass count as T001 plus the new tests, audit ok for `scout-large` 0.1.0 and 0.1.1, and no broken link (SC-003).
 
 **Checkpoint**: The layout exists and nothing published broke.
 
@@ -208,7 +197,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Benchmark:** `can-ids-v1`, built per research R8 (can-train-and-test four-way splits plus ROAD held-out captures).
   - **Metrics:** frame P/R/F1/FPR/AUC-PR; event episode recall, time to alarm, false alarms per hour (headline). Formulas as in `metrics.py`.
   - **Tool:** `security can-ids`.
-  - **Frameworks:** scikit-learn + emlearn for trees, Keras + TFLite int8 for neural nets, each with a justification.
+  - **Frameworks:** scikit-learn + emlearn for trees, Keras + LiteRT int8 for neural nets, each with the reason (constitution VIII: tools follow the task).
+  - **Riskiest assumption:** detection transfers to unseen vehicles and unseen attack types; it is tested by the four-way split before any scaling (constitution IV).
   - **Budget:** at most 16 KB RAM and 128 KB flash on ESP32-S3.
 - [ ] T042 [P] [US2] Write `topics/condition-monitoring/tasks/sound-anomaly.md`:
   - **Scope:** unsupervised anomaly score per 10 s clip from one microphone, trained on normal sounds only.
@@ -216,12 +206,14 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Metrics:** clip AUC (headline), pAUC at FPR ≤ 0.1, per machine id.
   - **Mobility relevance and limits:** taken from volta `docs/datasets.md` "Bezug zur Mobilität", in English.
   - **Budget:** at most 64 KB RAM and 256 KB flash.
+  - **Tools and riskiest assumption:** Keras + LiteRT int8, with the reason. The riskiest assumption: factory-hall fan recordings transfer to vehicle and charger auxiliaries. It is tested later with own recordings, and stated as a limit until then.
 
   Write `topics/condition-monitoring/tasks/activity.md`:
   - **Scope:** six activities from waist-worn 6-axis IMU windows of 2.56 s; no vehicle classes.
   - **Benchmark:** `uci-har-v1`, the official subject-disjoint test split.
   - **Metrics:** accuracy and macro-F1 (headline).
   - **Budget:** at most 32 KB RAM and 128 KB flash.
+  - **Tools and riskiest assumption:** Keras + LiteRT int8, with the reason. The riskiest assumption: waist-worn activity windows are a useful base for micromobility and manoeuvre detection. Stated as a limit.
 - [ ] T043 [P] [US2] Create task configs:
   - `configs/security/can-ids/picket-forest.yaml`: the goldberg grid, final choice 30 trees / depth 12 / `min_samples_leaf=20`, alarm rule 3 frames in 200 ms with 1 s hold-off, budget 2 false alarms per hour.
   - `configs/security/can-ids/picket-mlp.yaml`: volta MLP 32-64-32-2, ROAD subsampling 15 %, test captures `_2`.
@@ -229,36 +221,9 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `configs/condition-monitoring/activity/pace-cnn.yaml`: the CNN layers from research.
 
   Take the values from the source code. Training commands read them through `--config`.
-- [ ] T044 [US2] Register the four models in `zoo/models/<name>/model.yaml` per data-model.md table "Model":
-  - **`picket-forest`:** security, can-ids, `runtime: mcu`, Apache-2.0, scikit-learn, tabular-classification, `languages: []`, `base_model: null`.
-  - **`picket-mlp`:** security, can-ids, mcu, Apache-2.0, tflite, tabular-classification.
-  - **`hum-fan`:** condition-monitoring, sound-anomaly, mcu, CC-BY-SA-4.0, `license_exception: "trained on MIMII (CC BY-SA 4.0); share-alike applies to the weights"`, tflite, audio-classification.
-  - **`pace-cnn`:** condition-monitoring, activity, mcu, Apache-2.0, tflite, time-series-classification.
-  - **Every model:**
-    - `repos{public: mobility-model-zoo/<name>, staging: mobility-model-zoo/<name>-staging}`;
-    - card texts: intended use, out of scope (no safety-critical use without a vehicle-specific validation; dual-use note for `picket-*` from goldberg MODEL_CARD.md);
-    - input/output description;
-    - `install` with `<tag>`;
-    - `how_to_run` with the Python host reference;
-    - `device_usage` with the C call;
-    - limitations taken from the research cards.
-
-  Depends on T062–T064 for schema support. Until then, keep the files on the branch and expect `zoo validate` to fail only on the fields that US4 adds.
-- [ ] T045 [US2] Create draft `zoo/models/<name>/releases/0.1.0.yaml` for the four models:
-  - `status: experimental`, `change_type: initial`, `files: []`, `staging: null`, `published: null`;
-  - `recipe` pointing at the task config and recipe document at the current commit;
-  - `provenance.sources` with `dataset:` ids from data-model.md and `permitted_use: training_allowed`; teachers `[]`; `spike_data: false`;
-  - `evaluation{benchmark: can-ids-v1|mimii-fan-v1|uci-har-v1, reference_kind: ground_truth}`;
-  - `performance.budget{ram_kb, flash_kb, target: ESP32-S3}` from the task budgets.
-- [ ] T046 [US2] Move the research results to reports, not zoo results:
-  - `topics/security/reports/picket-forest/` keeps goldberg `config.json`, `protocol_results.json` and the QEMU json files.
-  - `topics/security/reports/picket-mlp/research-report.json` and `topics/condition-monitoring/reports/{hum-fan,pace-cnn}/research-report.json` hold the volta `*.report.json` contents, recovered with `git -C /tmp/msml show origin/claude/cool-volta-rqsgdx:models/zoo/<old>.report.json`.
-  - Each folder gets a `README.md` that says: research run from the old repository, not a frozen benchmark result, weights not in the zoo (research R4).
-- [ ] T047 [US2] Run `uv run zoo index` (regenerates `zoo/MODELS.md` with the two new topics) and `for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done`. Record each failure list under "US2" in `validation.md`. **GATE** (after US4): every model exits 2 with only "files not staged", "results missing" and "no real-board latency"; no schema error (SC-004).
-
 ### Translation
 
-- [ ] T048 [P] [US2] Translate into English, keeping every citation, URL, `[V]`/`[U]`/`[CONFLICT]` mark, number and license statement (FR-012):
+- [ ] T044 [P] [US2] Translate into English, keeping every citation, URL, `[V]`/`[U]`/`[CONFLICT]` mark, number and license statement (FR-012):
   - `topics/security/README.md`
   - `topics/security/roadmap.md`
   - `topics/security/research/README.md`
@@ -266,14 +231,14 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `topics/security/reports/picket-forest/research-card.md` (if German)
 
   Replace `can-ids-tiny` with `picket-forest` where the text refers to the zoo model; keep the old name where it refers to the old repository.
-- [ ] T049 [P] [US2] Translate into English:
+- [ ] T045 [P] [US2] Translate into English:
   - `docs/edge/{hil-bench,ci,extending,hardware,protocol}.md`
   - `topics/condition-monitoring/research/datasets-volta.md`
 
-  Update commands to `edge …`, `zoo data …`, `security …` and `condmon …`, and paths to the new layout. Split `datasets-volta.md`: CAN parts go to `topics/security/research/datasets.md`, sound and IMU parts stay; the dataset table content goes into the `datasets.yaml` files in T051.
-- [ ] T050 [US2] Write `scripts/import/check_language.py`, a stopword heuristic: a Markdown file fails if more than 3 % of its words are common German function words (`und, der, die, das, nicht, mit, für, ist, auf, wir`). Run it over `topics/ docs/ README.md`. **GATE**: zero files flagged (SC-007). Add it as a test in `tests/unit/test_docs_english.py`.
+  Update commands to `edge …`, `zoo data …`, `security …` and `condmon …`, and paths to the new layout. Split `datasets-volta.md`: CAN parts go to `topics/security/research/datasets.md`, sound and IMU parts stay; the dataset table content goes into the `datasets.yaml` files in T050.
+- [ ] T046 [US2] Write `scripts/import/check_language.py`, a stopword heuristic: a Markdown file fails if more than 3 % of its words are common German function words (`und, der, die, das, nicht, mit, für, ist, auf, wir`). Run it over `topics/ docs/ README.md`. **GATE**: zero files flagged (SC-007). Add it as a test in `tests/unit/test_docs_english.py`.
 
-**Checkpoint**: Content merged, history intact, four models registered.
+**Checkpoint**: Content merged, history intact, task documents and configs written.
 
 ---
 
@@ -285,16 +250,18 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tests for User Story 3
 
-- [ ] T051 [P] [US3] Write `tests/datasets/test_declarations.py`, rejecting each of the following:
+- [ ] T047 [P] [US3] Write `tests/datasets/test_declarations.py`, rejecting each of the following:
   - an id that is not `^[a-z0-9][a-z0-9-]*$`;
   - an id that appears in two topic files;
   - `permitted_use: training_allowed` with `commercial_use: false`;
   - `training_allowed` with an `NC` or `ND` license;
   - `rejected` or `broken_at_source` without `reason`;
-  - `license_check: manual` without `license_checked`.
+  - `license_check: manual` without `license_checked`;
+  - `redistribution` missing or not one of `allowed|not_allowed|unclear`;
+  - `redistribution: allowed` without `redistribution_basis`.
 
   Both real topic files validate.
-- [ ] T052 [P] [US3] Write `tests/datasets/test_guard_and_download.py` with mocked HTTP:
+- [ ] T048 [P] [US3] Write `tests/datasets/test_guard_and_download.py` with mocked HTTP:
   - `require_training_allowed("syncan")` raises `UsageRefused`;
   - `zoo data download syncan` exits 3;
   - `download can-mirgu` without `--force` exits 3;
@@ -304,12 +271,12 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Implementation for User Story 3
 
-- [ ] T053 [US3] Create `src/mobility_model_zoo/release/schemas/datasets.schema.json` (and the copy in `specs/005-…/contracts/`) per data-model.md "Dataset declaration":
-  - **Fields:** `id, title, use_case, provider (zenodo|uci|bitbucket|url), locator, homepage, license (SPDX), license_url, license_check (api|manual), license_checked (date), permitted_use (training_allowed|benchmark_only), commercial_use, attribution, citation, approx_size_mb, retention, status (active|broken_at_source|rejected), reason, used_by`.
-  - **Conditional rules:** as listed in T051.
+- [ ] T049 [US3] Create `src/mobility_model_zoo/release/schemas/datasets.schema.json` (and the copy in `specs/005-…/contracts/`) per data-model.md "Dataset declaration":
+  - **Fields:** `id, title, use_case, provider (zenodo|uci|bitbucket|url), locator, homepage, license (SPDX), license_url, license_check (api|manual), license_checked (date), permitted_use (training_allowed|benchmark_only), redistribution (allowed|not_allowed|unclear), redistribution_basis, commercial_use, attribution, citation, approx_size_mb, retention, status (active|broken_at_source|rejected), reason, used_by`.
+  - **Conditional rules:** as listed in T047.
 
   Rewrite `src/mobility_model_zoo/datasets/registry.py` to load and validate every `topics/*/datasets.yaml` instead of the Python `SOURCES`/`REJECTED` lists. Keep the `Source` dataclass as the in-memory form.
-- [ ] T054 [US3] Fill the declaration files per data-model.md "Initial declarations". Take provider data from volta `registry.py` (recover with `git show origin/claude/cool-volta-rqsgdx:hilbench/data/registry.py`) and goldberg `can_train_and_test.py`.
+- [ ] T050 [US3] Fill the declaration files per data-model.md "Initial declarations". Take provider data from volta `registry.py` (recover with `git show origin/claude/cool-volta-rqsgdx:hilbench/data/registry.py`) and goldberg `can_train_and_test.py`.
   - **`topics/security/datasets.yaml`:**
     - `can-train-and-test`: bitbucket `brooke-lampe/can-train-and-test`, CC-BY-4.0, `license_check: manual`, checked 2026-10-08 against DOI 10.11583/DTU.24805533.
     - `road`: zenodo 10462796, CC-BY-4.0, api.
@@ -320,11 +287,13 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
     - `mimii`: zenodo 3384388, CC-BY-SA-4.0, `locator.zenodo_files: ["6_dB_fan"]`, `zip_members` as in volta.
     - `uci-har`: uci 240, CC-BY-4.0.
     - `dcase2020-task2-dev`, `dcase2021-toyadmos2`, `gnss-interference-mendeley`, `driver-behavior`: `rejected` with reasons.
-  - **Every entry:** `retention: "local cache only; delete 12 months after the last training run that used it"`.
-- [ ] T055 [US3] Add a `bitbucket` provider to `src/mobility_model_zoo/datasets/download.py`, using goldberg's Bitbucket API listing from `can_train_and_test.py`. `can_train_and_test.py` then only parses. Default root is `$MMZ_DATA`, and the downloader refuses any target under the repository root.
-- [ ] T056 [US3] Implement `require_training_allowed(id)` in `src/mobility_model_zoo/datasets/__init__.py`, and call it in every training entry point: `security/can_ids/forest.py` (evaluate, export), `security/can_ids/mlp.py`, `condition_monitoring/sound_anomaly/train.py`, `condition_monitoring/activity/train.py` (FR-017).
-- [ ] T057 [US3] Add the `zoo data` command group to `src/mobility_model_zoo/release/cli.py` (`list, info, verify, download, path, tree, validate`) per contracts/cli.md, delegating to `mobility_model_zoo.datasets`. Remove the `data` group from `edge/bench/cli.py`. `zoo validate --all` also runs `zoo data validate`.
-- [ ] T058 [US3] Create `.github/workflows/datasets.yml`:
+  - **Every entry:**
+    - `retention: "local cache only; delete 12 months after the last training run that used it"`.
+    - `redistribution: unclear`. The `redistribution_basis` notes the license clause and, where volta had `hf_rehost=yes`, "license permits redistribution with attribution; provider terms not yet checked". No dataset is published in this feature (FR-011).
+- [ ] T051 [US3] Add a `bitbucket` provider to `src/mobility_model_zoo/datasets/download.py`, using goldberg's Bitbucket API listing from `can_train_and_test.py`. `can_train_and_test.py` then only parses. Default root is `$MMZ_DATA`, and the downloader refuses any target under the repository root.
+- [ ] T052 [US3] Implement `require_training_allowed(id)` in `src/mobility_model_zoo/datasets/__init__.py`, and call it in every training entry point: `security/can_ids/forest.py` (evaluate, export), `security/can_ids/mlp.py`, `condition_monitoring/sound_anomaly/train.py`, `condition_monitoring/activity/train.py` (FR-017).
+- [ ] T053 [US3] Add the `zoo data` command group to `src/mobility_model_zoo/release/cli.py` (`list, info, verify, download, path, tree, validate`) per contracts/cli.md, delegating to `mobility_model_zoo.datasets`. Remove the `data` group from `edge/bench/cli.py`. `zoo validate --all` also runs `zoo data validate`.
+- [ ] T054 [US3] Create `.github/workflows/datasets.yml`:
   - **Triggers:** `schedule: cron "23 5 * * 1"`, `workflow_dispatch`, and push on `topics/*/datasets.yaml` or `src/mobility_model_zoo/datasets/**`.
   - **Job:** `uv sync --extra edge --extra release`, then `uv run zoo data verify`.
   - **Restrictions:** no downloads; no secrets.
@@ -341,8 +310,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tests for User Story 4
 
-- [ ] T059 [P] [US4] Extend `tests/release/fixtures/registry/` with an mcu fixture model `edge-fixture-tiny` (topic `sandbox`, `runtime: mcu`), plus an int8 npz from `edge.bench.reference_models`, three `examples/*.json` and performance results with `origin`. Update `tests/release/fixtures/golden/` with its expected card.
-- [ ] T060 [P] [US4] Write `tests/release/test_edge_rules.py`:
+- [ ] T055 [P] [US4] Extend `tests/release/fixtures/registry/` with an mcu fixture model `edge-fixture-tiny` (topic `sandbox`, `runtime: mcu`), plus an int8 npz from `edge.bench.reference_models`, three `examples/*.json` with `source: synthetic` and performance results with `origin`. Update `tests/release/fixtures/golden/` with its expected card.
+- [ ] T056 [P] [US4] Write `tests/release/test_edge_rules.py`:
   - **Rule 1:** fails for an mcu model without `device_usage`; fails for a python model with empty `languages`.
   - **Rule 6:**
     - fails when a source `dataset` is undeclared;
@@ -351,10 +320,10 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
     - fails for an NC training source;
     - passes for `hum-fan`-like settings.
   - **Rule 10:** `ground_truth` requires the sentence "Quality is measured against the labels of the datasets named below, on test data not used for training." and allows "accuracy"; `model_consensus` keeps the agreement sentence and the ban.
-  - **Rules 12/13:** mcu examples must match bit-exactly on the host reference; one changed expected byte fails.
+  - **Rules 12/13:** mcu examples must match bit-exactly on the host reference; one changed expected byte fails; an example whose `source` is a dataset with `redistribution: unclear` fails.
   - **Rule 15:** missing `flash_kb` fails; `status: stable` with only an emulator latency fails; `experimental` with an emulator latency passes.
   - **Regression:** `scout-large` and `sandbox-pipeline-tiny` fixtures still pass every rule.
-- [ ] T061 [P] [US4] Write `tests/release/test_card_mcu.py`. The mcu card renders:
+- [ ] T057 [P] [US4] Write `tests/release/test_card_mcu.py`. The mcu card renders:
   - tags `tinyml`, `microcontroller` and the target name;
   - "How to run it" with the Python host snippet and a `c` block from `device_usage`;
   - "Budget: {ram_kb} KB RAM, {flash_kb} KB flash on {target}.";
@@ -365,7 +334,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Implementation for User Story 4
 
-- [ ] T062 [US4] Change `src/mobility_model_zoo/release/schemas/model.schema.json` per contracts/release-format.md:
+- [ ] T058 [US4] Change `src/mobility_model_zoo/release/schemas/model.schema.json` per contracts/release-format.md:
   - `runtime` enum `python|mcu`, default `python`;
   - `languages` `minItems: 0`;
   - `base_model` and `base_model_license` nullable for all topics;
@@ -373,33 +342,62 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - figure path pattern (done in T014).
 
   Update the contract copy.
-- [ ] T063 [US4] Change `release-record.schema.json`: `performance.budget` becomes `oneOf` `{ram_gb>0, gpu: false}` | `{ram_kb>0, flash_kb>0, target}`; add `provenance.sources[].dataset` (optional, pattern `^[a-z0-9][a-z0-9-]*$`) and `evaluation.reference_kind` enum `model_consensus|ground_truth`. Change `results.schema.json`: add `metrics[].origin` enum `real_board|emulator|simulator|host`, and remove the "accuracy" name ban from the schema (it moves to rule 10). Update the contract copies. Published records must validate unchanged; check with a test over `zoo/models/*/releases/*.yaml`.
-- [ ] T064 [US4] Update `src/mobility_model_zoo/release/gate.py`:
+- [ ] T059 [US4] Change `release-record.schema.json`: `performance.budget` becomes `oneOf` `{ram_gb>0, gpu: false}` | `{ram_kb>0, flash_kb>0, target}`; add `provenance.sources[].dataset` (optional, pattern `^[a-z0-9][a-z0-9-]*$`) and `evaluation.reference_kind` enum `model_consensus|ground_truth`. Change `results.schema.json`: add `metrics[].origin` enum `real_board|emulator|simulator|host`, and remove the "accuracy" name ban from the schema (it moves to rule 10). Update the contract copies. Published records must validate unchanged; check with a test over `zoo/models/*/releases/*.yaml`.
+- [ ] T060 [US4] Update `src/mobility_model_zoo/release/gate.py`:
   - **Rule 1:** the conditional checks.
   - **Rule 6:** dataset declarations and share-alike/NC checks via `mobility_model_zoo.datasets`.
   - **Rule 10:** the quality sentence depends on `reference_kind`; constant `GROUND_TRUTH` next to `AGREEMENT`.
-  - **Rules 12/13:** mcu branch through `edge.int8.reference.run_model` on the staged npz.
+  - **Rules 12/13:** mcu branch through `edge.int8.reference.run_model` on the staged npz; the `source` of each example is `synthetic` or a dataset with `redistribution: allowed`.
   - **Rule 15 `device_evidence`:** add it to the rule table (`gate.py:40-55`), the run order (`:390`) and `OFFLINE_RULES` in `cli.py:19`.
   - **Rule 2:** keep, with the topic pattern from T016.
 
-  T060 passes.
-- [ ] T065 [US4] Update `src/mobility_model_zoo/release/templates/model_card.md.j2` and `card.py` per contracts/release-format.md "Model card template". Keep the python path byte-identical (T061). `publish.py` `_record_template` (`:73-96`) writes the mcu budget shape when `runtime: mcu`. `forbidden_upload` keeps rejecting `data/`, and also rejects `*.eval.npz`.
-- [ ] T066 [US4] Implement `edge measure MODEL.npz -b BOARD --out FILE.json` in `src/mobility_model_zoo/edge/bench/cli.py`. It runs the performance suite for one model and writes performance metrics `latency_us`, `latency_p99_us`, `flash_kb`, `ram_kb`, `arena_bytes` in `results.schema.json` format, with `hardware` from the board inventory and `origin` from the board kind: `native` → `simulator`, qemu flasher → `emulator`, otherwise `real_board`. Test in `tests/edge/bench/test_measure.py` against the simulator.
-- [ ] T067 [US4] Update CI in `.github/workflows/ci.yml`:
+  T056 passes.
+- [ ] T061 [US4] Update `src/mobility_model_zoo/release/templates/model_card.md.j2` and `card.py` per contracts/release-format.md "Model card template". Keep the python path byte-identical (T057). `publish.py` `_record_template` (`:73-96`) writes the mcu budget shape when `runtime: mcu`. `forbidden_upload` keeps rejecting `data/`, and also rejects `*.eval.npz`.
+- [ ] T062 [US4] Implement `edge measure MODEL.npz -b BOARD --out FILE.json` in `src/mobility_model_zoo/edge/bench/cli.py`. It runs the performance suite for one model and writes performance metrics `latency_us`, `latency_p99_us`, `flash_kb`, `ram_kb`, `arena_bytes` in `results.schema.json` format, with `hardware` from the board inventory and `origin` from the board kind: `native` → `simulator`, qemu flasher → `emulator`, otherwise `real_board`. Test in `tests/edge/bench/test_measure.py` against the simulator.
+- [ ] T063 [US4] Update CI in `.github/workflows/ci.yml`:
   - Job `test`: `uv sync --extra jtbd --extra release --extra edge` (no `--all-extras`, so no TensorFlow), then ruff, pytest, `zoo validate --all`.
   - New job `edge-sim`: `uv run edge build -t native && uv run pytest -m hil --hil-board sim -q`.
   - New job `edge-qemu`: Espressif QEMU `esp-develop-9.2.2-20250817` from GitHub releases (cached), ESP32 firmware build via PlatformIO, `uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick`. Port from volta `.github/workflows/ci.yml`, recovered with `git show origin/claude/cool-volta-rqsgdx:.github/workflows/ci.yml`.
-- [ ] T068 [US4] Create `.github/workflows/firmware.yml`:
+- [ ] T064 [US4] Create `.github/workflows/firmware.yml`:
   - **Triggers:** push and pull_request with paths `firmware/**`, `hil/**`, `src/mobility_model_zoo/edge/**`; plus `workflow_dispatch`.
   - **Bench matrix:** the 11 bench targets (`esp8266, esp8266_160mhz, esp32, esp32s3, esp32s3_usb, esp32c3, esp32c3_usb, rp2040, rp2350, stm32f446, nrf52840`), each running `uv run edge build -t <target>`, plus a summary job with RAM and flash per target. Port from volta.
   - **`picket-forest` host check:** a gcc `-Werror` build of `firmware/components/can_features` and `firmware/picket-forest/c` against host scores computed in the job. Port from goldberg `.github/workflows/ci.yml` (recover with `git show`).
-- [ ] T069 [US4] Create `.github/workflows/hil.yml`, ported from volta:
+- [ ] T065 [US4] Create `.github/workflows/hil.yml`, ported from volta:
   - **Triggers:** `workflow_dispatch` (inputs `boards`, `quick`) and cron `17 2 * * *`.
   - **Runner:** `runs-on: [self-hosted, hil]`, with `if: vars.HIL_RUNNER_ENABLED == 'true'`, so without the variable the job is skipped (US4 scenario 4).
   - **Settings:** timeout 120 min; concurrency group `hil-bench`.
-- [ ] T070 [US4] Run `uv run zoo build pace-cnn 0.1.0 --out /tmp/pace-cnn-card` (or the fixture model if `build` requires staged files) and attach the rendered card to `validation.md` under "US4". Then rerun T047. **GATE**: SC-004 holds.
+- [ ] T066 [US4] Render the mcu card of the fixture model `edge-fixture-tiny` through the card renderer used by `tests/release/test_card_mcu.py`, and attach the output to `validation.md` under "US4". `zoo build` cannot be used here: it runs the full gate and downloads staged files.
 
-**Checkpoint**: Edge models are releasable through the zoo pipeline.
+### Models (registered here, because they need the US4 schema changes)
+
+- [ ] T067 [US4] Register the four models in `zoo/models/<name>/model.yaml` per data-model.md table "Model":
+  - **`picket-forest`:** security, can-ids, `runtime: mcu`, Apache-2.0, `library_name: sklearn`, `pipeline_tag: tabular-classification`, `languages: []`, `base_model: null`.
+  - **`picket-mlp`:** security, can-ids, mcu, Apache-2.0, `litert`, `tabular-classification`.
+  - **`hum-fan`:** condition-monitoring, sound-anomaly, mcu, CC-BY-SA-4.0, `license_exception: "trained on MIMII (CC BY-SA 4.0); share-alike applies to the weights"`, `litert`, `audio-classification`.
+  - **`pace-cnn`:** condition-monitoring, activity, mcu, Apache-2.0, `litert`, `pipeline_tag: other` with the free tag `time-series-classification` (no such official tag; checked 2026-10-08, data-model.md).
+  - **Every model:**
+    - `repos{public: mobility-model-zoo/<name>, staging: mobility-model-zoo/<name>-staging}`;
+    - card texts: intended use, out of scope (no safety-critical use without a vehicle-specific validation; dual-use note for `picket-*` from goldberg MODEL_CARD.md);
+    - input/output description;
+    - `install` with `<tag>`;
+    - `how_to_run` with the Python host reference;
+    - `device_usage` with the C call;
+    - limitations taken from the research cards.
+
+ 
+- [ ] T068 [US4] Create draft `zoo/models/<name>/releases/0.1.0.yaml` for the four models:
+  - `status: experimental`, `change_type: initial`, `files: []`, `staging: null`, `published: null`;
+  - `recipe` pointing at the task config and recipe document at the current commit;
+  - `provenance.sources` with `dataset:` ids from data-model.md and `permitted_use: training_allowed`; teachers `[]`; `spike_data: false`;
+  - `evaluation{benchmark: can-ids-v1|mimii-fan-v1|uci-har-v1, reference_kind: ground_truth}`;
+  - `performance.budget{ram_kb, flash_kb, target: ESP32-S3}` from the task budgets.
+- [ ] T069 [US4] Move the research results to reports, not zoo results:
+  - `topics/security/reports/picket-forest/` keeps goldberg `config.json`, `protocol_results.json` and the QEMU json files.
+  - `topics/security/reports/picket-mlp/research-report.json` and `topics/condition-monitoring/reports/{hum-fan,pace-cnn}/research-report.json` hold the volta `*.report.json` contents, recovered with `git -C /tmp/msml show origin/claude/cool-volta-rqsgdx:models/zoo/<old>.report.json`.
+  - Each folder gets a `README.md` that starts with "Pre-zoo research result: not a benchmark result". It says the result must not pass or fail a gate, set a threshold or appear in a model card, and that the weights are not in the zoo (research R4, R8).
+- [ ] T070 [US4] Run `uv run zoo index` (regenerates `zoo/MODELS.md` with the two new topics) and `for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done`. Record each failure list under "US2" in `validation.md`. **GATE**: every model exits 2 with only "files not staged", "results missing" and "no real-board latency"; no schema error (SC-004).
+
+**Checkpoint**: Edge models are releasable through the zoo pipeline, and the four models are registered.
 
 ---
 
@@ -433,19 +431,23 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - per-topic quick commands (`jtbd …`, `security can-ids …`, `condmon …`, `edge run -b sim`, `zoo data list`).
 
   Remove the "Later topics, for example cyber security or IoT" sentence. Update `docs/adding-a-model.md` for `runtime: mcu`, device measurements, dataset declarations and task documents.
-- [ ] T079 Run the full quickstart (scenarios 1–5) and write the results into `specs/005-topic-layout-security-merge/validation.md`. Run `uv run zoo history-check` again. Push the branch and open a PR "005: topic layout and merge of mobility-security-ml" with `gh pr create`; the body has the summary, the GATE results and the list of old staging repos. **GATE**: CI green on the PR (`test`, `edge-sim`, `edge-qemu`, `firmware`).
+- [ ] T079 Run the full quickstart (scenarios 1–5) and write the results, plus the runtime of the default `pytest` run and of the CI `test` job (plan goals: under 4 and under 10 minutes), into `specs/005-topic-layout-security-merge/validation.md`. Run `uv run zoo history-check` once more over the final branch (one-time check, FR-023). Push the branch and open a PR "005: topic layout and merge of mobility-security-ml" with `gh pr create`; the body has the summary, the GATE results and the list of old staging repos. **GATE**: CI green on the PR (`test`, `edge-sim`, `edge-qemu`, `firmware`).
 - [ ] T080 [P] Update the memory note `project-zoo-scope-broad-mobility` if the topic list changed (security and condition-monitoring now exist). Mark tasks done in this file.
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Setup (T001–T003)** → **Foundational (T004–T009)** → **US1 (T010–T021)** → **US2 (T022–T050)** → **US3 (T051–T058)** and **US4 (T059–T070)** → **US5 (T071–T077)** → **Polish (T078–T080)**.
+- **Setup (T001–T003)** → **Foundational (T004–T009)** → **US1 (T010–T021)** → **US2 (T022–T046)** → **US3 (T047–T054)** → **US4 (T055–T070)** → **US5 (T071–T077)** → **Polish (T078–T080)**.
 - **US2 depends on US1:** the import maps target `topics/…`.
-- **US3 and US4 depend on US2** (imported code). They are independent of each other except for two points:
-  - T064 rule 6 reads dataset declarations, so it needs T053–T054.
-  - T044, T045 and T047 finish only after T062–T064.
-- **Order within US2:** T022 → T023 → T024 → T025 → T026 → T027 (GATE) → T028 … T040 (GATE) → T041–T047 → T048–T050.
+- **US3 and US4 depend on US2** (imported code).
+- **US4 depends on US3** in two places:
+  - rule 6 (T060) reads the dataset declarations from T049–T050;
+  - the model records (T067–T068) reference dataset ids.
+
+  Everything else in US3 and US4 is independent.
+- **Order within US2:** T022 → T023 → T024 → T025 → T026 → T027 (GATE) → T028 … T040 (GATE) → T041–T043 → T044–T046.
+- **Order within US4:** T055–T057 (tests) → T058–T061 (schemas, gate, card) → T062–T066 (bench, CI, card render) → T067–T070 (models, GATE SC-004).
 - **Inside US5:** T075–T077 only after T079's PR is merged.
 
 ### Parallel opportunities
@@ -454,11 +456,11 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 - **US1:** T010 and T011 in parallel; then T018, T019 and T020 in parallel once T012–T017 are done.
 - **US2:**
   - T041, T042 and T043 in parallel;
-  - T048 and T049 in parallel;
+  - T044 and T045 in parallel;
   - T033 and T034 in parallel after T028;
   - T030, T031 and T032 touch different modules and can run in parallel after T029.
-- **US3:** T051 and T052 in parallel; T055 and T056 in parallel after T053.
-- **US4:** T059, T060 and T061 in parallel; T067, T068 and T069 in parallel.
+- **US3:** T047 and T048 in parallel; T051 and T052 in parallel after T049.
+- **US4:** T055, T056 and T057 in parallel; T063, T064 and T065 in parallel; T067 and T069 in parallel.
 - **US5:** T071 and T072 in parallel.
 
 ## Implementation Strategy

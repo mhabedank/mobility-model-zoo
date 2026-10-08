@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Merge the mobility-security-ml repository into the mobility-model-zoo and restructure the zoo repository around topics (one topic = one Hugging Face collection). Combine both unmerged branches of mobility-security-ml (research and `can-ids-tiny` from `claude/clever-goldberg-ygio83`; hardware-in-the-loop bench, dataset downloader and real-data models from `claude/cool-volta-rqsgdx`). Drop their separate Hugging Face pipeline and dataset mirroring. New topics `security` and `condition-monitoring`. Code in `src/mobility_model_zoo/<topic>/<task>`, shared code for datasets and edge deployment, non-code per topic in `topics/<topic>/`. Preserve git history, archive the old repository and delete its secrets. All artifacts in English. No model is published in this feature."
+**Input**: User description: "Merge the mobility-security-ml repository into the mobility-model-zoo and restructure the zoo repository around topics (one topic = one Hugging Face collection). Combine both unmerged branches of mobility-security-ml (research and `can-ids-tiny` from `claude/clever-goldberg-ygio83`; hardware-in-the-loop bench, dataset downloader and real-data models from `claude/cool-volta-rqsgdx`). Drop their separate Hugging Face pipeline and automatic dataset mirroring. New topics `security` and `condition-monitoring`. Code in `src/mobility_model_zoo/<topic>/<task>`, shared code for datasets and edge deployment, non-code per topic in `topics/<topic>/`. Preserve git history, archive the old repository and delete its secrets. All artifacts in English. No model is published in this feature."
 
 ## Context
 
@@ -53,7 +53,7 @@ The content of both security branches is in the zoo repository with its history,
 3. **Given** two CAN intrusion detectors (`can-ids-tiny` on can-train-and-test, `can_ids_road` on ROAD), **When** they are registered, **Then** both are models of topic `security`, task CAN intrusion detection, with names under the naming rule, and they are measured with one shared evaluation protocol for that task.
 4. **Given** `mimii_fan_ae` and `har_cnn1d`, **When** they are registered, **Then** they belong to topic `condition-monitoring`, and their mobility relevance and limits are stated.
 5. **Given** synthetic bench references (`can_ids_mlp`, `sensor_ae`, `imu_gnss_cnn1d`), **When** the content is merged, **Then** they stay test fixtures of the bench and are not registered as zoo models.
-6. **Given** the old Hugging Face publishing path and the dataset-mirroring plan, **When** the content is merged, **Then** neither remains in the repository, and any staging repositories it created are listed for the owner.
+6. **Given** the old Hugging Face publishing path and its automatic dataset mirroring, **When** the content is merged, **Then** neither remains in the repository, any staging repositories it created are listed for the owner, and each dataset declaration records whether redistribution is allowed, not allowed or unclear.
 
 ---
 
@@ -127,7 +127,7 @@ All CI and release credentials needed for any topic are configured in the zoo re
 
 - **FR-001**: The repository MUST have one folder `topics/<topic>/` per public topic registered in `zoo/topics.yaml`, with the same sections in each: `README.md` (scope, tasks, link to the Hugging Face collection), `research/`, `datasets.yaml`, `reports/`, `recipes/`, and topic-specific sections where needed (for example `guideline/` for JTBD).
 - **FR-002**: Code MUST stay under `src/mobility_model_zoo/<topic>/<task>/`; code used by more than one task MUST live in a shared module for datasets (`data`) or edge deployment (`edge`). Configuration MUST live under `configs/<topic>/<task>/`.
-- **FR-003**: The JTBD-only top-level folders (`guideline/`, `reports/`, `benchmarks/`, `spike/`, `deploy/`, `docs/recipes/`) MUST move under `topics/productdev/` (or, for build code and deployment scripts, under the matching code or script location), and every reference in code, configuration, tests and the current model records MUST follow.
+- **FR-003**: The JTBD-only top-level folders (`guideline/`, `reports/`, `benchmarks/`, `spike/`, `deploy/`, `docs/recipes/`) MUST move under `topics/productdev/` (together with the productdev scripts from `scripts/pilot`, `scripts/span`, `scripts/railway` and `scripts/spark`), and every reference in code, configuration, tests and the current model records MUST follow.
 - **FR-004**: Published `scout-large` versions MUST keep passing `zoo audit` and their published cards, links and install lines MUST keep resolving.
 - **FR-005**: The top-level README MUST list the topics with their collections and models and explain the layout in one short section; `docs/adding-a-model.md` MUST describe where each part of a new topic or task goes.
 
@@ -135,16 +135,16 @@ All CI and release credentials needed for any topic are configured in the zoo re
 
 - **FR-006**: The content of both source branches MUST be imported with its commit history, rewritten to the target paths.
 - **FR-007**: The repository MUST register the topics `security` and `condition-monitoring` in `zoo/topics.yaml`; the Hugging Face collections MUST be created only when the first model of a topic is published, and until then the entry records that no collection exists yet.
-- **FR-008**: `can-ids-tiny` and `can_ids_road` MUST be registered as models of topic `security`, `mimii_fan_ae` and `har_cnn1d` as models of topic `condition-monitoring`, each under a name that follows `<name>-<variant>`, with model records the release gate can check. None of them is published in this feature.
+- **FR-008**: `can-ids-tiny` and `can_ids_road` MUST be registered as models of topic `security`, `mimii_fan_ae` and `har_cnn1d` as models of topic `condition-monitoring`, each under a name that follows `<name>-<variant>` (chosen in planning: `picket-forest`, `picket-mlp`, `hum-fan`, `pace-cnn`), with model records the release gate can check. None of them is published in this feature.
 - **FR-009**: Each new task (CAN intrusion detection, machine-sound anomaly detection, activity recognition from IMU data) MUST state its scope (in and out), its reference data, its metrics and its evaluation protocol in a task document, as the constitution requires of every new task.
 - **FR-010**: Overlapping code from the two branches MUST be reduced to one implementation per concern; for each dropped part, the research log MUST say what was dropped and why.
-- **FR-011**: The separate Hugging Face publishing code and workflow, and any plan to mirror datasets on Hugging Face, MUST be removed.
+- **FR-011**: The separate Hugging Face publishing code and workflow, including its automatic dataset mirroring, MUST be removed. No dataset is published in this feature; publishing datasets (for example as a data compendium on Hugging Face) is a later feature that starts from the redistribution status recorded in the declarations (FR-014).
 - **FR-012**: All research documents, the roadmap, dataset documentation, model cards and READMEs from the source branches MUST be in English, keeping every citation, link, dataset and license statement.
 - **FR-013**: Build outputs that can be regenerated (firmware images, generated headers, trained weights, logs) MUST NOT be committed again unless a test needs them as fixed input; the recipe to regenerate them MUST be documented.
 
 **Datasets**
 
-- **FR-014**: Every dataset a topic uses or has rejected MUST be declared in `topics/<topic>/datasets.yaml` with provider, source URL, license, permitted use (`training_allowed` or `benchmark_only`), commercial use, retention period, approximate size and status with reason.
+- **FR-014**: Every dataset a topic uses or has rejected MUST be declared in `topics/<topic>/datasets.yaml` with provider, source URL, license, permitted use (`training_allowed` or `benchmark_only`), redistribution (`allowed`, `not_allowed` or `unclear`, with the basis of the decision), commercial use, retention period, approximate size and status with reason.
 - **FR-015**: A shared command MUST list declared datasets, download a dataset from its original provider into a local directory outside the repository and record origin, license, retrieval date and checksum next to the data.
 - **FR-016**: A shared command and a scheduled CI job MUST compare the license each provider declares today with the declared license and fail on a mismatch.
 - **FR-017**: Training MUST refuse a dataset declared `benchmark_only`.
@@ -159,13 +159,13 @@ All CI and release credentials needed for any topic are configured in the zoo re
 **Credentials and retirement**
 
 - **FR-022**: The zoo repository MUST hold every secret and variable its workflows reference; a document MUST list each credential with purpose, scope, using workflow and rotation steps. Secrets MUST NOT be committed.
-- **FR-023**: A secret scan MUST run over the full merged history before the merge reaches `main`, and in CI afterwards.
+- **FR-023**: A one-time secret and forbidden-path scan MUST run over the full merged history before the merge reaches `main`.
 - **FR-024**: After the merge is on the zoo's `main`, the old repository MUST get a `main` README pointing to the zoo, MUST have its secrets and variables deleted and MUST be archived. Its branches MUST stay readable.
 - **FR-025**: Private staging repositories created by the old publishing path MUST be listed for the owner; deleting them is the owner's decision.
 
 **Constitution**
 
-- **FR-026**: The constitution MUST be amended where its rules are specific to JTBD or to the old layout: ground-truth datasets as a reference instead of frontier labeling, a training framework chosen per task, microcontroller reference hardware and device measurements, firmware artifacts, and the topic layout. The amendment MUST carry a version bump and a rationale.
+- **FR-026**: The constitution MUST be amended before implementation where its rules are specific to JTBD or to the old layout: ground-truth datasets as a reference, metric naming, tools and budgets per task, measurement origin, dataset storage and redistribution, and the topic layout. Done as constitution 2.0.0 (2026-10-08); this feature's code, gate and card MUST follow it.
 
 ### Key Entities
 
@@ -181,7 +181,7 @@ All CI and release credentials needed for any topic are configured in the zoo re
 ### Measurable Outcomes
 
 - **SC-001**: 100 % of files from both source branches are either present in the zoo with history or listed in the research log as intentionally dropped, with a reason.
-- **SC-002**: Every public topic has the same set of sections; a reader finds the research, datasets, reports and recipes of any topic in under one minute without searching.
+- **SC-002**: Every public topic has the same set of sections; `zoo validate --all` confirms the required sections (README, dataset declarations, research, reports, recipes) for every public topic.
 - **SC-003**: The full test suite and `zoo audit` pass on the merged branch; the published `scout-large` card shows no broken link.
 - **SC-004**: Four models (two `security`, two `condition-monitoring`) are registered and each gets a definite answer from the release gate: pass, or a list of missing evidence.
 - **SC-005**: Zero dataset files and zero credentials in the merged history, confirmed by the repository scan and the secret scan.
@@ -204,9 +204,9 @@ All CI and release credentials needed for any topic are configured in the zoo re
 |---|---|
 | III Measure Before Optimizing | Each new task gets a frozen evaluation protocol before results are reported (FR-009). |
 | V Small and Local by Default | Edge models run on microcontrollers; measurements on the reference board (FR-019, FR-020). |
-| VI Clean Provenance | Dataset declarations with license, permitted use, retention (FR-014 to FR-017); no dataset mirroring (FR-011). |
-| VIII Fair Architecture Comparison | One evaluation protocol per task for both CAN detectors (US2 scenario 3); the Ludwig rule is amended for edge tasks (FR-026). |
+| VI Clean Provenance | Dataset declarations with license, permitted use, redistribution, commercial use, retention (FR-014 to FR-017); data never in git; no dataset published in this feature (FR-011). |
+| VIII Fair Architecture Comparison | One evaluation protocol per task for both CAN detectors (US2 scenario 3); each task states its tools and the reason (constitution 2.0.0). |
 | IX Reproducible, Dated Releases | Only the zoo pipeline publishes (FR-011); published versions stay auditable (FR-004). |
 | Project Scope | New tasks state their scope (FR-009); a new topic changes no existing model (FR-004). |
 | Tasks and Releases | Shared code is extracted because three tasks use it (FR-002). |
-| Governance | Amendments with version bump and rationale (FR-026). |
+| Governance | Constitution 2.0.0 with version bump and rationale, done before implementation (FR-026). |
