@@ -387,9 +387,62 @@ def redaction_recall_cmd(
     _run(fn)
 
 
+@app.command("retention")
+def retention_cmd(
+    fail: bool = typer.Option(False, "--fail", help="Exit with an error on findings."),
+) -> None:
+    """List snapshots past their retention date or without one (C-R1)."""
+
+    def fn() -> None:
+        from mobility_model_zoo.compliance.findings import StageFailed
+        from mobility_model_zoo.compliance.train import retention_findings
+
+        findings = retention_findings(load_register().root)
+        for f in findings:
+            say(f.line())
+        say(f"retention: {len(findings)} finding(s)")
+        if findings and fail:
+            raise StageFailed(findings)
+
+    _run(fn)
+
+
+@app.command("delete")
+def delete_cmd(
+    snapshot: str = typer.Option(..., "--snapshot"), reason: str = typer.Option(..., "--reason")
+) -> None:
+    """Delete a snapshot's raw and text files, log hashes and URL, mark the source record."""
+
+    def fn() -> None:
+        import datetime as dt
+
+        import yaml
+
+        from mobility_model_zoo.compliance.train import delete_snapshot
+
+        reg = load_register()
+        entry = delete_snapshot(reg.root, snapshot, reason)
+        for rel, data in reg.files.items():
+            if reg.stems[rel] not in ("sources", "datasets"):
+                continue
+            key = "sources" if reg.stems[rel] == "sources" else "datasets"
+            changed = False
+            for rec in data.get(key, []):
+                if rec.get("origin_url") == entry["origin_url"]:
+                    rec["deleted_at"] = dt.date.today().isoformat()
+                    changed = True
+            if changed:
+                path = reg.root / rel
+                head = path.read_text(encoding="utf-8").split("\n", 1)[0]
+                body = yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=110)
+                path.write_text((head + "\n" if head.startswith("#") else "") + body, encoding="utf-8")
+        say(f"deleted {len(entry['files'])} file(s) of {snapshot}; "
+            "logged in data/compliance/deletions.jsonl")
+
+    _run(fn)
+
+
 for _name in (
-    "retention",
-    "delete",
     "request",
     "watch",
 ):

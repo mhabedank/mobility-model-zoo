@@ -328,7 +328,7 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 5
 
-- [ ] T049 [P] [US5] Write `tests/compliance/test_signals.py` with `httpx.MockTransport`:
+- [X] T049 [P] [US5] Write `tests/compliance/test_signals.py` with `httpx.MockTransport`:
   - **C-F1:** robots.txt disallows `GPTBot` only, which blocks; a robots.txt network error blocks with "retry later"; robots.txt 404 means allowed; robots.txt 403 blocks.
   - **C-F2:** `/.well-known/tdmrep.json` with `tdm-reservation: 1`, and the same as a header, block.
   - **C-F3:** `X-Robots-Tag: noai`, and the `<meta name="robots" content="noai">` variant, block.
@@ -338,7 +338,7 @@ description: "Tasks for feature 006: compliance harness"
   - **C-F7:** a 402 response, or a login form, blocks.
   - **C-F8:** `register` without `--signals` is refused.
   - A clean site passes, and the crawl manifest line contains every verdict.
-- [ ] T050 [P] [US5] Write `tests/compliance/test_ingest_presend.py`:
+- [X] T050 [P] [US5] Write `tests/compliance/test_ingest_presend.py`:
   - **C-I1:** a chunk from a source without a record fails.
   - **C-I2:** a CC-BY-NC source with `training_allowed` fails.
   - **C-I4:** a human-subject source with `consent_or_ethics: unknown` and no decision fails.
@@ -349,7 +349,7 @@ description: "Tasks for feature 006: compliance harness"
   - **C-P4:** a `consumer_cli` route for a new run fails.
   - **C-P5:** a `provider_order: null` OpenRouter model fails at run start.
   - **C-P6:** a response whose `provider` differs from the route is discarded and the run fails.
-- [ ] T051 [P] [US5] Write `tests/compliance/test_retention_train.py`:
+- [X] T051 [P] [US5] Write `tests/compliance/test_retention_train.py`:
   - **C-R1:** a snapshot with `retention_until` yesterday is reported.
   - **`delete`:** removes the raw file, logs hash and URL, and sets `deleted_at`.
   - **C-T1:** a suppressed URL in the training data fails.
@@ -360,30 +360,30 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 5
 
-- [ ] T052 [US5] Implement `src/mobility_model_zoo/compliance/signals.py` per research R4: robots.txt (RFC 9309; project agent, `*`, AI agents list; fail closed), TDMRep (well-known file, header, meta), `X-Robots-Tag` and meta robots, ai.txt, deny and piracy lists, the terms keyword screen, and access-barrier detection. It returns a `SignalVerdict` with every field of the crawl manifest entry (data-model.md).
-- [ ] T053 [US5] Wire the signals into `jtbd/sources/snapshot.py`:
+- [X] T052 [US5] Implement `src/mobility_model_zoo/compliance/signals.py` per research R4: robots.txt (RFC 9309; project agent, `*`, AI agents list; fail closed), TDMRep (well-known file, header, meta), `X-Robots-Tag` and meta robots, ai.txt, deny and piracy lists, the terms keyword screen, and access-barrier detection. It returns a `SignalVerdict` with every field of the crawl manifest entry (data-model.md).
+- [X] T053 [US5] Wire the signals into `jtbd/sources/snapshot.py`:
   - **`fetch_url`:** replace `robots_allowed` (fails open today at lines 313–318) with `signals.check`. Write each attempt to `data/compliance/crawl-manifest.jsonl`. Refuse with exit 3 naming the check.
   - **User agent:** `USER_AGENT` (line 25) becomes `mobility-model-zoo-crawler/1.0 (+https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md)`. Keep the robots.txt group matching for the old token `jtbd-pilot` as well.
   - **`register_file` (line 353):** require a `--signals` YAML with `url`, `verdicts` and `checked_at`. Add the option in `jtbd/cli.py` (`source register`).
   - **`jtbd/sources/reddit.py`:** run the same checks for the API host's robots.txt and terms.
 
   T049 passes, and the existing `tests/unit/test_sources.py` and `test_forum_posts.py` stay green after their fixtures are adjusted for the new user agent.
-- [ ] T054 [US5] Implement the ingest checks C-I1–C-I7 in `checks.py` and call them from `jtbd/corpus/autochunk.py` before chunks are written. Quarantined chunk ids go to `data/compliance/quarantine.jsonl` (outside git), and chunks of classes with `art9_handling: quarantine` are excluded when flagged.
-- [ ] T055 [US5] Implement the pre-send and post-receive checks in `jtbd/labeling/runner.py`:
+- [X] T054 [US5] Implement the ingest checks C-I1–C-I7 in `checks.py` and call them from `jtbd/corpus/autochunk.py` before chunks are written. Quarantined chunk ids go to `data/compliance/quarantine.jsonl` (outside git), and chunks of classes with `art9_handling: quarantine` are excluded when flagged.
+- [X] T055 [US5] Implement the pre-send and post-receive checks in `jtbd/labeling/runner.py`:
   - **Before each batch (C-P1–C-P5):** re-run `scan.pii` on the exact text to be sent, compare `redaction.patterns_version` with the current `PATTERNS_VERSION`, check quarantine, and check the route via `register.route_for(model_cfg)`.
   - **In `jtbd/labeling/openrouter.py`:** refuse `provider_order: null` at backend construction, and pass `provider.order` equal to the route's hosting provider.
   - **After each response (C-P6):** compare `backend_meta.provider` with the route. On a mismatch, delete nothing already written, mark the attempt as `error: provider_mismatch`, and stop the run.
 
   Local routes (Ollama, openai_compat to localhost) skip C-P4/C-P5 but not C-P1–C-P3.
-- [ ] T056 [US5] Update `configs/productdev/jtbd/models.yaml`. Every OpenRouter teacher entry with `provider_order: null` (lines 165–247) gets `route:` pointing to a route record and `provider_order:` set to the route's hosting provider. Routes without `allowed_for` are left in place but refused at run start.
+- [X] T056 [US5] Update `configs/productdev/jtbd/models.yaml`. Every OpenRouter teacher entry with `provider_order: null` (lines 165–247) gets `route:` pointing to a route record and `provider_order:` set to the route's hosting provider. Routes without `allowed_for` are left in place but refused at run start.
 
   Add a `route:` key to every model entry, and extend `jtbd/config.py` so that `route` loads. Unknown keys must still fail.
-- [ ] T057 [US5] Add the backend `anthropic_api` in `jtbd/labeling/anthropic_api.py` (Anthropic SDK, structured JSON output with the same schema as `claude_cli`, model version from the response, `backend_meta` with the request id), registered in `labeling/base.py`. Its route in `providers.yaml` is `claude-api` with `access_path: api`. It gets `allowed_for: []` until the owner signs a DPA and the commercial terms check is recorded. Test it with a fake client in `tests/unit/test_anthropic_api_backend.py`. No paid call in this feature.
-- [ ] T058 [US5] Implement retention (C-R1):
+- [X] T057 [US5] Add the backend `anthropic_api` in `jtbd/labeling/anthropic_api.py` (Anthropic SDK, structured JSON output with the same schema as `claude_cli`, model version from the response, `backend_meta` with the request id), registered in `labeling/base.py`. Its route in `providers.yaml` is `claude-api` with `access_path: api`. It gets `allowed_for: []` until the owner signs a DPA and the commercial terms check is recorded. Test it with a fake client in `tests/unit/test_anthropic_api_backend.py`. No paid call in this feature.
+- [X] T058 [US5] Implement retention (C-R1):
   - `zoo compliance retention [--fail]`, which reads snapshot `retention_until` and register retention;
   - `zoo compliance delete --snapshot ID --reason TEXT`, which removes `raw.*` and `text.txt`, appends to `data/compliance/deletions.jsonl` and sets `deleted_at` in the source record;
   - a retention report line in `jtbd doctor` (`jtbd/doctor.py`).
-- [ ] T059 [US5] Implement the train checks C-T1–C-T5 in `checks.py` and call them from `jtbd/span/datacheck.py`, writing the result into `provenance.json`. T050 and T051 pass.
+- [X] T059 [US5] Implement the train checks C-T1–C-T5 in `checks.py` and call them from `jtbd/span/datacheck.py`, writing the result into `provenance.json`. T050 and T051 pass.
 
 **Checkpoint**: Future data generation cannot bypass the register.
 

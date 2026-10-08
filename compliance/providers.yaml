@@ -82,6 +82,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: gpt-mini-openrouter-openai
+  openrouter_provider: OpenAI
   model_id: gpt-mini-reference
   model_version: openai/gpt-5.4-mini
   access_path: openrouter
@@ -107,6 +108,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: mimo-openrouter-deepinfra
+  openrouter_provider: DeepInfra
   model_id: teacher-or-mimo-v2.6-pro
   model_version: xiaomi/mimo-v2.6-pro
   access_path: openrouter
@@ -156,6 +158,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: wafer-openrouter
+  openrouter_provider: Wafer
   model_id: teacher candidates (deepseek-v4.1-flash, glm-5.3-flash)
   access_path: openrouter
   hosting_provider: Wafer (Wafer, Inc., US; via OpenRouter, Inc., US)

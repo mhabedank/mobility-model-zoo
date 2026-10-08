@@ -82,6 +82,14 @@ def _next_attempt(raw_dir, chunk_id: str) -> int:
 
 
 
+def _answer_check(model, meta: dict) -> str:
+    from mobility_model_zoo.compliance.presend import check_answer
+
+    finding = check_answer(getattr(model, "compliance_route", None),
+                           getattr(model, "compliance_backend", ""), meta)
+    return finding.reason if finding else ""
+
+
 def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
                  retries: int) -> tuple[str, float, list[str]]:
     """All attempts for one chunk. Returns the last error ("" on success), cost, model versions."""
@@ -98,6 +106,12 @@ def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
                        {**record, "error": last_error, "parsed_candidate": None}, exclusive=True)
             continue
         spent += result.cost_eur
+        mismatch = _answer_check(model, result.meta)
+        if mismatch:
+            write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
+                       {**record, "error": "provider_mismatch: " + mismatch, "backend_meta": result.meta,
+                        "parsed_candidate": None}, exclusive=True)
+            raise ValidationFailed(f"compliance post-receive check failed (C-P6): {mismatch}")
         versions.append(result.model_version)
         write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json", {
             **record, "latency_ms": round(result.latency_ms, 1),
@@ -113,6 +127,26 @@ def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
         write_json(parsed_dir / f"{chunk.chunk_id}.json", output.model_dump(mode="json"))
         return "", spent, versions
     return last_error, spent, versions
+
+def _compliance_presend(settings: Settings, entry, backend: str, role: str, chunks) -> dict | None:
+    """Fail-closed checks before any text is sent (feature 006, C-P1 … C-P5)."""
+    from mobility_model_zoo.compliance.findings import StageFailed
+    from mobility_model_zoo.compliance.presend import check_batch
+    from mobility_model_zoo.compliance.register import Register
+    from mobility_model_zoo.productdev.jtbd.corpus.redact import PATTERNS_VERSION
+
+    reg = Register.load(settings.base)
+    route_id = entry.extra.get("route")
+    findings = check_batch(
+        reg, model_id=entry.model_id, backend=backend, role=role, route_id=route_id,
+        provider_order=entry.extra.get("provider_order"),
+        items=[(c.chunk_id, c.text, c.redaction.patterns_version) for c in chunks],
+        current_patterns=PATTERNS_VERSION)
+    if findings:
+        raise ValidationFailed("compliance pre-send check failed: "
+                               + "; ".join(StageFailed(findings).failures[:10]))
+    return reg.route(route_id) if route_id else None
+
 
 def label(
     settings: Settings,
@@ -138,6 +172,7 @@ def label(
     unreviewed = [c.chunk_id for c in chunks if not c.redaction.check_passed]
     if unreviewed:
         raise ValidationFailed(f"chunks without passed redact-check: {unreviewed[:10]}")
+    route = _compliance_presend(settings, entry, backend, role, chunks)
 
     system = build_system_prompt(settings)
     schema = wire_schema()
@@ -170,6 +205,7 @@ def label(
     budget.guard(settings, estimate, entry.backend)
 
     model = make_backend(settings, entry, backend, host)
+    model.compliance_route, model.compliance_backend = route, backend
     if manifest is None:
         manifest = LabelRunManifest(
             run_id=run_id,

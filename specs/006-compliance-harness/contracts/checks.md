@@ -23,7 +23,7 @@ Check ids are stable and used in waivers and in failure messages. All carry the 
 | C-I4 | ingest | human-subject data without `consent_or_ethics`, or with `unknown` and no decision |
 | C-I5 | ingest | vehicle data with VIN, GPS or absolute timestamps `present` and no decision |
 | C-I6 | ingest | chunk flagged for a special category in a class with `quarantine` |
-| C-P1 | pre-send | an item without a passed redaction of the current pattern version |
+| C-P1 | pre-send | an item that was never redacted (any pattern version counts; older versions are covered by the C-P2 re-scan, because frozen benchmark chunks cannot be re-redacted) |
 | C-P2 | pre-send | the PII re-scan finds an identifier |
 | C-P3 | pre-send | an item is quarantined |
 | C-P4 | pre-send | the route is not allowed for the role; `consumer_cli` for a new run |

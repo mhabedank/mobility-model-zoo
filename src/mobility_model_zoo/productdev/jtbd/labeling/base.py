@@ -59,6 +59,10 @@ def make_backend(settings: Settings, entry: ModelEntry, backend: str, host: str 
         from mobility_model_zoo.productdev.jtbd.labeling.claude_cli import ClaudeCliBackend
 
         return ClaudeCliBackend(settings, entry)
+    if backend == "anthropic_api":
+        from mobility_model_zoo.productdev.jtbd.labeling.anthropic_api import AnthropicApiBackend
+
+        return AnthropicApiBackend(settings, entry)
     if backend == "openrouter":
         from mobility_model_zoo.productdev.jtbd.labeling.openrouter import OpenRouterBackend
 

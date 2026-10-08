@@ -175,6 +175,12 @@
                 "const": "unknown"
               }
             ]
+          },
+          "openrouter_provider": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
