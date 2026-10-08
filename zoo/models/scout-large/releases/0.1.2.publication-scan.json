@@ -49,7 +49,7 @@
     },
     {
       "path": "zoo/models/scout-large/releases/0.1.2.ai-act.md",
-      "sha256": "bb8af76f32b29abf18cec3cd7dfff85d1fa679541bbda1e2b52f0fe00ad77152",
+      "sha256": "95c945fa3248d57e2446a0c7f63ea9c6715309ebc757722f989a0474400f9aa6",
       "overlap_max_words": 0,
       "allowed_quote_words": 0,
       "pii_hits": 0

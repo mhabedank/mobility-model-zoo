@@ -1,6 +1,6 @@
 model: scout-large
 version: 0.1.2
-state: draft
+state: signed_off
 ai_system:
   is_system: true
   rationale: Weights are published together with inference code (SpanExtractor), so the model is usable
@@ -309,8 +309,8 @@ decisions:
 - D8
 - D9
 - D12
-signed_off_by: null
-signed_off_at: null
+signed_off_by: m.habedank
+signed_off_at: '2026-10-08'
 card_privacy_note: The training texts of this version were collected before the project's compliance harness
   existed. At collection time robots.txt was checked; the other opt-out signals (TDM reservation, noai,
   ai.txt) were checked retrospectively on 2026-10-08 and are recorded per source in the compliance register.

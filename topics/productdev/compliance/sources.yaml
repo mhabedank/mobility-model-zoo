@@ -441,6 +441,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-2
   class: parliamentary-records
   origin_url: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport/2025-12-17/debate/mul@/main.xml
@@ -482,6 +484,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-3
   class: parliamentary-records
   origin_url: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport/2026-01-21/debate/mul@/main.xml
@@ -523,6 +527,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-4
   class: parliamentary-records
   origin_url: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_and_communications/2022-09-14/debate/mul@/main.xml
@@ -564,6 +570,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-5
   class: parliamentary-records
   origin_url: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_tourism_and_sport/2017-12-13/debate/mul@/main.xml
@@ -605,6 +613,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-6
   class: parliamentary-records
   origin_url: https://data.oireachtas.ie/akn/ie/debateRecord/joint_committee_on_transport_tourism_and_sport/2019-02-27/debate/mul@/main.xml
@@ -646,6 +656,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1007-s11116-023-10386-0
   class: tdm-documents
   origin_url: https://doi.org/10.1007/s11116-023-10386-0
@@ -768,6 +780,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1016-j-procs-2024-02-070
   class: tdm-documents
   origin_url: https://doi.org/10.1016/j.procs.2024.02.070
@@ -847,6 +861,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1016-j-tranpol-2020-11-004
   class: open-papers
   origin_url: https://doi.org/10.1016/j.tranpol.2020.11.004
@@ -889,6 +905,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1016-j-trd-2021-103134
   class: tdm-documents
   origin_url: https://doi.org/10.1016/j.trd.2021.103134
@@ -929,6 +947,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1016-j-trd-2022-103319
   class: tdm-documents
   origin_url: https://doi.org/10.1016/j.trd.2022.103319
@@ -969,6 +989,8 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: An opt-out signal is present today, but the use rests on the licence (CC-BY-4.0), not on the text and data
+    mining exception of §44b UrhG.
 - id: doi-org-10-1016-j-trd-2025-105081
   class: tdm-documents
   origin_url: https://doi.org/10.1016/j.trd.2025.105081
@@ -2094,6 +2116,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: forum-cyclinguk-org-viewtopic-php-2
   class: forum-review
   origin_url: https://forum.cyclinguk.org/viewtopic.php?t=168621
@@ -2132,6 +2155,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: forum-cyclinguk-org-viewtopic-php-3
   class: forum-review
   origin_url: https://forum.cyclinguk.org/viewtopic.php?t=168725
@@ -2170,6 +2194,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: forum-cyclinguk-org-viewtopic-php-4
   class: forum-review
   origin_url: https://forum.cyclinguk.org/viewtopic.php?t=168750
@@ -2208,6 +2233,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: forum-cyclinguk-org-viewtopic-php-5
   class: forum-review
   origin_url: https://forum.cyclinguk.org/viewtopic.php?t=168849
@@ -2246,6 +2272,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: hansard-api-parliament-uk-debates-debate-b2938c4c-0473-4c8b
   class: parliamentary-records
   origin_url: https://hansard-api.parliament.uk/debates/debate/B2938C4C-0473-4C8B-BECD-365BD0E7B9A4.json
@@ -4378,6 +4405,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-dokumentation-beim-youngtimer-oldtimer-w
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/dokumentation-beim-youngtimer-oldtimer-wie-macht-ihr-das-t8617483.html
@@ -4417,6 +4445,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-elektro-lkws-was-haltet-ihr-davon-t70392
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/elektro-lkws-was-haltet-ihr-davon-t7039283.html
@@ -4456,6 +4485,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-erfahrungen-mit-car-sharing-im-allgemein
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/erfahrungen-mit-car-sharing-im-allgemeinen-t6718196.html
@@ -4495,6 +4525,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-hat-jemand-erfahrung-mit-auto-abos-t8402
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/hat-jemand-erfahrung-mit-auto-abos-t8402665.html
@@ -4534,6 +4565,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-hvv-switch-parkplatz-privatisieren-t7389
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/hvv-switch-parkplatz-privatisieren-t7389593.html
@@ -4573,6 +4605,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-sixt-share-nach-30-minuetiger-fahrt-ange
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/sixt-share-nach-30-minuetiger-fahrt-angeblich-6-schaeden-t8504923.html
@@ -4612,6 +4645,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-welcher-hersteller-repariert-seine-elekt
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/welcher-hersteller-repariert-seine-elektro-autos-t8394145.html
@@ -4651,6 +4685,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-wie-youngtimer-ueber-lange-zeit-einmotte
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/wie-youngtimer-ueber-lange-zeit-einmotten-t8646781.html
@@ -4690,6 +4725,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-wochenendtour-1500-km-kosten-mietwagen-v
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/wochenendtour-1500-km-kosten-mietwagen-vs-eigenes-auto-mit-220-tkm-t8612687.html
@@ -4729,6 +4765,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: motor-talk-de-forum-zu-e-auto-wechseln-oder-bei-verbrenner-b
   class: forum-review
   origin_url: https://www.motor-talk.de/forum/zu-e-auto-wechseln-oder-bei-verbrenner-bleiben-t8572432.html
@@ -4768,6 +4805,7 @@ sources:
     ai_txt: absent
     checked_at: '2026-10-08'
     retrospective: true
+  notes: Kept until pilot-v2 is retired, not processed again (decision D-benchmark-optouts).
 - id: oeko-de-fileadmin-podcast-transkript-podcast-wenden-bitte-ve
   class: tdm-documents
   origin_url: https://www.oeko.de/fileadmin/podcast/Transkript_Podcast-Wenden-bitte_Verkehr.pdf
@@ -5382,7 +5420,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5427,7 +5466,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5472,7 +5512,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5517,7 +5558,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5562,7 +5604,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5607,7 +5650,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5652,7 +5696,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5697,7 +5742,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5742,7 +5788,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5787,7 +5834,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5832,7 +5880,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5877,7 +5926,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5922,7 +5972,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -5967,7 +6018,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6012,7 +6064,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6057,7 +6110,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6102,7 +6156,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6147,7 +6202,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6192,7 +6248,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6237,7 +6294,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6282,7 +6340,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6327,7 +6386,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6372,7 +6432,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6417,7 +6478,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6462,7 +6524,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6507,7 +6570,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6552,7 +6616,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6597,7 +6662,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6642,7 +6708,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6687,7 +6754,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6732,7 +6800,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6777,7 +6846,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6822,7 +6892,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6867,7 +6938,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6912,7 +6984,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -6957,7 +7030,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7002,7 +7076,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7047,7 +7122,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7092,7 +7168,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7137,7 +7214,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7182,7 +7260,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:
@@ -7227,7 +7306,8 @@ sources:
     human_subjects: true
     anonymisation: This Zenodo upload includes 1) the interview protocol used during the interviews and 2) the anonymised
       interview transcripts for the Sustainable Mobility experiment stream.
-    consent_or_ethics: unknown
+    consent_or_ethics: none stated by the publisher; transcripts published anonymised under CC BY 4.0; use for scout-large
+      0.1.x covered by decision D-interviews-0.1.x
   storage: data/snapshots (outside git)
   retention_until: '2028-10-06'
   used_by:

@@ -307,7 +307,7 @@ description: "Tasks for feature 006: compliance harness"
   - **Scans:** `redaction_recall` from T043; `art9_counts` from T042; `memorisation: {status: not_applicable, rationale: "token-classification encoder without generative head; outputs are spans of the input text"}`.
   - **State:** `state: draft`.
 - [X] T046 [US3] Render the card and documents for 0.1.2 with `zoo compliance render`. Build the corpus index, then run `zoo compliance scan-publish --model scout-large --version 0.1.2`. Fix any C-U finding in templates or examples (the examples are fictional; verify they pass). Commit the scan report.
-- [ ] T047 [US3] Run `uv run zoo check scout-large 0.1.2` and `uv run zoo compliance check --model scout-large --version 0.1.2`. **GATE:** every rule passes except C-S1. Then present the rendered card and the owner decision items from `validation.md` to the owner (AskUserQuestion). After approval, run `zoo compliance signoff` and re-run `zoo check`.
+- [X] T047 [US3] Run `uv run zoo check scout-large 0.1.2` and `uv run zoo compliance check --model scout-large --version 0.1.2`. **GATE:** every rule passes except C-S1. Then present the rendered card and the owner decision items from `validation.md` to the owner (AskUserQuestion). After approval, run `zoo compliance signoff` and re-run `zoo check`.
 - [ ] T048 [US3] (ops) Publish 0.1.2 through the existing pipeline:
   1. push the tag `scout-large/v0.1.2`;
   2. `release-verify` builds the preview;

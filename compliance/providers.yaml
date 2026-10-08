@@ -1,8 +1,8 @@
 # Labeling routes: model + access path + hosting provider (research R7, data-model "Provider route").
 # Facts checked on 2026-10-08 from the providers' own terms and the EU-US Data Privacy Framework list
 # (dataprivacyframework.gov, queried via its backend API). Unknown facts are recorded as `unknown`.
-# Allow rule for hosted routes (owner decision D-routing): (EU region or dpf_listed) and
-# zero_data_retention and not training_on_inputs and signoff. No hosted route meets it today, so
+# Allow rule for hosted routes (owner decisions D-routing, D-routing-scc): (EU region or dpf_listed or
+# (dpa and scc)) and zero_data_retention and not training_on_inputs and signoff. No hosted route meets it today, so
 # every hosted route has allowed_for: [] (owner decision item, see specs/006-compliance-harness/validation.md).
 routes:
 - id: local-spark-ollama
