@@ -13,17 +13,21 @@ Where each part of a topic or task goes: [layout.md](layout.md).
 Add an entry to `zoo/topics.yaml`:
 
 ```yaml
-- id: iot                 # short form used in model names, ^[a-z][a-z0-9]{1,15}$, never changes
+- id: iot                 # ^[a-z][a-z0-9]*(-[a-z0-9]+)*$, at most 24 characters, never changes
   title: Internet of Things
   description: One or two sentences.
   hf_collection: null     # filled in by the first publication
 ```
 
-Nothing else changes. Existing models are not touched.
+Then create `topics/<id>/README.md` and `topics/<id>/compliance/datasets.yaml` (`zoo validate --all` requires both). Nothing else changes. Existing models are not touched.
+
+## Add a task
+
+Write a task document `topics/<topic>/tasks/<task>.md` before the first model: scope in and out, the reference (dataset labels or model consensus), the benchmark and its version, the metrics with the headline, the tool, the framework and why, the riskiest assumption and the hardware budget. Examples: [can-ids](../topics/security/tasks/can-ids.md), [sound-anomaly](../topics/condition-monitoring/tasks/sound-anomaly.md). Declare every dataset the task uses in `topics/<topic>/compliance/datasets.yaml` (`uv run zoo data validate`); training refuses undeclared datasets and datasets that are not `training_allowed`.
 
 ## Add a model
 
-1. Create `zoo/models/<name>/model.yaml` following [model.schema.json](../specs/003-model-zoo-hf-release/contracts/model.schema.json). `card.how_to_run` must contain the placeholders `{repo_id}`, `{revision}` and `{text}`, for example:
+1. Create `zoo/models/<name>/model.yaml` following [model.schema.json](../specs/005-topic-layout-security-merge/contracts/model.schema.json). `card.how_to_run` must contain the placeholders `{repo_id}`, `{revision}` and, for Python models, `{text}`, for example:
 
    ```python
    from mobility_model_zoo.<topic>.<module> import MyModel
@@ -33,7 +37,9 @@ Nothing else changes. Existing models are not touched.
    ```
 
    The card fills in the public repository, the version tag and the first example text. The release gate fills in the staging repository and revision and runs the code once per example text, in a clean environment on CPU.
-2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt`. Do not use benchmark chunks. Record where each example comes from in `zoo/models/<name>/examples/SOURCES.yaml` (`source: synthetic`, or a source whose register record allows redistribution; check C-U4).
+
+   Microcontroller models set `runtime: mcu`, may leave `languages` empty and need `card.device_usage`, a C snippet that calls the model on the device (see [picket-mlp](../zoo/models/picket-mlp/model.yaml)). `how_to_run` then shows the Python host reference.
+2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt` (microcontroller models: `examples/*.json` with `input`, `expected` and `source`, see below). Do not use benchmark chunks. Record where each example comes from in `zoo/models/<name>/examples/SOURCES.yaml` (`source: synthetic`, or a source whose register record allows redistribution; check C-U4).
 3. Create the private staging repository (owner, with `HF_RELEASE_TOKEN`), then add it to the repository list of `HF_STAGING_TOKEN` on the Hub:
 
    ```bash
@@ -50,6 +56,9 @@ Nothing else changes. Existing models are not touched.
 
    This uploads the files in one commit and writes `files[]` and `staging.revision` into `zoo/models/<name>/releases/<version>.yaml`.
 2. Fill in the rest of the release record: `changes`, `output_format_version`, `recipe` (the commit and the paths of the training configuration and the recipe document), `provenance`, `evaluation` and `performance`. Copy the numbers into `results/<version>/quality.json` and `performance.json`; the card shows only numbers from these files.
+   - Sources from a declared dataset carry `dataset: <id>`; the gate checks the declaration, the licence, share-alike (the model licence must match) and non-commercial licences.
+   - `evaluation.reference_kind` is `ground_truth` when quality is measured against dataset labels (then "accuracy" is allowed) and `model_consensus` (default) for agreement with reference models.
+   - Microcontroller models: `performance.budget` is `{ram_kb, flash_kb, target}`. Measure on the bench with `uv run edge measure <model>.npz -b <board> --out performance.json`; every metric records the hardware and whether it came from a real board, an emulator or the simulator. Gate rule 15 needs `latency_us`, `flash_kb` and `ram_kb`, and a real-board latency unless the version is experimental. Examples are `examples/*.json` with an int8 `input`, the `expected` output and a `source` (`synthetic` or a dataset whose declaration allows redistribution); the gate runs them bit-exactly on the host reference.
 3. Complete the compliance evidence (feature 006, gate rule 16):
    - every training source and dataset has a record in `topics/<topic>/compliance/` (`uv run zoo compliance bootstrap-sources …` proposes them), and every labeling route is in `compliance/providers.yaml`;
    - write `zoo/models/<name>/releases/<version>.compliance.yaml` (AI Act classification, licences, provenance, scans; see [the data model](../specs/006-compliance-harness/data-model.md));

@@ -1,7 +1,7 @@
 # can-ids-tiny
 
 Frame-level CAN bus intrusion detector for microcontrollers (ESP32, ESP32-S3, any C99 target).
-The model card with all results is in [MODEL_CARD.md](MODEL_CARD.md). It is published on Hugging Face as `README.md`.
+The model card with all results is in [MODEL_CARD.md](../reports/picket-forest/research-card.md). It is published on Hugging Face as `README.md`.
 
 ## Layout
 

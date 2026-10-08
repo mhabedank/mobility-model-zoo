@@ -48,3 +48,37 @@
 - CI: `test` job without TensorFlow (`--extra jtbd --extra release --extra edge --extra labeling-api`); new jobs `edge-sim` (verified locally) and `edge-qemu`; `firmware.yml` (11-target matrix, size summary, picket-forest strict C build and C-vs-Python parity with emlearn, verified locally: 33 passed); `hil.yml` gated by `HIL_RUNNER_ENABLED`. QEMU, the PlatformIO matrix and the self-hosted HIL job run only on GitHub.
 - Models registered: `picket-forest`, `picket-mlp` (security, can-ids), `hum-fan` (condition-monitoring, sound-anomaly, CC-BY-SA-4.0), `pace-cnn` (activity, `pipeline_tag: other` with tag `time-series-classification`); draft releases 0.1.0 with dataset sources, `reference_kind: ground_truth` and mcu budgets from the task documents. Pre-zoo research results kept in `topics/*/reports/<model>/` with a "not a benchmark result" README.
 - GATE T070 (`zoo check <m> 0.1.0 --offline`, exit 1 = check failed in the zoo convention): every model fails only on "not staged" (rule 1: `files` empty, no staging revision), "results missing" (rules 9, 10, 15, 16) and "no examples" (rule 13, they come from the trained model). Rules 2, 3, 4, 6, 7, 8, 11, 14 pass; no schema error in `model.yaml` or in the record structure.
+
+## US5 (2026-10-08)
+
+- `docs/credentials.md` lists `HF_RELEASE_TOKEN`, `HF_STAGING_TOKEN` and `HIL_RUNNER_ENABLED` with scope, users and rotation; `tests/unit/test_workflow_secrets.py` checks every `secrets.*` and `vars.*` of the workflows against it. `.env.example` mentions `MMZ_DATA` and `HIL_RUNNER_ENABLED`.
+- Repository settings of `mhabedank/mobility-model-zoo`: secret `HF_RELEASE_TOKEN` exists (2026-10-01); variable `HIL_RUNNER_ENABLED=false` set on 2026-10-08.
+
+### Old staging repos
+
+The old `hub` workflow created no repositories on Hugging Face. With both tokens (user `ZenCoding`, organization `mobility-model-zoo`), the full model and dataset lists hold only the zoo's own repos:
+
+| Repo | Private | Created | Last modified |
+|---|---|---|---|
+| mobility-model-zoo/scout-large | no | 2026-10-07 | 2026-10-08 |
+| mobility-model-zoo/scout-large-staging | yes | 2026-10-07 | 2026-10-07 |
+| mobility-model-zoo/sandbox-pipeline-tiny | yes | 2026-10-01 | 2026-10-01 |
+| mobility-model-zoo/sandbox-pipeline-tiny-staging | yes | 2026-10-01 | 2026-10-01 |
+
+Nothing to delete.
+
+### Old repository (before retirement)
+
+`mhabedank/mobility-security-ml`: public, not archived, branches `main`, `claude/clever-goldberg-ygio83`, `claude/cool-volta-rqsgdx`; secrets `HF_RELEASE_TOKEN` and `HF_STAGING_TOKEN` (2026-10-07), no variables. Retirement (README, secrets, archive) waits for the merge of this feature into `main` and the owner's confirmation (T075).
+
+## Quickstart and final checks (2026-10-08)
+
+1. Layout: `topics/` holds `productdev`, `security`, `condition-monitoring`; none of the six old top-level folders exists. `zoo validate --all` ok (compliance register, datasets). `zoo audit`: sandbox-pipeline-tiny 0.2.0 and scout-large 0.1.0, 0.1.1, 0.1.2 OK.
+2. History: `git log --follow` reaches the original commits of 2026-10-07 (`metrics.py`: "Add can-ids-tiny …"; `reference.py`: "Add HIL test bench …"); `check_merge_log.py`: merge log complete.
+3. No data, no secrets: `zoo history-check` clean; no `test_vectors.h`, `.bin`, `model_zoo.c` or `.joblib` in any commit.
+4. Datasets: `zoo data list` and `zoo data verify` as in US3; `MMZ_DATA=$(mktemp -d) zoo data download uci-har` downloaded 45 MiB and wrote `SOURCE.json`; `zoo data download syncan` refused with exit 3 ("rejected: Non-commercial licence"); nothing landed in the repository.
+   End-to-end check on the real data: `condmon activity train --config configs/condition-monitoring/activity/pace-cnn.yaml --epochs 2` trained, exported and verified pace-cnn (TFLite interpreter mismatches 0; int8 accuracy 0.805 and macro-F1 0.800 against the UCI HAR test labels after 2 epochs, float 0.806; a smoke run, not a benchmark result), and `edge measure pace-cnn.npz -b sim` measured 169 µs median latency, 7.1 KiB flash and 5.1 KiB RAM on the host simulator, inside the task budget (32 KB RAM, 128 KB flash).
+5. Edge: `edge build -t native` and the sim HIL suite pass (30 passed, 4 skipped); `zoo check` of the four models as in US4; `tests/release/test_card_mcu.py` renders the mcu card. QEMU runs in CI (`edge-qemu`).
+6. Credentials: `HF_RELEASE_TOKEN` secret and `HIL_RUNNER_ENABLED=false` variable present. Retirement after the merge.
+
+Runtime of the default test suite (`HF_HUB_OFFLINE=1 uv run pytest`, with the edge and edge-train extras): about 150 s on an M3 Pro (goal: under 4 minutes). The CI `test` job runs without TensorFlow; its time is recorded from the PR run.

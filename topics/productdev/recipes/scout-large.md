@@ -4,11 +4,11 @@ How the JTBD span extractor is built, measured and staged (feature 004). Every s
 
 | What | Where |
 |------|-------|
-| Hyperparameters, seed, windows, threshold grid, selection rule, release bar | [`configs/productdev/jtbd/span-xlmr.yaml`](../../configs/productdev/jtbd/span-xlmr.yaml) |
-| Training dataset: separation, redaction policy, validation split, minimum size, retention | [`configs/productdev/jtbd/span-train-v1.yaml`](../../configs/productdev/jtbd/span-train-v1.yaml) |
-| Cash budget of the teacher labels and the reference VM | [`configs/productdev/jtbd/budget-span-xlmr.yaml`](../../configs/productdev/jtbd/budget-span-xlmr.yaml) |
-| Fixed latency text | [`configs/productdev/jtbd/perf/interview-9k-de.txt`](../../configs/productdev/jtbd/perf/interview-9k-de.txt) |
-| Model code | [`src/mobility_model_zoo/productdev/jtbd/span/`](../../src/mobility_model_zoo/productdev/jtbd/span/) |
+| Hyperparameters, seed, windows, threshold grid, selection rule, release bar | [`configs/productdev/jtbd/span-xlmr.yaml`](../../../configs/productdev/jtbd/span-xlmr.yaml) |
+| Training dataset: separation, redaction policy, validation split, minimum size, retention | [`configs/productdev/jtbd/span-train-v1.yaml`](../../../configs/productdev/jtbd/span-train-v1.yaml) |
+| Cash budget of the teacher labels and the reference VM | [`configs/productdev/jtbd/budget-span-xlmr.yaml`](../../../configs/productdev/jtbd/budget-span-xlmr.yaml) |
+| Fixed latency text | [`configs/productdev/jtbd/perf/interview-9k-de.txt`](../../../configs/productdev/jtbd/perf/interview-9k-de.txt) |
+| Model code | [`src/mobility_model_zoo/productdev/jtbd/span/`](../../../src/mobility_model_zoo/productdev/jtbd/span/) |
 
 `--config` is a global option of `jtbd` and goes before the subcommand. `TRAIN` stands for `configs/productdev/jtbd/span-train-v1.yaml`, `BENCH` for the pilot config of the final decision (`configs/productdev/jtbd/pilot-v1.yaml` unless the pilot reran).
 

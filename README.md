@@ -11,16 +11,22 @@ A collection of small, fast machine learning models for mobility, grouped by top
 
 ## Topics
 
-| Topic | Short form | What it covers |
-|-------|------------|----------------|
-| Product development | `productdev` | Product discovery in mobility. First task: extracting jobs-to-be-done, pains and gains with verbatim evidence from texts (`jtbd`). |
+| Topic | Title | Collection | Tasks and models |
+|-------|-------|------------|------------------|
+| `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) |
+| `security` | Automotive security | not yet published | `can-ids`: `picket-forest`, `picket-mlp` (registered, not released) |
+| `condition-monitoring` | Condition monitoring | not yet published | `sound-anomaly`: `hum-fan`; `activity`: `pace-cnn` (registered, not released) |
 
-Later topics, for example cyber security or IoT, are added as a new entry in [zoo/topics.yaml](zoo/topics.yaml). Existing models do not change. A test topic `sandbox` holds pipeline test models, which are never public.
+Topics are listed in [zoo/topics.yaml](zoo/topics.yaml); one topic is one Hugging Face collection and one folder `topics/<topic>/` (research, reports, recipes, task documents, compliance records). A test topic `sandbox` holds pipeline test models, which are never public.
+
+## Repository layout
+
+Package code lives in `src/mobility_model_zoo/` (one subpackage per topic plus the shared `edge`, `datasets`, `compliance` and `release` packages), configurations in `configs/<topic>/`, firmware in `firmware/`, the hardware-in-the-loop bench inventory in `hil/`, and everything else of a topic in `topics/<topic>/`. Details: [docs/layout.md](docs/layout.md).
 
 ## How the zoo is organized
 
-- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd` (below).
-- **Releasing is the same for every model.** Each version has a release record in `zoo/models/<name>/releases/<version>.yaml`. The release tool `zoo` checks it with 14 gate rules, builds the model card and publishes through GitHub Actions:
+- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd`, for CAN intrusion detection `security can-ids`, for the condition-monitoring tasks `condmon` (below). Each task document in `topics/<topic>/tasks/` names its reference, benchmark, metrics, tools and hardware budget.
+- **Releasing is the same for every model.** Each version has a release record in `zoo/models/<name>/releases/<version>.yaml`. The release tool `zoo` checks it with 16 gate rules (rule 15 for microcontroller models, rule 16 for compliance), builds the model card and publishes through GitHub Actions:
 
   1. `zoo stage` uploads the trained files to a private staging repository.
   2. A tag `<model>/v<version>` runs `release-verify`: the gate, the build and a preview of the card.
@@ -28,7 +34,8 @@ Later topics, for example cyber security or IoT, are added as a new entry in [zo
 
   Step-by-step guide: [docs/adding-a-model.md](docs/adding-a-model.md). Commands and gate rules: [specs/003-model-zoo-hf-release/contracts/cli.md](specs/003-model-zoo-hf-release/contracts/cli.md).
 - Model names follow `<name>-<variant>`, for example `scout-large`; topic and task are tags, and each topic has a Hugging Face collection. Names never change after the first publication.
-- Datasets, training data and raw source texts are never published. Models, methods, prompts and evaluation results are.
+- Datasets never go into git. They are declared per topic in `topics/<topic>/compliance/datasets.yaml` (licence, permitted use, redistribution, retention), downloaded with `zoo data download` into `$MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`) and used for training only when declared `training_allowed`. No dataset or training text is published unless its licence and terms allow redistribution; models, methods, prompts and evaluation results are published.
+- Microcontroller models (`runtime: mcu`) run on the zoo's int8 engine or as emlearn C code; the hardware-in-the-loop bench (`edge`) measures them on simulated, emulated and real boards ([docs/edge/hil-bench.md](docs/edge/hil-bench.md)).
 
 ## Compliance
 
@@ -44,13 +51,23 @@ Training data, published material and the naming of third parties are governed b
 Prerequisites: Python 3.12 and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --all-extras    # base install (inference) plus the jtbd and release extras
+uv sync --extra jtbd --extra release --extra edge   # what CI installs
 uv run pytest
 uv run zoo --help
-uv run jtbd --help
 ```
 
-A model user only needs the base install, as shown on each model card.
+Extras: `jtbd` (JTBD measurement chain), `release` (release tool), `edge` (bench, int8 engine, datasets), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on each model card. Credentials and where they live: [docs/credentials.md](docs/credentials.md).
+
+Quick commands per topic:
+
+```bash
+uv run jtbd doctor                              # productdev: JTBD measurement chain
+uv run zoo data list                            # declared datasets of all topics
+uv run security can-ids --help                  # security: picket-forest, picket-mlp
+uv run condmon sound-anomaly --help             # condition-monitoring: hum-fan
+uv run condmon activity --help                  # condition-monitoring: pace-cnn
+uv run edge build -t native && uv run edge run -b sim   # HIL bench on the host simulator
+```
 
 ## Topic: product development, task: JTBD extraction (`jtbd`)
 
@@ -81,6 +98,15 @@ Additional prerequisites for labeling and measurement:
 cp .env.example .env   # then fill in the keys and hosts
 uv run jtbd doctor
 ```
+
+## Topics: automotive security and condition monitoring (edge models)
+
+Merged from the former repository `mhabedank/mobility-security-ml` with its history (feature 005; merge log: [topics/security/research/merge-log.md](topics/security/research/merge-log.md)).
+
+- **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run security can-ids frames|forest …|mlp train|evaluate|freeze`.
+- **`sound-anomaly`** ([task document](topics/condition-monitoring/tasks/sound-anomaly.md)): `hum-fan`, an int8 autoencoder on MIMII fan sounds. **`activity`** ([task document](topics/condition-monitoring/tasks/activity.md)): `pace-cnn`, an int8 CNN on UCI HAR. Tool: `uv run condmon sound-anomaly|activity train|evaluate|freeze`.
+- Training reads the task configs (`configs/security/…`, `configs/condition-monitoring/…`, `--config`) and writes to `$MMZ_DATA/derived/<model>/`, never into the repository. `edge measure MODEL.npz -b BOARD` records latency, flash and RAM with the board and whether it was a real board, an emulator or the simulator.
+- The research of the former repository is in `topics/security/research/`; its results are kept in `topics/*/reports/<model>/` as pre-zoo research results, not benchmark results.
 
 ## Spikes (not released)
 

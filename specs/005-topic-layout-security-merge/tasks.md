@@ -407,10 +407,10 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 **Independent Test**: quickstart scenario 6.
 
-- [ ] T071 [P] [US5] Write `docs/credentials.md` from data-model.md "Credential". The table covers `HF_RELEASE_TOKEN` (GitHub secret; release-verify, release-publish, zoo-audit), `HF_STAGING_TOKEN` (local `.env`, `zoo stage`) and `HIL_RUNNER_ENABLED` (GitHub variable, `hil.yml`). For each: scope, rotation steps (new fine-grained HF token → update secret or `.env` → revoke old token on huggingface.co/settings/tokens), and the rule that secrets are never committed. Add `HIL_RUNNER_ENABLED` and `MMZ_DATA` to `.env.example` as comments.
-- [ ] T072 [P] [US5] Write `tests/unit/test_workflow_secrets.py`: parse all `.github/workflows/*.yml`, collect every `secrets.X` and `vars.X`, and assert each name appears in the table of `docs/credentials.md` (FR-022).
-- [ ] T073 [US5] (ops) Set the repository variable with `gh variable set HIL_RUNNER_ENABLED --body false -R mhabedank/mobility-model-zoo`. Confirm with `gh secret list -R mhabedank/mobility-model-zoo` that `HF_RELEASE_TOKEN` exists.
-- [ ] T074 [US5] (ops) List the private Hugging Face repositories created by the old `hub` workflow. With the release and staging tokens from `.env`, run `HfApi().list_models(author=<org>, search="hilbench")` for `mobility-model-zoo` and the token owners (`whoami`). Write the list (repo id, private, created, last modified) into `specs/005-topic-layout-security-merge/validation.md` under "Old staging repos" for the owner's decision (FR-025). Delete nothing.
+- [X] T071 [P] [US5] Write `docs/credentials.md` from data-model.md "Credential". The table covers `HF_RELEASE_TOKEN` (GitHub secret; release-verify, release-publish, zoo-audit), `HF_STAGING_TOKEN` (local `.env`, `zoo stage`) and `HIL_RUNNER_ENABLED` (GitHub variable, `hil.yml`). For each: scope, rotation steps (new fine-grained HF token → update secret or `.env` → revoke old token on huggingface.co/settings/tokens), and the rule that secrets are never committed. Add `HIL_RUNNER_ENABLED` and `MMZ_DATA` to `.env.example` as comments.
+- [X] T072 [P] [US5] Write `tests/unit/test_workflow_secrets.py`: parse all `.github/workflows/*.yml`, collect every `secrets.X` and `vars.X`, and assert each name appears in the table of `docs/credentials.md` (FR-022).
+- [X] T073 [US5] (ops) Set the repository variable with `gh variable set HIL_RUNNER_ENABLED --body false -R mhabedank/mobility-model-zoo`. Confirm with `gh secret list -R mhabedank/mobility-model-zoo` that `HF_RELEASE_TOKEN` exists.
+- [X] T074 [US5] (ops) List the private Hugging Face repositories created by the old `hub` workflow. With the release and staging tokens from `.env`, run `HfApi().list_models(author=<org>, search="hilbench")` for `mobility-model-zoo` and the token owners (`whoami`). Write the list (repo id, private, created, last modified) into `specs/005-topic-layout-security-merge/validation.md` under "Old staging repos" for the owner's decision (FR-025). Delete nothing.
 
 **The following run only after the pull request (T079) is merged into `main`.**
 
@@ -424,7 +424,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T078 [P] Rewrite `README.md`. It needs:
+- [X] T078 [P] Rewrite `README.md`. It needs:
   - a topics table: id, title, collection (link or "not yet published"), models;
   - a short "Repository layout" section linking `docs/layout.md`;
   - setup with extras (`edge`, `edge-hw`, `edge-train`);

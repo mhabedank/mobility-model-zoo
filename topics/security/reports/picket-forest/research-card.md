@@ -192,7 +192,7 @@ if (can_ids_tiny_process(&ids, ts_us, can_id, dlc, data /* 8 bytes, zero-padded 
 }
 ```
 
-The files are in [`c/`](c/):
+The files are in [`c/`](../../../../firmware/picket-forest/c/):
 
 | File | Content |
 |---|---|
