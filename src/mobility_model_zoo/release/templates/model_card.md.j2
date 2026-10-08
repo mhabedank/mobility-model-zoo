@@ -79,6 +79,44 @@ Budget: {{ r.performance.budget.ram_gb | num }} GB RAM, no GPU. Measured on: {{ 
 
 {{ m.card.limitations }}
 
+{% if c %}
+## Training data and attribution
+
+{{ m.name }} {{ c.rc.version }} was trained on {{ c.sources | length }} published documents. Each is credited below with title, creators, source and licence. All of them were modified in the same way: {{ c.sources[0].modifications if c.sources else "" }} The training texts are not published or redistributed; see the [copyright policy]({{ repo_url }}/blob/main/COPYRIGHT_POLICY.md).
+
+| Title | Creators | Source | Licence |
+|-------|----------|--------|---------|
+{% for s in c.sources %}| {{ s.title | replace("|", "/") }} | {{ s.creators | join(", ") if s.creators is not string else "unknown" }} | {{ s.origin_url }} | {% if s.licence_url %}[{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}]({{ s.licence_url }}){% else %}{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}{% endif %} |
+{% endfor %}
+
+{% if c.base_notice %}
+Base model: [{{ c.base_notice.name }}]({{ c.base_notice.url }}), {{ c.base_notice.licence }}. {{ c.base_notice.copyright }}
+
+{{ c.mit_text }}
+{% endif %}
+
+## Teacher and labeling models
+
+| Route | Model | Hosting provider | Region | Role | Terms checked |
+|-------|-------|------------------|--------|------|---------------|
+{% for t in c.routes %}| `{{ t.id }}` | {{ t.model_version | default(t.model_id) }} | {{ t.hosting_provider }} | {{ t.region | default("unknown") }} | {{ t.roles | join(", ") }} | {{ t.terms_checked_at | default("unknown") }} |
+{% endfor %}
+
+{% for d in c.decisions %}
+Owner decision {{ d.id }} ({{ d.date }}): {{ d.decision }}
+{% endfor %}
+
+{% if c.security %}
+## Dual-use considerations
+
+{{ c.rc.intended_purpose }} The model detects anomalies; it is not a safety mechanism and was not developed under ISO/SAE 21434 or ISO 26262. Do not use it to block or alter vehicle functions.
+{% endif %}
+
+## Privacy and personal data
+
+{% if c.rc.card_privacy_note is defined %}{{ c.rc.card_privacy_note | trim }}{% else %}The training texts were collected under the copyright and privacy rules of the project: opt-out signals were honoured, personal identifiers such as e-mail addresses, phone numbers and user handles were removed before labeling, and special categories of personal data were excluded except where a recorded decision allows them.{% endif %} The model labels passages of the text you give it and does not return stored training text. How texts are processed, who received them and how to object: [privacy notice]({{ repo_url }}/blob/main/PRIVACY.md). AI Act classification: [{{ m.name }} {{ c.rc.version }}]({{ repo_url }}/blob/{{ m.name }}/v{{ c.rc.version }}/zoo/models/{{ m.name }}/releases/{{ c.rc.version }}.ai-act.md). Contact: {{ c.controller.privacy_contact }}.
+
+{% else %}
 ## Training data provenance
 
 {% if r.provenance.sources %}
@@ -99,6 +137,7 @@ No training sources: {% if r.sandbox %}this is a synthetic pipeline test model.{
 
 The training data itself is not published. Datasets stay internal so that the people who wrote the source texts are protected and source terms are respected (project constitution, Principle VI); the model, the method, the prompts and the evaluation results are published.
 
+{% endif %}
 ## Training recipe
 
 - Recipe: [{{ r.recipe.doc }}]({{ repo_url }}/blob/{{ r.recipe.git_commit }}/{{ r.recipe.doc }})

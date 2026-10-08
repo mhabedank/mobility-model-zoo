@@ -36,6 +36,12 @@ SECTIONS = (
     "Citation",
     "About the zoo",
 )
+# Releases with a compliance record (feature 006) replace "Training data provenance" with these.
+COMPLIANCE_SECTIONS = tuple(t for t in SECTIONS if t != "Training data provenance") + (
+    "Training data and attribution",
+    "Teacher and labeling models",
+    "Privacy and personal data",
+)
 HISTORY_METRICS = 3
 NO_OUTPUT = "(produced by the release gate from the staged model)"
 
@@ -156,6 +162,45 @@ def _history(reg: Registry, name: str, version: str, record: dict[str, Any], qua
     return {"metric_names": metric_names, "rows": rows}
 
 
+def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any] | None:
+    """Card data from the compliance register, or None if the release has no compliance record."""
+    from mobility_model_zoo.compliance.register import Register
+    from mobility_model_zoo.compliance.render import BASE_MODEL_NOTICES, MIT_TEXT
+
+    root = reg.zoo.parent
+    creg = Register.load(root)
+    rc = creg.release(name, version)
+    if rc is None:
+        return None
+    model = reg.model(name)
+    sources = sorted(
+        (s for s in creg.sources_for(name, version) if s["permitted_use"] == "training_allowed"),
+        key=lambda s: (s["class"], s["title"]),
+    )
+    roles: dict[str, set[str]] = {}
+    for rec in creg.records("recipients"):
+        roles.setdefault(rec["route_id"], set()).update(rec["roles"])
+    routes = []
+    for rid in rc["provenance"]["routes"]:
+        route = creg.route(rid) or {"id": rid, "hosting_provider": "unknown", "model_id": rid}
+        routes.append({**route, "roles": sorted(roles.get(rid, set()))})
+    lint = creg.lists("card-lint") or {}
+    return {
+        "rc": rc,
+        "sources": sources,
+        "routes": routes,
+        "base_notice": BASE_MODEL_NOTICES.get(model.get("base_model") or ""),
+        "mit_text": MIT_TEXT,
+        "security": model["topic"] in lint.get("security_topics", []),
+        # Only decisions about the labeling routes belong in the card's teacher section.
+        "decisions": [
+            d for d in (creg.decision(i) for i in rc.get("decisions", []))
+            if d and any(str(s).startswith("compliance/providers.yaml#") for s in d.get("scope", []))
+        ],
+        "controller": creg.controller(),
+    }
+
+
 @dataclass
 class CardInput:
     """Everything a card is rendered from. `examples` maps file name -> model output (or None)."""
@@ -213,6 +258,7 @@ def render(inp: CardInput) -> str:
         quality=quality,
         performance=performance,
         history=_history(reg, name, version, record, quality),
+        c=compliance_context(reg, name, version),
         repo_url=REPO_URL,
         org=ORG,
     )

@@ -24,7 +24,8 @@ More topics follow as separate collections, for example automotive security with
 - **Measured, not claimed.** Every model is scored on a frozen benchmark with a fixed harness, and the card reports quality, speed on named hardware and known failure modes.
 - **Immutable versions.** Each release is one tagged version (`v0.1.0`, …) and is never overwritten. Older versions stay available.
 - **Open method, closed data.** Models, methods, prompts and evaluation results are published. Datasets and source texts are not, because they contain text written by people who did not agree to its redistribution.
-- **Names stay.** Models are named `<topic>-<task>-<variant>`, for example `productdev-jtbd-span-xlmr`, and the name never changes after the first release.
+- **Names stay.** Models are named `<name>-<variant>`, for example `scout-large`; topic and task are tags, and the name never changes after the first release.
+- **Compliance.** Sources and their licences are credited in every card; how texts are collected and processed, and how to object: [privacy notice](https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md), [copyright policy](https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md).
 
 ## License
 

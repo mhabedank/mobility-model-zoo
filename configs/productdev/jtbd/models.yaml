@@ -6,6 +6,7 @@ models:
     api_model: opus                     # CLI alias; the resolved model id is recorded per run (T047, T058)
     family: anthropic-claude
     backend: claude_cli
+    route: claude-consumer-cli  # compliance/providers.yaml (feature 006)
     host: subscription
     role: reference
     benchmark_labeler: true
@@ -13,6 +14,7 @@ models:
     api_model: openai/gpt-5.4-mini      # current GPT mini tier on OpenRouter (T046, chosen 2026-10-06)
     family: openai-gpt
     backend: openrouter
+    route: gpt-mini-openrouter-openai  # compliance/providers.yaml (feature 006)
     host: openai
     role: reference
     benchmark_labeler: true
@@ -24,6 +26,7 @@ models:
     api_model: qwen3.8:27b              # primary pick Qwen3.5-122B-A10B if T072 shows it is better
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
@@ -32,6 +35,7 @@ models:
     api_model: glm-4.7-flash            # primary pick GLM-4.5-Air if T072 shows it is better
     family: glm
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
@@ -41,6 +45,7 @@ models:
     api_model: qwen3.5:4b
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -49,6 +54,7 @@ models:
     api_model: gemma4:e4b
     family: gemma
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -57,6 +63,7 @@ models:
     api_model: gemma4:e2b
     family: gemma
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -67,6 +74,7 @@ models:
     api_model: ministral-3:3b
     family: mistral
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -77,6 +85,7 @@ models:
     api_model: qwen3.5:0.8b
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q8_0
@@ -85,6 +94,7 @@ models:
     api_model: qwen3:0.6b
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -93,6 +103,7 @@ models:
     api_model: gemma3:270m
     family: gemma
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q8_0
@@ -101,6 +112,7 @@ models:
     api_model: gemma3:1b
     family: gemma
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q4_K_M
@@ -109,6 +121,7 @@ models:
     api_model: llama3.2:1b
     family: llama
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q8_0
@@ -117,6 +130,7 @@ models:
     api_model: granite4:350m
     family: granite
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: BF16
@@ -125,6 +139,7 @@ models:
     api_model: hf.co/LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
     family: lfm
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: baseline
     quantization: Q8_0
@@ -135,6 +150,7 @@ models:
     api_model: qwen3.6:35b
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
@@ -146,6 +162,7 @@ models:
     api_model: qwen3.8:27b
     family: qwen
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
@@ -156,6 +173,7 @@ models:
     api_model: glm-4.7-flash:latest
     family: glm
     backend: ollama
+    route: local-spark-ollama  # compliance/providers.yaml (feature 006)
     host: spark
     role: teacher_candidate
     quantization: Q4_K_M
@@ -168,10 +186,11 @@ models:
     api_model: deepseek/deepseek-v4.1-flash
     family: deepseek
     backend: openrouter
+    route: wafer-openrouter  # compliance/providers.yaml (feature 006)
     host: openrouter
     role: teacher_candidate
     license_basis: "MIT (HF deepseek-ai/DeepSeek-V4.1-Flash); HF deepseek-ai/DeepSeek-V4.1-Flash license tag mit, checked 2026-10-06"
-    provider_order: null
+    provider_order: [wafer]   # pinned (decision D-routing, check C-P5)
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
     max_output_tokens: 16384
@@ -190,10 +209,11 @@ models:
     api_model: z-ai/glm-5.3-flash
     family: glm
     backend: openrouter
+    route: wafer-openrouter  # compliance/providers.yaml (feature 006)
     host: openrouter
     role: teacher_candidate
     license_basis: "MIT (HF zai-org/GLM-5.3-Flash); HF zai-org/GLM-5.3-Flash license tag mit, checked 2026-10-06"
-    provider_order: null
+    provider_order: [wafer]   # pinned (decision D-routing, check C-P5)
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
     # pilot-v2 smoke test (2026-10-06): 10 calls on 5 chunks used all 16,384 output tokens for
@@ -227,10 +247,11 @@ models:
     api_model: xiaomi/mimo-v2.6-pro
     family: xiaomi
     backend: openrouter
+    route: mimo-openrouter-deepinfra  # compliance/providers.yaml (feature 006)
     host: openrouter
     role: teacher_candidate
     license_basis: "MIT (HF XiaomiMiMo/MiMo-V2.6-Pro-RL); HF XiaomiMiMo/MiMo-V2.6-Pro-RL license tag mit, checked 2026-10-06"
-    provider_order: null
+    provider_order: [deepinfra]   # pinned (decision D-routing, check C-P5)
     quantizations: [bf16, fp16, fp8, unknown]
     reasoning: {effort: low}          # reasoning cannot be disabled on OpenRouter (2026-09-29)
     max_output_tokens: 16384

@@ -1,0 +1,199 @@
+# Owner decisions (specs/006-compliance-harness/spec.md "Context" and research.md D5-D13).
+decisions:
+- id: D-routing
+  date: '2026-10-08'
+  decision: Labeling runs locally first (DGX Spark). Hosted models are used only through pinned OpenRouter providers
+    in the EU or listed under the EU-US Data Privacy Framework, with zero data retention and no training on inputs.
+    Past unpinned calls are documented retrospectively and named in PRIVACY.md.
+  rationale: Unpinned routing was the sharpest GDPR exposure found by the legal research (2026-10-08).
+  scope:
+  - compliance/providers.yaml
+  - configs/productdev/jtbd/models.yaml
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+  supersedes: null
+- id: D-claude-api
+  date: '2026-10-08'
+  decision: Future Claude reference labels go through the Anthropic API under a data processing agreement, not through
+    the consumer subscription.
+  rationale: Consumer terms restrict model development and give no processor relationship.
+  scope:
+  - compliance/providers.yaml#claude-api
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D-claude-risk-0.1.x
+  date: '2026-10-08'
+  decision: Accept the risk of the Claude reference labels that were produced through the Claude Code CLI on the
+    consumer subscription for the pilot benchmark behind scout-large 0.1.x. They are kept as benchmark references;
+    no new labels are produced this way.
+  rationale: The labels were used only as one of two reference labelers for the frozen benchmark, not as training
+    data; re-labeling would change the frozen benchmark. The card states how the reference labels were produced.
+  scope:
+  - scout-large@0.1.0
+  - scout-large@0.1.1
+  - scout-large@0.1.2
+  - benchmark:pilot-v2
+  - compliance/providers.yaml#claude-consumer-cli
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D-contact
+  date: '2026-10-08'
+  decision: The zoo is run by Martin Habedank as a private person. Contacts are privacy@miskatonic-analytics.com
+    and contact@miskatonic-analytics.com; the imprint and website privacy policy of miskatonic-analytics.com are
+    linked. No branding, no consulting promotion and no monetisation in the zoo.
+  rationale: Keeps the non-commercial basis of the AI Act Art. 2(12), CRA and product liability exemptions while
+    giving a reachable controller contact.
+  scope:
+  - compliance/controller.yaml
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D-order
+  date: '2026-10-08'
+  decision: Feature 006 is implemented before feature 005 continues; 005's dataset declarations become register
+    records.
+  rationale: The merge brings new datasets and models; they should enter an existing harness.
+  scope:
+  - specs/005-topic-layout-security-merge
+  review_by: '2027-01-15'
+  decided_by: Martin Habedank
+- id: D5
+  date: '2026-10-08'
+  decision: Copyright basis for text and data mining is §44b UrhG only; §60d is not claimed.
+  rationale: A single person building commercially usable models is a weak case for §60d.
+  scope:
+  - '*'
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D6
+  date: '2026-10-08'
+  decision: Plain-language terms of service that prohibit mining count as an opt-out.
+  rationale: Conservative reading until the BGH decides I ZR 281/25 (LAION).
+  scope:
+  - check C-F6
+  review_by: '2026-12-31'
+  decided_by: Martin Habedank
+- id: D7
+  date: '2026-10-08'
+  decision: Published files contain at most 30 consecutive words from the training or benchmark corpus, except attributed
+    quotes from sources with quote_allowed.
+  rationale: Default threshold from the legal research.
+  scope:
+  - check C-U2
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D8
+  date: '2026-10-08'
+  decision: Generative models must not reproduce any training span longer than 50 tokens verbatim in extraction
+    probes. Extractive models record memorisation as not applicable with a rationale.
+  rationale: Default threshold from the legal research.
+  scope:
+  - check C-D1
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D9
+  date: '2026-10-08'
+  decision: Redaction recall must be at least 0.95 on the synthetic redaction test set.
+  rationale: Default threshold from the legal research.
+  scope:
+  - check C-T5
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D10
+  date: '2026-10-08'
+  decision: One legitimate-interest assessment per source class.
+  rationale: Default from the legal research.
+  scope:
+  - topics/*/compliance/source-classes.yaml
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D11
+  date: '2026-10-08'
+  decision: One combined, short data protection impact assessment (docs/compliance/lia-dpia.md).
+  rationale: A formal DPIA is advisable rather than clearly mandatory.
+  scope:
+  - docs/compliance/lia-dpia.md
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D12
+  date: '2026-10-08'
+  decision: Special categories of personal data (Art. 9 GDPR) are excluded by default; exceptions only by a recorded
+    decision per source class.
+  rationale: Art. 9(2)(e) needs a deliberate act of making data public by the person concerned.
+  scope:
+  - check C-I6
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D13
+  date: '2026-10-08'
+  decision: A future dataset compendium links to the original sources and does not re-host files.
+  rationale: Re-hosting needs a redistribution check per dataset and raises database-right questions.
+  scope:
+  - compendium
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D-parl-art9
+  date: '2026-10-08'
+  decision: Political opinions expressed by office holders in parliamentary records are not quarantined (Art. 9(2)(e)
+    GDPR); health, religion and other special categories about third persons in those records are still flagged.
+  rationale: Speeches by members of parliament are made public deliberately by the speakers.
+  scope:
+  - topics/productdev/compliance/source-classes.yaml#parliamentary-records
+  review_by: '2027-04-08'
+  decided_by: Martin Habedank
+- id: D-routing-scc
+  date: '2026-10-08'
+  decided_by: Martin Habedank
+  decision: Hosted labeling routes are allowed when the provider is in the EU, or listed under the EU-US Data Privacy
+    Framework, or bound by a signed data processing agreement with standard contractual clauses; in every case with
+    zero data retention, no training on inputs, a pinned provider and the owner's sign-off on the route.
+  rationale: None of the US providers used is DPF-listed (checked 2026-10-08); standard contractual clauses are
+    the transfer mechanism they offer. The other safeguards of D-routing stay.
+  scope:
+  - compliance/providers.yaml
+  - check C-P4
+  - check C-P5
+  review_by: '2027-04-08'
+  supersedes: D-routing
+- id: D-interviews-0.1.x
+  date: '2026-10-08'
+  decided_by: Martin Habedank
+  decision: The 42 Zenodo interview datasets used to train scout-large 0.1.x stay in use for 0.1.x. Their records
+    state no consent basis; the publishers state that the transcripts are anonymised. That publication by the researchers
+    under CC BY 4.0 is recorded as the basis. New interview data needs a recorded consent or ethics basis (check
+    C-I4).
+  rationale: Datasets were published by researchers for reuse; identifiers were removed by the publishers and again
+    by redaction; the texts are not redistributed.
+  scope:
+  - scout-large@0.1.0
+  - scout-large@0.1.1
+  - scout-large@0.1.2
+  - topics/productdev/compliance/sources.yaml#research-interviews
+  review_by: '2027-04-08'
+  supersedes: null
+- id: D-accessibility-0.1.x
+  date: '2026-10-08'
+  decided_by: Martin Habedank
+  decision: Parliamentary training chunks that mention disability or wheelchair access stay in the 0.1.x training
+    data. For future data, accessibility statements by private persons follow D12 (excluded unless a class decision
+    allows them).
+  rationale: The chunks come from public committee evidence given for publication, mostly about accessibility policy;
+    the model extracts mobility pains such as inaccessible vehicles.
+  scope:
+  - scout-large@0.1.0
+  - scout-large@0.1.1
+  - scout-large@0.1.2
+  review_by: '2027-04-08'
+  supersedes: null
+- id: D-benchmark-optouts
+  date: '2026-10-08'
+  decided_by: Martin Habedank
+  decision: Stored benchmark texts from motor-talk.de (AI crawler opt-out in robots.txt today) and forum.cyclinguk.org
+    (robots.txt answers 403 today) stay until benchmark pilot-v2 is retired, so it remains reproducible; they are
+    not processed again (no labeling, no sending) and are replaced in the next benchmark version.
+  rationale: A frozen benchmark is never edited (constitution IX); deleting the texts would break reproducibility
+    of published evaluation numbers.
+  scope:
+  - benchmark:pilot-v2
+  - check C-T1
+  review_by: '2027-04-08'
+  supersedes: null

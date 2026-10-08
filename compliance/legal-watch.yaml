@@ -1,0 +1,68 @@
+# Pending decisions and legal dates that can change the rules (FR-028). The meta stage fails when
+# review_by passes without reviewed_at.
+items:
+- id: bgh-i-zr-281-25
+  title: BGH I ZR 281/25 (Kneschke v. LAION), machine-readable opt-out under §44b(3) UrhG
+  kind: court
+  expected: '2026-12-17'
+  review_by: '2026-12-31'
+  reviewed_at: null
+  outcome: null
+  affects: [D6, C-F6]
+  source: one law-firm source only; date not confirmed elsewhere
+- id: prodhaftg-2026
+  title: German transposition of the Product Liability Directive (EU) 2024/2853
+  kind: legislation
+  expected: '2026-12-09'
+  review_by: '2026-12-23'
+  reviewed_at: null
+  outcome: null
+  affects: [C-G2]
+- id: ai-act-art50-grace
+  title: End of the AI Act Art. 50(2) grace period (digital omnibus)
+  kind: legislation
+  expected: '2026-12-02'
+  review_by: '2026-12-16'
+  reviewed_at: null
+  outcome: null
+  affects: [release compliance records]
+- id: gema-openai-appeal
+  title: GEMA v OpenAI appeal (LG München I, 11.11.2025), memorisation as reproduction
+  kind: court
+  expected: null
+  review_by: '2027-01-15'
+  reviewed_at: null
+  outcome: null
+  affects: [D8, C-D1, C-U2]
+- id: cjeu-c-250-25
+  title: CJEU C-250/25 (Like Company v Google), TDM and reproduction by AI models
+  kind: court
+  expected: null
+  review_by: '2027-01-15'
+  reviewed_at: null
+  outcome: null
+  affects: [D5, D6, C-F1, C-U2]
+- id: gdpr-omnibus-88bis
+  title: GDPR digital omnibus Art. 88bis (AI training as legitimate interest)
+  kind: legislation
+  expected: null
+  review_by: '2027-01-15'
+  reviewed_at: null
+  outcome: null
+  affects: [D10, docs/compliance/lia-dpia.md]
+- id: cra-foss-guidance
+  title: Final Commission guidance on CRA and free and open-source software, C(2026) 5252
+  kind: guidance
+  expected: null
+  review_by: '2027-01-15'
+  reviewed_at: null
+  outcome: null
+  affects: [C-G2]
+- id: latombe-appeal
+  title: Latombe v Commission (T-553/23), appeal on the EU-US Data Privacy Framework
+  kind: court
+  expected: null
+  review_by: '2027-01-15'
+  reviewed_at: null
+  outcome: null
+  affects: [D-routing, compliance/providers.yaml]

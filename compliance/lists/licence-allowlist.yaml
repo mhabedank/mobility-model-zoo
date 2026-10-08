@@ -1,0 +1,16 @@
+# Licences a training or benchmark source may carry (check C-I2). share_alike entries force the model
+# licence (check C-T3). NC and ND licences are never on this list for training (constitution VI).
+licences:
+- {id: CC0-1.0}
+- {id: CC-BY-4.0}
+- {id: CC-BY-3.0}
+- {id: CC-BY-SA-4.0, share_alike: true}
+- {id: PDDL-1.0}
+- {id: ODC-By-1.0}
+- {id: MIT}
+- {id: Apache-2.0}
+- {id: BSD-3-Clause}
+- {id: LicenseRef-official-work-UrhG-5, note: German official works, §5 UrhG}
+- {id: LicenseRef-OGL-UK-3.0, note: UK Open Government Licence v3.0}
+- {id: LicenseRef-Open-Parliament-Licence, note: UK Open Parliament Licence}
+- {id: LicenseRef-US-PD, note: US federal government works, public domain}

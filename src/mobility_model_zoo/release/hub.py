@@ -83,6 +83,19 @@ class Hub:
         return "private" if info.private else "public"
 
     @_wrap
+    def card_data(self, repo: str) -> dict[str, Any] | None:
+        """Hub card metadata (license, base_model, gated) of a repo, or None if it does not exist."""
+        from huggingface_hub.errors import RepositoryNotFoundError
+
+        try:
+            info = self._api.model_info(repo)
+        except RepositoryNotFoundError:
+            return None
+        data = dict(info.card_data.to_dict()) if info.card_data else {}
+        data["gated"] = bool(info.gated)
+        return data
+
+    @_wrap
     def create_repo(self, repo: str, private: bool) -> None:
         self._api.create_repo(repo, private=private, exist_ok=False)
 

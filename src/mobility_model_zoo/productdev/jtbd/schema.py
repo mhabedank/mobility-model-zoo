@@ -40,8 +40,8 @@ Split = Literal["main", "holdout", "train"]
 # teacher: the pilot-recommended teacher labeling a training split; student: a trained model of
 # the task (feature 004). span: outputs written by `jtbd span label`, not by a labeling backend.
 Role = Literal["reference", "teacher_candidate", "baseline", "teacher", "student"]
-BackendName = Literal["claude_cli", "openrouter", "ollama", "openai_compat", "ensemble", "mock",
-                      "span"]
+BackendName = Literal["claude_cli", "anthropic_api", "openrouter", "ollama", "openai_compat",
+                      "ensemble", "mock", "span"]
 
 
 def evidence_rank(value: str) -> int:

@@ -22,7 +22,11 @@ from mobility_model_zoo.productdev.jtbd.jsonio import read_yaml, write_yaml
 from mobility_model_zoo.productdev.jtbd.schema import SourceSnapshot
 from mobility_model_zoo.productdev.jtbd.sources import registry
 
-USER_AGENT = "jtbd-pilot/0.1 (non-commercial research; crawl-once)"
+# The project crawler (feature 006); robots.txt groups for the old token `jtbd-pilot` still apply.
+USER_AGENT = (
+    "mobility-model-zoo-crawler/1.0 "
+    "(+https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md)"
+)
 MIN_TEXT_CHARS = 1500
 BLOCK_MARKERS = (
     "checking your browser",
@@ -262,7 +266,14 @@ def create_snapshot(
     return record.model_dump(mode="json")
 
 
-def robots_allows(robots_txt: str, url: str, agent: str = USER_AGENT) -> bool:
+def robots_allows(robots_txt: str, url: str, agent: str | None = None) -> bool:
+    """Allowed for the project crawler and for its former token `jtbd-pilot` (both must pass)."""
+    if agent is not None:
+        return _robots_allows_agent(robots_txt, url, agent)
+    return all(_robots_allows_agent(robots_txt, url, a) for a in (USER_AGENT, "jtbd-pilot/0.1"))
+
+
+def _robots_allows_agent(robots_txt: str, url: str, agent: str) -> bool:
     """RFC 9309 matching: the group for our agent (else `*`), `*` and `$` wildcards, the longest
     matching rule wins, and Allow wins a tie. (urllib.robotparser knows no wildcards and uses the
     first match, so it wrongly blocks paths such as Zenodo's `Allow: /api/records/*/files`.)"""
@@ -306,19 +317,6 @@ def robots_allows(robots_txt: str, url: str, agent: str = USER_AGENT) -> bool:
     return True if best is None else best[1]
 
 
-def _robots_allows(url: str) -> bool:
-    parts = urlsplit(url)
-    robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
-    try:
-        response = httpx.get(robots_url, headers={"User-Agent": USER_AGENT}, timeout=20,
-                             follow_redirects=True)
-    except httpx.HTTPError:
-        return True
-    if response.status_code >= 400:
-        return True
-    return robots_allows(response.text, url)
-
-
 def _ext_for(content_type: str, url: str) -> str:
     content_type = content_type.lower()
     if "wordprocessingml" in content_type or ".docx" in url.lower():
@@ -334,28 +332,85 @@ def _ext_for(content_type: str, url: str) -> str:
     return "txt"
 
 
+def _compliance_lists(settings: Settings):
+    from mobility_model_zoo.compliance.hashing import url_hasher
+    from mobility_model_zoo.compliance.register import Register
+    from mobility_model_zoo.compliance.signals import Lists
+
+    reg = Register.load(settings.base)
+    hasher = url_hasher()
+    suppressed = {e["hash"] for e in reg.records("suppression") if e.get("kind") == "url"}
+    lists = Lists(
+        ai_agents=(reg.lists("ai-user-agents") or {}).get("agents", []),
+        denylist=(reg.lists("denylist") or {}).get("domains", []),
+        piracy=(reg.lists("piracy-domains") or {}).get("domains", []),
+        suppressed_url_hashes=suppressed,
+    )
+    if suppressed and hasher is None:
+        raise UsageError("the suppression list is not empty but MMZ_SUPPRESSION_KEY is not set")
+    return lists, hasher
+
+
+def _log_verdict(settings: Settings, verdict) -> None:
+    """Append the per-document evidence to the crawl manifest (outside git, FR-004)."""
+    import json
+
+    path = settings.base / "data" / "compliance" / "crawl-manifest.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(verdict.manifest_entry(), ensure_ascii=False) + "\n")
+
+
 def fetch_url(
     settings: Settings, url: str, meta: dict[str, Any], *, update: bool = False,
-    reason: str | None = None
+    reason: str | None = None, tos_url: str | None = None, tos_confirmed: bool = False,
+    client: httpx.Client | None = None,
 ) -> dict[str, Any]:
+    """Fetch one document after the opt-out checks of the compliance harness (C-F1 … C-F7)."""
+    from mobility_model_zoo.compliance.signals import check_url
+
     if meta.get("source_type") == "reddit":
         raise UsageError("Reddit threads must be fetched with `jtbd source reddit` (official API)")
     registry.check_can_fetch(settings, url, update, reason)
-    if not _robots_allows(url):
-        raise ValidationFailed(f"robots.txt disallows fetching {url}")
-    response = httpx.get(url, headers={"User-Agent": USER_AGENT}, timeout=60, follow_redirects=True)
+    lists, hasher = _compliance_lists(settings)
+    verdict, response = check_url(url, lists, client, tos_url=tos_url, url_hash=hasher)
+    if verdict.tos_flag and not tos_confirmed:
+        verdict.block("C-F6", "the terms of service mention mining or crawling; read them and pass "
+                              "--tos-confirmed if they allow it (decision D6)")
+        verdict.decision = "skipped"
+    _log_verdict(settings, verdict)
+    if not verdict.allowed:
+        reasons = "; ".join(f"{c}: {r}" for c, r in verdict.reasons)
+        raise ValidationFailed(f"not fetched: {url} ({reasons})")
+    assert response is not None
     if response.status_code >= 400:
         raise ValidationFailed(f"fetch failed with HTTP {response.status_code}: {url}")
     ext = _ext_for(response.headers.get("content-type", ""), url)
     return create_snapshot(settings, response.content, ext, url, meta, update=update, reason=reason)
 
 
+SIGNAL_KEYS = ("robots", "tdmrep", "x_robots", "meta_noai", "ai_txt")
+
+
 def register_file(
     settings: Settings, path: Path, url: str, meta: dict[str, Any], *, update: bool = False,
-    reason: str | None = None
+    reason: str | None = None, signals: Path | None = None
 ) -> dict[str, Any]:
+    """Register a file obtained by hand. Needs a signals record: the manual opt-out check (C-F8)."""
     if not path.exists():
         raise UsageError(f"file not found: {path}")
+    if signals is None or not signals.exists():
+        raise UsageError("a manually obtained file needs --signals FILE: a YAML record with url, "
+                         "checked_at and the verdicts robots, tdmrep, x_robots, meta_noai, ai_txt "
+                         "(allow|deny|absent) of the source (check C-F8)")
+    record = read_yaml(signals)
+    missing = [k for k in ("url", "checked_at", *SIGNAL_KEYS) if k not in record]
+    if missing:
+        raise UsageError(f"signals record lacks {', '.join(missing)}")
+    denied = [k for k in SIGNAL_KEYS if record[k] == "deny"]
+    if denied:
+        raise ValidationFailed(
+            f"the signals record shows an opt-out ({', '.join(denied)}); not registered")
     ext = path.suffix.lstrip(".").lower() or "txt"
     return create_snapshot(settings, path.read_bytes(), ext, url, meta, update=update,
                            reason=reason)

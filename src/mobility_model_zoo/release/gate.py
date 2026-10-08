@@ -52,6 +52,7 @@ TITLES = {
     12: "usage example",
     13: "examples",
     14: "sandbox",
+    16: "compliance",
 }
 
 
@@ -251,7 +252,48 @@ class Gate:
         for t in self.record["provenance"]["teachers"]:
             if not t["training_on_outputs_permitted"]:
                 failures.append(f"teacher {t['model_id']} does not permit training on its outputs")
+        creg = self._compliance()
+        if creg is not None and creg.release(self.name, self.version) is not None:
+            for t in self.record["provenance"]["teachers"]:
+                if not creg.output_training_permitted(t["model_id"]):
+                    failures.append(f"teacher {t['model_id']}: a provider route does not permit "
+                                    "training on outputs (compliance/providers.yaml) and no decision "
+                                    "covers it")
         return failures
+
+    def _compliance(self):
+        from mobility_model_zoo.compliance.register import Register
+
+        root = self.reg.zoo.parent
+        if not (root / "compliance" / "controller.yaml").exists():
+            return None
+        return Register.load(root)
+
+    def rule_16(self) -> list[str]:
+        """Compliance harness (feature 006): the release stages of contracts/checks.md."""
+        from mobility_model_zoo.compliance import checks
+        from mobility_model_zoo.compliance.findings import StageFailed, run_stages
+
+        creg = self._compliance()
+        if creg is None:
+            # Repositories without a register (test fixtures) skip; in the zoo repository a missing
+            # register fails `zoo validate --all` (C-M1), so this cannot pass silently in CI.
+            raise Skip("no compliance register (compliance/controller.yaml)")
+        names = (["meta", "licence", "repository"] if self.model["topic"] == "sandbox"
+                 else list(checks.RELEASE_STAGES))
+        ctx = checks.Context(creg, model=self.name, version=self.version, extra={
+            "card": self.publication_card(), "topic": self.model["topic"],
+            "hub": self.hub, "model_yaml": self.model})
+        try:
+            run_stages(checks.stages_named(names), ctx)
+        except StageFailed as e:
+            return e.failures
+        return []
+
+    def publication_card(self) -> str:
+        """The card as scanned for publication: without model outputs (they are spans of the
+        fictional example inputs), so the scan and the gate hash the same text."""
+        return cards.render(cards.CardInput(self.reg, self.name, self.version, record=self.record))
 
     def rule_7(self) -> list[str]:
         r, failures = self.record, []
@@ -387,7 +429,7 @@ class Gate:
         return self.card
 
     # ---- running -------------------------------------------------------------------------------
-    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 10)
+    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 10, 16)
 
     def run(self, say: Callable[[str], None] | None = None) -> None:
         say = say or (lambda line: print(line, file=sys.stderr))
@@ -431,7 +473,8 @@ def card_structure(card: str) -> list[str]:
     failures = []
     front, body = cards.split_card(card)
     found = cards.sections(body)
-    for title in cards.SECTIONS:
+    required = cards.COMPLIANCE_SECTIONS if "Training data and attribution" in found else cards.SECTIONS
+    for title in required:
         if title not in found:
             failures.append(f"card section '{title}' is missing")
         elif not found[title].strip():

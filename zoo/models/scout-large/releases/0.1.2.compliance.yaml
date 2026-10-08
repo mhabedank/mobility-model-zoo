@@ -1,0 +1,321 @@
+model: scout-large
+version: 0.1.2
+state: signed_off
+ai_system:
+  is_system: true
+  rationale: Weights are published together with inference code (SpanExtractor), so the model is usable
+    as a machine-based system that infers outputs from input text (Art. 3(1)).
+gpai:
+  is_gpai: false
+  generative: false
+  params: 560000000.0
+  training_compute_flop: 2.7e+16
+  base_model_compute_flop: 2.1e+22
+  method: 'Fine-tuning: 6 x 5.6e8 parameters x 1.0e6 training tokens x 8 epochs. Base model: 6 x 5.6e8
+    x 6.3e12 tokens from the XLM-R training setup (Conneau et al. 2020: 1.5M updates, batch 8192, sequence
+    length 512). Own estimates, not provider figures.'
+  rationale: A token-classification encoder for one task (extracting jobs, pains and gains); it does not
+    generate content and is not capable of a wide range of distinct tasks; compute far below the indicative
+    10^23 FLOP of the Commission GPAI guidelines (July 2025).
+exclusion_basis: art2_12
+monetisation: none
+intended_purpose: 'Product discovery in mobility: finding what people try to get done (jobs), what gets
+  in their way (pains) and what they would gain, in interviews, forum posts, reviews, studies and other
+  texts. Every item comes with the sentence or clause it was found in, so a person can check it. The output
+  is input for later steps (deduplication, clustering, prioritization), which this model does not do.'
+out_of_scope:
+- Decisions about individuals; profiling or identifying the authors of texts; texts outside mobility (it
+  was trained on mobility texts only); treating the output as a complete or final list of needs without
+  human review.
+annex_iii_match: none (no use in employment, education, credit, essential services, law enforcement, migration,
+  justice or biometrics is intended)
+annex_i:
+  legislation: none
+  safety_component: false
+  rationale: Text analysis for product discovery; not a component of a product covered by Annex I.
+art50_trigger: none (no interaction with natural persons, no generated content)
+legal_references:
+  ai_act: Regulation (EU) 2024/1689 as amended by the digital omnibus (in force 2026-07-27)
+  guidelines:
+  - Commission guidelines on the definition of an AI system (Feb 2025)
+  - Commission guidelines on general-purpose AI models (July 2025)
+  - AI Office template for the public summary of training content (July 2025)
+  checked_at: '2026-10-08'
+export:
+  self_classification: not listed (Regulation (EU) 2021/821, Annex I)
+  rationale: A text classifier for product discovery; no cryptography, no intrusion software, no listed
+    item.
+licences:
+  weights: Apache-2.0
+  code: Apache-2.0
+  base_model: MIT
+  notices:
+  - XLM-RoBERTa large (FacebookAI/xlm-roberta-large), MIT, Copyright (c) Facebook, Inc. and its affiliates.
+  share_alike_inputs: false
+  gated: false
+provenance:
+  sources:
+  - committees-api-parliament-uk-api-oralevidence-13304-document
+  - committees-api-parliament-uk-api-oralevidence-13735-document
+  - committees-api-parliament-uk-api-oralevidence-15426-document
+  - committees-api-parliament-uk-api-oralevidence-15514-document
+  - committees-api-parliament-uk-api-oralevidence-16532-document
+  - committees-api-parliament-uk-api-oralevidence-16765-document
+  - committees-api-parliament-uk-api-oralevidence-17341-document
+  - committees-api-parliament-uk-api-oralevidence-17431-document
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-2
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-3
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-4
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-5
+  - data-oireachtas-ie-akn-ie-debaterecord-joint-committee-on-tr-6
+  - doi-org-10-1016-j-tranpol-2020-11-004
+  - doi-org-10-1186-s42774-020-00054-7
+  - dserver-bundestag-de-btp-20-20022-pdf
+  - dserver-bundestag-de-btp-20-20030-pdf
+  - dserver-bundestag-de-btp-20-20054-pdf
+  - dserver-bundestag-de-btp-20-20062-pdf
+  - dserver-bundestag-de-btp-20-20066-pdf
+  - dserver-bundestag-de-btp-20-20074-pdf
+  - dserver-bundestag-de-btp-20-20102-pdf
+  - dserver-bundestag-de-btp-20-20114-pdf
+  - dserver-bundestag-de-btp-20-20118-pdf
+  - dserver-bundestag-de-btp-20-20122-pdf
+  - dserver-bundestag-de-btp-20-20130-pdf
+  - dserver-bundestag-de-btp-20-20142-pdf
+  - dserver-bundestag-de-btp-20-20154-pdf
+  - dserver-bundestag-de-btp-20-20178-pdf
+  - dserver-bundestag-de-btp-20-20182-pdf
+  - dserver-bundestag-de-btp-20-20194-pdf
+  - record-senedd-wales-committee-15088
+  - europarl-europa-eu-doceo-document-cre-9-2024-02-27-itm-003-e
+  - govinfo-gov-content-pkg-chrg-112shrg73204-html-chrg-112shrg7
+  - govinfo-gov-content-pkg-chrg-114hhrg20105-html-chrg-114hhrg2
+  - govinfo-gov-content-pkg-chrg-115hhrg27720-html-chrg-115hhrg2
+  - govinfo-gov-content-pkg-chrg-116hhrg41285-html-chrg-116hhrg4
+  - govinfo-gov-content-pkg-chrg-116shrg52614-html-chrg-116shrg5
+  - govinfo-gov-content-pkg-chrg-117hhrg46928-html-chrg-117hhrg4
+  - govinfo-gov-content-pkg-chrg-118hhrg55550-html-chrg-118hhrg5
+  - govinfo-gov-content-pkg-chrg-118hhrg56115-html-chrg-118hhrg5
+  - parlament-gv-at-dokument-xxviii-nrsitz-57-fname-1729016-pdf
+  - parlament-gv-at-gegenstand-xxviii-nrsitz-57
+  - parliament-scot-api-sitecore-custommedia-officialreport
+  - zenodo-org-api-records-15325897-files-mobility-bg01-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg02-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg03-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg04-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg05-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg06-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg07-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg08-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg09-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-bg10-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie01-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie02-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie03-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie04-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie05-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie06-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie07-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie08-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie09-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie10-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-ie11-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt01-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt02-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt03-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt04-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt05-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt06-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt07-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt08-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt09-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-lt10-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt01-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt02-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt03-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt04-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt05-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt06-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt07-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt08-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt09-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt10-anonymis
+  - zenodo-org-api-records-15325897-files-mobility-pt11-anonymis
+  benchmark_sources:
+  - beteiligungsportal-baden-wuerttemberg-de-de-mitmachen-lp-17
+  - beteiligungsportal-baden-wuerttemberg-de-de-mitmachen-lp-17-2
+  - doi-org-10-1007-s11116-023-10386-0
+  - doi-org-10-1007-s11116-025-10640-7
+  - doi-org-10-1016-j-jtrangeo-2021-103202
+  - doi-org-10-1016-j-procs-2024-02-070
+  - doi-org-10-1016-j-sftr-2025-101220
+  - doi-org-10-1016-j-trd-2021-103134
+  - doi-org-10-1016-j-trd-2022-103319
+  - doi-org-10-1016-j-trd-2025-105081
+  - doi-org-10-1038-s44284-024-00145-2
+  - doi-org-10-1080-00423114-2024-2342534
+  - doi-org-10-1186-s12544-024-00699-1
+  - doi-org-10-16997-ats-1195
+  - doi-org-10-3390-su15054436
+  - dserver-bundestag-de-btp-18-18228-pdf
+  - dserver-bundestag-de-btp-19-19121-pdf
+  - dserver-bundestag-de-btp-21-21034-pdf
+  - elib-dlr-de-205470-1-gruber-et-al-2024-car-or-cargo-bike-det
+  - forum-cyclinguk-org-viewtopic-php
+  - forum-cyclinguk-org-viewtopic-php-2
+  - forum-cyclinguk-org-viewtopic-php-3
+  - forum-cyclinguk-org-viewtopic-php-4
+  - forum-cyclinguk-org-viewtopic-php-5
+  - hansard-api-parliament-uk-debates-debate-b2938c4c-0473-4c8b
+  - lemmy-ca-api-v3-comment-list
+  - pardok-parlament-berlin-de-starweb-adis-citat-vt-19-ausschus
+  - pardok-parlament-berlin-de-starweb-adis-citat-vt-19-ausschus-2
+  - pardok-parlament-berlin-de-starweb-adis-citat-vt-19-ausschus-3
+  - ws-parlament-ch-odata-svc-transcript
+  - ws-parlament-ch-odata-svc-transcript-2
+  - agora-verkehrswende-de-veroeffentlichungen-private-elektromo
+  - bayern-landtag-de-fileadmin-internet-dokumente-sonstiges-p-p
+  - boeckler-de-fpdf-hbs-008388-p-fofoe-wp-255-2022-pdf
+  - boeckler-de-fpdf-hbs-008573-p-fofoe-wp-280-2023-pdf
+  - bpb-de-system-files-dokument-pdf-apuz-24-verkehrswende-trans
+  - brummionline-com-forum-forum-allgemeine-fahrerforen-453138-5
+  - brummionline-com-forum-forum-allgemeine-fahrerforen-470449-e
+  - brummionline-com-forum-forum-allgemeine-fahrerforen-495249-e
+  - bundestag-de-resource-blob-1002378-prot-070-wortprotokoll-pd
+  - bundestag-de-resource-blob-1117370-protokoll-8-sitzung-06-10
+  - bundestag-de-resource-blob-1150194-protokoll-18-sitzung-26-0
+  - bundestag-de-resource-blob-1151882-protokoll-21-sitzung-23-0
+  - bundestag-de-resource-blob-814052-wortprotokoll-pdf
+  - bundestag-de-resource-blob-983556-39c75bd73f04fb8ef871f44652
+  - drehscheibe-online-de-foren-read-php
+  - drehscheibe-online-de-foren-read-php-2
+  - drehscheibe-online-de-foren-read-php-3
+  - drehscheibe-online-de-foren-read-php-4
+  - ebi-ac-uk-europepmc-webservices-rest-pmc10751821-fulltextxml
+  - ebi-ac-uk-europepmc-webservices-rest-pmc12990256-fulltextxml
+  - forum-speditionen-de-aktuelle-preislage-im-3-5-t-bereich-185
+  - forum-speditionen-de-selbstaendig-im-paketdienst-machen-1973
+  - goingelectric-de-forum-viewtopic-php
+  - goingelectric-de-forum-viewtopic-php-2
+  - goingelectric-de-forum-viewtopic-php-3
+  - goingelectric-de-forum-viewtopic-php-4
+  - goingelectric-de-forum-viewtopic-php-5
+  - goingelectric-de-forum-viewtopic-php-6
+  - goingelectric-de-forum-viewtopic-php-7
+  - govinfo-gov-content-pkg-chrg-116hhrg39370-html-chrg-116hhrg3
+  - govinfo-gov-content-pkg-chrg-117shrg48618-html-chrg-117shrg4
+  - govinfo-gov-content-pkg-chrg-118shrg56442-html-chrg-118shrg5
+  - ice-treff-de-index-php
+  - ice-treff-de-index-php-2
+  - ice-treff-de-index-php-3
+  - landtag-niedersachsen-de-parlamentsdokumente-niederschriften
+  - mobilitaet-in-deutschland-de-pdf-mid2023-ergebnisbericht-pdf
+  - motor-talk-de-forum-6-volt-wechselstrom-spannungsregler-t865
+  - motor-talk-de-forum-dokumentation-beim-youngtimer-oldtimer-w
+  - motor-talk-de-forum-elektro-lkws-was-haltet-ihr-davon-t70392
+  - motor-talk-de-forum-erfahrungen-mit-car-sharing-im-allgemein
+  - motor-talk-de-forum-hat-jemand-erfahrung-mit-auto-abos-t8402
+  - motor-talk-de-forum-hvv-switch-parkplatz-privatisieren-t7389
+  - motor-talk-de-forum-sixt-share-nach-30-minuetiger-fahrt-ange
+  - motor-talk-de-forum-welcher-hersteller-repariert-seine-elekt
+  - motor-talk-de-forum-wie-youngtimer-ueber-lange-zeit-einmotte
+  - motor-talk-de-forum-wochenendtour-1500-km-kosten-mietwagen-v
+  - motor-talk-de-forum-zu-e-auto-wechseln-oder-bei-verbrenner-b
+  - oeko-de-fileadmin-podcast-transkript-podcast-wenden-bitte-ve
+  - ourcommons-ca-documentviewer-en-45-1-tran-meeting-10-evidenc
+  - ourcommons-ca-documentviewer-en-45-1-tran-meeting-18-evidenc
+  - ourcommons-ca-documentviewer-en-45-1-tran-meeting-9-evidence
+  - ourcommons-ca-documentviewer-en-45-1-tran-meeting-11-evidenc
+  - parlament-berlin-de-ados-18-umverk-protokoll-uv18-020-wp-pdf
+  - parlament-berlin-de-ados-18-umverk-protokoll-uv18-043-wp-pdf
+  - parlament-berlin-de-ados-18-umverk-protokoll-uv18-049-wp-pdf
+  - parlament-berlin-de-ados-18-umverk-protokoll-uv18-066-wp-pdf
+  - parlament-berlin-de-ados-18-umverk-protokoll-uv18-071-wp-pdf
+  - stiftung-mercator-de-content-uploads-2025-12-studie-icct-mer
+  - stummiforum-de-t246488f15-spur-n-erste-anlage-html
+  datasets: []
+  routes:
+  - claude-consumer-cli
+  - gpt-mini-openrouter-openai
+  - local-spark-ollama
+  - mimo-openrouter-deepinfra
+  - mimo-openrouter-unrecorded
+  - wafer-openrouter
+  recipients_sha256: c5803531e7b6f3b7a1c25881b9e5559dee8b238f6112c2523937e4759fa1a6c4
+scans:
+  redaction_recall: 1.0
+  art9_counts:
+    holdout/forum-review:
+      chunks: 12
+      flagged_chunks: 0
+      categories: {}
+    holdout/parliamentary-records:
+      chunks: 9
+      flagged_chunks: 0
+      categories: {}
+    holdout/tdm-documents:
+      chunks: 9
+      flagged_chunks: 0
+      categories: {}
+    main/forum-review:
+      chunks: 60
+      flagged_chunks: 2
+      categories:
+        health: 2
+    main/parliamentary-records:
+      chunks: 41
+      flagged_chunks: 3
+      categories:
+        health: 2
+        ethnic_origin: 1
+    main/tdm-documents:
+      chunks: 49
+      flagged_chunks: 4
+      categories:
+        religion: 1
+        ethnic_origin: 3
+    train/open-papers:
+      chunks: 16
+      flagged_chunks: 0
+      categories: {}
+    train/parliamentary-records:
+      chunks: 730
+      flagged_chunks: 124
+      categories:
+        religion: 2
+        ethnic_origin: 8
+        health: 109
+        biometric_genetic: 6
+        political_opinion: 2
+        sexual_orientation: 1
+    train/research-interviews:
+      chunks: 354
+      flagged_chunks: 7
+      categories:
+        health: 6
+        religion: 1
+  memorisation:
+    status: not_applicable
+    rationale: Token-classification encoder without a generative head (pipeline_tag token-classification);
+      its outputs are character spans of the input text, so it cannot reproduce training text that is
+      not in its input.
+  publication_scan: null
+decisions:
+- D-claude-risk-0.1.x
+- D-parl-art9
+- D5
+- D7
+- D8
+- D9
+- D12
+signed_off_by: m.habedank
+signed_off_at: '2026-10-08'
+card_privacy_note: The training texts of this version were collected before the project's compliance harness
+  existed. At collection time robots.txt was checked; the other opt-out signals (TDM reservation, noai,
+  ai.txt) were checked retrospectively on 2026-10-08 and are recorded per source in the compliance register.
+  E-mail addresses, phone numbers, user handles and profile links were removed by pattern redaction and
+  a local model review before labeling; a re-scan of the stored training texts on 2026-10-08 found no
+  remaining personal identifiers. Special categories of personal data were not filtered at collection;
+  a lexicon count on 2026-10-08 flagged mostly general accessibility topics (for example wheelchair access)
+  in parliamentary hearings.

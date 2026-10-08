@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "requests"
+  ],
+  "properties": {
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "objection",
+              "erasure",
+              "access",
+              "takedown",
+              "opt_out"
+            ]
+          },
+          "received_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "deadline": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "identifier_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "stores_searched": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "action": {
+            "type": "string"
+          },
+          "suppression_added": {
+            "type": "boolean"
+          },
+          "answered_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "received_at",
+          "deadline",
+          "identifier_hash",
+          "stores_searched",
+          "action",
+          "suppression_added",
+          "answered_at"
+        ]
+      }
+    }
+  }
+}

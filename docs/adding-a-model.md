@@ -31,7 +31,7 @@ Nothing else changes. Existing models are not touched.
    ```
 
    The card fills in the public repository, the version tag and the first example text. The release gate fills in the staging repository and revision and runs the code once per example text, in a clean environment on CPU.
-2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt`. Do not use benchmark chunks.
+2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt`. Do not use benchmark chunks. Record where each example comes from in `zoo/models/<name>/examples/SOURCES.yaml` (`source: synthetic`, or a source whose register record allows redistribution; check C-U4).
 3. Create the private staging repository (owner, with `HF_RELEASE_TOKEN`), then add it to the repository list of `HF_STAGING_TOKEN` on the Hub:
 
    ```bash
@@ -48,21 +48,32 @@ Nothing else changes. Existing models are not touched.
 
    This uploads the files in one commit and writes `files[]` and `staging.revision` into `zoo/models/<name>/releases/<version>.yaml`.
 2. Fill in the rest of the release record: `changes`, `output_format_version`, `recipe` (the commit and the paths of the training configuration and the recipe document), `provenance`, `evaluation` and `performance`. Copy the numbers into `results/<version>/quality.json` and `performance.json`; the card shows only numbers from these files.
-3. Check offline, then commit:
+3. Complete the compliance evidence (feature 006, gate rule 16):
+   - every training source and dataset has a record in `topics/<topic>/compliance/` (`uv run zoo compliance bootstrap-sources …` proposes them), and every labeling route is in `compliance/providers.yaml`;
+   - write `zoo/models/<name>/releases/<version>.compliance.yaml` (AI Act classification, licences, provenance, scans; see [the data model](../specs/006-compliance-harness/data-model.md));
+   - render the documents and scan everything that will be published:
+
+   ```bash
+   uv run zoo compliance render
+   uv run zoo compliance scan-publish --model <name> --version <version>
+   uv run zoo compliance signoff --model <name> --version <version>   # the owner, after reviewing
+   ```
+
+4. Check offline, then commit:
 
    ```bash
    uv run zoo check <name> <version> --offline
    git commit -am "Release record for <name> <version>"
    ```
 
-4. Tag the commit on `main` and push the tag. This starts `release-verify`: the full gate, the build and a preview of the card on the staging branch `rc-v<version>`.
+5. Tag the commit on `main` and push the tag. This starts `release-verify`: the full gate, the build and a preview of the card on the staging branch `rc-v<version>`.
 
    ```bash
    git tag <name>/v<version> && git push origin <name>/v<version>
    ```
 
-5. Review the preview linked in the job summary.
-6. Approve by starting the `release-publish` workflow with `model=<name>`, `version=<version>` and `confirm=<name>/v<version>`. It publishes exactly the reviewed preview as one tagged commit, adds the model to its topic collection and commits the updated release record and `zoo/MODELS.md`.
+6. Review the preview linked in the job summary.
+7. Approve by starting the `release-publish` workflow with `model=<name>`, `version=<version>` and `confirm=<name>/v<version>`. It publishes exactly the reviewed preview as one tagged commit, adds the model to its topic collection and commits the updated release record and `zoo/MODELS.md`.
 
 A published version never changes. A fix is a new version. A broken version is deprecated (`release-publish` with `action: deprecate`), not deleted.
 

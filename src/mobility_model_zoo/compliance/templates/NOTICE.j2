@@ -1,0 +1,21 @@
+mobility-model-zoo
+Copyright 2025-2026 {{ controller.name | replace(" (private person)", "") }}
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Published models are licensed as stated in their model cards. Models fine-tuned from third-party
+base models include the following notices.
+{% for m in models if m.base_notice %}
+
+--------------------------------------------------------------------------------
+{{ m.base_notice.name }}, base model of {{ m.name }}
+{{ m.base_notice.url }}
+Licence: {{ m.base_notice.licence }}
+
+{{ m.base_notice.copyright }}
+
+{{ mit_text }}
+{% endfor %}
+
+--------------------------------------------------------------------------------
+Training data attribution: see THIRD_PARTY_NOTICES.md.

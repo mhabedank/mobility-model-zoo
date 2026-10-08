@@ -44,12 +44,11 @@ class OpenRouterBackend:
             "data_collection": "deny",
         }
         order = entry.extra.get("provider_order", ["openai"])
-        if order:
-            self.provider["order"] = order
-        else:
-            # Open-weight teacher candidates: OpenRouter picks one provider that meets the
-            # requirements; the provider that answered is recorded per response.
-            self.deviations.append(f"{entry.model_id}: provider chosen by OpenRouter per request")
+        if not order:
+            # Compliance harness (C-P5, decision D-routing): texts only go to a pinned provider.
+            raise UsageError(f"{entry.model_id}: provider_order is not pinned; OpenRouter would pick "
+                             "a provider per request (not allowed since feature 006)")
+        self.provider["order"] = order
         if entry.extra.get("quantizations"):
             self.provider["quantizations"] = entry.extra["quantizations"]
         if "temperature" in entry.extra and entry.extra["temperature"] is None:

@@ -104,12 +104,37 @@ def check_separation(settings: Settings, mapping: dict[str, Any],
     return found
 
 
+def _compliance_ingest(settings: Settings, mapping: dict[str, Any]):
+    """Ingest checks of the compliance harness (feature 006, C-I1 … C-I7). Test fixtures without a
+    register skip them; in the zoo repository a missing register is an error."""
+    from mobility_model_zoo.compliance.findings import StageFailed
+    from mobility_model_zoo.compliance.ingest import check_snapshots, harness_present
+    from mobility_model_zoo.compliance.register import Register
+
+    if not harness_present(settings.base):
+        if settings.test_fixture:
+            return None
+        raise ValidationFailed("no compliance register (compliance/controller.yaml); ingest refused")
+    reg = Register.load(settings.base)
+    snaps = []
+    for snapshot_id, meta in sorted(mapping.items()):
+        snap = load_snapshot(settings, snapshot_id)
+        snaps.append({"snapshot_id": snapshot_id, "origin_url": snap.origin_url,
+                      "source_type": snap.source_type, "use": meta["use"]})
+    findings = check_snapshots(reg, snaps)
+    if findings:
+        raise ValidationFailed("compliance ingest check failed: "
+                               + "; ".join(StageFailed(findings).failures[:10]))
+    return reg
+
+
 def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, seed: int,
               exclude_benchmark: Path | None = None) -> dict[str, Any]:
     if load_chunks(settings):
         raise ValidationFailed(f"{settings.chunks_dir} already has chunks; autochunk starts empty")
     mapping = read_yaml(map_path)["snapshots"]
     check_separation(settings, mapping, exclude_benchmark)
+    creg = _compliance_ingest(settings, mapping)
     pools: dict[str, dict[str, list[tuple[int, int]]]] = {
         "train": {}, "eval": {}, "train_off": {}, "eval_off": {}}
     keywords = [k.lower() for k in settings.domain().get("topic_keywords", [])]
@@ -123,6 +148,11 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
         text = snapshot_text(settings, snapshot_id)
         texts[snapshot_id] = text
         windows = [r for r in cut_ranges(text) if usable(text[r[0]:r[1]])]
+        if creg is not None:  # special categories are excluded for quarantining classes (C-I6)
+            from mobility_model_zoo.compliance.ingest import window_allowed
+
+            windows = [r for r in windows
+                       if window_allowed(creg, snapshot.origin_url, text[r[0]:r[1]])]
         on = [r for r in windows if keyword_hits(text[r[0]:r[1]], keywords) >= MIN_KEYWORD_HITS]
         pools[use][snapshot_id] = on
         pools[f"{use}_off"][snapshot_id] = [r for r in windows if r not in on]

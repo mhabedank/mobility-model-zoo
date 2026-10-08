@@ -385,13 +385,18 @@ def write_record(settings: Settings, version: str, recipe_file: str | None = Non
     recommended = (decision.get("teacher_fitness") or {}).get("recommended")
     ensemble = settings.teacher_scoring().teacher_ensemble
     teacher_ids = sorted(ensemble.members) if recommended == ensemble.model_id else [recommended]
+    from mobility_model_zoo.compliance.register import Register
+
+    compliance = Register.load(settings.base)
     teachers = []
     for model_id in teacher_ids:
         basis = settings.model(model_id).license_basis
         if not basis:
             raise ValidationFailed(f"no license_basis recorded for teacher {model_id}")
+        # From the provider route records (feature 006), not assumed: unclear or missing is False.
+        permitted = compliance.output_training_permitted(model_id)
         teachers.append({"model_id": model_id, "license_basis": basis,
-                         "training_on_outputs_permitted": True})
+                         "training_on_outputs_permitted": permitted})
     perf = _perf_file(settings, candidate["model_sha256"])
     if perf is None:
         raise ValidationFailed("the selected candidate has no perf file")

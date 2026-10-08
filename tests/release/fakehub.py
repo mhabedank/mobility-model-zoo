@@ -62,6 +62,9 @@ class FakeHub:
         r = self.repos.get(repo)
         return None if r is None else ("private" if r.private else "public")
 
+    def card_data(self, repo: str) -> dict | None:
+        return getattr(self, "cards", {}).get(repo)
+
     def create_repo(self, repo: str, private: bool) -> None:
         self._maybe_fail("create_repo")
         if repo in self.repos:

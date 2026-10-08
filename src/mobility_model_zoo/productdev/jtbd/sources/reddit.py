@@ -76,6 +76,21 @@ def flatten_thread(listing: list[dict[str, Any]]) -> str:
     return "\n".join(lines).strip()
 
 
+def _platform_terms_recorded(settings: Settings) -> None:
+    """Check C-I7 (feature 006): Reddit content may only be fetched once the platform terms of the
+    forum-review class are recorded with uses that allow it."""
+    from mobility_model_zoo.compliance.register import Register
+
+    reg = Register.load(settings.base)
+    terms = [c.get("platform_terms") for c in reg.records("source-classes")
+             if c["id"] == "forum-review"]
+    terms = [t for t in terms if t and "reddit" in str(t.get("url", "")).lower()]
+    allowed = bool(terms) and all(terms[0].get(k) == "allowed" for k in ("ml_use", "hosted_processing"))
+    if not allowed:
+        raise ValidationFailed("Reddit Data API terms are not recorded as allowing ML use and hosted "
+                               "processing for the forum-review class (check C-I7); not fetched")
+
+
 def fetch_thread(
     settings: Settings,
     thread_id: str,
@@ -86,6 +101,7 @@ def fetch_thread(
 ) -> dict[str, Any]:
     thread_id = thread_id.removeprefix("t3_")
     url = f"https://www.reddit.com/comments/{thread_id}"
+    _platform_terms_recorded(settings)
     user_agent = os.environ.get("REDDIT_USER_AGENT", "jtbd-pilot/0.1 (research)")
     with httpx.Client(timeout=60) as client:
         token = _token(client, user_agent)

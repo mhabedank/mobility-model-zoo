@@ -16,7 +16,7 @@ from mobility_model_zoo.release import publish as ops
 from mobility_model_zoo.release.errors import GateFailed, UsageError, ZooError
 from mobility_model_zoo.release.registry import Registry, parse_version
 
-OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14}
+OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 16}
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -64,6 +64,15 @@ def _runner() -> Any:
     return VenvRunner(Path.cwd(), os.environ.get(RELEASE_TOKEN))
 
 
+def _mount_compliance() -> None:
+    from mobility_model_zoo.compliance.cli import app as compliance_app
+
+    app.add_typer(compliance_app, name="compliance")
+
+
+_mount_compliance()
+
+
 @app.command("validate")
 def validate_cmd(
     model: str | None = typer.Argument(None), all_models: bool = typer.Option(False, "--all")
@@ -97,6 +106,14 @@ def validate_cmd(
                     Gate(reg, name, version, only=OFFLINE_RULES).run(say)
                 except GateFailed as e:
                     failures += [f"{name} {version}: {f}" for f in e.failures]
+        if all_models:
+            from mobility_model_zoo.compliance.checks import Context, stage_meta
+            from mobility_model_zoo.compliance.register import Register
+
+            findings = stage_meta(Context(Register.load(reg.root)))
+            failures += [f"compliance: {f.line()}" for f in findings]
+            if not findings:
+                say("compliance register: ok")
         if failures:
             raise GateFailed(failures)
 
