@@ -120,12 +120,79 @@ def stage_meta(ctx: Context) -> list[Finding]:
     return findings
 
 
+# ---- notices (C-N1, C-N2) and drift (C-N3) --------------------------------------------------
+
+
+def stage_notices(ctx: Context) -> list[Finding]:
+    from mobility_model_zoo.compliance.render import render_all
+
+    reg = ctx.reg
+    path = ctx.root / "PRIVACY.md"
+    if not path.exists():
+        return [Finding("C-N1", "notices", "PRIVACY.md", "-", "missing")]
+    text = path.read_text(encoding="utf-8")
+    findings = []
+    for rec in reg.records("recipients"):
+        if rec["route_id"] == "unregistered":
+            findings.append(
+                Finding(
+                    "C-N1",
+                    "notices",
+                    "compliance/recipients.yaml",
+                    rec["model_id"],
+                    f"recipient {rec['hosting_provider']} has no route record",
+                )
+            )
+        elif f"`{rec['route_id']}`" not in text:
+            findings.append(
+                Finding(
+                    "C-N1",
+                    "notices",
+                    "PRIVACY.md",
+                    rec["route_id"],
+                    "route from the labeling logs is not named",
+                )
+            )
+    for cls in reg.records("source-classes"):
+        if cls["retention_rule"] not in text:
+            findings.append(
+                Finding(
+                    "C-N2", "notices", "PRIVACY.md", cls["id"], "retention differs from the register"
+                )
+            )
+        if cls["description"] not in text:
+            findings.append(
+                Finding("C-N1", "notices", "PRIVACY.md", cls["id"], "source class not named")
+            )
+    if not findings:
+        rendered = render_all(reg)
+        if rendered.get("PRIVACY.md") != text:
+            findings.append(
+                Finding(
+                    "C-N2",
+                    "notices",
+                    "PRIVACY.md",
+                    "-",
+                    "differs from its rendering of the current register",
+                )
+            )
+    return findings
+
+
+def stage_drift(ctx: Context) -> list[Finding]:
+    from mobility_model_zoo.compliance.render import drift
+
+    return drift(ctx.reg)
+
+
 STAGES: dict[str, Stage] = {
     "meta": ("meta", stage_meta),
+    "notices": ("notices", stage_notices),
+    "drift": ("drift", stage_drift),
 }
 
 # Stages that need no data outside git; run in CI by `zoo compliance check --ci`.
-CI_STAGES = ["meta"]
+CI_STAGES = ["meta", "notices", "drift"]
 
 
 def stages_named(names: list[str]) -> list[Stage]:

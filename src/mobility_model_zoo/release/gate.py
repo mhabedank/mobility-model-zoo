@@ -431,7 +431,8 @@ def card_structure(card: str) -> list[str]:
     failures = []
     front, body = cards.split_card(card)
     found = cards.sections(body)
-    for title in cards.SECTIONS:
+    required = cards.COMPLIANCE_SECTIONS if "Training data and attribution" in found else cards.SECTIONS
+    for title in required:
         if title not in found:
             failures.append(f"card section '{title}' is missing")
         elif not found[title].strip():

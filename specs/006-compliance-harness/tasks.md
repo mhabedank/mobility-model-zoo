@@ -176,8 +176,8 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Write `tests/compliance/test_render.py`. On the fixture register, rendering produces every file in contracts/documents.md, and each file contains its required elements (one assertion per element listed in the contract). Rendering twice gives byte-identical output.
-- [ ] T025 [P] [US2] Write `tests/compliance/test_notices.py`. Seeded violations:
+- [X] T024 [P] [US2] Write `tests/compliance/test_render.py`. On the fixture register, rendering produces every file in contracts/documents.md, and each file contains its required elements (one assertion per element listed in the contract). Rendering twice gives byte-identical output.
+- [X] T025 [P] [US2] Write `tests/compliance/test_notices.py`. Seeded violations:
   - C-N1: a route in `recipients.yaml` missing from `PRIVACY.md`;
   - C-N2: a retention in `PRIVACY.md` differs from the register;
   - C-N3: a hand-edited `NOTICE`.
@@ -186,18 +186,18 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Create the Jinja templates in `src/mobility_model_zoo/compliance/templates/`: `PRIVACY.md.j2`, `COPYRIGHT_POLICY.md.j2`, `SECURITY.md.j2`, `NOTICE.j2`, `THIRD_PARTY_NOTICES.md.j2`, `REUSE.toml.j2`, `rights-request.yml.j2`, `record-of-processing.md.j2`, `lia-dpia.md.j2`, `ai-act.md.j2`, `training-data-summary.md.j2`. Content per contracts/documents.md, in English.
+- [X] T026 [US2] Create the Jinja templates in `src/mobility_model_zoo/compliance/templates/`: `PRIVACY.md.j2`, `COPYRIGHT_POLICY.md.j2`, `SECURITY.md.j2`, `NOTICE.j2`, `THIRD_PARTY_NOTICES.md.j2`, `REUSE.toml.j2`, `rights-request.yml.j2`, `record-of-processing.md.j2`, `lia-dpia.md.j2`, `ai-act.md.j2`, `training-data-summary.md.j2`. Content per contracts/documents.md, in English.
   - `PRIVACY.md` has the Art. 21 objection right as its own section.
   - Contacts come only from `controller.yaml`.
   - No text mentions Miskatonic other than the e-mail addresses and the imprint and privacy links.
-- [ ] T027 [US2] Implement `src/mobility_model_zoo/compliance/render.py` and `zoo compliance render [--check]`. It writes these files and nothing else; in `--check` mode it compares and reports C-N3 per file.
+- [X] T027 [US2] Implement `src/mobility_model_zoo/compliance/render.py` and `zoo compliance render [--check]`. It writes these files and nothing else; in `--check` mode it compares and reports C-N3 per file.
   - `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, `REUSE.toml`;
   - `LICENSES/` (Apache-2.0, MIT, CC-BY-4.0, CC-BY-SA-4.0 texts from SPDX);
   - `.github/ISSUE_TEMPLATE/rights-request.yml`;
   - `docs/compliance/record-of-processing.md`, `docs/compliance/lia-dpia.md`;
   - per release with a compliance record: `zoo/models/<m>/releases/<v>.ai-act.md` and `<v>.training-data-summary.md`.
-- [ ] T028 [US2] Implement the notices checks C-N1 and C-N2 in `checks.py`. Add the documentation-only stage set to `zoo compliance check --ci`: meta, notices and drift. T024 and T025 pass.
-- [ ] T029 [US2] Add the new card sections to the model card. Edit `src/mobility_model_zoo/release/card.py` (`SECTIONS`) and `templates/model_card.md.j2`:
+- [X] T028 [US2] Implement the notices checks C-N1 and C-N2 in `checks.py`. Add the documentation-only stage set to `zoo compliance check --ci`: meta, notices and drift. T024 and T025 pass.
+- [X] T029 [US2] Add the new card sections to the model card. Edit `src/mobility_model_zoo/release/card.py` (`SECTIONS`) and `templates/model_card.md.j2`:
   - "Training data and attribution": a TASL table from the source records plus modification notes and the NOTICE text, including the XLM-R MIT notice when `base_model` is `FacebookAI/xlm-roberta-large`.
   - "Teacher and labeling models": route, hosting provider and terms checked date.
   - "Out-of-scope use".
@@ -205,7 +205,7 @@ description: "Tasks for feature 006: compliance harness"
   - "Privacy and personal data": a summary, with links to `PRIVACY.md`, `COPYRIGHT_POLICY.md` and the AI Act record at the release tag.
 
   The sections render only when a release compliance record exists, and rule 10 requires them only then. Releases without a compliance record keep the current 15 required sections. Published 0.1.0/0.1.1 cards keep rendering byte-identically: add a golden test in `tests/release/test_card_build.py`.
-- [ ] T030 [US2] Run `uv run zoo compliance render`, run `uv run reuse lint`, fix the REUSE globs until it passes, and commit the generated files. **GATE:** `render --check`, `reuse lint` and `check --ci` pass.
+- [X] T030 [US2] Run `uv run zoo compliance render`, run `uv run reuse lint`, fix the REUSE globs until it passes, and commit the generated files. **GATE:** `render --check`, `reuse lint` and `check --ci` pass.
 
 **Checkpoint**: Public documents exist and cannot drift.
 

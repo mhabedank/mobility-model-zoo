@@ -165,8 +165,31 @@ def bootstrap_sources_cmd(
     _run(fn)
 
 
+@app.command("render")
+def render_cmd(
+    check: bool = typer.Option(False, "--check", help="Compare only; write nothing."),
+) -> None:
+    """Render the public compliance documents from the register."""
+
+    def fn() -> None:
+        from mobility_model_zoo.compliance import render
+        from mobility_model_zoo.compliance.findings import StageFailed
+
+        reg = load_register()
+        rendered = render.render_all(reg)
+        if check:
+            findings = render.drift(reg, rendered)
+            if findings:
+                raise StageFailed(findings)
+            say(f"render: {len(rendered)} documents up to date")
+            return
+        for rel in render.write_all(reg, rendered):
+            say(f"wrote {rel}")
+
+    _run(fn)
+
+
 for _name in (
-    "render",
     "retention",
     "delete",
     "scan-publish",
