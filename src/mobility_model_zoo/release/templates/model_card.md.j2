@@ -13,7 +13,7 @@
 
 {% for f in figures %}![{{ f.alt }}]({{ f.url }})
 
-{% endfor %}`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% endif %}
+{% endfor %}`{{ m.name }}` belongs to the topic **{{ topic.title }}** (`{{ m.topic }}`), task `{{ m.task }}`, variant `{{ m.variant }}`.{% if m.base_model %} Base model: [`{{ m.base_model }}`](https://huggingface.co/{{ m.base_model }}).{% elif mcu %} Trained from scratch.{% endif %}
 
 ## Intended use
 
@@ -36,11 +36,36 @@
 ```python
 {{ how_to_run }}
 ```
+{% if mcu %}
+
+On the device (C, int8 engine of the zoo):
+
+```c
+{{ device_usage }}
+```
+{% endif %}
 
 The tag `v{{ r.version }}` always points to this version. For strict reproducibility, pin the commit hash of that tag instead (`revision="<commit>"`).
 
 ## Examples
 
+{% if mcu %}
+{% for ex in device_examples %}
+### Example {{ loop.index }}: `{{ ex.name }}`
+
+Source: {{ ex.source }}. Input ({{ ex.n_in }} int8 values):
+
+```json
+{{ ex.input }}
+```
+
+Expected output (bit-exact on the host reference and on the device):
+
+```json
+{{ ex.expected }}
+```
+{% endfor %}
+{% endif %}
 {% for ex in examples %}
 ### Example {{ loop.index }}: `{{ ex.name }}`
 
@@ -59,7 +84,7 @@ Output:
 
 ## Quality
 
-These numbers are agreement with {{ r.evaluation.reference }}; they are not measured against human ground truth. Benchmark: `{{ r.evaluation.benchmark }}`.{% if quality.synthetic %} **Synthetic test numbers.**{% endif %}
+{% if ground_truth %}{{ ground_truth }} Reference: {{ r.evaluation.reference }}. Benchmark: `{{ r.evaluation.benchmark }}`.{% else %}These numbers are agreement with {{ r.evaluation.reference }}; they are not measured against human ground truth. Benchmark: `{{ r.evaluation.benchmark }}`.{% endif %}{% if quality.synthetic %} **Synthetic test numbers.**{% endif %}
 
 | Metric | Value | What it measures | Reference | Benchmark | Items | Date |
 |--------|-------|------------------|-----------|-----------|-------|------|
@@ -68,12 +93,21 @@ These numbers are agreement with {{ r.evaluation.reference }}; they are not meas
 
 ## Speed and memory
 
+{% if mcu %}
+Budget: {{ r.performance.budget.ram_kb | num }} KB RAM, {{ r.performance.budget.flash_kb | num }} KB flash on {{ r.performance.budget.target }}.{% if performance.synthetic %} **Synthetic test numbers.**{% endif %}
+
+| Metric | Value | Unit | What it measures | Measured on | Items | Date |
+|--------|-------|------|------------------|-------------|-------|------|
+{% for p in performance.metrics %}| `{{ p.name }}` | {{ p.value | num }} | {{ p.unit if p.unit is defined and p.unit else "" }} | {{ p.description }} | {{ p.hardware if p.hardware is defined else "" }}{% if p.origin is defined and p.origin %} ({{ origins[p.origin] }}){% endif %} | {{ p.n_items if p.n_items is defined else "" }} | {{ p.date }} |
+{% endfor %}
+{% else %}
 Budget: {{ r.performance.budget.ram_gb | num }} GB RAM, no GPU. Measured on: {{ r.performance.hardware }}.{% if performance.synthetic %} **Synthetic test numbers.**{% endif %}
 
 | Metric | Value | Unit | What it measures | Hardware | Items | Date |
 |--------|-------|------|------------------|----------|-------|------|
 {% for p in performance.metrics %}| `{{ p.name }}` | {{ p.value | num }} | {{ p.unit if p.unit is defined and p.unit else "" }} | {{ p.description }} | {{ p.hardware if p.hardware is defined else "" }} | {{ p.n_items if p.n_items is defined else "" }} | {{ p.date }} |
 {% endfor %}
+{% endif %}
 
 ## Limitations and risks
 
@@ -119,7 +153,14 @@ Owner decision {{ d.id }} ({{ d.date }}): {{ d.decision }}
 {% else %}
 ## Training data provenance
 
-{% if r.provenance.sources %}
+{% if datasets %}
+| Dataset | Provider | License | Attribution |
+|---------|----------|---------|-------------|
+{% for d in datasets %}| [{{ d.title | replace("|", "/") }}]({{ d.homepage }}) | {{ d.provider }} | {{ d.license }} | {{ d.attribution | replace("|", "/") }} |
+{% endfor %}
+
+The datasets are not redistributed with the model. Download them from the provider linked above; their licences and attribution apply to them (project constitution, Principle VI).
+{% elif r.provenance.sources %}
 | Source | License | Permitted use | Count |
 |--------|---------|---------------|-------|
 {% for s in r.provenance.sources %}| {{ s.origin }} | {{ s.license }} | {{ s.permitted_use }} | {{ s.count }} |
@@ -135,7 +176,9 @@ No training sources: {% if r.sandbox %}this is a synthetic pipeline test model.{
 {% endfor %}
 {% endif %}
 
+{% if not datasets %}
 The training data itself is not published. Datasets stay internal so that the people who wrote the source texts are protected and source terms are respected (project constitution, Principle VI); the model, the method, the prompts and the evaluation results are published.
+{% endif %}
 
 {% endif %}
 ## Training recipe

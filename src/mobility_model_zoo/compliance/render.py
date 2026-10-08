@@ -89,6 +89,10 @@ def _published_models(root: Path) -> list[tuple[str, str, dict[str, Any]]]:
             if rec_path.name.endswith(".compliance.yaml"):
                 continue
             rec = yaml.safe_load(rec_path.read_text(encoding="utf-8"))
+            staged = bool((rec.get("staging") or {}).get("revision"))
+            has_compliance = rec_path.with_name(f"{rec_path.stem}.compliance.yaml").exists()
+            if not (rec.get("published") or staged or has_compliance):
+                continue  # a draft that was never staged has no files and no training data yet
             out.append((model_dir.name, rec["version"], {"model": model, "record": rec}))
     return out
 

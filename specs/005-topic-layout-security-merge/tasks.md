@@ -310,8 +310,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tests for User Story 4
 
-- [ ] T055 [P] [US4] Extend `tests/release/fixtures/registry/` with an mcu fixture model `edge-fixture-tiny` (topic `sandbox`, `runtime: mcu`), plus an int8 npz from `edge.bench.reference_models`, three `examples/*.json` with `source: synthetic` and performance results with `origin`. Update `tests/release/fixtures/golden/` with its expected card.
-- [ ] T056 [P] [US4] Write `tests/release/test_edge_rules.py`:
+- [X] T055 [P] [US4] Extend `tests/release/fixtures/registry/` with an mcu fixture model `edge-fixture-tiny` (topic `sandbox`, `runtime: mcu`), plus an int8 npz from `edge.bench.reference_models`, three `examples/*.json` with `source: synthetic` and performance results with `origin`. Update `tests/release/fixtures/golden/` with its expected card.
+- [X] T056 [P] [US4] Write `tests/release/test_edge_rules.py`:
   - **Rule 1:** fails for an mcu model without `device_usage`; fails for a python model with empty `languages`.
   - **Rule 6:**
     - fails when a source `dataset` is undeclared;
@@ -323,7 +323,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Rules 12/13:** mcu examples must match bit-exactly on the host reference; one changed expected byte fails; an example whose `source` is a dataset with `redistribution: unclear` fails.
   - **Rule 15:** missing `flash_kb` fails; `status: stable` with only an emulator latency fails; `experimental` with an emulator latency passes.
   - **Regression:** `scout-large` and `sandbox-pipeline-tiny` fixtures still pass every rule.
-- [ ] T057 [P] [US4] Write `tests/release/test_card_mcu.py`. The mcu card renders:
+- [X] T057 [P] [US4] Write `tests/release/test_card_mcu.py`. The mcu card renders:
   - tags `tinyml`, `microcontroller` and the target name;
   - "How to run it" with the Python host snippet and a `c` block from `device_usage`;
   - "Budget: {ram_kb} KB RAM, {flash_kb} KB flash on {target}.";
@@ -334,7 +334,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Implementation for User Story 4
 
-- [ ] T058 [US4] Change `src/mobility_model_zoo/release/schemas/model.schema.json` per contracts/release-format.md:
+- [X] T058 [US4] Change `src/mobility_model_zoo/release/schemas/model.schema.json` per contracts/release-format.md:
   - `runtime` enum `python|mcu`, default `python`;
   - `languages` `minItems: 0`;
   - `base_model` and `base_model_license` nullable for all topics;
@@ -342,8 +342,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - figure path pattern (done in T014).
 
   Update the contract copy.
-- [ ] T059 [US4] Change `release-record.schema.json`: `performance.budget` becomes `oneOf` `{ram_gb>0, gpu: false}` | `{ram_kb>0, flash_kb>0, target}`; add `provenance.sources[].dataset` (optional, pattern `^[a-z0-9][a-z0-9-]*$`) and `evaluation.reference_kind` enum `model_consensus|ground_truth`. Change `results.schema.json`: add `metrics[].origin` enum `real_board|emulator|simulator|host`, and remove the "accuracy" name ban from the schema (it moves to rule 10). Update the contract copies. Published records must validate unchanged; check with a test over `zoo/models/*/releases/*.yaml`.
-- [ ] T060 [US4] Update `src/mobility_model_zoo/release/gate.py`:
+- [X] T059 [US4] Change `release-record.schema.json`: `performance.budget` becomes `oneOf` `{ram_gb>0, gpu: false}` | `{ram_kb>0, flash_kb>0, target}`; add `provenance.sources[].dataset` (optional, pattern `^[a-z0-9][a-z0-9-]*$`) and `evaluation.reference_kind` enum `model_consensus|ground_truth`. Change `results.schema.json`: add `metrics[].origin` enum `real_board|emulator|simulator|host`, and remove the "accuracy" name ban from the schema (it moves to rule 10). Update the contract copies. Published records must validate unchanged; check with a test over `zoo/models/*/releases/*.yaml`.
+- [X] T060 [US4] Update `src/mobility_model_zoo/release/gate.py`:
   - **Rule 1:** the conditional checks.
   - **Rule 6:** dataset declarations and share-alike/NC checks via `mobility_model_zoo.datasets`.
   - **Rule 10:** the quality sentence depends on `reference_kind`; constant `GROUND_TRUTH` next to `AGREEMENT`.
@@ -352,25 +352,25 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Rule 2:** keep, with the topic pattern from T016.
 
   T056 passes.
-- [ ] T061 [US4] Update `src/mobility_model_zoo/release/templates/model_card.md.j2` and `card.py` per contracts/release-format.md "Model card template". Keep the python path byte-identical (T057). `publish.py` `_record_template` (`:73-96`) writes the mcu budget shape when `runtime: mcu`. `forbidden_upload` keeps rejecting `data/`, and also rejects `*.eval.npz`.
-- [ ] T062 [US4] Implement `edge measure MODEL.npz -b BOARD --out FILE.json` in `src/mobility_model_zoo/edge/bench/cli.py`. It runs the performance suite for one model and writes performance metrics `latency_us`, `latency_p99_us`, `flash_kb`, `ram_kb`, `arena_bytes` in `results.schema.json` format, with `hardware` from the board inventory and `origin` from the board kind: `native` → `simulator`, qemu flasher → `emulator`, otherwise `real_board`. Test in `tests/edge/bench/test_measure.py` against the simulator.
-- [ ] T063 [US4] Update CI in `.github/workflows/ci.yml`:
+- [X] T061 [US4] Update `src/mobility_model_zoo/release/templates/model_card.md.j2` and `card.py` per contracts/release-format.md "Model card template". Keep the python path byte-identical (T057). `publish.py` `_record_template` (`:73-96`) writes the mcu budget shape when `runtime: mcu`. `forbidden_upload` keeps rejecting `data/`, and also rejects `*.eval.npz`.
+- [X] T062 [US4] Implement `edge measure MODEL.npz -b BOARD --out FILE.json` in `src/mobility_model_zoo/edge/bench/cli.py`. It runs the performance suite for one model and writes performance metrics `latency_us`, `latency_p99_us`, `flash_kb`, `ram_kb`, `arena_bytes` in `results.schema.json` format, with `hardware` from the board inventory and `origin` from the board kind: `native` → `simulator`, qemu flasher → `emulator`, otherwise `real_board`. Test in `tests/edge/bench/test_measure.py` against the simulator.
+- [X] T063 [US4] Update CI in `.github/workflows/ci.yml`:
   - Job `test`: `uv sync --extra jtbd --extra release --extra edge` (no `--all-extras`, so no TensorFlow), then ruff, pytest, `zoo validate --all`.
   - New job `edge-sim`: `uv run edge build -t native && uv run pytest -m hil --hil-board sim -q`.
   - New job `edge-qemu`: Espressif QEMU `esp-develop-9.2.2-20250817` from GitHub releases (cached), ESP32 firmware build via PlatformIO, `uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick`. Port from volta `.github/workflows/ci.yml`, recovered with `git show origin/claude/cool-volta-rqsgdx:.github/workflows/ci.yml`.
-- [ ] T064 [US4] Create `.github/workflows/firmware.yml`:
+- [X] T064 [US4] Create `.github/workflows/firmware.yml`:
   - **Triggers:** push and pull_request with paths `firmware/**`, `hil/**`, `src/mobility_model_zoo/edge/**`; plus `workflow_dispatch`.
   - **Bench matrix:** the 11 bench targets (`esp8266, esp8266_160mhz, esp32, esp32s3, esp32s3_usb, esp32c3, esp32c3_usb, rp2040, rp2350, stm32f446, nrf52840`), each running `uv run edge build -t <target>`, plus a summary job with RAM and flash per target. Port from volta.
   - **`picket-forest` host check:** a gcc `-Werror` build of `firmware/components/can_features` and `firmware/picket-forest/c` against host scores computed in the job. Port from goldberg `.github/workflows/ci.yml` (recover with `git show`).
-- [ ] T065 [US4] Create `.github/workflows/hil.yml`, ported from volta:
+- [X] T065 [US4] Create `.github/workflows/hil.yml`, ported from volta:
   - **Triggers:** `workflow_dispatch` (inputs `boards`, `quick`) and cron `17 2 * * *`.
   - **Runner:** `runs-on: [self-hosted, hil]`, with `if: vars.HIL_RUNNER_ENABLED == 'true'`, so without the variable the job is skipped (US4 scenario 4).
   - **Settings:** timeout 120 min; concurrency group `hil-bench`.
-- [ ] T066 [US4] Render the mcu card of the fixture model `edge-fixture-tiny` through the card renderer used by `tests/release/test_card_mcu.py`, and attach the output to `validation.md` under "US4". `zoo build` cannot be used here: it runs the full gate and downloads staged files.
+- [X] T066 [US4] Render the mcu card of the fixture model `edge-fixture-tiny` through the card renderer used by `tests/release/test_card_mcu.py`, and attach the output to `validation.md` under "US4". `zoo build` cannot be used here: it runs the full gate and downloads staged files.
 
 ### Models (registered here, because they need the US4 schema changes)
 
-- [ ] T067 [US4] Register the four models in `zoo/models/<name>/model.yaml` per data-model.md table "Model":
+- [X] T067 [US4] Register the four models in `zoo/models/<name>/model.yaml` per data-model.md table "Model":
   - **`picket-forest`:** security, can-ids, `runtime: mcu`, Apache-2.0, `library_name: sklearn`, `pipeline_tag: tabular-classification`, `languages: []`, `base_model: null`.
   - **`picket-mlp`:** security, can-ids, mcu, Apache-2.0, `litert`, `tabular-classification`.
   - **`hum-fan`:** condition-monitoring, sound-anomaly, mcu, CC-BY-SA-4.0, `license_exception: "trained on MIMII (CC BY-SA 4.0); share-alike applies to the weights"`, `litert`, `audio-classification`.
@@ -385,17 +385,17 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
     - limitations taken from the research cards.
 
  
-- [ ] T068 [US4] Create draft `zoo/models/<name>/releases/0.1.0.yaml` for the four models:
+- [X] T068 [US4] Create draft `zoo/models/<name>/releases/0.1.0.yaml` for the four models:
   - `status: experimental`, `change_type: initial`, `files: []`, `staging: null`, `published: null`;
   - `recipe` pointing at the task config and recipe document at the current commit;
   - `provenance.sources` with `dataset:` ids from data-model.md and `permitted_use: training_allowed`; teachers `[]`; `spike_data: false`;
   - `evaluation{benchmark: can-ids-v1|mimii-fan-v1|uci-har-v1, reference_kind: ground_truth}`;
   - `performance.budget{ram_kb, flash_kb, target: ESP32-S3}` from the task budgets.
-- [ ] T069 [US4] Move the research results to reports, not zoo results:
+- [X] T069 [US4] Move the research results to reports, not zoo results:
   - `topics/security/reports/picket-forest/` keeps goldberg `config.json`, `protocol_results.json` and the QEMU json files.
   - `topics/security/reports/picket-mlp/research-report.json` and `topics/condition-monitoring/reports/{hum-fan,pace-cnn}/research-report.json` hold the volta `*.report.json` contents, recovered with `git -C /tmp/msml show origin/claude/cool-volta-rqsgdx:models/zoo/<old>.report.json`.
   - Each folder gets a `README.md` that starts with "Pre-zoo research result: not a benchmark result". It says the result must not pass or fail a gate, set a threshold or appear in a model card, and that the weights are not in the zoo (research R4, R8).
-- [ ] T070 [US4] Run `uv run zoo index` (regenerates `zoo/MODELS.md` with the two new topics) and `for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done`. Record each failure list under "US2" in `validation.md`. **GATE**: every model exits 2 with only "files not staged", "results missing" and "no real-board latency"; no schema error (SC-004).
+- [X] T070 [US4] Run `uv run zoo index` (regenerates `zoo/MODELS.md` with the two new topics) and `for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done`. Record each failure list under "US2" in `validation.md`. **GATE**: every model exits 2 with only "files not staged", "results missing" and "no real-board latency"; no schema error (SC-004).
 
 **Checkpoint**: Edge models are releasable through the zoo pipeline, and the four models are registered.
 

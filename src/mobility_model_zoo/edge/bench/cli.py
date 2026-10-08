@@ -13,6 +13,7 @@
   edge report RUN_DIR            re-render summary.md / compare to a baseline
   edge zoo                       rebuild the reference model zoo + firmware sources
   edge import-tflite M.tflite    add your own int8 TFLite model to all boards
+  edge measure M.npz -b BOARD --out F.json   latency/size of one int8 model (zoo results format)
 
 Datasets: `zoo data`; training: the topic tools (`security`, `condmon`); publishing: `zoo`.
 """
@@ -407,6 +408,36 @@ def cmd_import_tflite(args):
     return 0
 
 
+def cmd_measure(args):
+    from .measure import MeasureError, MeasureOptions, ModelMissing, measure
+
+    lab = _lab(args)
+    board = lab.board(args.board)
+    opts = MeasureOptions(
+        n=args.n,
+        warmup=args.warmup,
+        batch=args.batch,
+        model_name=args.model_name,
+        version=args.model_version,
+        synthetic=args.synthetic,
+    )
+    try:
+        result = measure(lab, board, Path(args.model), opts, log=lambda m: print(m, file=sys.stderr))
+    except MeasureError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    except ModelMissing as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    text = json.dumps(result, indent=2) + "\n"
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text)
+    for m in result["metrics"]:
+        print(f"  {m['name']:16s} {m['value']:>12} {m['unit']:5s} ({m['origin']})", file=sys.stderr)
+    print(f"wrote {out}", file=sys.stderr)
+    return 0
+
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
@@ -493,6 +524,19 @@ def main(argv=None):
     )
     p.set_defaults(fn=cmd_import_tflite)
 
+    p = sub.add_parser("measure", help="measure one int8 model on one board (zoo results JSON)")
+    p.add_argument("model", help="QModel .npz")
+    p.add_argument("-b", "--board", required=True)
+    p.add_argument("--out", required=True, help="results JSON to write")
+    p.add_argument("-n", type=int, default=100, help="latency samples (default 100)")
+    p.add_argument("--warmup", type=int, default=3, help="untimed warm-up inferences")
+    p.add_argument(
+        "--batch", type=int, help="inferences per sample (default: 1, more for sub-20 us models)"
+    )
+    p.add_argument("--model-name", help="zoo model name in the results file (default: QModel name)")
+    p.add_argument("--model-version", help="version in the results file (default: meta or 0.0.0)")
+    p.add_argument("--synthetic", action="store_true", help="mark the results as synthetic")
+    p.set_defaults(fn=cmd_measure)
 
     args = ap.parse_args(argv)
     try:

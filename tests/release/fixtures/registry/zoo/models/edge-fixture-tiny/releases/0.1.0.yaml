@@ -1,0 +1,37 @@
+model: edge-fixture-tiny
+version: 0.1.0
+date: 2026-10-08
+status: experimental
+change_type: initial
+changes: First test release.
+output_format_version: edge-v1
+sandbox: true
+files:
+- path: model.npz
+  sha256: 0000000000000000000000000000000000000000000000000000000000000000
+  size_bytes: 1
+staging:
+  repo: mobility-model-zoo/edge-fixture-tiny-staging
+  revision: 0000000000000000000000000000000000000000
+recipe:
+  git_commit: 0000000000000000000000000000000000000000
+  config: src/mobility_model_zoo/sandbox/build_test_model.py
+  doc: docs/adding-a-model.md
+provenance:
+  sources: []
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: synthetic
+  reference: synthetic labels (test numbers)
+  reference_kind: ground_truth
+  results: results/0.1.0/quality.json
+performance:
+  hardware: host simulator and QEMU (test numbers)
+  budget:
+    ram_kb: 16
+    flash_kb: 64
+    target: ESP32-S3
+  results: results/0.1.0/performance.json
+published: null
+deprecated: null

@@ -1,0 +1,39 @@
+model: hum-fan
+version: 0.1.0
+date: 2026-10-08
+status: experimental
+change_type: initial
+changes: 'Draft of the first release (feature 005): registered, not trained on the frozen benchmark yet.'
+output_format_version: hum-fan-v1
+sandbox: false
+files: []
+staging:
+  repo: mobility-model-zoo/hum-fan-staging
+  revision: ''
+recipe:
+  git_commit: 9a6ad6e347ec1ef72efcccca2be4192fea7d8017
+  config: configs/condition-monitoring/sound-anomaly/hum-fan.yaml
+  doc: topics/condition-monitoring/tasks/sound-anomaly.md
+provenance:
+  sources:
+  - origin: dataset mimii (topics/*/compliance/datasets.yaml)
+    license: CC-BY-SA-4.0
+    permitted_use: training_allowed
+    count: 0
+    dataset: mimii
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: mimii-fan-v1
+  reference: labels of the mimii dataset
+  reference_kind: ground_truth
+  results: results/0.1.0/quality.json
+performance:
+  hardware: ESP32-S3 (HIL bench)
+  budget:
+    ram_kb: 64
+    flash_kb: 256
+    target: ESP32-S3
+  results: results/0.1.0/performance.json
+published: null
+deprecated: null

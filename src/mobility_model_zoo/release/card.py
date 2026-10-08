@@ -18,6 +18,11 @@ import yaml
 
 from mobility_model_zoo.release.registry import ORG, Registry, parse_version
 
+GROUND_TRUTH = (
+    "Quality is measured against the labels of the datasets named below, on test data not used for "
+    "training."
+)
+
 REPO_URL = "https://github.com/mhabedank/mobility-model-zoo"
 SECTIONS = (
     "Summary",
@@ -43,6 +48,8 @@ COMPLIANCE_SECTIONS = tuple(t for t in SECTIONS if t != "Training data provenanc
     "Privacy and personal data",
 )
 HISTORY_METRICS = 3
+MISSING_BUDGET = {"ram_kb": 0, "flash_kb": 0, "target": "(budget missing)"}
+ORIGINS = {"real_board": "real board", "emulator": "emulator", "simulator": "simulator", "host": "host"}
 NO_OUTPUT = "(produced by the release gate from the staged model)"
 
 BANNERS = {
@@ -85,8 +92,10 @@ def figure_urls(model: dict[str, Any], version: str) -> list[dict[str, str]]:
     """Figures linked at the release tag on GitHub, so a published card's images never change."""
     raw = REPO_URL.replace("https://github.com/", "https://raw.githubusercontent.com/")
     tag = f"{model['name']}/v{version}"
-    return [{"alt": f["alt"], "url": f"{raw}/refs/tags/{tag}/{f['path']}"}
-            for f in model["card"].get("figures", [])]
+    return [
+        {"alt": f["alt"], "url": f"{raw}/refs/tags/{tag}/{f['path']}"}
+        for f in model["card"].get("figures", [])
+    ]
 
 
 def model_at_tag(reg: Registry, name: str, version: str) -> dict[str, Any] | None:
@@ -97,8 +106,12 @@ def model_at_tag(reg: Registry, name: str, version: str) -> dict[str, Any] | Non
     import subprocess
 
     rel = f"zoo/models/{name}/model.yaml"
-    out = subprocess.run(["git", "-C", str(reg.root), "show", f"{name}/v{version}:{rel}"],
-                         capture_output=True, text=True, check=False)
+    out = subprocess.run(
+        ["git", "-C", str(reg.root), "show", f"{name}/v{version}:{rel}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     if out.returncode != 0:
         return None
     return yaml.safe_load(out.stdout)
@@ -123,6 +136,9 @@ def _banner(model: dict[str, Any], record: dict[str, Any], deprecated_banner: bo
 
 def front_matter(model: dict[str, Any], record: dict[str, Any], quality: dict[str, Any]) -> str:
     tags = ["mobility", "mobility-model-zoo", model["topic"], model["task"], record["status"]]
+    if Registry.runtime(model) == "mcu":
+        target = record["performance"]["budget"].get("target")
+        tags += ["tinyml", "microcontroller"] + ([target] if target else [])
     for tag in model.get("tags", []):
         if tag not in tags:
             tags.append(tag)
@@ -177,6 +193,50 @@ def _history(reg: Registry, name: str, version: str, record: dict[str, Any], qua
     return {"metric_names": metric_names, "rows": rows}
 
 
+def device_examples(reg: Registry, name: str) -> list[dict[str, Any]]:
+    """Examples of an mcu model for the card: compact JSON of input and expected output."""
+    out = []
+    for n, ex in reg.device_examples(name):
+        out.append(
+            {
+                "name": n,
+                "source": ex.get("source", ""),
+                "n_in": len(ex.get("input", [])),
+                "input": json.dumps(ex.get("input", [])),
+                "expected": json.dumps(ex.get("expected", [])),
+            }
+        )
+    return out
+
+
+def dataset_rows(reg: Registry, record: dict[str, Any]) -> list[dict[str, Any]]:
+    """Provenance rows for sources with a dataset declaration (feature 005)."""
+    ids = [s["dataset"] for s in record["provenance"]["sources"] if s.get("dataset")]
+    if not ids:
+        return []
+    from mobility_model_zoo.datasets.registry import load
+
+    declared = load(reg.zoo.parent)
+    rows = []
+    for ds in ids:
+        d = declared.get(ds)
+        if d is None:  # rule 6 reports it; the card shows the id
+            rows.append(
+                {"title": ds, "homepage": "", "provider": "?", "license": "?", "attribution": ""}
+            )
+            continue
+        rows.append(
+            {
+                "title": d.title,
+                "homepage": d.homepage,
+                "provider": d.provider,
+                "license": d.license,
+                "attribution": d.attribution,
+            }
+        )
+    return rows
+
+
 def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any] | None:
     """Card data from the compliance register, or None if the release has no compliance record."""
     from mobility_model_zoo.compliance.register import Register
@@ -209,7 +269,8 @@ def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any]
         "security": model["topic"] in lint.get("security_topics", []),
         # Only decisions about the labeling routes belong in the card's teacher section.
         "decisions": [
-            d for d in (creg.decision(i) for i in rc.get("decisions", []))
+            d
+            for d in (creg.decision(i) for i in rc.get("decisions", []))
             if d and any(str(s).startswith("compliance/providers.yaml#") for s in d.get("scope", []))
         ],
         "controller": creg.controller(),
@@ -236,7 +297,11 @@ def render(inp: CardInput) -> str:
     topic = reg.topic(model["topic"]) or {"id": model["topic"], "title": model["topic"]}
     quality = reg.results(name, version, "quality")
     performance = reg.results(name, version, "performance")
-    examples = reg.examples(name)
+    mcu = Registry.runtime(model) == "mcu"
+    if mcu and "ram_kb" not in record["performance"]["budget"]:
+        # rule 1 reports the wrong budget shape; render the rest of the card anyway
+        record = {**record, "performance": {**record["performance"], "budget": MISSING_BUDGET}}
+    examples = [] if mcu else reg.examples(name)
     outputs = inp.example_outputs or {}
     first_text = examples[0][1] if examples else ""
 
@@ -273,6 +338,16 @@ def render(inp: CardInput) -> str:
         ],
         quality=quality,
         performance=performance,
+        mcu=mcu,
+        device_usage=fill(
+            model["card"].get("device_usage", ""), model["repos"]["public"], f"v{version}", ""
+        ).strip(),
+        device_examples=device_examples(reg, name) if mcu else [],
+        datasets=dataset_rows(reg, record),
+        ground_truth=GROUND_TRUTH
+        if record["evaluation"].get("reference_kind") == "ground_truth"
+        else "",
+        origins=ORIGINS,
         history=_history(reg, name, version, record, quality),
         c=compliance_context(reg, name, version),
         repo_url=REPO_URL,

@@ -197,3 +197,15 @@ class Registry:
         if not base.exists():
             return []
         return [(p.name, p.read_text(encoding="utf-8")) for p in sorted(base.glob("*.txt"))]
+
+    def device_examples(self, name: str) -> list[tuple[str, dict[str, Any]]]:
+        """Examples of an mcu model: `examples/*.json` with `input` (int8 vector), `expected`
+        (output vector) and `source` (`synthetic` or a dataset id), contracts/release-format.md."""
+        base = self.model_dir(name) / "examples"
+        if not base.exists():
+            return []
+        return [(p.name, json.loads(p.read_text(encoding="utf-8"))) for p in sorted(base.glob("*.json"))]
+
+    @staticmethod
+    def runtime(model: dict[str, Any]) -> str:
+        return model.get("runtime") or "python"

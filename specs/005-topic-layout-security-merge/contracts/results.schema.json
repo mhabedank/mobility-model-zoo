@@ -3,39 +3,172 @@
   "$id": "results.schema.json",
   "title": "Results file (zoo/models/<name>/results/<version>/{quality,performance}.json)",
   "type": "object",
-  "required": ["kind", "model", "version", "synthetic", "metrics"],
+  "required": [
+    "kind",
+    "model",
+    "version",
+    "synthetic",
+    "metrics"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": {"enum": ["quality", "performance"]},
-    "model": {"type": "string"},
-    "version": {"type": "string"},
-    "synthetic": {"type": "boolean", "description": "true only for sandbox models (gate refuses otherwise)"},
-    "source_run": {"type": ["string", "null"], "description": "Run id or report path the numbers were copied from"},
+    "kind": {
+      "enum": [
+        "quality",
+        "performance"
+      ]
+    },
+    "model": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "synthetic": {
+      "type": "boolean",
+      "description": "true only for sandbox models (gate refuses otherwise)"
+    },
+    "source_run": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Run id or report path the numbers were copied from"
+    },
     "metrics": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["name", "value", "description", "date"],
+        "required": [
+          "name",
+          "value",
+          "description",
+          "date"
+        ],
         "additionalProperties": false,
         "properties": {
-          "name": {"type": "string", "pattern": "^(?!.*accuracy)[a-z0-9_]+$"},
-          "value": {"type": "number"},
-          "unit": {"type": ["string", "null"]},
-          "description": {"type": "string", "minLength": 1},
-          "reference": {"type": ["string", "null"], "description": "Required for quality metrics"},
-          "benchmark": {"type": ["string", "null"], "description": "Required for quality metrics"},
-          "n_items": {"type": ["integer", "null"], "minimum": 1},
-          "hardware": {"type": ["string", "null"], "description": "Required for performance metrics"},
-          "date": {"type": "string", "format": "date"}
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "description": "'accuracy' only for ground-truth evaluations (gate rule 10)"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Required for quality metrics"
+          },
+          "benchmark": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Required for quality metrics"
+          },
+          "n_items": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "hardware": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Required for performance metrics"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "origin": {
+            "enum": [
+              "real_board",
+              "emulator",
+              "simulator",
+              "host"
+            ],
+            "description": "where a performance number was measured (edge models)"
+          }
         }
       }
     }
   },
   "allOf": [
-    {"if": {"properties": {"kind": {"const": "quality"}}},
-     "then": {"properties": {"metrics": {"items": {"required": ["reference", "benchmark", "n_items"],
-       "properties": {"reference": {"type": "string"}, "benchmark": {"type": "string"}, "n_items": {"type": "integer"}}}}}}},
-    {"if": {"properties": {"kind": {"const": "performance"}}},
-     "then": {"properties": {"metrics": {"items": {"required": ["hardware"], "properties": {"hardware": {"type": "string"}}}}}}}
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "quality"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metrics": {
+            "items": {
+              "required": [
+                "reference",
+                "benchmark",
+                "n_items"
+              ],
+              "properties": {
+                "reference": {
+                  "type": "string"
+                },
+                "benchmark": {
+                  "type": "string"
+                },
+                "n_items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "performance"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metrics": {
+            "items": {
+              "required": [
+                "hardware"
+              ],
+              "properties": {
+                "hardware": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 }

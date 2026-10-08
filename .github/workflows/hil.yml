@@ -1,0 +1,55 @@
+# Runs the HIL suite on real boards. Needs a self-hosted runner on the machine the boards are
+# plugged into, registered with the label "hil", and the repository variable HIL_RUNNER_ENABLED=true.
+name: hil
+
+on:
+  workflow_dispatch:
+    inputs:
+      boards:
+        description: "board ids (space separated, empty = all connected)"
+        required: false
+        default: ""
+      quick:
+        description: "smoke run"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "17 2 * * *"   # nightly
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hil-bench          # one run at a time on the physical bench
+  cancel-in-progress: false
+
+jobs:
+  hil:
+    if: vars.HIL_RUNNER_ENABLED == 'true'
+    runs-on: [self-hosted, hil]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      # edge-hw: PlatformIO, esptool and pytest-xdist (--parallel)
+      - run: uv sync --extra edge --extra edge-hw
+      - name: Inventory
+        run: uv run edge list
+      - name: Build, flash and test
+        env:
+          BOARDS: ${{ inputs.boards }}
+          QUICK: ${{ inputs.quick }}
+        run: |
+          ARGS="--parallel --slow --results results/hil --junit results/hil/junit.xml"
+          for b in $BOARDS; do ARGS="$ARGS -b $b"; done
+          if [ "$QUICK" = "true" ]; then ARGS="$ARGS --quick"; fi
+          if [ -f hil/baseline.json ]; then ARGS="$ARGS --baseline hil/baseline.json"; fi
+          uv run edge run $ARGS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hil-results
+          path: results/hil
+          if-no-files-found: ignore

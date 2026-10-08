@@ -1,0 +1,46 @@
+name: edge-fixture-tiny
+topic: sandbox
+task: pipeline
+variant: tiny
+runtime: mcu
+title: Edge pipeline test model (tiny)
+summary: A tiny deterministic int8 model. It exists only to test the release pipeline for microcontroller models and is never public.
+license: Apache-2.0
+license_exception: null
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: tabular-classification
+library_name: litert
+tags: [pipeline-test]
+repos:
+  public: mobility-model-zoo/edge-fixture-tiny
+  staging: mobility-model-zoo/edge-fixture-tiny-staging
+card:
+  intended_use: Testing the release pipeline of the mobility model zoo for microcontroller models.
+  out_of_scope: Any real use. The model has random weights and its outputs mean nothing.
+  input_output: "Input: 8 int8 values. Output: 2 int8 scores."
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.edge.int8.model import QModel
+    from mobility_model_zoo.edge.int8.reference import run_model
+
+    model = QModel.load(hf_hub_download("{repo_id}", "model.npz", revision="{revision}"))
+    print(run_model(model, [0, 1, 2, 3, 4, 5, 6, 7]).tolist())
+  device_usage: |
+    /* Sources generated from {repo_id} at {revision}: `uv run edge build`. */
+    #include "model_zoo.h"
+
+    static int8_t arena[MI_ZOO_ARENA_SIZE];
+    int8_t in[8] = {0, 1, 2, 3, 4, 5, 6, 7}, out[2];
+    mi_invoke(&mi_model_edge_fixture_tiny, in, out, arena, sizeof arena);
+  limitations: Random weights. The outputs are deterministic but meaningless.
+  citation: |
+    @misc{mobility-model-zoo,
+      title  = {mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo}
+    }

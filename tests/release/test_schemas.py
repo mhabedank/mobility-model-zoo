@@ -53,5 +53,6 @@ def test_patterns_from_the_data_model(zoo_env):
     assert not _invalid(
         "model", model, lambda d: d.update(license="MIT", license_exception="base model is MIT")
     )
-    assert _invalid("results", quality, lambda d: d["metrics"][0].update(name="span_accuracy"))
+    # the "accuracy" ban moved to gate rule 10 (model_consensus only), feature 005
+    assert not _invalid("results", quality, lambda d: d["metrics"][0].update(name="span_accuracy"))
     assert _invalid("model", model, lambda d: d["card"].update(how_to_run="print('no placeholders')"))
