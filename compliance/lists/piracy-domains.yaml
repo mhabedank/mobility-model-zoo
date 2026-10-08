@@ -1,0 +1,4 @@
+# Shadow libraries and other sources of infringing copies; never fetched (GPAI Code of Practice,
+# copyright chapter). Suffix match on the hostname. Source: widely reported shadow-library domains.
+domains: [libgen.is, libgen.rs, libgen.li, libgen.st, sci-hub.se, sci-hub.ru, sci-hub.st, z-lib.org,
+  z-library.sk, singlelogin.re, annas-archive.org, annas-archive.se, b-ok.cc, pdfdrive.com, 1lib.sk]

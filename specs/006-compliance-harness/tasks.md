@@ -22,9 +22,9 @@ description: "Tasks for feature 006: compliance harness"
 
 ## Phase 1: Setup
 
-- [ ] T001 Record the baseline in `specs/006-compliance-harness/validation.md` under "Baseline": run `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --offline pytest -q` and `uv run zoo validate --all` and write down the counts and runtime.
-- [ ] T002 Add `reuse` to the dev group in `pyproject.toml`. Add `[project.optional-dependencies] labeling-api = ["anthropic>=0.69"]`. Add `src/mobility_model_zoo/compliance/schemas/*.json` and `templates/*` as package data if hatchling does not include them. Run `uv lock` and check that the base dependencies are unchanged.
-- [ ] T003 [P] Add `MMZ_SUPPRESSION_KEY=` with a comment ("random secret for HMAC hashes of request identifiers; never commit") to `.env.example`. Add `/data/compliance/` to `.gitignore` (already covered by `data/`; verify with `git check-ignore`).
+- [X] T001 Record the baseline in `specs/006-compliance-harness/validation.md` under "Baseline": run `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --offline pytest -q` and `uv run zoo validate --all` and write down the counts and runtime.
+- [X] T002 Add `reuse` to the dev group in `pyproject.toml`. Add `[project.optional-dependencies] labeling-api = ["anthropic>=0.69"]`. Add `src/mobility_model_zoo/compliance/schemas/*.json` and `templates/*` as package data if hatchling does not include them. Run `uv lock` and check that the base dependencies are unchanged.
+- [X] T003 [P] Add `MMZ_SUPPRESSION_KEY=` with a comment ("random secret for HMAC hashes of request identifiers; never commit") to `.env.example`. Add `/data/compliance/` to `.gitignore` (already covered by `data/`; verify with `git check-ignore`).
 
 ---
 
@@ -32,19 +32,19 @@ description: "Tasks for feature 006: compliance harness"
 
 **Purpose**: The compliance package skeleton that every story uses. **No story work starts before this phase is complete.**
 
-- [ ] T004 Create `src/mobility_model_zoo/compliance/__init__.py` and `findings.py`:
+- [X] T004 Create `src/mobility_model_zoo/compliance/__init__.py` and `findings.py`:
   - `Finding(check_id, stage, record, field, reason)`.
   - `StageFailed(findings)`, which maps to exit code 2.
   - `run_stages(stages, ctx)`: runs stages in order and stops at the first stage with findings (fail closed, FR-006).
   - `Unknown` handling: the value `"unknown"` is valid only with a sibling `unknown_checked_at` date, and it fails any check that needs the value unless `register.waiver_for(check_id, record)` returns an unexpired waiver.
-- [ ] T005 Create `src/mobility_model_zoo/compliance/register.py`. It loads:
+- [X] T005 Create `src/mobility_model_zoo/compliance/register.py`. It loads:
   - `compliance/*.yaml`;
   - `topics/*/compliance/*.yaml`;
   - `zoo/models/*/releases/*.compliance.yaml`.
 
   Every file is validated against the schema with the same stem in `compliance/schemas/`. Lookups: `source(id)`, `sources_for(model, version)`, `route(id)`, `routes_for_run(run_dir)`, `decision(id)`, `waiver_for(check, record)`, `controller()`. Every record requires `owner`, `last_reviewed` and `next_review` (ISO dates); a missing field is a finding of check C-M1.
-- [ ] T006 Create `src/mobility_model_zoo/compliance/cli.py` (Typer app `compliance`) and mount it in `src/mobility_model_zoo/release/cli.py` as `zoo compliance`. Implement `check [--ci] [--stage S] [--model M --version V]`, with the other commands from contracts/cli.md as stubs that exit 1 "not implemented". Exit codes follow the `zoo` convention. Output lines read `stage / record / field / reason`.
-- [ ] T007 [P] Write `tests/compliance/conftest.py`. It has a fixture `register_tree(tmp_path)` that builds a minimal valid register (controller, one source class, one source, one route, one decision) in a temporary repository layout, and a helper `seed(path, key, value)` for violations. Also write `tests/compliance/test_findings.py`: the runner stops after the first failing stage; `unknown` without a date fails; `unknown` with a valid waiver passes; an expired waiver fails.
+- [X] T006 Create `src/mobility_model_zoo/compliance/cli.py` (Typer app `compliance`) and mount it in `src/mobility_model_zoo/release/cli.py` as `zoo compliance`. Implement `check [--ci] [--stage S] [--model M --version V]`, with the other commands from contracts/cli.md as stubs that exit 1 "not implemented". Exit codes follow the `zoo` convention. Output lines read `stage / record / field / reason`.
+- [X] T007 [P] Write `tests/compliance/conftest.py`. It has a fixture `register_tree(tmp_path)` that builds a minimal valid register (controller, one source class, one source, one route, one decision) in a temporary repository layout, and a helper `seed(path, key, value)` for violations. Also write `tests/compliance/test_findings.py`: the runner stops after the first failing stage; `unknown` without a date fails; `unknown` with a valid waiver passes; an expired waiver fails.
 
 **Checkpoint**: `zoo compliance check` runs against an empty stage list.
 
@@ -58,7 +58,7 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Write `tests/compliance/test_schemas.py`. For each schema there is one valid and one invalid example, covering:
+- [X] T008 [P] [US1] Write `tests/compliance/test_register_schemas.py`. For each schema there is one valid and one invalid example, covering:
   - source `permitted_use` not in `training_allowed|benchmark_only`;
   - `redistribution` not in `allowed|not_allowed|unclear`;
   - source class `copyright_basis: tdm_60d` (rejected per D5);
@@ -66,7 +66,7 @@ description: "Tasks for feature 006: compliance harness"
   - a waiver without `expires_at`, or with `expires_at` more than 6 months after `approved_at`;
   - request `type` not in `objection|erasure|access|takedown|opt_out`;
   - release compliance record `exclusion_basis` other than `art2_12` while `monetisation: none`.
-- [ ] T009 [P] [US1] Write `tests/compliance/test_meta.py` with one failing fixture each:
+- [X] T009 [P] [US1] Write `tests/compliance/test_meta.py` with one failing fixture each:
   - C-M1: schema violation;
   - C-M2: `next_review` yesterday; legal-watch `review_by` yesterday without `reviewed_at`;
   - C-M3: an expired waiver;
@@ -76,7 +76,7 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Write the JSON Schemas in `src/mobility_model_zoo/compliance/schemas/` exactly as specified in data-model.md: `controller`, `source-classes`, `sources`, `datasets`, `providers`, `recipients`, `decisions`, `waivers`, `requests`, `suppression`, `legal-watch`, `release-compliance`. Copy them to `specs/006-compliance-harness/contracts/schemas/`, and add a test in `tests/compliance/test_schemas.py` that the copies are byte-identical. Constraints to encode verbatim:
+- [X] T010 [US1] Write the JSON Schemas in `src/mobility_model_zoo/compliance/schemas/` exactly as specified in data-model.md: `controller`, `source-classes`, `sources`, `datasets`, `providers`, `recipients`, `decisions`, `waivers`, `requests`, `suppression`, `legal-watch`, `release-compliance`. Copy them to `specs/006-compliance-harness/contracts/schemas/`, and add a test in `tests/compliance/test_register_schemas.py` that the copies are byte-identical. Constraints to encode verbatim:
   - **Source classes:** `copyright_basis` enum `tdm_44b|official_work_5|licence` ("§60d is not allowed"); `art9_handling: allowed_by_decision` requires `decision_id`.
   - **Sources:**
     - `licence` is an SPDX id, `LicenseRef-*` or `unknown`;
@@ -88,15 +88,15 @@ description: "Tasks for feature 006: compliance harness"
   - **Providers:** `consumer_cli` routes must have `allowed_for: []`.
   - **Waivers:** fields `id, check, scope, rationale, approved_by, approved_at, expires_at`; `check` matches `^C-[A-Z][0-9]$`; `expires_at` at most 6 months after `approved_at`.
   - **Release compliance:** `state` enum `draft|signed_off|published`.
-- [ ] T011 [US1] Implement the meta stage (checks C-M1 to C-M4) in `src/mobility_model_zoo/compliance/checks.py` and wire it into `zoo compliance check --stage meta` and `zoo validate --all` (`release/cli.py`). T008 and T009 pass.
-- [ ] T012 [P] [US1] Create `compliance/controller.yaml`:
+- [X] T011 [US1] Implement the meta stage (checks C-M1 to C-M4) in `src/mobility_model_zoo/compliance/checks.py` and wire it into `zoo compliance check --stage meta` and `zoo validate --all` (`release/cli.py`). T008 and T009 pass.
+- [X] T012 [P] [US1] Create `compliance/controller.yaml`:
   - name: "Martin Habedank (private person)";
   - `privacy_contact`: `privacy@miskatonic-analytics.com`; `general_contact`: `contact@miskatonic-analytics.com`;
   - `imprint_url`: https://miskatonic-analytics.com/imprint.html; `website_privacy_url`: https://miskatonic-analytics.com/privacy.html;
   - `supervisory_authority`: "Berliner Beauftragte für Datenschutz und Informationsfreiheit";
   - `commercial_activity: none`;
   - owner and review dates (next review 2027-04-08).
-- [ ] T013 [P] [US1] Create `compliance/decisions.yaml` with the owner decisions:
+- [X] T013 [P] [US1] Create `compliance/decisions.yaml` with the owner decisions:
   - **Context decisions 1–4 of spec.md:**
     - `D-routing`: local first, pinned EU/DPF zero-retention providers only;
     - `D-claude-api`: future reference labels via the Anthropic API with a DPA;
@@ -105,7 +105,7 @@ description: "Tasks for feature 006: compliance harness"
   - **Planning decisions D5–D13** from research.md, each with date 2026-10-08, rationale, scope and `review_by`. D6 is reviewed at 2026-12-17 (BGH I ZR 281/25).
   - **`D-parl-art9`:** political content in parliamentary speeches by office holders, Art. 9(2)(e) (research R6).
   - **`D-claude-risk-0.1.x`:** a dated risk acceptance for the Claude reference labels made via the consumer CLI subscription. Scope: `scout-large` 0.1.x benchmark reference labels; review by 2027-04-08.
-- [ ] T014 [P] [US1] Create `compliance/legal-watch.yaml` with these items, each with `expected`, `review_by` (expected date plus 14 days, or 2027-01-15 if unknown) and `affects`:
+- [X] T014 [P] [US1] Create `compliance/legal-watch.yaml` with these items, each with `expected`, `review_by` (expected date plus 14 days, or 2027-01-15 if unknown) and `affects`:
   - BGH I ZR 281/25 (expected 2026-12-17; affects D6, C-F6);
   - ProdHaftG transposition (2026-12-09);
   - AI Act Art. 50(2) grace end (2026-12-02);
@@ -114,21 +114,21 @@ description: "Tasks for feature 006: compliance harness"
   - GDPR omnibus Art. 88bis;
   - final CRA FOSS guidance C(2026) 5252;
   - Latombe v Commission appeal.
-- [ ] T015 [P] [US1] Create the lists in `compliance/lists/`:
+- [X] T015 [P] [US1] Create the lists in `compliance/lists/`:
   - `ai-user-agents.yaml`: GPTBot, ChatGPT-User, OAI-SearchBot, CCBot, ClaudeBot, Claude-Web, anthropic-ai, Google-Extended, PerplexityBot, Bytespider, Applebot-Extended, meta-externalagent, Amazonbot, cohere-ai, Diffbot, omgili, Timpibot.
   - `denylist.yaml`: empty, with a comment on what goes in it.
   - `piracy-domains.yaml`: an initial list of well-known shadow-library domains, with a `source` comment.
   - `licence-allowlist.yaml`: CC0-1.0, CC-BY-4.0, CC-BY-SA-4.0 (marked share-alike), CC-BY-3.0, PDDL-1.0, ODC-By-1.0, MIT, Apache-2.0, BSD-3-Clause, `LicenseRef-official-work-UrhG-5`, `LicenseRef-OGL-UK-3.0`, `LicenseRef-Open-Parliament-Licence`, `LicenseRef-US-PD`.
   - `special-categories.yaml`: German and English terms per Art. 9 category.
   - `card-lint.yaml`: required sections per topic kind, and forbidden patterns per research R11.
-- [ ] T016 [US1] Implement `zoo compliance recipients --runs DIR…` in `src/mobility_model_zoo/compliance/recipients.py`.
+- [X] T016 [US1] Implement `zoo compliance recipients --runs DIR…` in `src/mobility_model_zoo/compliance/recipients.py`.
   - **Input:** every `*/manifest.json` and `*/raw/*.json` under the given run folders.
   - **Output:** `compliance/recipients.yaml`, grouped by (`model_id`, backend, `backend_meta.provider` or `unrecorded`), with `roles`, `first_call`, `last_call`, `calls_ok`, `calls_error` and `runs`.
   - **Never** text, chunk ids or raw bodies.
 
   Test in `tests/compliance/test_recipients.py` with a fixture run folder; the output contains no `chunk_id`.
-- [ ] T017 [US1] Run `uv run zoo compliance recipients --runs data/runs data/span-train-v1/runs` and commit `compliance/recipients.yaml`. Check by hand that it contains no text, then record the counts under "US1" in `validation.md`.
-- [ ] T018 [US1] Create `compliance/providers.yaml` with one route per distinct entry in `recipients.yaml`. For each hosting provider seen (OpenAI, DeepInfra, Wafer and the others in the file), look up its current terms and privacy page and record:
+- [X] T017 [US1] Run `uv run zoo compliance recipients --runs data/runs data/span-train-v1/runs` and commit `compliance/recipients.yaml`. Check by hand that it contains no text, then record the counts under "US1" in `validation.md`.
+- [X] T018 [US1] Create `compliance/providers.yaml` with one route per distinct entry in `recipients.yaml`. For each hosting provider seen (OpenAI, DeepInfra, Wafer and the others in the file), look up its current terms and privacy page and record:
   - `terms_url`, `terms_sha256` (of the fetched page), `terms_checked_at`;
   - `region`, `dpf_listed` (search the DPF list at dataprivacyframework.gov);
   - `zero_data_retention`, `training_on_inputs`;
@@ -138,31 +138,31 @@ description: "Tasks for feature 006: compliance harness"
   - **Claude:** route `claude-consumer-cli` with `access_path: consumer_cli`, `allowed_for: []`, and a note on the Consumer Terms §3 clause.
   - **Local Ollama:** routes `access_path: local`, `allowed_for: [teacher, reference, pii_review]`.
   - **Hosted routes:** `allowed_for` stays empty until the allow rule in data-model.md holds: (EU or `dpf_listed`) and `zero_data_retention` and not `training_on_inputs` and `signoff`.
-- [ ] T019 [US1] Create `topics/productdev/compliance/source-classes.yaml` with four classes:
+- [X] T019 [US1] Create `topics/productdev/compliance/source-classes.yaml` with four classes:
   - `parliamentary-records` (`copyright_basis: official_work_5` or licence, `art9_handling: allowed_by_decision`, `decision_id: D-parl-art9`);
   - `cc-papers` (licence);
   - `research-interviews` (licence; `human_subjects`);
   - `forum-review` (`tdm_44b`, benchmark only, `art9_handling: quarantine`).
 
   Each class gets an LIA object (`purpose`, `necessity`, `balancing`, `safeguards`, `decided_at` 2026-10-08) and a retention rule "reproduce frozen benchmark and current model training set; review 24 months after freeze".
-- [ ] T020 [US1] Implement `zoo compliance bootstrap-sources --topic T --model M --version V [--benchmark-config C]` in `src/mobility_model_zoo/compliance/bootstrap.py`. It covers each origin in the release record's `provenance.sources` (`used_by: <model>@<version>`) and, with `--benchmark-config`, every snapshot behind the main and holdout chunks of that config (`used_by: benchmark:<name>`). For each origin it:
+- [X] T020 [US1] Implement `zoo compliance bootstrap-sources --topic T --model M --version V [--benchmark-config C]` in `src/mobility_model_zoo/compliance/bootstrap.py`. It covers each origin in the release record's `provenance.sources` (`used_by: <model>@<version>`) and, with `--benchmark-config`, every snapshot behind the main and holdout chunks of that config (`used_by: benchmark:<name>`). For each origin it:
   - reads the local `data/snapshots/*/source.yaml` files with that `origin_url`, the entry in `data/sources/source-plan.yaml` and, for Zenodo URLs, the Zenodo API record (title, creators, licence, description);
   - writes a source record with `class` (from the source type and publisher), title, creators, publisher, licence (SPDX), licence URL, attribution text (TASL), `modifications: "extracted text, split into chunks, personal identifiers redacted, labeled by language models"`, `permitted_use`, `redistribution: not_allowed` for all (training texts are not redistributed), `quote_allowed`, `retention_until` from the snapshots, `storage: data/snapshots` and `used_by`;
   - writes signals as a retrospective check: fetch today's robots.txt, TDMRep and ai.txt, mark `retrospective: true` and set `checked_at` to today;
   - for Zenodo interview records, searches the description for consent and ethics terms and sets `consent_or_ethics` to the quoted sentence, or to `unknown` with a decision item appended to `validation.md`.
 
   Nothing is invented: missing values are written as `unknown` with the date. Test in `tests/compliance/test_bootstrap.py` with a fixture snapshot and a mocked Zenodo response.
-- [ ] T021 [US1] Run `bootstrap-sources --topic productdev --model scout-large --version 0.1.1 --benchmark-config configs/productdev/jtbd/pilot-v1.yaml` and write `topics/productdev/compliance/sources.yaml`.
+- [X] T021 [US1] Run `bootstrap-sources --topic productdev --model scout-large --version 0.1.1 --benchmark-config configs/productdev/jtbd/pilot-v1.yaml` and write `topics/productdev/compliance/sources.yaml`.
   - Review every record with `unknown` and resolve what can be found from the source page (creators of papers, Bundestag as publisher).
   - Commit, then run `zoo compliance check --stage meta`.
   - **GATE:** all 87 training origins and every benchmark snapshot source of `pilot-v2` have records, and every remaining `unknown` is either covered by a waiver with expiry or listed for the owner in `validation.md` under "Owner decision items".
-- [ ] T022 [US1] Check the platform terms of sources obtained through an API (research R16). For the class `forum-review` (Reddit Data API), fetch the current Reddit Developer Terms, Data API Terms and Public Content Policy. Record `platform_terms` on each Reddit source record: `url`, `sha256`, `checked_at`, and `ml_use` and `hosted_processing` (`allowed`, `not_allowed` or `unclear`), each with the quoted clause. Do the same for any other API-fetched source class. Where a use that already happened (benchmark labeling by hosted models) is `not_allowed` or `unclear`, add an owner decision item to `validation.md` with three options:
+- [X] T022 [US1] Check the platform terms of sources obtained through an API (research R16). For the class `forum-review` (Reddit Data API), fetch the current Reddit Developer Terms, Data API Terms and Public Content Policy. Record `platform_terms` on each Reddit source record: `url`, `sha256`, `checked_at`, and `ml_use` and `hosted_processing` (`allowed`, `not_allowed` or `unclear`), each with the quoted clause. Do the same for any other API-fetched source class. Where a use that already happened (benchmark labeling by hosted models) is `not_allowed` or `unclear`, add an owner decision item to `validation.md` with three options:
   - keep the past use, document the assessment and stop new hosted processing;
   - replace the items in a future benchmark version;
   - remove them from the next benchmark version.
 
   The frozen benchmark is not edited.
-- [ ] T023 [P] [US1] Create `topics/productdev/compliance/datasets.yaml` with `datasets: []` and a comment that third-party datasets of this topic are listed here, and that feature 005 adds the security and condition-monitoring files with this schema.
+- [X] T023 [P] [US1] Create `topics/productdev/compliance/datasets.yaml` with `datasets: []` and a comment that third-party datasets of this topic are listed here, and that feature 005 adds the security and condition-monitoring files with this schema.
 
 **Checkpoint**: The register is complete for everything published, and the meta stage passes.
 

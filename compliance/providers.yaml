@@ -1,0 +1,183 @@
+# Labeling routes: model + access path + hosting provider (research R7, data-model "Provider route").
+# Facts checked on 2026-10-08 from the providers' own terms and the EU-US Data Privacy Framework list
+# (dataprivacyframework.gov, queried via its backend API). Unknown facts are recorded as `unknown`.
+# Allow rule for hosted routes (owner decision D-routing): (EU region or dpf_listed) and
+# zero_data_retention and not training_on_inputs and signoff. No hosted route meets it today, so
+# every hosted route has allowed_for: [] (owner decision item, see specs/006-compliance-harness/validation.md).
+routes:
+- id: local-spark-ollama
+  model_id: local open-weight models via Ollama on the owner's DGX Spark
+  access_path: local
+  hosting_provider: local:spark
+  region: DE (owner's machine)
+  dpf_listed: false
+  zero_data_retention: true
+  training_on_inputs: false
+  dpa: false
+  terms_url: https://github.com/ollama/ollama/blob/main/LICENSE
+  terms_sha256: c552c293e29534e17b46b75691a36710ec17bcd734e1931f8db6dda14e577657
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: unclear
+  clause: Depends on each model's licence; checked per teacher in configs/productdev/jtbd/models.yaml (license_basis).
+  allowed_for: [teacher, reference, pii_review]
+  signoff: {by: Martin Habedank, at: '2026-10-08'}
+  log_matches:
+  - baseline-gemma4-e2b|ollama|local:spark
+  - baseline-gemma4-e4b|ollama|local:spark
+  - baseline-granite4-350m|ollama|local:spark
+  - baseline-llama3.2-1b|ollama|local:spark
+  - baseline-ministral-3b|ollama|local:spark
+  - baseline-qwen3.5-0.8b|ollama|local:spark
+  - baseline-qwen3.5-4b|ollama|local:spark
+  - teacher-qwen3.8|ollama|local:spark
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: claude-consumer-cli
+  model_id: claude-reference
+  model_version: claude-opus-5-5
+  access_path: consumer_cli
+  hosting_provider: Anthropic (consumer plan via Claude Code CLI; contracting entity for EEA users Anthropic Ireland, Limited)
+  region: IE (contracting entity) / US (processing)
+  dpf_listed: false
+  zero_data_retention: false
+  training_on_inputs: unknown
+  unknown_checked_at: '2026-10-08'
+  dpa: false
+  terms_url: https://www.anthropic.com/legal/consumer-terms
+  terms_sha256: 7ca46a9030f8ea44a3339e14df06f61b0b1354426ce4b3c5b47efe09eb0ac210
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: 'no'
+  clause: 'Consumer Terms §3: may not use the Services "to develop any products or services that compete
+    with our Services, including to develop or train any artificial intelligence or machine learning
+    algorithms or models". Retention 30 days, or 5 years if the training setting is on; whether it was on
+    is unknown (owner item).'
+  allowed_for: []
+  signoff: null
+  log_matches: [claude-reference|claude_cli|anthropic-consumer-subscription]
+  notes: Used only as one of two benchmark reference labelers (pilot-v2); covered by decision D-claude-risk-0.1.x.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: claude-api
+  model_id: claude (future reference labeler)
+  access_path: api
+  hosting_provider: Anthropic (Commercial Terms)
+  region: US
+  dpf_listed: false
+  zero_data_retention: unknown
+  unknown_checked_at: '2026-10-08'
+  training_on_inputs: false
+  dpa: true
+  terms_url: https://www.anthropic.com/legal/commercial-terms
+  terms_sha256: 0085bd89aad0cdc8f7d97040792c694efb027b886074acf263fe8596824c7c75
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: 'no'
+  clause: 'Commercial Terms §D.4: no use "to build a competing product or service, including to train
+    competing AI models"; §B: Anthropic may not train on Customer Content; §C: DPA incorporated.'
+  allowed_for: []
+  signoff: null
+  notes: Planned route for reference labels only (decision D-claude-api); not used in feature 006.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: gpt-mini-openrouter-openai
+  model_id: gpt-mini-reference
+  model_version: openai/gpt-5.4-mini
+  access_path: openrouter
+  hosting_provider: OpenAI (via OpenRouter, Inc., US)
+  region: US
+  dpf_listed: false
+  zero_data_retention: false
+  training_on_inputs: false
+  dpa: unknown
+  unknown_checked_at: '2026-10-08'
+  terms_url: https://cdn.openai.com/osa/openai-services-agreement.pdf
+  terms_sha256: b93f17c5be5a4deadca42026195d361353619f49756ab74a7b356877cf7ab341
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: 'no'
+  clause: 'OpenAI Services Agreement §3.3(e): no use of Output "to develop artificial intelligence models
+    that compete with OpenAI''s products and services", except classifiers that are not distributed.
+    API abuse-monitoring retention 30 days. OpenRouter stores no prompts by default (privacy §1).'
+  allowed_for: []
+  signoff: null
+  log_matches: [gpt-mini-reference|openrouter|OpenAI]
+  notes: Used only as one of two benchmark reference labelers (pilot-v2), not for training.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: mimo-openrouter-deepinfra
+  model_id: teacher-or-mimo-v2.6-pro
+  model_version: xiaomi/mimo-v2.6-pro
+  access_path: openrouter
+  hosting_provider: DeepInfra (Deep Infra Inc., US; via OpenRouter, Inc., US)
+  region: US
+  dpf_listed: false
+  zero_data_retention: true
+  training_on_inputs: false
+  dpa: false
+  terms_url: https://deepinfra.com/terms
+  terms_sha256: a1e86b58956ce5bcf53cab939b742f6ecfb5a055eadb01b7fafbc8b98207a1c3
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: 'yes'
+  clause: 'MiMo V2.6 Pro is MIT-licensed (HF XiaomiMiMo/MiMo-V2.6-Pro-RL card metadata). DeepInfra
+    (docs, data privacy): inputs held in memory only, "Output data is not stored", no training on API data;
+    a DPA only if executed (terms §5(a)). OpenRouter terms §6.1 defer to the model terms; no output
+    restriction.'
+  allowed_for: []
+  signoff: null
+  log_matches: [teacher-or-mimo-v2.6-pro|openrouter|DeepInfra]
+  notes: Teacher of scout-large 0.1.x (training labels). Not EU and not DPF-listed, so new hosted runs
+    are blocked under D-routing until the owner decides (validation.md).
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: mimo-openrouter-unrecorded
+  model_id: teacher-or-mimo-v2.6-pro
+  model_version: xiaomi/mimo-v2.6-pro
+  access_path: openrouter
+  hosting_provider: unknown (failed attempts; OpenRouter did not report a provider)
+  region: unknown
+  dpf_listed: unknown
+  zero_data_retention: unknown
+  training_on_inputs: unknown
+  dpa: unknown
+  unknown_checked_at: '2026-10-08'
+  terms_url: https://openrouter.ai/terms
+  terms_sha256: 909e2583077cd750d3547090da3d1ab5f7df5ab27b0a9eebf3f4a2105232aeb0
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: unclear
+  clause: Failed attempts; no output was used. Requests used data_collection deny and allow_fallbacks false,
+    which OpenRouter describes as best-knowledge routing to providers that do not store data.
+  allowed_for: []
+  signoff: null
+  log_matches: [teacher-or-mimo-v2.6-pro|openrouter|unrecorded]
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: wafer-openrouter
+  model_id: teacher candidates (deepseek-v4.1-flash, glm-5.3-flash)
+  access_path: openrouter
+  hosting_provider: Wafer (Wafer, Inc., US; via OpenRouter, Inc., US)
+  region: US
+  dpf_listed: false
+  zero_data_retention: unknown
+  training_on_inputs: unknown
+  dpa: unknown
+  unknown_checked_at: '2026-10-08'
+  terms_url: https://www.wafer.ai/terms
+  terms_sha256: f4d20923e33029fcb5193bab43cf54384caffb13c655e3ebddf216c2e9337eb6
+  terms_checked_at: '2026-10-08'
+  output_training_permitted: unclear
+  clause: 'Wafer terms §3: "You may not use outputs from the Service to train, fine-tune, or develop a
+    competing inference or model-hosting service." Models are MIT-licensed (DeepSeek V4.1 Flash, GLM 5.3
+    Flash). Wafer privacy policy unreachable (404) on 2026-10-08.'
+  allowed_for: []
+  signoff: null
+  log_matches:
+  - teacher-or-deepseek-v4.1-flash|openrouter|Wafer
+  - teacher-or-glm-5.3-flash|openrouter|Wafer
+  notes: Teacher candidates evaluated on the benchmark only; their outputs did not train scout-large.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

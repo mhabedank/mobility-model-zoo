@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "routes"
+  ],
+  "properties": {
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "last_reviewed": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "next_review": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "unknown_checked_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "model_version": {
+            "type": "string"
+          },
+          "access_path": {
+            "enum": [
+              "local",
+              "api",
+              "openrouter",
+              "consumer_cli"
+            ]
+          },
+          "hosting_provider": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "dpf_listed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "zero_data_retention": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "training_on_inputs": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "dpa": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "terms_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^https?://"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "terms_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "terms_checked_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "output_training_permitted": {
+            "enum": [
+              "yes",
+              "no",
+              "unclear"
+            ]
+          },
+          "clause": {
+            "type": "string"
+          },
+          "allowed_for": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "teacher",
+                "reference",
+                "pii_review"
+              ]
+            }
+          },
+          "signoff": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "by": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+                  }
+                },
+                "required": [
+                  "by",
+                  "at"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "log_matches": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "model_id",
+          "access_path",
+          "hosting_provider",
+          "region",
+          "dpf_listed",
+          "zero_data_retention",
+          "training_on_inputs",
+          "dpa",
+          "terms_url",
+          "terms_checked_at",
+          "output_training_permitted",
+          "allowed_for",
+          "owner",
+          "last_reviewed",
+          "next_review"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "access_path": {
+                  "const": "consumer_cli"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "allowed_for": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,518 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "datasets"
+  ],
+  "properties": {
+    "datasets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "last_reviewed": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "next_review": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "unknown_checked_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "class": {
+            "type": "string"
+          },
+          "origin_url": {
+            "type": "string",
+            "pattern": "^https?://"
+          },
+          "title": {
+            "type": "string"
+          },
+          "creators": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "copyright_notice": {
+            "type": "string"
+          },
+          "licence": {
+            "type": "string",
+            "pattern": "^([A-Za-z0-9.+-]+|LicenseRef-[A-Za-z0-9.-]+|unknown)$"
+          },
+          "licence_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^https?://"
+              },
+              {
+                "const": "unknown"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attribution_text": {
+            "type": "string"
+          },
+          "modifications": {
+            "type": "string"
+          },
+          "permitted_use": {
+            "enum": [
+              "training_allowed",
+              "benchmark_only"
+            ]
+          },
+          "redistribution": {
+            "enum": [
+              "allowed",
+              "not_allowed",
+              "unclear"
+            ]
+          },
+          "redistribution_basis": {
+            "type": "string"
+          },
+          "quote_allowed": {
+            "type": "boolean"
+          },
+          "signals": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "robots": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "tdmrep": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "x_robots": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "meta_noai": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "ai_txt": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "tos_url": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "tos_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "tos_flag": {
+                "type": "boolean"
+              },
+              "tos_verdict": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "owner_confirmed_allow",
+                  null
+                ]
+              },
+              "checked_at": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+              },
+              "retrospective": {
+                "type": "boolean"
+              },
+              "error": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "robots",
+              "tdmrep",
+              "x_robots",
+              "meta_noai",
+              "ai_txt",
+              "checked_at",
+              "retrospective"
+            ]
+          },
+          "personal_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "type": "boolean"
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "special_categories": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "human_subjects": {
+                "type": "boolean"
+              },
+              "consent_or_ethics": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "anonymisation": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "present",
+              "categories",
+              "special_categories",
+              "human_subjects"
+            ]
+          },
+          "vehicle_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "vin": {
+                "enum": [
+                  "none",
+                  "present",
+                  "removed",
+                  "unknown"
+                ]
+              },
+              "gps": {
+                "enum": [
+                  "none",
+                  "present",
+                  "removed",
+                  "unknown"
+                ]
+              },
+              "absolute_timestamps": {
+                "enum": [
+                  "none",
+                  "present",
+                  "removed",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "vin",
+              "gps",
+              "absolute_timestamps"
+            ]
+          },
+          "pii_scan": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tool_version": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+              },
+              "hits_before": {
+                "type": "integer"
+              },
+              "hits_after": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "tool_version",
+              "date",
+              "hits_before",
+              "hits_after"
+            ]
+          },
+          "storage": {
+            "type": "string"
+          },
+          "retention_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+              },
+              {
+                "const": "unknown"
+              }
+            ]
+          },
+          "deleted_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "crawl_manifest_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "platform_terms": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "pattern": "^https?://"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  },
+                  "checked_at": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+                  },
+                  "ml_use": {
+                    "enum": [
+                      "allowed",
+                      "not_allowed",
+                      "unclear"
+                    ]
+                  },
+                  "hosted_processing": {
+                    "enum": [
+                      "allowed",
+                      "not_allowed",
+                      "unclear"
+                    ]
+                  },
+                  "clause": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "sha256",
+                  "checked_at",
+                  "ml_use",
+                  "hosted_processing",
+                  "clause"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provider": {
+            "enum": [
+              "zenodo",
+              "uci",
+              "bitbucket",
+              "url"
+            ]
+          },
+          "locator": {
+            "type": "object"
+          },
+          "license_check": {
+            "enum": [
+              "api",
+              "manual"
+            ]
+          },
+          "approx_size_mb": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "broken_at_source",
+              "rejected"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "citation": {
+            "type": "string"
+          },
+          "doi": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "class",
+          "origin_url",
+          "title",
+          "creators",
+          "publisher",
+          "licence",
+          "licence_url",
+          "attribution_text",
+          "modifications",
+          "permitted_use",
+          "redistribution",
+          "redistribution_basis",
+          "quote_allowed",
+          "signals",
+          "personal_data",
+          "storage",
+          "retention_until",
+          "used_by",
+          "owner",
+          "last_reviewed",
+          "next_review",
+          "provider",
+          "locator",
+          "license_check",
+          "status"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "licence": {
+                  "pattern": "-N[CD]"
+                }
+              },
+              "required": [
+                "licence"
+              ]
+            },
+            "then": {
+              "properties": {
+                "permitted_use": {
+                  "const": "benchmark_only"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "quote_allowed": {
+                  "const": true
+                }
+              },
+              "required": [
+                "quote_allowed"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "licence": {
+                      "pattern": "^(CC-BY|CC0|LicenseRef-official-work)"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "class": {
+                      "const": "parliamentary-records"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "broken_at_source",
+                    "rejected"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "reason"
+              ],
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

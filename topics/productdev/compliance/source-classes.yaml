@@ -1,0 +1,94 @@
+# Source classes of the productdev topic with their legal bases (D5, D10, D12) and retention.
+# LIA = legitimate-interest assessment (Art. 6(1)(f) GDPR), one per class (D10).
+classes:
+- id: parliamentary-records
+  description: Plenary and committee records published by parliaments (Germany, UK, Ireland, US,
+    Wales, Scotland, EU, Austria, Switzerland, German state parliaments, Canada).
+  copyright_basis: licence
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Build and evaluate a model that extracts jobs, pains and gains from mobility debates.
+    necessity: Public hearings are the main source of stated mobility problems with named actor types;
+      no anonymous equivalent of the same quality exists.
+    balancing: Speakers are office holders or invited witnesses speaking in a public, recorded setting
+      intended for publication; texts are not redistributed; the model outputs only spans of the
+      user's own input, never stored records.
+    safeguards: Redaction of contact identifiers, texts kept outside git with a retention date, no
+      publication of training text, objection channel (PRIVACY.md), suppression list.
+    decided_at: '2026-10-08'
+  art9_handling: allowed_by_decision
+  decision_id: D-parl-art9
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Review 24 months after the dataset freeze; delete when no current model needs it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: research-interviews
+  description: Interview transcripts from research datasets published on Zenodo under CC BY 4.0.
+  copyright_basis: licence
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Build and evaluate a model that extracts jobs, pains and gains from interviews.
+    necessity: Interviews are the canonical source of jobs-to-be-done evidence.
+    balancing: Datasets were published by researchers for reuse, pseudonymised by the publishers;
+      consent basis is recorded per dataset or flagged for an owner decision.
+    safeguards: Redaction, no redistribution, retention date, objection channel, suppression list.
+    decided_at: '2026-10-08'
+  art9_handling: quarantine
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Review 24 months after the dataset freeze; delete when no current model needs it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: open-papers
+  description: Scientific papers and reports under open licences (CC BY 4.0) used for training.
+  copyright_basis: licence
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Build and evaluate a model that extracts jobs, pains and gains from research texts.
+    necessity: Papers describe mobility problems with evidence; authors are named only for attribution.
+    balancing: Published for reuse under an open licence; the people quoted in papers are mostly
+      anonymised study participants.
+    safeguards: Redaction, no redistribution, retention date, attribution in the model card.
+    decided_at: '2026-10-08'
+  art9_handling: quarantine
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Review 24 months after the dataset freeze; delete when no current model needs it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: tdm-documents
+  description: Papers, reports and transcripts without an open licence, used only in the benchmark
+    under the text and data mining exception (§44b UrhG).
+  copyright_basis: tdm_44b
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Evaluate extraction quality on realistic, varied texts.
+    necessity: A benchmark needs texts beyond openly licensed ones to be representative.
+    balancing: Used only for evaluation, never for training or redistribution; opt-outs honoured.
+    safeguards: benchmark_only, retention date, no publication of text, deletion when not needed.
+    decided_at: '2026-10-08'
+  art9_handling: quarantine
+  retention_purpose: Reproduce the frozen benchmark.
+  retention_rule: Delete when the benchmark is retired; review 24 months after freeze.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: forum-review
+  description: Public forum posts about mobility, used only in the benchmark (§44b UrhG).
+  copyright_basis: tdm_44b
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Evaluate extraction quality on informal user texts, where real pains are stated.
+    necessity: Forums are the main source of first-hand user statements in the benchmark.
+    balancing: Posts are public but written by private persons; usernames and contact identifiers
+      are redacted before labeling; texts are never used for training or published.
+    safeguards: benchmark_only, redaction plus local model review, special categories quarantined,
+      platform terms checked (C-I7), objection channel and suppression list.
+    decided_at: '2026-10-08'
+  art9_handling: quarantine
+  retention_purpose: Reproduce the frozen benchmark.
+  retention_rule: Delete when the benchmark is retired; review 24 months after freeze.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

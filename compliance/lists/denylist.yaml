@@ -1,0 +1,2 @@
+# Domains the crawler never fetches (owner decision or takedown). Hostnames, suffix match.
+domains: []
