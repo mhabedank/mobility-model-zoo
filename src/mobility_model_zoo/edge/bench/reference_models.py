@@ -208,7 +208,12 @@ def main(argv=None):
     ap.add_argument(
         "--codegen-only", action="store_true", help="only regenerate C from existing .npz files"
     )
+    ap.add_argument("--ensure", action="store_true", help="build missing models, then generate C")
     args = ap.parse_args(argv)
+    if args.ensure:
+        models = ensure_sources(Path(args.out), Path(args.fw_out))
+        print(f"generated C sources for {len(models)} models in {args.fw_out}")
+        return
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     if not args.codegen_only:

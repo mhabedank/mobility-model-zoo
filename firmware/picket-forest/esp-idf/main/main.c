@@ -1,5 +1,5 @@
 /*
- * can-ids-tiny on-device benchmark.
+ * picket-forest on-device benchmark.
  *
  * Replays recorded CAN frames (test_vectors.h) through the full detector: feature extraction
  * plus random forest. For every frame it measures the latency and checks that the score is
@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "can_ids_tiny.h"
+#include "picket_forest.h"
 #include "esp_chip_info.h"
 #include "esp_cpu.h"
 #include "esp_heap_caps.h"
@@ -26,7 +26,7 @@
 #define TV_EXPECTED_ALARMS (-1) /* test vectors generated without the alarm stage */
 #endif
 
-static can_ids_tiny_t s_ids;
+static picket_forest_t s_ids;
 static uint32_t s_cycles[TV_N_FRAMES];
 
 static int cmp_u32(const void *a, const void *b)
@@ -39,15 +39,15 @@ static int s_alarms;
 
 static void run_once(int *mismatches, int *detected, int *attacks)
 {
-    can_ids_tiny_init(&s_ids);
-    const float thr = can_ids_tiny_threshold();
+    picket_forest_init(&s_ids);
+    const float thr = picket_forest_threshold();
     *mismatches = *detected = *attacks = 0;
     s_alarms = 0;
     for (int i = 0; i < TV_N_FRAMES; i++) {
         const tv_frame_t *f = &tv_frames[i];
         float s;
         uint32_t t0 = esp_cpu_get_cycle_count();
-        s_alarms += can_ids_tiny_process(&s_ids, f->ts_us, f->can_id, f->dlc, f->data, &s);
+        s_alarms += picket_forest_process(&s_ids, f->ts_us, f->can_id, f->dlc, f->data, &s);
         s_cycles[i] = esp_cpu_get_cycle_count() - t0;
         *mismatches += (s != tv_expected_score[i]);
         *attacks += f->label;
@@ -74,7 +74,7 @@ void app_main(void)
     const float mhz = cpu_hz / 1e6f;
     /* Repeat the result so a serial monitor that connects late still sees it. */
     while (1) {
-        printf("CAN_IDS_TINY_RESULT {\"target\":\"%s\",\"cpu_mhz\":%.0f,\"frames\":%d,"
+        printf("PICKET_FOREST_RESULT {\"target\":\"%s\",\"cpu_mhz\":%.0f,\"frames\":%d,"
                "\"score_mismatches\":%d,\"attack_frames\":%d,\"detected\":%d,"
                "\"alarms\":%d,\"expected_alarms\":%d,"
                "\"latency_us\":{\"median\":%.2f,\"mean\":%.2f,\"p99\":%.2f,\"max\":%.2f},"

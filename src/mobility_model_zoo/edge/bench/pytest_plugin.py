@@ -76,6 +76,8 @@ _STATE_KEY = pytest.StashKey[HilState]()
 
 
 def _state(config) -> HilState:
+    if _STATE_KEY not in config.stash:
+        config.stash[_STATE_KEY] = _make_state(config)
     return config.stash[_STATE_KEY]
 
 
@@ -94,6 +96,23 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "hil: test needs a device under test")
     config.addinivalue_line("markers", "slow: long running (soak) test")
     config.addinivalue_line("markers", "destructive: resets/power-cycles the board")
+    if not config.pluginmanager.hasplugin("xdist"):
+        config.addinivalue_line("markers", "xdist_group(name): run tests of one board in one worker")
+    if _active(config):
+        _state(config)  # fail early on a broken inventory
+
+
+def _active(config) -> bool:
+    """The plugin stays inert unless boards are selected or the `hil` marker is requested."""
+    if getattr(config, "workerinput", None) is not None and "hil_run_dir" in config.workerinput:
+        return True
+    if any(config.getoption(o) for o in ("--hil-board", "--hil-target", "--hil-tag", "--hil-boards")):
+        return True
+    expr = config.getoption("-m") or ""
+    return "hil" in expr and "not hil" not in expr
+
+
+def _make_state(config) -> HilState:
     try:
         lab = load_lab(config.getoption("--hil-boards"), config.getoption("--hil-targets-file"))
         boards = lab.select(
@@ -117,7 +136,7 @@ def pytest_configure(config):
     baseline = None
     if config.getoption("--hil-baseline"):
         baseline = json.loads(Path(config.getoption("--hil-baseline")).read_text())
-    config.stash[_STATE_KEY] = HilState(
+    return HilState(
         lab=lab,
         boards=boards,
         run_dir=run_dir,
@@ -129,11 +148,14 @@ def pytest_configure(config):
             for k in ("build", "no_flash", "require_all", "quick", "tolerance")
         },
     )
-    if not config.pluginmanager.hasplugin("xdist"):
-        config.addinivalue_line("markers", "xdist_group(name): run tests of one board in one worker")
 
 
 def pytest_generate_tests(metafunc):
+    if "board" not in metafunc.fixturenames and "model_name" not in metafunc.fixturenames:
+        return
+    if not _active(metafunc.config):  # collected but deselected by the default `-m 'not hil'`
+        pytest.mark.hil(metafunc.function)  # mark the function so its items are deselected
+        return
     st = _state(metafunc.config)
     if "board" in metafunc.fixturenames:
         metafunc.parametrize("board", st.boards, ids=[b.id for b in st.boards], scope="session")
@@ -150,7 +172,9 @@ def _zoo_names() -> list[str]:
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
-    st = _state(config)
+    st = config.stash.get(_STATE_KEY, None)
+    if st is None:
+        return
     for item in items:
         callspec = getattr(item, "callspec", None)
         board = callspec.params.get("board") if callspec else None
@@ -164,8 +188,8 @@ def pytest_collection_modifyitems(config, items):
 def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
-    st = _state(item.config)
-    board = st.node_board.get(item.nodeid)
+    st = item.config.stash.get(_STATE_KEY, None)
+    board = st.node_board.get(item.nodeid) if st else None
     if board is None:
         return
     dut = item.funcargs.get("dut") if hasattr(item, "funcargs") else None

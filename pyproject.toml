@@ -56,7 +56,8 @@ edge-hw = [
 ]
 # Training of edge models (TensorFlow is large; not installed in CI)
 edge-train = [
-    "tensorflow-cpu>=2.16",
+    "tensorflow-cpu>=2.16; sys_platform == 'linux'",
+    "tensorflow>=2.16; sys_platform != 'linux'",
     "tflite>=2.10",
     "scikit-learn>=1.5",
     "emlearn>=0.23",
@@ -73,6 +74,8 @@ labeling-api = [
 jtbd = "mobility_model_zoo.productdev.jtbd.cli:app"
 zoo = "mobility_model_zoo.release.cli:app"
 edge = "mobility_model_zoo.edge.bench.cli:main"
+security = "mobility_model_zoo.security.cli:app"
+condmon = "mobility_model_zoo.condition_monitoring.cli:app"
 
 [dependency-groups]
 dev = ["pytest>=8.3", "ruff>=0.6", "reuse>=5.0"]

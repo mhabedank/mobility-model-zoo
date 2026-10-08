@@ -147,7 +147,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `msml.*` → `mobility_model_zoo.security.can_ids.*`
 
   Add the `__init__.py` files for `security`, `security/can_ids`, `condition_monitoring`, `condition_monitoring/sound_anomaly`, `condition_monitoring/activity`, `edge` and `datasets`. Remove `hub` from `edge/bench/cli.py`.
-- [ ] T029 [US2] Replace hard-coded repository paths:
+- [X] T029 [US2] Replace hard-coded repository paths:
   - `edge/bench/config.py` `REPO_ROOT` and `reference_models.py` `parents[2]` → the repository root found by walking up to `pyproject.toml`.
   - `models/zoo` → a build directory `build/edge/models/` (gitignored); `models/custom` → `--model` options.
   - `firmware/lib/modelzoo/src` → `firmware/bench/lib/modelzoo/src`.
@@ -155,38 +155,38 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `hil/*.yaml` unchanged.
   - Env vars: `HILBENCH_DATA` → `MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`); `HILBENCH_BOARDS` → `MMZ_BOARDS`.
   - Lock directory `/var/lock/hilbench` → `/var/lock/mmz-edge` in `edge/bench/lock.py` and `hil/setup-host.sh`.
-- [ ] T030 [US2] Make the generated firmware model sources a build step:
+- [X] T030 [US2] Make the generated firmware model sources a build step:
   - Add a PlatformIO pre-script `firmware/bench/scripts/gen_modelzoo.py` that calls `mobility_model_zoo.edge.int8.codegen.write_zoo_sources` with the synthetic reference models from `edge.bench.reference_models.build()` (deterministic, fixed seeds) plus `--model` npz files passed in `MMZ_EDGE_MODELS`.
   - Have `firmware/bench/native/Makefile` call the same generator.
   - Sanitise model names to C identifiers (`picket-mlp` → `picket_mlp`) in `codegen.py`, with a test in `tests/edge/int8/test_codegen_names.py`.
-- [ ] T031 [US2] Replace the committed synthetic eval sets (`can_ids_mlp.eval.npz`, `sensor_ae.eval.npz`) with generation in `reference_models.build()`. Change `tests/edge/bench/test_models_zoo.py` to build the reference models into `tmp_path`, and verify that two builds give byte-identical npz files.
-- [ ] T032 [US2] Split `src/mobility_model_zoo/edge/train_real.py`:
+- [X] T031 [US2] Replace the committed synthetic eval sets (`can_ids_mlp.eval.npz`, `sensor_ae.eval.npz`) with generation in `reference_models.build()`. Change `tests/edge/bench/test_models_zoo.py` to build the reference models into `tmp_path`, and verify that two builds give byte-identical npz files.
+- [X] T032 [US2] Split `src/mobility_model_zoo/edge/train_real.py`:
   - `security/can_ids/mlp.py`: ROAD candump parsing, 32 features, Keras MLP, TFLite int8, bit-exact check.
   - `condition_monitoring/sound_anomaly/train.py`: MIMII.
   - `condition_monitoring/activity/train.py`: UCI HAR.
   - `edge/int8/keras_export.py`: shared int8 conversion and `verify_with_interpreter` wrapper.
 
   Split `tests/edge/test_train_real.py` the same way into `tests/security/can_ids/test_mlp.py`, `tests/condition_monitoring/test_sound_anomaly_train.py` and `tests/condition_monitoring/test_activity_train.py`. Delete `edge/train_real.py`. Outputs go to `--out` (default `$MMZ_DATA/derived/<model>/`), never into the repository.
-- [ ] T033 [US2] Port goldberg `security/can_ids/forest.py` (former `pipeline.py`) to the zoo:
+- [X] T033 [US2] Port goldberg `security/can_ids/forest.py` (former `pipeline.py`) to the zoo:
   - **Paths:** `artifacts/` → `--out` (default `$MMZ_DATA/derived/picket-forest/`); generated headers → `firmware/picket-forest/c/generated/` (gitignored, T003); `testvectors` writes into `--out`.
   - **Code:** the dataset loader is `security/can_ids/can_train_and_test.py`; `forest_features.py` compiles `firmware/components/can_features/*.c` (new path) into the ctypes cache under `build/`.
   - **Renames:** `firmware/picket-forest/c/can_ids_tiny.{c,h}` → `picket_forest.{c,h}`, with symbol prefix `picket_forest_`.
-- [ ] T034 [US2] Create the common frame format in `src/mobility_model_zoo/security/can_ids/frames.py`:
+- [X] T034 [US2] Create the common frame format in `src/mobility_model_zoo/security/can_ids/frames.py`:
   - **Columns:** `ts_us:int64, can_id:int32, dlc:int8, b0..b7:uint8, label:int8, capture:str, vehicle:str`.
   - **Readers:** `from_can_train_and_test(dir)` (the existing CSV parser) and `from_road(dir)` (the candump parser moved out of `mlp.py`).
   - **Writer:** `write_parquet(df, path)`.
   - **Tests:** `tests/security/can_ids/test_frames.py` on tiny synthetic CSV and candump files.
-- [ ] T035 [US2] Make `security/can_ids/metrics.py` (goldberg) the metric code for both CAN models. `mlp.py` reports frame metrics through it and drops its inline metric code. Keep goldberg `tests/test_metrics.py` (now `tests/security/can_ids/test_metrics.py`) green.
-- [ ] T036 [US2] Create the task CLIs per contracts/cli.md: `src/mobility_model_zoo/security/cli.py` (`security can-ids frames|evaluate|freeze|forest …|mlp train`) and `src/mobility_model_zoo/condition_monitoring/cli.py` (`condmon sound-anomaly train|evaluate|freeze`, `condmon activity train|evaluate|freeze`). Register `edge = mobility_model_zoo.edge.bench.cli:main`, `security = mobility_model_zoo.security.cli:app` and `condmon = mobility_model_zoo.condition_monitoring.cli:app` in `pyproject.toml` `[project.scripts]`. `evaluate` and `freeze` may exit 5 ("benchmark not frozen yet") in this feature.
-- [ ] T037 [US2] Update `pyproject.toml` per research R16:
+- [X] T035 [US2] Make `security/can_ids/metrics.py` (goldberg) the metric code for both CAN models. `mlp.py` reports frame metrics through it and drops its inline metric code. Keep goldberg `tests/test_metrics.py` (now `tests/security/can_ids/test_metrics.py`) green.
+- [X] T036 [US2] Create the task CLIs per contracts/cli.md: `src/mobility_model_zoo/security/cli.py` (`security can-ids frames|evaluate|freeze|forest …|mlp train`) and `src/mobility_model_zoo/condition_monitoring/cli.py` (`condmon sound-anomaly train|evaluate|freeze`, `condmon activity train|evaluate|freeze`). Register `edge = mobility_model_zoo.edge.bench.cli:main`, `security = mobility_model_zoo.security.cli:app` and `condmon = mobility_model_zoo.condition_monitoring.cli:app` in `pyproject.toml` `[project.scripts]`. `evaluate` and `freeze` may exit 5 ("benchmark not frozen yet") in this feature.
+- [X] T037 [US2] Update `pyproject.toml` per research R16:
   - Extras: `edge = [numpy, pyserial>=3.5, pyyaml>=6, jsonschema]`, `edge-hw = [esptool>=4.7, platformio>=6.1, pytest-xdist>=3.3]`, `edge-train = [tensorflow-cpu>=2.16, tflite>=2.10, ai-edge-litert, scikit-learn>=1.5, emlearn>=0.23, setuptools>=70, pandas>=2.2, pyarrow>=17]`.
   - pytest: marker `hil`, and `addopts = "-m 'not slow and not hil' -p mobility_model_zoo.edge.bench.pytest_plugin"`.
   - ruff: exclude `firmware/**/scripts/*.py`.
 
   Run `uv lock`. Check that the base dependency list is unchanged (diff `[project].dependencies`).
-- [ ] T038 [US2] Make the bench pytest plugin inert unless a test requests `dut` or the session gets `--hil-board`, in `src/mobility_model_zoo/edge/bench/pytest_plugin.py`. Run the full default suite and confirm the jtbd and release tests are unaffected (same counts as T021 plus the imported unit tests).
-- [ ] T039 [US2] Run `uv run ruff check --fix` and `uv run ruff format` on the imported code. Fix the remaining findings (I, UP, B) by hand in a commit "Lint imported code to zoo rules". Do not change behaviour; tests stay green.
-- [ ] T040 [US2] Run `uv run edge build -t native` and `uv run pytest -m hil --hil-board sim -q`, and record the result under "US2" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: the simulator HIL suite passes on the generated reference models.
+- [X] T038 [US2] Make the bench pytest plugin inert unless a test requests `dut` or the session gets `--hil-board`, in `src/mobility_model_zoo/edge/bench/pytest_plugin.py`. Run the full default suite and confirm the jtbd and release tests are unaffected (same counts as T021 plus the imported unit tests).
+- [X] T039 [US2] Run `uv run ruff check --fix` and `uv run ruff format` on the imported code. Fix the remaining findings (I, UP, B) by hand in a commit "Lint imported code to zoo rules". Do not change behaviour; tests stay green.
+- [X] T040 [US2] Run `uv run edge build -t native` and `uv run pytest -m hil --hil-board sim -q`, and record the result under "US2" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: the simulator HIL suite passes on the generated reference models.
 
 ### Tasks and models
 

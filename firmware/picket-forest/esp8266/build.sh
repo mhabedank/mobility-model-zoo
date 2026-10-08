@@ -4,14 +4,14 @@
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../../.." && pwd)
-SKETCH="$HERE/can_ids_tiny_bench"
+SKETCH="$HERE/picket_forest_bench"
 mkdir -p "$SKETCH/src"
-cp "$REPO/firmware/components/msml_can_features/msml_can_features.c" \
-   "$REPO/firmware/components/msml_can_features/include/msml_can_features.h" \
-   "$REPO/firmware/components/msml_can_features/msml_alarm.c" \
-   "$REPO/firmware/components/msml_can_features/include/msml_alarm.h" \
-   "$REPO/models/can-ids-tiny/c/can_ids_tiny.c" "$REPO/models/can-ids-tiny/c/can_ids_tiny.h" \
-   "$REPO"/models/can-ids-tiny/c/generated/*.h "$SKETCH/src/"
+cp "$REPO/firmware/components/can_features/msml_can_features.c" \
+   "$REPO/firmware/components/can_features/include/msml_can_features.h" \
+   "$REPO/firmware/components/can_features/msml_alarm.c" \
+   "$REPO/firmware/components/can_features/include/msml_alarm.h" \
+   "$REPO/firmware/picket-forest/c/picket_forest.c" "$REPO/firmware/picket-forest/c/picket_forest.h" \
+   "$REPO"/firmware/picket-forest/c/generated/*.h "$SKETCH/src/"
 EXTRA=()
 if [[ -n "${CTAGS_DIR:-}" ]]; then  # only needed when the Arduino ctags tool is not installed
     EXTRA+=(--build-property "runtime.tools.ctags.path=$CTAGS_DIR")

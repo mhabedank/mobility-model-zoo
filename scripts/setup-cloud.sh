@@ -89,5 +89,5 @@ cat <<EOF
   # ESP8266 (Arduino); FQBN vendor is "esp8266com" for this manual core install
   export PATH=$ARDUINO_ROOT/bin:\$PATH ARDUINO_DIRECTORIES_USER=$ARDUINO_ROOT/sketchbook \\
          ARDUINO_DIRECTORIES_DATA=$ARDUINO_ROOT/data
-  FQBN=esp8266com:esp8266:d1_mini:xtal=160 CTAGS_DIR=/usr/bin models/can-ids-tiny/firmware-esp8266/build.sh
+  FQBN=esp8266com:esp8266:d1_mini:xtal=160 CTAGS_DIR=/usr/bin firmware/picket-forest/esp8266/build.sh
 EOF

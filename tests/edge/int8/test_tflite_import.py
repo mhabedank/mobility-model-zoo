@@ -17,7 +17,7 @@ from mobility_model_zoo.edge.paths import BENCH_FIRMWARE
 pytest.importorskip("tflite")
 from mobility_model_zoo.edge.int8.tflite_import import UnsupportedModel, load_tflite  # noqa: E402
 
-DATA = Path(__file__).parent / "data"
+DATA = Path(__file__).parents[2] / "fixtures" / "edge-int8"
 MODELS = ["mlp", "mlp_float_io", "cnn", "cnn1d_samepool"]
 
 

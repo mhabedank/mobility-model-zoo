@@ -1,18 +1,26 @@
-"""can-ids-tiny: train, evaluate and export a frame-level CAN intrusion detector.
+"""picket-forest: train, evaluate and export a frame-level CAN intrusion detector.
 
 Evaluation follows the can-train-and-test protocol: for each of the four sets, train on
 train_01 and test on four splits (known/unknown vehicle x known/unknown attack).
 
-    python models/can-ids-tiny/pipeline.py evaluate   # protocol results -> artifacts/can-ids-tiny/
-    python models/can-ids-tiny/pipeline.py export     # final model on all vehicles -> C header
+    uv run security can-ids forest evaluate     # protocol results -> $MMZ_DATA/derived/picket-forest/
+    uv run security can-ids forest export       # final model on all vehicles -> C header
+    uv run security can-ids forest alarms       # recompute the alarm grid from stored scores
+    uv run security can-ids forest convert      # re-run C conversion and parity check (no training)
+    uv run security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
+
+Every subcommand takes --data (dataset root, default $MMZ_DATA/can-train-and-test) and --out
+(derived files, default $MMZ_DATA/derived/picket-forest).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import time
+from collections.abc import Sequence
 from pathlib import Path
 
 import joblib
@@ -20,8 +28,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_recall_curve
 
-from mobility_model_zoo.edge.paths import REPO_ROOT as REPO  # noqa: E402
-from mobility_model_zoo.edge.paths import derived_dir
+from mobility_model_zoo.edge.paths import REPO_ROOT, data_root, derived_dir
 from mobility_model_zoo.security.can_ids.can_train_and_test import SETS, SPLITS, load, vehicle_of
 from mobility_model_zoo.security.can_ids.forest_features import (
     FEATURE_NAMES,
@@ -35,8 +42,16 @@ from mobility_model_zoo.security.can_ids.metrics import (
     frame_metrics,
 )
 
-DATA = REPO / "data" / "can-train-and-test"
-OUT = derived_dir("picket-forest")
+MODEL = "picket-forest"
+
+
+def default_data() -> Path:
+    return data_root() / "can-train-and-test"
+
+
+def default_out() -> Path:
+    return derived_dir(MODEL)
+
 
 # Small grid; every candidate must stay well inside an ESP32 flash/RAM budget.
 GRID = [
@@ -60,10 +75,10 @@ def attack_type(capture: str) -> str:
     return re.sub(r"-\d+$", "", capture)
 
 
-def featurize(set_name: str, split: str) -> list[dict]:
+def featurize(data: Path, set_name: str, split: str) -> list[dict]:
     """Return one dict per capture with features, labels and timestamps."""
     caps = []
-    for name, df in load(DATA, set_name, split).items():
+    for name, df in load(data, set_name, split).items():
         caps.append(
             {
                 "name": name,
@@ -190,12 +205,9 @@ def select(train_caps: list[dict], idx: list[int], rng) -> tuple[dict, float, li
     return best[0], best[1], log
 
 
-SCORES = OUT / "scores"
-
-
-def save_scores(set_name, fs_name, split, caps, scores, n_trees) -> None:
+def save_scores(scores_dir: Path, set_name, fs_name, split, caps, scores, n_trees) -> None:
     """Store per-frame tree votes (uint8) so alarm metrics can be recomputed without training."""
-    d = SCORES / set_name / fs_name
+    d = scores_dir / set_name / fs_name
     d.mkdir(parents=True, exist_ok=True)
     votes = {
         c["name"]: np.rint(sc * n_trees).astype(np.uint8) for c, sc in zip(caps, scores, strict=True)
@@ -205,15 +217,15 @@ def save_scores(set_name, fs_name, split, caps, scores, n_trees) -> None:
 
 def cmd_alarms(args) -> None:
     """Recompute the alarm grid in protocol_results.json from stored scores."""
-    path = OUT / "protocol_results.json"
+    path = args.out / "protocol_results.json"
     results = json.loads(path.read_text())
     for set_name, entry in results.items():
         for fs_name, fs_entry in entry.items():
             thr = fs_entry["threshold"]
             for split, r in fs_entry["splits"].items():
-                saved = np.load(SCORES / set_name / fs_name / f"{split}.npz")
+                saved = np.load(args.out / "scores" / set_name / fs_name / f"{split}.npz")
                 n_trees = int(saved["n_trees"])
-                frames = load(DATA, set_name, split)
+                frames = load(args.data, set_name, split)
                 caps, scores = [], []
                 for name, df in frames.items():
                     caps.append(
@@ -226,12 +238,12 @@ def cmd_alarms(args) -> None:
 
 
 def cmd_evaluate(args) -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
+    args.out.mkdir(parents=True, exist_ok=True)
     results = {}
     for set_name in args.sets:
         t0 = time.time()
-        train_caps = featurize(set_name, "train_01")
-        tests = {split: featurize(set_name, split) for split in SPLITS[1:]}
+        train_caps = featurize(args.data, set_name, "train_01")
+        tests = {split: featurize(args.data, set_name, split) for split in SPLITS[1:]}
         results[set_name] = {}
         for fs_name, fs in FEATURE_SETS.items():
             idx = cols(fs)
@@ -242,7 +254,8 @@ def cmd_evaluate(args) -> None:
             entry = {"hyperparameters": hp, "threshold": thr, "selection": log, "splits": {}}
             for split, caps in tests.items():
                 scores = predict(clf, caps, idx)
-                save_scores(set_name, fs_name, split, caps, scores, len(clf.estimators_))
+                n_trees = len(clf.estimators_)
+                save_scores(args.out / "scores", set_name, fs_name, split, caps, scores, n_trees)
                 r = evaluate_caps(caps, scores, thr)
                 r["vehicle"] = vehicle_of(set_name, split)
                 entry["splits"][split] = r
@@ -254,13 +267,14 @@ def cmd_evaluate(args) -> None:
                 )
             results[set_name][fs_name] = entry
         print(f"{set_name} done in {time.time() - t0:.0f}s", flush=True)
-        (OUT / "protocol_results.json").write_text(json.dumps(results, indent=2))
+        (args.out / "protocol_results.json").write_text(json.dumps(results, indent=2))
 
 
 EXPORT_FEATURES = "no_can_id"
-MODEL_NAME = "can_ids_tiny_model"
-C_DIR = Path(__file__).resolve().parent / "c"
-FEATURES_DIR = REPO / "firmware" / "components" / "can_features"
+MODEL_NAME = "picket_forest_model"
+CONFIG_HEADER = "picket_forest_config.h"
+C_DIR = REPO_ROOT / "firmware" / "picket-forest" / "c"
+FEATURES_DIR = REPO_ROOT / "firmware" / "components" / "can_features"
 FRAME_DTYPE = np.dtype([("ts", "<i8"), ("can_id", "<u2"), ("dlc", "u1"), ("data", "u1", (8,))])
 # Captures used for the C-vs-Python parity check: several vehicles and attack types.
 PARITY_CAPTURES = [
@@ -286,24 +300,24 @@ def frames_to_bin(df) -> np.ndarray:
 def write_config_header(path: Path, idx: list[int], threshold: float, alarm: dict) -> None:
     names = [FEATURE_NAMES[i] for i in idx]
     lines = [
-        "/* Generated by models/can-ids-tiny/pipeline.py export. Do not edit. */",
-        "#ifndef CAN_IDS_TINY_CONFIG_H",
-        "#define CAN_IDS_TINY_CONFIG_H",
+        "/* Generated by mobility_model_zoo.security.can_ids.forest export. Do not edit. */",
+        "#ifndef PICKET_FOREST_CONFIG_H",
+        "#define PICKET_FOREST_CONFIG_H",
         "",
-        f"#define CAN_IDS_TINY_N_INPUTS {len(idx)}",
-        f"#define CAN_IDS_TINY_THRESHOLD {threshold:.9g}f",
+        f"#define PICKET_FOREST_N_INPUTS {len(idx)}",
+        f"#define PICKET_FOREST_THRESHOLD {threshold:.9g}f",
         "",
         "/* Alarm when ALARM_K flagged frames fall within ALARM_WINDOW_US; then hold off. */",
-        f"#define CAN_IDS_TINY_ALARM_K {alarm['k']}",
-        f"#define CAN_IDS_TINY_ALARM_WINDOW_US {alarm['window_ms'] * 1000}",
-        f"#define CAN_IDS_TINY_ALARM_HOLDOFF_US {alarm['holdoff_ms'] * 1000}",
+        f"#define PICKET_FOREST_ALARM_K {alarm['k']}",
+        f"#define PICKET_FOREST_ALARM_WINDOW_US {alarm['window_ms'] * 1000}",
+        f"#define PICKET_FOREST_ALARM_HOLDOFF_US {alarm['holdoff_ms'] * 1000}",
         "",
-        "/* Model input i = feature can_ids_tiny_input_index[i] of msml_can_update(). */",
-        "static const int can_ids_tiny_input_index[CAN_IDS_TINY_N_INPUTS] = {",
+        "/* Model input i = feature picket_forest_input_index[i] of msml_can_update(). */",
+        "static const int picket_forest_input_index[PICKET_FOREST_N_INPUTS] = {",
         *[f"    {i}, /* {n} */" for i, n in zip(idx, names, strict=False)],
         "};",
         "",
-        "#endif /* CAN_IDS_TINY_CONFIG_H */",
+        "#endif /* PICKET_FOREST_CONFIG_H */",
         "",
     ]
     path.write_text("\n".join(lines))
@@ -315,7 +329,7 @@ def build_host_scorer(export_dir: Path) -> Path:
     exe = export_dir / "host_score"
     subprocess.run(
         [
-            "gcc",
+            os.environ.get("CC", "cc"),
             "-std=c99",
             "-O2",
             "-ffp-contract=off",
@@ -330,7 +344,7 @@ def build_host_scorer(export_dir: Path) -> Path:
             "-I",
             str(FEATURES_DIR / "include"),
             str(C_DIR / "host_score.c"),
-            str(C_DIR / "can_ids_tiny.c"),
+            str(C_DIR / "picket_forest.c"),
             str(FEATURES_DIR / "msml_can_features.c"),
             str(FEATURES_DIR / "msml_alarm.c"),
             "-o",
@@ -341,26 +355,38 @@ def build_host_scorer(export_dir: Path) -> Path:
     return exe
 
 
-def parity_check(clf, idx: list[int], export_dir: Path) -> dict:
-    """Score frames with the C code and with Python; the scores must agree."""
+def host_scores(exe: Path, df, work_dir: Path, stem: str = "parity") -> np.ndarray:
+    """Score the frames of one capture with the host build of the C detector."""
     import subprocess
 
+    fin, fout = work_dir / f"{stem}_frames.bin", work_dir / f"{stem}_scores.bin"
+    frames_to_bin(df).tofile(fin)
+    try:
+        subprocess.run([str(exe), str(fin), str(fout)], check=True)
+        return np.fromfile(fout, dtype=np.float32)
+    finally:
+        fin.unlink(missing_ok=True)
+        fout.unlink(missing_ok=True)
+
+
+def parity_report(clf, idx: list[int], exe: Path, df, work_dir: Path) -> dict:
+    """Compare C and Python scores on one capture."""
+    c_scores = host_scores(exe, df, work_dir)
+    py_scores = vote_score(clf, extract(df)[:, idx])
+    return {
+        "frames": len(df),
+        "identical": float(np.mean(c_scores == py_scores)),
+        "max_abs_diff": float(np.max(np.abs(c_scores - py_scores))),
+    }
+
+
+def parity_check(clf, idx: list[int], export_dir: Path, data: Path) -> dict:
+    """Score frames with the C code and with Python; the scores must agree."""
     exe = build_host_scorer(export_dir)
     report = {}
     for set_name, split, cap in PARITY_CAPTURES:
-        df = load(DATA, set_name, split)[cap].iloc[:PARITY_FRAMES]
-        fin, fout = export_dir / "parity_frames.bin", export_dir / "parity_scores.bin"
-        frames_to_bin(df).tofile(fin)
-        subprocess.run([str(exe), str(fin), str(fout)], check=True)
-        c_scores = np.fromfile(fout, dtype=np.float32)
-        py_scores = vote_score(clf, extract(df)[:, idx])
-        report[f"{set_name}/{split}/{cap}"] = {
-            "frames": len(df),
-            "identical": float(np.mean(c_scores == py_scores)),
-            "max_abs_diff": float(np.max(np.abs(c_scores - py_scores))),
-        }
-        fin.unlink()
-        fout.unlink()
+        df = load(data, set_name, split)[cap].iloc[:PARITY_FRAMES]
+        report[f"{set_name}/{split}/{cap}"] = parity_report(clf, idx, exe, df, export_dir)
     return report
 
 
@@ -399,12 +425,12 @@ def to_c(clf, idx: list[int], thr: float, alarm: dict, export_dir: Path) -> None
         cmodel.save(file=str(export_dir / f"{MODEL_NAME}.h"), name=MODEL_NAME)
     finally:
         emlearn.cgen.constant = original
-    write_config_header(export_dir / "can_ids_tiny_config.h", idx, thr, alarm)
+    write_config_header(export_dir / CONFIG_HEADER, idx, thr, alarm)
 
 
 def write_export_config(clf, idx, thr, alarm, hp, selection, parity, export_dir: Path) -> dict:
     config = {
-        "model": "can-ids-tiny",
+        "model": MODEL,
         "task": "frame-level CAN intrusion detection (binary: benign / attack)",
         "algorithm": "random forest, hard voting, exported to C with emlearn (float)",
         "hyperparameters": {**hp, "min_samples_leaf": 20},
@@ -428,12 +454,12 @@ def write_export_config(clf, idx, thr, alarm, hp, selection, parity, export_dir:
     return config
 
 
-def convert_and_check(export_dir: Path) -> None:
+def convert_and_check(export_dir: Path, data: Path) -> None:
     saved = joblib.load(export_dir / "model.joblib")
     clf, thr, idx = saved["model"], saved["threshold"], saved["input_index"]
     alarm = saved["alarm"]
     to_c(clf, idx, thr, alarm, export_dir)
-    parity = parity_check(clf, idx, export_dir)
+    parity = parity_check(clf, idx, export_dir, data)
     hp = {"n_estimators": clf.n_estimators, "max_depth": clf.max_depth}
     config = write_export_config(clf, idx, thr, alarm, hp, saved["selection"], parity, export_dir)
     print(
@@ -448,12 +474,12 @@ def convert_and_check(export_dir: Path) -> None:
 
 
 def cmd_export(args) -> None:
-    export_dir = OUT / "export"
+    export_dir = args.out / "export"
     export_dir.mkdir(parents=True, exist_ok=True)
     idx = cols(FEATURE_SETS[EXPORT_FEATURES])
     tr, val = [], []
     for set_name in SETS:
-        t, v = split_train_val(featurize(set_name, "train_01"))
+        t, v = split_train_val(featurize(args.data, set_name, "train_01"))
         tr += t
         val += v
     rng = np.random.default_rng(SEED)
@@ -488,12 +514,12 @@ def cmd_export(args) -> None:
         {"model": clf, "threshold": thr, "input_index": idx, "selection": selection, "alarm": alarm},
         export_dir / "model.joblib",
     )
-    convert_and_check(export_dir)
+    convert_and_check(export_dir, args.data)
 
 
 def cmd_convert(args) -> None:
     """Re-run C conversion and the parity check on the saved model (no retraining)."""
-    convert_and_check(OUT / "export")
+    convert_and_check(args.out / "export", args.data)
 
 
 TV_CAPTURE = ("set_04", "test_04_unknown_vehicle_unknown_attack", "triple-1")
@@ -504,28 +530,25 @@ def cmd_testvectors(args) -> None:
     """Copy the exported headers next to the C sources and write on-device test vectors.
 
     Expected scores come from the host build of the same C code, which the export step has
-    checked against Python.
+    checked against Python. Headers go to firmware/picket-forest/c/generated/; intermediate
+    files go to --out.
     """
     import shutil
-    import subprocess
 
-    export_dir = OUT / "export"
+    export_dir = args.out / "export"
     gen = C_DIR / "generated"
     gen.mkdir(exist_ok=True)
-    for name in (f"{MODEL_NAME}.h", "can_ids_tiny_config.h"):
+    for name in (f"{MODEL_NAME}.h", CONFIG_HEADER):
         shutil.copy(export_dir / name, gen / name)
 
     set_name, split, cap = TV_CAPTURE
-    df = load(DATA, set_name, split)[cap]
+    df = load(args.data, set_name, split)[cap]
     first_attack = int(np.argmax(df["label"].to_numpy() == 1))
     start = max(0, first_attack - TV_FRAMES // 4)
     df = df.iloc[start : start + TV_FRAMES]
     rec = frames_to_bin(df)
     exe = build_host_scorer(export_dir)
-    fin, fout = export_dir / "tv_frames.bin", export_dir / "tv_scores.bin"
-    rec.tofile(fin)
-    subprocess.run([str(exe), str(fin), str(fout)], check=True)
-    scores = np.fromfile(fout, dtype=np.float32)
+    scores = host_scores(exe, df, args.out, stem="tv")
     labels = df["label"].to_numpy()
     cfg = json.loads((export_dir / "config.json").read_text())
     thr, alarm = cfg["threshold"], cfg["alarm"]
@@ -536,11 +559,11 @@ def cmd_testvectors(args) -> None:
     )
 
     lines = [
-        "/* Generated by models/can-ids-tiny/pipeline.py testvectors. Do not edit.",
+        "/* Generated by mobility_model_zoo.security.can_ids.forest testvectors. Do not edit.",
         f" * Source: can-train-and-test (CC BY 4.0), {set_name}/{split}/{cap}.csv,",
         f" * frames {start}..{start + len(df) - 1}. Expected scores from the host build. */",
-        "#ifndef CAN_IDS_TINY_TEST_VECTORS_H",
-        "#define CAN_IDS_TINY_TEST_VECTORS_H",
+        "#ifndef PICKET_FOREST_TEST_VECTORS_H",
+        "#define PICKET_FOREST_TEST_VECTORS_H",
         "#include <stdint.h>",
         "",
         "/* Define TV_STORAGE as PROGMEM on targets that copy const data to RAM (ESP8266, AVR). */",
@@ -566,31 +589,44 @@ def cmd_testvectors(args) -> None:
         lines.append(f"    {{{r['ts']}, 0x{r['can_id']:03X}, {r['dlc']}, {lab}, {{{data}}}}},")
     lines += ["};", "", "static const float tv_expected_score[TV_N_FRAMES] TV_STORAGE = {"]
     lines += [f"    {s!r}f," for s in scores.tolist()]
-    lines += ["};", "", "#endif /* CAN_IDS_TINY_TEST_VECTORS_H */", ""]
+    lines += ["};", "", "#endif /* PICKET_FOREST_TEST_VECTORS_H */", ""]
     (gen / "test_vectors.h").write_text("\n".join(lines))
-    fin.unlink()
-    fout.unlink()
     print(
         f"{len(df)} frames, {int(labels.sum())} attack frames, "
         f"{int(((scores >= thr) & (labels == 1)).sum())} detected, {n_alarms} alarms on host"
     )
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
+def build_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(
+        prog="security can-ids forest", description="picket-forest CAN intrusion detector"
+    )
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        "--data", type=Path, default=None, help="can-train-and-test root ($MMZ_DATA/can-train-and-test)"
+    )
+    common.add_argument(
+        "--out", type=Path, default=None, help="derived files ($MMZ_DATA/derived/picket-forest)"
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
-    ev = sub.add_parser("evaluate")
+    ev = sub.add_parser("evaluate", parents=[common], help="protocol evaluation on all splits")
     ev.add_argument("--sets", nargs="+", default=list(SETS))
     ev.set_defaults(func=cmd_evaluate)
-    ex = sub.add_parser("export")
+    ex = sub.add_parser("export", parents=[common], help="train the final model and export C")
     ex.set_defaults(func=cmd_export)
-    al = sub.add_parser("alarms")
+    al = sub.add_parser("alarms", parents=[common], help="recompute alarm metrics from scores")
     al.set_defaults(func=cmd_alarms)
-    cv = sub.add_parser("convert")
+    cv = sub.add_parser("convert", parents=[common], help="re-run C conversion and parity check")
     cv.set_defaults(func=cmd_convert)
-    tv = sub.add_parser("testvectors")
+    tv = sub.add_parser("testvectors", parents=[common], help="write on-device test vectors")
     tv.set_defaults(func=cmd_testvectors)
-    args = ap.parse_args()
+    return ap
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+    args.data = args.data or default_data()
+    args.out = args.out or default_out()
     args.func(args)
 
 

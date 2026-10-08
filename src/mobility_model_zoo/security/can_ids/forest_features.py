@@ -52,7 +52,7 @@ def _lib() -> ctypes.CDLL:
     cache.mkdir(parents=True, exist_ok=True)
     so = cache / f"libmsml_can_features_{digest}.so"
     if not so.exists():
-        cc = os.environ.get("CC", "gcc")
+        cc = os.environ.get("CC", "cc")
         cmd = [
             cc,
             "-O2",

@@ -76,3 +76,24 @@ def test_excluding_a_model_shrinks_buffers(tmp_path):
     info = json.loads([line for line in out.splitlines() if '"id":1' in line][0][1:])
     assert info["models"] == len(ZOO) - 1
     assert info["arena"] == max(m.arena_size() for n, m in ZOO.items() if n != "sensor_ae")
+
+
+def test_reference_build_is_deterministic(tmp_path):
+    """Models and eval sets are generated, not committed: two builds give the same arrays.
+
+    The npz bytes differ only in the zip timestamps, so the arrays are compared.
+    """
+    from mobility_model_zoo.edge.bench.reference_models import build_all
+
+    a, b = tmp_path / "a", tmp_path / "b"
+    build_all(a)
+    build_all(b)
+    files = sorted(p.name for p in a.glob("*.npz"))
+    assert files == sorted(p.name for p in b.glob("*.npz"))
+    assert any(f.endswith(".eval.npz") for f in files)
+    for f in files:
+        with np.load(a / f) as za, np.load(b / f) as zb:
+            assert za.files == zb.files
+            for k in za.files:
+                assert np.array_equal(za[k], zb[k]), (f, k)
+    assert (a / "manifest.json").read_bytes() == (b / "manifest.json").read_bytes()

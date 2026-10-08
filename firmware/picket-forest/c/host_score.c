@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "can_ids_tiny.h"
+#include "picket_forest.h"
 
 int main(int argc, char **argv)
 {
@@ -20,8 +20,8 @@ int main(int argc, char **argv)
         perror("fopen");
         return 1;
     }
-    static can_ids_tiny_t ids;
-    can_ids_tiny_init(&ids);
+    static picket_forest_t ids;
+    picket_forest_init(&ids);
     unsigned char rec[19];
     while (fread(rec, 1, sizeof(rec), in) == sizeof(rec)) {
         int64_t ts = 0;
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
             ts = (ts << 8) | rec[i];
         }
         uint16_t id = (uint16_t)(rec[8] | (rec[9] << 8));
-        float s = can_ids_tiny_score(&ids, ts, id, rec[10], &rec[11]);
+        float s = picket_forest_score(&ids, ts, id, rec[10], &rec[11]);
         fwrite(&s, sizeof(s), 1, out);
     }
     fclose(in);

@@ -1,14 +1,21 @@
-# Prebuilt benchmark firmware
+# picket-forest firmware
 
-Flash with [esptool-js](https://espressif.github.io/esptool-js/) (Chrome/Edge) at address `0x0`,
-then open the console at 115200 baud and press Reset. A line starting with `CAN_IDS_TINY_RESULT`
-repeats every 5 seconds. No CAN transceiver is needed.
+Frame-level CAN intrusion detector (random forest, emlearn) for microcontrollers.
 
-| File | Board | Built with |
-|---|---|---|
-| `can-ids-tiny-bench-esp32.bin` | ESP32 (DevKitC, ...) | ESP-IDF v5.5.5 |
-| `can-ids-tiny-bench-esp32s3.bin` | ESP32-S3 | ESP-IDF v5.5.5 |
-| `can-ids-tiny-bench-esp8266.bin` | ESP8266 (Wemos D1 mini, NodeMCU; 4 MB flash) | Arduino core 3.1.2, 160 MHz |
+| Path | Content |
+|---|---|
+| `c/picket_forest.{c,h}` | Detector API: `picket_forest_init`, `picket_forest_score`, `picket_forest_process` |
+| `c/host_score.c` | Host harness used by the C-vs-Python parity check |
+| `c/generated/` | `picket_forest_config.h` (committed); `picket_forest_model.h` and `test_vectors.h` are generated and gitignored |
+| `esp-idf/` | ESP-IDF benchmark app (ESP32, ESP32-S3, ...): `idf.py set-target esp32s3 && idf.py build flash monitor` |
+| `esp8266/` | Arduino benchmark sketch for ESP8266: `./esp8266/build.sh` |
 
-They contain the model and test vectors in `../c/generated/` at the commit that added them.
-Rebuild after retraining; see `../README.md`.
+Feature extraction comes from `../components/can_features` (`msml_*`).
+
+Generate the model and test vectors before building the benchmarks:
+
+    uv run security can-ids forest export        # trains, writes $MMZ_DATA/derived/picket-forest/export/
+    uv run security can-ids forest testvectors   # copies headers into c/generated/
+
+The benchmark replays recorded CAN frames (no CAN transceiver needed) and prints a line starting
+with `PICKET_FOREST_RESULT` every 5 seconds at 115200 baud.
