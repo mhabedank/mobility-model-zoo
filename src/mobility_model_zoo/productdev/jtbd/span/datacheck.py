@@ -52,13 +52,14 @@ def composition(chunks: list, targets: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _compliance_train(settings: Settings, origins: list[str]) -> dict[str, Any]:
+def _compliance_train(settings: Settings, origins: list[str],
+                      chunks: list[tuple[str, str]] | None = None) -> dict[str, Any]:
     """Train-stage checks of the compliance harness (feature 006, C-T1 … C-T5)."""
     from mobility_model_zoo.compliance.findings import StageFailed
     from mobility_model_zoo.compliance.hashing import url_hasher
     from mobility_model_zoo.compliance.ingest import harness_present
     from mobility_model_zoo.compliance.register import Register
-    from mobility_model_zoo.compliance.train import check_training
+    from mobility_model_zoo.compliance.train import check_training, suppressed_identifier_findings
 
     if not harness_present(settings.base):
         if settings.test_fixture:
@@ -73,6 +74,7 @@ def _compliance_train(settings: Settings, origins: list[str]) -> dict[str, Any]:
                        if json.loads(m.read_text(encoding="utf-8")).get("role") == "teacher"})
     findings = check_training(reg, origins=origins, model_licence=None, teachers=teachers,
                               url_hash=url_hasher())
+    findings += suppressed_identifier_findings(reg, chunks or [], url_hasher())
     return {"checked": True, "findings": StageFailed(findings).failures if findings else []}
 
 
@@ -120,7 +122,8 @@ def data_check(settings: Settings) -> dict[str, Any]:
                     for (o, lic, use), n in sorted(sources.items())],
         "composition": composition(chunks, settings.span_train.get("composition_targets") or {}),
     }
-    result["compliance"] = _compliance_train(settings, [s["origin"] for s in result["sources"]])
+    result["compliance"] = _compliance_train(settings, [s["origin"] for s in result["sources"]],
+                                             [(c.chunk_id, c.text) for c in chunks])
     write_json(settings.data_dir / "analysis" / "provenance.json", result)
     if result["compliance"]["findings"]:
         raise ValidationFailed("compliance train check failed: "

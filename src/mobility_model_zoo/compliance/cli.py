@@ -436,14 +436,146 @@ def delete_cmd(
                 head = path.read_text(encoding="utf-8").split("\n", 1)[0]
                 body = yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=110)
                 path.write_text((head + "\n" if head.startswith("#") else "") + body, encoding="utf-8")
-        say(f"deleted {len(entry['files'])} file(s) of {snapshot}; "
-            "logged in data/compliance/deletions.jsonl")
+        say(
+            f"deleted {len(entry['files'])} file(s) of {snapshot}; "
+            "logged in data/compliance/deletions.jsonl"
+        )
 
     _run(fn)
 
 
-for _name in (
-    "request",
-    "watch",
-):
-    app.command(_name)(_not_implemented(_name))
+request_app = typer.Typer(no_args_is_help=True, help="Rights and takedown requests (FR-026).")
+watch_app = typer.Typer(no_args_is_help=True, help="Legal watch list (FR-028).")
+app.add_typer(request_app, name="request")
+app.add_typer(watch_app, name="watch")
+DEADLINE_DAYS = {"objection": 30, "erasure": 30, "access": 30, "takedown": 14, "opt_out": 14}
+
+
+def _write_records(path: Path, key: str, records: list, header: str) -> None:
+    import yaml
+
+    path.write_text(
+        header + yaml.safe_dump({key: records}, sort_keys=False, allow_unicode=True, width=110),
+        encoding="utf-8",
+    )
+
+
+@request_app.command("add")
+def request_add_cmd(
+    kind: str = typer.Option(..., "--type", help="objection|erasure|access|takedown|opt_out"),
+    identifier: str = typer.Option(
+        ..., "--identifier", help="URL, name or handle; only its keyed hash is stored"
+    ),
+    received: str = typer.Option(..., "--received", help="YYYY-MM-DD"),
+    suppress: str = typer.Option("url", "--suppress", help="url|identifier|none"),
+) -> None:
+    """Log a request with its deadline; add a suppression entry (keyed hash, no personal data)."""
+
+    def fn() -> None:
+        import datetime as dt
+
+        from mobility_model_zoo.compliance.hashing import keyed_hash
+
+        if kind not in DEADLINE_DAYS:
+            raise UsageError(f"--type must be one of {', '.join(DEADLINE_DAYS)}")
+        from mobility_model_zoo.compliance.signals import canonical
+
+        try:
+            # URLs are hashed in the canonical form the fetch stage uses (C-F5).
+            digest = keyed_hash(canonical(identifier) if suppress == "url" else identifier)
+        except RuntimeError as e:
+            raise UsageError(str(e)) from None
+        reg = load_register()
+        day = dt.date.fromisoformat(received)
+        requests = reg.records("requests")
+        rid = f"r-{day.isoformat()}-{len(requests) + 1:03d}"
+        requests.append(
+            {
+                "id": rid,
+                "type": kind,
+                "received_at": day.isoformat(),
+                "deadline": (day + dt.timedelta(days=DEADLINE_DAYS[kind])).isoformat(),
+                "identifier_hash": digest,
+                "stores_searched": [],
+                "action": "",
+                "suppression_added": suppress != "none",
+                "answered_at": None,
+            }
+        )
+        _write_records(
+            reg.root / "compliance" / "requests.yaml",
+            "requests",
+            requests,
+            "# Rights and takedown requests; identifiers are keyed hashes (MMZ_SUPPRESSION_KEY).\n",
+        )
+        if suppress != "none":
+            entries = reg.records("suppression")
+            entries.append(
+                {"hash": digest, "kind": suppress, "request_id": rid, "added_at": day.isoformat()}
+            )
+            _write_records(
+                reg.root / "compliance" / "suppression.yaml",
+                "entries",
+                entries,
+                "# Suppressed URLs and identifiers (keyed hashes); fetch and train skip them.\n",
+            )
+        say(f"logged {rid}, deadline {requests[-1]['deadline']}")
+
+    _run(fn)
+
+
+@request_app.command("close")
+def request_close_cmd(
+    request_id: str,
+    action: str = typer.Option(..., "--action", help="What was done (no personal data)."),
+    stores: list[str] = typer.Option(..., "--searched", help="Stores searched (repeatable)."),
+    answered: str = typer.Option(..., "--answered", help="YYYY-MM-DD"),
+) -> None:
+    """Record the answer to a request."""
+
+    def fn() -> None:
+        reg = load_register()
+        requests = reg.records("requests")
+        match = next((r for r in requests if r["id"] == request_id), None)
+        if match is None:
+            raise UsageError(f"unknown request {request_id}")
+        match.update(action=action, stores_searched=list(stores), answered_at=answered)
+        _write_records(
+            reg.root / "compliance" / "requests.yaml",
+            "requests",
+            requests,
+            "# Rights and takedown requests; identifiers are keyed hashes (MMZ_SUPPRESSION_KEY).\n",
+        )
+        say(f"closed {request_id}")
+
+    _run(fn)
+
+
+@watch_app.command("review")
+def watch_review_cmd(
+    item_id: str,
+    outcome: str = typer.Option(..., "--outcome"),
+    next_review: str = typer.Option(None, "--next-review", help="Keep watching until this date."),
+) -> None:
+    """Record the review of a legal watch item (clears C-M2)."""
+
+    def fn() -> None:
+        import datetime as dt
+
+        reg = load_register()
+        items = reg.records("legal-watch")
+        match = next((i for i in items if i["id"] == item_id), None)
+        if match is None:
+            raise UsageError(f"unknown legal watch item {item_id}")
+        match.update(reviewed_at=dt.date.today().isoformat(), outcome=outcome)
+        if next_review:
+            match.update(review_by=next_review, reviewed_at=None)
+        _write_records(
+            reg.root / "compliance" / "legal-watch.yaml",
+            "items",
+            items,
+            "# Pending decisions and legal dates that can change the rules (FR-028).\n",
+        )
+        say(f"reviewed {item_id}")
+
+    _run(fn)

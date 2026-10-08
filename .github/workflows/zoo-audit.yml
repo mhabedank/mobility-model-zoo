@@ -1,7 +1,8 @@
 name: zoo-audit
 
-# Weekly: every published tag still points to its recorded commit and card, and every staging and
-# sandbox repo is private (specs/003-model-zoo-hf-release, FR-006a, FR-007).
+# Weekly: every published tag still points to its recorded commit and card, every staging and
+# sandbox repo is private (specs/003-model-zoo-hf-release, FR-006a, FR-007), and the compliance
+# register has no overdue dates (specs/006-compliance-harness, FR-028).
 on:
   schedule:
     - cron: "17 6 * * 1"
@@ -23,3 +24,7 @@ jobs:
           enable-cache: true
       - run: uv sync --extra release
       - run: uv run zoo audit
+      # Compliance register (feature 006): overdue reviews, legal watch dates, expired waivers and
+      # open requests past their deadline fail here even when no release is planned.
+      - if: always()
+        run: uv run zoo compliance check --stage meta

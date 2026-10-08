@@ -395,15 +395,15 @@ description: "Tasks for feature 006: compliance harness"
 
 **Independent Test**: quickstart scenario 5.
 
-- [ ] T060 [P] [US6] Write `tests/compliance/test_requests.py`:
+- [X] T060 [P] [US6] Write `tests/compliance/test_requests.py`:
   - `request add` stores only an HMAC identifier;
   - it fails without `MMZ_SUPPRESSION_KEY`;
   - the deadline is set to 1 month for objection, erasure and access, and 14 days for takedown;
   - a suppressed URL blocks a later fetch (C-F5), and a suppressed identifier blocks training (C-T1);
   - `watch review` clears C-M2.
-- [ ] T061 [US6] Implement `src/mobility_model_zoo/compliance/hashing.py`: HMAC-SHA-256 over NFKC-lowercased identifiers and canonical URLs with `MMZ_SUPPRESSION_KEY`. Implement `zoo compliance request add/close` and `zoo compliance watch review` per contracts/cli.md, writing `compliance/requests.yaml` and `compliance/suppression.yaml`.
-- [ ] T062 [US6] Add the meta stage to `.github/workflows/zoo-audit.yml` (weekly), with a step `uv run zoo compliance check --stage meta`. No secrets are needed for this step.
-- [ ] T063 [US6] Document the request handling for the owner in `docs/compliance/requests.md` (English): how to receive, hash, search the stores (snapshots, chunks, runs, published files), answer within the deadline, and suppress. Link it from `PRIVACY.md` through its template.
+- [X] T061 [US6] Implement `src/mobility_model_zoo/compliance/hashing.py`: HMAC-SHA-256 over NFKC-lowercased identifiers and canonical URLs with `MMZ_SUPPRESSION_KEY`. Implement `zoo compliance request add/close` and `zoo compliance watch review` per contracts/cli.md, writing `compliance/requests.yaml` and `compliance/suppression.yaml`.
+- [X] T062 [US6] Add the meta stage to `.github/workflows/zoo-audit.yml` (weekly), with a step `uv run zoo compliance check --stage meta`. No secrets are needed for this step.
+- [X] T063 [US6] Document the request handling for the owner in `docs/compliance/requests.md` (English): how to receive, hash, search the stores (snapshots, chunks, runs, published files), answer within the deadline, and suppress. Link it from `PRIVACY.md` through its template.
 
 **Checkpoint**: Requests have a channel, a log and an effect.
 

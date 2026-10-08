@@ -88,3 +88,16 @@ def test_teacher_without_output_rights(register_tree):
 
 def test_recall_below_threshold(register_tree):
     assert ids(register_tree, recall=0.9) == {"C-T5"}
+
+
+def test_suppressed_identifier_in_chunk(register_tree):
+    from mobility_model_zoo.compliance.hashing import keyed_hash
+    from mobility_model_zoo.compliance.train import suppressed_identifier_findings
+
+    write(register_tree, "compliance/suppression.yaml", {"entries": [
+        {"hash": keyed_hash("Lena Beispiel", b"k"), "kind": "identifier", "request_id": "r1",
+         "added_at": "2026-10-08"}]})
+    hasher = lambda t: keyed_hash(t, b"k")  # noqa: E731
+    chunks = [("ch-1", "Wie Lena Beispiel sagte, fährt kein Bus."), ("ch-2", "Kein Name hier.")]
+    found = suppressed_identifier_findings(load(register_tree), chunks, hasher)
+    assert [f.record for f in found] == ["ch-1"]
