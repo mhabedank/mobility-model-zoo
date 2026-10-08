@@ -61,12 +61,12 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Write `tests/release/test_layout.py`: for every topic in `zoo/topics.yaml` except `sandbox`, `topics/<id>/README.md` and `topics/<id>/datasets.yaml` exist; none of `guideline/`, `reports/`, `benchmarks/`, `spike/`, `deploy/`, `docs/recipes/` exists at the top level; `zoo validate --all` fails on a fixture registry with a missing topic folder.
-- [ ] T011 [P] [US1] Write `tests/release/test_deprecate_from_tag.py` with the FakeHub and a fixture git repository: tag `m-x/v0.1.0` with `model.yaml` figure path `docs/f.png`, then move the figure and change `model.yaml` on `main`; `zoo deprecate` for 0.1.0 renders figure URLs with `docs/f.png` at the tag (research R14).
+- [X] T010 [P] [US1] Write `tests/release/test_layout.py`: for every topic in `zoo/topics.yaml` except `sandbox`, `topics/<id>/README.md` and `topics/<id>/datasets.yaml` exist; none of `guideline/`, `reports/`, `benchmarks/`, `spike/`, `deploy/`, `docs/recipes/` exists at the top level; `zoo validate --all` fails on a fixture registry with a missing topic folder.
+- [X] T011 [P] [US1] Write `tests/release/test_deprecate_from_tag.py` with the FakeHub and a fixture git repository: tag `m-x/v0.1.0` with `model.yaml` figure path `docs/f.png`, then move the figure and change `model.yaml` on `main`; `zoo deprecate` for 0.1.0 renders figure URLs with `docs/f.png` at the tag (research R14).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] `git mv` per contracts/path-map.md section A:
+- [X] T012 [US1] `git mv` per contracts/path-map.md section A:
   - `guideline/` → `topics/productdev/guideline/`
   - `reports/{pilot-v2,spike-v2,scout-large}/` → `topics/productdev/reports/…`
   - `benchmarks/` → `topics/productdev/benchmarks/`
@@ -76,7 +76,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `scripts/{pilot,span,railway,spark}/` → `topics/productdev/scripts/…`
 
   Commit only the renames ("Move productdev material to topics/productdev"), so rename detection stays exact.
-- [ ] T013 [US1] Update path references:
+- [X] T013 [US1] Update path references:
   - **Configs** (`configs/productdev/jtbd/`):
     - `pilot-v1.yaml`: `guideline`, `examples`, `benchmarks`, `reports` → `topics/productdev/…` (lines 7–8, 15–16).
     - `span-train-v1.yaml` (lines 10–11, 21) and `spike-v1.yaml` (lines 8–9, 19): same change.
@@ -97,21 +97,21 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
     - `tests/fixtures/mini-corpus/domain.yaml:2`
 
   Do not edit `zoo/models/scout-large/releases/0.1.0.yaml` or `0.1.1.yaml`.
-- [ ] T014 [US1] In `zoo/models/scout-large/model.yaml` lines 24 and 26, change figure paths to `topics/productdev/recipes/figures/scout-large-quality-speed.png` and `…/scout-large-10k-texts.png`. Widen `card.figures[].path` in `src/mobility_model_zoo/release/schemas/model.schema.json` to `^(docs|topics)/[a-z0-9/_.-]+\.png$`. Create `specs/005-topic-layout-security-merge/contracts/` copies of all four schemas, and point `tests/release/test_schemas.py:17-21` at the new folder (research R13).
-- [ ] T015 [US1] Make `zoo deprecate` and every re-render of a published version read `zoo/models/<name>/model.yaml` at git tag `<name>/v<version>`, using `git show <tag>:<path>`, in `src/mobility_model_zoo/release/publish.py` and `card.py:78-83`. Fall back to the working tree only for unpublished versions. T011 passes.
-- [ ] T016 [US1] Topic registry: widen the topic `id` pattern in `src/mobility_model_zoo/release/schemas/topics.schema.json:17` and `model.schema.json:33` to `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` with `maxLength: 24`, in both the packaged schemas and the contract copies. Add to `zoo/topics.yaml`:
+- [X] T014 [US1] In `zoo/models/scout-large/model.yaml` lines 24 and 26, change figure paths to `topics/productdev/recipes/figures/scout-large-quality-speed.png` and `…/scout-large-10k-texts.png`. Widen `card.figures[].path` in `src/mobility_model_zoo/release/schemas/model.schema.json` to `^(docs|topics)/[a-z0-9/_.-]+\.png$`. Create `specs/005-topic-layout-security-merge/contracts/` copies of all four schemas, and point `tests/release/test_schemas.py:17-21` at the new folder (research R13).
+- [X] T015 [US1] Make `zoo deprecate` and every re-render of a published version read `zoo/models/<name>/model.yaml` at git tag `<name>/v<version>`, using `git show <tag>:<path>`, in `src/mobility_model_zoo/release/publish.py` and `card.py:78-83`. Fall back to the working tree only for unpublished versions. T011 passes.
+- [X] T016 [US1] Topic registry: widen the topic `id` pattern in `src/mobility_model_zoo/release/schemas/topics.schema.json:17` and `model.schema.json:33` to `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` with `maxLength: 24`, in both the packaged schemas and the contract copies. Add to `zoo/topics.yaml`:
   - `{id: security, title: Automotive security, description: "Small models that detect attacks on vehicle buses and radio interfaces, built to run on microcontrollers.", hf_collection: null}`
   - `{id: condition-monitoring, title: Condition monitoring, description: "Small models that watch machines and movement through sensors, built to run on microcontrollers.", hf_collection: null}`
 
   Check that `zoo index` and the card do not assume a non-null `hf_collection` for non-sandbox topics; render "collection not yet published" where they do.
-- [ ] T017 [US1] Extend `zoo validate --all` in `src/mobility_model_zoo/release/cli.py:66-102`: for every non-sandbox topic, require `topics/<id>/README.md` and `topics/<id>/datasets.yaml`. Until US3 lands, the datasets file is checked for existence only. T010 passes.
-- [ ] T018 [P] [US1] Write `topics/productdev/README.md`: scope, the task `jtbd`, the model `scout-large` with its collection link, and the sections (guideline, benchmarks, reports, recipes, spike, deploy, scripts). Add `topics/productdev/datasets.yaml` with `datasets: []` and a comment that JTBD sources live in the snapshot registry under `data/` (Principle VI, crawl once). Create empty `topics/productdev/research/README.md` that links the pilot reports.
-- [ ] T019 [P] [US1] Create skeletons:
+- [X] T017 [US1] Extend `zoo validate --all` in `src/mobility_model_zoo/release/cli.py:66-102`: for every non-sandbox topic, require `topics/<id>/README.md` and `topics/<id>/datasets.yaml`. Until US3 lands, the datasets file is checked for existence only. T010 passes.
+- [X] T018 [P] [US1] Write `topics/productdev/README.md`: scope, the task `jtbd`, the model `scout-large` with its collection link, and the sections (guideline, benchmarks, reports, recipes, spike, deploy, scripts). Add `topics/productdev/datasets.yaml` with `datasets: []` and a comment that JTBD sources live in the snapshot registry under `data/` (Principle VI, crawl once). Create empty `topics/productdev/research/README.md` that links the pilot reports.
+- [X] T019 [P] [US1] Create skeletons:
   - `topics/security/README.md` and `topics/condition-monitoring/README.md`: scope, tasks, models, "collection not yet published".
   - `topics/security/datasets.yaml` and `topics/condition-monitoring/datasets.yaml`, each `datasets: []`.
   - Empty folders with a `.gitkeep`: `research/`, `reports/`, `recipes/`, `tasks/`.
-- [ ] T020 [P] [US1] Write `docs/layout.md`: the top-level rule (shared vs. per topic, research R3), the tree from contracts/path-map.md section D, and where a new topic or task puts code, configs, research, datasets, reports, recipes and firmware. Link it from `README.md` and `docs/adding-a-model.md` (FR-005).
-- [ ] T021 [US1] Run the full suite, `zoo validate --all` and `uv run zoo audit` (uses `HF_RELEASE_TOKEN` from `.env`). Check links with `scripts/import/check_card_links.py`: it downloads the published READMEs of `mobility-model-zoo/scout-large` at `v0.1.0` and `v0.1.1` and sends an HTTP HEAD (GET as fallback) to every link; GitHub links pinned to commits or tags must answer 200. Record the results under "US1" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: same pass count as T001 plus the new tests, audit ok for `scout-large` 0.1.0 and 0.1.1, and no broken link (SC-003).
+- [X] T020 [P] [US1] Write `docs/layout.md`: the top-level rule (shared vs. per topic, research R3), the tree from contracts/path-map.md section D, and where a new topic or task puts code, configs, research, datasets, reports, recipes and firmware. Link it from `README.md` and `docs/adding-a-model.md` (FR-005).
+- [X] T021 [US1] Run the full suite, `zoo validate --all` and `uv run zoo audit` (uses `HF_RELEASE_TOKEN` from `.env`). Check links with `scripts/import/check_card_links.py`: it downloads the published READMEs of `mobility-model-zoo/scout-large` at `v0.1.0` and `v0.1.1` and sends an HTTP HEAD (GET as fallback) to every link; GitHub links pinned to commits or tags must answer 200. Record the results under "US1" in `specs/005-topic-layout-security-merge/validation.md`. **GATE**: same pass count as T001 plus the new tests, audit ok for `scout-large` 0.1.0 and 0.1.1, and no broken link (SC-003).
 
 **Checkpoint**: The layout exists and nothing published broke.
 

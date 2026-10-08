@@ -64,6 +64,19 @@ def _runner() -> Any:
     return VenvRunner(Path.cwd(), os.environ.get(RELEASE_TOKEN))
 
 
+def topic_folder_failures(reg: Registry) -> list[str]:
+    """Every public topic has topics/<id>/README.md and its dataset declarations (feature 005)."""
+    failures = []
+    for topic in reg.topics():
+        if topic["id"] == "sandbox":
+            continue
+        base = reg.root / "topics" / topic["id"]
+        for rel in ("README.md", "compliance/datasets.yaml"):
+            if not (base / rel).is_file():
+                failures.append(f"topic {topic['id']}: topics/{topic['id']}/{rel} is missing")
+    return failures
+
+
 def _mount_compliance() -> None:
     from mobility_model_zoo.compliance.cli import app as compliance_app
 
@@ -107,6 +120,7 @@ def validate_cmd(
                 except GateFailed as e:
                     failures += [f"{name} {version}: {f}" for f in e.failures]
         if all_models:
+            failures += topic_folder_failures(reg)
             from mobility_model_zoo.compliance.checks import Context, stage_meta
             from mobility_model_zoo.compliance.register import Register
 

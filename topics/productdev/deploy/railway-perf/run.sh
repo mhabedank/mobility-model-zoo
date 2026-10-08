@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Job runner of the reference machine. A Railway project token cannot open `railway ssh`, so the
 # container runs the jobs itself at start and prints each result to the deployment log between
-# markers; scripts/railway/collect.py reads them back with `railway logs`.
+# markers; topics/productdev/scripts/railway/collect.py reads them back with `railway logs`.
 #   PERF_MODELS  space-separated model IDs from models.yaml (Ollama baselines), measured in order
 #   PERF_SPAN    space-separated span model directories under /app/models (feature 004)
 #   PERF_LABEL   hardware label recorded in each result
@@ -17,7 +17,7 @@ emit() {  # name, file
 echo "=== HARDWARE ==="
 uv run python -c "import json; from mobility_model_zoo.productdev.jtbd.perf import hardware_info; print(json.dumps(hardware_info('$LABEL')))"
 echo "cpu.max: $(cat /sys/fs/cgroup/cpu.max 2>/dev/null) memory.max: $(cat /sys/fs/cgroup/memory.max 2>/dev/null)"
-VERSION=$(cat benchmarks/current)
+VERSION=$(cat topics/productdev/benchmarks/current)
 for model in ${PERF_MODELS:-}; do
   api=$(uv run python -c "from mobility_model_zoo.productdev.jtbd.config import load_settings; print(load_settings('$CONFIG').model('$model').api_model)")
   echo "=== PULL $model ($api) ==="

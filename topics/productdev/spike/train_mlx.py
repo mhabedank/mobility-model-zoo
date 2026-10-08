@@ -1,6 +1,6 @@
 """MLX LoRA training for spike 002, second attempt (see data/spike/findings.md).
 
-Differences to `mlx_lm.lora` with spike/train_mlx.yaml:
+Differences to `mlx_lm.lora` with topics/productdev/spike/train_mlx.yaml:
 - Loss summed over answer tokens and divided by a constant, not averaged per example. With batch
   size 1 the per-example mean gave short "nothing found" answers ~50x the weight per token and the
   first run collapsed to {"relevant": false, "items": []}.
@@ -8,7 +8,7 @@ Differences to `mlx_lm.lora` with spike/train_mlx.yaml:
   assistant turns, so training and inference see the same assistant prefix.
 - No loss-based validation; checkpoints are chosen afterwards by generation (select_checkpoint.py).
 
-Run: uv run --with mlx-lm==0.31.3 python spike/train_mlx.py spike/train_mlx.yaml
+Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/train_mlx.py topics/productdev/spike/train_mlx.yaml
 """
 
 from __future__ import annotations
@@ -89,4 +89,4 @@ def main(config_path: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "spike/train_mlx.yaml")
+    main(sys.argv[1] if len(sys.argv) > 1 else "topics/productdev/spike/train_mlx.yaml")

@@ -8,6 +8,8 @@ A model is named `<name>-<variant>` in lowercase with hyphens, for example `scou
 
 ## Add a topic
 
+Where each part of a topic or task goes: [layout.md](layout.md).
+
 Add an entry to `zoo/topics.yaml`:
 
 ```yaml

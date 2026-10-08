@@ -1,12 +1,12 @@
-"""Train the encoder span model (spike/span_model.py) on the four-teacher ensemble labels.
+"""Train the encoder span model (topics/productdev/spike/span_model.py) on the four-teacher ensemble labels.
 
 Training data: the spike's 200 train chunks labeled by the ensemble strategy that produced the
-v3b training data (spike/ensemble.py EXPORT, quotes repaired to source spans). 20 chunks are held
+v3b training data (topics/productdev/spike/ensemble.py EXPORT, quotes repaired to source spans). 20 chunks are held
 out for choosing the best epoch; the 35 evaluation chunks are never used here.
 
 Run: uv run --with torch --with transformers --with sentencepiece --with protobuf \
-         python spike/train_span.py [--encoder FacebookAI/xlm-roberta-base] [--epochs 12]
-On another machine (e.g. the DGX Spark, see spike/train_span_spark.sh): export the labeled rows
+         python topics/productdev/spike/train_span.py [--encoder FacebookAI/xlm-roberta-base] [--epochs 12]
+On another machine (e.g. the DGX Spark, see topics/productdev/spike/train_span_spark.sh): export the labeled rows
 here with --export-rows rows.jsonl [--teachers], then train there with --rows rows.jsonl; this
 needs only torch and transformers, not the mobility_model_zoo.productdev.jtbd package.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 import torch
 from torch import nn
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "spike"))
 
 from span_model import (  # noqa: E402

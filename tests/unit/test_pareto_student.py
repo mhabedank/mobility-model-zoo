@@ -45,8 +45,8 @@ def test_candidates_are_plotted_with_the_baselines(tmp_path):
     candidate(bench, train, "c2", 0.5, 300.0)
     git_commit_all(work)
     out = pilot(bench, "span", "pareto", "--recipe", str(recipe))
-    points = read_json(work / "docs/recipes/figures/scout-large-pareto.json")
-    assert (work / "docs/recipes/figures/scout-large-pareto.png").stat().st_size
+    points = read_json(work / "topics/productdev/recipes/figures/scout-large-pareto.json")
+    assert (work / "topics/productdev/recipes/figures/scout-large-pareto.png").stat().st_size
     assert points["dimensions"] == NAMES and points["benchmark_version"] == "mini-v1"
     assert [p["model_id"] for p in points["baselines"]] == ["mock-small"]
     assert [p["model_id"] for p in points["candidates"]] == ["scout-large (c1)", "scout-large (c2)"]

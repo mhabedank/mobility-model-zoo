@@ -7,8 +7,8 @@ test_fixture: false
 budget_name: span-xlmr-0.1.0
 
 paths:
-  guideline: guideline/guideline-v2.md   # as pilot-v2, which evaluated the teacher
-  examples: guideline/examples-v2
+  guideline: topics/productdev/guideline/guideline-v2.md   # as pilot-v2, which evaluated the teacher
+  examples: topics/productdev/guideline/examples-v2
   domain: configs/productdev/jtbd/domain/mobility.yaml
   models: configs/productdev/jtbd/models.yaml
   criteria: configs/productdev/jtbd/decision-criteria.yaml
@@ -18,7 +18,7 @@ paths:
   snapshots: data/snapshots
   ledger: data/budget/ledger.jsonl
   benchmarks: data/span-train-v1/benchmarks
-  reports: reports
+  reports: topics/productdev/reports
 
 span_train:
   dataset: span-train-v1

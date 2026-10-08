@@ -1,9 +1,9 @@
 """Merge a PEFT LoRA adapter into its bf16 base model and save a standalone Hugging Face model.
 
-The result can be converted to MLX for local use (spike/build_local_model.sh).
+The result can be converted to MLX for local use (topics/productdev/spike/build_local_model.sh).
 
 Run: uv run --with torch --with transformers --with peft --with accelerate \
-         python spike/merge_adapter.py data/models/spike-v3b-adapter data/models/spike-v3b-merged
+         python topics/productdev/spike/merge_adapter.py data/models/spike-v3b-adapter data/models/spike-v3b-merged
 """
 
 from __future__ import annotations

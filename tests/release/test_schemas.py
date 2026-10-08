@@ -10,7 +10,7 @@ import pytest
 from mobility_model_zoo.release.registry import SCHEMAS, schema_errors
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACTS = ROOT / "specs/003-model-zoo-hf-release/contracts"
+CONTRACTS = ROOT / "specs/005-topic-layout-security-merge/contracts"  # latest owner of the format
 PACKAGED = ROOT / "src/mobility_model_zoo/release/schemas"
 
 

@@ -2,7 +2,7 @@
 """Progress page for the spike run on the MacBook: training loss and benchmark agreement.
 
 Writes data/spike/progress.html (refreshes itself every 60 s). Run repeatedly while the spike runs:
-    uv run python spike/progress.py [--loop]
+    uv run python topics/productdev/spike/progress.py [--loop]
 The provisional composite scores only the chunks a run has finished so far, and scores the teacher
 on the same chunks, so the numbers are comparable at every point but move until the run is done.
 """
@@ -30,7 +30,7 @@ from mobility_model_zoo.productdev.jtbd.metrics import (
 from mobility_model_zoo.productdev.jtbd.runs import load_outputs
 from mobility_model_zoo.productdev.jtbd.scoring import RELEVANCE_LABELS, score_units
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 SPIKE = ROOT / "data/spike"
 LOG = SPIKE / "train-mlx.log"
 OUT = SPIKE / "progress.html"

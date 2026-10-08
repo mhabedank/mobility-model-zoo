@@ -1,4 +1,4 @@
-"""Build-time patch for Ludwig 0.17.9 (spike/Dockerfile.ludwig): token-weighted LLM loss.
+"""Build-time patch for Ludwig 0.17.9 (topics/productdev/spike/Dockerfile.ludwig): token-weighted LLM loss.
 
 Ludwig's NextTokenSoftmaxCrossEntropyLoss averages over the answer tokens of one batch. With batch
 size 1 every example gets the same weight, so short "nothing found" answers weigh ~50x more per

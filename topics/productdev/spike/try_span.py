@@ -1,4 +1,4 @@
-"""Try the fast encoder span model (spike/span_model.py) on your own text (spike, not a benchmark).
+"""Try the fast encoder span model (topics/productdev/spike/span_model.py) on your own text (spike, not a benchmark).
 
 Prints relevance and each job, pain or gain with actor type, evidence and the verbatim quote, and
 the time the model needed after loading. Texts of any length are processed in overlapping
@@ -6,7 +6,7 @@ the time the model needed after loading. Texts of any length are processed in ov
 
 Run:
   uv run --with torch --with transformers --with sentencepiece --with protobuf \
-      python spike/try_span.py --file data/interviews/fiktiv-interview-fussgaenger-berlin.txt
+      python topics/productdev/spike/try_span.py --file data/interviews/fiktiv-interview-fussgaenger-berlin.txt
 Options: --model <dir> (default data/models/span-lt-fixed), --json, --device cpu|mps.
 """
 

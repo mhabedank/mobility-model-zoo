@@ -16,7 +16,7 @@ Sources, all from runs on the same frozen benchmark (pilot-v2, 150 main chunks):
 
 Run after `jtbd span results`, which rewrites the results files:
 
-    uv run python scripts/span/comparisons.py --version 0.1.0
+    uv run python topics/productdev/scripts/span/comparisons.py --version 0.1.0
 """
 
 from __future__ import annotations
@@ -34,9 +34,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.ticker import FuncFormatter  # noqa: E402
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 VERSION_DIR = ROOT / "zoo/models/scout-large/results"
-FIGURES = ROOT / "docs/recipes/figures"
+FIGURES = ROOT / "topics/productdev/recipes/figures"
 BENCH = "pilot-v2"
 ANALYSIS = ROOT / "data/analysis" / BENCH
 RUNS = ROOT / "data/runs"

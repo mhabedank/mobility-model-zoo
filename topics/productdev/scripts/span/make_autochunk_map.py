@@ -8,7 +8,7 @@ which refuses them; run this script with --drop to leave such snapshots out by n
 Metadata comes from the source plan where the snapshot is listed; otherwise the language is guessed
 from stop words, the region from the URL's country domain, and the sub-area from topic words.
 
-    uv run python scripts/span/make_autochunk_map.py [--drop snap-... ...]
+    uv run python topics/productdev/scripts/span/make_autochunk_map.py [--drop snap-... ...]
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 SNAPSHOTS = ROOT / "data/snapshots"
 PLAN = ROOT / "data/sources/source-plan.yaml"
 OUT = ROOT / "data/span-train-v1/autochunk-map.yaml"

@@ -1,7 +1,7 @@
 """Read the reference machine's results from its Railway deployment log (see
-deploy/railway-perf/run.sh) and write them to data/analysis/<version>/perf/.
+topics/productdev/deploy/railway-perf/run.sh) and write them to data/analysis/<version>/perf/.
 
-    RAILWAY_TOKEN=... uv run python scripts/railway/collect.py [--service jtbd-perf]
+    RAILWAY_TOKEN=... uv run python topics/productdev/scripts/railway/collect.py [--service jtbd-perf]
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import re
 import subprocess
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 
 
 def main() -> None:
@@ -28,7 +28,7 @@ def main() -> None:
     if args.deployment_id:
         cmd.insert(2, args.deployment_id)
     log = subprocess.run(cmd, capture_output=True, text=True, cwd="/tmp", check=True).stdout
-    version = (ROOT / "benchmarks/current").read_text().strip()
+    version = (ROOT / "topics/productdev/benchmarks/current").read_text().strip()
     out = ROOT / "data/analysis" / version / "perf"
     out.mkdir(parents=True, exist_ok=True)
     found = re.findall(r"=== PERF_RESULT (\S+) ===\s*\n(\S+)\s*\n=== END \1 ===", log)

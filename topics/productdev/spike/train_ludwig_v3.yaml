@@ -1,5 +1,5 @@
 # Ludwig LoRA fine-tuning for spike 002, attempt 3 (students v3a/v3b): token-weighted loss via the
-# image patch (spike/ludwig_token_loss.py), no validation split, final weights after 3 epochs.
+# image patch (topics/productdev/spike/ludwig_token_loss.py), no validation split, final weights after 3 epochs.
 model_type: llm
 base_model: Qwen/Qwen3-4B-Instruct-2507
 input_features:

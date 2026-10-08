@@ -1,10 +1,10 @@
 """Score the encoder span model on the spike's 35 evaluation chunks (spike, not a benchmark).
 
-Same scoring as spike/ensemble.py and spike/eval_local_model.py (agreement with the Claude
+Same scoring as topics/productdev/spike/ensemble.py and topics/productdev/spike/eval_local_model.py (agreement with the Claude
 reference), plus the time per chunk after loading.
 
 Run: uv run --with torch --with transformers --with sentencepiece --with protobuf \
-         python spike/eval_span.py [--model data/models/span-xlmr] [--device cpu|mps]
+         python topics/productdev/spike/eval_span.py [--model data/models/span-xlmr] [--device cpu|mps]
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from pathlib import Path
 
 import torch
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "spike"))
 
 from ensemble import scores  # noqa: E402

@@ -89,6 +89,21 @@ def figure_urls(model: dict[str, Any], version: str) -> list[dict[str, str]]:
             for f in model["card"].get("figures", [])]
 
 
+def model_at_tag(reg: Registry, name: str, version: str) -> dict[str, Any] | None:
+    """model.yaml as committed at the tag `<name>/v<version>`, or None if the tag is unknown.
+
+    Re-rendering a published version uses it, so figure paths and texts match the files that exist
+    at that tag even after the repository layout changed (feature 005, R14)."""
+    import subprocess
+
+    rel = f"zoo/models/{name}/model.yaml"
+    out = subprocess.run(["git", "-C", str(reg.root), "show", f"{name}/v{version}:{rel}"],
+                         capture_output=True, text=True, check=False)
+    if out.returncode != 0:
+        return None
+    return yaml.safe_load(out.stdout)
+
+
 def topic_url(topic: dict[str, Any]) -> str:
     if topic.get("hf_collection"):
         return f"https://huggingface.co/collections/{topic['hf_collection']}"
@@ -211,11 +226,12 @@ class CardInput:
     record: dict[str, Any] | None = None
     example_outputs: dict[str, str] | None = None
     deprecated_banner: bool = True
+    model: dict[str, Any] | None = None  # model.yaml as of the version's tag (published versions)
 
 
 def render(inp: CardInput) -> str:
     reg, name, version = inp.reg, inp.name, inp.version
-    model = reg.model(name)
+    model = inp.model if inp.model is not None else reg.model(name)
     record = inp.record if inp.record is not None else reg.record(name, version)
     topic = reg.topic(model["topic"]) or {"id": model["topic"], "title": model["topic"]}
     quality = reg.results(name, version, "quality")

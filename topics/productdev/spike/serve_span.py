@@ -5,7 +5,7 @@ Binds to 127.0.0.1 by default (local use only).
 
 Start:
   uv run --with torch --with transformers --with sentencepiece --with protobuf \
-      python spike/serve_span.py [--model data/models/span-lt-fixed] [--port 8877]
+      python topics/productdev/spike/serve_span.py [--model data/models/span-lt-fixed] [--port 8877]
 Use:
   curl -s 127.0.0.1:8877/extract --data-binary @data/interviews/fiktiv-interview-fussgaenger-berlin.txt
   curl -s '127.0.0.1:8877/extract?format=text' --data-binary 'Der Bus fährt nur zweimal am Tag.'

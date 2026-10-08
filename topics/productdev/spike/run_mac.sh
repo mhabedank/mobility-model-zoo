@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Spike 002 on the MacBook: base benchmark, MLX LoRA training, tuned benchmark - strictly one after
 # another (training next to a model server ran out of GPU memory on 36 GB), detached from any terminal.
-# Start:  nohup caffeinate -dimsu bash spike/run_mac.sh > data/spike/run-mac.log 2>&1 &
+# Start:  nohup caffeinate -dimsu bash topics/productdev/spike/run_mac.sh > data/spike/run-mac.log 2>&1 &
 # Label runs resume where they stopped (chunks with a parsed output are skipped).
 set -uo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../../.."
 MLX="uvx --from mlx-lm==0.31.3"
 MODEL=mlx-community/Qwen3-4B-Instruct-2507-4bit
 PILOT="uv run jtbd --config configs/productdev/jtbd/spike-v1.yaml"
@@ -38,7 +38,7 @@ kill "$BASE_SERVER" 2>/dev/null; pkill -f "mlx_lm.server.*--port 8080"
 sleep 5
 
 log "training started"
-$MLX mlx_lm.lora -c spike/train_mlx.yaml > data/spike/train-mlx.log 2>&1; rc=$?
+$MLX mlx_lm.lora -c topics/productdev/spike/train_mlx.yaml > data/spike/train-mlx.log 2>&1; rc=$?
 log "training finished (rc $rc)"
 [ "$rc" -ne 0 ] && exit "$rc"
 

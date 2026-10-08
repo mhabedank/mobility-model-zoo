@@ -8,7 +8,7 @@ chunks with greedy decoding, exactly as the benchmark server would. Score = mean
 The best checkpoint is copied to <adapter_path>-best. Results: data/spike/checkpoints.json.
 The evaluation chunks of the benchmark are never used here.
 
-Run: uv run --with mlx-lm==0.31.3 python spike/select_checkpoint.py spike/train_mlx.yaml
+Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/select_checkpoint.py topics/productdev/spike/train_mlx.yaml
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from mobility_model_zoo.productdev.jtbd.matching import match_items
 from mobility_model_zoo.productdev.jtbd.runs import locate_items
 from mobility_model_zoo.productdev.jtbd.schema import ExtractionOutput
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "data/spike/checkpoints.json"
 MIN_IOU = 0.3
 MAX_TOKENS = 4096
@@ -109,4 +109,4 @@ def main(config_path: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "spike/train_mlx.yaml")
+    main(sys.argv[1] if len(sys.argv) > 1 else "topics/productdev/spike/train_mlx.yaml")

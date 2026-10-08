@@ -11,7 +11,7 @@
 # Follow: ssh "$SPARK_HOST" tail -f mobility-model-zoo/data/models/span-xlmr-<candidate>.train.log
 # Fetch:  rsync -a "$SPARK_HOST":mobility-model-zoo/data/models/span-xlmr-<candidate> data/models/
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../../.."
 CANDIDATE=${1:?usage: scripts/spark/train_span.sh <candidate>}
 set -a
 # shellcheck disable=SC1091

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Spike 002 on the MacBook, second training attempt: training, checkpoint selection on the
 # validation examples, benchmark of the best checkpoint, scoring. Steps run one after another.
-# Start:  nohup caffeinate -dimsu bash spike/run_mac_v2.sh > data/spike/run-mac.log 2>&1 &
+# Start:  nohup caffeinate -dimsu bash topics/productdev/spike/run_mac_v2.sh > data/spike/run-mac.log 2>&1 &
 set -uo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../../.."
 MLX_PY="uv run --with mlx-lm==0.31.3 python"
 PILOT="uv run jtbd --config configs/productdev/jtbd/spike-v1.yaml"
 PORT=8082
@@ -11,12 +11,12 @@ RUN=run-baseline-spike-tuned-main-3223351c
 log() { echo "$(date +%Y-%m-%dT%H:%M:%S) $*"; }
 
 log "training started"
-$MLX_PY spike/train_mlx.py spike/train_mlx.yaml > data/spike/train-mlx.log 2>&1; rc=$?
+$MLX_PY topics/productdev/spike/train_mlx.py topics/productdev/spike/train_mlx.yaml > data/spike/train-mlx.log 2>&1; rc=$?
 log "training finished (rc $rc)"
 [ "$rc" -ne 0 ] && exit "$rc"
 
 log "checkpoint selection started"
-$MLX_PY spike/select_checkpoint.py spike/train_mlx.yaml > data/spike/select-checkpoint.log 2>&1
+$MLX_PY topics/productdev/spike/select_checkpoint.py topics/productdev/spike/train_mlx.yaml > data/spike/select-checkpoint.log 2>&1
 rc=$?
 log "checkpoint selection finished (rc $rc)"
 [ "$rc" -ne 0 ] && exit "$rc"
@@ -39,5 +39,5 @@ log "tuned benchmark finished"
 
 $PILOT check --run $RUN > /dev/null && $PILOT score --run $RUN > data/spike/score-tuned.json
 log "scored (rc $?)"
-uv run python spike/progress.py
+uv run python topics/productdev/spike/progress.py
 log "done"

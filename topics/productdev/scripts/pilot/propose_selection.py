@@ -14,8 +14,8 @@ for `jtbd corpus build`. `jtbd corpus split` then separates main and holdout.
 
 Snapshots reserved for training (feature 004) are never proposed.
 
-    uv run python scripts/pilot/propose_selection.py candidates
-    uv run python scripts/pilot/propose_selection.py select --total 185
+    uv run python topics/productdev/scripts/pilot/propose_selection.py candidates
+    uv run python topics/productdev/scripts/pilot/propose_selection.py select --total 185
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from pathlib import Path
 import httpx
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 PLAN = ROOT / "data/sources/source-plan.yaml"
 SNAPSHOTS = ROOT / "data/snapshots"
 OUT = ROOT / "data/analysis/selection"

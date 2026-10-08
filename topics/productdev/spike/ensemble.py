@@ -16,8 +16,8 @@ Single models are scored with the same quote repair so the comparison is fair.
 The strategies are fixed below before looking at their results; picking the best of many
 strategies on 35 chunks would overstate its score.
 
-Run: uv run python spike/ensemble.py
-     uv run python spike/ensemble.py --export data/spike/sft/sft-ensemble.jsonl   (train split)
+Run: uv run python topics/productdev/spike/ensemble.py
+     uv run python topics/productdev/spike/ensemble.py --export data/spike/sft/sft-ensemble.jsonl   (train split)
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ from mobility_model_zoo.productdev.jtbd.metrics import (
 from mobility_model_zoo.productdev.jtbd.runs import ChunkOutput, load_outputs
 from mobility_model_zoo.productdev.jtbd.scoring import RELEVANCE_LABELS, score_units
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 RUN = "run-teacher_candidate-{}-{}-3223351c"
 MODELS = {  # short name -> model_id
     "mimo": "teacher-or-mimo-v2.6-pro",

@@ -60,7 +60,7 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
     record = load_yaml(target)
     assert record["recipe"] == {"git_commit": "a" * 40,
                                 "config": "configs/productdev/jtbd/span-xlmr.yaml",
-                                "doc": "docs/recipes/scout-large.md"}
+                                "doc": "topics/productdev/recipes/scout-large.md"}
     assert record["performance"]["budget"] == {"ram_gb": 4, "gpu": False}
     assert record["performance"]["hardware"].startswith("ref vm (")
     assert record["provenance"]["spike_data"] is False

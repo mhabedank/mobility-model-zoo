@@ -21,9 +21,9 @@ card:
   out_of_scope: |
     Decisions about individuals; profiling or identifying the authors of texts; texts outside mobility (it was trained on mobility texts only); treating the output as a complete or final list of needs without human review.
   figures:
-    - path: docs/recipes/figures/scout-large-quality-speed.png
+    - path: topics/productdev/recipes/figures/scout-large-quality-speed.png
       alt: Quality against texts per minute for scout-large on a MacBook GPU and a DGX Spark GPU and for the generative models of the pilot
-    - path: docs/recipes/figures/scout-large-10k-texts.png
+    - path: topics/productdev/recipes/figures/scout-large-10k-texts.png
       alt: Time to process 10,000 texts for scout-large on four machines and for the generative models of the pilot
   input_output: |
     Input: a text in German or English, any length (it is read in overlapping 512-token windows). Output: JSON in the format `jtbd-span-v1`: `output_format_version`; `relevant` (does the text contain jobs, pains or gains at all) and `relevance_probability`; `dimensions`, the attribute dimensions this model produces (here `actor_type`, `evidence_type` and `evidence_scope`); and `items`. Each item has `kind` (job, pain or gain), `quote` with its character offsets `start` and `end` (always a verbatim span of the input), a `score`, and one value per produced dimension. An empty list is a valid result.

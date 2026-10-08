@@ -1,6 +1,6 @@
 """Try a local JTBD extraction model on your own text (spike, not a benchmark).
 
-The model folder is built by spike/build_local_model.sh and contains the MLX weights plus
+The model folder is built by topics/productdev/spike/build_local_model.sh and contains the MLX weights plus
 `system_prompt.txt`, the exact system prompt the model was trained with. The prompt is formatted
 like the training data (Qwen chat format) and decoded greedily. Texts longer than the training
 chunks are split at paragraph ends into parts of at most 1,200 tokens, each labeled separately.
@@ -10,9 +10,9 @@ invalid values (for example an evidence type given as evidence scope) are droppe
 is shown as notes.
 
 Run:
-  uv run --with mlx-lm python spike/try_model.py "Der Bus fährt nur zweimal am Tag ..."
-  uv run --with mlx-lm python spike/try_model.py --file text.txt
-  echo "..." | uv run --with mlx-lm python spike/try_model.py
+  uv run --with mlx-lm python topics/productdev/spike/try_model.py "Der Bus fährt nur zweimal am Tag ..."
+  uv run --with mlx-lm python topics/productdev/spike/try_model.py --file text.txt
+  echo "..." | uv run --with mlx-lm python topics/productdev/spike/try_model.py
 Options: --model <dir> (default data/models/spike-v3b-mlx-8bit), --json (raw JSON only).
 """
 

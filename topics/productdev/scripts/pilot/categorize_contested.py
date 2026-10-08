@@ -7,7 +7,7 @@ analyses the disagreement; it labels nothing and its weights do not change. Answ
 contested-llm.jsonl, so the run can be resumed. The filled-in CSV is then read with
 `jtbd categorize --import`.
 
-    uv run python scripts/pilot/categorize_contested.py [--version pilot-v1]
+    uv run python topics/productdev/scripts/pilot/categorize_contested.py [--version pilot-v1]
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from pathlib import Path
 import httpx
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 MODEL = "qwen3.8:27b"
 PROMPT = """You analyse disagreements between two annotation models, A and B, that labeled the same
 text under the guideline below. For each contested entry, choose the ONE category that best
@@ -75,7 +75,7 @@ def ask(base_url: str, prompt: str, keys: list[str]) -> list[dict]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", default="pilot-v1")
-    parser.add_argument("--guideline", default="guideline/guideline-v1.md")
+    parser.add_argument("--guideline", default="topics/productdev/guideline/guideline-v1.md")
     args = parser.parse_args()
     analysis = ROOT / "data/analysis" / args.version
     rows = list(csv.DictReader((analysis / "contested-review.csv").open(encoding="utf-8")))

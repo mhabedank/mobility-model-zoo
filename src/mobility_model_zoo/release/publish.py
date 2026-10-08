@@ -298,6 +298,7 @@ def deprecate(
             name,
             latest,
             deprecated_banner=True,
+            model=cards.model_at_tag(reg, name, latest),
             example_outputs=_examples_from_hub(hub, model["repos"]["public"], latest),
         )
     )

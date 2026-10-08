@@ -1,6 +1,6 @@
 # Reference machine for performance runs (001 T074, 004 T042; research R6 as amended 2026-10-06).
 # A temporary Railway service limited to 4 vCPU and 8 GB RAM, no GPU. The build context is staged
-# by scripts/railway/stage.sh: the repository at HEAD plus the benchmark chunks and run manifests.
+# by topics/productdev/scripts/railway/stage.sh: the repository at HEAD plus the benchmark chunks and run manifests.
 FROM ollama/ollama:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
@@ -18,4 +18,4 @@ RUN uv sync --extra jtbd --no-dev
 # The container runs the jobs named in PERF_MODELS / PERF_SPAN at start (run.sh) and keeps
 # Ollama serving afterwards, so Railway does not restart it.
 ENTRYPOINT []
-CMD ["bash", "deploy/railway-perf/run.sh"]
+CMD ["bash", "topics/productdev/deploy/railway-perf/run.sh"]
