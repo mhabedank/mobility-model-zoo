@@ -77,13 +77,17 @@ def source_fetch(
     access_terms: str = typer.Option(..., "--access-terms", help="ToS/robots.txt note with date"),
     update: bool = typer.Option(False, "--update"),
     reason: str = typer.Option(None, "--reason"),
+    tos_url: str = typer.Option(None, "--tos-url", help="Terms of service page to screen (C-F6)"),
+    tos_confirmed: bool = typer.Option(False, "--tos-confirmed",
+                                       help="The owner read the flagged terms and they allow mining"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.sources.snapshot import fetch_url
 
     meta = _meta(source_type=source_type, license=license, legal_basis=legal_basis,
                  permitted_uses=permitted_uses, retention_until=retention_until,
                  access_terms_checked=access_terms)
-    _run(ctx, lambda s: fetch_url(s, url, meta, update=update, reason=reason))
+    _run(ctx, lambda s: fetch_url(s, url, meta, update=update, reason=reason, tos_url=tos_url,
+                                  tos_confirmed=tos_confirmed))
 
 
 @source_app.command("reddit")
@@ -112,13 +116,15 @@ def source_register(
     access_terms: str = typer.Option(..., "--access-terms"),
     update: bool = typer.Option(False, "--update"),
     reason: str = typer.Option(None, "--reason"),
+    signals: Path = typer.Option(None, "--signals", help="Manual opt-out check record (C-F8)"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.sources.snapshot import register_file
 
     meta = _meta(source_type=source_type, license=license, legal_basis=legal_basis,
                  permitted_uses=permitted_uses, retention_until=retention_until,
                  access_terms_checked=access_terms)
-    _run(ctx, lambda s: register_file(s, path, url, meta, update=update, reason=reason))
+    _run(ctx, lambda s: register_file(s, path, url, meta, update=update, reason=reason,
+                                           signals=signals))
 
 
 @source_app.command("list")

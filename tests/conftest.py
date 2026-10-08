@@ -35,3 +35,11 @@ def tiny_span_model(tmp_path_factory):
         return cache[key]
 
     return make
+
+
+@pytest.fixture
+def register_tree(tmp_path):
+    """A repository layout with a minimal valid compliance register (feature 006)."""
+    from compliance_helpers import make_register_tree
+
+    return make_register_tree(tmp_path)

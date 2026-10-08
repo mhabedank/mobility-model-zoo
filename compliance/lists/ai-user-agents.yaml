@@ -1,0 +1,5 @@
+# User agent tokens of AI crawlers. A robots.txt disallow for any of them counts as an opt-out from
+# text and data mining for this project (research R4). Review with the legal watch cadence.
+agents: [GPTBot, ChatGPT-User, OAI-SearchBot, CCBot, ClaudeBot, Claude-Web, anthropic-ai,
+  Google-Extended, PerplexityBot, Bytespider, Applebot-Extended, meta-externalagent, Amazonbot,
+  cohere-ai, Diffbot, omgili, Timpibot]

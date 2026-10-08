@@ -67,6 +67,13 @@ def doctor(settings: Settings) -> dict[str, Any]:
     else:
         add("manifest", True, "not frozen yet", required=False)
 
+    from mobility_model_zoo.compliance.train import retention_findings
+
+    expired = retention_findings(settings.base)
+    add("retention", not expired,
+        f"{len(expired)} snapshot(s) past or without retention (zoo compliance retention)"
+        if expired else "every snapshot within its retention date", required=False)
+
     failed = [n for n, c in checks.items() if c["required"] and not c["ok"]]
     result = {"checks": checks, "failed": failed}
     if failed:

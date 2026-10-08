@@ -1,0 +1,21 @@
+# Model card lint (checks C-C1, C-C2). Required sections are headings of the rendered card.
+required_sections:
+  all: [Intended use, Out-of-scope use, Limitations, Training data and attribution,
+    Teacher and labeling models, Privacy and personal data]
+  security: [Dual-use considerations]
+required_links: [PRIVACY.md, COPYRIGHT_POLICY.md]
+security_topics: [security]
+automotive_disclaimer:
+  topics: [security]
+  text_pattern: (?i)not developed under ISO/SAE 21434|not developed under ISO 26262
+forbidden:
+- {id: safety-function, pattern: '(?i)\b(safety[- ]function|safety[- ]component|type[- ]approved|ASIL[- ]?[A-D])\b',
+   reason: states a safety function (AI Act Annex I / high-risk)}
+- {id: annex-iii, pattern: '(?i)\b(screening (job )?applicants|recruit(ing|ment) decisions|employee monitoring|credit scor|biometric identification|exam scoring|emotion recognition)\b',
+   reason: states an Annex III high-risk purpose}
+- {id: marketing, pattern: '(?i)\b(production[- ]ready|certified|guaranteed|enterprise[- ]grade)\b',
+   reason: marketing claim}
+- {id: anonymous-model, pattern: '(?i)\b(this|the) model is anonymous\b|\banonymous model\b',
+   reason: claims the model is anonymous (EDPB Opinion 28/2024 requires tests)}
+# Negated mentions in the out-of-scope section are allowed: a line starting with "Not" or "Do not".
+allow_negated_in_sections: [Out-of-scope use, Limitations, Dual-use considerations]

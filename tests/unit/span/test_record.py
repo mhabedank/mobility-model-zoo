@@ -50,6 +50,11 @@ def test_record_fills_every_field_feature_004_delivers(tmp_path):
     write_json(dataset.data_dir / "analysis/provenance.json", {"sources": [
         {"origin": "https://example.net/a", "license": "CC-BY-4.0",
          "permitted_use": "training_allowed", "count": 5}]})
+    # Teacher output rights come from the provider route records (feature 006), never assumed.
+    routes = {"routes": [{"id": "mock-teacher-route", "log_matches": ["mock-teacher-y|mock|local"],
+                          "output_training_permitted": "yes"}]}
+    (dataset.base / "compliance").mkdir(exist_ok=True)
+    (dataset.base / "compliance" / "providers.yaml").write_text(dump_yaml(routes), encoding="utf-8")
     out = pilot(bench, "span", "record", "--version", "0.1.0", "--recipe", str(recipe))
     assert out["teachers"] == ["mock-teacher-y"]
     record = load_yaml(target)
