@@ -285,11 +285,11 @@ description: "Tasks for feature 006: compliance harness"
 
 **Independent Test**: quickstart scenario 4. `zoo check scout-large 0.1.2` passes all rules including 16; files and metric values are identical to 0.1.1.
 
-- [ ] T042 [US3] Implement `zoo compliance art9-scan --config C` with the lexicon from `compliance/lists/special-categories.yaml`. It writes counts per category and source class into the release compliance record (`scans.art9_counts`) and never writes text or chunk ids into git. Run it on `configs/productdev/jtbd/span-train-v1.yaml` (training chunks) and `pilot-v1.yaml` (benchmark).
+- [X] T042 [US3] Implement `zoo compliance art9-scan --config C` with the lexicon from `compliance/lists/special-categories.yaml`. It writes counts per category and source class into the release compliance record (`scans.art9_counts`) and never writes text or chunk ids into git. Run it on `configs/productdev/jtbd/span-train-v1.yaml` (training chunks) and `pilot-v1.yaml` (benchmark).
   - If hits exist outside `parliamentary-records`, add an owner decision item to `validation.md`: keep with rationale for 0.1.x, or plan 0.2 without them.
   - Test in `tests/compliance/test_art9.py` on synthetic text.
-- [ ] T043 [US3] Create the synthetic redaction test set `tests/fixtures/compliance/redaction-set/items.jsonl`: 300 German and English sentences with invented identifiers (e-mail, phone, handles, profile URLs, IBAN, postcode with street, licence plate), each annotated with spans. Implement `zoo compliance redaction-recall`, which runs `redact.py` patterns plus `scan.pii` on the set and prints recall per type. Run it, record the result in `validation.md`, and add a test that recall is ≥ 0.95 (D9). If it falls short, extend the patterns before continuing.
-- [ ] T044 [US3] Create `zoo/models/scout-large/releases/0.1.2.yaml`:
+- [X] T043 [US3] Create the synthetic redaction test set `tests/fixtures/compliance/redaction-set/items.jsonl`: 300 German and English sentences with invented identifiers (e-mail, phone, handles, profile URLs, IBAN, postcode with street, licence plate), each annotated with spans. Implement `zoo compliance redaction-recall`, which runs `redact.py` patterns plus `scan.pii` on the set and prints recall per type. Run it, record the result in `validation.md`, and add a test that recall is ≥ 0.95 (D9). If it falls short, extend the patterns before continuing.
+- [X] T044 [US3] Create `zoo/models/scout-large/releases/0.1.2.yaml`:
   - copy of 0.1.1 with `version: 0.1.2`, `change_type: patch`, `date` today;
   - `changes: "Compliance documentation: full attribution (TASL), teacher and labeling routes, privacy notice and copyright policy links, NOTICE text. Weights, files and metrics unchanged."`;
   - the same `files` and `staging`;
@@ -297,7 +297,7 @@ description: "Tasks for feature 006: compliance harness"
   - `published: null`.
 
   Copy `results/0.1.1/` to `results/0.1.2/` with `version` changed only. Rule 3 checks the identical sha256 and metrics. Create `zoo/models/scout-large/examples/SOURCES.yaml`, one entry per example file, with `source: synthetic` and a note that the texts are fictional and written for the card. Check each example text against the corpus index (T046) before recording it.
-- [ ] T045 [US3] Create `zoo/models/scout-large/releases/0.1.2.compliance.yaml`:
+- [X] T045 [US3] Create `zoo/models/scout-large/releases/0.1.2.compliance.yaml`:
   - **AI system:** `ai_system.is_system: true`, rationale "weights plus inference code published".
   - **GPAI:** `gpai.is_gpai: false`, `generative: false`, `params: 560e6`, `training_compute_flop` estimated as 6 × params × fine-tuning tokens (from the training log; `method` stated), `base_model_compute_flop` as published for XLM-R or `unknown` with date, rationale.
   - **Exclusion and purpose:** `exclusion_basis: art2_12`, `monetisation: none`, `intended_purpose` and `out_of_scope` from the model card, `annex_iii_match: none`, `annex_i: {legislation: none, safety_component: false}`, `art50_trigger: none`, `legal_references` with dates.
@@ -306,7 +306,7 @@ description: "Tasks for feature 006: compliance harness"
   - **Provenance:** `sources`, the route ids from `recipients.yaml` and `recipients_sha256`.
   - **Scans:** `redaction_recall` from T043; `art9_counts` from T042; `memorisation: {status: not_applicable, rationale: "token-classification encoder without generative head; outputs are spans of the input text"}`.
   - **State:** `state: draft`.
-- [ ] T046 [US3] Render the card and documents for 0.1.2 with `zoo compliance render`. Build the corpus index, then run `zoo compliance scan-publish --model scout-large --version 0.1.2`. Fix any C-U finding in templates or examples (the examples are fictional; verify they pass). Commit the scan report.
+- [X] T046 [US3] Render the card and documents for 0.1.2 with `zoo compliance render`. Build the corpus index, then run `zoo compliance scan-publish --model scout-large --version 0.1.2`. Fix any C-U finding in templates or examples (the examples are fictional; verify they pass). Commit the scan report.
 - [ ] T047 [US3] Run `uv run zoo check scout-large 0.1.2` and `uv run zoo compliance check --model scout-large --version 0.1.2`. **GATE:** every rule passes except C-S1. Then present the rendered card and the owner decision items from `validation.md` to the owner (AskUserQuestion). After approval, run `zoo compliance signoff` and re-run `zoo check`.
 - [ ] T048 [US3] (ops) Publish 0.1.2 through the existing pipeline:
   1. push the tag `scout-large/v0.1.2`;

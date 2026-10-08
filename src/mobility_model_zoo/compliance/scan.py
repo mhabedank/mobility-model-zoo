@@ -50,7 +50,7 @@ PII_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         "phone_international",
         re.compile(r"(?<![\w+\-/.])(?:\+|00)\d{1,3}[\s./-]?(?:\(?\d{1,5}\)?[\s./-]?){2,5}\d{2,}"),
     ),
-    ("phone_de", re.compile(r"(?<![\w/.\-])0\d{2,5}[\s/-]\d{4,}(?:[\s-]\d{2,})*\b")),
+    ("phone_de", re.compile(r"(?<![\w/.\-])(?<!ISSN )(?<!ISBN )0\d{2,5}[\s/-]\d{4,}(?:[\s-]\d{2,})*\b")),
     ("iban", re.compile(r"\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){3,7}(?:\s?[A-Z0-9]{1,4})?\b")),
     (
         "postal_address_de",

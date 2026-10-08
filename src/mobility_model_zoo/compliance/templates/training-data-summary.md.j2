@@ -37,6 +37,10 @@ The documents above were fetched individually by URL with the project crawler; t
 
 ## 3. Data processing
 
-- Opt-outs: robots.txt (including AI crawler agents), TDMRep, `noai` and ai.txt are honoured at fetch time; a retrospective check of the training sources was recorded on {{ rc.legal_references.checked_at }}.
+{% if rc.card_privacy_note is defined %}
+- {{ rc.card_privacy_note | trim }}
+{% else %}
+- Opt-outs: robots.txt (including AI crawler agents), TDMRep, `noai` and ai.txt are honoured at fetch time.
 - Personal data: identifiers redacted before labeling; special categories excluded except recorded decisions.
+{% endif %}
 - The collected texts are not published.

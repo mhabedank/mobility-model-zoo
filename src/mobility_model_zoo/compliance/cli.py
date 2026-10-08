@@ -311,11 +311,85 @@ def signoff_cmd(
     _run(fn)
 
 
+@app.command("art9-scan")
+def art9_scan_cmd(
+    config: list[Path] = typer.Option(..., "--config", help="jtbd config(s) whose chunks to scan."),
+    out: Path | None = typer.Option(None, "--out", help="Write counts as JSON (no text, no chunk ids)."),
+) -> None:
+    """Count special-category flags (Art. 9 GDPR) per source class and split; counts only."""
+
+    def fn() -> None:
+        import json
+
+        import yaml
+
+        from mobility_model_zoo.compliance.scan import art9_flags
+        from mobility_model_zoo.productdev.jtbd.config import load_settings
+
+        reg = load_register()
+        lexicon = (reg.lists("special-categories") or {}).get("categories", {})
+        origin_class = {s["origin_url"]: s["class"] for s in reg.records("sources")}
+        snap_origin = {}
+        for meta_path in (reg.root / "data" / "snapshots").glob("*/source.yaml"):
+            meta = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
+            snap_origin[meta["snapshot_id"]] = meta["origin_url"]
+        counts: dict = {}
+        for cfg in config:
+            settings = load_settings(cfg)
+            for path in sorted(settings.chunks_dir.glob("*.json")):
+                chunk = json.loads(path.read_text(encoding="utf-8"))
+                cls = origin_class.get(snap_origin.get(chunk.get("snapshot_id"), ""), "unregistered")
+                key = f"{chunk.get('split', '?')}/{cls}"
+                bucket = counts.setdefault(key, {"chunks": 0, "flagged_chunks": 0, "categories": {}})
+                bucket["chunks"] += 1
+                flags = art9_flags(chunk.get("text", ""), lexicon)
+                if flags:
+                    bucket["flagged_chunks"] += 1
+                    for cat in flags:
+                        bucket["categories"][cat] = bucket["categories"].get(cat, 0) + 1
+        result = {k: counts[k] for k in sorted(counts)}
+        if out:
+            out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+        for key, b in result.items():
+            say(f"{key}: {b['flagged_chunks']}/{b['chunks']} chunks flagged {b['categories']}")
+
+    _run(fn)
+
+
+@app.command("redaction-recall")
+def redaction_recall_cmd(
+    items: Path | None = typer.Option(None, "--items", help="JSONL test set (default: synthetic set)."),
+    minimum: float = typer.Option(0.95, "--min", help="Required combined recall (decision D9)."),
+) -> None:
+    """Measure redaction and scan recall on the synthetic test set (D9)."""
+
+    def fn() -> None:
+        import json
+
+        from mobility_model_zoo.compliance import recall
+        from mobility_model_zoo.compliance.findings import Finding, StageFailed
+
+        result = recall.measure(recall.load(items) if items else recall.load())
+        say(json.dumps(result, indent=2))
+        if (result["recall"]["combined"] or 0) < minimum:
+            raise StageFailed(
+                [
+                    Finding(
+                        "C-T5",
+                        "train",
+                        "redaction-set",
+                        "combined",
+                        f"recall {result['recall']['combined']} below {minimum} (D9)",
+                    )
+                ]
+            )
+
+    _run(fn)
+
+
 for _name in (
     "retention",
     "delete",
-    "art9-scan",
-    "redaction-recall",
     "request",
     "watch",
 ):

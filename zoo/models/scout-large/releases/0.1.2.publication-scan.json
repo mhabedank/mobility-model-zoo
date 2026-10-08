@@ -1,0 +1,65 @@
+{
+  "model": "scout-large",
+  "version": "0.1.2",
+  "threshold_words": 30,
+  "index_fingerprint": "ef350a4447600803307574d1d2152e08a4edb406d4ed4481d25102c8a3abdd5c",
+  "restricted_fingerprint": "1893d8486a8c119de1510fd89a0c0287b2ab8abba1b1ffba69d2b3c72ffc4c0b",
+  "files": [
+    {
+      "path": "README.md (model card)",
+      "sha256": "cc2d6d1a4462f215baed84461414bafec0cd62bfa8874f1eb81add6f8bbfafb8",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/examples/01-night-shift.txt",
+      "sha256": "d0032248b11ffa772b8e1e04ec9fb4fde10e1335145d98b09a8487e38ff2652a",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/examples/02-depot-charging.txt",
+      "sha256": "801e52bda4724184679a839a6705b1b48eaed3b848788028c700fd4cc5093ec8",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/examples/03-cargo-bike.txt",
+      "sha256": "77e29a0d0f1fc1f9cf20dc65a06c932e6021cf326a7616d49d36c74208730c6a",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/results/0.1.2/performance.json",
+      "sha256": "69869ec3270c8a8431f4a3a67e04b65f82c284bbef1789afe9587aea78f575e3",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/results/0.1.2/quality.json",
+      "sha256": "c25dbe40b0a4b5756b561cbfebb4a95a1f96ad0b3b2d1e1c442a3115b52126ce",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/releases/0.1.2.ai-act.md",
+      "sha256": "bb8af76f32b29abf18cec3cd7dfff85d1fa679541bbda1e2b52f0fe00ad77152",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/scout-large/releases/0.1.2.training-data-summary.md",
+      "sha256": "9c94d55c8fcf35b445bccd9cad07953dc7883c104f5ea8a61f23f49988fec256",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    }
+  ]
+}

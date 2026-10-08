@@ -320,6 +320,10 @@
         "string",
         "null"
       ]
+    },
+    "card_privacy_note": {
+      "type": "string",
+      "minLength": 40
     }
   },
   "required": [

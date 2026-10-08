@@ -41,7 +41,13 @@ TEXT_SUFFIXES = {
     "",
 }
 # Files that may name the website: the register itself and the specs that record the decisions.
-BRAND_ALLOWED_PREFIXES = ("compliance/", "specs/", ".specify/")
+# This module holds the patterns themselves and is excluded too.
+BRAND_ALLOWED_PREFIXES = (
+    "compliance/",
+    "specs/",
+    ".specify/",
+    "src/mobility_model_zoo/compliance/release_checks.py",
+)
 # Test data is synthetic by policy and deliberately contains identifiers (redaction tests); code is
 # not text. Both are excluded from the repository-wide personal data scan (C-G5).
 PII_SKIP_PREFIXES = ("tests/",)

@@ -12,6 +12,19 @@
 - `zoo compliance check --stage meta`: ok.
 - No source of pilot-v2 was fetched through a platform API (no Reddit sources in the benchmark); forum texts were fetched from the web and fall under the terms-of-service rule D6 (task T022).
 
+## US3 (2026-10-08)
+
+- **Art. 9 lexicon count** (`zoo compliance art9-scan`, counts only; an upper bound, terms match general mentions too):
+  - training, parliamentary records: 124 of 730 chunks flagged, mostly "disability" (66) and "wheelchair" (64): accessibility topics in transport committee hearings;
+  - training, research interviews: 7 of 354;
+  - training, open papers: 0 of 16;
+  - benchmark: 9 of 180 (main), 0 of 30 (holdout).
+- **Redaction recall** on the synthetic set (300 items, `zoo compliance redaction-recall`): the jtbd pattern redaction used for 0.1.x catches 0.52 (not addresses, IBANs, licence plates; phones 0.74); the compliance scan catches 1.0; combined 1.0. Caveat: the set was written together with the scan patterns, so 1.0 overstates real-world recall.
+- **Re-scan of the stored texts** with the compliance PII scan: training 1,100 chunks, 1 hit (an ISSN, false positive; pattern fixed); benchmark 180 chunks, 1 hit (business address of an organisation, not personal). The local model review used for 0.1.x removed the identifiers the patterns missed.
+- **Release record 0.1.2**: same files and metric values as 0.1.1. Compliance record, AI Act record and training data summary rendered. Publication scan: 8 files, longest overlap with non-quotable sources 0 words, 0 PII hits.
+- `zoo check scout-large 0.1.2 --offline`: every rule passes except C-S1 (owner sign-off missing); rules 5 and 12 need the Hub.
+- Card preview: `reports/scout-large/model-card-preview-0.1.2.md`. Its privacy section states what was and was not checked for the 0.1.x data, instead of the generic text.
+
 ## Owner decision items
 
 Collected for the owner (AskUserQuestion before the 0.1.2 sign-off, T047). Nothing below changes a published file.
@@ -23,4 +36,5 @@ Collected for the owner (AskUserQuestion before the 0.1.2 sign-off, T047). Nothi
 5. **403 on robots.txt** at data.oireachtas.ie (6 training sources, CC BY 4.0 via the Oireachtas Open Data PSI licence) and forum.cyclinguk.org (5 benchmark texts). Most likely bot protection against the new crawler user agent rather than an opt-out. For Oireachtas the licence grants the use; proposal: record "licence, no reliance on §44b". For Cycling UK (no licence): treat like item 4.
 6. **TDM reservation at Elsevier** (doi.org links of 8 papers, 1 training source, 7 benchmark): the publisher sends `tdm-reservation: 1`, but the articles are CC BY 4.0, which grants the use regardless of the TDM exception. Proposal: record "licence, no reliance on §44b".
 7. **One benchmark source unreachable** for the signal check (mobilitaet-in-deutschland.de); retry later.
-8. **Benchmark-only gaps**: 10 records without creators (tdm-documents) and 9 without a licence URL; they are not redistributed or quoted. Proposal: accept as `unknown` with a waiver until the next review.
+8. **Accessibility content in the 0.1.x training data.** Decision D12 excludes special categories by default, but the 0.1.x training texts were collected before the filter existed: 124 parliamentary chunks mention disability or wheelchair access, mostly as policy topics, sometimes as witnesses describing their own situation. Options: (a) keep for 0.1.x with the rationale "public parliamentary evidence on accessibility, given by witnesses for publication" and decide per class for future data; (b) plan a 0.2 retraining without flagged chunks.
+9. **Benchmark-only gaps**: 10 records without creators (tdm-documents) and 9 without a licence URL; they are not redistributed or quoted. Proposal: accept as `unknown` with a waiver until the next review.

@@ -192,7 +192,11 @@ def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any]
         "base_notice": BASE_MODEL_NOTICES.get(model.get("base_model") or ""),
         "mit_text": MIT_TEXT,
         "security": model["topic"] in lint.get("security_topics", []),
-        "decisions": [creg.decision(d) for d in rc.get("decisions", []) if creg.decision(d)],
+        # Only decisions about the labeling routes belong in the card's teacher section.
+        "decisions": [
+            d for d in (creg.decision(i) for i in rc.get("decisions", []))
+            if d and any(str(s).startswith("compliance/providers.yaml#") for s in d.get("scope", []))
+        ],
         "controller": creg.controller(),
     }
 

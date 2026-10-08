@@ -2,11 +2,14 @@
 # matches a term is flagged (check C-I6); classes with art9_handling: quarantine exclude it.
 # Terms are lowercased word stems matched at word starts; keep them specific to avoid noise.
 categories:
-  health: [diagnos, krankheit, erkrank, illness, disease, depression, chemotherap, therapie, therapy,
-    behinderung, disability, rollstuhl, wheelchair, schwerbehindert, epileps, diabet, krebs, cancer,
+  # "Behinderung" alone also means traffic obstruction in German; "diagnos" also means technical
+  # diagnostics. Both are left out to keep the counts meaningful.
+  health: [krankheit, erkrank, illness, disease, depression, chemotherap, therapie, therapy,
+    disability, rollstuhl, wheelchair, schwerbehindert, epileps, diabet, krebs, cancer,
     psychisch, mental health, medikament, medication, schwanger, pregnan, hiv]
-  religion: [religion, religiös, religious, glaube an gott, muslim, islam, christ, jüdisch, jewish,
-    church member, kirchenmitglied, moschee, mosque, synagog]
+  # Party names ("Christlich Demokratische Union") are not religious beliefs; "christ" is left out.
+  religion: [religion, religiös, religious, glaube an gott, gottesdienst, muslim, islam, jüdisch,
+    jewish, church member, kirchenmitglied, moschee, mosque, synagog]
   political_opinion: [parteimitglied, party member, ich wähle, i vote for, wähle die, voted for]
   ethnic_origin: [ethnisch, ethnic, migrationshintergrund, herkunft aus, racial, rassis]
   sexual_orientation: [homosexuell, schwul, lesbisch, bisexuell, gay, lesbian, bisexual, transgender,

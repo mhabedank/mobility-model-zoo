@@ -3,7 +3,7 @@
 
 Attribution of the third-party works used to train the published models (title, creator, source, licence, modifications). The texts themselves are not redistributed.
 
-## scout-large 0.1.1
+## scout-large 0.1.2
 
 Base model: XLM-RoBERTa large (FacebookAI/xlm-roberta-large), MIT, Copyright (c) Facebook, Inc. and its affiliates. (https://huggingface.co/FacebookAI/xlm-roberta-large).
 
