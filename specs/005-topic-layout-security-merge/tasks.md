@@ -125,19 +125,19 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Import
 
-- [ ] T022 [US2] Run `uv run python scripts/import/import_branch.py --source /tmp/msml --branch claude/clever-goldberg-ygio83 --map scripts/import/path-map-goldberg.yaml --out /tmp/import-goldberg`.
+- [X] T022 [US2] Run `uv run python scripts/import/import_branch.py --source /tmp/msml --branch claude/clever-goldberg-ygio83 --map scripts/import/path-map-goldberg.yaml --out /tmp/import-goldberg`.
   - Fix the map until it exits 0, then re-run T006/T007 tests.
   - Inspect the result: `git -C /tmp/import-goldberg log --stat | head -100`.
   - Confirm `git -C /tmp/import-goldberg log --all --name-only --format= | grep -E 'test_vectors|\.bin$|joblib|_model\.h'` is empty.
-- [ ] T023 [US2] Merge goldberg: `git remote add import-goldberg /tmp/import-goldberg && git fetch import-goldberg && git merge --allow-unrelated-histories --no-ff import-goldberg/claude/clever-goldberg-ygio83 -m "Import mobility-security-ml goldberg branch (can-ids-tiny, research) with history"`, then `git remote remove import-goldberg`. Resolve no content conflicts by hand: if any path collides, fix the map and redo T022.
-- [ ] T024 [US2] Same as T022 for volta: `--branch claude/cool-volta-rqsgdx --map scripts/import/path-map-volta.yaml --out /tmp/import-volta`. Confirm that `firmware/lib/modelzoo`, `models/` and `hub.py` are absent from the whole rewritten history.
-- [ ] T025 [US2] Same as T023 for volta, with the merge message "Import mobility-security-ml volta branch (hil bench, datasets, edge models) with history".
-- [ ] T026 [US2] Generate `topics/security/research/merge-log.md` from `/tmp/import-goldberg.merge-log.csv` and `/tmp/import-volta.merge-log.csv`: one table, columns branch, old path, new path or "dropped", reason. Add the reasons from research R4 and R9. Run `scripts/import/check_merge_log.py` → exit 0.
-- [ ] T027 [US2] Run `uv run zoo history-check` (gitleaks over all commits plus forbidden paths). **GATE**: clean. If gitleaks or the forbidden-path check reports any finding, fix the map and redo the import before any further commit.
+- [X] T023 [US2] Merge goldberg: `git remote add import-goldberg /tmp/import-goldberg && git fetch import-goldberg && git merge --allow-unrelated-histories --no-ff import-goldberg/claude/clever-goldberg-ygio83 -m "Import mobility-security-ml goldberg branch (can-ids-tiny, research) with history"`, then `git remote remove import-goldberg`. Resolve no content conflicts by hand: if any path collides, fix the map and redo T022.
+- [X] T024 [US2] Same as T022 for volta: `--branch claude/cool-volta-rqsgdx --map scripts/import/path-map-volta.yaml --out /tmp/import-volta`. Confirm that `firmware/lib/modelzoo`, `models/` and `hub.py` are absent from the whole rewritten history.
+- [X] T025 [US2] Same as T023 for volta, with the merge message "Import mobility-security-ml volta branch (hil bench, datasets, edge models) with history".
+- [X] T026 [US2] Generate `topics/security/research/merge-log.md` from `/tmp/import-goldberg.merge-log.csv` and `/tmp/import-volta.merge-log.csv`: one table, columns branch, old path, new path or "dropped", reason. Add the reasons from research R4 and R9. Run `scripts/import/check_merge_log.py` → exit 0.
+- [X] T027 [US2] Run `uv run zoo history-check` (gitleaks over all commits plus forbidden paths). **GATE**: clean. If gitleaks or the forbidden-path check reports any finding, fix the map and redo the import before any further commit.
 
 ### Package integration
 
-- [ ] T028 [US2] Fix imports in the moved modules to the new package paths:
+- [X] T028 [US2] Fix imports in the moved modules to the new package paths:
   - `hilbench.data` → `mobility_model_zoo.datasets`
   - `hilbench.ml.{model,quant,reference,floatnet,codegen,tflite_import,train}` → `mobility_model_zoo.edge.int8.…`
   - `hilbench.ml.datasets` → `mobility_model_zoo.edge.bench.synthetic`
