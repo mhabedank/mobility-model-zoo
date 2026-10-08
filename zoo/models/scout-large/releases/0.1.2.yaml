@@ -1,6 +1,6 @@
 model: scout-large
 version: 0.1.2
-date: '2026-10-08'
+date: 2026-10-08
 status: experimental
 change_type: patch
 changes: 'Compliance documentation only, same model files and numbers as 0.1.1: full attribution (title,
@@ -399,5 +399,9 @@ performance:
     ram_gb: 4
     gpu: false
   results: results/0.1.2/performance.json
-published: null
+published:
+  repo_commit: 16da988e372e83eeaf5a41861e3cc2d6624ee3bc
+  tag: v0.1.2
+  published_at: 2026-10-08T17:59:37Z
+  card_sha256: a2f9c883cb0ae54760f03d922bf6030dd0f2b3b638ff875ec8a0a5aa7d337af5
 deprecated: null
