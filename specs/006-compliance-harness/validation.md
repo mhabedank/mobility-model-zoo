@@ -36,7 +36,7 @@
 
 ## Owner decisions taken on 2026-10-08
 
-Recorded in compliance/decisions.yaml: D-routing-scc (hosted routes with DPA and SCCs), D-interviews-0.1.x, D-accessibility-0.1.x, D-benchmark-optouts; scout-large 0.1.2 signed off. Still open: the Claude consumer training setting (item 2), recorded as `unknown` on route claude-consumer-cli until the owner checks it.
+Recorded in compliance/decisions.yaml: D-routing-scc (hosted routes with DPA and SCCs), D-interviews-0.1.x, D-accessibility-0.1.x, D-benchmark-optouts; scout-large 0.1.2 signed off. The owner confirmed that the Claude consumer training setting was off during the reference labeling (item 2); route claude-consumer-cli records `training_on_inputs: false`.
 
 ## Owner decision items
 

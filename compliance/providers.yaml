@@ -41,8 +41,7 @@ routes:
   region: IE (contracting entity) / US (processing)
   dpf_listed: false
   zero_data_retention: false
-  training_on_inputs: unknown
-  unknown_checked_at: '2026-10-08'
+  training_on_inputs: false
   dpa: false
   terms_url: https://www.anthropic.com/legal/consumer-terms
   terms_sha256: 7ca46a9030f8ea44a3339e14df06f61b0b1354426ce4b3c5b47efe09eb0ac210
@@ -50,8 +49,8 @@ routes:
   output_training_permitted: 'no'
   clause: 'Consumer Terms §3: may not use the Services "to develop any products or services that compete
     with our Services, including to develop or train any artificial intelligence or machine learning
-    algorithms or models". Retention 30 days, or 5 years if the training setting is on; whether it was on
-    is unknown (owner item).'
+    algorithms or models". The owner confirmed on 2026-10-08 that "Help improve Claude" was off during
+    the reference labeling, so chats were not used for training and are retained for 30 days.'
   allowed_for: []
   signoff: null
   log_matches: [claude-reference|claude_cli|anthropic-consumer-subscription]
