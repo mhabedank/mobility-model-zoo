@@ -44,7 +44,9 @@ def test_valid_fixture_passes_offline(zoo_env):
 
 def test_valid_fixture_passes_online(zoo_env, runner):
     gate = run_gate(zoo_env, online=True, runner=runner)
-    assert all(status == "PASS" for status, _ in gate.results.values()), gate.results
+    # Rule 16 (compliance) skips in fixture registries without a compliance register.
+    assert all(status == "PASS" for n, (status, _) in gate.results.items() if n != 16), gate.results
+    assert gate.results[16][0] == "SKIP"
     assert len(gate.example_outputs) == 3
 
 

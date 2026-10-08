@@ -219,24 +219,24 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 4
 
-- [ ] T031 [P] [US4] Write `tests/compliance/test_publication.py`:
+- [X] T031 [P] [US4] Write `tests/compliance/test_publication.py`:
   - **C-U2:** a fixture card containing a 31-word span copied from a fixture corpus fails; a 29-word span passes; a 40-word attributed quote from a `quote_allowed` source passes.
   - **C-U3:** a card with `erika.mustermann@example.org` fails.
   - **C-U4:** an example without an entry in `examples/SOURCES.yaml` fails, and so does an entry `source: road` while `road.redistribution: unclear`; `source: synthetic` passes.
   - **C-U1:** a report whose file hash differs from the current file fails.
-- [ ] T032 [P] [US4] Write `tests/compliance/test_card_lint.py`:
+- [X] T032 [P] [US4] Write `tests/compliance/test_card_lint.py`:
   - C-C1: a missing "Out-of-scope use" fails;
   - C-C2: "suitable as a safety function", "production-ready", "certified" and "this model is anonymous" each fail;
   - an Annex III phrase such as "for screening job applicants" fails;
   - the current `scout-large` card text plus the new sections passes.
-- [ ] T033 [P] [US4] Write `tests/compliance/test_repo_hygiene.py`:
+- [X] T033 [P] [US4] Write `tests/compliance/test_repo_hygiene.py`:
   - C-G1: a missing `SECURITY.md` fails;
   - C-G2: `.github/FUNDING.yml`, "hire me", "consulting services" or "Miskatonic Analytics" in a README fails, while the e-mail address passes;
   - C-G5: a committed file with `erika.mustermann@example.org` fails, while a creator credit from a register record and the controller contact pass;
   - C-G4: an mcu release without an SBOM fails;
   - C-L2: a NOTICE drift fails;
   - C-L3: a Hub licence mismatch (FakeHub) and a gated BY-SA repo each fail.
-- [ ] T034 [P] [US4] Write `tests/release/test_rule16.py` on the release fixtures:
+- [X] T034 [P] [US4] Write `tests/release/test_rule16.py` on the release fixtures:
   - a draft without a compliance record fails C-S1;
   - a record with `memorisation` missing fails C-D1;
   - `training_compute_flop: 2e23` without a GPAI review fails C-D2;
@@ -246,17 +246,17 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 4
 
-- [ ] T035 [US4] Implement the corpus index and overlap scan in `src/mobility_model_zoo/compliance/scan.py`.
+- [X] T035 [US4] Implement the corpus index and overlap scan in `src/mobility_model_zoo/compliance/scan.py`.
   - **`build_index(config, out)`:** hashed word 8-gram shingles (lowercased, Unicode-normalised) over `text.txt` of every snapshot used by the config's chunks, written to `data/compliance/corpus-index/<fingerprint>/`.
   - **`overlap(text, index)`:** the longest run of consecutive corpus words, found by chaining matching shingles.
   - **`pii(text)`:** the redact patterns plus IBAN, German phone, postcode with street, licence plate, tax ID and e-mail obfuscations.
-- [ ] T036 [US4] Implement `zoo compliance scan-publish --model M --version V`.
+- [X] T036 [US4] Implement `zoo compliance scan-publish --model M --version V`.
   - **Files scanned:** the rendered card, `examples/*`, `zoo/models/<m>/results/<v>/*.json`, release notes, and the `.ai-act.md` and `.training-data-summary.md` files.
   - **Report:** `zoo/models/<m>/releases/<v>.publication-scan.json` with `index_fingerprint` and, per file, `path`, `sha256`, `overlap_max_words` and `pii_hits`. Counts only, no matched text.
   - **Exemptions:** attributed quotes from `quote_allowed` sources are recorded as `allowed_quote_words`.
   - **Checks:** C-U1–C-U4.
-- [ ] T037 [US4] Implement the card lint (C-C1, C-C2) from `compliance/lists/card-lint.yaml` in `checks.py`, and call it from gate rule 10 (`release/gate.py`) for drafts that have a compliance record.
-- [ ] T038 [US4] Implement the repository and licence checks in `checks.py`:
+- [X] T037 [US4] Implement the card lint (C-C1, C-C2) from `compliance/lists/card-lint.yaml` in `checks.py`, and call it from gate rule 10 (`release/gate.py`) for drafts that have a compliance record.
+- [X] T038 [US4] Implement the repository and licence checks in `checks.py`:
   - C-G1: required files;
   - C-G2: monetisation and branding patterns (allowlist the two e-mail addresses and the two URLs from `controller.yaml`);
   - C-G3: run `zoo history-check`'s gitleaks call in working-tree mode;
@@ -267,13 +267,13 @@ description: "Tasks for feature 006: compliance harness"
   - C-L3: Hub `cardData.license`, `base_model` and gating through the existing `hub.py`.
 
   Add C-G1, C-G2, C-G5 and C-L1 to `--ci`.
-- [ ] T039 [US4] Add gate rule 16 "compliance" to `src/mobility_model_zoo/release/gate.py`: rule table (`gate.py:40-55`), run order and `OFFLINE_RULES` in `release/cli.py`. It loads `zoo/models/<m>/releases/<v>.compliance.yaml` and runs the meta, model (C-D1, C-D2), publication (C-U1 from the committed report), card, licence, repository, notices and sign-off (C-S1) stages. Sandbox models are exempt from C-U and C-D but not from C-G or C-L.
-- [ ] T040 [US4] Fix rule 6 and the record template:
+- [X] T039 [US4] Add gate rule 16 "compliance" to `src/mobility_model_zoo/release/gate.py`: rule table (`gate.py:40-55`), run order and `OFFLINE_RULES` in `release/cli.py`. It loads `zoo/models/<m>/releases/<v>.compliance.yaml` and runs the meta, model (C-D1, C-D2), publication (C-U1 from the committed report), card, licence, repository, notices and sign-off (C-S1) stages. Sandbox models are exempt from C-U and C-D but not from C-G or C-L.
+- [X] T040 [US4] Fix rule 6 and the record template:
   - In `src/mobility_model_zoo/productdev/jtbd/span/results.py:394`, read `training_on_outputs_permitted` from the route record: `yes` becomes true, `no` false, and `unclear` false unless a decision covers it.
   - In `release/gate.py` rule 6, require `output_training_permitted: yes` or a covering decision for every teacher route.
 
   Do not edit published records. T034 passes.
-- [ ] T041 [US4] Implement `zoo compliance signoff --model M --version V`: it sets `state: signed_off`, `signed_off_by` (from `git config user.name`) and `signed_off_at`, and refuses unless all other stages pass.
+- [X] T041 [US4] Implement `zoo compliance signoff --model M --version V`: it sets `state: signed_off`, `signed_off_by` (from `git config user.name`) and `signed_off_at`, and refuses unless all other stages pass.
 
 **Checkpoint**: Nothing can be published without a clean scan, card lint, licence files and sign-off.
 

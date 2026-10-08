@@ -185,14 +185,32 @@ def stage_drift(ctx: Context) -> list[Finding]:
     return drift(ctx.reg)
 
 
+def _release_stage(name: str):
+    def fn(ctx: Context) -> list[Finding]:
+        from mobility_model_zoo.compliance import release_checks
+
+        return getattr(release_checks, f"stage_{name}")(ctx)
+
+    return (name, fn)
+
+
 STAGES: dict[str, Stage] = {
     "meta": ("meta", stage_meta),
     "notices": ("notices", stage_notices),
     "drift": ("drift", stage_drift),
+    "licence": _release_stage("licence"),
+    "repository": _release_stage("repository"),
+    "model": _release_stage("model"),
+    "publication": _release_stage("publication"),
+    "card": _release_stage("card"),
+    "signoff": _release_stage("signoff"),
 }
 
+# Order of the release stages run by gate rule 16 (FR-006: later stages stop at the first failure).
+RELEASE_STAGES = ["meta", "model", "publication", "card", "licence", "repository", "notices", "signoff"]
+
 # Stages that need no data outside git; run in CI by `zoo compliance check --ci`.
-CI_STAGES = ["meta", "notices", "drift"]
+CI_STAGES = ["meta", "notices", "drift", "licence", "repository"]
 
 
 def stages_named(names: list[str]) -> list[Stage]:

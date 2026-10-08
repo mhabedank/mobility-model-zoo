@@ -141,6 +141,31 @@ class Register:
     def waiver_ok(self, check_id: str, record_id: str) -> bool:
         return self.waiver_for(check_id, record_id) is not None
 
+    def teacher_routes(self, model_id: str) -> list[dict[str, Any]]:
+        """Routes whose log matches name this labeling model id (any backend and provider)."""
+        return [
+            r
+            for r in self.records("providers")
+            if any(m.split("|", 1)[0] == model_id for m in r.get("log_matches", []))
+        ]
+
+    def output_training_permitted(self, model_id: str) -> bool:
+        """True only if every route that served this teacher permits training on its outputs, or a
+        decision covering the route records the exception."""
+        routes = [r for r in self.teacher_routes(model_id) if not r["id"].endswith("-unrecorded")]
+        if not routes:
+            return False
+        return all(
+            r.get("output_training_permitted") == "yes" or self.decision_covers(r["id"]) for r in routes
+        )
+
+    def decision_covers(self, route_id: str) -> bool:
+        needle = f"compliance/providers.yaml#{route_id}"
+        return any(
+            needle in d.get("scope", []) and "training" in d.get("decision", "").lower()
+            for d in self.records("decisions")
+        )
+
     def lists(self, name: str) -> Any:
         path = self.root / "compliance" / "lists" / f"{name}.yaml"
         return _load_yaml(path) if path.exists() else None

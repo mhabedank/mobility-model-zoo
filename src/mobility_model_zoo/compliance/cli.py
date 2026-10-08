@@ -189,14 +189,134 @@ def render_cmd(
     _run(fn)
 
 
+def _corpus_texts(reg, sources) -> tuple[list[str], list[str]]:
+    """(all texts, texts of sources whose record does not allow quotes) from local snapshots."""
+    import yaml
+
+    by_origin: dict[str, list] = {}
+    for meta_path in sorted((reg.root / "data" / "snapshots").glob("*/source.yaml")):
+        meta = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
+        text_path = meta_path.parent / "text.txt"
+        if text_path.exists():
+            by_origin.setdefault(meta["origin_url"], []).append(text_path)
+    full, restricted = [], []
+    missing = []
+    for s in sources:
+        paths = by_origin.get(s["origin_url"], [])
+        if not paths and not s.get("deleted_at"):
+            missing.append(s["id"])
+        for path in paths:
+            text = path.read_text(encoding="utf-8")
+            full.append(text)
+            if not s.get("quote_allowed"):
+                restricted.append(text)
+    if missing:
+        raise UsageError(
+            f"no local text for {len(missing)} source(s), e.g. {missing[0]}; "
+            "the scan needs the snapshots under data/snapshots"
+        )
+    return full, restricted
+
+
+@app.command("scan-publish")
+def scan_publish_cmd(
+    model: str = typer.Option(..., "--model"), version: str = typer.Option(..., "--version")
+) -> None:
+    """Scan every file published with a release for corpus overlap and personal data."""
+
+    def fn() -> None:
+        import json
+
+        from mobility_model_zoo.compliance import checks, release_checks
+        from mobility_model_zoo.compliance.scan import CorpusIndex
+        from mobility_model_zoo.release import card as cards
+        from mobility_model_zoo.release.registry import Registry
+
+        reg = load_register()
+        zreg = Registry(reg.root)
+        sources = [
+            s
+            for s in reg.records("sources") + reg.records("datasets")
+            if f"{model}@{version}" in s.get("used_by", [])
+            or any(u.startswith("benchmark:") for u in s.get("used_by", []))
+        ]
+        full_texts, restricted_texts = _corpus_texts(reg, sources)
+        full, restricted = CorpusIndex.build(full_texts), CorpusIndex.build(restricted_texts)
+        full.save(reg.root / "data" / "compliance" / "corpus-index")
+        card = cards.render(
+            cards.CardInput(zreg, model, version, record=zreg.record_raw(model, version))
+        )
+        ctx = checks.Context(reg, model=model, version=version, extra={"card": card})
+        report = release_checks.scan_publication(ctx, full, restricted)
+        path = release_checks.report_path(reg.root, model, version)
+        path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        worst = max((f["overlap_max_words"] for f in report["files"]), default=0)
+        pii_hits = sum(f["pii_hits"] for f in report["files"])
+        say(
+            f"scan: {len(report['files'])} files, {len(sources)} sources; longest restricted overlap "
+            f"{worst} words, PII hits {pii_hits}; report {path.relative_to(reg.root)}"
+        )
+
+    _run(fn)
+
+
+@app.command("signoff")
+def signoff_cmd(
+    model: str = typer.Option(..., "--model"), version: str = typer.Option(..., "--version")
+) -> None:
+    """Record the owner's sign-off in the release compliance record (all other stages must pass)."""
+
+    def fn() -> None:
+        import datetime as dt
+        import subprocess
+
+        import yaml
+
+        from mobility_model_zoo.compliance import checks
+        from mobility_model_zoo.release import card as cards
+        from mobility_model_zoo.release.registry import Registry
+
+        reg = load_register()
+        zreg = Registry(reg.root)
+        path = reg.root / "zoo" / "models" / model / "releases" / f"{version}.compliance.yaml"
+        if not path.exists():
+            raise UsageError(f"no compliance record {path.relative_to(reg.root)}")
+        card = cards.render(
+            cards.CardInput(zreg, model, version, record=zreg.record_raw(model, version))
+        )
+        stages = [n for n in checks.RELEASE_STAGES if n != "signoff"]
+        ctx = checks.Context(
+            reg,
+            model=model,
+            version=version,
+            extra={
+                "card": card,
+                "topic": zreg.model_raw(model)["topic"],
+                "model_yaml": zreg.model_raw(model),
+            },
+        )
+        run_stages(checks.stages_named(stages), ctx, say)
+        name = subprocess.run(
+            ["git", "config", "user.name"], capture_output=True, text=True
+        ).stdout.strip()
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        data.update(
+            state="signed_off", signed_off_by=name or "owner", signed_off_at=dt.date.today().isoformat()
+        )
+        path.write_text(
+            yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100), encoding="utf-8"
+        )
+        say(f"signed off {model} {version} as {data['signed_off_by']}")
+
+    _run(fn)
+
+
 for _name in (
     "retention",
     "delete",
-    "scan-publish",
     "art9-scan",
     "redaction-recall",
     "request",
     "watch",
-    "signoff",
 ):
     app.command(_name)(_not_implemented(_name))
