@@ -1,8 +1,8 @@
 """pytest integration: every test that requests `dut` runs once per selected board.
 
-    pytest tests/hil                           # all enabled boards in hil/boards.yaml
-    pytest tests/hil --hil-board esp8266-1     # one board
-    pytest tests/hil --hil-target esp32 -n 4 --dist loadgroup   # boards in parallel
+    pytest tests/edge/hil -m hil                           # all enabled boards in hil/boards.yaml
+    pytest tests/edge/hil -m hil --hil-board esp8266-1     # one board
+    pytest tests/edge/hil -m hil --hil-target esp32 -n 4 --dist loadgroup   # boards in parallel
 
 Boards that are not connected are skipped (or fail with --hil-require-all).
 """

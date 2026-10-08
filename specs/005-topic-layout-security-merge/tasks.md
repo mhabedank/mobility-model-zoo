@@ -190,7 +190,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tasks and models
 
-- [ ] T041 [P] [US2] Write `topics/security/tasks/can-ids.md` per data-model.md "Task":
+- [X] T041 [P] [US2] Write `topics/security/tasks/can-ids.md` per data-model.md "Task":
   - **Scope in:** per-frame and per-event detection of injection, fuzzing, masquerade and scanning on classic CAN.
   - **Scope out:** CAN FD, automotive Ethernet, response or blocking actions, root-cause attribution.
   - **Reference:** dataset labels.
@@ -200,7 +200,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Frameworks:** scikit-learn + emlearn for trees, Keras + LiteRT int8 for neural nets, each with the reason (constitution VIII: tools follow the task).
   - **Riskiest assumption:** detection transfers to unseen vehicles and unseen attack types; it is tested by the four-way split before any scaling (constitution IV).
   - **Budget:** at most 16 KB RAM and 128 KB flash on ESP32-S3.
-- [ ] T042 [P] [US2] Write `topics/condition-monitoring/tasks/sound-anomaly.md`:
+- [X] T042 [P] [US2] Write `topics/condition-monitoring/tasks/sound-anomaly.md`:
   - **Scope:** unsupervised anomaly score per 10 s clip from one microphone, trained on normal sounds only.
   - **Benchmark:** `mimii-fan-v1`.
   - **Metrics:** clip AUC (headline), pAUC at FPR ≤ 0.1, per machine id.
@@ -214,7 +214,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Metrics:** accuracy and macro-F1 (headline).
   - **Budget:** at most 32 KB RAM and 128 KB flash.
   - **Tools and riskiest assumption:** Keras + LiteRT int8, with the reason. The riskiest assumption: waist-worn activity windows are a useful base for micromobility and manoeuvre detection. Stated as a limit.
-- [ ] T043 [P] [US2] Create task configs:
+- [X] T043 [P] [US2] Create task configs:
   - `configs/security/can-ids/picket-forest.yaml`: the goldberg grid, final choice 30 trees / depth 12 / `min_samples_leaf=20`, alarm rule 3 frames in 200 ms with 1 s hold-off, budget 2 false alarms per hour.
   - `configs/security/can-ids/picket-mlp.yaml`: volta MLP 32-64-32-2, ROAD subsampling 15 %, test captures `_2`.
   - `configs/condition-monitoring/sound-anomaly/hum-fan.yaml`: AE 200-64-64-8-64-64-200, log-mel 5×40, threshold at p95.
@@ -223,7 +223,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   Take the values from the source code. Training commands read them through `--config`.
 ### Translation
 
-- [ ] T044 [P] [US2] Translate into English, keeping every citation, URL, `[V]`/`[U]`/`[CONFLICT]` mark, number and license statement (FR-012):
+- [X] T044 [P] [US2] Translate into English, keeping every citation, URL, `[V]`/`[U]`/`[CONFLICT]` mark, number and license statement (FR-012):
   - `topics/security/README.md`
   - `topics/security/roadmap.md`
   - `topics/security/research/README.md`
@@ -231,12 +231,12 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `topics/security/reports/picket-forest/research-card.md` (if German)
 
   Replace `can-ids-tiny` with `picket-forest` where the text refers to the zoo model; keep the old name where it refers to the old repository.
-- [ ] T045 [P] [US2] Translate into English:
+- [X] T045 [P] [US2] Translate into English:
   - `docs/edge/{hil-bench,ci,extending,hardware,protocol}.md`
   - `topics/condition-monitoring/research/datasets-volta.md`
 
   Update commands to `edge …`, `zoo data …`, `security …` and `condmon …`, and paths to the new layout. Split `datasets-volta.md`: CAN parts go to `topics/security/research/datasets.md`, sound and IMU parts stay; the dataset table content goes into the `datasets.yaml` files in T050.
-- [ ] T046 [US2] Write `scripts/import/check_language.py`, a stopword heuristic: a Markdown file fails if more than 3 % of its words are common German function words (`und, der, die, das, nicht, mit, für, ist, auf, wir`). Run it over `topics/ docs/ README.md`. **GATE**: zero files flagged (SC-007). Add it as a test in `tests/unit/test_docs_english.py`.
+- [X] T046 [US2] Write `scripts/import/check_language.py`, a stopword heuristic: a Markdown file fails if more than 3 % of its words are common German function words (`und, der, die, das, nicht, mit, für, ist, auf, wir`). Run it over `topics/ docs/ README.md`. **GATE**: zero files flagged (SC-007). Add it as a test in `tests/unit/test_docs_english.py`.
 
 **Checkpoint**: Content merged, history intact, task documents and configs written.
 

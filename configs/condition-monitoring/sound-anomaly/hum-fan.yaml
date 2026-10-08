@@ -1,0 +1,35 @@
+# hum-fan: task sound-anomaly (topics/condition-monitoring/tasks/sound-anomaly.md).
+# Train: uv run condmon sound-anomaly train --config configs/condition-monitoring/sound-anomaly/hum-fan.yaml
+# Sections other than `train` document values fixed in the code; the command refuses the
+# config if they differ (edge/int8/keras_export.py load_config).
+model: hum-fan
+train:
+  epochs: 20
+  seed: 0
+  version: 0.1.0
+architecture:
+  inputs: 200
+  encoder:
+  - 64
+  - 64
+  code: 8
+  decoder:
+  - 64
+  - 64
+features:
+  sample_rate: 16000
+  channel: 0
+  n_fft: 1024
+  hop: 512
+  n_mels: 40
+  frames: 5
+  train_stride: 4
+  test_stride: 8
+data:
+  dataset: mimii
+  subset: 6 dB fan, machines id_00 and id_02
+  test: per machine id as many normal clips as abnormal clips (DCASE protocol)
+  validation: a tenth of the training clips (whole clips)
+threshold:
+  window_percentile: 95
+  'on': validation normals

@@ -84,15 +84,16 @@ def load_mimii(seed: int = 0, workers: int = 4):
     return train, lm_train, test, lm_test
 
 
-def autoencoder(n_in: int = MELS * FRAMES, hidden: int = 64, code: int = 8):
+def autoencoder():
+    arch = FIXED["architecture"]
     layers = tf().keras.layers
-    x = inp = layers.Input((n_in,))
-    for units in (hidden, hidden):
+    x = inp = layers.Input((arch["inputs"],))
+    for units in arch["encoder"]:
         x = layers.Dense(units, activation="relu")(x)
-    x = layers.Dense(code)(x)  # linear bottleneck
-    for units in (hidden, hidden):
+    x = layers.Dense(arch["code"])(x)  # linear bottleneck
+    for units in arch["decoder"]:
         x = layers.Dense(units, activation="relu")(x)
-    x = layers.Dense(n_in)(x)
+    x = layers.Dense(arch["inputs"])(x)
     return tf().keras.Model(inp, x)
 
 
@@ -127,7 +128,7 @@ def anomaly_report(groups: np.ndarray, subsets: dict):
 
         clip_y = np.zeros(len(uniq), np.int64)
         clip_y[inv] = task.y_test
-        window_thr = float(np.percentile(err_val, 95))
+        window_thr = float(np.percentile(err_val, FIXED["threshold"]["window_percentile"]))
         metrics = {
             "reference": "dataset labels (MIMII normal / abnormal clips)",
             "float_auc": roc_auc(clip(err_float), clip_y),
@@ -162,11 +163,13 @@ def make_task(seed: int) -> Task:
     order = rng.permutation(len(train))
     n_val = max(1, len(train) // 10)
     xs = {
-        k: norm(np.concatenate([windows(lm_train[i], stride=4) for i in idx]))
+        k: norm(
+            np.concatenate([windows(lm_train[i], stride=FIXED["features"]["train_stride"]) for i in idx])
+        )
         for k, idx in (("val", order[:n_val]), ("train", order[n_val:]))
     }
     xs["train"] = xs["train"][rng.permutation(len(xs["train"]))]
-    wins = [windows(lm, stride=8) for lm in lm_test]
+    wins = [windows(lm, stride=FIXED["features"]["test_stride"]) for lm in lm_test]
     x_test = norm(np.concatenate(wins))
     groups = np.concatenate([np.full(len(w), i) for i, w in enumerate(wins)])
     y_test = np.concatenate([np.full(len(w), lab) for w, (_, lab, _) in zip(wins, test, strict=True)])
@@ -207,8 +210,31 @@ def make_task(seed: int) -> Task:
     )
 
 
+# Values fixed in the code, documented in configs/condition-monitoring/sound-anomaly/hum-fan.yaml.
+FIXED = {
+    "architecture": {"inputs": MELS * FRAMES, "encoder": [64, 64], "code": 8, "decoder": [64, 64]},
+    "features": {
+        "sample_rate": SR,
+        "channel": 0,
+        "n_fft": FFT,
+        "hop": HOP,
+        "n_mels": MELS,
+        "frames": FRAMES,
+        "train_stride": 4,
+        "test_stride": 8,
+    },
+    "data": {
+        "dataset": "mimii",
+        "subset": "6 dB fan, machines id_00 and id_02",
+        "test": "per machine id as many normal clips as abnormal clips (DCASE protocol)",
+        "validation": "a tenth of the training clips (whole clips)",
+    },
+    "threshold": {"window_percentile": 95, "on": "validation normals"},
+}
+
+
 def main(argv=None) -> dict:
-    return train_main(make_task, NAME, DATASETS, argv, __doc__)
+    return train_main(make_task, NAME, DATASETS, argv, __doc__, FIXED)
 
 
 if __name__ == "__main__":

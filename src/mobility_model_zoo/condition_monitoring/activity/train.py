@@ -52,20 +52,21 @@ def load_har():
 
 
 def cnn():
+    arch = FIXED["architecture"]
     layers = tf().keras.layers
-    x = inp = layers.Input((1, 128, 9))
-    for filters, k in ((16, 5), (32, 5)):
+    x = inp = layers.Input(tuple(arch["input"]))
+    for block in arch["blocks"]:
+        filters, k = block["conv"]
         x = layers.Conv2D(filters, (1, k), padding="same", use_bias=False)(x)
         x = layers.BatchNormalization()(x)
         x = layers.ReLU()(x)
-        x = layers.MaxPooling2D((1, 2))(x)
-    x = layers.Conv2D(32, (1, 3), padding="same", use_bias=False)(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.AveragePooling2D((1, 32))(x)
+        if "max_pool" in block:
+            x = layers.MaxPooling2D((1, block["max_pool"]))(x)
+        else:
+            x = layers.AveragePooling2D((1, block["avg_pool"]))(x)
     x = layers.Flatten()(x)
-    x = layers.Dropout(0.3)(x)
-    x = layers.Dense(len(LABELS))(x)
+    x = layers.Dropout(arch["dropout"])(x)
+    x = layers.Dense(arch["outputs"])(x)
     x = layers.Softmax()(x)
     return tf().keras.Model(inp, x)
 
@@ -98,8 +99,30 @@ def make_task(seed: int) -> Task:
     )
 
 
+# Values fixed in the code, documented in configs/condition-monitoring/activity/pace-cnn.yaml.
+FIXED = {
+    "architecture": {
+        "input": [1, 128, 9],
+        "blocks": [
+            {"conv": [16, 5], "batch_norm": True, "relu": True, "max_pool": 2},
+            {"conv": [32, 5], "batch_norm": True, "relu": True, "max_pool": 2},
+            {"conv": [32, 3], "batch_norm": True, "relu": True, "avg_pool": 32},
+        ],
+        "dropout": 0.3,
+        "outputs": len(LABELS),
+    },
+    "data": {
+        "dataset": "uci-har",
+        "channels": SIGNALS,
+        "test": "official test split (30 % of the subjects)",
+        "validation": "a seventh of the training windows",
+        "normalisation": "per channel, mean and std of the training windows",
+    },
+}
+
+
 def main(argv=None) -> dict:
-    return train_main(make_task, NAME, DATASETS, argv, __doc__)
+    return train_main(make_task, NAME, DATASETS, argv, __doc__, FIXED)
 
 
 if __name__ == "__main__":

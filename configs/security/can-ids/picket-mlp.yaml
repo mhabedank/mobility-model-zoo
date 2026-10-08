@@ -1,0 +1,24 @@
+# picket-mlp: task can-ids (topics/security/tasks/can-ids.md).
+# Train: uv run security can-ids mlp train --config configs/security/can-ids/picket-mlp.yaml
+# Sections other than `train` document values fixed in the code; the command refuses the
+# config if they differ (edge/int8/keras_export.py load_config).
+model: picket-mlp
+train:
+  epochs: 20
+  seed: 0
+  version: 0.1.0
+architecture:
+  inputs: 32
+  dense:
+  - 64
+  - 32
+  outputs: 2
+  activation: relu
+data:
+  dataset: road
+  benign_keep: 0.15
+  ambient_max_bytes: 120000000
+  test_attacks: captures whose name ends in _2 (also _2_masquerade)
+  test_ambient: every 4th capture by CRC32 of the file name
+  validation: first tenth of the shuffled training frames
+  class_weight: attack weight min(0.5 / attack share, 50)

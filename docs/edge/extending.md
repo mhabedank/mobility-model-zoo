@@ -1,15 +1,18 @@
-# Neue Hardware einbinden
+# Adding new hardware
 
-Die Firmware ist so aufgeteilt, dass ein neuer SoC meist nur Konfiguration braucht:
+The firmware is split so that a new SoC usually only needs configuration:
 
 ```
-benchapp (Protokoll)  ─┐
-microinfer (Engine)    ├─ portables C99, kein Heap, kein FPU nötig
-modelzoo (Daten)      ─┘
-hal.h  ◄── hal_arduino.cpp (alle Arduino-Cores) │ hal_native.c (PC) │ eigene HAL (z. B. Zephyr, ESP-IDF)
+benchapp (protocol)   ─┐
+microinfer (engine)    ├─ portable C99, no heap, no FPU needed
+modelzoo (data)       ─┘
+hal.h  ◄── hal_arduino.cpp (all Arduino cores) │ hal_native.c (PC) │ your own HAL (e.g. Zephyr, ESP-IDF)
 ```
 
-## 1. PlatformIO-Umgebung (`firmware/platformio.ini`)
+The bench firmware is in `firmware/bench`; `modelzoo` is generated build output (`edge build`,
+`make`, PlatformIO pre-script).
+
+## 1. PlatformIO environment (`firmware/bench/platformio.ini`)
 
 ```ini
 [env:teensy41]
@@ -18,8 +21,8 @@ board = teensy41
 build_flags = ${env.build_flags} -D HIL_TARGET=\"teensy41\"
 ```
 
-`HIL_TARGET` muss genau dem Target-Namen in `hil/targets.yaml` entsprechen; die Bench prüft das
-nach dem Flashen.
+`HIL_TARGET` must match the target name in `hil/targets.yaml` exactly; the bench checks this
+after flashing.
 
 ## 2. Target (`hil/targets.yaml`)
 
@@ -30,47 +33,50 @@ teensy41:
   flasher: platformio
   reset: soft
   usb_ids: ["16c0:0483"]
-  chip_match: "."            # Regex auf INFO.chip
-  reenumerates: true         # natives USB
+  chip_match: "."            # regex on INFO.chip
+  reenumerates: true         # native USB
 ```
 
-Ableiten geht mit `extends: <anderes Target>`.
+You can derive from another target with `extends: <other target>`.
 
-## 3. HAL (nur wenn nötig)
+## 3. HAL (only if needed)
 
-`firmware/src/hal_arduino.cpp` enthält Zweige pro Architektur. Ohne eigenen Zweig misst der
-generische Fallback die Zeit mit `micros()` und meldet Zyklen und Heap als 0. Ein eigener
-Zweig liefert zusätzlich:
+`firmware/bench/src/hal_arduino.cpp` contains branches per architecture. Without its own branch, the
+generic fallback measures time with `micros()` and reports cycles and heap as 0. Its own
+branch also provides:
 
-* `hal_cycles()`: Zykluszähler (Cortex-M3/M4/M7/M33: DWT wird automatisch genutzt)
+* `hal_cycles()`: cycle counter (Cortex-M3/M4/M7/M33: DWT is used automatically)
 * `hal_free_heap()`, `hal_cpu_mhz()`
-* `hal_reset()`: Software-Reset (Cortex-M: `NVIC_SystemReset()` ist schon dabei)
-* `hal_chip()` / `hal_uid()`: Identifikation für die Prüfung „richtiges Board im Slot“
+* `hal_reset()`: software reset (Cortex-M: `NVIC_SystemReset()` is already included)
+* `hal_chip()` / `hal_uid()`: identification for the "right board in the slot" check
 
-Für Nicht-Arduino-Umgebungen (ESP-IDF, Zephyr, STM32Cube) implementiert man `hal.h` in einer
-eigenen Datei und ruft `bench_init()` sowie in der Hauptschleife `bench_poll()` auf.
+For non-Arduino environments (ESP-IDF, Zephyr, STM32Cube) you implement `hal.h` in a
+separate file and call `bench_init()` and, in the main loop, `bench_poll()`.
 
-## 4. Testen
+## 4. Testing
 
 ```bash
-edge build -t teensy41
-edge discover                  # Board finden, Eintrag in hil/boards.yaml anlegen
-edge run -b teensy41-1
+uv run edge build -t teensy41
+uv run edge discover                  # find the board, add an entry to hil/boards.yaml
+uv run edge run -b teensy41-1
 ```
 
-Die CI-Matrix in `.github/workflows/ci.yml` um das neue Target ergänzen, dann baut jede
-Änderung auch diese Firmware.
+Add the new target to the firmware build matrix in `.github/workflows/firmware.yml`; then every
+change also builds this firmware.
 
-## Kleine Targets
+## Small targets
 
-Wenn RAM oder Flash nicht reichen, große Modelle ausschließen:
+If RAM or flash are not enough, exclude large models:
 
 ```ini
-build_flags = ${env.build_flags} -D HIL_TARGET=\"tiny\" -D MI_EXCLUDE_HAR_CNN1D
+build_flags = ${env.build_flags} -D HIL_TARGET=\"tiny\" -D MI_EXCLUDE_PACE_CNN
 ```
 ```yaml
 tiny:
-  excluded_models: [har_cnn1d]
+  excluded_models: [pace-cnn]
 ```
 
-Die Arena für die Aktivierungen wird automatisch auf das größte verbliebene Modell bemessen.
+The macro name is the model name in upper case with every non-alphanumeric character replaced by
+`_` (`pace-cnn` → `MI_EXCLUDE_PACE_CNN`; `pace-cnn` is in the firmware only when added through
+`MMZ_EDGE_MODELS`). The arena for the activations is sized
+automatically for the largest remaining model.

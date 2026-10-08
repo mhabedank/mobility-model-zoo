@@ -1,0 +1,23 @@
+# picket-forest: task can-ids (topics/security/tasks/can-ids.md).
+# Run: uv run security can-ids forest evaluate|export|alarms|convert|testvectors
+# Values from src/mobility_model_zoo/security/can_ids/forest.py (checked by
+# tests/unit/test_task_configs.py). The pipeline selects among the grid on validation captures.
+model: picket-forest
+features: no_can_id          # streaming features without the raw identifier (vehicle-independent)
+grid:
+  - {n_estimators: 10, max_depth: 8}
+  - {n_estimators: 20, max_depth: 10}
+  - {n_estimators: 30, max_depth: 12}
+min_samples_leaf: 20
+benign_keep: 0.1             # share of benign frames kept for training; all attack frames are kept
+alarm:
+  grid_k: [1, 2, 3, 5, 8]    # alarm when k flagged frames fall within window_ms
+  grid_window_ms: [50, 200, 1000]
+  holdoff_ms: 1000
+  budget_false_alarms_per_hour: 2.0
+# Choice of the pre-zoo research run (topics/security/reports/picket-forest/config.json; a
+# pre-zoo research result, not a benchmark result): 30 trees, depth 12, alarm 3 frames in 200 ms.
+pre_zoo_choice:
+  n_estimators: 30
+  max_depth: 12
+  alarm: {k: 3, window_ms: 200, holdoff_ms: 1000}

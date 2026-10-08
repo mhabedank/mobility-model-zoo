@@ -110,13 +110,28 @@ def fit(task: Task, epochs: int) -> None:
     )
 
 
+def macro_f1(y: np.ndarray, pred: np.ndarray, n_classes: int) -> float:
+    """Mean of the per-class F1 scores (a class absent from labels and predictions counts as 0)."""
+    f1 = []
+    for c in range(n_classes):
+        tp = int(((pred == c) & (y == c)).sum())
+        fp = int(((pred == c) & (y != c)).sum())
+        fn = int(((pred != c) & (y == c)).sum())
+        f1.append(2 * tp / max(2 * tp + fp + fn, 1))
+    return float(np.mean(f1))
+
+
 def classification_metrics(task: Task, qm, out: np.ndarray) -> tuple[dict, dict]:
-    """Accuracy against the dataset labels (ground truth), float model and int8 device arithmetic."""
+    """Accuracy and macro-F1 against the dataset labels (ground truth), float and int8 arithmetic."""
     pred_float = task.model.predict(task.x_test, verbose=0).argmax(-1)
+    pred = out.argmax(1)
+    n = max(len(task.labels), int(task.y_test.max()) + 1)
     return {
         "reference": "dataset labels",
         "float_accuracy": float((pred_float == task.y_test).mean()),
-        "int8_accuracy": float((out.argmax(1) == task.y_test).mean()),
+        "float_macro_f1": macro_f1(task.y_test, pred_float, n),
+        "int8_accuracy": float((pred == task.y_test).mean()),
+        "int8_macro_f1": macro_f1(task.y_test, pred, n),
         "test_samples": int(len(task.y_test)),
     }, {}
 
@@ -191,19 +206,54 @@ def export(task: Task, out: Path, version: str, seed: int = 0) -> dict:
     return report
 
 
+TRAIN_DEFAULTS = {"epochs": 20, "seed": 0, "version": "0.1.0"}
+
+
+def load_config(path: Path, name: str, fixed: dict) -> dict:
+    """Read a task config (`configs/<topic>/<task>/<model>.yaml`).
+
+    `train` holds the training options. Every other section documents values fixed in the code
+    (architecture, features, protocol) and must equal `fixed`, so the config never drifts from
+    what the code does.
+    """
+    import yaml
+
+    cfg = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    if cfg.get("model") != name:
+        raise SystemExit(f"{path}: model is {cfg.get('model')!r}, expected {name!r}")
+    extra = set(cfg) - {"model", "train", *fixed}
+    if extra:
+        raise SystemExit(f"{path}: unknown sections {sorted(extra)}")
+    for section, values in fixed.items():
+        if cfg.get(section) != values:
+            raise SystemExit(f"{path}: section {section!r} differs from the code: {values!r}")
+    unknown = set(cfg.get("train") or {}) - set(TRAIN_DEFAULTS)
+    if unknown:
+        raise SystemExit(f"{path}: unknown train options {sorted(unknown)}")
+    return {**TRAIN_DEFAULTS, **(cfg.get("train") or {})}
+
+
 def train_main(
-    make_task: Callable[[int], Task], name: str, datasets: list[str], argv=None, doc: str = ""
+    make_task: Callable[[int], Task],
+    name: str,
+    datasets: list[str],
+    argv=None,
+    doc: str = "",
+    fixed: dict | None = None,
 ) -> dict:
     """Shared command line of the task training modules: train, export, report."""
     ap = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--epochs", type=int, default=20)
-    ap.add_argument("--version", default="0.1.0")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--config", type=Path, help="task config; command-line options override it")
+    ap.add_argument("--epochs", type=int)
+    ap.add_argument("--version")
+    ap.add_argument("--seed", type=int)
     ap.add_argument("--out", type=Path, default=None, help=f"default $MMZ_DATA/derived/{name}/")
     ap.add_argument("--download", action="store_true", help="download the datasets first")
     args = ap.parse_args(argv)
+    opts = load_config(args.config, name, fixed or {}) if args.config else dict(TRAIN_DEFAULTS)
+    opts.update({k: getattr(args, k) for k in TRAIN_DEFAULTS if getattr(args, k) is not None})
     return train(
-        make_task, name, datasets, args.epochs, args.version, args.seed, args.out, args.download
+        make_task, name, datasets, opts["epochs"], opts["version"], opts["seed"], args.out, args.download
     )
 
 

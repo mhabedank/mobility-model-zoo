@@ -1,217 +1,248 @@
-# mobility-security-ml – HIL-Testbench für TinyML auf Mikrocontrollern
+# Edge bench: HIL test bench for TinyML on microcontrollers
 
-Automatisierte **Hardware-in-the-Loop (HIL) Testbench**, die dieselben TinyML-Modelle auf
-vielen gängigen SoCs baut, flasht, ausführt und prüft – vom **ESP8266 (ESP8266MOD)** über
-**ESP32 / ESP32-S3 / ESP32-C3** bis **RP2040 / RP2350, STM32 und nRF52840**.
+Automated **hardware-in-the-loop (HIL) test bench** that builds, flashes, runs and checks the same
+TinyML models on many common SoCs, from the **ESP8266 (ESP8266MOD)** through
+**ESP32 / ESP32-S3 / ESP32-C3** to **RP2040 / RP2350, STM32 and nRF52840**. The bench came from
+the `hilbench` tool of the mobility-security-ml repository and is now the `edge` command of the zoo.
 
-Für jedes angeschlossene Board liefert ein Lauf:
+For every connected board, a run delivers:
 
-* **Korrektheit**: Jede Inferenz auf dem Chip wird **bit-exakt** mit einer Python-Referenz
-  verglichen (Zufalls- und Grenzwert-Eingaben, Golden Vectors, Evaluationsdatensätze).
-  Für importierte Modelle ist die Referenz zusätzlich bit-exakt zum TFLite-Interpreter.
-* **Performance**: Latenz (min/avg/max), CPU-Zyklen pro MAC, Latenzbudgets, Regressionen
-  gegenüber einer Baseline.
-* **Speicher**: RAM-/Flash-Verbrauch der Firmware, freier Heap, Heap-Lecks.
-* **Robustheit**: Soft- und Hardware-Reset, Watchdog- oder Exception-Neustarts im Dauerlauf
-  (inklusive Crash-Log), automatische Wiederherstellung (Reset → Power-Cycle → Neu-Flashen).
+* **Correctness**: every inference on the chip is compared **bit-exactly** with a Python reference
+  (random and boundary inputs, golden vectors, evaluation datasets).
+  For imported models the reference is also bit-exact with the TFLite interpreter.
+* **Performance**: latency (min/avg/max), CPU cycles per MAC, latency budgets, regressions
+  against a baseline.
+* **Memory**: RAM and flash use of the firmware, free heap, heap leaks.
+* **Robustness**: soft and hardware reset, watchdog or exception restarts during a soak run
+  (including the crash log), automatic recovery (reset → power cycle → re-flash).
 
-Ergebnisse landen als `summary.md` / `summary.json` / JUnit-XML in `results/<zeitstempel>/`
-und in GitHub Actions direkt in der Job-Zusammenfassung.
+Results are written as `summary.md` / `summary.json` / JUnit XML to `results/<timestamp>/`
+and, in GitHub Actions, directly into the job summary.
 
 ```
-                ┌───────────────────────── HIL-Host (PC / Raspberry Pi / CI-Runner) ──────────────────────────┐
- hil/boards.yaml│  edge run ──► build (PlatformIO / make) ──► flash (esptool / PIO / UF2 / Befehl)        │
- hil/targets.yaml  pytest + Plugin: 1 Testlauf pro Board, parallel (xdist), Board-Locks, Recovery             │
-                │        │ USB-Serial  "#12 INFER can_ids_road <hex>"  ◄──►  "@{"id":12,"out":"…","us":…}"       │
+                ┌───────────────────────── HIL host (PC / Raspberry Pi / CI runner) ──────────────────────────┐
+ hil/boards.yaml│  edge run ──► build (PlatformIO / make) ──► flash (esptool / PIO / UF2 / command)       │
+ hil/targets.yaml  pytest + plugin: 1 test run per board, parallel (xdist), board locks, recovery             │
+                │        │ USB serial  "#12 INFER can_ids_mlp <hex>"  ◄──►  "@{"id":12,"out":"…","us":…}"        │
                 └────────┼──────────────────────────────────────────────────────────────────────────────────┘
           ┌──────────────┼──────────────┬───────────────┬───────────────┬───────────────┐
       ESP8266MOD      ESP32(-S3/-C3)   RP2040/RP2350   STM32 Nucleo    nRF52840      Simulator (PC)
-          └── gleiche Firmware: benchapp (Protokoll) + microinfer (int8-Engine) + modelzoo ──┘
+          └── same firmware: benchapp (protocol) + microinfer (int8 engine) + modelzoo ──┘
 ```
 
-## Schnellstart ohne Hardware (Simulator)
+Code: the bench is in `src/mobility_model_zoo/edge/bench`, the int8 engine (quantization, Python
+reference, codegen, TFLite import, Keras export) in `src/mobility_model_zoo/edge/int8`.
+
+## Quick start without hardware (simulator)
 
 ```bash
-python3 -m venv .venv && . .venv/bin/activate
-pip install -e ".[hw,dev]"          # hw = esptool, platformio, pytest-xdist
-edge run -b sim                 # baut die Firmware für den PC und führt alle HIL-Tests aus
+uv sync --extra edge --extra edge-hw   # edge-hw = esptool, platformio, pytest-xdist
+uv run edge run -b sim                 # builds the firmware for the PC and runs all HIL tests
 ```
 
-Das Board `sim` ist die echte Bench-Firmware, kompiliert für den PC. Damit lassen sich Tests
-entwickeln und in CI ausführen. Mit `sim-noisy` und Umgebungsvariablen lassen sich
-Bootloader-Rauschen, Watchdog-Crashes und Hänger simulieren.
+The `sim` board is the real bench firmware, compiled for the PC (`firmware/bench/native`). It is
+used to develop tests and to run them in CI. The same suite also runs directly through pytest:
+`uv run pytest -m hil --hil-board sim`. With `sim-noisy` and environment variables you can
+simulate bootloader noise, watchdog crashes and hangs.
 
-### Virtuelle ESP32-Boards (QEMU)
+### Virtual ESP32 boards (QEMU)
 
-Die echte ESP32-Firmware läuft auch im
-[Espressif-QEMU](https://github.com/espressif/qemu/releases). `hil/qemu-boards.yaml` bindet den
-Emulator als normales Board ein: Der Flasher startet QEMU, die UART liegt auf
-`socket://127.0.0.1:5555`. CI führt so die komplette HIL-Suite auf der Arduino-ESP32-Firmware aus.
-ESP32-S3/-C3 sind dort vorbereitet, booten im QEMU aber erst mit Firmware auf Basis von ESP-IDF ≥ 5
+The real ESP32 firmware also runs in
+[Espressif QEMU](https://github.com/espressif/qemu/releases). `hil/qemu-boards.yaml` adds the
+emulator as a normal board: the flasher starts QEMU, and the UART is at
+`socket://127.0.0.1:5555`. This is how CI runs the complete HIL suite on the Arduino ESP32 firmware.
+ESP32-S3/-C3 are prepared there, but only boot in QEMU with firmware based on ESP-IDF ≥ 5
 (arduino-esp32 3.x).
 
 ```bash
-edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick
+uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick
 ```
 
-## Schnellstart mit dem ESP8266MOD
+## Quick start with the ESP8266MOD
 
-1. Board per USB anschließen (NodeMCU / Wemos D1 mini mit CH340 oder CP2102).
-   Bei einem nackten ESP-12-Modul siehe [docs/hardware.md](docs/hardware.md#esp8266mod--esp-12ef).
-2. Erkennen lassen:
+1. Connect the board over USB (NodeMCU / Wemos D1 mini with CH340 or CP2102).
+   For a bare ESP-12 module, see [hardware.md](hardware.md#esp8266mod--esp-12ef).
+2. Let the bench detect it:
    ```bash
-   edge discover --probe
+   uv run edge discover --probe
    ```
-   Das Kommando zeigt Port, USB-Seriennummer und physischen USB-Pfad, fragt per esptool den
-   Chip ab und schlägt einen Eintrag für `hil/boards.yaml` vor.
-3. Den Eintrag `esp8266-1` in `hil/boards.yaml` anpassen (`match:` mit Seriennummer oder
-   `location`), dann:
+   The command shows the port, USB serial number and physical USB path, queries the chip with
+   esptool and suggests an entry for `hil/boards.yaml`.
+3. Adjust the entry `esp8266-1` in `hil/boards.yaml` (`match:` with serial number or
+   `location`), then:
    ```bash
-   edge doctor                  # prüft Tools, Rechte und welche Boards verbunden sind
-   edge run -b esp8266-1        # bauen, flashen, testen
+   uv run edge doctor                  # checks tools, permissions and which boards are connected
+   uv run edge run -b esp8266-1        # build, flash, test
    ```
-4. Ergebnis ansehen: `results/<zeitstempel>/summary.md`, serielles Log in
-   `results/<zeitstempel>/logs/esp8266-1.log`.
+4. Look at the result: `results/<timestamp>/summary.md`, serial log in
+   `results/<timestamp>/logs/esp8266-1.log`.
 
-## Weitere Boards integrieren (ESP32, Pico, Nucleo, …)
+A different inventory file can be set with `--boards` or the environment variable `MMZ_BOARDS`.
 
-Jedes neue Board ist **ein Eintrag in `hil/boards.yaml`**:
+## Adding more boards (ESP32, Pico, Nucleo, …)
+
+Every new board is **one entry in `hil/boards.yaml`**:
 
 ```yaml
 boards:
   - id: esp32-1
-    target: esp32                     # Typ aus hil/targets.yaml
-    match: {serial_number: "0001"}    # oder {location: "1-1.3"} oder port: /dev/serial/by-id/...
-    power: {type: uhubctl, hub: "1-1", port: 2}   # optional: Strom per USB-Hub schalten
+    target: esp32                     # type from hil/targets.yaml
+    match: {serial_number: "0001"}    # or {location: "1-1.3"} or port: /dev/serial/by-id/...
+    power: {type: uhubctl, hub: "1-1", port: 2}   # optional: switch power through a USB hub
 ```
 
-Danach testet `edge run --parallel` alle verbundenen Boards gleichzeitig, ein Worker pro
-Board. Boards, die gerade nicht angeschlossen sind, werden übersprungen
-(`--require-all` macht daraus einen Fehler, z. B. für den nächtlichen CI-Lauf).
+After that, `uv run edge run --parallel` tests all connected boards at the same time, one worker per
+board. Boards that are not connected at the moment are skipped
+(`--require-all` turns that into an error, for example for the nightly CI run).
 
-| Target | SoC / Board | Flash-Methode | Reset |
+| Target | SoC / board | Flash method | Reset |
 |---|---|---|---|
 | `esp8266`, `esp8266_160mhz` | ESP8266 / ESP8266MOD (ESP-12E/F) | esptool | DTR/RTS |
 | `esp32` | ESP32 DevKit | esptool | DTR/RTS |
-| `esp32s3`, `esp32s3_usb` | ESP32-S3 (UART- bzw. nativer USB-Port) | esptool | DTR/RTS bzw. USB-JTAG |
-| `esp32c3`, `esp32c3_usb` | ESP32-C3 (DevKitM bzw. SuperMini) | esptool | DTR/RTS bzw. USB-JTAG |
-| `rp2040`, `rp2350` | Raspberry Pi Pico / Pico 2 | PlatformIO oder UF2 | Soft-Reset |
-| `stm32f446` | NUCLEO-F446RE | PlatformIO (ST-LINK) oder `st-flash`/`pyocd` | Soft-Reset |
-| `nrf52840` | Arduino Nano 33 BLE (Sense) | PlatformIO (bossac) | Soft-Reset |
-| `native` | Simulator auf dem Host | – | Prozess-Neustart |
+| `esp32s3`, `esp32s3_usb` | ESP32-S3 (UART or native USB port) | esptool | DTR/RTS or USB-JTAG |
+| `esp32c3`, `esp32c3_usb` | ESP32-C3 (DevKitM or SuperMini) | esptool | DTR/RTS or USB-JTAG |
+| `rp2040`, `rp2350` | Raspberry Pi Pico / Pico 2 | PlatformIO or UF2 | soft reset |
+| `stm32f446` | NUCLEO-F446RE | PlatformIO (ST-LINK) or `st-flash`/`pyocd` | soft reset |
+| `nrf52840` | Arduino Nano 33 BLE (Sense) | PlatformIO (bossac) | soft reset |
+| `native` | simulator on the host | – | process restart |
 
-Ein **neuer Chip-Typ** braucht drei Dinge (Details: [docs/extending.md](docs/extending.md)):
-eine PlatformIO-Umgebung in `firmware/platformio.ini`, einen Eintrag in `hil/targets.yaml` und
-höchstens ein paar Zeilen in `firmware/src/hal_arduino.cpp`. Ohne eigene Zeilen greift der
-generische Fallback, dann misst das Board nur Zeiten und keine Zyklen.
+A **new chip type** needs three things (details: [extending.md](extending.md)):
+a PlatformIO environment in `firmware/bench/platformio.ini`, an entry in `hil/targets.yaml` and
+at most a few lines in `firmware/bench/src/hal_arduino.cpp`. Without its own lines the
+generic fallback applies, and the board then only measures time, not cycles.
 
-## Eigene TinyML-Modelle
+## Your own TinyML models
 
 ```bash
-# Keras -> TFLite (full integer int8), dann:
-pip install tflite
-edge import-tflite mein_modell.tflite --name mein_modell [--verify]
-edge run --parallel             # landet automatisch in der Firmware aller Boards
+# Keras -> TFLite (full integer int8), then:
+uv sync --extra edge --extra edge-train          # provides tflite (and TensorFlow for --verify)
+uv run edge import-tflite my_model.tflite --name my_model [--verify]
+uv run edge run --parallel             # ends up in the firmware of all boards automatically
 ```
 
-Unterstützt werden sequentielle Graphen mit Conv2D, DepthwiseConv2D, Dense,
-Max-/AveragePooling, Flatten/Reshape und ReLU/ReLU6. QUANTIZE/DEQUANTIZE/Softmax an den Rändern
-werden entfernt. `--verify` vergleicht mit dem TFLite-Referenz-Interpreter (benötigt
-TensorFlow). Modelle, die auf ein kleines Target nicht passen, können per
-`-D MI_EXCLUDE_<NAME>` in `platformio.ini` und `excluded_models` in `targets.yaml`
-ausgeschlossen werden.
+Supported are sequential graphs with Conv2D, DepthwiseConv2D, Dense,
+Max/AveragePooling, Flatten/Reshape and ReLU/ReLU6. QUANTIZE/DEQUANTIZE/Softmax at the edges
+are removed. `--verify` compares with the TFLite reference interpreter (needs
+TensorFlow). Imported models are stored in `build/edge/custom/`. Models that do not fit on a small
+target can be excluded with `-D MI_EXCLUDE_<NAME>` in `platformio.ini` and `excluded_models` in
+`targets.yaml`.
 
-Mitgelieferte Modelle (`models/zoo`). Fokus: Mobilität und Cyber Security. Die Version 0.2.0 ist auf echten, offen lizenzierten
-Daten trainiert. int8-Werte gelten für die Arithmetik des Geräts (bit-exakte Host-Referenz):
+The firmware model sources in `firmware/bench/lib/modelzoo` are build output: `edge build`,
+`make` (native simulator) and a PlatformIO pre-script generate them. Do not edit them by hand and
+do not commit them.
 
-| Modell | Version | Aufgabe | Daten (Lizenz) | int8-Ergebnis | MACs | Parameter | Arena |
+**Bench reference models.** The bench has three synthetic reference models. They are built on
+first use under `build/edge/models` (not committed); `uv run edge zoo` rebuilds them.
+
+| Model | Version | Task | Data (licence) | int8 result | MACs | Parameters | Arena |
 |---|---|---|---|---|---:|---:|---:|
-| `har_cnn1d` | 0.2.0 | Bewegungserkennung aus IMU (6 Aktivitäten) | UCI HAR (CC BY 4.0) | 93,3 % Acc. (2947 Fenster) | 354 k | 7,3 KB | 4,0 KB |
-| `can_ids_road` | 0.2.0 | CAN-Bus-Intrusion-Detection pro Frame (MLP 32-64-32-2) | ROAD, echtes Fahrzeug (CC BY 4.0) | 98,9 % Acc., Recall 81,7 %, FPR 0,8 % (2,2 Mio. Frames, ungesehene Captures) | 4,2 k | 5,0 KB | 128 B |
-| `mimii_fan_ae` | 0.2.0 | Anomalieerkennung an Maschinengeräuschen (Autoencoder, 5 × 40 Log-Mel) | MIMII Lüfter 6 dB (CC BY-SA 4.0) | AUC 0,84 pro 10-s-Clip (id_00 0,75, id_02 0,96; 700 Clips) | 35 k | 39 KB | 400 B |
-| `can_ids_mlp` | 0.1.0 | CAN-Bus-Intrusion-Detection | synthetisch | Bench-Referenz | 1,6 k | 2,0 KB | 64 B |
-| `sensor_ae` | 0.1.0 | Anomalieerkennung Raddrehzahlsensor (Autoencoder) | synthetisch | Bench-Referenz | 10 k | 12 KB | 128 B |
-| `imu_gnss_cnn1d` | 0.1.0 | GNSS-Spoofing-Detektor, 1D-CNN über IMU+GNSS | Benchmark-Gewichte | – | 162 k | 6,9 KB | 2 KB |
+| `can_ids_mlp` | 0.1.0 | CAN bus intrusion detection | synthetic | bench reference | 1.6 k | 2.0 KB | 64 B |
+| `sensor_ae` | 0.1.0 | wheel speed sensor anomaly detection (autoencoder) | synthetic | bench reference | 10 k | 12 KB | 128 B |
+| `imu_gnss_cnn1d` | 0.1.0 | GNSS spoofing detector, 1D CNN over IMU+GNSS | benchmark weights | – | 162 k | 6.9 KB | 2 KB |
 
-## Trainingsdaten und Training auf echten Daten
+**Models trained on real data.** Focus: mobility and cyber security. These models are trained on
+real, openly licensed data by the task tools of their topic (see below), not by the bench. The
+values are from version 0.2.0 on the volta branch of mobility-security-ml. int8 values apply to the
+arithmetic of the device (bit-exact host reference):
 
-Die Daten liegen nie im Repo. `edge data` lädt sie vom Originalanbieter nach
-`$HILBENCH_DATA` und prüft dabei die Lizenz, die der Anbieter aktuell deklariert.
-Auswahl, abgelehnte Datensätze und die Frage, was auf Hugging Face gespiegelt werden darf:
-[docs/datasets.md](docs/datasets.md).
+| Model (former name) | Version | Task | Data (licence) | int8 result | MACs | Parameters | Arena |
+|---|---|---|---|---|---:|---:|---:|
+| `pace-cnn` (`har_cnn1d`) | 0.2.0 | activity recognition from IMU (6 activities) | UCI HAR (CC BY 4.0) | 93.3 % acc. (2947 windows) | 354 k | 7.3 KB | 4.0 KB |
+| `picket-mlp` (`can_ids_road`) | 0.2.0 | CAN bus intrusion detection per frame (MLP 32-64-32-2) | ROAD, real vehicle (CC BY 4.0) | 98.9 % acc., recall 81.7 %, FPR 0.8 % (2.2 million frames, unseen captures) | 4.2 k | 5.0 KB | 128 B |
+| `hum-fan` (`mimii_fan_ae`) | 0.2.0 | anomaly detection on machine sounds (autoencoder, 5 × 40 log-mel) | MIMII fan 6 dB (CC BY-SA 4.0) | AUC 0.84 per 10 s clip (id_00 0.75, id_02 0.96; 700 clips) | 35 k | 39 KB | 400 B |
+
+To measure a trained model on the bench, list its `.npz` in `MMZ_EDGE_MODELS`
+(separated by `:`); `edge build` and `edge run` then put it into the firmware next to the
+reference models.
+
+## Training data and training on real data
+
+The data is never in the repository. `uv run zoo data download <id>` fetches it from the original
+provider into `$MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`) and checks the licence
+that the provider currently declares. Selection, rejected datasets and the question of what may be
+mirrored on Hugging Face:
+[sound and IMU datasets](../../topics/condition-monitoring/research/datasets-volta.md),
+[CAN datasets](../../topics/security/research/datasets.md).
 
 ```bash
-pip install -e ".[train]"
-edge data list                       # Use Cases, Lizenzen, HF-Mirror erlaubt?
-edge train can har mimii --download   # trainieren -> int8 -> bit-exakt prüfen -> models/zoo
-edge run -b sim                      # HIL-Suite inkl. Genauigkeit auf dem (simulierten) Gerät
+uv sync --extra edge --extra edge-train
+uv run zoo data list                                # use cases, licences, HF mirror allowed?
+uv run security can-ids mlp train --download        # picket-mlp on ROAD
+uv run condmon activity train --download            # pace-cnn on UCI HAR
+uv run condmon sound-anomaly train --download       # hum-fan on MIMII
+# each: train -> int8 -> bit-exact check -> $MMZ_DATA/derived/<model>/
+MMZ_EDGE_MODELS=$MMZ_DATA/derived/pace-cnn/pace-cnn.npz uv run edge run -b sim
+                                                    # HIL suite incl. accuracy on the (simulated) device
 ```
 
-Ohne lokale GPU geht es über CI: Die Tasks in `models/train-request.json` eintragen und pushen.
-Der Workflow `train` trainiert, testet auf dem Simulator und committet nur Modellparameter und
-Berichte zurück.
+`picket-forest` (the CAN IDS random forest) has its own pipeline:
+`uv run security can-ids forest evaluate|alarms|export|convert|testvectors`.
 
-**Hugging Face Zoo:** `edge hub publish --org <org> --version 0.2.0` legt pro Modell ein
-privates Repo `<org>/edge-<modell>` mit Model Card (Metriken, Trainingsdaten-Attribution,
-Lizenz), `.npz`, `.h` und `.tflite` an und taggt es mit `v<version>`. In CI geht das über
-`models/hub-release.json` und den Workflow `hub` (`exclude` lässt Modelle weg). `target` wählt
-das Ziel: `staging` zum Ausprobieren (Secret `HF_STAGING_TOKEN`, optional Variable `HF_STAGING_ORG`)
-oder `release` für den eigentlichen Zoo (Secret `HF_RELEASE_TOKEN`, optional `HF_RELEASE_ORG`).
-Jedes Ziel nutzt nur seinen eigenen Token. Fehlt der Token, macht der Workflow nur einen Probelauf
-und legt die Model Cards als Artefakt ab.
+Training runs locally, not in CI. Publishing a model goes through the zoo release tool `zoo`
+(staging, gate, card, approved release), see [adding-a-model.md](../adding-a-model.md).
 
-## Kommandos
+## Commands
 
-| Kommando | Zweck |
+| Command | Purpose |
 |---|---|
-| `edge discover [--probe]` | USB-Geräte finden, Target raten, Inventar-Einträge vorschlagen |
-| `edge doctor` | Host prüfen: Tools, Rechte, verbundene Boards, gebaute Firmware |
-| `edge list` / `targets` | Inventar mit Verbindungsstatus / bekannte Targets |
-| `edge build [-t T] [--all]` | Firmware bauen (`build/fw/<target>/` inkl. Manifest) |
-| `edge flash -b B` / `info -b B` | Board flashen / INFO + Modelle anzeigen |
-| `edge console -b B` | Interaktive Protokollkonsole (`PING`, `BENCH can_ids_road 10`, …) |
-| `edge reset -b B [--method M]`, `power -b B on/off/cycle` | Reset / Stromversorgung |
-| `edge run [-b B] [-t T] [--tag X] [--parallel] [--quick] [--slow] [--baseline S] [-- pytest-Args]` | Kompletter HIL-Lauf |
-| `edge report RUN [--baseline S]` | Bericht neu erzeugen / Regressionen prüfen |
-| `edge import-tflite M.tflite`, `edge zoo` | Modelle importieren / Zoo neu bauen |
+| `edge discover [--probe]` | find USB devices, guess the target, suggest inventory entries |
+| `edge doctor` | check the host: tools, permissions, connected boards, built firmware |
+| `edge list` / `targets` | inventory with connection status / known targets |
+| `edge build [-t T] [--all]` | build firmware (`build/fw/<target>/` incl. manifest) |
+| `edge flash -b B` / `info -b B` | flash a board / show INFO + models |
+| `edge console -b B` | interactive protocol console (`PING`, `BENCH can_ids_mlp 10`, …) |
+| `edge reset -b B [--method M]`, `power -b B on/off/cycle` | reset / power supply |
+| `edge run [-b B] [-t T] [--tag X] [--parallel] [--quick] [--slow] [--baseline S] [-- pytest args]` | complete HIL run |
+| `edge report RUN [--baseline S]` | re-render the report / check for regressions |
+| `edge import-tflite M.tflite`, `edge zoo` | import models / rebuild the reference models |
+| `edge data list\|info\|verify\|download\|path\|tree` | datasets; the documented interface is `zoo data …` |
 
-`pytest tests/hil --hil-board esp32-1 -k inference -n 4 --dist loadgroup` funktioniert genauso,
-das Plugin wird über `conftest.py` geladen.
+All commands run as `uv run edge …`.
 
-## Testsuiten (`tests/hil`)
+`uv run pytest tests/edge/hil -m hil --hil-board esp32-1 -k inference -n 4 --dist loadgroup` works
+the same way; the plugin (`mobility_model_zoo.edge.bench.pytest_plugin`) is loaded through
+`pyproject.toml`.
 
-| Datei | Prüft |
+## Test suites (`tests/edge/hil`)
+
+| File | Checks |
 |---|---|
-| `test_link.py` | PING/INFO, Identität (Target, Version), ECHO-Integrität, Fehlerbehandlung, Round-Trip-Zeit |
-| `test_models.py` | Modellkatalog = Host-Modelle (CRC), Gewichte im Flash intakt, Golden Vectors |
-| `test_inference.py` | Zufalls- und Grenzwert-Eingaben bit-exakt, Genauigkeit auf Evaluationssets |
-| `test_performance.py` | Benchmarks (Latenz, Zyklen/MAC, Stabilität), Budgets, Baseline, Heap-Lecks |
-| `test_robustness.py` | Soft-/Hardware-Reset + Wiederanlauf, Dauerlauf ohne unerwarteten Neustart (`--slow`) |
+| `test_link.py` | PING/INFO, identity (target, version), ECHO integrity, error handling, round-trip time |
+| `test_models.py` | model catalogue = host models (CRC), weights in flash intact, golden vectors |
+| `test_inference.py` | random and boundary inputs bit-exact, accuracy on evaluation sets |
+| `test_performance.py` | benchmarks (latency, cycles/MAC, stability), budgets, baseline, heap leaks |
+| `test_robustness.py` | soft/hardware reset + restart, soak run without unexpected restart (`--slow`) |
 
-Beim Hochfahren prüft die Bench jedes Board: Läuft die gerade gebaute Firmware (Build-ID)?
-Passt der gemeldete Chip zum Target? So fällt ein vertauschtes Kabel sofort auf.
+At startup the bench checks every board: is the firmware that was just built running (build ID)?
+Does the reported chip match the target? This way a swapped cable is noticed immediately.
 
 ## CI
 
-* `.github/workflows/ci.yml`: Unit-Tests, die komplette HIL-Suite gegen simulierte Boards, die
-  HIL-Suite auf der ESP32-Firmware im QEMU und Firmware-Builds für alle 11 Targets mit
-  RAM-/Flash-Übersicht.
-* `.github/workflows/hil.yml`: läuft nächtlich oder manuell auf einem **self-hosted Runner**,
-  an dem die echten Boards hängen. Einrichtung: [docs/ci.md](docs/ci.md).
+* `.github/workflows/ci.yml`: unit tests, the complete HIL suite against simulated boards
+  (job `edge-sim`) and the HIL suite on the ESP32 firmware in QEMU (job `edge-qemu`).
+* `.github/workflows/firmware.yml`: firmware builds for all 11 targets with an overview of RAM
+  and flash use, on changes of `firmware/`, `hil/` or `src/mobility_model_zoo/edge/`.
+* `.github/workflows/hil.yml`: runs nightly or manually on a **self-hosted runner** to which the
+  real boards are connected, only when the repository variable `HIL_RUNNER_ENABLED` is `true`.
+  Setup: [ci.md](ci.md).
 
-## Aufbau des Repos
+These workflows are being added in feature 005.
+
+## Repository layout (edge parts)
 
 ```
-firmware/            Bench-Firmware (PlatformIO) + Host-Simulator (firmware/native)
-  lib/microinfer/    portable int8-Inferenz-Engine (C99, TFLite-kompatible Arithmetik)
-  lib/benchapp/      serielles Testprotokoll + HAL-Schnittstelle
-  lib/modelzoo/      generierte Modelldaten (nicht von Hand ändern)
-  src/hal_arduino.cpp  HAL für ESP8266/ESP32/RP2040/STM32/nRF52
-edge/            Host-Seite: CLI, Discovery, Flashen, Reset/Power, Sessions, pytest-Plugin, Reports
-edge/ml/         Quantisierung, Python-Referenz, Training, Codegen, TFLite-Import
-hil/                 targets.yaml (Chip-Katalog), boards.yaml (dein Laborinventar), udev/Host-Setup
-models/zoo|custom    Referenzmodelle / eigene importierte Modelle
-tests/hil, tests/unit  HIL-Suiten / Host-Tests
-docs/                hardware.md, protocol.md, ci.md, extending.md, datasets.md
-edge/data/       Datensatz-Registry (Lizenzen) + Downloader
+firmware/bench/             bench firmware (PlatformIO) + host simulator (firmware/bench/native)
+  lib/microinfer/           portable int8 inference engine (C99, TFLite-compatible arithmetic)
+  lib/benchapp/             serial test protocol + HAL interface
+  lib/modelzoo/             generated model data (build output, do not edit by hand)
+  src/hal_arduino.cpp       HAL for ESP8266/ESP32/RP2040/STM32/nRF52
+firmware/picket-forest/     firmware of the picket-forest CAN IDS (C core, ESP-IDF, ESP8266)
+src/mobility_model_zoo/edge/bench/   host side: CLI, discovery, flashing, reset/power, sessions, pytest plugin, reports
+src/mobility_model_zoo/edge/int8/    quantization, Python reference, codegen, TFLite import, Keras export
+src/mobility_model_zoo/datasets/     dataset registry (licences) + downloader
+hil/                        targets.yaml (chip catalogue), boards.yaml (your lab inventory), qemu-boards.yaml,
+                            udev rule 99-mmz-edge.rules, setup-host.sh
+build/edge/models|custom    reference models / your own imported models (not committed)
+tests/edge/hil, tests/edge/bench, tests/edge/int8   HIL suites / host tests
+docs/edge/                  hil-bench.md, hardware.md, protocol.md, ci.md, extending.md
 ```

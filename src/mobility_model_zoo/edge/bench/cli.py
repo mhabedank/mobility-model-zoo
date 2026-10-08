@@ -330,7 +330,7 @@ def cmd_run(args, pytest_args):
 
     run_dir = Path(args.results) if args.results else None
     argv = [
-        args.tests or str(REPO_ROOT / "tests" / "hil"),
+        args.tests or str(REPO_ROOT / "tests" / "edge" / "hil"),
         "-p",
         "no:cacheprovider",
         "--hil-build=never",
@@ -352,8 +352,8 @@ def cmd_run(args, pytest_args):
         argv.append(f"--hil-baseline={args.baseline}")
     if run_dir:
         argv.append(f"--hil-results={run_dir}")
-    if not args.slow:
-        argv += ["-m", "not slow"]
+    # always set -m: the default addopts deselect `hil` and `slow`
+    argv += ["-m", "hil" if args.slow else "hil and not slow"]
     if args.parallel and len(available) > 1:
         argv += ["-n", str(len(available)), "--dist", "loadgroup"]
     if args.junit:
@@ -512,7 +512,7 @@ def main(argv=None):
     p.add_argument("-b", "--board", action="append", default=[])
     p.add_argument("-t", "--target", action="append", default=[])
     p.add_argument("--tag", action="append", default=[])
-    p.add_argument("--tests", help="test path (default tests/hil)")
+    p.add_argument("--tests", help="test path (default tests/edge/hil)")
     p.add_argument("--quick", action="store_true", help="smoke run with fewer iterations")
     p.add_argument("--slow", action="store_true", help="include slow soak tests")
     p.add_argument("--no-build", action="store_true", help="use existing firmware artifacts")

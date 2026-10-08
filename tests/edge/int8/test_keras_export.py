@@ -54,3 +54,12 @@ def test_export_writes_bit_exact_model_outside_the_repo(tmp_path, frame_metrics)
     with np.load(tmp_path / "tiny-net.eval.npz") as ev:
         assert ev["inputs"].dtype == np.int8 and len(ev["labels"]) == 100
     assert json.loads((tmp_path / "tiny-net.report.json").read_text())["name"] == "tiny-net"
+
+
+def test_macro_f1():
+    from mobility_model_zoo.edge.int8.keras_export import macro_f1
+
+    y = np.array([0, 0, 1, 1, 2, 2])
+    assert macro_f1(y, y, 3) == 1.0
+    # class 2 never predicted: F1 0 for it; classes 0 and 1 have one error each
+    assert abs(macro_f1(y, np.array([0, 0, 1, 1, 0, 1]), 3) - (0.8 + 0.8 + 0) / 3) < 1e-9

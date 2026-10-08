@@ -95,10 +95,11 @@ def load_can(seed: int = 0, directory: Path | None = None) -> dict:
 
 def can_model():
     layers = tf().keras.layers
-    x = inp = layers.Input((CAN_FEATURES,))
-    x = layers.Dense(64, activation="relu")(x)
-    x = layers.Dense(32, activation="relu")(x)
-    x = layers.Dense(2)(x)
+    arch = FIXED["architecture"]
+    x = inp = layers.Input((arch["inputs"],))
+    for units in arch["dense"]:
+        x = layers.Dense(units, activation=arch["activation"])(x)
+    x = layers.Dense(arch["outputs"])(x)
     x = layers.Softmax()(x)
     return tf().keras.Model(inp, x)
 
@@ -144,8 +145,23 @@ def make_task(seed: int, directory: Path | None = None) -> Task:
     )
 
 
+# Values fixed in the code, documented in configs/security/can-ids/picket-mlp.yaml.
+FIXED = {
+    "architecture": {"inputs": CAN_FEATURES, "dense": [64, 32], "outputs": 2, "activation": "relu"},
+    "data": {
+        "dataset": "road",
+        "benign_keep": BENIGN_KEEP,
+        "ambient_max_bytes": int(AMBIENT_MAX_BYTES),
+        "test_attacks": "captures whose name ends in _2 (also _2_masquerade)",
+        "test_ambient": "every 4th capture by CRC32 of the file name",
+        "validation": "first tenth of the shuffled training frames",
+        "class_weight": "attack weight min(0.5 / attack share, 50)",
+    },
+}
+
+
 def main(argv=None) -> dict:
-    return train_main(make_task, NAME, DATASETS, argv, __doc__)
+    return train_main(make_task, NAME, DATASETS, argv, __doc__, FIXED)
 
 
 if __name__ == "__main__":

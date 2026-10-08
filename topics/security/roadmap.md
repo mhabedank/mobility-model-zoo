@@ -1,133 +1,133 @@
 # Roadmap
 
-Grundlage: [Recherche](research/README.md). Stand: 2026-10-07.
+Basis: [research](research/README.md). As of: 2026-10-07.
 
-## Ziel und Leitplanken (Entscheidung vom 2026-10-07)
+## Goal and guard rails (decision of 2026-10-07)
 
-- **Ziel:** Sichtbare Reputation in den Bereichen Mobility, ML/KI und Automotive Security. Mehrere solide, gut
-  dokumentierte Modelle schnell auf Hugging Face bringen statt monatelang an einem einzigen zu feilen.
-- **Lizenz:** Modelle sollen **kommerziell nutzbar** sein. Wir trainieren deshalb nur auf Daten unter CC BY oder MIT
-  (oder vergleichbar). NC-Datensätze (HCRL, SynCAN, TU/e) kommen höchstens als Vergleichs-Benchmark vor.
-- **Framework:** Pro Modell wählen wir, was am besten passt (sklearn/emlearn, Keras oder PyTorch). Es gibt keine feste Vorgabe.
-- **Hardware:** Vorerst nur der vorhandene **ESP32** und kaum Budget. Benchmarks auf dem Gerät laufen über
-  **Testvektoren per UART**, dafür braucht es keinen CAN-Bus. Ein CAN-Transceiver (SN65HVD230, ~3 €) ist optional für eine Live-Demo.
-- **Keine eigenen Fahrzeugdaten** in dieser Phase. Später sind Datenmarktplätze oder Kooperationspartner denkbar.
-- **Hugging-Face-Organisation** existiert bereits.
+- **Goal:** Visible reputation in mobility, ML/AI and automotive security. Bring several solid, well
+  documented models to Hugging Face quickly instead of polishing a single one for months.
+- **Licence:** Models should be **usable commercially**. We therefore train only on data under CC BY or MIT
+  (or comparable). NC datasets (HCRL, SynCAN, TU/e) appear at most as a comparison benchmark.
+- **Framework:** For each model we choose what fits best (sklearn/emlearn, Keras or PyTorch). There is no fixed rule.
+- **Hardware:** For now only the existing **ESP32** and hardly any budget. On-device benchmarks run over
+  **test vectors via UART**, which needs no CAN bus. A CAN transceiver (SN65HVD230, ~3 €) is optional for a live demo.
+- **No own vehicle data** in this phase. Data marketplaces or cooperation partners are conceivable later.
+- **Hugging Face organisation** already exists.
 
-### Fast-Track-Plan
+### Fast-track plan
 
-| # | Modell | Daten (Lizenz) | Status |
+| # | Model | Data (licence) | Status |
 |---|---|---|---|
-| 1 | `can-ids-tiny`: CAN-Angriffserkennung pro Frame mit Features für unbekannte Fahrzeuge, Random Forest → C (emlearn) | can-train-and-test (CC BY 4.0; über Bitbucket erreichbar) | v0.1 fertig ([Model Card](../models/can-ids-tiny/MODEL_CARD.md)); offen: Latenz auf echter Hardware, Upload |
-| 2 | `v2x-misbehavior-tiny` | VeReMi Extension (CC BY 4.0) | Datenzugang klären |
-| 3 | `gnss-spoofing-tiny` | Aissou GPS Spoofing (CC BY 4.0) | Datenzugang klären |
+| 1 | `picket-forest` (formerly `can-ids-tiny`): per-frame CAN attack detection with features for unseen vehicles, random forest → C (emlearn) | can-train-and-test (CC BY 4.0; reachable via Bitbucket) | v0.1 done ([model card](reports/picket-forest/research-card.md)); open: latency on real hardware, upload |
+| 2 | `v2x-misbehavior-tiny` | VeReMi Extension (CC BY 4.0) | Clarify data access |
+| 3 | `gnss-spoofing-tiny` | Aissou GPS Spoofing (CC BY 4.0) | Clarify data access |
 
-**Was die Modelle hervorheben soll:** ehrliche Evaluation (unbekannte Fahrzeuge, unbekannte Angriffe, Fehlalarme pro Stunde),
-Messwerte vom echten ESP32 und Model Cards mit klarer Abgrenzung des Einsatzzwecks.
+**What the models should highlight:** honest evaluation (unseen vehicles, unseen attacks, false alarms per hour),
+measurements from the real ESP32, and model cards that clearly delimit the intended use.
 
-## Bewertung der Low-Hanging Fruits
+## Assessment of the low-hanging fruits
 
-Jedes Problemfeld wird nach vier Kriterien bewertet:
+Each problem area is assessed against four criteria:
 
-- **Daten:** Gibt es öffentliche, offen lizenzierte Daten?
-- **MCU:** Läuft das Modell auf ESP32-S3-Klasse?
-- **Hardware:** Wie viel Zusatzhardware brauchen wir?
-- **Neuheit/Wert:** Ist das auf Hugging Face neu oder wissenschaftlich interessant?
+- **Data:** Are there public, openly licensed data?
+- **MCU:** Does the model run on an ESP32-S3-class device?
+- **Hardware:** How much additional hardware do we need?
+- **Novelty/value:** Is it new on Hugging Face or scientifically interesting?
 
-| Rang | Kandidat | Daten | MCU | Hardware | Neuheit/Wert | Gesamt |
+| Rank | Candidate | Data | MCU | Hardware | Novelty/value | Overall |
 |---|---|---|---|---|---|---|
-| **1** | **CAN-IDS auf ID-/Timing-Ebene** | ✅ CC BY (can-train-and-test, CAN-MIRGU) | ✅ | gering (ESP32-S3 + Transceiver) | mittel: Thema bekannt, aber **ehrliche Evaluation und MCU-Messungen** fehlen fast überall | ⭐⭐⭐⭐⭐ |
-| **2** | **GNSS-Jamming-/Spoofing-Detektor** (u-blox-Messwerte: C/N0, AGC, Uhrdrift, Positionssprünge) | ✅ CC BY (Aissou), Jammertest 2025 (Lizenz offen) | ✅ 1–10 Hz | gering (u-blox-Modul) | hoch: auf Hugging Face nichts vorhanden; auch für Micromobility und Telematik relevant | ⭐⭐⭐⭐ |
-| **3** | **V2X-Misbehavior-Detektor** | ✅ CC BY (VeReMi-Familie) | ✅ | keine | mittel: realistisch eher auf einem V2X-SoC | ⭐⭐⭐⭐ |
-| **4** | **Masquerade-Erkennung auf Signalebene** (kleiner Autoencoder pro ID-Gruppe) | ◐ ROAD (Lizenz bestätigen), SynCAN (nur NC) | ✅ | gering | hoch: schließt die Lücke reiner Timing-IDS | ⭐⭐⭐⭐ |
-| 5 | Clock-Skew-Senderidentifikation | ◐ eigene Daten (ECUPrint ohne Lizenz) | ✅ | MCP2518FD für Hardware-Zeitstempel | hoch | ⭐⭐⭐ |
-| 6 | Fahrerprofil / Diebstahlschutz | ◐ nur NC (HCRL Driving), KCID offen | ✅ | keine | mittel | ⭐⭐⭐ |
-| 7 | EVSE-Anomalie (Leistungskurven) | ◐ CICEVSE2024 (Lizenz-Konflikt) | ✅ | keine | mittel; ESP32-Vorarbeit existiert | ⭐⭐⭐ |
-| 8 | Keyless/UWB-Relay, E-Scooter-BLE, TPMS, LIN | ❌ eigene Datenerhebung | ✅ | mittel (UWB, SDR, Scooter) | **sehr hoch: noch keine Datensätze vorhanden** | ⭐⭐ (später, dann als eigene Datensatz-Veröffentlichung) |
+| **1** | **CAN IDS at ID/timing level** | ✅ CC BY (can-train-and-test, CAN-MIRGU) | ✅ | low (ESP32-S3 + transceiver) | medium: the topic is known, but **honest evaluation and MCU measurements** are missing almost everywhere | ⭐⭐⭐⭐⭐ |
+| **2** | **GNSS jamming/spoofing detector** (u-blox measurements: C/N0, AGC, clock drift, position jumps) | ✅ CC BY (Aissou), Jammertest 2025 (licence open) | ✅ 1–10 Hz | low (u-blox module) | high: nothing available on Hugging Face; also relevant for micromobility and telematics | ⭐⭐⭐⭐ |
+| **3** | **V2X misbehaviour detector** | ✅ CC BY (VeReMi family) | ✅ | none | medium: realistically rather on a V2X SoC | ⭐⭐⭐⭐ |
+| **4** | **Signal-level masquerade detection** (small autoencoder per ID group) | ◐ ROAD (confirm licence), SynCAN (NC only) | ✅ | low | high: closes the gap of pure timing IDS | ⭐⭐⭐⭐ |
+| 5 | Clock-skew sender identification | ◐ own data (ECUPrint without licence) | ✅ | MCP2518FD for hardware timestamps | high | ⭐⭐⭐ |
+| 6 | Driver profile / theft protection | ◐ NC only (HCRL Driving), KCID open | ✅ | none | medium | ⭐⭐⭐ |
+| 7 | EVSE anomaly (power curves) | ◐ CICEVSE2024 (licence conflict) | ✅ | none | medium; ESP32 prior work exists | ⭐⭐⭐ |
+| 8 | Keyless/UWB relay, e-scooter BLE, TPMS, LIN | ❌ own data collection | ✅ | medium (UWB, SDR, scooter) | **very high: no datasets exist yet** | ⭐⭐ (later, then as a dataset publication of its own) |
 
-## Phasen
+## Phases
 
-### Phase 0 – Recherche ✅
+### Phase 0 – Research ✅
 
-- Bedrohungslandschaft, Literatur, Datensätze, Hardware, Toolchain (dieses PR)
+- Threat landscape, literature, datasets, hardware, toolchain (this PR)
 
-### Phase 1 – Fundament
+### Phase 1 – Foundation
 
-- [ ] Entscheidungen treffen (siehe [Offene Entscheidungen](#offene-entscheidungen))
-- [ ] Repo-Grundgerüst: uv-Workspace, `packages/msml-data`, `msml-features`, `msml-export`, CI (Lint und Tests)
-- [ ] **Lizenzen der Startdatensätze von Hand prüfen** und Snapshots unter `datasets/<name>/` ablegen
+- [ ] Make decisions (see [Open decisions](#open-decisions))
+- [ ] Repo skeleton: uv workspace, `packages/msml-data`, `msml-features`, `msml-export`, CI (lint and tests)
+- [ ] **Check the licences of the starter datasets by hand** and store snapshots under `datasets/<name>/`
   (can-train-and-test, CAN-MIRGU, ROAD, VeReMi, Aissou)
-- [ ] Dataset-Loader mit **leckfreien Splits** (zeitlich, pro Aufnahme, pro Fahrzeug)
-- [ ] Gemeinsames **Evaluationsprotokoll** als Code: AUC-PR, F1, Recall bei fester FPR, FP pro Stunde, Erkennungslatenz
-- [ ] Model-Card-Vorlage für Security-Modelle (`tools/hf/`)
+- [ ] Dataset loaders with **leak-free splits** (temporal, per recording, per vehicle)
+- [ ] Shared **evaluation protocol** as code: AUC-PR, F1, recall at fixed FPR, FP per hour, detection latency
+- [ ] Model card template for security models (`tools/hf/`)
 - [ ] `SECURITY.md`
-- [ ] Hardware bestellen (siehe [Einkaufsliste](research/04-hardware.md#einkaufsliste-für-den-start-vorschlag))
+- [ ] Order hardware (see [shopping list](research/04-hardware.md#shopping-list-for-the-start-proposal))
 
-### Phase 2 – Modell 1: `can-ids-timing-tiny`
+### Phase 2 – Model 1: `can-ids-timing-tiny`
 
-**Ziel:** fensterbasierter CAN-IDS auf einem ESP32-S3 am klassischen CAN-Bus.
+**Goal:** window-based CAN IDS on an ESP32-S3 on the classic CAN bus.
 
-- **Features** pro Fenster aus N Frames bzw. T ms:
-  - IAT-Abweichung pro ID
-  - ID-Häufigkeiten
-  - unbekannte IDs
-  - Payload-Hamming-Distanz zum Vorgänger derselben ID
-  - Byte-Entropie
-  - DLC-Anomalien
-- **Modelle:**
-  - Baseline: Regeln (Perioden-Check, ID-Allowlist)
-  - Random Forest / Extra Trees mit emlearn
-  - kleines int8-MLP oder 1D-CNN mit TFLM und ESP-DL
-- **Daten:**
-  - Training und Test auf can-train-and-test, inkl. Splits mit unbekannten Fahrzeugen
-  - Kreuztest auf CAN-MIRGU und ROAD
-  - Car-Hacking nur als Plausibilitätscheck
+- **Features** per window of N frames or T ms:
+  - IAT deviation per ID
+  - ID frequencies
+  - unknown IDs
+  - payload Hamming distance to the predecessor with the same ID
+  - byte entropy
+  - DLC anomalies
+- **Models:**
+  - Baseline: rules (period check, ID allowlist)
+  - Random forest / extra trees with emlearn
+  - small int8 MLP or 1D CNN with TFLM and ESP-DL
+- **Data:**
+  - Training and test on can-train-and-test, incl. splits with unseen vehicles
+  - Cross-test on CAN-MIRGU and ROAD
+  - Car-Hacking only as a plausibility check
 - **Firmware:**
-  - ESP-IDF-Komponente: TWAI-Capture, Ringpuffer, Features in C mit Paritätstest gegen Python
-  - Inferenz mit festem Takt
-  - Ausgabe als Security Event im IdsM-Stil
-- **Messung:**
-  - Latenz inkl. Features
-  - RAM/Flash
-  - CPU-Last bei 100 % Buslast (Replay über CANable)
-  - Energie
-- **Veröffentlichung:** erstes Modell auf Hugging Face mit vollständiger Model Card und Benchmark-JSON, dazu
-  Parquet-Mirrors der CC-BY-Datensätze, sofern die Lizenz das erlaubt.
+  - ESP-IDF component: TWAI capture, ring buffer, features in C with a parity test against Python
+  - Inference at a fixed rate
+  - Output as an IdsM-style security event
+- **Measurement:**
+  - Latency incl. features
+  - RAM/flash
+  - CPU load at 100 % bus load (replay via CANable)
+  - Energy
+- **Publication:** first model on Hugging Face with a complete model card and benchmark JSON, plus
+  Parquet mirrors of the CC BY datasets, where the licence allows it.
 
-### Phase 3 – Modelle 2–4 (parallelisierbar)
+### Phase 3 – Models 2–4 (can run in parallel)
 
 - **`gnss-interference-tiny`:**
-  - Jamming- und Spoofing-Erkennung aus UBX/NMEA-Messwerten auf ESP32-S3 mit u-blox-Modul
-  - Daten: Aissou, Yunnan University, Jammertest 2025
-  - optional eigene Aufnahmen, gelabelt über den `jammertest-plan`
-- **`v2x-misbehavior-tiny`:** Plausibilitäts- und Fehlverhaltensklassifikator pro Nachricht auf VeReMi Extension und NextGen.
-- **`can-masquerade-ae-tiny`:** Autoencoder auf Signalebene pro ID-Gruppe auf ROAD-Signalen.
-  Eine Variante auf SynCAN-Basis erscheint nur unter einer NC-Lizenz.
-- Adversariale Evaluation (`msml-adv`) für Modell 1 nachziehen.
+  - Jamming and spoofing detection from UBX/NMEA measurements on an ESP32-S3 with a u-blox module
+  - Data: Aissou, Yunnan University, Jammertest 2025
+  - optionally own recordings, labelled via the `jammertest-plan`
+- **`v2x-misbehavior-tiny`:** per-message plausibility and misbehaviour classifier on VeReMi Extension and NextGen.
+- **`can-masquerade-ae-tiny`:** signal-level autoencoder per ID group on ROAD signals.
+  A variant based on SynCAN appears only under an NC licence.
+- Add adversarial evaluation (`msml-adv`) for model 1.
 
-### Phase 4 – Produktionsnahe Ziele und eigene Datensätze
+### Phase 4 – Production-like targets and own datasets
 
-- Port auf **S32K344** (eIQ/TFLM, CMSIS-NN) und **STM32N6** (NPU). Vergleich in einer
-  Benchmark-Tabelle über alle Zielplattformen.
-- CAN FD (MCP2518FD bzw. ESP32-C5/S31), Clock-Skew-Fingerprinting mit Hardware-Zeitstempeln.
-- **Eigene Datensätze** in den Lücken: UWB/Keyless-Relay, E-Scooter-BLE/UART, LIN, TPMS. Veröffentlichung
-  unter CC BY 4.0 auf Hugging Face, möglichst mit begleitendem Paper.
+- Port to **S32K344** (eIQ/TFLM, CMSIS-NN) and **STM32N6** (NPU). Comparison in one
+  benchmark table across all target platforms.
+- CAN FD (MCP2518FD or ESP32-C5/S31), clock-skew fingerprinting with hardware timestamps.
+- **Own datasets** in the gaps: UWB/keyless relay, e-scooter BLE/UART, LIN, TPMS. Publication
+  under CC BY 4.0 on Hugging Face, ideally with an accompanying paper.
 
-## Offene Entscheidungen
+## Open decisions
 
-1. **Name der Hugging-Face-Organisation** und wer Schreibrechte bekommt.
-2. **Lizenz-Policy für Modelle:** Nur offen (CC BY und eigene Daten), oder zusätzlich NC-Modelle auf Basis von HCRL und SynCAN?
-3. **Framework:** Ist Keras 3 als Haupt-NN-Pfad gesetzt, oder bevorzugt das Team PyTorch? Mit PyTorch gibt es mehr
-   Konvertierungsaufwand Richtung `.tflite`, der Weg über ONNX zu ESP-DL bleibt gleich.
-4. **Budget für Hardware:** nur die Starter-Kit-Liste, oder gleich NUCLEO-N6, S32K344-EVB und ein Energiemessgerät?
-5. **Zugang zu Fahrzeugen**, um passiv Normaldaten mitzuschneiden. Das ist wichtig für die Generalisierung über Fahrzeuge hinweg.
-6. **Veröffentlichungsstrategie:** Nur Hugging Face, oder auch Papers (z. B. VehicleSec, escar, AutoSec)?
+1. **Name of the Hugging Face organisation** and who gets write access.
+2. **Licence policy for models:** Open only (CC BY and own data), or additionally NC models based on HCRL and SynCAN?
+3. **Framework:** Is Keras 3 set as the main NN path, or does the team prefer PyTorch? PyTorch means more
+   conversion effort towards `.tflite`; the path via ONNX to ESP-DL stays the same.
+4. **Hardware budget:** only the starter kit list, or NUCLEO-N6, S32K344-EVB and an energy meter right away?
+5. **Access to vehicles** to record normal data passively. This is important for generalisation across vehicles.
+6. **Publication strategy:** Hugging Face only, or papers as well (e.g. VehicleSec, escar, AutoSec)?
 
-## Offene Prüfaufgaben aus der Recherche
+## Open verification tasks from the research
 
-- Lizenzen: ROAD (CC BY vs. NC-SA), CICIoV2024/CICEVSE2024, AutoHack, Jammertest 2025, X-CANIDS.
-- Literatur: alle Einträge mit `[unverified]` in [notes/threats-and-papers.md](research/notes/threats-and-papers.md),
-  vor allem VeReMi, SAVIOR, Plug-N-Pwned, Brokenwire, CANet sowie die Autoren der STM32-Kapitel.
-- Exakte MCU-Zahlen aus den Volltexten (TPI-/PIB-IDS, INDRA, Crocioni et al.).
-- Toolchain: Kommt der statische int8-Pfad über `litert-torch` in TFLM an? Emuliert QEMU die S3-SIMD-Befehle?
-- Standards: Aussagen zu R155/R156, ISO/SAE 21434 und AUTOSAR IdsM gegen die Originaltexte prüfen.
+- Licences: ROAD (CC BY vs. NC-SA), CICIoV2024/CICEVSE2024, AutoHack, Jammertest 2025, X-CANIDS.
+- Literature: all entries marked `[unverified]` in [notes/threats-and-papers.md](research/notes/threats-and-papers.md),
+  especially VeReMi, SAVIOR, Plug-N-Pwned, Brokenwire, CANet and the authors of the STM32 chapters.
+- Exact MCU figures from the full texts (TPI/PIB IDS, INDRA, Crocioni et al.).
+- Toolchain: Does the static int8 path via `litert-torch` arrive in TFLM? Does QEMU emulate the S3 SIMD instructions?
+- Standards: Check the statements on R155/R156, ISO/SAE 21434 and AUTOSAR IdsM against the original texts.

@@ -1,83 +1,83 @@
-# 03 – Datensätze
+# 03 – Datasets
 
-Details zu rund 40 Datensätzen mit Größen, Formaten, Kritik und Prüfstatus stehen in [notes/datasets.md](notes/datasets.md).
+Details on around 40 datasets with sizes, formats, criticism and verification status are in [notes/datasets.md](notes/datasets.md).
 
-> ⚠️ Viele Lizenzseiten (HCRL, UNB/CIC, Zenodo, IEEE DataPort) waren während der Recherche nicht direkt
-> erreichbar. Lizenzangaben mit `[CONFLICT]` oder `[UNVERIFIED]` müssen vor jeder Nutzung für veröffentlichte
-> Modelle von Hand geprüft werden. Den Lizenztext dann archivieren, z. B. unter `datasets/<name>/LICENSE-snapshot.txt`.
+> ⚠️ Many licence pages (HCRL, UNB/CIC, Zenodo, IEEE DataPort) were not directly
+> reachable during the research. Licence statements marked `[CONFLICT]` or `[UNVERIFIED]` must be checked by hand
+> before any use for published models. Then archive the licence text, e.g. under `datasets/<name>/LICENSE-snapshot.txt`.
 
-## Lizenzen: Was dürfen wir veröffentlichen?
+## Licences: what may we publish?
 
-| Lizenztyp | Daten neu hosten? | Modelle offen veröffentlichen? |
+| Licence type | Re-host the data? | Publish models openly? |
 |---|---|---|
-| **CC BY 4.0 / MIT** | ja, mit Namensnennung | ja |
-| **CC BY-NC(-SA)** | nein bzw. nur nicht-kommerziell | rechtlich ungeklärt; übliche Praxis: Gewichte unter einer NC-Lizenz, Trainingsdaten angeben |
-| **CC BY-NC-ND** | nein, auch keine bereinigten Mirrors | wie oben |
-| **Eigene akademische Bedingungen** (HCRL, SynCAN) | nein | wie NC; SynCAN verbietet zusätzlich jeden Einsatz im Feld |
-| **Keine Lizenz** (TEXBAT, ECUPrint) | nein (alle Rechte vorbehalten) | nur für Forschung und Benchmarks |
+| **CC BY 4.0 / MIT** | yes, with attribution | yes |
+| **CC BY-NC(-SA)** | no, or non-commercial only | legally unresolved; common practice: weights under an NC licence, state the training data |
+| **CC BY-NC-ND** | no, not even cleaned mirrors | as above |
+| **Own academic terms** (HCRL, SynCAN) | no | as NC; SynCAN additionally forbids any use in the field |
+| **No licence** (TEXBAT, ECUPrint) | no (all rights reserved) | for research and benchmarks only |
 
-**Vorgeschlagene Policy:**
+**Proposed policy:**
 
-1. Modelle, die wir **offen und kommerziell nutzbar** veröffentlichen, trainieren wir nur auf CC-BY- oder MIT-Daten
-   oder auf **selbst aufgenommenen** Daten.
-2. NC-Datensätze nutzen wir nur zum **Vergleich (Benchmark)**. Wird darauf trainiert, erscheinen die Gewichte
-   unter `cc-by-nc-4.0` bzw. `other`, mit übernommener Einschränkung.
-3. Rohdaten hosten wir nur neu, wenn die Lizenz es erlaubt. Sonst veröffentlichen wir Loader und Download-Skripte.
+1. Models that we publish **openly and usable commercially** are trained only on CC BY or MIT data
+   or on **self-recorded** data.
+2. We use NC datasets only for **comparison (benchmark)**. If we train on them, the weights appear
+   under `cc-by-nc-4.0` or `other`, with the restriction carried over.
+3. We re-host raw data only if the licence allows it. Otherwise we publish loaders and download scripts.
 
-## Empfohlene Startdatensätze
+## Recommended starter datasets
 
-| Datensatz | Domäne | Lizenz | Warum |
+| Dataset | Domain | Licence | Why |
 |---|---|---|---|
-| **can-train-and-test** (Lampe & Meng, DTU) | CAN, 4 Fahrzeuge, 7,5 GB | **CC BY 4.0** [V-S] | Gezielt gegen die HCRL-Schwächen gebaut; Test-Splits auf unbekannten Fahrzeugen; Features auf Frame-Ebene |
-| **CAN-MIRGU** (VehicleSec 2024) | CAN, echte Fahrt mit ADAS | **CC BY 4.0** (UCI) [V-S] | 17 h Normalfahrt, 26 physisch verifizierte Angriffe, dazu Masquerade/Suspension; candump-Format |
-| **ROAD** (ORNL, PLOS ONE 2024) | CAN roh + dekodierte Signale | wahrscheinlich CC BY 4.0 (Zenodo) [CONFLICT] | Realistischste getarnte Angriffe; Signalversion für Masquerade-Modelle |
-| **VeReMi / Extension / NextGen** | V2X (simuliert) | **CC BY 4.0** [V-GH] | 5 / 19 / 15 Fehlverhaltenstypen; kleine Features pro Nachricht |
-| **GPS Spoofing Detection on UAS** (Aissou, Mendeley) | GNSS-Tracking-Features | **CC BY 4.0** [V-S] | 13 Features × 8 Kanäle; direkt MCU-tauglich |
-| **SimulaMet Jammertest 2025** (IEEE DataPort) | GNSS-NMEA von u-blox/Quectel | [UNVERIFIED] | Low-Rate-Daten von Seriengeräten, über 2000 km Fahrt; passt genau zum MCU-Szenario |
-| **comma2k19** | CAN + IMU + GNSS (ohne Angriffe) | **MIT** | Normaldaten für Plausibilitätsmodelle; liegt schon auf Hugging Face |
-| **AutoHack** (VehicleSec 2026, Best Artifact) | 3 synchrone CAN-Busse, Hyundai 2023 | „free for everyone“, genaue Lizenz [UNVERIFIED] | Neuester und realistischster Datensatz; im Blick behalten |
+| **can-train-and-test** (Lampe & Meng, DTU) | CAN, 4 vehicles, 7.5 GB | **CC BY 4.0** [V-S] | Built specifically against the HCRL weaknesses; test splits on unseen vehicles; frame-level features |
+| **CAN-MIRGU** (VehicleSec 2024) | CAN, real driving with ADAS | **CC BY 4.0** (UCI) [V-S] | 17 h of normal driving, 26 physically verified attacks, plus masquerade/suspension; candump format |
+| **ROAD** (ORNL, PLOS ONE 2024) | CAN raw + decoded signals | probably CC BY 4.0 (Zenodo) [CONFLICT] | Most realistic stealthy attacks; signal version for masquerade models |
+| **VeReMi / Extension / NextGen** | V2X (simulated) | **CC BY 4.0** [V-GH] | 5 / 19 / 15 misbehaviour types; small per-message features |
+| **GPS Spoofing Detection on UAS** (Aissou, Mendeley) | GNSS tracking features | **CC BY 4.0** [V-S] | 13 features × 8 channels; directly MCU-suitable |
+| **SimulaMet Jammertest 2025** (IEEE DataPort) | GNSS NMEA from u-blox/Quectel | [UNVERIFIED] | Low-rate data from production devices, over 2000 km of driving; fits the MCU scenario exactly |
+| **comma2k19** | CAN + IMU + GNSS (without attacks) | **MIT** | Normal data for plausibility models; already on Hugging Face |
+| **AutoHack** (VehicleSec 2026, Best Artifact) | 3 synchronous CAN buses, Hyundai 2023 | "free for everyone", exact licence [UNVERIFIED] | Newest and most realistic dataset; keep an eye on it |
 
-## Nur als Benchmark (nicht-kommerziell oder unklar)
+## Benchmark only (non-commercial or unclear)
 
-| Datensatz | Lizenz | Hinweis |
+| Dataset | Licence | Note |
 |---|---|---|
-| HCRL Car-Hacking, OTIDS, Survival, CAN-FD, Driving Dataset | akademisch/NC [CONFLICT] | Car-Hacking ist **trivial lösbar** und hat Artefakte; nur als Plausibilitätscheck |
-| SynCAN (ETAS) | NC, **nicht im Feld** | Sehr gut für Signal-Autoencoder; nicht für Produkte |
+| HCRL Car-Hacking, OTIDS, Survival, CAN-FD, Driving Dataset | academic/NC [CONFLICT] | Car-Hacking is **trivially solvable** and has artefacts; only as a plausibility check |
+| SynCAN (ETAS) | NC, **not in the field** | Very good for signal autoencoders; not for products |
 | TU Eindhoven CAN v2 | CC BY-NC 4.0 | – |
-| CICIoV2024, CICEVSE2024 (UNB CIC) | [CONFLICT]: CIC-Standard vs. CC BY-NC-ND | CICIoV gilt als trivial trennbar |
-| X-CANIDS (IEEE DataPort) | vermutlich CC BY [UNVERIFIED] | 688 Signale; Teilmengen für MCU auswählen |
-| GEM-CAN (autonomer Shuttle) | CC BY-NC [V-S] | Explizit für On-Device-IDS |
-| TOW-IDS (Automotive Ethernet) | nur für Abonnenten | nicht neu hostbar |
-| TEXBAT / OAKBAT (GNSS-IQ) | keine Lizenz / Registrierung | Nur IQ-Rohdaten; brauchen einen Software-Empfänger für Low-Rate-Features |
-| ECUPrint (CAN-Spannung, 500 MS/s) | keine Lizenz | Der Clock-Skew-Teil ist für TinyML nutzbar |
+| CICIoV2024, CICEVSE2024 (UNB CIC) | [CONFLICT]: CIC standard vs. CC BY-NC-ND | CICIoV is considered trivially separable |
+| X-CANIDS (IEEE DataPort) | presumably CC BY [UNVERIFIED] | 688 signals; select subsets for MCU |
+| GEM-CAN (autonomous shuttle) | CC BY-NC [V-S] | Explicitly for on-device IDS |
+| TOW-IDS (automotive Ethernet) | subscribers only | cannot be re-hosted |
+| TEXBAT / OAKBAT (GNSS IQ) | no licence / registration | Raw IQ data only; need a software receiver for low-rate features |
+| ECUPrint (CAN voltage, 500 MS/s) | no licence | The clock-skew part is usable for TinyML |
 
-**Nicht verwenden:** `Thi-Thu-Huong/Multi-CAN-Datasets` auf Hugging Face. Dieser Datensatz bündelt offenbar HCRL- und SynCAN-Daten entgegen deren Bedingungen.
+**Do not use:** `Thi-Thu-Huong/Multi-CAN-Datasets` on Hugging Face. This dataset apparently bundles HCRL and SynCAN data against their terms.
 
-## Hilfsmittel zur Signaldekodierung
+## Tools for signal decoding
 
-- **opendbc** (comma.ai, MIT): über 70 DBC-Dateien für viele Hersteller
+- **opendbc** (comma.ai, MIT): over 70 DBC files for many manufacturers
 - **cantools** (Python, DBC/ARXML), **canmatrix**, **cabana**
-- **CAN-D** (ORNL; damit wurden die ROAD-Signale erzeugt), **READ**, **LibreCAN** (Reverse Engineering ohne DBC)
+- **CAN-D** (ORNL; used to produce the ROAD signals), **READ**, **LibreCAN** (reverse engineering without DBC)
 
-## Lücken: hier fehlen öffentliche Daten
+## Gaps: public data is missing here
 
-| Domäne | Status | Idee für eigene Erhebung |
+| Domain | Status | Idea for own collection |
 |---|---|---|
-| Keyless/UWB-Relay | keine Daten | ESP32 + DW3000-UWB: CIR, First-Path, ToF und RSSI unter Relay-Angriffen aufnehmen |
-| E-Scooter/Micromobility | keine Daten | BLE- und UART-Mitschnitte (z. B. Ninebot/Xiaomi) mit Angriffsszenarien |
-| SOME/IP (echtes Fahrzeug) | keine Daten | vsomeip plus Angriffs-Injector |
-| ISO 15118 / PLC | keine Daten | – |
-| CAN-Spannung (Scission u. ä.) | nur ECUPrint, ohne Lizenz | eigenes Analog-Frontend |
-| LIN, TPMS | kaum Daten | SDR (433 MHz) bzw. LIN-Bus-Mitschnitt im Labor |
+| Keyless/UWB relay | no data | ESP32 + DW3000 UWB: record CIR, first path, ToF and RSSI under relay attacks |
+| E-scooter/micromobility | no data | BLE and UART captures (e.g. Ninebot/Xiaomi) with attack scenarios |
+| SOME/IP (real vehicle) | no data | vsomeip plus an attack injector |
+| ISO 15118 / PLC | no data | – |
+| CAN voltage (Scission etc.) | only ECUPrint, without licence | own analogue front end |
+| LIN, TPMS | hardly any data | SDR (433 MHz) or LIN bus capture in the lab |
 
-Eigene Datensätze unter CC BY 4.0 wären **zitierfähige Beiträge** und könnten zuerst auf Hugging Face erscheinen.
+Own datasets under CC BY 4.0 would be **citable contributions** and could appear on Hugging Face first.
 
-## Was schon auf Hugging Face existiert
+## What already exists on Hugging Face
 
-- `commaai/comma2k19` (MIT, Normaldaten)
-- `asana17/ai_can_anomaly_detection_data` / `_runs`: J1939-LKW, quantisierte Modelle plus C-Code. Das ist der **nächste Vorläufer**.
-- `keyvan-ai/SecIDS-v2`: TCN-CAN-IDS für Jetson Nano, nicht MCU-Klasse.
-- `buckeyeguy/GraphIDS`: nur Evaluationsartefakte.
-- **Nicht gefunden:** TFLite-Micro- oder ESP32/STM32-Modelle für CAN-, V2X- oder GNSS-Security. Auch ROAD,
-  can-train-and-test, CAN-MIRGU und VeReMi liegen dort nicht. Wir könnten sie als saubere Parquet-Mirrors
-  bereitstellen, mit Namensnennung und nur, wo die Lizenz es erlaubt.
+- `commaai/comma2k19` (MIT, normal data)
+- `asana17/ai_can_anomaly_detection_data` / `_runs`: J1939 trucks, quantised models plus C code. This is the **closest predecessor**.
+- `keyvan-ai/SecIDS-v2`: TCN CAN IDS for Jetson Nano, not MCU class.
+- `buckeyeguy/GraphIDS`: evaluation artefacts only.
+- **Not found:** TFLite Micro or ESP32/STM32 models for CAN, V2X or GNSS security. ROAD,
+  can-train-and-test, CAN-MIRGU and VeReMi are not there either. We could provide them as clean Parquet mirrors,
+  with attribution and only where the licence allows it.
