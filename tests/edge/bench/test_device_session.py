@@ -1,17 +1,24 @@
 """Harness behaviour against the simulator, including injected faults."""
+
 import json
 from dataclasses import replace
 
 import numpy as np
 import pytest
 
-from hilbench.device import Device, DeviceError, DeviceResetDetected, DeviceTimeout
-from hilbench.flash import Firmware
-from hilbench.ml.reference import run_model
-from hilbench.ml.zoo import load_zoo
-from hilbench.results import Recorder, compare_to_baseline, render_markdown, summarize, write_summary
-from hilbench.session import BoardSession, SessionError
-from hilbench.transport import Transport
+from mobility_model_zoo.edge.bench.device import Device, DeviceError, DeviceResetDetected, DeviceTimeout
+from mobility_model_zoo.edge.bench.flash import Firmware
+from mobility_model_zoo.edge.bench.reference_models import load_zoo
+from mobility_model_zoo.edge.bench.results import (
+    Recorder,
+    compare_to_baseline,
+    render_markdown,
+    summarize,
+    write_summary,
+)
+from mobility_model_zoo.edge.bench.session import BoardSession, SessionError
+from mobility_model_zoo.edge.bench.transport import Transport
+from mobility_model_zoo.edge.int8.reference import run_model
 
 
 class FakeTransport(Transport):
@@ -37,7 +44,7 @@ class FakeTransport(Transport):
 
 
 def test_device_parses_noise_and_frames():
-    t = FakeTransport([b"\xff\x00garbage\r\n", b'junk@{"id":1,"ok":true,"pong":tr', b'ue}\n'])
+    t = FakeTransport([b"\xff\x00garbage\r\n", b'junk@{"id":1,"ok":true,"pong":tr', b"ue}\n"])
     d = Device(t, timeout=0.5)
     assert d.ping()["pong"] is True
     assert t.sent == [b"#1 PING\n"]
@@ -45,7 +52,9 @@ def test_device_parses_noise_and_frames():
 
 
 def test_device_detects_reboot():
-    t = FakeTransport([b"Exception (28):\r\nepc1=0x4020\r\n", b'@{"evt":"boot","reset_reason":"Exception"}\n'])
+    t = FakeTransport(
+        [b"Exception (28):\r\nepc1=0x4020\r\n", b'@{"evt":"boot","reset_reason":"Exception"}\n']
+    )
     d = Device(t, timeout=0.5)
     with pytest.raises(DeviceResetDetected) as ei:
         d.info()
@@ -62,7 +71,9 @@ def test_device_error_and_timeout():
 
 
 def test_infer_checks_input_crc():
-    d = Device(FakeTransport([b'@{"id":1,"ok":true,"out":"00","us":1,"cycles":0,"in_crc":"00000000"}\n']))
+    d = Device(
+        FakeTransport([b'@{"id":1,"ok":true,"out":"00","us":1,"cycles":0,"in_crc":"00000000"}\n'])
+    )
     with pytest.raises(DeviceError, match="corrupted"):
         d.infer("m", np.zeros(4, np.int8))
 
@@ -130,7 +141,9 @@ def test_soft_and_process_reset(sim_lab):
 def test_results_summary_and_baseline(tmp_path):
     rec = Recorder(tmp_path)
     rec.record("board", "b1", target="esp32", chip="ESP32-D0WD", cpu_mhz=240, build="01")
-    rec.record("bench", "b1", model="m", us_avg=100, us_min=90, us_max=110, cyc_avg=24000, macs=1000, n=5)
+    rec.record(
+        "bench", "b1", model="m", us_avg=100, us_min=90, us_max=110, cyc_avg=24000, macs=1000, n=5
+    )
     rec.record("test", "b1", nodeid="t::a", outcome="passed")
     rec.record("test", "b1", nodeid="t::b", outcome="failed", message="AssertionError: boom")
     s = write_summary(tmp_path)
@@ -139,8 +152,9 @@ def test_results_summary_and_baseline(tmp_path):
     assert "| m | 100 µs |" in md and "24.0" in md and "boom" in md
     base = json.loads((tmp_path / "summary.json").read_text())
     base["perf"]["b1"]["m"]["us_avg"] = 50
-    regressions = compare_to_baseline(summarize([{"kind": "bench", "board": "b1", "model": "m", "us_avg": 100}]),
-                                      base, 0.25)
+    regressions = compare_to_baseline(
+        summarize([{"kind": "bench", "board": "b1", "model": "m", "us_avg": 100}]), base, 0.25
+    )
     assert regressions == ["b1/m: 100 µs vs baseline 50 µs (+100%)"]
     assert not compare_to_baseline(s, s, 0.0)
 
@@ -148,8 +162,10 @@ def test_results_summary_and_baseline(tmp_path):
 def test_power_cycle_reset_reconnects(sim_lab):
     """A power cycle drops the link (USB serial, QEMU socket): the session must reconnect."""
     lab, fw = sim_lab
-    board = replace(lab.board("sim"), power={"type": "command", "on": "true", "off": "true", "off_s": 0,
-                                             "settle_s": 0})
+    board = replace(
+        lab.board("sim"),
+        power={"type": "command", "on": "true", "off": "true", "off_s": 0, "settle_s": 0},
+    )
     with BoardSession(lab, board, fw) as s:
         old = s.transport
         s.reset("power")

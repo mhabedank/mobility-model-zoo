@@ -7,7 +7,7 @@
 #   flasher         esptool | platformio | uf2 | command | none
 #   flasher_options flasher specific settings (see docs/hardware.md)
 #   reset           esp_classic | esp_usb_jtag | dtr_pulse | soft | power | command | process | none
-#   usb_ids         "vid:pid" of the USB bridge/native USB (used by `hilbench discover`)
+#   usb_ids         "vid:pid" of the USB bridge/native USB (used by `edge discover`)
 #   probe_match     regex on esptool's chip detection (discover --probe)
 #   chip_match      regex the firmware's INFO.chip must match (catches a wrong board in a slot)
 #   reenumerates    true for native USB CDC devices whose port vanishes on reset

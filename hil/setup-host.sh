@@ -16,7 +16,7 @@ if command -v apt-get >/dev/null 2>&1; then
 fi
 
 usermod -aG dialout "$USER_NAME"
-install -m 0644 "$HERE/99-hilbench.rules" /etc/udev/rules.d/99-hilbench.rules
+install -m 0644 "$HERE/99-mmz-edge.rules" /etc/udev/rules.d/99-mmz-edge.rules
 udevadm control --reload-rules
 udevadm trigger
 
@@ -25,9 +25,9 @@ if systemctl list-unit-files 2>/dev/null | grep -q '^brltty'; then
     echo "note: brltty is installed and may steal CH340 serial ports (apt remove brltty)"
 fi
 
-mkdir -p /var/lock/hilbench
-chgrp dialout /var/lock/hilbench
-chmod 2775 /var/lock/hilbench
+mkdir -p /var/lock/mmz-edge
+chgrp dialout /var/lock/mmz-edge
+chmod 2775 /var/lock/mmz-edge
 
 echo "done - log out and in again so that '$USER_NAME' gets the dialout group."
-echo "next: python3 -m venv .venv && .venv/bin/pip install -e '.[hw]' && .venv/bin/hilbench discover"
+echo "next: uv sync --extra edge --extra edge-hw && uv run edge discover"

@@ -1,5 +1,6 @@
 """The models compiled into the firmware are exactly the host's reference models."""
-from hilbench.ml.zoo import load_zoo
+
+from mobility_model_zoo.edge.bench.reference_models import load_zoo
 
 
 def test_model_catalogue_matches_host(dut):

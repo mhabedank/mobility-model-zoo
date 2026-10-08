@@ -1,7 +1,8 @@
 """Choose a span model's unit and relevance thresholds on its validation chunks (span_model.json).
 
 Run: uv run --with torch --with transformers --with sentencepiece --with protobuf \
-         python topics/productdev/spike/tune_span_threshold.py data/models/<model> data/models/spark/rows-<rows>.jsonl
+         python topics/productdev/spike/tune_span_threshold.py \\
+             data/models/<model> data/models/spark/rows-<rows>.jsonl
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@
  * Arithmetic follows the TFLite / TFLite-Micro int8 reference kernels
  * (asymmetric activations, symmetric per-channel weights, double-rounding
  * fixed-point requantization), so results are bit-exact with the Python
- * reference in hilbench/ml/reference.py and with TFLite for supported ops.
+ * reference in src/mobility_model_zoo/edge/int8/reference.py and with TFLite for supported ops.
  *
  * Pure C99, no heap, no floating point: runs on ESP8266 (no FPU) as well as
  * Cortex-M, RISC-V and the host simulator.

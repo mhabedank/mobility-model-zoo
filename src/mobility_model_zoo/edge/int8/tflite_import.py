@@ -1,6 +1,6 @@
 """Import fully int8-quantized .tflite models into the bench.
 
-    hilbench import-tflite my_model.tflite --name my_model
+    edge import-tflite my_model.tflite --name my_model
 
 Supported (sequential graphs): CONV_2D, DEPTHWISE_CONV_2D, FULLY_CONNECTED,
 MAX_POOL_2D, AVERAGE_POOL_2D, RESHAPE/SQUEEZE, a leading QUANTIZE and trailing
@@ -10,13 +10,14 @@ whole feature map instead of GlobalAveragePooling2D (which becomes MEAN).
 
 Needs `pip install tflite` (pure-python flatbuffer bindings).
 """
+
 from __future__ import annotations
 
 import numpy as np
 
+from . import reference
 from .model import QLayer, QModel
 from .quant import quantize_multiplier, round_half_away
-from . import reference
 
 
 class UnsupportedModel(ValueError):
@@ -69,8 +70,14 @@ def _pad(padding: int, in_size: int, out_size: int, k: int, s: int, tfl) -> int:
     return total // 2
 
 
-def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
-                seed: int = 0, fc_rounding: str = "single") -> QModel:
+def load_tflite(
+    path: str,
+    name: str,
+    description: str = "",
+    n_tests: int = 8,
+    seed: int = 0,
+    fc_rounding: str = "single",
+) -> QModel:
     tfl = _tfl()
     buf = open(path, "rb").read()
     if len(buf) < 8 or buf[4:8] != b"TFL3":
@@ -121,9 +128,11 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
         ins = [int(v) for v in op.InputsAsNumpy()]
         out = int(op.OutputsAsNumpy()[0])
         if tensor(out).Type() == T.INT32:
-            continue  # shape arithmetic (Keras Flatten -> SHAPE/STRIDED_SLICE/PACK), not on the data path
+            continue  # shape arithmetic (Keras Flatten -> SHAPE/STRIDED_SLICE/PACK), not data path
         if ins[0] != cur:
-            raise UnsupportedModel(f"op {i} ({kind}) does not consume the previous output: graph is not sequential")
+            raise UnsupportedModel(
+                f"op {i} ({kind}) does not consume the previous output: graph is not sequential"
+            )
         tin, tout = tensor(ins[0]), tensor(out)
 
         if kind == "QUANTIZE" and i == 0:
@@ -142,8 +151,14 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
         if input_scale is None:
             input_scale, input_zp = float(s_in[0]), int(z_in[0])
         in_shape, out_shape = _hwc(tin.ShapeAsNumpy()), _hwc(tout.ShapeAsNumpy())
-        common = dict(in_shape=in_shape, out_shape=out_shape, in_zp=int(z_in[0]), out_zp=int(z_out[0]),
-                      in_scale=float(s_in[0]), out_scale=float(s_out[0]))
+        common = dict(
+            in_shape=in_shape,
+            out_shape=out_shape,
+            in_zp=int(z_in[0]),
+            out_zp=int(z_out[0]),
+            in_scale=float(s_in[0]),
+            out_scale=float(s_out[0]),
+        )
 
         if kind in ("CONV_2D", "DEPTHWISE_CONV_2D", "FULLY_CONNECTED"):
             tw = tensor(ins[1])
@@ -152,7 +167,8 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
             if np.any(z_w != 0):
                 raise UnsupportedModel("weights must be symmetric (zero point 0)")
             bias = data(tensor(ins[2]), np.int32).reshape(-1) if len(ins) > 2 and ins[2] >= 0 else None
-            mults, shifts = zip(*(quantize_multiplier(float(s_in[0] * sw / s_out[0])) for sw in s_w))
+            pairs = [quantize_multiplier(float(s_in[0] * sw / s_out[0])) for sw in s_w]
+            mults, shifts = zip(*pairs, strict=True)
             if kind == "FULLY_CONNECTED":
                 o = options(op, tfl.FullyConnectedOptions)
                 act = o.FusedActivationFunction()
@@ -166,10 +182,17 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
                 act = o.FusedActivationFunction()
                 kh, kw = int(w.shape[1]), int(w.shape[2])
                 sh, sw_ = o.StrideH(), o.StrideW()
-                q = QLayer(op="conv2d", kernel=(kh, kw), stride=(sh, sw_),
-                           pad=(_pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
-                                _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl)),
-                           weights=w.reshape(-1), **common)
+                q = QLayer(
+                    op="conv2d",
+                    kernel=(kh, kw),
+                    stride=(sh, sw_),
+                    pad=(
+                        _pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
+                        _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl),
+                    ),
+                    weights=w.reshape(-1),
+                    **common,
+                )
             else:
                 o = options(op, tfl.DepthwiseConv2DOptions)
                 if o.DilationHFactor() != 1 or o.DilationWFactor() != 1:
@@ -177,10 +200,17 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
                 act = o.FusedActivationFunction()
                 kh, kw = int(w.shape[1]), int(w.shape[2])
                 sh, sw_ = o.StrideH(), o.StrideW()
-                q = QLayer(op="dwconv2d", kernel=(kh, kw), stride=(sh, sw_),
-                           pad=(_pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
-                                _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl)),
-                           weights=w.reshape(-1), **common)
+                q = QLayer(
+                    op="dwconv2d",
+                    kernel=(kh, kw),
+                    stride=(sh, sw_),
+                    pad=(
+                        _pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
+                        _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl),
+                    ),
+                    weights=w.reshape(-1),
+                    **common,
+                )
             q.bias = bias
             q.mult = np.array(mults, dtype=np.int32)
             q.shift = np.array(shifts, dtype=np.int8)
@@ -192,11 +222,20 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
             o = options(op, tfl.Pool2DOptions)
             kh, kw, sh, sw_ = o.FilterHeight(), o.FilterWidth(), o.StrideH(), o.StrideW()
             amin, amax = _act_range(o.FusedActivationFunction(), float(s_out[0]), int(z_out[0]), tfl)
-            layers.append(QLayer(op="maxpool2d" if kind == "MAX_POOL_2D" else "avgpool2d", kernel=(kh, kw),
-                                 stride=(sh, sw_),
-                                 pad=(_pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
-                                      _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl)),
-                                 act_min=amin, act_max=amax, **common))
+            layers.append(
+                QLayer(
+                    op="maxpool2d" if kind == "MAX_POOL_2D" else "avgpool2d",
+                    kernel=(kh, kw),
+                    stride=(sh, sw_),
+                    pad=(
+                        _pad(o.Padding(), in_shape[0], out_shape[0], kh, sh, tfl),
+                        _pad(o.Padding(), in_shape[1], out_shape[1], kw, sw_, tfl),
+                    ),
+                    act_min=amin,
+                    act_max=amax,
+                    **common,
+                )
+            )
         elif kind in ("RESHAPE", "SQUEEZE"):
             if not (np.allclose(s_in, s_out) and np.array_equal(z_in, z_out)):
                 raise UnsupportedModel("reshape with requantization")
@@ -208,10 +247,16 @@ def load_tflite(path: str, name: str, description: str = "", n_tests: int = 8,
     if not layers:
         raise UnsupportedModel("no supported layers found")
     last = layers[-1]
-    qm = QModel(name=name, layers=layers, input_scale=input_scale, input_zp=input_zp,
-                output_scale=last.out_scale, output_zp=last.out_zp,
-                description=description or f"imported from {path}",
-                meta={"source": "tflite", "dropped_ops": dropped})
+    qm = QModel(
+        name=name,
+        layers=layers,
+        input_scale=input_scale,
+        input_zp=input_zp,
+        output_scale=last.out_scale,
+        output_zp=last.out_zp,
+        description=description or f"imported from {path}",
+        meta={"source": "tflite", "dropped_ops": dropped},
+    )
     rng = np.random.default_rng(seed)
     qm.test_inputs = rng.integers(-128, 128, (n_tests, qm.in_size), dtype=np.int16).astype(np.int8)
     qm.test_outputs = reference.run_batch(qm, qm.test_inputs)
@@ -229,8 +274,11 @@ def verify_with_interpreter(path: str, qm: QModel, n: int = 32, seed: int = 1) -
         Interpreter = tf.lite.Interpreter
         OpResolverType = tf.lite.experimental.OpResolverType
     # Reference kernels = what TFLite-Micro runs on microcontrollers (no XNNPACK).
-    interp = Interpreter(model_path=path, experimental_preserve_all_tensors=True,
-                         experimental_op_resolver_type=OpResolverType.BUILTIN_REF)
+    interp = Interpreter(
+        model_path=path,
+        experimental_preserve_all_tensors=True,
+        experimental_op_resolver_type=OpResolverType.BUILTIN_REF,
+    )
     interp.allocate_tensors()
     inp = interp.get_input_details()[0]
     # Find the int8 tensor that corresponds to our last layer: the output of the
@@ -245,7 +293,11 @@ def verify_with_interpreter(path: str, qm: QModel, n: int = 32, seed: int = 1) -
         if inp["dtype"] == np.int8:
             feed = x.reshape(inp["shape"])
         else:  # float input with QUANTIZE op
-            feed = ((x.astype(np.float32) - qm.input_zp) * qm.input_scale).reshape(inp["shape"]).astype(np.float32)
+            feed = (
+                ((x.astype(np.float32) - qm.input_zp) * qm.input_scale)
+                .reshape(inp["shape"])
+                .astype(np.float32)
+            )
         interp.set_tensor(inp["index"], feed)
         interp.invoke()
         want = interp.get_tensor(out_idx).reshape(-1)

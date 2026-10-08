@@ -1,6 +1,6 @@
 """Fallback LoRA fine-tuning with Hugging Face TRL + PEFT (used only if Ludwig fails; spike 002).
 
-Same data (sft.jsonl, `messages` field), same base model and LoRA settings as topics/productdev/spike/train_ludwig.yaml.
+Same data (sft.jsonl, `messages` field), same base model and LoRA settings as train_ludwig.yaml.
 Writes a PEFT adapter to /work/adapter for vLLM (--lora-modules spike-tuned=/work/adapter).
 """
 

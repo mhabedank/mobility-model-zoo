@@ -4,6 +4,7 @@ tested state - lock, power, flash, connect, identify, recover.
     with BoardSession(lab, board, firmware) as s:
         s.device.info()
 """
+
 from __future__ import annotations
 
 import re
@@ -24,8 +25,15 @@ class SessionError(RuntimeError):
 
 
 class BoardSession:
-    def __init__(self, lab: Lab, board: Board, firmware: Firmware | None = None, flash: bool = True,
-                 log_dir: Path | None = None, lock_timeout: float = 600.0):
+    def __init__(
+        self,
+        lab: Lab,
+        board: Board,
+        firmware: Firmware | None = None,
+        flash: bool = True,
+        log_dir: Path | None = None,
+        lock_timeout: float = 600.0,
+    ):
         self.lab = lab
         self.board = board
         self.target = board.target
@@ -53,7 +61,7 @@ class BoardSession:
         self.log(f"### {msg}")
 
     # ---- lifecycle -------------------------------------------------------
-    def __enter__(self) -> "BoardSession":
+    def __enter__(self) -> BoardSession:
         self.lock.acquire()
         try:
             self.start()
@@ -127,24 +135,36 @@ class BoardSession:
         t0 = time.monotonic()
         out = flasher.flash(port, self.firmware)
         self.log(out[-4000:] if out else "")
-        self.note(f"flashed {self.firmware.target} build {self.firmware.build_id:08x} "
-                  f"via {self.board.flash_method} in {time.monotonic() - t0:.1f}s")
+        self.note(
+            f"flashed {self.firmware.target} build {self.firmware.build_id:08x} "
+            f"via {self.board.flash_method} in {time.monotonic() - t0:.1f}s"
+        )
 
     def identify(self) -> dict:
         info = self.device.info()
         self.info = info
         if info.get("target") != self.target.name:
-            raise SessionError(f"{self.board.id}: firmware reports target '{info.get('target')}', "
-                               f"expected '{self.target.name}' - wrong board on this port?")
+            raise SessionError(
+                f"{self.board.id}: firmware reports target '{info.get('target')}', "
+                f"expected '{self.target.name}' - wrong board on this port?"
+            )
         if self.target.chip_match and not re.search(self.target.chip_match, info.get("chip", "")):
-            raise SessionError(f"{self.board.id}: chip '{info.get('chip')}' does not match "
-                               f"/{self.target.chip_match}/ - wrong board on this port?")
+            raise SessionError(
+                f"{self.board.id}: chip '{info.get('chip')}' does not match "
+                f"/{self.target.chip_match}/ - wrong board on this port?"
+            )
         if self.firmware is not None:
             running = int(info.get("build", "0"), 16)
             if running != self.firmware.build_id:
                 raise SessionError(
-                    f"{self.board.id}: running build {running:08x} != expected {self.firmware.build_id:08x}"
-                    + (" (flashing failed?)" if self.do_flash else " (use flashing or --hil-no-build-check)"))
+                    f"{self.board.id}: running build {running:08x} "
+                    f"!= expected {self.firmware.build_id:08x}"
+                    + (
+                        " (flashing failed?)"
+                        if self.do_flash
+                        else " (use flashing or --hil-no-build-check)"
+                    )
+                )
         return info
 
     # ---- resets & recovery ----------------------------------------------
@@ -173,8 +193,14 @@ class BoardSession:
         self.note(f"recovering: {reason}")
         steps = []
         if self.board.reset_method not in ("soft", "none"):
-            steps.append(("reset", lambda: hardware_reset(self.board.reset_method, self.transport, self.power,
-                                                          self.board.reset_options)))
+            steps.append(
+                (
+                    "reset",
+                    lambda: hardware_reset(
+                        self.board.reset_method, self.transport, self.power, self.board.reset_options
+                    ),
+                )
+            )
         if self.power.available:
             steps.append(("power-cycle", lambda: (self.power.cycle(), True)[1]))
         if self.firmware is not None and self.board.flash_method != "none":
@@ -183,8 +209,11 @@ class BoardSession:
             try:
                 if not action():
                     continue
-                if (self.transport is None or self.target.reenumerates
-                        or name in ("power-cycle", "reflash")):
+                if (
+                    self.transport is None
+                    or self.target.reenumerates
+                    or name in ("power-cycle", "reflash")
+                ):
                     if self.transport is not None:
                         self.transport.close()
                     self.port = self._resolve_port(10.0 if self.target.reenumerates else 5.0)
@@ -196,4 +225,6 @@ class BoardSession:
                 return
             except Exception as e:  # keep escalating
                 self.note(f"{name} did not help: {e}")
-        raise SessionError(f"{self.board.id}: unresponsive ({reason}); tried {[s[0] for s in steps] or 'nothing'}")
+        raise SessionError(
+            f"{self.board.id}: unresponsive ({reason}); tried {[s[0] for s in steps] or 'nothing'}"
+        )

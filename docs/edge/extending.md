@@ -53,9 +53,9 @@ eigenen Datei und ruft `bench_init()` sowie in der Hauptschleife `bench_poll()` 
 ## 4. Testen
 
 ```bash
-hilbench build -t teensy41
-hilbench discover                  # Board finden, Eintrag in hil/boards.yaml anlegen
-hilbench run -b teensy41-1
+edge build -t teensy41
+edge discover                  # Board finden, Eintrag in hil/boards.yaml anlegen
+edge run -b teensy41-1
 ```
 
 Die CI-Matrix in `.github/workflows/ci.yml` um das neue Target ergänzen, dann baut jede

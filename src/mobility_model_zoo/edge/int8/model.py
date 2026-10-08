@@ -4,6 +4,7 @@ generator, the TFLite importer and the HIL tests.
 A QModel is stored as a single ``.npz`` file (JSON header + arrays) so that the
 host side of the bench can always recompute the expected device output.
 """
+
 from __future__ import annotations
 
 import json
@@ -93,27 +94,29 @@ class QModel:
 
     def arena_size(self) -> int:
         """Two ping-pong buffers, each big enough for the largest tensor."""
-        biggest = max(max(int(np.prod(l.in_shape)), int(np.prod(l.out_shape))) for l in self.layers)
+        biggest = max(
+            max(int(np.prod(lyr.in_shape)), int(np.prod(lyr.out_shape))) for lyr in self.layers
+        )
         half = (biggest + 3) & ~3
         return 2 * half
 
     def macs(self) -> int:
-        return sum(l.macs() for l in self.layers)
+        return sum(lyr.macs() for lyr in self.layers)
 
     def param_bytes(self) -> int:
-        return sum(l.param_bytes() for l in self.layers)
+        return sum(lyr.param_bytes() for lyr in self.layers)
 
     def crc32(self) -> int:
         """Must match mi_model_crc32() in microinfer.c."""
         crc = 0
-        for l in self.layers:
-            if not l.has_params:
+        for lyr in self.layers:
+            if not lyr.has_params:
                 continue
-            crc = zlib.crc32(l.weights.astype(np.int8).tobytes(), crc)
-            if l.bias is not None:
-                crc = zlib.crc32(l.bias.astype("<i4").tobytes(), crc)
-            crc = zlib.crc32(l.mult.astype("<i4").tobytes(), crc)
-            crc = zlib.crc32(l.shift.astype(np.int8).tobytes(), crc)
+            crc = zlib.crc32(lyr.weights.astype(np.int8).tobytes(), crc)
+            if lyr.bias is not None:
+                crc = zlib.crc32(lyr.bias.astype("<i4").tobytes(), crc)
+            crc = zlib.crc32(lyr.mult.astype("<i4").tobytes(), crc)
+            crc = zlib.crc32(lyr.shift.astype(np.int8).tobytes(), crc)
         return crc & 0xFFFFFFFF
 
     # ---- persistence -----------------------------------------------------
@@ -123,21 +126,32 @@ class QModel:
             "test_outputs": self.test_outputs.astype(np.int8),
         }
         layer_meta = []
-        for i, l in enumerate(self.layers):
+        for i, lyr in enumerate(self.layers):
             meta = {
-                k: getattr(l, k)
+                k: getattr(lyr, k)
                 for k in (
-                    "op", "in_shape", "out_shape", "kernel", "stride", "pad", "in_zp",
-                    "out_zp", "act_min", "act_max", "in_scale", "out_scale", "rounding",
+                    "op",
+                    "in_shape",
+                    "out_shape",
+                    "kernel",
+                    "stride",
+                    "pad",
+                    "in_zp",
+                    "out_zp",
+                    "act_min",
+                    "act_max",
+                    "in_scale",
+                    "out_scale",
+                    "rounding",
                 )
             }
             for k in ("weights", "bias", "mult", "shift"):
-                v = getattr(l, k)
+                v = getattr(lyr, k)
                 if v is not None:
                     arrays[f"l{i}_{k}"] = v
             layer_meta.append(meta)
         header = {
-            "format": "hilbench-qmodel/1",
+            "format": "mmz-qmodel/1",
             "name": self.name,
             "description": self.description,
             "input_scale": self.input_scale,
@@ -153,7 +167,7 @@ class QModel:
             np.savez_compressed(fh, **arrays)
 
     @classmethod
-    def load(cls, path: str | Path) -> "QModel":
+    def load(cls, path: str | Path) -> QModel:
         with np.load(path, allow_pickle=False) as z:
             header = json.loads(bytes(z["header"]).decode())
             layers = []

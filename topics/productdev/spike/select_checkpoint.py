@@ -8,7 +8,8 @@ chunks with greedy decoding, exactly as the benchmark server would. Score = mean
 The best checkpoint is copied to <adapter_path>-best. Results: data/spike/checkpoints.json.
 The evaluation chunks of the benchmark are never used here.
 
-Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/select_checkpoint.py topics/productdev/spike/train_mlx.yaml
+Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/select_checkpoint.py \\
+    topics/productdev/spike/train_mlx.yaml
 """
 
 from __future__ import annotations

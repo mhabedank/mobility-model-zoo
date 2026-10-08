@@ -15,6 +15,7 @@ Reset methods (targets.yaml / boards.yaml -> `reset:`):
   process       restart the simulator process
   none          no reset possible
 """
+
 from __future__ import annotations
 
 import shlex
@@ -57,14 +58,23 @@ def _run(cmd: list[str] | str, timeout: float = 30.0) -> None:
     except subprocess.TimeoutExpired as e:
         raise PowerError(f"command timed out: {' '.join(argv)}") from e
     if res.returncode != 0:
-        raise PowerError(f"`{' '.join(argv)}` failed ({res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
+        raise PowerError(
+            f"`{' '.join(argv)}` failed ({res.returncode}): {res.stderr.strip() or res.stdout.strip()}"
+        )
 
 
 class UhubctlPower(PowerControl):
     available = True
 
-    def __init__(self, hub: str, port: int | str, off_s: float = 1.5, settle_s: float = 0.5,
-                 uhubctl: str = "uhubctl", sudo: bool = False):
+    def __init__(
+        self,
+        hub: str,
+        port: int | str,
+        off_s: float = 1.5,
+        settle_s: float = 0.5,
+        uhubctl: str = "uhubctl",
+        sudo: bool = False,
+    ):
         self.hub, self.port, self.off_s, self.settle_s = str(hub), str(port), off_s, settle_s
         self.base = (["sudo", "-n"] if sudo else []) + [uhubctl, "-l", self.hub, "-p", self.port]
 
@@ -112,8 +122,9 @@ def make_power(spec: dict[str, Any] | None) -> PowerControl:
     raise PowerError(f"unknown power type '{kind}'")
 
 
-def hardware_reset(method: str, transport: Transport, power: PowerControl,
-                   options: dict[str, Any] | None = None) -> bool:
+def hardware_reset(
+    method: str, transport: Transport, power: PowerControl, options: dict[str, Any] | None = None
+) -> bool:
     """Reset without help from the firmware. Returns False if `method` needs the
     firmware (soft) or is not possible."""
     options = options or {}

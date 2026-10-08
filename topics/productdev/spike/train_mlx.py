@@ -8,7 +8,8 @@ Differences to `mlx_lm.lora` with topics/productdev/spike/train_mlx.yaml:
   assistant turns, so training and inference see the same assistant prefix.
 - No loss-based validation; checkpoints are chosen afterwards by generation (select_checkpoint.py).
 
-Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/train_mlx.py topics/productdev/spike/train_mlx.yaml
+Run: uv run --with mlx-lm==0.31.3 python topics/productdev/spike/train_mlx.py \\
+    topics/productdev/spike/train_mlx.yaml
 """
 
 from __future__ import annotations

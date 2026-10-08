@@ -1,7 +1,8 @@
 """Fixed-point helpers with TFLite (gemmlowp, double rounding) semantics.
 
-Everything here is mirrored 1:1 in firmware/lib/microinfer/src/microinfer.c.
+Everything here is mirrored 1:1 in firmware/bench/lib/microinfer/src/microinfer.c.
 """
+
 from __future__ import annotations
 
 import math

@@ -1,11 +1,12 @@
 """Resets, recovery and long-running stability."""
+
 import time
 
 import numpy as np
 import pytest
 
-from hilbench.ml.reference import run_model
-from hilbench.ml.zoo import load_zoo
+from mobility_model_zoo.edge.bench.reference_models import load_zoo
+from mobility_model_zoo.edge.int8.reference import run_model
 
 
 @pytest.mark.destructive

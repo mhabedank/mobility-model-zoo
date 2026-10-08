@@ -6,6 +6,7 @@
 
 Boards that are not connected are skipped (or fail with --hil-require-all).
 """
+
 from __future__ import annotations
 
 import json
@@ -27,22 +28,37 @@ from .session import BoardSession, SessionError
 
 def pytest_addoption(parser):
     g = parser.getgroup("hil", "hardware-in-the-loop bench")
-    g.addoption("--hil-boards", default=None, help="lab inventory (default: hil/boards.yaml or $HILBENCH_BOARDS)")
+    g.addoption(
+        "--hil-boards", default=None, help="lab inventory (default: hil/boards.yaml or $MMZ_BOARDS)"
+    )
     g.addoption("--hil-targets-file", default=None, help="target catalogue (default: hil/targets.yaml)")
     g.addoption("--hil-board", action="append", default=[], help="only this board id (repeatable)")
-    g.addoption("--hil-target", action="append", default=[], help="only boards of this target (repeatable)")
+    g.addoption(
+        "--hil-target", action="append", default=[], help="only boards of this target (repeatable)"
+    )
     g.addoption("--hil-tag", action="append", default=[], help="only boards with this tag (repeatable)")
-    g.addoption("--hil-build", choices=["auto", "always", "never"], default="auto",
-                help="build firmware: auto = only if no artifact exists (default)")
+    g.addoption(
+        "--hil-build",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="build firmware: auto = only if no artifact exists (default)",
+    )
     g.addoption("--hil-no-flash", action="store_true", help="do not flash; test what is on the board")
-    g.addoption("--hil-require-all", action="store_true", help="fail (instead of skip) if a board is missing")
+    g.addoption(
+        "--hil-require-all", action="store_true", help="fail (instead of skip) if a board is missing"
+    )
     g.addoption("--hil-results", default=None, help="run directory (default: <results_dir>/<timestamp>)")
-    g.addoption("--hil-baseline", default=None, help="summary.json of a previous run for regression checks")
-    g.addoption("--hil-tolerance", type=float, default=0.25, help="allowed latency regression (0.25 = +25%%)")
+    g.addoption(
+        "--hil-baseline", default=None, help="summary.json of a previous run for regression checks"
+    )
+    g.addoption(
+        "--hil-tolerance", type=float, default=0.25, help="allowed latency regression (0.25 = +25%%)"
+    )
     g.addoption("--hil-quick", action="store_true", help="fewer iterations (smoke run)")
 
 
 # ---------------------------------------------------------------- state --
+
 
 @dataclass
 class HilState:
@@ -80,10 +96,13 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "destructive: resets/power-cycles the board")
     try:
         lab = load_lab(config.getoption("--hil-boards"), config.getoption("--hil-targets-file"))
-        boards = lab.select(config.getoption("--hil-board") or None, config.getoption("--hil-target") or None,
-                            config.getoption("--hil-tag") or None)
+        boards = lab.select(
+            config.getoption("--hil-board") or None,
+            config.getoption("--hil-target") or None,
+            config.getoption("--hil-tag") or None,
+        )
     except ConfigError as e:
-        raise pytest.UsageError(f"hilbench: {e}") from e
+        raise pytest.UsageError(f"edge: {e}") from e
 
     workerinput = getattr(config, "workerinput", None)
     if workerinput is not None:
@@ -94,15 +113,22 @@ def pytest_configure(config):
         run_dir = Path(opt) if opt else new_run_dir(lab.results_dir)
         worker = "main"
         if config.pluginmanager.hasplugin("xdist"):
-            config.pluginmanager.register(_XdistHooks(config), "hilbench-xdist")
+            config.pluginmanager.register(_XdistHooks(config), "mmz-edge-xdist")
     baseline = None
     if config.getoption("--hil-baseline"):
         baseline = json.loads(Path(config.getoption("--hil-baseline")).read_text())
     config.stash[_STATE_KEY] = HilState(
-        lab=lab, boards=boards, run_dir=run_dir, recorder=Recorder(run_dir, worker), baseline=baseline,
+        lab=lab,
+        boards=boards,
+        run_dir=run_dir,
+        recorder=Recorder(run_dir, worker),
+        baseline=baseline,
         is_worker=workerinput is not None,
-        options={k: config.getoption(f"--hil-{k.replace('_', '-')}")
-                 for k in ("build", "no_flash", "require_all", "quick", "tolerance")})
+        options={
+            k: config.getoption(f"--hil-{k.replace('_', '-')}")
+            for k in ("build", "no_flash", "require_all", "quick", "tolerance")
+        },
+    )
     if not config.pluginmanager.hasplugin("xdist"):
         config.addinivalue_line("markers", "xdist_group(name): run tests of one board in one worker")
 
@@ -117,9 +143,9 @@ def pytest_generate_tests(metafunc):
 
 
 def _zoo_names() -> list[str]:
-    from .ml.zoo import load_zoo
+    from .reference_models import bench_models
 
-    return list(load_zoo())
+    return [m.name for m in bench_models()]
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -155,8 +181,14 @@ def pytest_runtest_makereport(item, call):
             msg = str(rep.longrepr)[-2000:]
         elif rep.skipped and isinstance(rep.longrepr, tuple):
             msg = str(rep.longrepr[2])
-        st.recorder.record("test", board, nodeid=item.nodeid, outcome=rep.outcome,
-                           duration=round(rep.duration, 3), message=msg)
+        st.recorder.record(
+            "test",
+            board,
+            nodeid=item.nodeid,
+            outcome=rep.outcome,
+            duration=round(rep.duration, 3),
+            message=msg,
+        )
 
 
 def pytest_sessionfinish(session, exitstatus):
@@ -177,13 +209,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     st = config.stash.get(_STATE_KEY, None)
     if st is None or st.is_worker or not (st.run_dir / "metrics").exists():
         return
-    terminalreporter.write_sep("-", f"hilbench results: {st.run_dir}")
+    terminalreporter.write_sep("-", f"mobility_model_zoo.edge.bench results: {st.run_dir}")
     md = st.run_dir / "summary.md"
     if md.exists():
         terminalreporter.write_line(md.read_text())
 
 
 # -------------------------------------------------------------- fixtures --
+
 
 class DUT:
     """Device under test handed to the tests."""
@@ -258,24 +291,37 @@ def _bring_up(st: HilState, board: Board) -> DUT:
         try:
             resolve_port(board)
         except DiscoveryError as e:
-            raise _Unavailable("fail" if st.options["require_all"] else "skip",
-                               f"board {board.id} not connected: {e}") from e
+            raise _Unavailable(
+                "fail" if st.options["require_all"] else "skip", f"board {board.id} not connected: {e}"
+            ) from e
     try:
         fw = _firmware_for(st, board)
     except BuildError as e:
         raise _Unavailable("fail", f"firmware build for {board.target.name} failed: {e}") from e
     try:
-        session = BoardSession(st.lab, board, fw, flash=not st.options["no_flash"], log_dir=st.run_dir / "logs")
+        session = BoardSession(
+            st.lab, board, fw, flash=not st.options["no_flash"], log_dir=st.run_dir / "logs"
+        )
         session.__enter__()
     except Exception as e:  # any bring-up problem fails this board once, not every test
         raise _Unavailable("fail", f"bringing up {board.id} failed: {type(e).__name__}: {e}") from e
     d = DUT(session, st.recorder, st.options, st.baseline)
     info = session.info
-    sizes = {k: v for k, v in (fw.manifest if fw else {}).items()
-             if k in ("ram_used", "ram_total", "flash_used", "flash_total")}
-    d.record("board", **{k: info.get(k) for k in ("chip", "cpu_mhz", "build", "framework", "uid", "fw",
-                                                    "free_heap", "has_cycles")},
-             port=session.port, events=list(session.events), **sizes)
+    sizes = {
+        k: v
+        for k, v in (fw.manifest if fw else {}).items()
+        if k in ("ram_used", "ram_total", "flash_used", "flash_total")
+    }
+    d.record(
+        "board",
+        **{
+            k: info.get(k)
+            for k in ("chip", "cpu_mhz", "build", "framework", "uid", "fw", "free_heap", "has_cycles")
+        },
+        port=session.port,
+        events=list(session.events),
+        **sizes,
+    )
     return d
 
 

@@ -28,8 +28,11 @@ def frame_metrics(y: np.ndarray, score: np.ndarray, threshold: float = 0.5) -> d
     return out
 
 
-def false_alarms_per_hour(captures: list[tuple[np.ndarray, np.ndarray, np.ndarray]],
-                          threshold: float = 0.5, merge_s: float = 1.0) -> float:
+def false_alarms_per_hour(
+    captures: list[tuple[np.ndarray, np.ndarray, np.ndarray]],
+    threshold: float = 0.5,
+    merge_s: float = 1.0,
+) -> float:
     """False alarm events per hour over benign frames.
 
     captures: list of (ts_seconds, y, score). Only benign frames are considered; a false alarm
@@ -51,11 +54,12 @@ def attack_episodes(ts: np.ndarray, y: np.ndarray, gap_s: float = 1.0) -> list[t
     cut = np.flatnonzero(np.diff(t) > gap_s)
     starts = np.r_[t[0], t[cut + 1]]
     ends = np.r_[t[cut], t[-1]]
-    return list(zip(starts.tolist(), ends.tolist()))
+    return list(zip(starts.tolist(), ends.tolist(), strict=False))
 
 
-def alarm_metrics(captures: list[tuple[np.ndarray, np.ndarray, np.ndarray]],
-                  grace_s: float = 1.0) -> dict:
+def alarm_metrics(
+    captures: list[tuple[np.ndarray, np.ndarray, np.ndarray]], grace_s: float = 1.0
+) -> dict:
     """Event-level metrics for alarms.
 
     captures: list of (ts_seconds, y, alarm). An alarm is true if it falls inside an attack

@@ -4,6 +4,7 @@
                      so boards can also hang off a remote Raspberry Pi / ser2net.
 * ProcessTransport - the host simulator (firmware built for the PC) on pipes.
 """
+
 from __future__ import annotations
 
 import os
@@ -48,8 +49,14 @@ class Transport:
 
 
 class SerialTransport(Transport):
-    def __init__(self, port: str, baud: int = 115200, dtr: bool = False, rts: bool = False,
-                 open_retry_s: float = 0.0):
+    def __init__(
+        self,
+        port: str,
+        baud: int = 115200,
+        dtr: bool = False,
+        rts: bool = False,
+        open_retry_s: float = 0.0,
+    ):
         self.port = port
         self.baud = baud
         self._dtr = dtr
@@ -149,10 +156,18 @@ class ProcessTransport(Transport):
 
     def open(self) -> None:
         if not os.path.exists(self.argv[0]):
-            raise TransportError(f"simulator binary not found: {self.argv[0]} (run `hilbench build -t native`)")
+            raise TransportError(
+                f"simulator binary not found: {self.argv[0]} (run `edge build -t native`)"
+            )
         env = {**os.environ, **self.env}
-        self._proc = subprocess.Popen(self.argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                      stderr=subprocess.STDOUT, env=env, bufsize=0)
+        self._proc = subprocess.Popen(
+            self.argv,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=env,
+            bufsize=0,
+        )
         self._reader = threading.Thread(target=self._pump, args=(self._proc,), daemon=True)
         self._reader.start()
 

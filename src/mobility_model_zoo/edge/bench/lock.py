@@ -1,5 +1,6 @@
 """Per-board exclusive locks so parallel jobs (CI runners, developers, xdist
 workers) never talk to the same board at the same time."""
+
 from __future__ import annotations
 
 import os

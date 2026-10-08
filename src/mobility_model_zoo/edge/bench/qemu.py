@@ -3,13 +3,14 @@
 The emulator's UART is exposed on a TCP port, so the board is just
 `port: socket://localhost:5555` in boards.yaml and the normal harness works:
 
-    python -m hilbench.qemu start build/fw/esp32 --port 5555   # "flash" + power on
-    python -m hilbench.qemu stop --port 5555                   # power off
+    python -m mobility_model_zoo.edge.bench.qemu start build/fw/esp32 --port 5555   # "flash" + power on
+    python -m mobility_model_zoo.edge.bench.qemu stop --port 5555                   # power off
 
 Get QEMU from https://github.com/espressif/qemu/releases (qemu-system-xtensa for
 ESP32/S3, qemu-system-riscv32 for ESP32-C3) and put it on PATH or set
-$HILBENCH_QEMU_XTENSA / $HILBENCH_QEMU_RISCV32.
+$MMZ_QEMU_XTENSA / $MMZ_QEMU_RISCV32.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,7 +34,7 @@ MACHINES = {
 
 
 def _pidfile(port: int) -> Path:
-    return Path(tempfile.gettempdir()) / f"hilbench-qemu-{port}.pid"
+    return Path(tempfile.gettempdir()) / f"mmz-qemu-{port}.pid"
 
 
 def merge_flash(fw_dir: Path, size: str | None = None) -> Path:
@@ -76,13 +77,26 @@ def start(fw_dir: Path, port: int = 5555, timeout: float = 20.0) -> int:
         raise SystemExit(f"QEMU does not support {chip} (supported: {', '.join(MACHINES)})")
     arch, machine = MACHINES[chip]
     image = merge_flash(fw_dir)
-    exe = os.environ.get(f"HILBENCH_QEMU_{arch.upper()}", f"qemu-system-{arch}")
+    exe = os.environ.get(f"MMZ_QEMU_{arch.upper()}", f"qemu-system-{arch}")
     log = open(fw_dir / "qemu.log", "ab")
     proc = subprocess.Popen(
-        [exe, "-nographic", "-machine", machine, "-display", "none",
-         "-drive", f"file={image},if=mtd,format=raw",
-         "-serial", f"tcp:127.0.0.1:{port},server,nowait"],
-        stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+        [
+            exe,
+            "-nographic",
+            "-machine",
+            machine,
+            "-display",
+            "none",
+            "-drive",
+            f"file={image},if=mtd,format=raw",
+            "-serial",
+            f"tcp:127.0.0.1:{port},server,nowait",
+        ],
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        stdin=subprocess.DEVNULL,
+        start_new_session=True,
+    )
     _pidfile(port).write_text(str(proc.pid))
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -97,7 +111,9 @@ def start(fw_dir: Path, port: int = 5555, timeout: float = 20.0) -> int:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("start")
     p.add_argument("fw_dir", type=Path)

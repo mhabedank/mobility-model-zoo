@@ -1,8 +1,15 @@
 """Feature extraction / labelling used by the real-data training (no TensorFlow needed)."""
+
 import numpy as np
 import pytest
 
-from hilbench.ml.train_real import _road_labels, can_features, parse_candump, mimii_windows, roc_auc
+from mobility_model_zoo.edge.train_real import (
+    _road_labels,
+    can_features,
+    mimii_windows,
+    parse_candump,
+    roc_auc,
+)
 
 
 def _log(tmp_path):
@@ -35,7 +42,6 @@ def test_road_labels_interval_and_id(tmp_path):
     assert y.sum() == 101
 
 
-
 def test_roc_auc_and_partial_auc():
     y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
     assert roc_auc(np.arange(8.0), y) == 1.0
@@ -46,7 +52,7 @@ def test_roc_auc_and_partial_auc():
 
 
 def test_log_mel_shape():
-    from hilbench.ml.features import log_mel
+    from mobility_model_zoo.condition_monitoring.sound_anomaly.features import log_mel
 
     x = np.sin(np.linspace(0, 2000 * np.pi, 16000)).astype(np.float32)
     assert log_mel(x).shape == (49, 40)
@@ -70,7 +76,9 @@ def _wav_bytes(pcm: np.ndarray, n_ch: int, bits: int, extensible: bool) -> bytes
     else:
         data = pcm.astype("<i2" if width == 2 else "<i4").tobytes()
     if extensible:  # WAVE_FORMAT_EXTENSIBLE with PCM sub-format GUID
-        fmt = struct.pack("<HHIIHHHHI", 0xFFFE, n_ch, 16000, 16000 * n_ch * width, n_ch * width, bits, 22, bits, 0)
+        fmt = struct.pack(
+            "<HHIIHHHHI", 0xFFFE, n_ch, 16000, 16000 * n_ch * width, n_ch * width, bits, 22, bits, 0
+        )
         fmt += struct.pack("<H", 1) + b"\x00\x00\x00\x00\x10\x00\x80\x00\x00\xaa\x00\x38\x9b\x71"
     else:
         fmt = struct.pack("<HHIIHH", 1, n_ch, 16000, 16000 * n_ch * width, n_ch * width, bits)
@@ -81,7 +89,7 @@ def _wav_bytes(pcm: np.ndarray, n_ch: int, bits: int, extensible: bool) -> bytes
 
 @pytest.mark.parametrize("bits,extensible", [(16, False), (16, True), (24, True), (32, False)])
 def test_read_wav_formats(tmp_path, bits, extensible):
-    from hilbench.ml.features import read_wav
+    from mobility_model_zoo.condition_monitoring.sound_anomaly.features import read_wav
 
     full = 1 << (bits - 1)
     ch0 = np.array([0, full // 2, -full // 2, -full], dtype=np.int64)
@@ -89,5 +97,7 @@ def test_read_wav_formats(tmp_path, bits, extensible):
     p = tmp_path / "x.wav"
     p.write_bytes(_wav_bytes(pcm, 2, bits, extensible))
     assert np.allclose(read_wav(p, length=0, channel=0), [0, 0.5, -0.5, -1.0], atol=1e-6)
-    assert np.allclose(read_wav(p, length=0), [0, 0.125, -0.125, -0.25], atol=1e-6)  # mean of ch0, -ch0/2
+    assert np.allclose(
+        read_wav(p, length=0), [0, 0.125, -0.125, -0.25], atol=1e-6
+    )  # mean of ch0, -ch0/2
     assert read_wav(p, length=6, channel=1).shape == (6,)

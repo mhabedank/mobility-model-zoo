@@ -1,22 +1,23 @@
-"""hilbench command line.
+"""mobility_model_zoo.edge.bench command line.
 
-  hilbench discover [--probe]        find boards on USB, suggest boards.yaml entries
-  hilbench list                      inventory + connection status
-  hilbench doctor                    check tools, permissions, boards, firmware artifacts
-  hilbench build [-t T ...]          build firmware for targets
-  hilbench flash -b BOARD            flash one board
-  hilbench info -b BOARD             INFO + MODELS of a running board
-  hilbench console -b BOARD          interactive protocol console
-  hilbench reset -b BOARD [--method] reset a board
-  hilbench power -b BOARD on|off|cycle
-  hilbench run [...] [-- PYTEST ARGS] build, flash and run the HIL test-suite
-  hilbench report RUN_DIR            re-render summary.md / compare to a baseline
-  hilbench zoo                       rebuild the reference model zoo + firmware sources
-  hilbench import-tflite M.tflite    add your own int8 TFLite model to all boards
-  hilbench data list|verify|download training datasets (licenses checked, stored outside the repo)
-  hilbench train har|can|mimii ...   train zoo models on the real datasets
-  hilbench hub publish --version V   push the zoo to the Hugging Face Hub (private repos)
+  edge discover [--probe]        find boards on USB, suggest boards.yaml entries
+  edge list                      inventory + connection status
+  edge doctor                    check tools, permissions, boards, firmware artifacts
+  edge build [-t T ...]          build firmware for targets
+  edge flash -b BOARD            flash one board
+  edge info -b BOARD             INFO + MODELS of a running board
+  edge console -b BOARD          interactive protocol console
+  edge reset -b BOARD [--method] reset a board
+  edge power -b BOARD on|off|cycle
+  edge run [...] [-- PYTEST ARGS] build, flash and run the HIL test-suite
+  edge report RUN_DIR            re-render summary.md / compare to a baseline
+  edge zoo                       rebuild the reference model zoo + firmware sources
+  edge import-tflite M.tflite    add your own int8 TFLite model to all boards
+  edge data list|verify|download external datasets (licences checked, stored outside the repo)
+
+Training lives in the topic tools (`security`, `condmon`); publishing goes through `zoo`.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -27,7 +28,14 @@ from pathlib import Path
 from . import __version__
 from .build import BuildError, build, new_build_id
 from .config import REPO_ROOT, ConfigError, load_lab
-from .discovery import DiscoveryError, esptool_probe, guess_targets, list_ports, match_probe, resolve_port
+from .discovery import (
+    DiscoveryError,
+    esptool_probe,
+    guess_targets,
+    list_ports,
+    match_probe,
+    resolve_port,
+)
 from .flash import Firmware, FlashError
 from .power import PowerError, make_power
 from .results import compare_to_baseline, render_markdown, write_summary
@@ -82,8 +90,13 @@ def cmd_discover(args):
             match = {"serial_number": p.serial_number} if p.serial_number else {"location": p.location}
             if not any(match.values()):
                 match = {"vid_pid": p.vid_pid}
-            suggestions.append({"id": f"{(guesses or ['board'])[0]}-{len(suggestions) + 1}",
-                                "target": (guesses or ["?"])[0], "match": match})
+            suggestions.append(
+                {
+                    "id": f"{(guesses or ['board'])[0]}-{len(suggestions) + 1}",
+                    "target": (guesses or ["?"])[0],
+                    "match": match,
+                }
+            )
     if suggestions:
         import yaml
 
@@ -109,8 +122,12 @@ def cmd_doctor(args):
 
     boards = lab.select()
     hw = [b for b in boards if b.target.transport != "process"]
-    check(bool(shutil.which("make") and (shutil.which("cc") or shutil.which("gcc"))),
-          "make + C compiler (simulator)", "install build-essential / gcc", hard=False)
+    check(
+        bool(shutil.which("make") and (shutil.which("cc") or shutil.which("gcc"))),
+        "make + C compiler (simulator)",
+        "install build-essential / gcc",
+        hard=False,
+    )
     if any(b.target.build == "platformio" for b in hw):
         has_pio = shutil.which("pio") or importlib.util.find_spec("platformio")
         check(bool(has_pio), "PlatformIO", "pip install -e '.[hw]'  (or pip install platformio)")
@@ -119,30 +136,50 @@ def cmd_doctor(args):
     if any(b.power.get("type") == "uhubctl" for b in hw):
         check(bool(shutil.which("uhubctl")), "uhubctl (USB port power)", "apt install uhubctl")
     if len(hw) > 1:
-        check(importlib.util.find_spec("xdist") is not None, "pytest-xdist (parallel boards)",
-              "pip install pytest-xdist", hard=False)
+        check(
+            importlib.util.find_spec("xdist") is not None,
+            "pytest-xdist (parallel boards)",
+            "pip install pytest-xdist",
+            hard=False,
+        )
     if sys.platform.startswith("linux") and hw:
         import grp
 
         try:
             groups = {grp.getgrgid(g).gr_name for g in os.getgroups()}
-            check("dialout" in groups or os.geteuid() == 0, "user is in group dialout",
-                  "sudo ./hil/setup-host.sh, then log in again", hard=False)
+            check(
+                "dialout" in groups or os.geteuid() == 0,
+                "user is in group dialout",
+                "sudo ./hil/setup-host.sh, then log in again",
+                hard=False,
+            )
         except KeyError:
             pass
     for b in boards:
         ok, where = _available(b)
         if b.target.transport != "process" and ok and not where.startswith(("rfc2217:", "socket:")):
-            check(os.access(where, os.R_OK | os.W_OK), f"{b.id}: connected at {where}, read/write access",
-                  "udev rules / dialout group (hil/setup-host.sh)")
+            check(
+                os.access(where, os.R_OK | os.W_OK),
+                f"{b.id}: connected at {where}, read/write access",
+                "udev rules / dialout group (hil/setup-host.sh)",
+            )
         else:
-            check(ok, f"{b.id}: {'available' if ok else 'not connected'} ({b.target.name})",
-                  "hilbench discover", hard=False)
+            check(
+                ok,
+                f"{b.id}: {'available' if ok else 'not connected'} ({b.target.name})",
+                "mobility_model_zoo.edge.bench discover",
+                hard=False,
+            )
         try:
             fw = Firmware.load(lab, b.target.name)
             check(True, f"{b.id}: firmware artifact {fw.build_id:08x} ({fw.manifest.get('git', '?')})")
         except FlashError:
-            check(False, f"{b.id}: no firmware built yet", f"hilbench build -t {b.target.name}", hard=False)
+            check(
+                False,
+                f"{b.id}: no firmware built yet",
+                f"mobility_model_zoo.edge.bench build -t {b.target.name}",
+                hard=False,
+            )
     print("\nall good" if not problems else f"\n{problems} problem(s)")
     return 1 if problems else 0
 
@@ -218,8 +255,10 @@ def cmd_info(args):
     with s:
         print(json.dumps({"port": s.port, **s.info}, indent=2))
         for m in s.device.models():
-            print(f"  model {m['idx']}: {m['name']:16s} in={m['in']:4d} out={m['out']:3d} "
-                  f"macs={m['macs']:7d} params={m['params']:6d} B arena={m['arena']:5d} B crc={m['crc']}")
+            print(
+                f"  model {m['idx']}: {m['name']:16s} in={m['in']:4d} out={m['out']:3d} "
+                f"macs={m['macs']:7d} params={m['params']:6d} B arena={m['arena']:5d} B crc={m['crc']}"
+            )
     return 0
 
 
@@ -227,8 +266,10 @@ def cmd_console(args):
     s = _session(args, flash=False)
     s.firmware = None if s.target.transport != "process" else s.firmware
     with s:
-        print(f"connected to {args.board} ({s.port or 'simulator'}). Commands: PING INFO MODELS "
-              "INFER <m> <hex> BENCH <m> <n> SELFTEST <m> VERIFY <m> MEM ECHO <hex> RESET. Ctrl-D quits.")
+        print(
+            f"connected to {args.board} ({s.port or 'simulator'}). Commands: PING INFO MODELS "
+            "INFER <m> <hex> BENCH <m> <n> SELFTEST <m> VERIFY <m> MEM ECHO <hex> RESET. Ctrl-D quits."
+        )
         for line in sys.stdin:
             parts = line.split()
             if not parts:
@@ -288,8 +329,13 @@ def cmd_run(args, pytest_args):
             done.add(b.target.name)
 
     run_dir = Path(args.results) if args.results else None
-    argv = [args.tests or str(REPO_ROOT / "tests" / "hil"), "-p", "no:cacheprovider", "--hil-build=never",
-            f"--hil-tolerance={args.tolerance}"]
+    argv = [
+        args.tests or str(REPO_ROOT / "tests" / "hil"),
+        "-p",
+        "no:cacheprovider",
+        "--hil-build=never",
+        f"--hil-tolerance={args.tolerance}",
+    ]
     if args.boards:
         argv.append(f"--hil-boards={args.boards}")
     if args.targets_file:
@@ -330,16 +376,15 @@ def cmd_report(args):
 
 
 def cmd_zoo(args):
-    from .ml import zoo
+    from mobility_model_zoo.edge.bench import reference_models as zoo
 
     zoo.main(["--codegen-only"] if args.codegen_only else [])
     return 0
 
 
 def cmd_import_tflite(args):
-    from .ml import tflite_import
-    from .ml.codegen import write_zoo_sources
-    from .ml.zoo import CUSTOM_DIR, FW_ZOO_DIR, load_zoo
+    from mobility_model_zoo.edge.bench.reference_models import CUSTOM_DIR, ensure_sources
+    from mobility_model_zoo.edge.int8 import tflite_import
 
     name = args.name or Path(args.model).stem
     try:
@@ -355,21 +400,28 @@ def cmd_import_tflite(args):
             return 1
     CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
     qm.save(CUSTOM_DIR / f"{name}.npz")
-    write_zoo_sources(list(load_zoo().values()), FW_ZOO_DIR)
-    print(f"saved {CUSTOM_DIR / (name + '.npz')} and regenerated firmware/lib/modelzoo "
-          "- rebuild firmware (hilbench run does that) to deploy it")
+    ensure_sources()
+    print(
+        f"saved {CUSTOM_DIR / (name + '.npz')} and regenerated firmware/bench/lib/modelzoo "
+        "- rebuild the firmware (`edge run` does that) to deploy it"
+    )
     return 0
 
 
 def cmd_data(args):
-    from .data import download as dl
-    from .data.registry import REJECTED, SOURCES
+    from mobility_model_zoo.datasets import download as dl
+    from mobility_model_zoo.datasets.registry import REJECTED, SOURCES
 
     if args.action == "list":
         print(f"data directory: {dl.data_root()}\n")
         for s in SOURCES.values():
-            state = "downloaded" if (dl.dataset_dir(s.id) / "SOURCE.json").exists() else \
-                "BROKEN" if s.broken else "-"
+            state = (
+                "downloaded"
+                if (dl.dataset_dir(s.id) / "SOURCE.json").exists()
+                else "BROKEN"
+                if s.broken
+                else "-"
+            )
             print(f"{s.id:16s} {s.license:13s} ~{s.approx_size_mb:>5d} MB  {state:10s} {s.use_case}")
         print("\nrejected (license):")
         for k, why in REJECTED.items():
@@ -409,29 +461,23 @@ def cmd_data(args):
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    if argv[:1] == ["hub"]:  # hilbench hub publish|mirror-dataset ...
-        from .hub import main as hub_main
-
-        return hub_main(argv[1:])
-    if argv[:1] == ["train"]:  # hilbench train har|can|mimii ...
-        from .ml.train_real import main as train_main
-
-        train_main(argv[1:])
-        return 0
     pytest_args = []
     if "--" in argv:
         i = argv.index("--")
-        argv, pytest_args = argv[:i], argv[i + 1:]
+        argv, pytest_args = argv[:i], argv[i + 1 :]
 
-    ap = argparse.ArgumentParser(prog="hilbench", description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        prog="edge", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--version", action="version", version=__version__)
-    ap.add_argument("--boards", help="lab inventory (default hil/boards.yaml or $HILBENCH_BOARDS)")
+    ap.add_argument("--boards", help="lab inventory (default hil/boards.yaml or $MMZ_BOARDS)")
     ap.add_argument("--targets-file", help="target catalogue (default hil/targets.yaml)")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("discover", help="list USB serial devices and suggest inventory entries")
-    p.add_argument("--probe", action="store_true", help="ask ESP ROM bootloaders for the chip type (resets them)")
+    p.add_argument(
+        "--probe", action="store_true", help="ask ESP ROM bootloaders for the chip type (resets them)"
+    )
     p.set_defaults(fn=cmd_discover)
     sub.add_parser("list", help="inventory and connection status").set_defaults(fn=cmd_list)
     sub.add_parser("doctor", help="check host prerequisites and boards").set_defaults(fn=cmd_doctor)
@@ -443,8 +489,11 @@ def main(argv=None):
     p.add_argument("-v", "--verbose", action="store_true")
     p.set_defaults(fn=cmd_build)
 
-    for name, fn, hlp in (("flash", cmd_flash, "flash a board"), ("info", cmd_info, "show INFO/MODELS"),
-                          ("console", cmd_console, "interactive console")):
+    for name, fn, hlp in (
+        ("flash", cmd_flash, "flash a board"),
+        ("info", cmd_info, "show INFO/MODELS"),
+        ("console", cmd_console, "interactive console"),
+    ):
         p = sub.add_parser(name, help=hlp)
         p.add_argument("-b", "--board", required=True)
         p.set_defaults(fn=fn)
@@ -490,7 +539,9 @@ def main(argv=None):
     p.add_argument("model")
     p.add_argument("--name", help="model name (default: file name)")
     p.add_argument("--description")
-    p.add_argument("--verify", action="store_true", help="compare with the TFLite interpreter (needs tensorflow)")
+    p.add_argument(
+        "--verify", action="store_true", help="compare with the TFLite interpreter (needs tensorflow)"
+    )
     p.set_defaults(fn=cmd_import_tflite)
 
     p = sub.add_parser("data", help="external training datasets (download outside the repo)")

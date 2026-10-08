@@ -3,6 +3,7 @@
 Every build gets a fresh 32-bit build id which is compiled into the image and
 reported by INFO, so the bench can prove that flashing actually worked.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,8 +25,12 @@ class BuildError(RuntimeError):
 
 def git_revision() -> str:
     try:
-        rev = subprocess.run(["git", "-C", str(REPO_ROOT), "describe", "--always", "--dirty"],
-                             capture_output=True, text=True, timeout=10).stdout.strip()
+        rev = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "describe", "--always", "--dirty"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
         return rev or "unknown"
     except (OSError, subprocess.TimeoutExpired):
         return "unknown"
@@ -48,24 +53,42 @@ def _write_manifest(out: Path, target: Target, build_id: int, files: dict, extra
         "git": git_revision(),
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "files": files,
-        "models": {m["name"]: m["crc32"] for m in _zoo_manifest()["models"]
-                   if m["name"] not in target.excluded_models},
+        "models": {
+            m["name"]: m["crc32"]
+            for m in _zoo_manifest()["models"]
+            if m["name"] not in target.excluded_models
+        },
         **extra,
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return Firmware(target=target.name, dir=out, manifest=manifest)
 
 
+def _model_sources(lab: Lab) -> None:
+    """Generate the firmware model sources; they are build output, not committed (feature 005)."""
+    from mobility_model_zoo.edge.bench.reference_models import ensure_sources
+
+    ensure_sources(fw_out=lab.firmware_dir / "lib" / "modelzoo" / "src")
+
+
 def build_native(lab: Lab, target: Target, build_id: int, verbose: bool = False) -> Firmware:
+    _model_sources(lab)
     out = lab.build_dir / target.name
     out.mkdir(parents=True, exist_ok=True)
     cc = os.environ.get("CC", "cc")
-    argv = ["make", "-B", "-C", str(lab.firmware_dir / "native"), f"OUT={out}", f"CC={cc}",
-            f"HIL_BUILD_ID=0x{build_id:08x}u"]
+    argv = [
+        "make",
+        "-B",
+        "-C",
+        str(lab.firmware_dir / "native"),
+        f"OUT={out}",
+        f"CC={cc}",
+        f"HIL_BUILD_ID=0x{build_id:08x}u",
+    ]
     res = subprocess.run(argv, capture_output=not verbose, text=True)
     if res.returncode != 0:
         raise BuildError(f"native build failed:\n{res.stdout}\n{res.stderr}")
-    return _write_manifest(out, target, build_id, {"exe": "hilbench-sim"}, {})
+    return _write_manifest(out, target, build_id, {"exe": "edge-sim"}, {})
 
 
 def parse_pio_sizes(output: str) -> dict:
@@ -82,6 +105,7 @@ def parse_pio_sizes(output: str) -> dict:
 def build_platformio(lab: Lab, target: Target, build_id: int, verbose: bool = False) -> Firmware:
     if not target.pio_env:
         raise BuildError(f"target {target.name} has no pio_env")
+    _model_sources(lab)
     env = {**os.environ, "HIL_BUILD_ID": f"0x{build_id:08x}"}
     argv = pio_cmd() + ["run", "-d", str(lab.firmware_dir), "-e", target.pio_env]
     res = subprocess.run(argv, env=env, capture_output=True, text=True)
@@ -112,7 +136,11 @@ def build_platformio(lab: Lab, target: Target, build_id: int, verbose: bool = Fa
             src = Path(img["path"])
             if not src.exists():
                 raise BuildError(f"flash image missing: {src}")
-            name = src.name if src.name not in {i["file"] for i in images} else f"{img['offset']}_{src.name}"
+            name = (
+                src.name
+                if src.name not in {i["file"] for i in images}
+                else f"{img['offset']}_{src.name}"
+            )
             shutil.copy2(src, out / name)
             images.append({"offset": img["offset"], "file": name})
         keys = ("flash_mode", "flash_freq", "mcu", "flash_size")

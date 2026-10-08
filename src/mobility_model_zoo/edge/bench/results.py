@@ -4,8 +4,9 @@ Layout of a run directory (results/<run-id>/):
   metrics/*.jsonl   one JSON object per line (one file per process / xdist worker)
   logs/<board>.log  full serial log incl. host commands
   junit.xml         from pytest
-  summary.json/.md  written at the end of the session (`hilbench report` re-creates them)
+  summary.json/.md  written at the end of the session (`edge report` re-creates them)
 """
+
 from __future__ import annotations
 
 import json
@@ -73,10 +74,13 @@ def summarize(records: list[dict]) -> dict:
         if kind == "board":
             boards[b] = {k: v for k, v in r.items() if k not in ("ts", "kind", "board")}
         elif kind == "bench":
-            perf[b][r["model"]] = {k: r[k] for k in ("us_avg", "us_min", "us_max", "cyc_avg", "macs", "n")
-                                   if k in r}
+            perf[b][r["model"]] = {
+                k: r[k] for k in ("us_avg", "us_min", "us_max", "cyc_avg", "macs", "n") if k in r
+            }
         elif kind == "accuracy":
-            accuracy[b][r["model"]] = {k: v for k, v in r.items() if k not in ("ts", "kind", "board", "model")}
+            accuracy[b][r["model"]] = {
+                k: v for k, v in r.items() if k not in ("ts", "kind", "board", "model")
+            }
         elif kind == "test":
             tests[b][r["outcome"]] += 1
             if r["outcome"] == "failed":
@@ -113,16 +117,22 @@ def render_markdown(summary: dict, title: str = "HIL TinyML bench") -> str:
     out = [f"# {title}\n"]
     boards = summary["boards"]
     out.append("## Boards\n")
-    out.append("| Board | Target | Chip | MHz | Firmware | RAM | Flash | free heap | passed | failed | skipped |")
+    out.append(
+        "| Board | Target | Chip | MHz | Firmware | RAM | Flash | free heap "
+        "| passed | failed | skipped |"
+    )
     out.append("|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|")
     for b in sorted(boards):
         info = boards[b]
         t = summary["tests"].get(b, {})
-        out.append(f"| {b} | {info.get('target', '-')} | {info.get('chip', '-')} | {info.get('cpu_mhz', '-')} | "
-                   f"{info.get('build', '-')} | {_fmt_kib(info.get('ram_used'), info.get('ram_total'))} | "
-                   f"{_fmt_kib(info.get('flash_used'), info.get('flash_total'))} | "
-                   f"{_fmt_kib(info.get('free_heap'))} | "
-                   f"{t.get('passed', 0)} | {t.get('failed', 0)} | {t.get('skipped', 0)} |")
+        out.append(
+            f"| {b} | {info.get('target', '-')} | {info.get('chip', '-')} "
+            f"| {info.get('cpu_mhz', '-')} | "
+            f"{info.get('build', '-')} | {_fmt_kib(info.get('ram_used'), info.get('ram_total'))} | "
+            f"{_fmt_kib(info.get('flash_used'), info.get('flash_total'))} | "
+            f"{_fmt_kib(info.get('free_heap'))} | "
+            f"{t.get('passed', 0)} | {t.get('failed', 0)} | {t.get('skipped', 0)} |"
+        )
     models = sorted({m for p in summary["perf"].values() for m in p})
     if models:
         out.append("\n## Latency (average per inference)\n")
@@ -141,7 +151,11 @@ def render_markdown(summary: dict, title: str = "HIL TinyML bench") -> str:
             row = []
             for b in sorted(summary["perf"]):
                 p = summary["perf"][b].get(m)
-                row.append(f"{p['cyc_avg'] / p['macs']:.1f}" if p and p.get("cyc_avg") and p.get("macs") else "-")
+                row.append(
+                    f"{p['cyc_avg'] / p['macs']:.1f}"
+                    if p and p.get("cyc_avg") and p.get("macs")
+                    else "-"
+                )
             out.append(f"| {m} | " + " | ".join(row) + " |")
     if summary["accuracy"]:
         out.append("\n## Accuracy on device (evaluation sets)\n")
@@ -149,8 +163,10 @@ def render_markdown(summary: dict, title: str = "HIL TinyML bench") -> str:
         out.append("|---|---|---:|---:|---:|---|")
         for b in sorted(summary["accuracy"]):
             for m, a in sorted(summary["accuracy"][b].items()):
-                out.append(f"| {b} | {m} | {a.get('n', '-')} | {a.get('device_metric', 0):.4f} | "
-                           f"{a.get('host_metric', 0):.4f} | {'yes' if a.get('bit_exact') else 'NO'} |")
+                out.append(
+                    f"| {b} | {m} | {a.get('n', '-')} | {a.get('device_metric', 0):.4f} | "
+                    f"{a.get('host_metric', 0):.4f} | {'yes' if a.get('bit_exact') else 'NO'} |"
+                )
     if summary["failures"]:
         out.append("\n## Failures\n")
         for f in summary["failures"]:
@@ -174,6 +190,8 @@ def compare_to_baseline(summary: dict, baseline: dict, tolerance: float = 0.2) -
         for m, p in models.items():
             ref = baseline.get("perf", {}).get(b, {}).get(m)
             if ref and ref.get("us_avg") and p.get("us_avg", 0) > ref["us_avg"] * (1 + tolerance):
-                problems.append(f"{b}/{m}: {p['us_avg']} µs vs baseline {ref['us_avg']} µs "
-                                f"(+{(p['us_avg'] / ref['us_avg'] - 1) * 100:.0f}%)")
+                problems.append(
+                    f"{b}/{m}: {p['us_avg']} µs vs baseline {ref['us_avg']} µs "
+                    f"(+{(p['us_avg'] / ref['us_avg'] - 1) * 100:.0f}%)"
+                )
     return problems

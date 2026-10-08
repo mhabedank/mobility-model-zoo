@@ -1,6 +1,6 @@
 # Host simulator build (no PlatformIO needed).
-#   make -C firmware/native            -> build/hilbench-sim
-#   make -C firmware/native CFLAGS="-O2 -DMI_EXCLUDE_HAR_CNN1D"  -> without a model
+#   make -C firmware/native            -> build/edge-sim
+#   make -C firmware/native CFLAGS="-O2 -DMI_EXCLUDE_SENSOR_AE"  -> without a model
 CC ?= cc
 HIL_BUILD_ID ?= 0
 OUT ?= build
@@ -12,7 +12,7 @@ override CFLAGS += -std=c99 -Wall -Wextra -Werror -Wshadow -Wconversion -Wno-sig
 LIB_SRCS = ../lib/microinfer/src/microinfer.c ../lib/benchapp/src/benchapp.c ../lib/modelzoo/src/model_zoo.c
 SRCS = $(LIB_SRCS) hal_native.c main.c
 
-$(OUT)/hilbench-sim: $(SRCS) $(wildcard ../lib/*/src/*.h) Makefile
+$(OUT)/edge-sim: $(SRCS) $(wildcard ../lib/*/src/*.h) Makefile
 	@mkdir -p $(OUT)
 	$(CC) $(CFLAGS) -o $@ $(SRCS)
 

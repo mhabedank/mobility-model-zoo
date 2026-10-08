@@ -17,7 +17,7 @@ extern "C" {
 #define HIL_FW_VERSION "0.1.0"
 #define HIL_PROTOCOL_VERSION 1
 
-/* Injected by the build (hilbench build) to prove which image is running. */
+/* Injected by the build (edge build) to prove which image is running. */
 #ifndef HIL_BUILD_ID
 #define HIL_BUILD_ID 0u
 #endif

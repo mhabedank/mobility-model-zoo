@@ -5,19 +5,19 @@
 | Workflow | Runner | Inhalt |
 |---|---|---|
 | `ci.yml` | GitHub-hosted | Unit-Tests, HIL-Suite gegen simulierte Boards, Firmware-Build für alle Targets mit Größenübersicht |
-| `hil.yml` | **self-hosted, Label `hil`** | `hilbench run --parallel --slow` auf allen angeschlossenen Boards, nächtlich und manuell |
+| `hil.yml` | **self-hosted, Label `hil`** | `edge run --parallel --slow` auf allen angeschlossenen Boards, nächtlich und manuell |
 
 ## Self-hosted Runner auf dem HIL-Host einrichten
 
 1. Host vorbereiten: `sudo ./hil/setup-host.sh` (dialout, udev, uhubctl) und
-   `hil/boards.yaml` mit den echten Boards pflegen (`hilbench discover`, dann `hilbench list`).
+   `hil/boards.yaml` mit den echten Boards pflegen (`edge discover`, dann `edge list`).
 2. GitHub → *Settings → Actions → Runners → New self-hosted runner*. Den Anweisungen folgen und
    beim `config.sh` das zusätzliche Label `hil` vergeben. Den Runner als Dienst installieren
    (`sudo ./svc.sh install && sudo ./svc.sh start`) und den Dienstbenutzer in die Gruppe
    `dialout` aufnehmen.
 3. Optional dieselben Lock-Verzeichnisse für Menschen und CI nutzen, damit sich ein
    interaktiver Test und ein CI-Lauf nie dasselbe Board teilen:
-   `lab: {lock_dir: /var/lock/hilbench}` in `hil/boards.yaml`.
+   `lab: {lock_dir: /var/lock/mmz-edge}` in `hil/boards.yaml`.
 4. *Actions → hil → Run workflow* startet einen Lauf, optional mit Board-Liste und Smoke-Modus.
 
 ## Baseline / Performance-Regressionen

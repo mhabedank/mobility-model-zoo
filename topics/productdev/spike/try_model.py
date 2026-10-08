@@ -1,6 +1,6 @@
 """Try a local JTBD extraction model on your own text (spike, not a benchmark).
 
-The model folder is built by topics/productdev/spike/build_local_model.sh and contains the MLX weights plus
+The model folder is built by build_local_model.sh and contains the MLX weights plus
 `system_prompt.txt`, the exact system prompt the model was trained with. The prompt is formatted
 like the training data (Qwen chat format) and decoded greedily. Texts longer than the training
 chunks are split at paragraph ends into parts of at most 1,200 tokens, each labeled separately.

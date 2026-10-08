@@ -20,7 +20,7 @@ sudo ./hil/setup-host.sh     # dialout-Gruppe, udev-Regeln, uhubctl
 
 ## Boards eindeutig zuordnen
 
-`hilbench discover` listet für jeden Port `serial_number`, `location` (physischer USB-Pfad),
+`edge discover` listet für jeden Port `serial_number`, `location` (physischer USB-Pfad),
 `vid_pid` und den `/dev/serial/by-id`-Namen. In `hil/boards.yaml`:
 
 | Situation | `match:` |
@@ -107,7 +107,7 @@ vorhanden sein.
 ## Boards an einem anderen Rechner
 
 Empfohlen: Auf dem Rechner, an dem die Boards hängen (z. B. ein Raspberry Pi), läuft selbst
-`hilbench` bzw. der self-hosted CI-Runner ([ci.md](ci.md)). Der Pi ist dann ein
+`edge` bzw. der self-hosted CI-Runner ([ci.md](ci.md)). Der Pi ist dann ein
 vollständiger HIL-Host.
 
 Nur zum Testen bereits geflashter Boards genügt auch eine RFC2217-Freigabe per `ser2net`:
@@ -119,7 +119,7 @@ Nur zum Testen bereits geflashter Boards genügt auch eine RFC2217-Freigabe per 
 ```
 
 ```bash
-hilbench run -b esp32-remote --no-flash
+edge run -b esp32-remote --no-flash
 ```
 
 Inferenz, Benchmarks und der DTR/RTS-Reset funktionieren über das Netzwerk. Zum Flashen

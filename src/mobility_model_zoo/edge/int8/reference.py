@@ -1,13 +1,14 @@
-"""Bit-exact host reference of firmware/lib/microinfer (int8 inference).
+"""Bit-exact host reference of firmware/bench/lib/microinfer (int8 inference).
 
 The HIL tests compare every device output against this implementation.
 """
+
 from __future__ import annotations
 
 import numpy as np
 
-from .model import QLayer, QModel
 from . import quant
+from .model import QLayer, QModel
 from .quant import trunc_div
 
 
@@ -15,8 +16,11 @@ def _requant(layer: QLayer, acc: np.ndarray) -> np.ndarray:
     """acc has the output channel as last axis."""
     mult = layer.mult.astype(np.int64)
     shift = layer.shift.astype(np.int64)
-    fn = (quant.multiply_by_quantized_multiplier_single if layer.rounding == "single"
-          else quant.multiply_by_quantized_multiplier)
+    fn = (
+        quant.multiply_by_quantized_multiplier_single
+        if layer.rounding == "single"
+        else quant.multiply_by_quantized_multiplier
+    )
     v = fn(acc, mult, shift) + layer.out_zp
     return np.clip(v, layer.act_min, layer.act_max).astype(np.int8)
 
@@ -31,9 +35,9 @@ def _patches(x: np.ndarray, layer: QLayer, fill: int) -> tuple[np.ndarray, np.nd
     pad_b = max(0, (oh - 1) * sh + kh - pt - ih)
     pad_r = max(0, (ow - 1) * sw + kw - pl - iw)
     xp = np.full((ih + pt + pad_b, iw + pl + pad_r, c), fill, dtype=np.int64)
-    xp[pt:pt + ih, pl:pl + iw, :] = x
+    xp[pt : pt + ih, pl : pl + iw, :] = x
     valid = np.zeros((ih + pt + pad_b, iw + pl + pad_r), dtype=bool)
-    valid[pt:pt + ih, pl:pl + iw] = True
+    valid[pt : pt + ih, pl : pl + iw] = True
     patches = np.empty((oh, ow, kh, kw, c), dtype=np.int64)
     vmask = np.empty((oh, ow, kh, kw), dtype=bool)
     for ky in range(kh):
@@ -110,4 +114,8 @@ def run_model(model: QModel, x: np.ndarray, return_all: bool = False):
 
 def run_batch(model: QModel, xs: np.ndarray) -> np.ndarray:
     xs = np.asarray(xs, dtype=np.int8).reshape(len(xs), -1)
-    return np.stack([run_model(model, x) for x in xs]) if len(xs) else np.zeros((0, model.out_size), np.int8)
+    return (
+        np.stack([run_model(model, x) for x in xs])
+        if len(xs)
+        else np.zeros((0, model.out_size), np.int8)
+    )

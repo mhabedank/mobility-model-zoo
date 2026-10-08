@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from msml.can.features import FEATURE_NAMES, extract
+from mobility_model_zoo.security.can_ids.forest_features import FEATURE_NAMES, extract
 
 F = {name: i for i, name in enumerate(FEATURE_NAMES)}
 
@@ -12,8 +12,9 @@ def frames(rows):
     recs = []
     for t, cid, payload in rows:
         data = list(payload) + [0] * (8 - len(payload))
-        recs.append({"ts": t, "can_id": cid, "dlc": len(payload),
-                     **{f"b{i}": data[i] for i in range(8)}})
+        recs.append(
+            {"ts": t, "can_id": cid, "dlc": len(payload), **{f"b{i}": data[i] for i in range(8)}}
+        )
     return pd.DataFrame(recs)
 
 
@@ -71,16 +72,18 @@ def test_eviction_keeps_frequent_ids():
     rows += [(0.5 + i * 0.0001, i, [0]) for i in range(300)]
     rows += [(0.6, 0x7FF, [0]), (0.601, 0, [0])]
     x = extract(frames(rows))
-    assert x[-2, F["id_count"]] == 50     # periodic ID survived the scan
-    assert x[-1, F["id_count"]] == 0      # one-off ID 0 was evicted
+    assert x[-2, F["id_count"]] == 50  # periodic ID survived the scan
+    assert x[-1, F["id_count"]] == 0  # one-off ID 0 was evicted
     assert x[-1, F["dt_id_ms"]] == 1000.0
 
 
 def test_alarm_needs_k_flags_in_window_and_holds_off():
-    from msml.can.features import alarms
+    from mobility_model_zoo.security.can_ids.forest_features import alarms
 
-    ts = np.array([0, 10_000, 20_000, 500_000, 510_000, 520_000, 530_000, 2_000_000,
-                   2_001_000, 2_002_000], dtype=np.int64)
+    ts = np.array(
+        [0, 10_000, 20_000, 500_000, 510_000, 520_000, 530_000, 2_000_000, 2_001_000, 2_002_000],
+        dtype=np.int64,
+    )
     fl = np.array([1, 0, 1, 1, 1, 1, 1, 1, 1, 1])
     a = alarms(ts, fl, k=3, window_ms=50, holdoff_ms=1000)
     # first alarm at 520 ms (3 flags within 50 ms), suppressed at 530 ms (hold-off),

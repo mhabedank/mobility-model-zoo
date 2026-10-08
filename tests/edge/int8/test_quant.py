@@ -1,8 +1,13 @@
 import numpy as np
 import pytest
 
-from hilbench.ml.quant import (choose_qparams, multiply_by_quantized_multiplier, quantize_multiplier,
-                               round_half_away, trunc_div)
+from mobility_model_zoo.edge.int8.quant import (
+    choose_qparams,
+    multiply_by_quantized_multiplier,
+    quantize_multiplier,
+    round_half_away,
+    trunc_div,
+)
 
 
 def _ref_mbqm(x: int, m: int, shift: int) -> int:
@@ -20,10 +25,16 @@ def _ref_mbqm(x: int, m: int, shift: int) -> int:
     return (high >> right) + (1 if rem > thr else 0)
 
 
-@pytest.mark.parametrize("real,expected", [
-    (0.5, (1 << 30, 0)), (1.0, (1 << 30, 1)), (0.25, (1 << 30, -1)), (0.0, (0, 0)),
-    (0.75, (1610612736, 0)),
-])
+@pytest.mark.parametrize(
+    "real,expected",
+    [
+        (0.5, (1 << 30, 0)),
+        (1.0, (1 << 30, 1)),
+        (0.25, (1 << 30, -1)),
+        (0.0, (0, 0)),
+        (0.75, (1610612736, 0)),
+    ],
+)
 def test_quantize_multiplier_known_values(real, expected):
     assert quantize_multiplier(real) == expected
 
@@ -42,7 +53,7 @@ def test_mbqm_matches_scalar_reference():
     ms = rng.integers(1 << 30, (1 << 31) - 1, 2000)
     ss = rng.integers(-20, 2, 2000)
     got = multiply_by_quantized_multiplier(xs, ms, ss)
-    want = [_ref_mbqm(int(x), int(m), int(s)) for x, m, s in zip(xs, ms, ss)]
+    want = [_ref_mbqm(int(x), int(m), int(s)) for x, m, s in zip(xs, ms, ss, strict=False)]
     assert got.tolist() == want
 
 

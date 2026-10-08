@@ -40,6 +40,30 @@ release = [
     "typer>=0.12",
     "httpx>=0.27",
 ]
+# Edge models (feature 005): datasets, int8 engine and the hardware-in-the-loop bench
+edge = [
+    "numpy>=1.26",
+    "pyserial>=3.5",
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+    "httpx>=0.27",
+]
+# Real boards: flashing and parallel bench runs
+edge-hw = [
+    "esptool>=4.7",
+    "platformio>=6.1",
+    "pytest-xdist>=3.3",
+]
+# Training of edge models (TensorFlow is large; not installed in CI)
+edge-train = [
+    "tensorflow-cpu>=2.16",
+    "tflite>=2.10",
+    "scikit-learn>=1.5",
+    "emlearn>=0.23",
+    "setuptools>=70",
+    "pandas>=2.2",
+    "pyarrow>=17",
+]
 # Hosted reference labeling through the Anthropic API (feature 006; not used without a DPA)
 labeling-api = [
     "anthropic>=0.69",
@@ -48,6 +72,7 @@ labeling-api = [
 [project.scripts]
 jtbd = "mobility_model_zoo.productdev.jtbd.cli:app"
 zoo = "mobility_model_zoo.release.cli:app"
+edge = "mobility_model_zoo.edge.bench.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.3", "ruff>=0.6", "reuse>=5.0"]
@@ -71,8 +96,9 @@ torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 [tool.ruff]
 line-length = 105
 target-version = "py312"
-# Golden model cards must stay byte-exact (ruff would format their code blocks)
-extend-exclude = ["tests/release/fixtures"]
+# Golden model cards must stay byte-exact (ruff would format their code blocks); the firmware build
+# scripts run inside PlatformIO's SCons environment (Import/env globals).
+extend-exclude = ["tests/release/fixtures", "firmware/**/scripts/*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
@@ -81,6 +107,9 @@ ignore = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Slow tests build fresh environments; run them with `uv run pytest -m slow`.
-markers = ["slow: builds a fresh virtual environment (minutes, needs network)"]
-addopts = "-m 'not slow'"
+markers = [
+    "slow: builds a fresh virtual environment (minutes, needs network); run with -m slow",
+    "hil: needs a device under test (run with -m hil --hil-board sim)",
+    "destructive: resets or power-cycles the board",
+]
+addopts = "-m 'not slow and not hil' -p mobility_model_zoo.edge.bench.pytest_plugin"

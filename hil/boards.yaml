@@ -1,7 +1,7 @@
 # Lab inventory: every physical board on the bench.
 #
-#   hilbench discover --probe     lists connected boards and prints entries for this file
-#   hilbench run                  runs the HIL suite on all enabled + connected boards
+#   edge discover --probe     lists connected boards and prints entries for this file
+#   edge run                  runs the HIL suite on all enabled + connected boards
 #
 # How a board is found (pick the most stable option you have):
 #   port: /dev/serial/by-id/usb-...   explicit device (or rfc2217://host:port for remote boards)
@@ -17,7 +17,7 @@ lab:
   name: tinyml-hil
   results_dir: ../results     # relative to this file
   build_dir: ../build/fw
-  # lock_dir: /var/lock/hilbench   # share between CI runners and humans on the same host
+  # lock_dir: /var/lock/mmz-edge   # share between CI runners and humans on the same host
 
 boards:
   # Always available: the firmware compiled for the PC. Lets you develop tests
@@ -33,7 +33,7 @@ boards:
     enabled: false
 
   # The ESP8266MOD (ESP-12E/F on a NodeMCU / D1 mini style board with CH340 or CP2102).
-  # Replace the match with what `hilbench discover` prints for your board.
+  # Replace the match with what `edge discover` prints for your board.
   - id: esp8266-1
     target: esp8266
     match: {vid_pid: "1a86:7523"}

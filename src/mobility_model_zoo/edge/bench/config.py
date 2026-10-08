@@ -4,6 +4,7 @@
 * A **board** is one physical device on the bench: which target it is and how
   to find it (USB serial number, physical USB port, explicit port...).
 """
+
 from __future__ import annotations
 
 import os
@@ -13,7 +14,8 @@ from typing import Any
 
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+from mobility_model_zoo.edge.paths import BENCH_FIRMWARE, BUILD_DIR, REPO_ROOT
+
 DEFAULT_TARGETS = REPO_ROOT / "hil" / "targets.yaml"
 DEFAULT_BOARDS = REPO_ROOT / "hil" / "boards.yaml"
 
@@ -32,7 +34,9 @@ class Target:
     flasher: str = "platformio"  # esptool | platformio | uf2 | command | none
     flasher_options: dict[str, Any] = field(default_factory=dict)
     esptool_chip: str | None = None
-    reset: str = "none"  # esp_classic | esp_usb_jtag | dtr_pulse | command | power | soft | process | none
+    reset: str = (
+        "none"  # esp_classic | esp_usb_jtag | dtr_pulse | command | power | soft | process | none
+    )
     transport: str = "serial"  # serial | process
     baud: int = 115200
     usb_ids: list[str] = field(default_factory=list)
@@ -148,14 +152,14 @@ def load_targets(path: str | Path | None = None, extra: dict | None = None) -> d
 
 
 def load_lab(boards_path: str | Path | None = None, targets_path: str | Path | None = None) -> Lab:
-    boards_path = Path(boards_path or os.environ.get("HILBENCH_BOARDS") or DEFAULT_BOARDS)
+    boards_path = Path(boards_path or os.environ.get("MMZ_BOARDS") or DEFAULT_BOARDS)
     raw = _read_yaml(boards_path)
     lab_raw = raw.get("lab", {}) or {}
     targets = load_targets(targets_path or lab_raw.get("targets"), raw.get("targets"))
     base = boards_path.parent
 
     def _path(key, default):
-        v = os.environ.get(f"HILBENCH_{key.upper()}") or lab_raw.get(key)
+        v = os.environ.get(f"MMZ_{key.upper()}") or lab_raw.get(key)
         if not v:
             return default
         p = Path(v).expanduser()
@@ -188,8 +192,8 @@ def load_lab(boards_path: str | Path | None = None, targets_path: str | Path | N
         name=lab_raw.get("name", "hil-lab"),
         boards=boards,
         targets=targets,
-        lock_dir=_path("lock_dir", Path(os.environ.get("TMPDIR", "/tmp")) / "hilbench-locks"),
-        results_dir=_path("results_dir", REPO_ROOT / "results"),
-        firmware_dir=_path("firmware_dir", REPO_ROOT / "firmware"),
-        build_dir=_path("build_dir", REPO_ROOT / "build" / "fw"),
+        lock_dir=_path("lock_dir", Path(os.environ.get("TMPDIR", "/tmp")) / "mmz-edge-locks"),
+        results_dir=_path("results_dir", REPO_ROOT / "results" / "edge"),
+        firmware_dir=_path("firmware_dir", BENCH_FIRMWARE),
+        build_dir=_path("build_dir", BUILD_DIR / "fw"),
     )

@@ -1,10 +1,11 @@
 """Host side of the bench protocol (see docs/protocol.md)."""
+
 from __future__ import annotations
 
 import json
 import time
 import zlib
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
@@ -30,8 +31,9 @@ class DeviceResetDetected(RuntimeError):
 
 
 class Device:
-    def __init__(self, transport: Transport, timeout: float = 10.0,
-                 log: Callable[[str], None] | None = None):
+    def __init__(
+        self, transport: Transport, timeout: float = 10.0, log: Callable[[str], None] | None = None
+    ):
         self.transport = transport
         self.timeout = timeout
         self._log = log or (lambda line: None)
@@ -48,7 +50,7 @@ class Device:
             nl = self._buf.find(b"\n")
             if nl >= 0:
                 raw = bytes(self._buf[:nl])
-                del self._buf[:nl + 1]
+                del self._buf[: nl + 1]
                 yield raw.decode("latin-1").rstrip("\r")
                 continue
             remaining = deadline - time.monotonic()
@@ -66,7 +68,7 @@ class Device:
         if idx > 0:
             self._log(line[:idx])  # boot noise glued in front of the frame
         try:
-            obj = json.loads(line[idx + 1:])
+            obj = json.loads(line[idx + 1 :])
         except json.JSONDecodeError:
             self._log(f"[corrupt frame] {line}")
             self.log_tail = (self.log_tail + [line])[-40:]
@@ -90,8 +92,9 @@ class Device:
                 return obj
         raise DeviceTimeout(f"expected frame not received within {timeout:.1f}s")
 
-    def request(self, command: str, *args, timeout: float | None = None,
-                allow_reset: bool = False) -> dict:
+    def request(
+        self, command: str, *args, timeout: float | None = None, allow_reset: bool = False
+    ) -> dict:
         rid = self._next_id
         self._next_id += 1
         line = f"#{rid} {command}" + "".join(f" {a}" for a in args)
@@ -106,7 +109,10 @@ class Device:
                 self.unexpected_resets += 1
                 raise DeviceResetDetected(
                     f"device rebooted while executing {command} "
-                    f"(reset_reason={obj.get('reset_reason')})", obj, list(self.log_tail))
+                    f"(reset_reason={obj.get('reset_reason')})",
+                    obj,
+                    list(self.log_tail),
+                )
             if obj.get("id") == rid:
                 if not obj.get("ok"):
                     raise DeviceError(f"{command}: {obj.get('err', 'error')}")
@@ -121,8 +127,9 @@ class Device:
         last: Exception | None = None
         while time.monotonic() < deadline:
             try:
-                return self.request("PING", timeout=min(poll, max(deadline - time.monotonic(), 0.05)),
-                                    allow_reset=True)
+                return self.request(
+                    "PING", timeout=min(poll, max(deadline - time.monotonic(), 0.05)), allow_reset=True
+                )
             except (DeviceTimeout, DeviceError) as e:
                 last = e
             # discard partial garbage between attempts
@@ -147,7 +154,9 @@ class Device:
         out = np.frombuffer(bytes.fromhex(r["out"]), dtype=np.int8)
         return out, r
 
-    def bench(self, model: str | int, n: int = 10, warmup: int = 1, timeout: float | None = None) -> dict:
+    def bench(
+        self, model: str | int, n: int = 10, warmup: int = 1, timeout: float | None = None
+    ) -> dict:
         return self.request("BENCH", model, n, warmup, timeout=timeout or max(self.timeout, 60.0))
 
     def selftest(self, model: str | int, timeout: float | None = None) -> dict:

@@ -1,12 +1,13 @@
 """Score a local MLX model on the spike's evaluation chunks (spike, not a benchmark).
 
 Runs the model on every main-split chunk of spike-v1 and scores the outputs against the Claude
-reference exactly like `topics/productdev/spike/ensemble.py` scores its strategies. The frozen-hash checks of the
+reference exactly like `ensemble.py` scores its strategies. The frozen-hash checks of the
 `pilot` commands are bypassed on purpose: the spike benchmark was frozen with older criteria.
 Answers get the same early stop and clean-up as topics/productdev/spike/try_model.py.
 Outputs go to data/spike/local-eval/<model name>/ and are reused on a rerun.
 
-Run: uv run --with mlx-lm python topics/productdev/spike/eval_local_model.py [--model data/models/spike-v3b-mlx-8bit]
+Run: uv run --with mlx-lm python topics/productdev/spike/eval_local_model.py \\
+    [--model data/models/spike-v3b-mlx-8bit]
 """
 
 from __future__ import annotations

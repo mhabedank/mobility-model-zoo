@@ -11,6 +11,7 @@ Flashers (target `flasher:` / board `flasher:`):
               placeholders: {port} {bin} {elf} {hex} {uf2} {dir} {python}
   none        nothing to flash (simulator)
 """
+
 from __future__ import annotations
 
 import glob
@@ -47,11 +48,13 @@ class Firmware:
         return self.dir / name if name else None
 
     @classmethod
-    def load(cls, lab: Lab, target: str) -> "Firmware":
+    def load(cls, lab: Lab, target: str) -> Firmware:
         d = lab.build_dir / target
         mf = d / "manifest.json"
         if not mf.exists():
-            raise FlashError(f"no firmware built for {target} ({mf} missing) - run `hilbench build -t {target}`")
+            raise FlashError(
+                f"no firmware built for {target} ({mf} missing) - run `edge build -t {target}`"
+            )
         return cls(target=target, dir=d, manifest=json.loads(mf.read_text()))
 
 
@@ -64,8 +67,20 @@ def _esptool_major() -> int:
         return 4
 
 
-_V5_TOKENS = {"chip_id", "write_flash", "merge_bin", "read_mac", "erase_flash", "default_reset", "hard_reset",
-              "no_reset", "usb_reset", "--flash_mode", "--flash_freq", "--flash_size"}
+_V5_TOKENS = {
+    "chip_id",
+    "write_flash",
+    "merge_bin",
+    "read_mac",
+    "erase_flash",
+    "default_reset",
+    "hard_reset",
+    "no_reset",
+    "usb_reset",
+    "--flash_mode",
+    "--flash_freq",
+    "--flash_size",
+}
 
 
 def esptool_cmd(*args: str) -> list[str]:
@@ -126,8 +141,20 @@ class EsptoolFlasher(Flasher):
         images = fw.manifest.get("flash_images") or []
         if not images:
             raise FlashError(f"{fw.target}: manifest has no flash_images (not an ESP build?)")
-        argv = ["--chip", chip, "--port", port, "--baud", str(self.options.get("baud", 460800)),
-                "--before", "default_reset", "--after", "hard_reset", "write_flash", "-z"]
+        argv = [
+            "--chip",
+            chip,
+            "--port",
+            port,
+            "--baud",
+            str(self.options.get("baud", 460800)),
+            "--before",
+            "default_reset",
+            "--after",
+            "hard_reset",
+            "write_flash",
+            "-z",
+        ]
         if fw.manifest.get("flash_mode"):
             argv += ["--flash_mode", fw.manifest["flash_mode"]]
         if fw.manifest.get("flash_freq"):
@@ -142,7 +169,17 @@ class PlatformioFlasher(Flasher):
         env = self.board.target.pio_env
         if not env:
             raise FlashError(f"target {self.board.target.name} has no pio_env")
-        argv = pio_cmd() + ["run", "-d", str(self.lab.firmware_dir), "-e", env, "-t", "nobuild", "-t", "upload"]
+        argv = pio_cmd() + [
+            "run",
+            "-d",
+            str(self.lab.firmware_dir),
+            "-e",
+            env,
+            "-t",
+            "nobuild",
+            "-t",
+            "upload",
+        ]
         if port:
             argv += ["--upload-port", port]
         return argv
@@ -160,8 +197,15 @@ class CommandFlasher(Flasher):
 class Uf2Flasher(Flasher):
     """RP2040/RP2350 without picotool: reboot into BOOTSEL and copy the UF2."""
 
-    DEFAULT_GLOBS = ["/media/*/RPI-RP2*", "/media/*/RP2350*", "/run/media/*/RPI-RP2*",
-                     "/run/media/*/RP2350*", "/Volumes/RPI-RP2*", "/Volumes/RP2350*", "/mnt/RPI-RP2*"]
+    DEFAULT_GLOBS = [
+        "/media/*/RPI-RP2*",
+        "/media/*/RP2350*",
+        "/run/media/*/RPI-RP2*",
+        "/run/media/*/RP2350*",
+        "/Volumes/RPI-RP2*",
+        "/Volumes/RP2350*",
+        "/mnt/RPI-RP2*",
+    ]
 
     def _find_drive(self) -> str | None:
         patterns = self.options.get("mount_globs") or self.DEFAULT_GLOBS
@@ -188,8 +232,10 @@ class Uf2Flasher(Flasher):
                 time.sleep(0.5)
                 drive = self._find_drive()
         if drive is None:
-            raise FlashError("UF2 drive (RPI-RP2/RP2350) not found - is it auto-mounted? "
-                             "set flasher_options.mount_globs")
+            raise FlashError(
+                "UF2 drive (RPI-RP2/RP2350) not found - is it auto-mounted? "
+                "set flasher_options.mount_globs"
+            )
         shutil.copyfile(uf2, os.path.join(drive, uf2.name))
         try:
             os.sync()

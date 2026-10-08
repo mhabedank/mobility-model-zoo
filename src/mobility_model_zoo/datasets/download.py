@@ -1,16 +1,16 @@
 """Download, verify and unpack registered datasets outside the repository.
 
-    hilbench data list
-    hilbench data verify [ID ...]       # license declared by the publisher == registry?
-    hilbench data download ID [...]     # into $HILBENCH_DATA (default ~/.cache/hilbench/datasets)
-    hilbench data tree ID               # show what was unpacked (useful for new parsers)
+zoo data list
+zoo data verify [ID ...]       # license declared by the publisher == registry?
+zoo data download ID [...]     # into $MMZ_DATA (default ~/.cache/mobility-model-zoo/datasets)
+zoo data tree ID               # show what was unpacked (useful for new parsers)
 """
+
 from __future__ import annotations
 
 import hashlib
 import io
 import json
-import os
 import re
 import shutil
 import struct
@@ -26,7 +26,7 @@ from pathlib import Path
 
 from .registry import SOURCES, Source
 
-USER_AGENT = "hilbench-dataset-downloader/0.1 (+https://github.com/mhabedank/mobility-security-ml)"
+USER_AGENT = "mobility-model-zoo-crawler/1.0 (+https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md)"
 
 
 class DataError(RuntimeError):
@@ -42,8 +42,9 @@ class RemoteFile:
 
 
 def data_root() -> Path:
-    root = os.environ.get("HILBENCH_DATA")
-    return Path(root).expanduser() if root else Path.home() / ".cache" / "hilbench" / "datasets"
+    from mobility_model_zoo.edge.paths import data_root as _root
+
+    return _root()
 
 
 def dataset_dir(ds_id: str) -> Path:
@@ -61,6 +62,7 @@ def _norm_license(s: str | None) -> str:
 
 
 # ---------------------------------------------------------------- remote --
+
 
 def zenodo_record(record: str) -> dict:
     return _get_json(f"https://zenodo.org/api/records/{record}")
@@ -92,10 +94,14 @@ def remote_files(src: Source) -> list[RemoteFile]:
             name = f.get("key") or f.get("filename")
             if src.zenodo_files and not any(name.startswith(p) for p in src.zenodo_files):
                 continue
-            url = (f.get("links") or {}).get("self") or f"https://zenodo.org/records/{src.zenodo_record}/files/{name}"
+            url = (f.get("links") or {}).get(
+                "self"
+            ) or f"https://zenodo.org/records/{src.zenodo_record}/files/{name}"
             files.append(RemoteFile(url=url, name=name, size=f.get("size"), checksum=f.get("checksum")))
         if not files:
-            raise DataError(f"{src.id}: no files matched {src.zenodo_files} in Zenodo record {src.zenodo_record}")
+            raise DataError(
+                f"{src.id}: no files matched {src.zenodo_files} in Zenodo record {src.zenodo_record}"
+            )
         return files
     if src.uci_id:
         data = uci_record(src.uci_id).get("data", {})
@@ -106,6 +112,7 @@ def remote_files(src: Source) -> list[RemoteFile]:
 
 
 # ------------------------------------------------ partial (range) zip reads --
+
 
 class _RateLimit:
     """Spacing between requests to one host, shared by all threads (Zenodo answers
@@ -140,7 +147,9 @@ def _range_get(url: str, start: int, end: int, retries: int = 8) -> bytes:
     for attempt in range(retries):
         RANGE_RATE.wait()
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Range": f"bytes={start}-{end}"})
+            req = urllib.request.Request(
+                url, headers={"User-Agent": USER_AGENT, "Range": f"bytes={start}-{end}"}
+            )
             with urllib.request.urlopen(req, timeout=120) as resp:
                 if resp.status != 206:
                     raise DataError(f"{url}: server ignores Range requests")
@@ -152,7 +161,7 @@ def _range_get(url: str, start: int, end: int, retries: int = 8) -> bytes:
                 pause = float(e.headers.get("Retry-After") or 0)
             except ValueError:
                 pause = 0.0
-            pause = max(pause, min(120.0, 5.0 * 2 ** attempt))
+            pause = max(pause, min(120.0, 5.0 * 2**attempt))
             print(f"    HTTP {e.code}, pausing {pause:.0f} s", flush=True)
             RANGE_RATE.backoff(pause)
         except OSError:
@@ -188,7 +197,11 @@ class HttpRangeFile(io.RawIOBase):
         return self.pos
 
     def seek(self, offset, whence=io.SEEK_SET):
-        self.pos = {io.SEEK_SET: offset, io.SEEK_CUR: self.pos + offset, io.SEEK_END: self.size + offset}[whence]
+        self.pos = {
+            io.SEEK_SET: offset,
+            io.SEEK_CUR: self.pos + offset,
+            io.SEEK_END: self.size + offset,
+        }[whence]
         return self.pos
 
     def readinto(self, b):
@@ -196,11 +209,11 @@ class HttpRangeFile(io.RawIOBase):
         out = bytearray()
         while len(out) < n:
             idx, off = divmod(self.pos + len(out), self.block)
-            chunk = self._get_block(idx)[off:off + n - len(out)]
+            chunk = self._get_block(idx)[off : off + n - len(out)]
             if not chunk:
                 break
             out += chunk
-        b[:len(out)] = out
+        b[: len(out)] = out
         self.pos += len(out)
         return len(out)
 
@@ -218,8 +231,10 @@ def _read_member(url: str, info: zipfile.ZipInfo) -> bytes:
         raise DataError(f"{info.filename}: bad local header")
     begin = _LOCAL_HEADER.size + n_name + n_extra
     if begin + info.compress_size > len(raw):
-        raw += _range_get(url, info.header_offset + len(raw), info.header_offset + begin + info.compress_size - 1)
-    data = raw[begin:begin + info.compress_size]
+        raw += _range_get(
+            url, info.header_offset + len(raw), info.header_offset + begin + info.compress_size - 1
+        )
+    data = raw[begin : begin + info.compress_size]
     if info.compress_type == zipfile.ZIP_DEFLATED:
         data = zlib.decompressobj(-15).decompress(data)
     elif info.compress_type != zipfile.ZIP_STORED:
@@ -244,14 +259,18 @@ def select_members(names: list[str], select: tuple[tuple[str, int], ...], seed: 
     return chosen
 
 
-def fetch_zip_members(f: RemoteFile, target: Path, select: tuple[tuple[str, int], ...], seed: int = 0,
-                      workers: int = 4) -> int:
+def fetch_zip_members(
+    f: RemoteFile, target: Path, select: tuple[tuple[str, int], ...], seed: int = 0, workers: int = 4
+) -> int:
     """Extract only members matching (glob, max count) pairs from a remote zip:
     the central directory is read via ranges, then each member with one request."""
     from concurrent.futures import ThreadPoolExecutor
 
-    size = f.size or int(urllib.request.urlopen(urllib.request.Request(
-        f.url, method="HEAD", headers={"User-Agent": USER_AGENT}), timeout=60).headers["Content-Length"])
+    size = f.size or int(
+        urllib.request.urlopen(
+            urllib.request.Request(f.url, method="HEAD", headers={"User-Agent": USER_AGENT}), timeout=60
+        ).headers["Content-Length"]
+    )
     with zipfile.ZipFile(io.BufferedReader(HttpRangeFile(f.url, size), buffer_size=1 << 20)) as z:
         infos = {i.filename: i for i in z.infolist() if not i.is_dir() and "__MACOSX" not in i.filename}
     root = target.resolve()
@@ -280,6 +299,7 @@ def fetch_zip_members(f: RemoteFile, target: Path, select: tuple[tuple[str, int]
 
 
 # -------------------------------------------------------------- download --
+
 
 def _hash_file(path: Path, algo: str) -> str:
     h = hashlib.new(algo)
@@ -332,8 +352,14 @@ def _verify_checksum(path: Path, checksum: str | None) -> None:
         raise DataError(f"{path.name}: {algo} mismatch ({got} != {want}) - file deleted, retry")
 
 
-_MAGIC = [(b"PK\x03\x04", ".zip"), (b"\x1f\x8b", ".tar.gz"), (b"BZh", ".tar.bz2"), (b"\xfd7zXZ", ".tar.xz"),
-          (b"7z\xbc\xaf\x27\x1c", ".7z"), (b"Rar!", ".rar")]
+_MAGIC = [
+    (b"PK\x03\x04", ".zip"),
+    (b"\x1f\x8b", ".tar.gz"),
+    (b"BZh", ".tar.bz2"),
+    (b"\xfd7zXZ", ".tar.xz"),
+    (b"7z\xbc\xaf\x27\x1c", ".7z"),
+    (b"Rar!", ".rar"),
+]
 
 
 def _sniff(head: bytes) -> str | None:
@@ -344,8 +370,15 @@ def _sniff(head: bytes) -> str | None:
 
 def _signature_scan(path: Path, limit: int = 5) -> dict:
     """First offsets of archive signatures anywhere in a file (diagnostics for broken downloads)."""
-    sigs = {"zip-local": b"PK\x03\x04", "zip-central": b"PK\x01\x02", "zip-end": b"PK\x05\x06",
-            "zip64-end": b"PK\x06\x06", "7z": b"7z\xbc\xaf\x27\x1c", "rar": b"Rar!\x1a", "xz": b"\xfd7zXZ"}
+    sigs = {
+        "zip-local": b"PK\x03\x04",
+        "zip-central": b"PK\x01\x02",
+        "zip-end": b"PK\x05\x06",
+        "zip64-end": b"PK\x06\x06",
+        "7z": b"7z\xbc\xaf\x27\x1c",
+        "rar": b"Rar!\x1a",
+        "xz": b"\xfd7zXZ",
+    }
     found: dict[str, list[int]] = {k: [] for k in sigs}
     zero = 0
     with open(path, "rb") as fh:
@@ -383,15 +416,19 @@ def _embedded_payload(archive: Path) -> Path | None:
                 start += nz
                 break
             if not block:
-                raise DataError(f"{archive.name}: the publisher served an empty zip followed only by zero "
-                                f"bytes ({archive.stat().st_size} bytes) - the download is broken at the source")
+                raise DataError(
+                    f"{archive.name}: the publisher served an empty zip followed only by zero "
+                    f"bytes ({archive.stat().st_size} bytes) - the download is broken at the source"
+                )
             start += len(block)
         fh.seek(start)
         ext = _sniff(fh.read(512))
         if ext is None:
             fh.seek(start)
-            raise DataError(f"{archive.name}: empty zip followed by unknown data at offset {start}: "
-                            f"{fh.read(32).hex()}; signatures in file: {_signature_scan(archive)}")
+            raise DataError(
+                f"{archive.name}: empty zip followed by unknown data at offset {start}: "
+                f"{fh.read(32).hex()}; signatures in file: {_signature_scan(archive)}"
+            )
         out = archive.with_name(archive.name[:-4] + ".payload" + ext)
         if not out.exists():
             fh.seek(start)
@@ -411,7 +448,9 @@ def _extract(archive: Path, target: Path) -> None:
         tool = shutil.which("7z")
         if not tool:
             raise DataError(f"{archive.name}: install 7z (p7zip-full)")
-        res = subprocess.run([tool, "x", "-y", f"-o{target}", str(archive)], capture_output=True, text=True)
+        res = subprocess.run(
+            [tool, "x", "-y", f"-o{target}", str(archive)], capture_output=True, text=True
+        )
         if res.returncode != 0:
             raise DataError(f"{archive.name}: 7z failed: {res.stderr[-500:]}")
     elif name.endswith(".zip"):
@@ -427,11 +466,16 @@ def _extract(archive: Path, target: Path) -> None:
             tool = shutil.which("7z") or shutil.which("unzip")
             if not tool:
                 raise DataError(f"{archive.name}: {e}; install unzip or 7z") from e
-            cmd = [tool, "x", "-y", f"-o{target}", str(archive)] if tool.endswith("7z") else \
-                [tool, "-o", "-q", str(archive), "-d", str(target)]
+            cmd = (
+                [tool, "x", "-y", f"-o{target}", str(archive)]
+                if tool.endswith("7z")
+                else [tool, "-o", "-q", str(archive), "-d", str(target)]
+            )
             res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode not in (0, 1):  # unzip: 1 = warnings
-                raise DataError(f"{archive.name}: {e}; {Path(tool).name} failed: {res.stderr[-500:]}") from e
+                raise DataError(
+                    f"{archive.name}: {e}; {Path(tool).name} failed: {res.stderr[-500:]}"
+                ) from e
     elif name.endswith((".tar.gz", ".tgz", ".tar", ".tar.xz", ".tar.bz2")):
         with tarfile.open(archive) as t:
             kwargs = {"filter": "data"} if sys.version_info >= (3, 12) else {}
@@ -463,8 +507,10 @@ def download(ds_id: str, extract: bool = True, force: bool = False, check_licens
     if check_license:
         ok, declared = verify(src)
         if not ok:
-            raise DataError(f"{ds_id}: publisher now declares license '{declared}', registry says "
-                            f"'{src.license}' - review before use")
+            raise DataError(
+                f"{ds_id}: publisher now declares license '{declared}', registry says "
+                f"'{src.license}' - review before use"
+            )
     print(f"{ds_id}: {src.title}\n  license: {src.license} - {src.attribution}", flush=True)
     files = remote_files(src)
     raw = d / "raw"
@@ -473,8 +519,16 @@ def download(ds_id: str, extract: bool = True, force: bool = False, check_licens
     if src.zip_members:  # only a subset of a huge archive, read via HTTP ranges
         for f in files:
             n = fetch_zip_members(f, d / "extracted", src.zip_members)
-            record.append({"name": f.name, "url": f.url, "archive_bytes": f.size, "checksum": f.checksum,
-                           "members_extracted": n, "selection": [list(s) for s in src.zip_members]})
+            record.append(
+                {
+                    "name": f.name,
+                    "url": f.url,
+                    "archive_bytes": f.size,
+                    "checksum": f.checksum,
+                    "members_extracted": n,
+                    "selection": [list(s) for s in src.zip_members],
+                }
+            )
         files = []
     for f in files:
         dest = raw / f.name
@@ -483,15 +537,33 @@ def download(ds_id: str, extract: bool = True, force: bool = False, check_licens
             print(f"  downloading {f.name}{size}", flush=True)
             _fetch(f, dest)
             _verify_checksum(dest, f.checksum)
-        record.append({"name": f.name, "url": f.url, "sha256": _hash_file(dest, "sha256"),
-                       "bytes": dest.stat().st_size})
+        record.append(
+            {
+                "name": f.name,
+                "url": f.url,
+                "sha256": _hash_file(dest, "sha256"),
+                "bytes": dest.stat().st_size,
+            }
+        )
         if extract:
             _extract(dest, d / "extracted")
-    marker.write_text(json.dumps({
-        "id": src.id, "title": src.title, "license": src.license, "license_url": src.license_url,
-        "attribution": src.attribution, "citation": src.citation, "homepage": src.homepage,
-        "retrieved_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "files": record,
-    }, indent=2) + "\n")
+    marker.write_text(
+        json.dumps(
+            {
+                "id": src.id,
+                "title": src.title,
+                "license": src.license,
+                "license_url": src.license_url,
+                "attribution": src.attribution,
+                "citation": src.citation,
+                "homepage": src.homepage,
+                "retrieved_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "files": record,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
     return d
 
 

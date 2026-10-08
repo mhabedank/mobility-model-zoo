@@ -2,6 +2,7 @@
 
 They are small and deterministic so that the zoo can be rebuilt anywhere.
 """
+
 from __future__ import annotations
 
 import numpy as np

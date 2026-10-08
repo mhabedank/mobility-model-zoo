@@ -1,6 +1,6 @@
 """Score the encoder span model on the spike's 35 evaluation chunks (spike, not a benchmark).
 
-Same scoring as topics/productdev/spike/ensemble.py and topics/productdev/spike/eval_local_model.py (agreement with the Claude
+Same scoring as ensemble.py and eval_local_model.py (agreement with the Claude
 reference), plus the time per chunk after loading.
 
 Run: uv run --with torch --with transformers --with sentencepiece --with protobuf \

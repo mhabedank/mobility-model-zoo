@@ -10,7 +10,7 @@ file into a Parquet file with typed columns:
 
 Usage::
 
-    python -m msml.datasets.can_train_and_test --out data/can-train-and-test
+    python -m mobility_model_zoo.security.can_ids.can_train_and_test --out data/can-train-and-test
 """
 
 from __future__ import annotations

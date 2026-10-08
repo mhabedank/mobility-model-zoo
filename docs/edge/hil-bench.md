@@ -20,7 +20,7 @@ und in GitHub Actions direkt in der Job-Zusammenfassung.
 
 ```
                 ┌───────────────────────── HIL-Host (PC / Raspberry Pi / CI-Runner) ──────────────────────────┐
- hil/boards.yaml│  hilbench run ──► build (PlatformIO / make) ──► flash (esptool / PIO / UF2 / Befehl)        │
+ hil/boards.yaml│  edge run ──► build (PlatformIO / make) ──► flash (esptool / PIO / UF2 / Befehl)        │
  hil/targets.yaml  pytest + Plugin: 1 Testlauf pro Board, parallel (xdist), Board-Locks, Recovery             │
                 │        │ USB-Serial  "#12 INFER can_ids_road <hex>"  ◄──►  "@{"id":12,"out":"…","us":…}"       │
                 └────────┼──────────────────────────────────────────────────────────────────────────────────┘
@@ -34,7 +34,7 @@ und in GitHub Actions direkt in der Job-Zusammenfassung.
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[hw,dev]"          # hw = esptool, platformio, pytest-xdist
-hilbench run -b sim                 # baut die Firmware für den PC und führt alle HIL-Tests aus
+edge run -b sim                 # baut die Firmware für den PC und führt alle HIL-Tests aus
 ```
 
 Das Board `sim` ist die echte Bench-Firmware, kompiliert für den PC. Damit lassen sich Tests
@@ -51,7 +51,7 @@ ESP32-S3/-C3 sind dort vorbereitet, booten im QEMU aber erst mit Firmware auf Ba
 (arduino-esp32 3.x).
 
 ```bash
-hilbench --boards hil/qemu-boards.yaml run -b esp32-qemu --quick
+edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick
 ```
 
 ## Schnellstart mit dem ESP8266MOD
@@ -60,15 +60,15 @@ hilbench --boards hil/qemu-boards.yaml run -b esp32-qemu --quick
    Bei einem nackten ESP-12-Modul siehe [docs/hardware.md](docs/hardware.md#esp8266mod--esp-12ef).
 2. Erkennen lassen:
    ```bash
-   hilbench discover --probe
+   edge discover --probe
    ```
    Das Kommando zeigt Port, USB-Seriennummer und physischen USB-Pfad, fragt per esptool den
    Chip ab und schlägt einen Eintrag für `hil/boards.yaml` vor.
 3. Den Eintrag `esp8266-1` in `hil/boards.yaml` anpassen (`match:` mit Seriennummer oder
    `location`), dann:
    ```bash
-   hilbench doctor                  # prüft Tools, Rechte und welche Boards verbunden sind
-   hilbench run -b esp8266-1        # bauen, flashen, testen
+   edge doctor                  # prüft Tools, Rechte und welche Boards verbunden sind
+   edge run -b esp8266-1        # bauen, flashen, testen
    ```
 4. Ergebnis ansehen: `results/<zeitstempel>/summary.md`, serielles Log in
    `results/<zeitstempel>/logs/esp8266-1.log`.
@@ -85,7 +85,7 @@ boards:
     power: {type: uhubctl, hub: "1-1", port: 2}   # optional: Strom per USB-Hub schalten
 ```
 
-Danach testet `hilbench run --parallel` alle verbundenen Boards gleichzeitig, ein Worker pro
+Danach testet `edge run --parallel` alle verbundenen Boards gleichzeitig, ein Worker pro
 Board. Boards, die gerade nicht angeschlossen sind, werden übersprungen
 (`--require-all` macht daraus einen Fehler, z. B. für den nächtlichen CI-Lauf).
 
@@ -110,8 +110,8 @@ generische Fallback, dann misst das Board nur Zeiten und keine Zyklen.
 ```bash
 # Keras -> TFLite (full integer int8), dann:
 pip install tflite
-hilbench import-tflite mein_modell.tflite --name mein_modell [--verify]
-hilbench run --parallel             # landet automatisch in der Firmware aller Boards
+edge import-tflite mein_modell.tflite --name mein_modell [--verify]
+edge run --parallel             # landet automatisch in der Firmware aller Boards
 ```
 
 Unterstützt werden sequentielle Graphen mit Conv2D, DepthwiseConv2D, Dense,
@@ -135,24 +135,24 @@ Daten trainiert. int8-Werte gelten für die Arithmetik des Geräts (bit-exakte H
 
 ## Trainingsdaten und Training auf echten Daten
 
-Die Daten liegen nie im Repo. `hilbench data` lädt sie vom Originalanbieter nach
+Die Daten liegen nie im Repo. `edge data` lädt sie vom Originalanbieter nach
 `$HILBENCH_DATA` und prüft dabei die Lizenz, die der Anbieter aktuell deklariert.
 Auswahl, abgelehnte Datensätze und die Frage, was auf Hugging Face gespiegelt werden darf:
 [docs/datasets.md](docs/datasets.md).
 
 ```bash
 pip install -e ".[train]"
-hilbench data list                       # Use Cases, Lizenzen, HF-Mirror erlaubt?
-hilbench train can har mimii --download   # trainieren -> int8 -> bit-exakt prüfen -> models/zoo
-hilbench run -b sim                      # HIL-Suite inkl. Genauigkeit auf dem (simulierten) Gerät
+edge data list                       # Use Cases, Lizenzen, HF-Mirror erlaubt?
+edge train can har mimii --download   # trainieren -> int8 -> bit-exakt prüfen -> models/zoo
+edge run -b sim                      # HIL-Suite inkl. Genauigkeit auf dem (simulierten) Gerät
 ```
 
 Ohne lokale GPU geht es über CI: Die Tasks in `models/train-request.json` eintragen und pushen.
 Der Workflow `train` trainiert, testet auf dem Simulator und committet nur Modellparameter und
 Berichte zurück.
 
-**Hugging Face Zoo:** `hilbench hub publish --org <org> --version 0.2.0` legt pro Modell ein
-privates Repo `<org>/hilbench-<modell>` mit Model Card (Metriken, Trainingsdaten-Attribution,
+**Hugging Face Zoo:** `edge hub publish --org <org> --version 0.2.0` legt pro Modell ein
+privates Repo `<org>/edge-<modell>` mit Model Card (Metriken, Trainingsdaten-Attribution,
 Lizenz), `.npz`, `.h` und `.tflite` an und taggt es mit `v<version>`. In CI geht das über
 `models/hub-release.json` und den Workflow `hub` (`exclude` lässt Modelle weg). `target` wählt
 das Ziel: `staging` zum Ausprobieren (Secret `HF_STAGING_TOKEN`, optional Variable `HF_STAGING_ORG`)
@@ -164,16 +164,16 @@ und legt die Model Cards als Artefakt ab.
 
 | Kommando | Zweck |
 |---|---|
-| `hilbench discover [--probe]` | USB-Geräte finden, Target raten, Inventar-Einträge vorschlagen |
-| `hilbench doctor` | Host prüfen: Tools, Rechte, verbundene Boards, gebaute Firmware |
-| `hilbench list` / `targets` | Inventar mit Verbindungsstatus / bekannte Targets |
-| `hilbench build [-t T] [--all]` | Firmware bauen (`build/fw/<target>/` inkl. Manifest) |
-| `hilbench flash -b B` / `info -b B` | Board flashen / INFO + Modelle anzeigen |
-| `hilbench console -b B` | Interaktive Protokollkonsole (`PING`, `BENCH can_ids_road 10`, …) |
-| `hilbench reset -b B [--method M]`, `power -b B on/off/cycle` | Reset / Stromversorgung |
-| `hilbench run [-b B] [-t T] [--tag X] [--parallel] [--quick] [--slow] [--baseline S] [-- pytest-Args]` | Kompletter HIL-Lauf |
-| `hilbench report RUN [--baseline S]` | Bericht neu erzeugen / Regressionen prüfen |
-| `hilbench import-tflite M.tflite`, `hilbench zoo` | Modelle importieren / Zoo neu bauen |
+| `edge discover [--probe]` | USB-Geräte finden, Target raten, Inventar-Einträge vorschlagen |
+| `edge doctor` | Host prüfen: Tools, Rechte, verbundene Boards, gebaute Firmware |
+| `edge list` / `targets` | Inventar mit Verbindungsstatus / bekannte Targets |
+| `edge build [-t T] [--all]` | Firmware bauen (`build/fw/<target>/` inkl. Manifest) |
+| `edge flash -b B` / `info -b B` | Board flashen / INFO + Modelle anzeigen |
+| `edge console -b B` | Interaktive Protokollkonsole (`PING`, `BENCH can_ids_road 10`, …) |
+| `edge reset -b B [--method M]`, `power -b B on/off/cycle` | Reset / Stromversorgung |
+| `edge run [-b B] [-t T] [--tag X] [--parallel] [--quick] [--slow] [--baseline S] [-- pytest-Args]` | Kompletter HIL-Lauf |
+| `edge report RUN [--baseline S]` | Bericht neu erzeugen / Regressionen prüfen |
+| `edge import-tflite M.tflite`, `edge zoo` | Modelle importieren / Zoo neu bauen |
 
 `pytest tests/hil --hil-board esp32-1 -k inference -n 4 --dist loadgroup` funktioniert genauso,
 das Plugin wird über `conftest.py` geladen.
@@ -207,11 +207,11 @@ firmware/            Bench-Firmware (PlatformIO) + Host-Simulator (firmware/nati
   lib/benchapp/      serielles Testprotokoll + HAL-Schnittstelle
   lib/modelzoo/      generierte Modelldaten (nicht von Hand ändern)
   src/hal_arduino.cpp  HAL für ESP8266/ESP32/RP2040/STM32/nRF52
-hilbench/            Host-Seite: CLI, Discovery, Flashen, Reset/Power, Sessions, pytest-Plugin, Reports
-hilbench/ml/         Quantisierung, Python-Referenz, Training, Codegen, TFLite-Import
+edge/            Host-Seite: CLI, Discovery, Flashen, Reset/Power, Sessions, pytest-Plugin, Reports
+edge/ml/         Quantisierung, Python-Referenz, Training, Codegen, TFLite-Import
 hil/                 targets.yaml (Chip-Katalog), boards.yaml (dein Laborinventar), udev/Host-Setup
 models/zoo|custom    Referenzmodelle / eigene importierte Modelle
 tests/hil, tests/unit  HIL-Suiten / Host-Tests
 docs/                hardware.md, protocol.md, ci.md, extending.md, datasets.md
-hilbench/data/       Datensatz-Registry (Lizenzen) + Downloader
+edge/data/       Datensatz-Registry (Lizenzen) + Downloader
 ```

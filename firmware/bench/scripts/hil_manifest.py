@@ -1,5 +1,5 @@
 # PlatformIO post-script: write $BUILD_DIR/hil_manifest.json describing how to
-# flash the build without PlatformIO (used by hilbench's esptool flasher).
+# flash the build without PlatformIO (used by the bench's esptool flasher).
 import json
 import os
 

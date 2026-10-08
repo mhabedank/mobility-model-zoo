@@ -8,6 +8,7 @@ Matching keys for boards.yaml `match:` (all given keys must match):
   description    substring of the port description
   by_id          substring of the /dev/serial/by-id symlink name
 """
+
 from __future__ import annotations
 
 import os
@@ -38,8 +39,12 @@ class PortInfo:
 
     def as_dict(self) -> dict:
         return {
-            "device": self.device, "vid_pid": self.vid_pid, "serial_number": self.serial_number,
-            "location": self.location, "description": self.description, "by_id": self.by_id,
+            "device": self.device,
+            "vid_pid": self.vid_pid,
+            "serial_number": self.serial_number,
+            "location": self.location,
+            "description": self.description,
+            "by_id": self.by_id,
         }
 
 
@@ -64,10 +69,19 @@ def list_ports() -> list[PortInfo]:
     for p in lp.comports():
         if p.vid is None and not p.device.startswith(("/dev/ttyACM", "/dev/ttyUSB", "COM", "/dev/cu.")):
             continue  # skip legacy on-board UARTs (ttyS*)
-        out.append(PortInfo(
-            device=p.device, vid=p.vid, pid=p.pid, serial_number=p.serial_number,
-            location=p.location, description=p.description or "", manufacturer=p.manufacturer,
-            product=p.product, by_id=links.get(os.path.realpath(p.device))))
+        out.append(
+            PortInfo(
+                device=p.device,
+                vid=p.vid,
+                pid=p.pid,
+                serial_number=p.serial_number,
+                location=p.location,
+                description=p.description or "",
+                manufacturer=p.manufacturer,
+                product=p.product,
+                by_id=links.get(os.path.realpath(p.device)),
+            )
+        )
     return sorted(out, key=lambda p: p.device)
 
 
@@ -112,7 +126,8 @@ def resolve_port(board: Board, ports: list[PortInfo] | None = None) -> str:
         if len(devices) > 1:
             raise DiscoveryError(
                 f"{board.id}: {len(hits)} ports match {board.match}: {', '.join(sorted(devices))} "
-                "- add serial_number or location")
+                "- add serial_number or location"
+            )
     return hits[0].device
 
 
@@ -128,8 +143,9 @@ def esptool_probe(port: str, timeout: float = 20.0) -> str | None:
     from .flash import esptool_cmd
 
     try:
-        res = subprocess.run(esptool_cmd("--port", port, "chip_id"),
-                             capture_output=True, text=True, timeout=timeout)
+        res = subprocess.run(
+            esptool_cmd("--port", port, "chip_id"), capture_output=True, text=True, timeout=timeout
+        )
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return None
     return parse_esptool_chip(res.stdout)

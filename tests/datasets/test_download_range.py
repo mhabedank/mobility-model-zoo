@@ -1,10 +1,11 @@
 """Selective extraction of members from a remote zip via HTTP ranges (no network)."""
+
 import io
 import zipfile
 
 import pytest
 
-from hilbench.data import download as dl
+from mobility_model_zoo.datasets import download as dl
 
 
 @pytest.fixture
@@ -12,17 +13,24 @@ def remote_zip(monkeypatch):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as z:
         for i in range(30):
-            z.writestr(f"fan/id_00/normal/{i:08d}.wav", bytes([i]) * (5000 + i), compress_type=zipfile.ZIP_DEFLATED)
+            z.writestr(
+                f"fan/id_00/normal/{i:08d}.wav",
+                bytes([i]) * (5000 + i),
+                compress_type=zipfile.ZIP_DEFLATED,
+            )
         for i in range(10):
-            z.writestr(f"fan/id_00/abnormal/{i:08d}.wav", bytes(range(256)) * (i + 1),
-                       compress_type=zipfile.ZIP_STORED)
+            z.writestr(
+                f"fan/id_00/abnormal/{i:08d}.wav",
+                bytes(range(256)) * (i + 1),
+                compress_type=zipfile.ZIP_STORED,
+            )
         z.writestr("fan/../../evil.wav", b"x")
     blob = buf.getvalue()
     requests = []
 
     def fake_range_get(url, start, end, retries=4):
         requests.append((start, end))
-        return blob[start:end + 1]
+        return blob[start : end + 1]
 
     monkeypatch.setattr(dl, "_range_get", fake_range_get)
     return dl.RemoteFile(url="https://example.invalid/fan.zip", name="fan.zip", size=len(blob)), requests

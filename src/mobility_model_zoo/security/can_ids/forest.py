@@ -20,13 +20,23 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_recall_curve
 
-from msml.can.features import FEATURE_NAMES, alarms, extract, to_microseconds
-from msml.datasets.can_train_and_test import SETS, SPLITS, load, vehicle_of
-from msml.eval.metrics import alarm_metrics, false_alarms_per_hour, frame_metrics
+from mobility_model_zoo.edge.paths import REPO_ROOT as REPO  # noqa: E402
+from mobility_model_zoo.edge.paths import derived_dir
+from mobility_model_zoo.security.can_ids.can_train_and_test import SETS, SPLITS, load, vehicle_of
+from mobility_model_zoo.security.can_ids.forest_features import (
+    FEATURE_NAMES,
+    alarms,
+    extract,
+    to_microseconds,
+)
+from mobility_model_zoo.security.can_ids.metrics import (
+    alarm_metrics,
+    false_alarms_per_hour,
+    frame_metrics,
+)
 
-REPO = Path(__file__).resolve().parents[2]
 DATA = REPO / "data" / "can-train-and-test"
-OUT = REPO / "artifacts" / "can-ids-tiny"
+OUT = derived_dir("picket-forest")
 
 # Small grid; every candidate must stay well inside an ESP32 flash/RAM budget.
 GRID = [
@@ -54,13 +64,15 @@ def featurize(set_name: str, split: str) -> list[dict]:
     """Return one dict per capture with features, labels and timestamps."""
     caps = []
     for name, df in load(DATA, set_name, split).items():
-        caps.append({
-            "name": name,
-            "attack": attack_type(name),
-            "X": extract(df),
-            "y": df["label"].to_numpy(np.uint8),
-            "ts": df["ts"].to_numpy(np.float64),
-        })
+        caps.append(
+            {
+                "name": name,
+                "attack": attack_type(name),
+                "X": extract(df),
+                "y": df["label"].to_numpy(np.uint8),
+                "ts": df["ts"].to_numpy(np.float64),
+            }
+        )
     return caps
 
 
@@ -80,7 +92,7 @@ def split_train_val(caps: list[dict]) -> tuple[list[dict], list[dict]]:
         idx = int(re.search(r"-(\d+)$", c["name"]).group(1))
         if idx > last.get(c["attack"], -1):
             last[c["attack"]] = idx
-    val = [c for c in caps if c["name"] == f'{c["attack"]}-{last[c["attack"]]}']
+    val = [c for c in caps if c["name"] == f"{c['attack']}-{last[c['attack']]}"]
     tr = [c for c in caps if c not in val]
     return tr, val
 
@@ -121,7 +133,8 @@ def evaluate_caps(caps: list[dict], scores: list[np.ndarray], thr: float) -> dic
     s = np.concatenate(scores)
     res = frame_metrics(y, s, thr)
     res["false_alarms_per_hour"] = false_alarms_per_hour(
-        [(c["ts"], c["y"], sc) for c, sc in zip(caps, scores)], thr)
+        [(c["ts"], c["y"], sc) for c, sc in zip(caps, scores, strict=False)], thr
+    )
     res["per_attack"] = {}
     for att in sorted({c["attack"] for c in caps}):
         sel = [i for i, c in enumerate(caps) if c["attack"] == att]
@@ -138,8 +151,10 @@ def alarm_grid(caps: list[dict], scores: list[np.ndarray], thr: float) -> dict:
     ts_us = [to_microseconds(c["ts"]) for c in caps]
     out = {}
     for k, w in ALARM_GRID:
-        runs = [(c["ts"], c["y"], alarms(t, sc >= thr, k, w, ALARM_HOLDOFF_MS))
-                for c, t, sc in zip(caps, ts_us, scores)]
+        runs = [
+            (c["ts"], c["y"], alarms(t, sc >= thr, k, w, ALARM_HOLDOFF_MS))
+            for c, t, sc in zip(caps, ts_us, scores, strict=False)
+        ]
         out[f"k{k}_w{w}"] = alarm_metrics(runs)
     return out
 
@@ -182,7 +197,9 @@ def save_scores(set_name, fs_name, split, caps, scores, n_trees) -> None:
     """Store per-frame tree votes (uint8) so alarm metrics can be recomputed without training."""
     d = SCORES / set_name / fs_name
     d.mkdir(parents=True, exist_ok=True)
-    votes = {c["name"]: np.rint(sc * n_trees).astype(np.uint8) for c, sc in zip(caps, scores)}
+    votes = {
+        c["name"]: np.rint(sc * n_trees).astype(np.uint8) for c, sc in zip(caps, scores, strict=True)
+    }
     np.savez_compressed(d / f"{split}.npz", n_trees=n_trees, **votes)
 
 
@@ -199,8 +216,9 @@ def cmd_alarms(args) -> None:
                 frames = load(DATA, set_name, split)
                 caps, scores = [], []
                 for name, df in frames.items():
-                    caps.append({"ts": df["ts"].to_numpy(np.float64),
-                                 "y": df["label"].to_numpy(np.uint8)})
+                    caps.append(
+                        {"ts": df["ts"].to_numpy(np.float64), "y": df["label"].to_numpy(np.uint8)}
+                    )
                     scores.append(saved[name].astype(np.float32) / np.float32(n_trees))
                 r["alarm"] = alarm_grid(caps, scores, thr)
             print(set_name, fs_name, "done", flush=True)
@@ -228,9 +246,12 @@ def cmd_evaluate(args) -> None:
                 r = evaluate_caps(caps, scores, thr)
                 r["vehicle"] = vehicle_of(set_name, split)
                 entry["splits"][split] = r
-                print(f"{set_name} {fs_name:9s} {split:42s} F1={r['f1']:.3f} "
-                      f"P={r['precision']:.3f} R={r['recall']:.3f} AUC-PR={r['auc_pr']:.3f} "
-                      f"FA/h={r['false_alarms_per_hour']:.1f}", flush=True)
+                print(
+                    f"{set_name} {fs_name:9s} {split:42s} F1={r['f1']:.3f} "
+                    f"P={r['precision']:.3f} R={r['recall']:.3f} AUC-PR={r['auc_pr']:.3f} "
+                    f"FA/h={r['false_alarms_per_hour']:.1f}",
+                    flush=True,
+                )
             results[set_name][fs_name] = entry
         print(f"{set_name} done in {time.time() - t0:.0f}s", flush=True)
         (OUT / "protocol_results.json").write_text(json.dumps(results, indent=2))
@@ -239,7 +260,7 @@ def cmd_evaluate(args) -> None:
 EXPORT_FEATURES = "no_can_id"
 MODEL_NAME = "can_ids_tiny_model"
 C_DIR = Path(__file__).resolve().parent / "c"
-FEATURES_DIR = REPO / "firmware" / "components" / "msml_can_features"
+FEATURES_DIR = REPO / "firmware" / "components" / "can_features"
 FRAME_DTYPE = np.dtype([("ts", "<i8"), ("can_id", "<u2"), ("dlc", "u1"), ("data", "u1", (8,))])
 # Captures used for the C-vs-Python parity check: several vehicles and attack types.
 PARITY_CAPTURES = [
@@ -252,7 +273,7 @@ PARITY_FRAMES = 200_000
 
 
 def frames_to_bin(df) -> np.ndarray:
-    from msml.can.features import PAYLOAD_COLS, to_microseconds
+    from mobility_model_zoo.security.can_ids.forest_features import PAYLOAD_COLS, to_microseconds
 
     rec = np.zeros(len(df), dtype=FRAME_DTYPE)
     rec["ts"] = to_microseconds(df["ts"].to_numpy())
@@ -279,7 +300,7 @@ def write_config_header(path: Path, idx: list[int], threshold: float, alarm: dic
         "",
         "/* Model input i = feature can_ids_tiny_input_index[i] of msml_can_update(). */",
         "static const int can_ids_tiny_input_index[CAN_IDS_TINY_N_INPUTS] = {",
-        *[f"    {i}, /* {n} */" for i, n in zip(idx, names)],
+        *[f"    {i}, /* {n} */" for i, n in zip(idx, names, strict=False)],
         "};",
         "",
         "#endif /* CAN_IDS_TINY_CONFIG_H */",
@@ -292,14 +313,31 @@ def build_host_scorer(export_dir: Path) -> Path:
     import subprocess
 
     exe = export_dir / "host_score"
-    subprocess.run([
-        "gcc", "-std=c99", "-O2", "-ffp-contract=off", "-Wall", "-Wextra", "-Werror",
-        "-Wno-unused-parameter",  # emlearn-generated trees ignore features_length
-        "-I", str(export_dir), "-I", str(C_DIR), "-I", str(FEATURES_DIR / "include"),
-        str(C_DIR / "host_score.c"), str(C_DIR / "can_ids_tiny.c"),
-        str(FEATURES_DIR / "msml_can_features.c"), str(FEATURES_DIR / "msml_alarm.c"),
-        "-o", str(exe),
-    ], check=True)
+    subprocess.run(
+        [
+            "gcc",
+            "-std=c99",
+            "-O2",
+            "-ffp-contract=off",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-parameter",  # emlearn-generated trees ignore features_length
+            "-I",
+            str(export_dir),
+            "-I",
+            str(C_DIR),
+            "-I",
+            str(FEATURES_DIR / "include"),
+            str(C_DIR / "host_score.c"),
+            str(C_DIR / "can_ids_tiny.c"),
+            str(FEATURES_DIR / "msml_can_features.c"),
+            str(FEATURES_DIR / "msml_alarm.c"),
+            "-o",
+            str(exe),
+        ],
+        check=True,
+    )
     return exe
 
 
@@ -397,10 +435,13 @@ def convert_and_check(export_dir: Path) -> None:
     to_c(clf, idx, thr, alarm, export_dir)
     parity = parity_check(clf, idx, export_dir)
     hp = {"n_estimators": clf.n_estimators, "max_depth": clf.max_depth}
-    config = write_export_config(clf, idx, thr, alarm, hp, saved["selection"], parity,
-                                 export_dir)
-    print(json.dumps({k: config[k] for k in ("hyperparameters", "threshold", "tree_nodes",
-                                             "parity_c_vs_python")}, indent=2))
+    config = write_export_config(clf, idx, thr, alarm, hp, saved["selection"], parity, export_dir)
+    print(
+        json.dumps(
+            {k: config[k] for k in ("hyperparameters", "threshold", "tree_nodes", "parity_c_vs_python")},
+            indent=2,
+        )
+    )
     bad = {k: v for k, v in parity.items() if v["identical"] < 1.0}
     if bad:
         raise SystemExit(f"C and Python scores differ: {bad}")
@@ -432,15 +473,21 @@ def cmd_export(args) -> None:
     grid = alarm_grid(val, best_val_scores, thr)
     key = pick_alarm(grid)
     k, w = (int(v[1:]) for v in key.split("_"))
-    alarm = {"k": k, "window_ms": w, "holdoff_ms": ALARM_HOLDOFF_MS,
-             "selected_on": "validation captures", "validation": grid[key],
-             "validation_grid": grid}
+    alarm = {
+        "k": k,
+        "window_ms": w,
+        "holdoff_ms": ALARM_HOLDOFF_MS,
+        "selected_on": "validation captures",
+        "validation": grid[key],
+        "validation_grid": grid,
+    }
     print("alarm", key, grid[key], flush=True)
     X, y = subsample(tr + val, rng)
     clf = fit(X[:, idx], y, hp)
-    joblib.dump({"model": clf, "threshold": thr, "input_index": idx, "selection": selection,
-                 "alarm": alarm},
-                export_dir / "model.joblib")
+    joblib.dump(
+        {"model": clf, "threshold": thr, "input_index": idx, "selection": selection, "alarm": alarm},
+        export_dir / "model.joblib",
+    )
     convert_and_check(export_dir)
 
 
@@ -472,7 +519,7 @@ def cmd_testvectors(args) -> None:
     df = load(DATA, set_name, split)[cap]
     first_attack = int(np.argmax(df["label"].to_numpy() == 1))
     start = max(0, first_attack - TV_FRAMES // 4)
-    df = df.iloc[start:start + TV_FRAMES]
+    df = df.iloc[start : start + TV_FRAMES]
     rec = frames_to_bin(df)
     exe = build_host_scorer(export_dir)
     fin, fout = export_dir / "tv_frames.bin", export_dir / "tv_scores.bin"
@@ -482,8 +529,11 @@ def cmd_testvectors(args) -> None:
     labels = df["label"].to_numpy()
     cfg = json.loads((export_dir / "config.json").read_text())
     thr, alarm = cfg["threshold"], cfg["alarm"]
-    n_alarms = int(alarms(rec["ts"], scores >= np.float32(thr), alarm["k"], alarm["window_ms"],
-                          alarm["holdoff_ms"]).sum())
+    n_alarms = int(
+        alarms(
+            rec["ts"], scores >= np.float32(thr), alarm["k"], alarm["window_ms"], alarm["holdoff_ms"]
+        ).sum()
+    )
 
     lines = [
         "/* Generated by models/can-ids-tiny/pipeline.py testvectors. Do not edit.",
@@ -511,7 +561,7 @@ def cmd_testvectors(args) -> None:
         "",
         "static const tv_frame_t tv_frames[TV_N_FRAMES] TV_STORAGE = {",
     ]
-    for r, lab in zip(rec, labels):
+    for r, lab in zip(rec, labels, strict=False):
         data = ",".join(f"0x{b:02X}" for b in r["data"])
         lines.append(f"    {{{r['ts']}, 0x{r['can_id']:03X}, {r['dlc']}, {lab}, {{{data}}}}},")
     lines += ["};", "", "static const float tv_expected_score[TV_N_FRAMES] TV_STORAGE = {"]
@@ -520,8 +570,10 @@ def cmd_testvectors(args) -> None:
     (gen / "test_vectors.h").write_text("\n".join(lines))
     fin.unlink()
     fout.unlink()
-    print(f"{len(df)} frames, {int(labels.sum())} attack frames, "
-          f"{int(((scores >= thr) & (labels == 1)).sum())} detected, {n_alarms} alarms on host")
+    print(
+        f"{len(df)} frames, {int(labels.sum())} attack frames, "
+        f"{int(((scores >= thr) & (labels == 1)).sum())} detected, {n_alarms} alarms on host"
+    )
 
 
 def main() -> None:

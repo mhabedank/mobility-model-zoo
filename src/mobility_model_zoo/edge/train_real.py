@@ -1,20 +1,21 @@
 """Train the bench models on real, openly licensed datasets.
 
     pip install -e ".[train]"
-    hilbench data download road
-    python -m hilbench.ml.train_real can [--epochs 20] [--version 0.2.0]
+    zoo data download road
+    python -m mobility_model_zoo.edge.train_real can [--epochs 20] [--version 0.2.0]
 
 Pipeline per task: features -> Keras model -> full-integer int8 TFLite ->
-hilbench.ml.tflite_import (bit-exact with the TFLite reference kernels) ->
+mobility_model_zoo.edge.int8.tflite_import (bit-exact with the TFLite reference kernels) ->
 evaluation of the *device arithmetic* on the held-out test split.
 
 Outputs
   models/zoo/<name>.npz           quantized model (parameters only, no data)
   models/zoo/<name>.tflite        int8 TFLite flatbuffer (for Hugging Face / other runtimes)
   models/zoo/<name>.report.json   metrics, dataset provenance, license
-  $HILBENCH_DATA/derived/<name>.eval.npz   held-out features for HIL accuracy tests
+  $MMZ_DATA/derived/<name>.eval.npz   held-out features for HIL accuracy tests
 Training data is never written into the repository.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,9 +27,10 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from ..config import REPO_ROOT
-from ..data.download import data_root, dataset_dir
-from ..data.registry import SOURCES
+from mobility_model_zoo.edge.bench.config import REPO_ROOT
+
+from ..datasets.download import data_root, dataset_dir
+from ..datasets.registry import SOURCES
 
 ZOO_DIR = REPO_ROOT / "models" / "zoo"
 ARTIFACTS = ZOO_DIR
@@ -66,12 +68,13 @@ def _tf():
 
 # --------------------------------------------------------------- export --
 
+
 def to_int8_tflite(model, rep: np.ndarray) -> bytes:
     tf = _tf()
 
     def gen():
         for i in range(min(len(rep), 500)):
-            yield [rep[i:i + 1].astype(np.float32)]
+            yield [rep[i : i + 1].astype(np.float32)]
 
     conv = tf.lite.TFLiteConverter.from_keras_model(model)
     conv.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -83,9 +86,9 @@ def to_int8_tflite(model, rep: np.ndarray) -> bytes:
 
 
 def export(task: Task, version: str, seed: int = 0) -> dict:
-    from .quant import quantize
-    from .reference import run_batch
-    from .tflite_import import load_tflite, verify_with_interpreter
+    from mobility_model_zoo.edge.int8.quant import quantize
+    from mobility_model_zoo.edge.int8.reference import run_batch
+    from mobility_model_zoo.edge.int8.tflite_import import load_tflite, verify_with_interpreter
 
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     tfl_path = ARTIFACTS / f"{task.name}.tflite"
@@ -104,16 +107,30 @@ def export(task: Task, version: str, seed: int = 0) -> dict:
     else:
         metrics = _classification_metrics(task, out)
     metrics["tflite_interpreter_mismatches"] = int(mismatches)
-    provenance = [{
-        "id": SOURCES[d].id, "title": SOURCES[d].title, "license": SOURCES[d].license,
-        "attribution": SOURCES[d].attribution, "citation": SOURCES[d].citation,
-        "homepage": SOURCES[d].homepage,
-        "retrieved": json.loads((dataset_dir(d) / "SOURCE.json").read_text()).get("retrieved_at")
-        if (dataset_dir(d) / "SOURCE.json").exists() else None,
-    } for d in task.datasets]
-    qm.meta.update(task=task.kind, classes=task.labels, version=version, datasets=provenance,
-                   preprocess=task.preprocess,
-                   trained_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **metrics, **extra_meta)
+    provenance = [
+        {
+            "id": SOURCES[d].id,
+            "title": SOURCES[d].title,
+            "license": SOURCES[d].license,
+            "attribution": SOURCES[d].attribution,
+            "citation": SOURCES[d].citation,
+            "homepage": SOURCES[d].homepage,
+            "retrieved": json.loads((dataset_dir(d) / "SOURCE.json").read_text()).get("retrieved_at")
+            if (dataset_dir(d) / "SOURCE.json").exists()
+            else None,
+        }
+        for d in task.datasets
+    ]
+    qm.meta.update(
+        task=task.kind,
+        classes=task.labels,
+        version=version,
+        datasets=provenance,
+        preprocess=task.preprocess,
+        trained_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        **metrics,
+        **extra_meta,
+    )
     qm.save(ZOO_DIR / f"{task.name}.npz")
 
     derived = data_root() / "derived"
@@ -124,8 +141,15 @@ def export(task: Task, version: str, seed: int = 0) -> dict:
         ev["targets"] = targets[keep]
     np.savez_compressed(derived / f"{task.name}.eval.npz", **ev)
 
-    report = {"name": task.name, "version": version, "description": task.description, "labels": task.labels,
-              "summary": qm.summary(), **metrics, "datasets": provenance}
+    report = {
+        "name": task.name,
+        "version": version,
+        "description": task.description,
+        "labels": task.labels,
+        "summary": qm.summary(),
+        **metrics,
+        "datasets": provenance,
+    }
     (ARTIFACTS / f"{task.name}.report.json").write_text(json.dumps(report, indent=2) + "\n")
     _update_manifest(qm, version)
     return report
@@ -145,9 +169,12 @@ def _classification_metrics(task: Task, out: np.ndarray) -> dict:
         fn = int(((pred == 0) & (task.y_test == 1)).sum())
         prec = tp / max(tp + fp, 1)
         rec = tp / max(tp + fn, 1)
-        metrics.update(int8_precision=prec, int8_recall=rec,
-                       int8_f1=2 * prec * rec / max(prec + rec, 1e-9),
-                       int8_false_positive_rate=fp / max(int((task.y_test == 0).sum()), 1))
+        metrics.update(
+            int8_precision=prec,
+            int8_recall=rec,
+            int8_f1=2 * prec * rec / max(prec + rec, 1e-9),
+            int8_false_positive_rate=fp / max(int((task.y_test == 0).sum()), 1),
+        )
     return metrics
 
 
@@ -169,8 +196,8 @@ def roc_auc(scores: np.ndarray, labels: np.ndarray, max_fpr: float = 1.0) -> flo
 def _anomaly_metrics(task: Task, qm, out: np.ndarray) -> tuple[dict, dict]:
     """Scores = mean squared reconstruction error per window, averaged per clip.
     Thresholds come from the *validation* normals, never from the test set."""
-    from .quant import dequantize, quantize
-    from .reference import run_batch
+    from mobility_model_zoo.edge.int8.quant import dequantize, quantize
+    from mobility_model_zoo.edge.int8.reference import run_batch
 
     def errors(x, o):
         rec = dequantize(o, qm.output_scale, qm.output_zp)
@@ -179,8 +206,13 @@ def _anomaly_metrics(task: Task, qm, out: np.ndarray) -> tuple[dict, dict]:
     xv = task.x_val
     err_val = errors(xv, run_batch(qm, quantize(xv.reshape(len(xv), -1), qm.input_scale, qm.input_zp)))
     err = errors(task.x_test, out)
-    err_float = ((task.model.predict(task.x_test, verbose=0).reshape(len(err), -1)
-                  - task.x_test.reshape(len(err), -1)) ** 2).mean(1)
+    err_float = (
+        (
+            task.model.predict(task.x_test, verbose=0).reshape(len(err), -1)
+            - task.x_test.reshape(len(err), -1)
+        )
+        ** 2
+    ).mean(1)
     groups = task.test_groups if task.test_groups is not None else np.arange(len(err))
     uniq, inv = np.unique(groups, return_inverse=True)
     clip = lambda e: np.bincount(inv, e) / np.bincount(inv)  # noqa: E731
@@ -216,35 +248,67 @@ def fit(task: Task, epochs: int) -> None:
     tf = _tf()
     m = task.model
     lr = tf.keras.optimizers.schedules.CosineDecay(
-        2e-3, decay_steps=max(1, epochs * int(np.ceil(len(task.x_train) / 128))))
+        2e-3, decay_steps=max(1, epochs * int(np.ceil(len(task.x_train) / 128)))
+    )
     if task.kind == "anomaly":  # autoencoder on normal data only
         m.compile(optimizer=tf.keras.optimizers.Adam(lr), loss="mse")
-        m.fit(task.x_train, task.x_train, validation_data=(task.x_val, task.x_val), epochs=epochs,
-              batch_size=128, verbose=2, **task.fit_kwargs)
+        m.fit(
+            task.x_train,
+            task.x_train,
+            validation_data=(task.x_val, task.x_val),
+            epochs=epochs,
+            batch_size=128,
+            verbose=2,
+            **task.fit_kwargs,
+        )
         return
-    m.compile(optimizer=tf.keras.optimizers.Adam(lr), loss="sparse_categorical_crossentropy",
-              metrics=["accuracy"])
-    m.fit(task.x_train, task.y_train, validation_data=(task.x_val, task.y_val), epochs=epochs,
-          batch_size=128, verbose=2, **task.fit_kwargs)
+    m.compile(
+        optimizer=tf.keras.optimizers.Adam(lr),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
+    )
+    m.fit(
+        task.x_train,
+        task.y_train,
+        validation_data=(task.x_val, task.y_val),
+        epochs=epochs,
+        batch_size=128,
+        verbose=2,
+        **task.fit_kwargs,
+    )
 
 
 # ------------------------------------------------------------------ HAR --
 
 HAR_LABELS = ["walking", "walking_upstairs", "walking_downstairs", "sitting", "standing", "laying"]
-HAR_SIGNALS = ["body_acc_x", "body_acc_y", "body_acc_z", "body_gyro_x", "body_gyro_y", "body_gyro_z",
-               "total_acc_x", "total_acc_y", "total_acc_z"]
+HAR_SIGNALS = [
+    "body_acc_x",
+    "body_acc_y",
+    "body_acc_z",
+    "body_gyro_x",
+    "body_gyro_y",
+    "body_gyro_z",
+    "total_acc_x",
+    "total_acc_y",
+    "total_acc_z",
+]
 
 
 def load_har():
     root = dataset_dir("uci-har") / "extracted"
     hits = sorted(root.rglob("train/Inertial Signals"))
     if not hits:
-        raise SystemExit("uci-har not downloaded: hilbench data download uci-har")
+        raise SystemExit("uci-har not downloaded: zoo data download uci-har")
     base = hits[0].parent.parent
 
     def split(name):
-        x = np.stack([np.loadtxt(base / name / "Inertial Signals" / f"{sig}_{name}.txt", dtype=np.float32)
-                      for sig in HAR_SIGNALS], axis=-1)  # (n, 128, 9)
+        x = np.stack(
+            [
+                np.loadtxt(base / name / "Inertial Signals" / f"{sig}_{name}.txt", dtype=np.float32)
+                for sig in HAR_SIGNALS
+            ],
+            axis=-1,
+        )  # (n, 128, 9)
         y = np.loadtxt(base / name / f"y_{name}.txt", dtype=np.int64) - 1
         return x, y
 
@@ -281,11 +345,19 @@ def task_har(seed: int) -> Task:
     n_val = len(ytr) // 7
     val, tr = perm[:n_val], perm[n_val:]
     task = Task(
-        name="har_cnn1d", model=har_model(),
-        x_train=norm(xtr[tr]), y_train=ytr[tr], x_val=norm(xtr[val]), y_val=ytr[val],
-        x_test=norm(xte), y_test=yte, datasets=["uci-har"], labels=HAR_LABELS,
+        name="har_cnn1d",
+        model=har_model(),
+        x_train=norm(xtr[tr]),
+        y_train=ytr[tr],
+        x_val=norm(xtr[val]),
+        y_val=ytr[val],
+        x_test=norm(xte),
+        y_test=yte,
+        datasets=["uci-har"],
+        labels=HAR_LABELS,
         description="Human activity recognition 1D-CNN over 2.56 s of accelerometer + gyroscope "
-                    "(9 x 128 @50 Hz), trained on UCI HAR")
+        "(9 x 128 @50 Hz), trained on UCI HAR",
+    )
     task.preprocess = {"channels": HAR_SIGNALS, "mean": mean.tolist(), "std": std.tolist()}
     return task
 
@@ -310,8 +382,12 @@ def parse_candump(path) -> dict:
             ids.append(int(m.group(2), 16))
             dlc.append(len(payload))
             data.append(payload.ljust(8, b"\0"))
-    return {"t": np.array(ts), "id": np.array(ids, dtype=np.int64), "dlc": np.array(dlc, dtype=np.int64),
-            "data": np.frombuffer(b"".join(data), dtype=np.uint8).reshape(-1, 8)}
+    return {
+        "t": np.array(ts),
+        "id": np.array(ids, dtype=np.int64),
+        "dlc": np.array(dlc, dtype=np.int64),
+        "data": np.frombuffer(b"".join(data), dtype=np.uint8).reshape(-1, 8),
+    }
 
 
 CAN_FEATURES = 32
@@ -352,7 +428,7 @@ def _road_root():
     root = dataset_dir("road") / "extracted"
     hits = [p for p in root.rglob("attacks") if p.is_dir() and (p / "capture_metadata.json").exists()]
     if not hits:
-        raise SystemExit("road not downloaded: hilbench data download road")
+        raise SystemExit("road not downloaded: zoo data download road")
     return hits[0].parent
 
 
@@ -380,8 +456,13 @@ def _road_labels(f: dict, meta: dict) -> np.ndarray:
 def load_can(seed: int = 0):
     root = _road_root()
     ameta = json.loads((root / "attacks" / "capture_metadata.json").read_text())
-    print("road attack metadata keys:", list(ameta)[:5], "->", json.dumps(ameta[next(iter(ameta))])[:300],
-          flush=True)
+    print(
+        "road attack metadata keys:",
+        list(ameta)[:5],
+        "->",
+        json.dumps(ameta[next(iter(ameta))])[:300],
+        flush=True,
+    )
     ambient = sorted((root / "ambient").glob("*.log"))
     ambient = [p for p in ambient if p.stat().st_size < 120e6]  # keep CI time/RAM bounded
     known = set()
@@ -431,12 +512,20 @@ def task_can(seed: int) -> Task:
     n_val = len(ytr) // 10
     pos = max(ytr.mean(), 1e-4)
     return Task(
-        name="can_ids_road", model=can_model(),
-        x_train=xtr[n_val:], y_train=ytr[n_val:], x_val=xtr[:n_val], y_val=ytr[:n_val],
-        x_test=d["test"][0], y_test=d["test"][1], datasets=["road"], labels=["normal", "attack"],
+        name="can_ids_road",
+        model=can_model(),
+        x_train=xtr[n_val:],
+        y_train=ytr[n_val:],
+        x_val=xtr[:n_val],
+        y_val=ytr[:n_val],
+        x_test=d["test"][0],
+        y_test=d["test"][1],
+        datasets=["road"],
+        labels=["normal", "attack"],
         description="CAN bus intrusion detection MLP (32-64-32-2) on per-frame features, trained on the "
-                    "ROAD dataset (real vehicle; fuzzing, fabrication, masquerade attacks)",
-        fit_kwargs={"class_weight": {0: 1.0, 1: float(min(0.5 / pos, 50.0))}})
+        "ROAD dataset (real vehicle; fuzzing, fabrication, masquerade attacks)",
+        fit_kwargs={"class_weight": {0: 1.0, 1: float(min(0.5 / pos, 50.0))}},
+    )
 
 
 # ---------------------------------------------------------------- MIMII --
@@ -448,7 +537,7 @@ MIMII_HOP = 512
 
 
 def _mimii_logmel(path: str) -> np.ndarray:
-    from .features import SR, log_mel, read_wav
+    from mobility_model_zoo.condition_monitoring.sound_anomaly.features import SR, log_mel, read_wav
 
     # channel 0 only: a deployed sensor has a single microphone
     x = read_wav(path, length=10 * SR, channel=0)
@@ -470,7 +559,7 @@ def load_mimii(seed: int = 0, workers: int = 4):
     root = dataset_dir("mimii") / "extracted"
     clips = sorted(root.rglob("*.wav"))
     if not clips:
-        raise SystemExit("mimii not downloaded: hilbench data download mimii")
+        raise SystemExit("mimii not downloaded: zoo data download mimii")
     rng = np.random.default_rng(seed)
     by_id: dict[str, dict[str, list[str]]] = {}
     for c in clips:
@@ -482,8 +571,11 @@ def load_mimii(seed: int = 0, workers: int = 4):
         n_hold = min(len(abnormal), len(normal) // 2)
         test += [(c, 0, mid) for c in normal[:n_hold]] + [(c, 1, mid) for c in abnormal]
         train += [(c, 0, mid) for c in normal[n_hold:]]
-        print(f"mimii {mid}: {len(normal) - n_hold} train normal, {n_hold} test normal, "
-              f"{len(abnormal)} test abnormal", flush=True)
+        print(
+            f"mimii {mid}: {len(normal) - n_hold} train normal, {n_hold} test normal, "
+            f"{len(abnormal)} test abnormal",
+            flush=True,
+        )
     with Pool(workers) as pool:
         lm_train = pool.map(_mimii_logmel, [c for c, _, _ in train], chunksize=8)
         lm_test = pool.map(_mimii_logmel, [c for c, _, _ in test], chunksize=8)
@@ -507,34 +599,60 @@ def task_mimii(seed: int) -> Task:
     train, lm_train, test, lm_test = load_mimii(seed)
     stacked = np.concatenate(lm_train)
     mean, std = stacked.mean(0), stacked.std(0) + 1e-6
-    norm = lambda w: ((w.reshape(len(w), MIMII_FRAMES, MIMII_MELS) - mean) / std  # noqa: E731
-                      ).reshape(len(w), -1).astype(np.float32)
+
+    def norm(w):
+        z = (w.reshape(len(w), MIMII_FRAMES, MIMII_MELS) - mean) / std
+        return z.reshape(len(w), -1).astype(np.float32)
+
     rng = np.random.default_rng(seed)
     # validation = whole clips, so the threshold is not tuned on frames of training clips
     order = rng.permutation(len(train))
     n_val = max(1, len(train) // 10)
-    xs = {k: norm(np.concatenate([mimii_windows(lm_train[i], stride=4) for i in idx]))
-          for k, idx in (("val", order[:n_val]), ("train", order[n_val:]))}
+    xs = {
+        k: norm(np.concatenate([mimii_windows(lm_train[i], stride=4) for i in idx]))
+        for k, idx in (("val", order[:n_val]), ("train", order[n_val:]))
+    }
     xs["train"] = xs["train"][rng.permutation(len(xs["train"]))]
     wins = [mimii_windows(lm, stride=8) for lm in lm_test]
     x_test = norm(np.concatenate(wins))
     groups = np.concatenate([np.full(len(w), i) for i, w in enumerate(wins)])
-    y_test = np.concatenate([np.full(len(w), lab) for w, (_, lab, _) in zip(wins, test)])
-    machine = np.concatenate([np.full(len(w), mid) for w, (_, _, mid) in zip(wins, test)])
-    print(f"mimii windows: train {len(xs['train'])}, val {len(xs['val'])}, test {len(x_test)}", flush=True)
+    y_test = np.concatenate([np.full(len(w), lab) for w, (_, lab, _) in zip(wins, test, strict=False)])
+    machine = np.concatenate([np.full(len(w), mid) for w, (_, _, mid) in zip(wins, test, strict=False)])
+    print(
+        f"mimii windows: train {len(xs['train'])}, val {len(xs['val'])}, test {len(x_test)}", flush=True
+    )
     return Task(
-        name="mimii_fan_ae", model=mimii_model(), kind="anomaly",
-        x_train=xs["train"], y_train=np.zeros(len(xs["train"]), np.int64),
-        x_val=xs["val"], y_val=np.zeros(len(xs["val"]), np.int64),
-        x_test=x_test, y_test=y_test, test_groups=groups,
+        name="mimii_fan_ae",
+        model=mimii_model(),
+        kind="anomaly",
+        x_train=xs["train"],
+        y_train=np.zeros(len(xs["train"]), np.int64),
+        x_val=xs["val"],
+        y_val=np.zeros(len(xs["val"]), np.int64),
+        x_test=x_test,
+        y_test=y_test,
+        test_groups=groups,
         test_subsets={m: machine == m for m in sorted(set(machine))},
-        datasets=["mimii"], labels=["normal", "anomaly"],
-        description=f"Machine-sound anomaly detection autoencoder ({MIMII_FRAMES} x {MIMII_MELS} log-mel "
-                    "-> 64-64-8-64-64), trained on normal fan recordings of MIMII (6 dB SNR); anomaly "
-                    "score = reconstruction MSE averaged over a 10 s clip",
-        preprocess={"sample_rate": 16000, "channel": 0, "n_fft": MIMII_FFT, "hop": MIMII_HOP,
-                    "n_mels": MIMII_MELS, "fmin": 20.0, "fmax": 8000.0, "frames": MIMII_FRAMES,
-                    "log": "natural log of mel power + 1e-6", "mean": mean.tolist(), "std": std.tolist()})
+        datasets=["mimii"],
+        labels=["normal", "anomaly"],
+        description="Machine-sound anomaly detection autoencoder "
+        f"({MIMII_FRAMES} x {MIMII_MELS} log-mel -> 64-64-8-64-64), trained on normal fan "
+        "recordings of MIMII (6 dB SNR); anomaly "
+        "score = reconstruction MSE averaged over a 10 s clip",
+        preprocess={
+            "sample_rate": 16000,
+            "channel": 0,
+            "n_fft": MIMII_FFT,
+            "hop": MIMII_HOP,
+            "n_mels": MIMII_MELS,
+            "fmin": 20.0,
+            "fmax": 8000.0,
+            "frames": MIMII_FRAMES,
+            "log": "natural log of mel power + 1e-6",
+            "mean": mean.tolist(),
+            "std": std.tolist(),
+        },
+    )
 
 
 TASKS = {"har": task_har, "can": task_can, "mimii": task_mimii}
@@ -542,7 +660,9 @@ TASK_DATASETS = {"har": ["uci-har"], "can": ["road"], "mimii": ["mimii"]}
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("tasks", nargs="+", choices=sorted(TASKS))
     ap.add_argument("--epochs", type=int, default=20)
     ap.add_argument("--version", default="0.2.0")
@@ -550,7 +670,7 @@ def main(argv=None):
     ap.add_argument("--download", action="store_true", help="download the datasets first")
     args = ap.parse_args(argv)
     if args.download:
-        from ..data.download import download
+        from ..datasets.download import download
 
         for name in args.tasks:
             for ds in TASK_DATASETS.get(name, []):
@@ -565,10 +685,9 @@ def main(argv=None):
         print(json.dumps({k: v for k, v in rep.items() if k != "datasets"}, indent=2), flush=True)
         reports.append(rep)
     # regenerate firmware sources with all zoo models
-    from .codegen import write_zoo_sources
-    from .zoo import FW_ZOO_DIR, load_zoo
+    from mobility_model_zoo.edge.bench.reference_models import ensure_sources
 
-    write_zoo_sources(list(load_zoo().values()), FW_ZOO_DIR)
+    ensure_sources()
     return reports
 
 

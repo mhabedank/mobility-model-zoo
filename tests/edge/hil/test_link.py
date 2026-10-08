@@ -1,11 +1,12 @@
 """Serial link and protocol basics - the first thing to check on a new board."""
+
 import time
 
 import numpy as np
 import pytest
 
-import hilbench
-from hilbench.device import DeviceError
+import mobility_model_zoo.edge.bench
+from mobility_model_zoo.edge.bench.device import DeviceError
 
 
 def test_ping(dut):
@@ -17,7 +18,9 @@ def test_info_identity(dut):
     info = dut.device.info()
     assert info["target"] == dut.target.name
     assert info["proto"] == 1
-    assert info["fw"] == hilbench.__version__, "firmware and host bench versions differ"
+    assert info["fw"] == mobility_model_zoo.edge.bench.__version__, (
+        "firmware and host bench versions differ"
+    )
     assert info["models"] >= 1
     assert info["engine"].startswith("microinfer")
     if dut.target.transport != "process":
@@ -28,7 +31,7 @@ def test_info_identity(dut):
 def test_echo_payload_integrity(dut, size):
     rng = np.random.default_rng(size)
     info = dut.info
-    size = min(size, (info["line_max"] - 32) // 2)
+    size = min(size, (info["line_max"] - 96) // 2)  # ECHO decodes into the model input buffer
     data = rng.integers(0, 256, size, dtype=np.uint8).tobytes()
     r = dut.device.echo(data)
     assert r["len"] == len(data)

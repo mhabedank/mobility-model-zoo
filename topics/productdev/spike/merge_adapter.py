@@ -3,7 +3,8 @@
 The result can be converted to MLX for local use (topics/productdev/spike/build_local_model.sh).
 
 Run: uv run --with torch --with transformers --with peft --with accelerate \
-         python topics/productdev/spike/merge_adapter.py data/models/spike-v3b-adapter data/models/spike-v3b-merged
+         python topics/productdev/spike/merge_adapter.py \\
+             data/models/spike-v3b-adapter data/models/spike-v3b-merged
 """
 
 from __future__ import annotations

@@ -17,7 +17,8 @@ The strategies are fixed below before looking at their results; picking the best
 strategies on 35 chunks would overstate its score.
 
 Run: uv run python topics/productdev/spike/ensemble.py
-     uv run python topics/productdev/spike/ensemble.py --export data/spike/sft/sft-ensemble.jsonl   (train split)
+     uv run python topics/productdev/spike/ensemble.py \\
+         --export data/spike/sft/sft-ensemble.jsonl   (train split)
 """
 
 from __future__ import annotations
