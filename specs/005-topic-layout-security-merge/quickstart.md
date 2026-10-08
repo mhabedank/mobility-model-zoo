@@ -55,7 +55,7 @@ git status --porcelain | wc -l               # 0: nothing landed in the reposito
 ```bash
 uv run edge build -t native && uv run pytest -m hil --hil-board sim -q
 uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick     # optional, needs QEMU
-for m in canary-forest canary-mlp murmur-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done
+for m in picket-forest picket-mlp hum-fan pace-cnn; do uv run zoo check $m 0.1.0 --offline; done
 uv run zoo build pace-cnn 0.1.0 --out /tmp/pace-cnn-card   # renders the mcu card (build needs no Hub access)
 ```
 

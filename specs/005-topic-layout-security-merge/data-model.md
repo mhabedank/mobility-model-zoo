@@ -41,9 +41,9 @@ Unchanged fields from feature 003, plus `runtime` and `card.device_usage` ([rele
 
 | name | topic | task | runtime | license | library_name | pipeline_tag | languages | base_model |
 |---|---|---|---|---|---|---|---|---|
-| `canary-forest` | security | can-ids | mcu | Apache-2.0 | scikit-learn | tabular-classification | [] | null |
-| `canary-mlp` | security | can-ids | mcu | Apache-2.0 | tflite | tabular-classification | [] | null |
-| `murmur-fan` | condition-monitoring | sound-anomaly | mcu | CC-BY-SA-4.0 (`license_exception`: MIMII share-alike) | tflite | audio-classification | [] | null |
+| `picket-forest` | security | can-ids | mcu | Apache-2.0 | scikit-learn | tabular-classification | [] | null |
+| `picket-mlp` | security | can-ids | mcu | Apache-2.0 | tflite | tabular-classification | [] | null |
+| `hum-fan` | condition-monitoring | sound-anomaly | mcu | CC-BY-SA-4.0 (`license_exception`: MIMII share-alike) | tflite | audio-classification | [] | null |
 | `pace-cnn` | condition-monitoring | activity | mcu | Apache-2.0 | tflite | time-series-classification | [] | null |
 
 Each gets `releases/0.1.0.yaml` as a draft (status `experimental`, `published: null`) with provenance, evaluation and performance budget filled from the research results, `files: []` and `staging: null` until a retraining run stages files. `zoo check` then reports the missing evidence (SC-004).
@@ -70,7 +70,7 @@ datasets:
     retention: "local cache, delete 12 months after the last training run that used it"
     status: active                 # active | broken_at_source | rejected
     reason: null                   # required unless status is active
-    used_by: [canary-mlp]
+    used_by: [picket-mlp]
 ```
 
 Rules: `permitted_use: training_allowed` requires `commercial_use: true` and a license without `NC` or `ND`; `rejected` and `broken_at_source` require `reason`; `license_check: manual` requires `license_checked`; ids are unique across all topic files.

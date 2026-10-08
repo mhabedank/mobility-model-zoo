@@ -53,23 +53,29 @@ Phase 0 of [plan.md](plan.md). Each entry: decision, rationale, alternatives con
 
   | Old name | Zoo name | Topic | Task | Why the name |
   |---|---|---|---|---|
-  | `can-ids-tiny` (goldberg) | `canary-forest` | security | `can-ids` | canary = early warning on the CAN bus; variant = random forest |
-  | `can_ids_road` (volta) | `canary-mlp` | security | `can-ids` | same family, int8 MLP |
-  | `mimii_fan_ae` (volta) | `murmur-fan` | condition-monitoring | `sound-anomaly` | murmur = abnormal sound; variant = machine type |
+  | `can-ids-tiny` (goldberg) | `picket-forest` | security | `can-ids` | picket = a sentry posted ahead of the line; variant = random forest |
+  | `can_ids_road` (volta) | `picket-mlp` | security | `can-ids` | same family, int8 MLP |
+  | `mimii_fan_ae` (volta) | `hum-fan` | condition-monitoring | `sound-anomaly` | hum = the sound of a running unit; variant = machine type |
   | `har_cnn1d` (volta) | `pace-cnn` | condition-monitoring | `activity` | pace = movement; variant = 1D CNN |
 
   Synthetic bench references (`can_ids_mlp`, `sensor_ae`, `imu_gnss_cnn1d`) stay fixtures of `edge/bench`, are regenerated deterministically by `edge.bench.reference_models`, and are never zoo models (US2 scenario 5).
-- **Rationale**: `<name>-<variant>` rule; one family per task where several variants compete (two CAN detectors share `canary`). C symbols, `MI_EXCLUDE_<NAME>` macros and protocol names use a sanitised form (`canary_mlp`), done in `edge.int8.codegen`.
+- **Rationale**: `<name>-<variant>` rule; one family per task where several variants compete (two CAN detectors share `picket`). C symbols, `MI_EXCLUDE_<NAME>` macros and protocol names use a sanitised form (`picket_mlp`), done in `edge.int8.codegen`.
+- **Name check (2026-10-08, owner decision)**: Names were searched on the web and on the Hugging Face Hub before choosing.
+  - `canary` was rejected. CANARY (Groza et al.) is a reactive defence system for CAN buses built on active relays and a "Bus Guardian" microcontroller, so it sits in the same field. `nvidia/canary-*` are well-known speech recognition models on the Hub, and Thinkst Canary is a security product.
+  - `murmur` was rejected. The Hub search for "murmur" returns mostly heart-murmur classifiers, which invites medical confusion.
+  - `picket-forest`, `picket-mlp` and `pace-cnn` have no Hub hits, and `picket` has no hits in CAN or IDS literature.
+  - `hum-fan` returns only unrelated fuzzy matches on the Hub.
+  - Alternatives that were considered: `kestrel`, which is free in the CAN field but known as the ASP.NET web server; `vigil`, which is crowded on the Hub; `rumble-fan`.
 - **Alternatives**: Keep descriptive names (`can-ids-road`) (rejected: the dataset is not the variant, and the rule asks for a family name).
 
 ## R8 One evaluation protocol per new task
 
 - **Decision**:
-  - `can-ids`: a common frame format (`ts_us, can_id, dlc, b0..b7, label, capture, vehicle`) for both can-train-and-test and ROAD; frame metrics (precision, recall, F1, FPR, AUC-PR) and event metrics (episode recall, time to alarm, false alarms per hour) from goldberg `eval/metrics.py`; splits: goldberg's four-way unseen vehicle × unseen attack on can-train-and-test, plus ROAD held-out captures (volta: attacks ending `_2`, ambient by name hash). Both `canary-*` models are scored on both test sets with the same code (Principle VIII). Benchmark name `can-ids-v1`, frozen at first use.
+  - `can-ids`: a common frame format (`ts_us, can_id, dlc, b0..b7, label, capture, vehicle`) for both can-train-and-test and ROAD; frame metrics (precision, recall, F1, FPR, AUC-PR) and event metrics (episode recall, time to alarm, false alarms per hour) from goldberg `eval/metrics.py`; splits: goldberg's four-way unseen vehicle × unseen attack on can-train-and-test, plus ROAD held-out captures (volta: attacks ending `_2`, ambient by name hash). Both `picket-*` models are scored on both test sets with the same code (Principle VIII). Benchmark name `can-ids-v1`, frozen at first use.
   - `sound-anomaly`: clip AUC and pAUC per machine id on held-out MIMII 6 dB fan clips (volta protocol). Benchmark `mimii-fan-v1`.
   - `activity`: accuracy and macro-F1 on the official UCI HAR test split (30 % of subjects, unseen). Benchmark `uci-har-v1`.
   - The int8 result on the bit-exact reference is the reported result; float results are informative only.
-- **Rationale**: FR-009 and Principle III (measure before optimising); ground truth exists, so frontier consensus is not the reference (R12). Running the cross-dataset CAN evaluation is the first step of the feature that releases a `canary` model, not of this one.
+- **Rationale**: FR-009 and Principle III (measure before optimising); ground truth exists, so frontier consensus is not the reference (R12). Running the cross-dataset CAN evaluation is the first step of the feature that releases a `picket` model, not of this one.
 - **Alternatives**: Evaluate each CAN model only on its own dataset (rejected: not comparable, Principle VIII).
 
 ## R9 Overlapping code (FR-010)
@@ -80,9 +86,9 @@ Phase 0 of [plan.md](plan.md). Each entry: decision, rationale, alternatives con
   |---|---|---|---|
   | Dataset download and registry | `can_train_and_test.py` (Bitbucket API, CSV → Parquet) | `data/registry.py`, `download.py` (Zenodo, UCI, range reads, `SOURCE.json`) | volta's downloader as shared `datasets`; can-train-and-test becomes a declaration plus a provider adapter for Bitbucket; its CSV parsing moves into `security/can_ids/frames.py` with the ROAD candump parser (common frame format, R8) |
   | Metrics and evaluation protocol | `eval/metrics.py` (frame and event metrics) | inline metrics in `train_real.py` | goldberg's, used by both CAN models |
-  | CAN features | C streaming extractor (13 features, used via ctypes and on the MCU) | Python per-frame features (32 features) | both, as model-specific feature definitions of `canary-forest` and `canary-mlp`; they are model inputs, not a duplicated concern |
+  | CAN features | C streaming extractor (13 features, used via ctypes and on the MCU) | Python per-frame features (32 features) | both, as model-specific feature definitions of `picket-forest` and `picket-mlp`; they are model inputs, not a duplicated concern |
   | Export to C | emlearn random forest with float32-exact thresholds | int8 engine `microinfer` with bit-exact reference | both: one for tree models, one for neural nets; documented in the `can-ids` task document |
-  | Device benchmark | ESP-IDF replay firmware, QEMU only | HIL bench (sim, QEMU, real boards, 11 targets) | the HIL bench is the measurement path; the ESP-IDF firmware is kept as the `canary-forest` device build and gets a bench protocol adapter later (task in the release feature) |
+  | Device benchmark | ESP-IDF replay firmware, QEMU only | HIL bench (sim, QEMU, real boards, 11 targets) | the HIL bench is the measurement path; the ESP-IDF firmware is kept as the `picket-forest` device build and gets a bench protocol adapter later (task in the release feature) |
   | Cloud setup | `scripts/setup-cloud.sh` (ESP-IDF, QEMU, Arduino) | `hil/setup-host.sh` (udev, groups) | both: different purposes (toolchains vs. bench host) |
 
   The research log (`topics/security/research/merge-log.md`) records every dropped file and reason (SC-001).
@@ -155,7 +161,7 @@ Phase 0 of [plan.md](plan.md). Each entry: decision, rationale, alternatives con
 ## R17 CI and credentials
 
 - **Decision**:
-  - `ci.yml`: existing `test` job plus `edge-sim` (native simulator HIL suite) and `edge-qemu` (ESP32 in Espressif QEMU), and a `firmware` matrix over the 11 bench targets plus the `canary-forest` ESP-IDF build, the latter two only when `firmware/`, `hil/` or `src/mobility_model_zoo/edge/` change (paths filter in a separate workflow `firmware.yml`).
+  - `ci.yml`: existing `test` job plus `edge-sim` (native simulator HIL suite) and `edge-qemu` (ESP32 in Espressif QEMU), and a `firmware` matrix over the 11 bench targets plus the `picket-forest` ESP-IDF build, the latter two only when `firmware/`, `hil/` or `src/mobility_model_zoo/edge/` change (paths filter in a separate workflow `firmware.yml`).
   - `datasets.yml`: weekly and on changes of `topics/*/datasets.yaml`; runs `zoo data verify`; no data downloads in CI.
   - `hil.yml`: self-hosted real boards; runs only when the repository variable `HIL_RUNNER_ENABLED` is `true`, otherwise the job is skipped (US4 scenario 4).
   - volta `train.yml` is not adopted: it committed weights back to the branch, which conflicts with R4 and rule 8. Training runs locally (Mac or DGX Spark) and artifacts go to staging with `zoo stage`.

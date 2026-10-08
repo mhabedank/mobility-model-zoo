@@ -36,14 +36,14 @@ Not moved: `data/` (gitignored working data, stays at the top level and is never
 | `src/msml/datasets/can_train_and_test.py` | `src/mobility_model_zoo/security/can_ids/can_train_and_test.py` |
 | `src/msml/eval/metrics.py` | `src/mobility_model_zoo/security/can_ids/metrics.py` |
 | `models/can-ids-tiny/pipeline.py` | `src/mobility_model_zoo/security/can_ids/forest.py` |
-| `models/can-ids-tiny/MODEL_CARD.md` | `topics/security/reports/canary-forest/research-card.md` |
-| `models/can-ids-tiny/README.md` | `topics/security/recipes/canary-forest.md` |
-| `models/can-ids-tiny/results/config.json`, `protocol_results.json`, `benchmarks/qemu-*.json` | `topics/security/reports/canary-forest/…` (same names) |
-| `models/can-ids-tiny/c/can_ids_tiny.{c,h}`, `c/host_score.c` | `firmware/canary-forest/c/…` (renamed `canary_forest.{c,h}` after import) |
-| `models/can-ids-tiny/c/generated/can_ids_tiny_config.h` | `firmware/canary-forest/c/generated/` (small, needed by the host build) |
-| `models/can-ids-tiny/firmware/` | `firmware/canary-forest/esp-idf/` |
-| `models/can-ids-tiny/firmware-esp8266/` | `firmware/canary-forest/esp8266/` |
-| `models/can-ids-tiny/prebuilt/README.md` | `firmware/canary-forest/README.md` |
+| `models/can-ids-tiny/MODEL_CARD.md` | `topics/security/reports/picket-forest/research-card.md` |
+| `models/can-ids-tiny/README.md` | `topics/security/recipes/picket-forest.md` |
+| `models/can-ids-tiny/results/config.json`, `protocol_results.json`, `benchmarks/qemu-*.json` | `topics/security/reports/picket-forest/…` (same names) |
+| `models/can-ids-tiny/c/can_ids_tiny.{c,h}`, `c/host_score.c` | `firmware/picket-forest/c/…` (renamed `picket_forest.{c,h}` after import) |
+| `models/can-ids-tiny/c/generated/can_ids_tiny_config.h` | `firmware/picket-forest/c/generated/` (small, needed by the host build) |
+| `models/can-ids-tiny/firmware/` | `firmware/picket-forest/esp-idf/` |
+| `models/can-ids-tiny/firmware-esp8266/` | `firmware/picket-forest/esp8266/` |
+| `models/can-ids-tiny/prebuilt/README.md` | `firmware/picket-forest/README.md` |
 | `firmware/components/msml_can_features/` | `firmware/components/can_features/` |
 | `scripts/setup-cloud.sh` | `scripts/setup-cloud.sh` |
 | `tests/test_can_features.py`, `tests/test_metrics.py` | `tests/security/can_ids/…` |
@@ -82,7 +82,7 @@ Not moved: `data/` (gitignored working data, stays at the top level and is never
 ```text
 configs/<topic>/<task>/          configs/productdev/jtbd, configs/security/can-ids, configs/condition-monitoring/{sound-anomaly,activity}
 docs/                            adding-a-model.md, credentials.md, layout.md, edge/, hf-org/
-firmware/                        bench/ (PlatformIO + microinfer), components/can_features/, canary-forest/
+firmware/                        bench/ (PlatformIO + microinfer), components/can_features/, picket-forest/
 hil/                             board inventory, targets, udev rules, host setup
 scripts/                         shared scripts only (hf_org_avatar.py, setup-cloud.sh, import/)
 specs/                           NNN-feature/

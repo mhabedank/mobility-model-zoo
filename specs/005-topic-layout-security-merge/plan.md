@@ -14,12 +14,12 @@ The zoo repository is reorganised by topic, and the content of `mhabedank/mobili
 4. **Integration** (R5, R9, R11, R15, R16): code becomes `mobility_model_zoo.{datasets, edge.int8, edge.bench, security.can_ids, condition_monitoring.*}` with CLIs `zoo data`, `edge`, `security`, `condmon`; overlapping code is reduced to one implementation per concern; tests, extras and lint follow the zoo's conventions.
 5. **Datasets** (R10): per-topic `datasets.yaml`, shared downloader writing outside the repository, license verification in CI, a training guard for `benchmark_only` data.
 6. **Release tool for edge models** (R13): `runtime: mcu`, KB budgets, measurement origin, ground-truth quality wording, dataset license compatibility, host-reference examples, new gate rule 15 ([contracts/release-format.md](contracts/release-format.md)).
-7. **Models and tasks** (R7, R8): `canary-forest`, `canary-mlp` (security, `can-ids`), `murmur-fan` (condition-monitoring, `sound-anomaly`), `pace-cnn` (condition-monitoring, `activity`) registered with draft `0.1.0` records; three task documents with scope, reference, frozen benchmark names and budgets. Nothing is published.
+7. **Models and tasks** (R7, R8): `picket-forest`, `picket-mlp` (security, `can-ids`), `hum-fan` (condition-monitoring, `sound-anomaly`), `pace-cnn` (condition-monitoring, `activity`) registered with draft `0.1.0` records; three task documents with scope, reference, frozen benchmark names and budgets. Nothing is published.
 8. **Docs and retirement** (R17, R18): English translations, README and adding-a-model guide, credentials document; secret scan; pull request; after the merge the old repository gets a pointer README, loses its secrets and is archived.
 
 ## Technical Context
 
-**Language/Version**: Python 3.12 with `uv` (unchanged); C99 and C++ (Arduino) for firmware; ESP-IDF 5.5 for the `canary-forest` device build.
+**Language/Version**: Python 3.12 with `uv` (unchanged); C99 and C++ (Arduino) for firmware; ESP-IDF 5.5 for the `picket-forest` device build.
 
 **Primary Dependencies**:
 - Base install (what `scout-large` users get): unchanged.
@@ -109,7 +109,7 @@ src/mobility_model_zoo/
 firmware/
 ├── bench/                       # PlatformIO project: benchapp, microinfer, HALs, native simulator
 ├── components/can_features/     # C streaming CAN features + alarm stage (ESP-IDF component, host build)
-└── canary-forest/               # c/, esp-idf/, esp8266/
+└── picket-forest/               # c/, esp-idf/, esp8266/
 
 hil/                             # boards.yaml, qemu-boards.yaml, targets.yaml, udev rules, setup-host.sh
 
@@ -119,7 +119,7 @@ topics/
 └── condition-monitoring/        # README, datasets.yaml, research/, tasks/{sound-anomaly,activity}.md, reports/, recipes/
 
 configs/{productdev/jtbd, security/can-ids, condition-monitoring/{sound-anomaly,activity}}/
-zoo/models/{scout-large, sandbox-pipeline-tiny, canary-forest, canary-mlp, murmur-fan, pace-cnn}/
+zoo/models/{scout-large, sandbox-pipeline-tiny, picket-forest, picket-mlp, hum-fan, pace-cnn}/
 docs/{adding-a-model.md, layout.md, credentials.md, edge/, hf-org/}
 scripts/{hf_org_avatar.py, setup-cloud.sh, import/}       # import/: filter-repo driver, merge-log check
 tests/{unit, release, integration, datasets, edge/{int8,bench,hil}, security/can_ids, condition_monitoring}/

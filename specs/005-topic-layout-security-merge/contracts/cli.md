@@ -31,15 +31,15 @@ Same subcommands and options as `hilbench` on the volta branch, with these chang
 |---|---|
 | `security can-ids frames DATASET` | Converts a downloaded dataset (`can-train-and-test`, `road`) into the common frame format (Parquet) under `$MMZ_DATA/derived/`. |
 | `security can-ids evaluate MODEL --benchmark can-ids-v1` | Scores a model on every split of the frozen benchmark; writes frame and event metrics (quality results format). |
-| `security can-ids forest evaluate|alarms|export|convert|testvectors` | The goldberg pipeline steps for `canary-forest`; `testvectors` writes into `$MMZ_DATA/derived/`, never into the repository. |
-| `security can-ids mlp train [--epochs N] [--seed S]` | Trains `canary-mlp` (int8, bit-exact check against TFLite), output outside the repository. |
+| `security can-ids forest evaluate|alarms|export|convert|testvectors` | The goldberg pipeline steps for `picket-forest`; `testvectors` writes into `$MMZ_DATA/derived/`, never into the repository. |
+| `security can-ids mlp train [--epochs N] [--seed S]` | Trains `picket-mlp` (int8, bit-exact check against TFLite), output outside the repository. |
 | `security can-ids freeze` | Freezes benchmark `can-ids-v1` (split manifest with hashes). |
 
 ## `condmon` (task tools, `mobility_model_zoo.condition_monitoring`)
 
 | Command | Behaviour |
 |---|---|
-| `condmon sound-anomaly train|evaluate|freeze` | `murmur-fan` on MIMII 6 dB fan; benchmark `mimii-fan-v1`. |
+| `condmon sound-anomaly train|evaluate|freeze` | `hum-fan` on MIMII 6 dB fan; benchmark `mimii-fan-v1`. |
 | `condmon activity train|evaluate|freeze` | `pace-cnn` on UCI HAR; benchmark `uci-har-v1`. |
 
 Every `train` command calls `require_training_allowed` for each dataset it reads.
