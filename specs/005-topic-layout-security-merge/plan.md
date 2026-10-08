@@ -17,6 +17,17 @@ The zoo repository is reorganised by topic, and the content of `mhabedank/mobili
 7. **Models and tasks** (R7, R8): `picket-forest`, `picket-mlp` (security, `can-ids`), `hum-fan` (condition-monitoring, `sound-anomaly`), `pace-cnn` (condition-monitoring, `activity`) registered with draft `0.1.0` records; three task documents with scope, reference, frozen benchmark names and budgets. Nothing is published.
 8. **Docs and retirement** (R17, R18): English translations, README and adding-a-model guide, credentials document; secret scan; pull request; after the merge the old repository gets a pointer README, loses its secrets and is archived.
 
+## Changes after feature 006 (compliance harness, merged 2026-10-08)
+
+Feature 006 landed first (decision D-order). This plan is read with these changes; the tasks below are adjusted when they are implemented:
+
+- **Dataset declarations live in the compliance register.** `topics/<topic>/datasets.yaml` becomes `topics/<topic>/compliance/datasets.yaml`, validated by `src/mobility_model_zoo/compliance/schemas/datasets.schema.json`. The 005 `datasets.schema.json` (research R10, tasks T047–T054) is replaced by it. The extra 005 fields (`provider`, `locator`, `license_check`, `status`, `reason`) are already part of that schema, and `redistribution` with its basis is required.
+- **Source classes.** `security` and `condition-monitoring` each get a `source-classes.yaml` with a legitimate-interest assessment per class, as productdev has.
+- **Release evidence.** Every edge model release gets a `<version>.compliance.yaml` (AI Act classification, export self-classification, licence manifest, scans) and passes gate rule 16. For security models the card lint requires a "Dual-use considerations" section and the ISO/SAE 21434 disclaimer.
+- **Firmware SBOM.** Check C-G4 fails an mcu release without a firmware SBOM; 005 builds the CycloneDX generator.
+- **Dataset downloads.** `zoo data download` runs the fetch-stage signal checks (`compliance.signals`) and writes the crawl manifest; vehicle data records `vehicle_data` (VIN, GPS, absolute timestamps), and check C-I5 enforces it.
+- **Constitution.** 2.0.0 is already on `main`; task T004 here is done.
+
 ## Technical Context
 
 **Language/Version**: Python 3.12 with `uv` (unchanged); C99 and C++ (Arduino) for firmware; ESP-IDF 5.5 for the `picket-forest` device build.
