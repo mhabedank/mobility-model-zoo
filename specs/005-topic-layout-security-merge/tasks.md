@@ -250,7 +250,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 ### Tests for User Story 3
 
-- [ ] T047 [P] [US3] Write `tests/datasets/test_declarations.py`, rejecting each of the following:
+- [X] T047 [P] [US3] Write `tests/datasets/test_declarations.py`, rejecting each of the following:
   - an id that is not `^[a-z0-9][a-z0-9-]*$`;
   - an id that appears in two topic files;
   - `permitted_use: training_allowed` with `commercial_use: false`;
@@ -261,22 +261,22 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - `redistribution: allowed` without `redistribution_basis`.
 
   Both real topic files validate.
-- [ ] T048 [P] [US3] Write `tests/datasets/test_guard_and_download.py` with mocked HTTP:
+- [X] T048 [P] [US3] Write `tests/datasets/test_guard_and_download.py` with mocked HTTP:
   - `require_training_allowed("syncan")` raises `UsageRefused`;
   - `zoo data download syncan` exits 3;
   - `download can-mirgu` without `--force` exits 3;
   - a download target inside the repository exits 3;
   - `SOURCE.json` has `id, title, license, license_url, attribution, citation, homepage, retrieved_at, files[]{name,url,sha256,bytes}`;
-  - `verify` exits 2 on a mocked Zenodo license change and reports `manual` entries with their date.
+  - `verify` exits 1 (check failed, zoo convention) on a mocked Zenodo license change and reports `manual` entries with their date.
 
 ### Implementation for User Story 3
 
-- [ ] T049 [US3] Create `src/mobility_model_zoo/release/schemas/datasets.schema.json` (and the copy in `specs/005-…/contracts/`) per data-model.md "Dataset declaration":
+- [X] T049 [US3] Create `src/mobility_model_zoo/release/schemas/datasets.schema.json` (and the copy in `specs/005-…/contracts/`) per data-model.md "Dataset declaration":
   - **Fields:** `id, title, use_case, provider (zenodo|uci|bitbucket|url), locator, homepage, license (SPDX), license_url, license_check (api|manual), license_checked (date), permitted_use (training_allowed|benchmark_only), redistribution (allowed|not_allowed|unclear), redistribution_basis, commercial_use, attribution, citation, approx_size_mb, retention, status (active|broken_at_source|rejected), reason, used_by`.
   - **Conditional rules:** as listed in T047.
 
   Rewrite `src/mobility_model_zoo/datasets/registry.py` to load and validate every `topics/*/datasets.yaml` instead of the Python `SOURCES`/`REJECTED` lists. Keep the `Source` dataclass as the in-memory form.
-- [ ] T050 [US3] Fill the declaration files per data-model.md "Initial declarations". Take provider data from volta `registry.py` (recover with `git show origin/claude/cool-volta-rqsgdx:hilbench/data/registry.py`) and goldberg `can_train_and_test.py`.
+- [X] T050 [US3] Fill the declaration files per data-model.md "Initial declarations". Take provider data from volta `registry.py` (recover with `git show origin/claude/cool-volta-rqsgdx:hilbench/data/registry.py`) and goldberg `can_train_and_test.py`.
   - **`topics/security/datasets.yaml`:**
     - `can-train-and-test`: bitbucket `brooke-lampe/can-train-and-test`, CC-BY-4.0, `license_check: manual`, checked 2026-10-08 against DOI 10.11583/DTU.24805533.
     - `road`: zenodo 10462796, CC-BY-4.0, api.
@@ -290,10 +290,10 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Every entry:**
     - `retention: "local cache only; delete 12 months after the last training run that used it"`.
     - `redistribution: unclear`. The `redistribution_basis` notes the license clause and, where volta had `hf_rehost=yes`, "license permits redistribution with attribution; provider terms not yet checked". No dataset is published in this feature (FR-011).
-- [ ] T051 [US3] Add a `bitbucket` provider to `src/mobility_model_zoo/datasets/download.py`, using goldberg's Bitbucket API listing from `can_train_and_test.py`. `can_train_and_test.py` then only parses. Default root is `$MMZ_DATA`, and the downloader refuses any target under the repository root.
-- [ ] T052 [US3] Implement `require_training_allowed(id)` in `src/mobility_model_zoo/datasets/__init__.py`, and call it in every training entry point: `security/can_ids/forest.py` (evaluate, export), `security/can_ids/mlp.py`, `condition_monitoring/sound_anomaly/train.py`, `condition_monitoring/activity/train.py` (FR-017).
-- [ ] T053 [US3] Add the `zoo data` command group to `src/mobility_model_zoo/release/cli.py` (`list, info, verify, download, path, tree, validate`) per contracts/cli.md, delegating to `mobility_model_zoo.datasets`. Remove the `data` group from `edge/bench/cli.py`. `zoo validate --all` also runs `zoo data validate`.
-- [ ] T054 [US3] Create `.github/workflows/datasets.yml`:
+- [X] T051 [US3] Add a `bitbucket` provider to `src/mobility_model_zoo/datasets/download.py`, using goldberg's Bitbucket API listing from `can_train_and_test.py`. `can_train_and_test.py` then only parses. Default root is `$MMZ_DATA`, and the downloader refuses any target under the repository root.
+- [X] T052 [US3] Implement `require_training_allowed(id)` in `src/mobility_model_zoo/datasets/__init__.py`, and call it in every training entry point: `security/can_ids/forest.py` (evaluate, export), `security/can_ids/mlp.py`, `condition_monitoring/sound_anomaly/train.py`, `condition_monitoring/activity/train.py` (FR-017).
+- [X] T053 [US3] Add the `zoo data` command group to `src/mobility_model_zoo/release/cli.py` (`list, info, verify, download, path, tree, validate`) per contracts/cli.md, delegating to `mobility_model_zoo.datasets`. Remove the `data` group from `edge/bench/cli.py`. `zoo validate --all` also runs `zoo data validate`.
+- [X] T054 [US3] Create `.github/workflows/datasets.yml`:
   - **Triggers:** `schedule: cron "23 5 * * 1"`, `workflow_dispatch`, and push on `topics/*/datasets.yaml` or `src/mobility_model_zoo/datasets/**`.
   - **Job:** `uv sync --extra edge --extra release`, then `uv run zoo data verify`.
   - **Restrictions:** no downloads; no secrets.

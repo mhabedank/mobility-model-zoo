@@ -39,6 +39,8 @@ Publishers: {{ class_publishers[c.id] | join("; ") }}.
 
 {% if c.art9_handling == "allowed_by_decision" %}
 - Special categories: {{ decisions[c.decision_id].decision }}
+{% elif c.art9_handling == "not_applicable" %}
+- Special categories: none expected; the data are sensor recordings without free text, and they are never sent to a language model.
 {% else %}
 - Special categories (health, religion, political opinions and the other categories of Art. 9 GDPR) are detected and excluded before labeling.
 {% endif %}

@@ -81,7 +81,7 @@ def test_cli_defaults_and_overrides(tmp_path, monkeypatch):
     seen = {}
     monkeypatch.setattr(forest, "cmd_convert", lambda args: seen.update(vars(args)))
     forest.main(["convert"])
-    assert seen["data"] == tmp_path / "can-train-and-test"
+    assert seen["data"] == tmp_path / "can-train-and-test" / "extracted"
     assert seen["out"] == tmp_path / "derived" / "picket-forest"
     forest.main(["convert", "--data", str(tmp_path / "d"), "--out", str(tmp_path / "o")])
     assert seen["data"] == tmp_path / "d"
@@ -129,3 +129,15 @@ def test_end_to_end_c_matches_python(tmp_path):
     assert report["frames"] == len(test)
     assert report["identical"] == 1.0, report
     assert not list(tmp_path.glob("parity_*.bin"))
+
+
+@pytest.mark.parametrize("cmd", ["evaluate", "export"])
+def test_training_commands_check_the_declaration(cmd, monkeypatch):
+    from mobility_model_zoo.datasets import UsageRefused
+
+    def refuse(ds):
+        raise UsageRefused(ds)
+
+    monkeypatch.setattr(forest, "require_training_allowed", refuse)
+    with pytest.raises(UsageRefused):
+        forest.main([cmd])

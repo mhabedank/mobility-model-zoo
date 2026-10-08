@@ -83,7 +83,8 @@
           "art9_handling": {
             "enum": [
               "quarantine",
-              "allowed_by_decision"
+              "allowed_by_decision",
+              "not_applicable"
             ]
           },
           "decision_id": {

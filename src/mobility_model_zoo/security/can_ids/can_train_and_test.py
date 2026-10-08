@@ -1,4 +1,4 @@
-"""Download and parse the can-train-and-test dataset (Lampe & Meng).
+"""Parse the can-train-and-test dataset (Lampe & Meng).
 
 Source:  https://bitbucket.org/brooke-lampe/can-train-and-test
 DOI:     https://doi.org/10.11583/DTU.24805533 (DTU Data, CC BY 4.0)
@@ -8,25 +8,19 @@ file into a Parquet file with typed columns:
 
     ts (float64, s) | can_id (uint16) | dlc (uint8) | b0..b7 (uint8, zero-padded) | label (uint8)
 
-Usage::
-
-    python -m mobility_model_zoo.security.can_ids.can_train_and_test --out data/can-train-and-test
+Download with `uv run zoo data download can-train-and-test` (Bitbucket provider, files in
+$MMZ_DATA/can-train-and-test/extracted/<set>/<split>/*.csv). Parsed captures are cached as Parquet
+under $MMZ_DATA/derived/can-train-and-test/.
 """
 
 from __future__ import annotations
 
-import argparse
 import io
-import json
-import urllib.request
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-API = "https://api.bitbucket.org/2.0/repositories/brooke-lampe/can-train-and-test/src/HEAD/"
-RAW = "https://bitbucket.org/brooke-lampe/can-train-and-test/raw/HEAD/"
 SETS = ("set_01", "set_02", "set_03", "set_04")
 SPLITS = (
     "train_01",
@@ -47,23 +41,6 @@ VEHICLES = {
 def vehicle_of(set_name: str, split: str) -> str:
     return VEHICLES[set_name]["unknown" if "unknown_vehicle" in split else "known"]
 
-
-def _list(path: str) -> list[dict]:
-    url, out = API + path + "?pagelen=100", []
-    while url:
-        with urllib.request.urlopen(url, timeout=60) as r:
-            page = json.load(r)
-        out += page["values"]
-        url = page.get("next")
-    return out
-
-
-def list_files() -> list[str]:
-    files = []
-    for s in SETS:
-        for split in SPLITS:
-            files += [v["path"] for v in _list(f"{s}/{split}/") if v["type"] == "commit_file"]
-    return files
 
 
 def parse_csv(raw: bytes) -> pd.DataFrame:
@@ -86,36 +63,30 @@ def parse_csv(raw: bytes) -> pd.DataFrame:
     return out
 
 
-def fetch(path: str, out_dir: Path) -> Path:
-    dst = out_dir / path.replace(".csv", ".parquet")
-    if dst.exists():
-        return dst
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(RAW + path, timeout=600) as r:
-        raw = r.read()
-    tmp = dst.with_suffix(".tmp")
-    parse_csv(raw).to_parquet(tmp, index=False)
-    tmp.rename(dst)
-    return dst
 
+def load(data_dir: Path, set_name: str, split: str) -> dict[str, pd.DataFrame]:
+    """Return {capture_name: frames} for one split, e.g. ``{"DoS-1": df, ...}``.
 
-def load(out_dir: Path, set_name: str, split: str) -> dict[str, pd.DataFrame]:
-    """Return {capture_name: frames} for one split, e.g. ``{"DoS-1": df, ...}``."""
-    d = Path(out_dir) / set_name / split
-    return {p.stem: pd.read_parquet(p) for p in sorted(d.glob("*.parquet"))}
+    Reads the CSV files of a download (or Parquet files of an older conversion) and caches parsed
+    captures as Parquet in $MMZ_DATA/derived/can-train-and-test/ when pyarrow is installed.
+    """
+    from mobility_model_zoo.edge.paths import derived_dir
 
-
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--out", type=Path, default=Path("data/can-train-and-test"))
-    ap.add_argument("--workers", type=int, default=6)
-    args = ap.parse_args()
-    files = list_files()
-    print(f"{len(files)} files")
-    with ThreadPoolExecutor(args.workers) as ex:
-        for i, p in enumerate(ex.map(lambda f: fetch(f, args.out), files), 1):
-            print(f"[{i}/{len(files)}] {p}", flush=True)
-
-
-if __name__ == "__main__":
-    main()
+    d = Path(data_dir) / set_name / split
+    if parquet := sorted(d.glob("*.parquet")):
+        return {p.stem: pd.read_parquet(p) for p in parquet}
+    cache = derived_dir("can-train-and-test") / set_name / split
+    out = {}
+    for csv in sorted(d.glob("*.csv")):
+        cached = cache / f"{csv.stem}.parquet"
+        if cached.exists():
+            out[csv.stem] = pd.read_parquet(cached)
+            continue
+        df = parse_csv(csv.read_bytes())
+        try:
+            cache.mkdir(parents=True, exist_ok=True)
+            df.to_parquet(cached, index=False)
+        except ImportError:  # no pyarrow: parse again next time
+            pass
+        out[csv.stem] = df
+    return out

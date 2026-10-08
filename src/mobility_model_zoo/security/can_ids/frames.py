@@ -134,7 +134,7 @@ def from_road(directory: str | Path, max_bytes: float | None = None) -> Iterator
 
 def from_can_train_and_test(directory: str | Path) -> Iterator[pd.DataFrame]:
     """can-train-and-test captures under `<directory>/<set>/<split>/` (Parquet from
-    `can_train_and_test.fetch`, or the original CSV files)."""
+    an older conversion, or the CSV files of `zoo data download`)."""
     from mobility_model_zoo.security.can_ids.can_train_and_test import parse_csv, vehicle_of
 
     root = Path(directory)

@@ -33,7 +33,7 @@
           },
           "id": {
             "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
           },
           "class": {
             "type": "string"
@@ -102,7 +102,8 @@
             ]
           },
           "redistribution_basis": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "quote_allowed": {
             "type": "boolean"
@@ -408,6 +409,16 @@
           },
           "doi": {
             "type": "string"
+          },
+          "use_case": {
+            "type": "string"
+          },
+          "commercial_use": {
+            "type": "boolean"
+          },
+          "license_checked": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}"
           }
         },
         "required": [
@@ -424,11 +435,6 @@
           "permitted_use",
           "redistribution",
           "redistribution_basis",
-          "quote_allowed",
-          "signals",
-          "personal_data",
-          "storage",
-          "retention_until",
           "used_by",
           "owner",
           "last_reviewed",
@@ -436,7 +442,8 @@
           "provider",
           "locator",
           "license_check",
-          "status"
+          "status",
+          "commercial_use"
         ],
         "allOf": [
           {
@@ -509,6 +516,63 @@
                   "minLength": 1
                 }
               }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "active",
+                    "broken_at_source"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "signals",
+                "personal_data",
+                "storage",
+                "retention_until",
+                "quote_allowed"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "permitted_use": {
+                  "const": "training_allowed"
+                }
+              },
+              "required": [
+                "permitted_use"
+              ]
+            },
+            "then": {
+              "properties": {
+                "commercial_use": {
+                  "const": true
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "license_check": {
+                  "const": "manual"
+                }
+              },
+              "required": [
+                "license_check"
+              ]
+            },
+            "then": {
+              "required": [
+                "license_checked"
+              ]
             }
           }
         ]

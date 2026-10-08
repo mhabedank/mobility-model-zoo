@@ -7,11 +7,14 @@ Controller: Martin Habedank (private person), privacy@miskatonic-analytics.com. 
 
 - **Purposes:** building a benchmark and training data for openly published mobility models; evaluating and publishing models.
 - **Categories of data subjects and personal data:**
+  - machine-sound-datasets: Published recordings of machine sounds (fans, pumps, valves, slide rails) from research datasets, downloaded from the publishers.
+  - imu-activity-datasets: Published motion-sensor recordings of volunteers (accelerometer and gyroscope windows, subjects identified only by number) from research datasets, downloaded from the publishers.
   - parliamentary-records: Plenary and committee records published by parliaments (Germany, UK, Ireland, US, Wales, Scotland, EU, Austria, Switzerland, German state parliaments, Canada).
   - research-interviews: Interview transcripts from research datasets published on Zenodo under CC BY 4.0.
   - open-papers: Scientific papers and reports under open licences (CC BY 4.0) used for training.
   - tdm-documents: Papers, reports and transcripts without an open licence, used only in the benchmark under the text and data mining exception (§44b UrhG).
   - forum-review: Public forum posts about mobility, used only in the benchmark (§44b UrhG).
+  - can-bus-datasets: Published CAN bus and vehicle-network recordings from research datasets (frame logs of test vehicles, simulated V2X messages, GNSS receiver features), downloaded from the publishers.
 - **Special categories:** excluded by default (decision D12); exception: Political opinions expressed by office holders in parliamentary records are not quarantined (Art. 9(2)(e) GDPR); health, religion and other special categories about third persons in those records are still flagged.
 - **Recipients:**
   - `claude-consumer-cli`: Anthropic (consumer plan via Claude Code CLI; contracting entity for EEA users Anthropic Ireland, Limited) (IE (contracting entity) / US (processing)), reference
@@ -22,9 +25,12 @@ Controller: Martin Habedank (private person), privacy@miskatonic-analytics.com. 
   - `wafer-openrouter`: Wafer (Wafer, Inc., US; via OpenRouter, Inc., US) (US), teacher_candidate
 - **Transfers to third countries:** United States, for the hosted routes listed above; none of the recipients is listed under the EU-US Data Privacy Framework; new hosted labeling only through approved routes.
 - **Retention:**
+  - machine-sound-datasets: Local cache only; delete 12 months after the last training run that used it.
+  - imu-activity-datasets: Local cache only; delete 12 months after the last training run that used it.
   - parliamentary-records: Review 24 months after the dataset freeze; delete when no current model needs it.
   - research-interviews: Review 24 months after the dataset freeze; delete when no current model needs it.
   - open-papers: Review 24 months after the dataset freeze; delete when no current model needs it.
   - tdm-documents: Delete when the benchmark is retired; review 24 months after freeze.
   - forum-review: Delete when the benchmark is retired; review 24 months after freeze.
+  - can-bus-datasets: Local cache only; delete 12 months after the last training run that used it.
 - **Technical and organisational measures:** texts stored outside the public repository on the controller's machine; identifiers redacted before labeling (pattern redaction plus a local model review); special categories quarantined; fail-closed checks before texts leave the machine; no publication of texts; suppression list; keyed hashes instead of names in request records.

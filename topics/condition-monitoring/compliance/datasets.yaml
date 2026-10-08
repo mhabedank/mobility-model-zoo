@@ -1,2 +1,236 @@
 # Third-party datasets of the condition-monitoring topic (compliance register, schema datasets.schema.json).
-datasets: []
+# Data is downloaded to $MMZ_DATA by `zoo data download`, never into the repository. No dataset is
+# published (redistribution `unclear` until the provider terms are checked, FR-011).
+datasets:
+- id: mimii
+  title: MIMII - Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection
+  use_case: anomalous machine-sound detection (pumps, fans, valves, slide rails)
+  origin_url: https://zenodo.org/records/3384388
+  creators:
+  - H. Purohit
+  - R. Tanabe
+  - K. Ichige
+  - T. Endo
+  - Y. Nikaido
+  - K. Suefusa
+  - Y. Kawaguchi
+  publisher: Hitachi, Ltd. (Zenodo)
+  attribution_text: MIMII dataset by H. Purohit, R. Tanabe, K. Ichige, T. Endo, Y. Nikaido, K. Suefusa, Y. Kawaguchi,
+    Hitachi, Ltd. (CC BY-SA 4.0)
+  citation: 'Purohit et al., ''MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation
+    and Inspection'', DCASE 2019 Workshop'
+  modifications: 'Log-mel features of a sample of the 6 dB fan recordings; not redistributed. Share-alike: models
+    trained on it carry CC BY-SA 4.0 obligations.'
+  provider: zenodo
+  locator:
+    zenodo_record: '3384388'
+    zenodo_files:
+    - 6_dB_fan
+    zip_members:
+    - - '*/id_00/normal/*.wav'
+      - 500
+    - - '*/id_00/abnormal/*.wav'
+      - 200
+    - - '*/id_02/normal/*.wav'
+      - 300
+    - - '*/id_02/abnormal/*.wav'
+      - 150
+  license_check: api
+  license_checked: '2026-10-08'
+  approx_size_mb: 2000
+  notes: Only a sample of the 6 dB fan recordings (machines id_00, id_02) is read out of the 10 GB archive via HTTP
+    range requests.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  licence: CC-BY-SA-4.0
+  licence_url: https://creativecommons.org/licenses/by-sa/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY-SA 4.0 permits redistribution with attribution under the same licence; provider terms
+    not yet checked; not published (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data:
+    present: false
+    categories: []
+    special_categories: []
+    human_subjects: false
+  storage: $MMZ_DATA/mimii (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  status: active
+  reason: null
+  class: machine-sound-datasets
+- id: uci-har
+  title: Human Activity Recognition Using Smartphones
+  use_case: IMU motion classification (6 activities, accelerometer + gyroscope @50 Hz)
+  origin_url: https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
+  creators:
+  - J. Reyes-Ortiz
+  - D. Anguita
+  - A. Ghio
+  - L. Oneto
+  - X. Parra
+  publisher: UCI Machine Learning Repository
+  doi: 10.24432/C54S4K
+  attribution_text: Human Activity Recognition Using Smartphones by J. Reyes-Ortiz, D. Anguita, A. Ghio, L. Oneto,
+    X. Parra, UCI Machine Learning Repository, doi:10.24432/C54S4K (CC BY 4.0)
+  citation: Anguita et al., 'A Public Domain Dataset for Human Activity Recognition Using Smartphones', ESANN 2013
+  provider: uci
+  locator:
+    uci_id: 240
+  license_check: api
+  license_checked: '2026-10-08'
+  approx_size_mb: 60
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: absent
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data:
+    present: true
+    categories:
+    - motion-sensor signals of volunteers (subjects identified by number)
+    special_categories: []
+    human_subjects: true
+    consent_or_ethics: 30 volunteers in a published study (Anguita et al. 2013); consent procedure not restated
+      in the dataset
+    anonymisation: Subjects identified only by number by the publishers.
+  storage: $MMZ_DATA/uci-har (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  status: active
+  reason: null
+  class: imu-activity-datasets
+- id: dcase2020-task2-dev
+  class: machine-sound-datasets
+  title: DCASE 2020 task 2 development dataset
+  use_case: anomalous machine-sound detection
+  origin_url: https://zenodo.org/records/3678171
+  creators: unknown
+  publisher: Zenodo
+  licence: CC-BY-NC-SA-4.0
+  licence_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  attribution_text: DCASE 2020 task 2 development dataset (CC-BY-NC-SA-4.0)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: Non-commercial licence; not redistributed and not used for training.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://zenodo.org/records/3678171
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Zenodo declares CC BY-NC-SA 4.0 (found by the licence check, 2026-10-07).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: dcase2021-toyadmos2
+  class: machine-sound-datasets
+  title: ToyADMOS2 (DCASE 2021 task 2)
+  use_case: anomalous machine-sound detection under domain shift
+  origin_url: https://zenodo.org/records/4580270
+  creators: unknown
+  publisher: Zenodo
+  licence: CC-BY-NC-SA-4.0
+  licence_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  attribution_text: ToyADMOS2 (DCASE 2021 task 2) (CC-BY-NC-SA-4.0)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: Non-commercial licence; not redistributed and not used for training.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://zenodo.org/records/4580270
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Non-commercial licence (CC BY-NC-SA 4.0).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: gnss-interference-mendeley
+  class: imu-activity-datasets
+  title: GNSS Dataset with Interference and Spoofing
+  use_case: GNSS interference and spoofing detection
+  origin_url: https://data.mendeley.com/datasets/ccdgjcfvn5
+  creators: unknown
+  publisher: Mendeley Data
+  licence: CC-BY-NC-4.0
+  licence_url: https://creativecommons.org/licenses/by-nc/4.0/
+  attribution_text: GNSS Dataset with Interference and Spoofing (CC-BY-NC-4.0)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: Non-commercial licence; not redistributed and not used for training.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://data.mendeley.com/datasets/ccdgjcfvn5
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Non-commercial licence (CC BY-NC).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: driver-behavior
+  class: imu-activity-datasets
+  title: driverBehaviorDataset
+  use_case: driving-event detection from smartphone IMU
+  origin_url: https://github.com/jair-jr/driverBehaviorDataset
+  creators: unknown
+  publisher: GitHub
+  licence: LicenseRef-none
+  licence_url: null
+  attribution_text: driverBehaviorDataset (LicenseRef-none)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: No open licence; not redistributed.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://github.com/jair-jr/driverBehaviorDataset
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: No licence (all rights reserved).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

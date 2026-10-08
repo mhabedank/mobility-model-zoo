@@ -9,7 +9,7 @@ train_01 and test on four splits (known/unknown vehicle x known/unknown attack).
     uv run security can-ids forest convert      # re-run C conversion and parity check (no training)
     uv run security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
 
-Every subcommand takes --data (dataset root, default $MMZ_DATA/can-train-and-test) and --out
+Every subcommand takes --data (dataset root, default $MMZ_DATA/can-train-and-test/extracted) and --out
 (derived files, default $MMZ_DATA/derived/picket-forest).
 """
 
@@ -28,6 +28,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_recall_curve
 
+from mobility_model_zoo.datasets import require_training_allowed
 from mobility_model_zoo.edge.paths import REPO_ROOT, data_root, derived_dir
 from mobility_model_zoo.security.can_ids.can_train_and_test import SETS, SPLITS, load, vehicle_of
 from mobility_model_zoo.security.can_ids.forest_features import (
@@ -45,8 +46,11 @@ from mobility_model_zoo.security.can_ids.metrics import (
 MODEL = "picket-forest"
 
 
+DATASET = "can-train-and-test"
+
+
 def default_data() -> Path:
-    return data_root() / "can-train-and-test"
+    return data_root() / "can-train-and-test" / "extracted"
 
 
 def default_out() -> Path:
@@ -238,6 +242,7 @@ def cmd_alarms(args) -> None:
 
 
 def cmd_evaluate(args) -> None:
+    require_training_allowed(DATASET)
     args.out.mkdir(parents=True, exist_ok=True)
     results = {}
     for set_name in args.sets:
@@ -474,6 +479,7 @@ def convert_and_check(export_dir: Path, data: Path) -> None:
 
 
 def cmd_export(args) -> None:
+    require_training_allowed(DATASET)
     export_dir = args.out / "export"
     export_dir.mkdir(parents=True, exist_ok=True)
     idx = cols(FEATURE_SETS[EXPORT_FEATURES])
@@ -603,7 +609,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(
-        "--data", type=Path, default=None, help="can-train-and-test root ($MMZ_DATA/can-train-and-test)"
+        "--data", type=Path, default=None, help="dataset root ($MMZ_DATA/can-train-and-test/extracted)"
     )
     common.add_argument(
         "--out", type=Path, default=None, help="derived files ($MMZ_DATA/derived/picket-forest)"

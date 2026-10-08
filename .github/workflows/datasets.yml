@@ -1,0 +1,28 @@
+name: datasets
+
+# Licence check of the dataset declarations (feature 005 US3): compares the licence each publisher
+# declares today (Zenodo, UCI APIs) with topics/*/compliance/datasets.yaml. No downloads, no secrets.
+on:
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+  push:
+    paths:
+      - "topics/*/compliance/datasets.yaml"
+      - "src/mobility_model_zoo/datasets/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-licenses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra edge --extra release
+      - run: uv run zoo data validate
+      - run: uv run zoo data verify

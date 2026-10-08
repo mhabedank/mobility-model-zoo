@@ -1,0 +1,41 @@
+# Source classes of the condition-monitoring topic (compliance register, schema
+# source-classes.schema.json). LIA = legitimate-interest assessment (Art. 6(1)(f) GDPR).
+classes:
+- id: machine-sound-datasets
+  description: Published recordings of machine sounds (fans, pumps, valves, slide rails) from research
+    datasets, downloaded from the publishers.
+  copyright_basis: licence
+  gdpr_legal_basis: none_needed
+  lia:
+    purpose: Train and evaluate anomaly detectors for machine sounds.
+    necessity: Labelled recordings of faulty machines exist only in research datasets.
+    balancing: The recordings are of machines in a factory hall and contain no personal data as far as
+      the publishers state; no balancing against data subjects is needed.
+    safeguards: Licence and use check per dataset, data kept outside git with a retention date, no
+      publication of the data.
+    decided_at: '2026-10-08'
+  art9_handling: not_applicable
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Local cache only; delete 12 months after the last training run that used it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: imu-activity-datasets
+  description: Published motion-sensor recordings of volunteers (accelerometer and gyroscope windows,
+    subjects identified only by number) from research datasets, downloaded from the publishers.
+  copyright_basis: licence
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Train and evaluate activity recognition on microcontrollers.
+    necessity: Labelled IMU windows of many people exist only in research datasets.
+    balancing: Volunteers took part in a published study; the publishers identify subjects only by
+      number; the data is not redistributed and the model outputs only an activity class.
+    safeguards: Licence and use check per dataset, data kept outside git with a retention date, no
+      publication of the data, no attempt to re-identify subjects, objection channel (PRIVACY.md).
+    decided_at: '2026-10-08'
+  art9_handling: not_applicable
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Local cache only; delete 12 months after the last training run that used it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

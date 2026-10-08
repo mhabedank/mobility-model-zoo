@@ -1,6 +1,6 @@
 # Contract: commands
 
-New and changed commands. Existing `zoo` and `jtbd` commands keep their behaviour unless listed. Exit codes follow the `zoo` convention (0 ok, 1 usage, 2 check failed, 3 refused, 4 external service, 5 missing input, 6 internal).
+New and changed commands. Existing `zoo` and `jtbd` commands keep their behaviour unless listed. Exit codes follow the `zoo` convention in `release/errors.py` (0 ok, 1 check failed, 2 usage, 3 refused, 4 approval refused, 5 credentials or missing input, 6 external service).
 
 ## `zoo data` (shared, `mobility_model_zoo.datasets`)
 
@@ -8,7 +8,7 @@ New and changed commands. Existing `zoo` and `jtbd` commands keep their behaviou
 |---|---|
 | `zoo data list [--topic T] [--status S]` | Table of declarations: id, topic, license, permitted use, commercial, size, status. |
 | `zoo data info ID` | Full declaration plus local state (`SOURCE.json` if downloaded). |
-| `zoo data verify [ID…]` | For each declaration with an API (Zenodo, UCI), compares the license the provider declares today with the declaration; `manual` entries report their last manual check date. Exit 2 on any mismatch, naming the dataset. |
+| `zoo data verify [ID…]` | For each declaration with an API (Zenodo, UCI), compares the license the provider declares today with the declaration; `manual` entries report their last manual check date. Exit 1 on any mismatch, naming the dataset. |
 | `zoo data download ID [--force] [--max N]` | Downloads into `$MMZ_DATA/<id>/` (default `~/.cache/mobility-model-zoo/datasets`), refuses paths inside the repository (exit 3), refuses `rejected` and, without `--force`, `broken_at_source` (exit 3); verifies the license first; writes `SOURCE.json` (origin, license, retrieval date, per-file sha256 and size). |
 | `zoo data path ID`, `zoo data tree ID` | Local path; file listing. |
 | `zoo data validate` | Validates every `topics/*/datasets.yaml` against `datasets.schema.json` (also run by `zoo validate --all`). |

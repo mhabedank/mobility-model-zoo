@@ -24,7 +24,8 @@ import zlib
 from dataclasses import dataclass
 from pathlib import Path
 
-from .registry import SOURCES, Source
+from . import UsageRefused
+from .registry import Source, load
 
 USER_AGENT = "mobility-model-zoo-crawler/1.0 (+https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md)"
 
@@ -108,7 +109,29 @@ def remote_files(src: Source) -> list[RemoteFile]:
         slug = (data.get("name") or src.id).lower().replace(" ", "+")
         url = f"https://archive.ics.uci.edu/static/public/{src.uci_id}/{slug}.zip"
         return [RemoteFile(url=url, name=f"{src.id}.zip")]
+    if src.provider == "bitbucket":
+        return bitbucket_files(src.repo)
     return [RemoteFile(url=u, name=u.rsplit("/", 1)[-1]) for u in src.urls]
+
+
+def bitbucket_files(repo: str | None) -> list[RemoteFile]:
+    """Every file of a Bitbucket repository (HEAD), listed through the Bitbucket API."""
+    if not repo:
+        raise DataError("bitbucket provider needs locator.repo")
+    api = f"https://api.bitbucket.org/2.0/repositories/{repo}/src/HEAD/"
+    raw = f"https://bitbucket.org/{repo}/raw/HEAD/"
+    files, todo = [], [""]
+    while todo:
+        url: str | None = api + todo.pop() + "?pagelen=100"
+        while url:
+            page = _get_json(url)
+            for v in page.get("values", []):
+                if v["type"] == "commit_directory":
+                    todo.append(v["path"] + "/")
+                elif v["type"] == "commit_file":
+                    files.append(RemoteFile(url=raw + v["path"], name=v["path"], size=v.get("size")))
+            url = page.get("next")
+    return files
 
 
 # ------------------------------------------------ partial (range) zip reads --
@@ -493,16 +516,29 @@ def _extract(archive: Path, target: Path) -> None:
             _extract(inner, sub)
 
 
+def check_target(d: Path) -> None:
+    """Datasets never go into the repository (constitution VI)."""
+    from mobility_model_zoo.edge.paths import repo_root
+
+    target, repo = d.resolve(), repo_root().resolve()
+    if target == repo or repo in target.parents:
+        raise UsageRefused(f"download target {d} is inside the repository; set MMZ_DATA elsewhere")
+
+
 def download(ds_id: str, extract: bool = True, force: bool = False, check_license: bool = True) -> Path:
-    src = SOURCES.get(ds_id)
+    sources = load()
+    src = sources.get(ds_id)
     if src is None:
-        raise DataError(f"unknown dataset '{ds_id}' (known: {', '.join(SOURCES)})")
+        raise DataError(f"unknown dataset '{ds_id}' (known: {', '.join(sources)})")
+    if src.status == "rejected":
+        raise UsageRefused(f"{ds_id} is rejected: {src.reason}")
+    if src.broken and not force:
+        raise UsageRefused(f"{ds_id}: {src.broken}")
     d = dataset_dir(ds_id)
+    check_target(d)
     marker = d / "SOURCE.json"
     if marker.exists() and not force:
         return d
-    if src.broken and not force:
-        raise DataError(f"{ds_id}: {src.broken}")
     d.mkdir(parents=True, exist_ok=True)
     if check_license:
         ok, declared = verify(src)
@@ -530,8 +566,10 @@ def download(ds_id: str, extract: bool = True, force: bool = False, check_licens
                 }
             )
         files = []
+    plain = src.provider == "bitbucket"  # repository files, not archives: keep the tree as is
     for f in files:
-        dest = raw / f.name
+        dest = (d / "extracted" if plain else raw) / f.name
+        dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists():
             size = f" ({f.size / 1e6:.0f} MB)" if f.size else ""
             print(f"  downloading {f.name}{size}", flush=True)
@@ -545,7 +583,7 @@ def download(ds_id: str, extract: bool = True, force: bool = False, check_licens
                 "bytes": dest.stat().st_size,
             }
         )
-        if extract:
+        if extract and not plain:
             _extract(dest, d / "extracted")
     marker.write_text(
         json.dumps(

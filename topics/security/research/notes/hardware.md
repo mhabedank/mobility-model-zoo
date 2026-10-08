@@ -279,7 +279,7 @@ Notes: "CAN" counts on-chip controllers. "Price" means the approximate 1 ku chip
 - S32K5 — https://www.nasdaq.com/press-release/new-s32k5-microcontroller-family-advances-zonal-sdv-architectures-and-extends-nxp
 - S32G3 — https://www.mouser.co.uk/nxp-s32g3-vehicle-network-processors
 - i.MX RT1170 — https://cn.nxp.com/docs/en/fact-sheet/i.MX-RT1170-FS.pdf
-- MCX N — https://www.nxp.com/docs/en/fact-sheet/MCXNFS.pdf ; FRDM-MCXN947 pricing — element14/Future Electronics listings
+- MCX N — https://www.nxp.com/docs/en/fact-sheet/MCXNFS.pdf ; FRDM-MCXN947 prices — element14/Future Electronics listings
 - AURIX TC4x — https://infineon.com/cms/en/product/promopages/aurixnextgeneration ; https://emmtrix.com/wiki/Infineon_AURIX_TC4x ; MetaWare for AURIX — https://mips.com/processor-solutions/sw-metaware-aurix/
 - AURIX TC375 lite kit — https://infineon.com/cms/en/product/evaluation-boards/kit_a2g_tc375_lite ; TC4D7 lite kit — https://www.mouser.in/infineon-kit-a3g-tc4d7-lite-kit
 - PSoC Edge E8x datasheet — https://www.infineon.com/assets/row/public/documents/30/49/infineon-psoc-edge-e8x-consumer-datasheet-datasheet-en.pdf

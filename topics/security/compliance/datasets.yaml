@@ -1,2 +1,366 @@
 # Third-party datasets of the security topic (compliance register, schema datasets.schema.json).
-datasets: []
+# Data is downloaded to $MMZ_DATA by `zoo data download`, never into the repository. No dataset is
+# published (redistribution `unclear` until the provider terms are checked, FR-011).
+datasets:
+- id: can-train-and-test
+  title: can-train-and-test
+  use_case: CAN intrusion detection across vehicles and attack types (four-way split)
+  origin_url: https://bitbucket.org/brooke-lampe/can-train-and-test
+  creators:
+  - Brooke Elizabeth Lampe
+  - Weizhi Meng
+  publisher: Technical University of Denmark (DTU)
+  doi: 10.11583/DTU.24805533
+  attribution_text: can-train-and-test by B. Lampe and W. Meng, DTU, doi:10.11583/DTU.24805533 (CC BY 4.0)
+  citation: 'Lampe and Meng, ''can-train-and-test: A curated CAN dataset for automotive intrusion detection'', Computers
+    & Security, 2024. doi:10.11583/DTU.24805533'
+  provider: bitbucket
+  locator:
+    repo: brooke-lampe/can-train-and-test
+  license_check: manual
+  license_checked: '2026-10-08'
+  approx_size_mb: 7500
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data: &id001
+    present: false
+    categories: []
+    special_categories: []
+    human_subjects: false
+    anonymisation: Frame logs of research test vehicles; no driver data stated by the publishers.
+  storage: $MMZ_DATA/can-train-and-test (local cache outside git)
+  retention_until: '2027-10-08'
+  status: active
+  reason: null
+  class: can-bus-datasets
+  vehicle_data: &id002
+    vin: unknown
+    gps: none
+    absolute_timestamps: present
+- id: road
+  title: ROAD - Real ORNL Automotive Dynamometer CAN Intrusion Dataset
+  use_case: CAN bus intrusion detection (fuzzing, fabrication, masquerade, advanced attacks)
+  origin_url: https://zenodo.org/records/10462796
+  creators:
+  - M. Verma
+  - R. Bridges
+  - M. Iannacone
+  - S. Hollifield
+  - P. Moriano
+  - S. Hespeler
+  publisher: Oak Ridge National Laboratory (Zenodo)
+  doi: 10.1371/journal.pone.0296879
+  attribution_text: ROAD dataset by M. Verma, R. Bridges, M. Iannacone, S. Hollifield, P. Moriano, S. Hespeler et
+    al., Oak Ridge National Laboratory (CC BY 4.0)
+  citation: Verma et al., 'A comprehensive guide to CAN IDS data and introduction of the ROAD dataset', PLOS ONE
+    19(1), 2024. doi:10.1371/journal.pone.0296879
+  provider: zenodo
+  locator:
+    zenodo_record: '10462796'
+  license_check: api
+  license_checked: '2026-10-08'
+  approx_size_mb: 600
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data: *id001
+  storage: $MMZ_DATA/road (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  status: active
+  reason: null
+  class: can-bus-datasets
+  vehicle_data: *id002
+- id: can-mirgu
+  title: CAN-MIRGU - CAN bus attack dataset from moving vehicles
+  use_case: CAN bus intrusion detection on a modern vehicle while driving
+  origin_url: https://archive.ics.uci.edu/dataset/1035/can-mirgu
+  creators: unknown
+  publisher: UCI Machine Learning Repository
+  doi: 10.24432/C5H911
+  attribution_text: CAN-MIRGU dataset, UCI Machine Learning Repository, doi:10.24432/C5H911 (CC BY 4.0)
+  citation: CAN-MIRGU, UCI Machine Learning Repository, 2024. doi:10.24432/C5H911
+  provider: uci
+  locator:
+    uci_id: 1035
+  license_check: api
+  license_checked: '2026-10-07'
+  approx_size_mb: 500
+  status: broken_at_source
+  reason: UCI archive zero-filled in place of header and data start (checked 2026-10-07); not recoverable; re-check
+    with `zoo data download can-mirgu --force`.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: absent
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data: *id001
+  storage: $MMZ_DATA/can-mirgu (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  class: can-bus-datasets
+  vehicle_data: *id002
+- id: veremi-extension
+  title: VeReMi Extension
+  use_case: V2X misbehaviour detection (planned model, not downloaded yet)
+  origin_url: https://zenodo.org/records/20090854
+  creators:
+  - Joseph Kamel
+  - Michael Wolf
+  - Rens W. van der Heijden
+  - Arnaud Kaiser
+  - Frank Kargl
+  publisher: Zenodo
+  attribution_text: VeReMi Extension by J. Kamel et al. (CC BY 4.0)
+  citation: 'Kamel et al., ''VeReMi Extension: A Dataset for Comparable Evaluation of Misbehavior Detection in VANETs'',
+    IEEE ICC 2020'
+  provider: zenodo
+  locator:
+    zenodo_record: '20090854'
+  license_check: api
+  license_checked: '2026-10-08'
+  approx_size_mb: 1200
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data:
+    present: false
+    categories: []
+    special_categories: []
+    human_subjects: false
+    anonymisation: Simulated vehicles (Veins/LuST); no real persons.
+  storage: $MMZ_DATA/veremi-extension (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  status: active
+  reason: null
+  class: can-bus-datasets
+- id: gps-spoofing-aissou
+  title: A DATASET for GPS Spoofing Detection on Unmanned Aerial System
+  use_case: GNSS spoofing detection from receiver tracking features (planned model, not downloaded yet)
+  origin_url: https://data.mendeley.com/datasets/z7dj3yyzt8/3
+  creators:
+  - Ghilas Aissou
+  publisher: Mendeley Data
+  doi: 10.17632/z7dj3yyzt8.3
+  attribution_text: A DATASET for GPS Spoofing Detection on Unmanned Aerial System by G. Aissou, Mendeley Data,
+    doi:10.17632/z7dj3yyzt8.3 (CC BY 4.0)
+  citation: Aissou, 'A DATASET for GPS Spoofing Detection on Unmanned Aerial System', Mendeley Data, V3, 2022. doi:10.17632/z7dj3yyzt8.3
+  provider: url
+  locator:
+    urls: []
+  license_check: manual
+  license_checked: '2026-10-08'
+  approx_size_mb: 50
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+  modifications: Converted to the common frame or feature format for training; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: training_allowed
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-08'
+    retrospective: false
+  personal_data:
+    present: false
+    categories: []
+    special_categories: []
+    human_subjects: false
+    anonymisation: Receiver tracking features (PRN, Doppler, C/N0); positions are not part of the features.
+  storage: $MMZ_DATA/gps-spoofing-aissou (local cache outside git)
+  retention_until: '2027-10-08'
+  used_by: []
+  status: active
+  reason: null
+  class: can-bus-datasets
+- id: syncan
+  class: can-bus-datasets
+  title: SynCAN (ETAS)
+  use_case: CAN signal-level intrusion detection
+  origin_url: https://github.com/etas/SynCAN
+  creators: unknown
+  publisher: ETAS
+  licence: LicenseRef-ETAS-SynCAN
+  licence_url: null
+  attribution_text: SynCAN (ETAS) (LicenseRef-ETAS-SynCAN)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: No open licence; not redistributed.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://github.com/etas/SynCAN
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Non-commercial licence (ETAS custom terms).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: hcrl-car-hacking
+  class: can-bus-datasets
+  title: HCRL Car-Hacking / OTIDS
+  use_case: CAN intrusion detection
+  origin_url: https://ocslab.hksecurity.net/Datasets/car-hacking-dataset
+  creators: unknown
+  publisher: Hacking and Countermeasure Research Lab (HCRL)
+  licence: LicenseRef-HCRL-academic
+  licence_url: null
+  attribution_text: HCRL Car-Hacking / OTIDS (LicenseRef-HCRL-academic)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: No open licence; not redistributed.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://ocslab.hksecurity.net/Datasets/car-hacking-dataset
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: 'Non-commercial licence: download after registration, academic use only.'
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: tue-can-v2
+  class: can-bus-datasets
+  title: Automotive Controller Area Network (CAN) Bus Intrusion Dataset v2
+  use_case: CAN intrusion detection
+  origin_url: https://data.4tu.nl/datasets/efb320d8-c189-4e54-98af-3a79cc14f421
+  creators:
+  - Guillaume Dupont
+  - Alexios Lekidis
+  - Jerry den Hartog
+  - Sandro Etalle
+  publisher: 4TU.ResearchData (TU Eindhoven)
+  licence: CC-BY-NC-4.0
+  licence_url: https://creativecommons.org/licenses/by-nc/4.0/
+  attribution_text: Automotive Controller Area Network (CAN) Bus Intrusion Dataset v2 (CC-BY-NC-4.0)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: Non-commercial licence; not redistributed and not used for training.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://data.4tu.nl/datasets/efb320d8-c189-4e54-98af-3a79cc14f421
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Non-commercial licence (CC BY-NC 4.0).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'
+- id: gem-can
+  class: can-bus-datasets
+  title: GEM-CAN (autonomous shuttle)
+  use_case: On-device CAN intrusion detection
+  origin_url: https://zenodo.org/records/17834776
+  creators: unknown
+  publisher: Zenodo
+  licence: CC-BY-NC-4.0
+  licence_url: https://creativecommons.org/licenses/by-nc/4.0/
+  attribution_text: GEM-CAN (autonomous shuttle) (CC-BY-NC-4.0)
+  modifications: None (not used).
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  redistribution_basis: Non-commercial licence; not redistributed and not used for training.
+  commercial_use: false
+  provider: url
+  locator:
+    urls:
+    - https://zenodo.org/records/17834776
+  license_check: manual
+  license_checked: '2026-10-07'
+  status: rejected
+  reason: Non-commercial licence (CC BY-NC 4.0).
+  used_by: []
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

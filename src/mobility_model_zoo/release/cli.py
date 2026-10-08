@@ -83,7 +83,14 @@ def _mount_compliance() -> None:
     app.add_typer(compliance_app, name="compliance")
 
 
+def _mount_data() -> None:
+    from mobility_model_zoo.datasets.cli import app as data_app
+
+    app.add_typer(data_app, name="data")
+
+
 _mount_compliance()
+_mount_data()
 
 
 @app.command("validate")
@@ -128,6 +135,12 @@ def validate_cmd(
             failures += [f"compliance: {f.line()}" for f in findings]
             if not findings:
                 say("compliance register: ok")
+            from mobility_model_zoo.datasets.registry import validate as validate_datasets
+
+            data_problems = validate_datasets(reg.root)
+            failures += [f"datasets: {p}" for p in data_problems]
+            if not data_problems:
+                say("datasets: ok")
         if failures:
             raise GateFailed(failures)
 
