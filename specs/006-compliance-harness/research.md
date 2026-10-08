@@ -122,7 +122,7 @@ The following come in addition to the four decisions in the spec's Context.
     - `provider_order` must name exactly the allowlisted hosting providers, and `allow_fallbacks: false` stays.
     - After each response, the provider that actually answered (already stored in `backend_meta.provider`) must be on the route's allowlist. Otherwise the response is discarded and the run fails.
     - `models.yaml` entries with `provider_order: null` are refused at run start.
-  - **Claude CLI on the consumer subscription:** refused for new runs. The existing runs are covered by decision `D2-claude-0.1.x` (dated risk acceptance, scope `scout-large` 0.1.x reference labels).
+  - **Claude CLI on the consumer subscription:** refused for new runs. The existing runs are covered by decision `D-claude-risk-0.1.x` (dated risk acceptance, scope `scout-large` 0.1.x reference labels).
   - **Anthropic API:** a new backend `anthropic_api` for future reference labeling (FR, owner decision 2). Its route record needs a DPA and the commercial terms check. It is not run in this feature (cash budget €0).
   - **`training_on_outputs_permitted`:** no longer hard-coded `True` in `span/results.py`. It is read from the route record, and `unclear` fails rule 6 unless a decision covers it.
 - **Retrospective recipients**: `zoo compliance recipients --runs data/runs` aggregates the labeling logs of all runs into `compliance/recipients.yaml`. Each entry has model, access path, hosting provider as recorded, first and last date, call count, and run roles. It contains no text and no chunk ids. For `scout-large` 0.1.x the recorded routes are:
@@ -218,7 +218,7 @@ The following come in addition to the four decisions in the spec's Context.
 
 - **Decision**: `scout-large` 0.1.2 is a patch.
   - **Same files:** same files and metric values (rule 3); a new card rendered from the register; release notes "compliance documentation: attribution, teachers and routes, privacy and copyright policy, NOTICE".
-  - **Source records:** filled by `zoo compliance bootstrap-sources` from the local `source.yaml` files, `data/sources/source-plan.yaml` and the 0.1.1 provenance. Title, creators, licence, legal basis and terms come from the metadata, and Zenodo creators and licence come from the Zenodo API.
+  - **Source records:** filled by `zoo compliance bootstrap-sources` for the training origins and for the snapshots behind the benchmark `pilot-v2` (main and holdout chunks of `pilot-v1.yaml`), because its texts were sent to labeling models and its results are published. The data comes from the local `source.yaml` files, `data/sources/source-plan.yaml` and the 0.1.1 provenance. Title, creators, licence, legal basis and terms come from the metadata, and Zenodo creators and licence come from the Zenodo API.
   - **Unknown fields:** stay `unknown` with the attempt date.
   - **Zenodo interview records:** the description is searched for consent and ethics statements. If none is found, the field is `unknown` and an owner decision item is raised.
   - **Owner approval:** the owner approves the card preview through the existing pipeline. A short "Compliance update" note in the card says what changed and when.
@@ -241,3 +241,18 @@ The following come in addition to the four decisions in the spec's Context.
   - **`zoo-audit.yml`** (weekly): adds the meta stage.
   - **Release workflows:** they need no change; rule 16 runs inside `zoo check`.
 - **Rationale**: Without data, CI can check the register, documents and repository. Data-dependent stages run locally and leave a report that the gate verifies (R9).
+
+## R16 Platform API terms (Reddit)
+
+- **Decision**: For sources fetched through a platform API, the platform's developer and data terms are checked and recorded per source class (`platform_terms`). Check C-I7 enforces the result.
+  - **First case: Reddit.** The benchmark `pilot-v2` contains Reddit texts fetched through the Reddit Data API. They were labeled by reference and teacher models, including hosted ones.
+  - **What is checked:** the current Reddit Developer Terms, Data API Terms and the Public Content Policy. The questions are whether benchmark evaluation, sending texts to hosted models, and ML training are allowed. Each answer is recorded with the quoted clause.
+  - **If a use is `not_allowed` or `unclear`:** an owner decision item is raised. The options are: keep the past use with a documented assessment and stop new hosted processing; replace the Reddit items in a future benchmark version; or remove them from the next benchmark version.
+  - **No change to the frozen benchmark in this feature.** A frozen benchmark is never edited (constitution IX); a change means a new benchmark version.
+- **Rationale**: Platform contract terms bind independently of §44b UrhG and GDPR. The legal research did not cover Reddit's terms, and the code read shows Reddit snapshots in the benchmark, forced to `benchmark_only`.
+- **Alternatives**: Treat `benchmark_only` as sufficient (rejected: API terms may restrict any ML use or third-party processing).
+
+## R17 Personal data scan over the whole repository
+
+- **Decision**: Check C-G5 runs `scan.pii` over every versioned text file in CI (`check --ci`). The allowlist comes from the register: the controller contact lines, the creator credits that a licence requires, and the synthetic fixtures folder. A hit outside the allowlist fails.
+- **Rationale**: SC-007 asks for a repository-wide confirmation. Release scans cover only release files.

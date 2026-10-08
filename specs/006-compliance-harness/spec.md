@@ -46,7 +46,7 @@ The owner opens the compliance register and finds, for every source, dataset, te
 
 **Acceptance Scenarios**:
 
-1. **Given** the register, **When** the owner looks up any source used by a published model, **Then** licence, creators, attribution text, modifications, permitted use, redistribution status with basis, copyright basis, personal-data categories, legal basis, retention purpose and date, and review dates are present.
+1. **Given** the register, **When** the owner looks up any source used by a published model (for training, or for a benchmark whose results are published), **Then** licence, creators, attribution text, modifications, permitted use, redistribution status with basis, copyright basis, personal-data categories, legal basis, retention purpose and date, and review dates are present.
 2. **Given** a teacher or reference model used for labeling, **When** its record is shown, **Then** it states model and version, access path (consumer, API, pinned hosted provider, local), retention and training settings, data processing agreement, region, the terms version that was checked, whether training on outputs is permitted, and the owner's sign-off.
 3. **Given** a model release, **When** its record is shown, **Then** it contains the AI Act classification. That covers AI system and general-purpose assessment with compute estimate, exclusion basis, monetisation status, intended purpose and out-of-scope uses, high-risk and safety-component assessment, transparency trigger, export self-classification, memorisation results, the legal reference versions used, reviewer and next review trigger.
 4. **Given** an owner decision (for example the Claude risk acceptance), **When** it is looked up, **Then** it has date, decision, rationale, scope, expiry or review date and the records it affects.
@@ -184,7 +184,10 @@ Anyone can ask to object, to have data erased, to see what is held about them, o
 - **Waivers.** A waiver without expiry is invalid. Expired waivers fail the meta check.
 - **Third-party examples.** A model card example is taken from a third-party dataset: it must come from a source whose record says redistribution is allowed, and it is attributed.
 - **A provider's terms change.** The stored snapshot hash differs from the current terms page, so the teacher's sign-off becomes due again.
-- **Generated documents and personal data.** A document must never contain personal data of data subjects. Only the controller's own published contact details appear.
+- **Generated documents and personal data.**
+  - A document must never contain personal data of the people whose texts or recordings were processed.
+  - Two kinds of names may appear: the controller's own published contact details, and the creators that a licence requires to be credited (authors of papers, dataset creators, publishing bodies), taken from the register.
+- **Platform API terms.** A source came through a platform API, for example the Reddit Data API. The platform's developer and data terms bind the use alongside copyright and GDPR. They are checked and recorded for the source class, and they decide whether the texts may be sent to hosted models, used for benchmarks or used for training.
 
 ## Requirements *(mandatory)*
 
@@ -247,7 +250,7 @@ Anyone can ask to object, to have data erased, to see what is held about them, o
 
 **scout-large 0.1.2**
 
-- **FR-024**: Records for every source, teacher, provider and the release of `scout-large` 0.1.x MUST be completed, using `unknown` where facts cannot be established, with retrospective documentation of past provider calls and the dated Claude risk acceptance.
+- **FR-024**: Records MUST be completed for every source, teacher, provider and the release of `scout-large` 0.1.x, using `unknown` where facts cannot be established. This includes the sources of the benchmark `pilot-v2`, whose results are published, and the retrospective documentation of past provider calls and the dated Claude risk acceptance.
 - **FR-025**: `scout-large` 0.1.2 MUST be a patch release with byte-identical weights and identical metric values. Its card MUST be rendered under the new rules and the release published through the existing pipeline after owner approval.
 
 **Requests and legal watch**
@@ -293,8 +296,8 @@ Anyone can ask to object, to have data erased, to see what is held about them, o
 - **SC-003**: Each seeded violation in the test fixtures is caught by its stage, and a clean fixture passes every stage. Seeded violations: one per check, covering a robots.txt disallow, a TDM reservation, an unredacted e-mail, an unpinned provider, a non-commercial licence, a corpus sentence in a card, a safety-function claim, a funding link, a missing NOTICE, an overdue review and an expired waiver.
 - **SC-004**: `scout-large` 0.1.2 is published with weights and metrics identical to 0.1.1, and its card shows a complete attribution entry for every source, the teacher and labeling routes, and links to the privacy notice and copyright policy.
 - **SC-005**: The privacy notice names every provider that appears in the labeling logs of published models (zero unnamed recipients).
-- **SC-006**: A request filed through the published channel is logged with its deadline within one working day of receipt.
-- **SC-007**: No personal data of data subjects in the repository, the register or any published file, confirmed by the publication scan over the whole repository.
+- **SC-006**: Every request is answered before its deadline: no request in the log is open past its deadline.
+- **SC-007**: No personal data of data subjects in the repository, the register or any published file. A repository-wide scan confirms this; its only exceptions are the controller contact and licence-required creator credits.
 
 ## Assumptions
 

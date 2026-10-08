@@ -54,7 +54,12 @@ One record per origin (R2).
 | `retention_until` | date | |
 | `deleted_at` | date or null | |
 | `crawl_manifest_sha256` | string or null | |
-| `used_by` | list | `<model>@<version>` or benchmark names |
+| `used_by` | list | `<model>@<version>` for training sources, `benchmark:<name>` for benchmark sources (both kinds are registered) |
+| `platform_terms` | object or null | for sources obtained through a platform API: `url`, `sha256`, `checked_at`, `ml_use` (`allowed`, `not_allowed`, `unclear`), `hosted_processing` (`allowed`, `not_allowed`, `unclear`), with the clause quoted |
+
+## Example sources (`zoo/models/<name>/examples/SOURCES.yaml`)
+
+One entry per example file: `file`, `source` (`synthetic`, or a source or dataset id whose record has `redistribution: allowed`), `note` (how it was made). An example file without an entry fails C-U4.
 
 ## Dataset (`topics/<topic>/compliance/datasets.yaml`)
 
@@ -90,11 +95,11 @@ Per route seen in the labeling logs: `route_id` or `unrecorded`, `model_id`, `ac
 - the four Context decisions of the spec;
 - D5–D13 from research;
 - `D-parl-art9` (R6);
-- `D2-claude-0.1.x` (risk acceptance, review by 2027-04-08).
+- `D-claude-risk-0.1.x` (risk acceptance, review by 2027-04-08).
 
 ## Waiver (`compliance/waivers.yaml`)
 
-`id`, `check`, `scope`, `rationale`, `approved_by`, `expires_at` (required, at most 6 months ahead).
+`id`, `check` (a check id with prefix `C-`), `scope`, `rationale`, `approved_by`, `approved_at`, `expires_at`. `expires_at` is required and at most 6 months after `approved_at`.
 
 ## Request (`compliance/requests.yaml`)
 

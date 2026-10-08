@@ -9,7 +9,7 @@ New `zoo compliance` command group and changes to existing commands. Exit codes 
 | `check [--ci] [--stage S] [--model M --version V]` | Runs the stages in order and stops at the first failing stage. `--ci` runs only stages that need no data: meta, licence, repository, notices, drift. |
 | `render [--check]` | Renders every generated document from the register. `--check` writes nothing and exits 2 on any difference. |
 | `recipients --runs DIR...` | Aggregates labeling logs into `compliance/recipients.yaml` (no text, no chunk ids). |
-| `bootstrap-sources --topic T --model M --version V` | Proposes source records from local snapshot metadata, the source plan, the release provenance and the Zenodo API. Fields that cannot be filled are written as `unknown` with the attempt date; nothing is invented. |
+| `bootstrap-sources --topic T --model M --version V [--benchmark-config C]` | Proposes source records for the training origins of the release and, with `--benchmark-config`, for every snapshot behind that benchmark's chunks (main and holdout). Sources: local snapshot metadata, the source plan, the release provenance and the Zenodo API. Fields that cannot be filled are written as `unknown` with the attempt date; nothing is invented. |
 | `retention [--fail]` | Lists items past their retention date or without a purpose. |
 | `delete --snapshot ID --reason TEXT` | Deletes a raw snapshot, logs hash and URL, and sets `deleted_at`. |
 | `scan-publish --model M --version V` | Scans every file to be published for corpus overlap (≥ 30 words) and PII. Writes the report referenced by the release compliance record. |

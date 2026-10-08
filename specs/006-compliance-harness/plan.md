@@ -13,7 +13,7 @@ The zoo gets a compliance register, fail-closed checks along the data and releas
    - Topic records in `topics/<topic>/compliance/`: source classes, sources per origin, datasets.
    - Release compliance records next to the release records.
    - YAML validated by JSON Schemas; no personal data of data subjects.
-2. **Checks** (R3–R9, R11, R12): a shared package `mobility_model_zoo.compliance` with 49 numbered checks ([contracts/checks.md](contracts/checks.md)), wired into the existing tools:
+2. **Checks** (R3–R9, R11, R12): a shared package `mobility_model_zoo.compliance` with 51 numbered checks ([contracts/checks.md](contracts/checks.md)), wired into the existing tools:
    - `jtbd source` (fetch);
    - `corpus autochunk` (ingest);
    - the labeling runner (pre-send and post-receive);
@@ -72,7 +72,7 @@ The zoo gets a compliance register, fail-closed checks along the data and releas
 **Scale/Scope**:
 - 87 source origins and about 4 source classes for productdev.
 - About 10 provider routes from 23 run folders.
-- 49 check ids, about 12 generated documents, 1 patch release.
+- 51 check ids, about 12 generated documents, 1 patch release.
 
 ## Constitution Check
 
@@ -112,7 +112,7 @@ specs/006-compliance-harness/
 ├── quickstart.md
 ├── contracts/
 │   ├── cli.md             # zoo compliance and changed commands
-│   ├── checks.md          # 49 check ids
+│   ├── checks.md          # 51 check ids
 │   └── documents.md       # what each generated document contains
 ├── legal-research/        # report.md and six research notes (2026-10-08)
 ├── checklists/requirements.md
@@ -165,7 +165,7 @@ tests/compliance/          # per-check fixtures, redaction-set (synthetic), rend
 
 | Phase | Content | Done when |
 |---|---|---|
-| 1 Register | schemas, loader, controller, decisions D1–D13 and `D-parl-art9`/`D2-claude-0.1.x`, legal watch, lists | `check --stage meta` passes; seeded meta violations fail |
+| 1 Register | schemas, loader, controller, decisions D1–D13 and `D-parl-art9`/`D-claude-risk-0.1.x`, legal watch, lists | `check --stage meta` passes; seeded meta violations fail |
 | 2 Evidence for scout-large | `recipients` from the logs; route records per provider; `bootstrap-sources`; source classes and LIA; Art. 9 scan; redaction recall | every record of the 0.1.x release complete or `unknown` with date |
 | 3 Documents | templates, render, drift, REUSE, card sections, AI Act and training summary | `render --check` and `reuse lint` pass |
 | 4 Release checks | rule 16 (meta, model, publication, card, licence, repository, notices, sign-off); rule 6 from routes; publication scan | release fixtures with seeded violations fail; clean passes |

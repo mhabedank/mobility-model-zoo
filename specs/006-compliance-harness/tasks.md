@@ -11,7 +11,7 @@ description: "Tasks for feature 006: compliance harness"
 **Organization**: Tasks are grouped by user story (US1–US6 from spec.md).
 - **(ops)** marks a step that touches GitHub or Hugging Face or needs the owner.
 - **GATE** marks a point where work stops until a condition holds.
-- **Check ids:** "C-xx" refers to the ids in [contracts/checks.md](contracts/checks.md), so they do not collide with task ids. Example: C-F1 is the robots.txt check, C-M2 the overdue-review check.
+- **Check ids:** "C-xx" are the ids in [contracts/checks.md](contracts/checks.md); the prefix keeps them apart from decision ids (`D…`) and task ids. Example: C-F1 is the robots.txt check, C-M2 the overdue-review check. Code, waivers and failure messages use the same ids.
 - **Code paths:** `src/mobility_model_zoo/compliance/`, `src/mobility_model_zoo/productdev/jtbd/` (shortened to `jtbd/`), `src/mobility_model_zoo/release/`.
 
 **Order note**: US3 (scout-large 0.1.2, P1) is scheduled after US4 (P2), because rule 16 needs the publication scan and the card lint from US4. US5 and US6 follow; they protect future data generation and requests, which do not block the patch.
@@ -86,7 +86,7 @@ description: "Tasks for feature 006: compliance harness"
     - `tos_verdict` takes `allow|deny|owner_confirmed_allow`.
   - **Datasets:** `status` enum `active|broken_at_source|rejected`, and `reason` is required unless `active`.
   - **Providers:** `consumer_cli` routes must have `allowed_for: []`.
-  - **Waivers:** `expires_at` at most 6 months after `approved_at`.
+  - **Waivers:** fields `id, check, scope, rationale, approved_by, approved_at, expires_at`; `check` matches `^C-[A-Z][0-9]$`; `expires_at` at most 6 months after `approved_at`.
   - **Release compliance:** `state` enum `draft|signed_off|published`.
 - [ ] T011 [US1] Implement the meta stage (checks C-M1 to C-M4) in `src/mobility_model_zoo/compliance/checks.py` and wire it into `zoo compliance check --stage meta` and `zoo validate --all` (`release/cli.py`). T008 and T009 pass.
 - [ ] T012 [P] [US1] Create `compliance/controller.yaml`:
@@ -98,13 +98,13 @@ description: "Tasks for feature 006: compliance harness"
   - owner and review dates (next review 2027-04-08).
 - [ ] T013 [P] [US1] Create `compliance/decisions.yaml` with the owner decisions:
   - **Context decisions 1–4 of spec.md:**
-    - `D1-routing`: local first, pinned EU/DPF zero-retention providers only;
-    - `D2-claude-api`: future reference labels via the Anthropic API with a DPA;
-    - `D3-contact`: private controller, Miskatonic contact, no branding;
-    - `D4-order`: 006 before 005.
+    - `D-routing`: local first, pinned EU/DPF zero-retention providers only;
+    - `D-claude-api`: future reference labels via the Anthropic API with a DPA;
+    - `D-contact`: private controller, Miskatonic contact, no branding;
+    - `D-order`: 006 before 005.
   - **Planning decisions D5–D13** from research.md, each with date 2026-10-08, rationale, scope and `review_by`. D6 is reviewed at 2026-12-17 (BGH I ZR 281/25).
   - **`D-parl-art9`:** political content in parliamentary speeches by office holders, Art. 9(2)(e) (research R6).
-  - **`D2-claude-0.1.x`:** a dated risk acceptance for the Claude reference labels made via the consumer CLI subscription. Scope: `scout-large` 0.1.x benchmark reference labels; review by 2027-04-08.
+  - **`D-claude-risk-0.1.x`:** a dated risk acceptance for the Claude reference labels made via the consumer CLI subscription. Scope: `scout-large` 0.1.x benchmark reference labels; review by 2027-04-08.
 - [ ] T014 [P] [US1] Create `compliance/legal-watch.yaml` with these items, each with `expected`, `review_by` (expected date plus 14 days, or 2027-01-15 if unknown) and `affects`:
   - BGH I ZR 281/25 (expected 2026-12-17; affects D6, C-F6);
   - ProdHaftG transposition (2026-12-09);
@@ -145,18 +145,24 @@ description: "Tasks for feature 006: compliance harness"
   - `forum-review` (`tdm_44b`, benchmark only, `art9_handling: quarantine`).
 
   Each class gets an LIA object (`purpose`, `necessity`, `balancing`, `safeguards`, `decided_at` 2026-10-08) and a retention rule "reproduce frozen benchmark and current model training set; review 24 months after freeze".
-- [ ] T020 [US1] Implement `zoo compliance bootstrap-sources --topic T --model M --version V` in `src/mobility_model_zoo/compliance/bootstrap.py`. For each origin in the release record's `provenance.sources` it:
+- [ ] T020 [US1] Implement `zoo compliance bootstrap-sources --topic T --model M --version V [--benchmark-config C]` in `src/mobility_model_zoo/compliance/bootstrap.py`. It covers each origin in the release record's `provenance.sources` (`used_by: <model>@<version>`) and, with `--benchmark-config`, every snapshot behind the main and holdout chunks of that config (`used_by: benchmark:<name>`). For each origin it:
   - reads the local `data/snapshots/*/source.yaml` files with that `origin_url`, the entry in `data/sources/source-plan.yaml` and, for Zenodo URLs, the Zenodo API record (title, creators, licence, description);
   - writes a source record with `class` (from the source type and publisher), title, creators, publisher, licence (SPDX), licence URL, attribution text (TASL), `modifications: "extracted text, split into chunks, personal identifiers redacted, labeled by language models"`, `permitted_use`, `redistribution: not_allowed` for all (training texts are not redistributed), `quote_allowed`, `retention_until` from the snapshots, `storage: data/snapshots` and `used_by`;
   - writes signals as a retrospective check: fetch today's robots.txt, TDMRep and ai.txt, mark `retrospective: true` and set `checked_at` to today;
   - for Zenodo interview records, searches the description for consent and ethics terms and sets `consent_or_ethics` to the quoted sentence, or to `unknown` with a decision item appended to `validation.md`.
 
   Nothing is invented: missing values are written as `unknown` with the date. Test in `tests/compliance/test_bootstrap.py` with a fixture snapshot and a mocked Zenodo response.
-- [ ] T021 [US1] Run `bootstrap-sources` for `scout-large` 0.1.1 and write `topics/productdev/compliance/sources.yaml`.
+- [ ] T021 [US1] Run `bootstrap-sources --topic productdev --model scout-large --version 0.1.1 --benchmark-config configs/productdev/jtbd/pilot-v1.yaml` and write `topics/productdev/compliance/sources.yaml`.
   - Review every record with `unknown` and resolve what can be found from the source page (creators of papers, Bundestag as publisher).
   - Commit, then run `zoo compliance check --stage meta`.
-  - **GATE:** all 87 origins have records, and every remaining `unknown` is either covered by a waiver with expiry or listed for the owner in `validation.md` under "Owner decision items".
-- [ ] T022 [P] [US1] Create `topics/productdev/compliance/datasets.yaml` with `datasets: []` and a comment that third-party datasets of this topic are listed here, and that feature 005 adds the security and condition-monitoring files with this schema.
+  - **GATE:** all 87 training origins and every benchmark snapshot source of `pilot-v2` have records, and every remaining `unknown` is either covered by a waiver with expiry or listed for the owner in `validation.md` under "Owner decision items".
+- [ ] T022 [US1] Check the platform terms of sources obtained through an API (research R16). For the class `forum-review` (Reddit Data API), fetch the current Reddit Developer Terms, Data API Terms and Public Content Policy. Record `platform_terms` on each Reddit source record: `url`, `sha256`, `checked_at`, and `ml_use` and `hosted_processing` (`allowed`, `not_allowed` or `unclear`), each with the quoted clause. Do the same for any other API-fetched source class. Where a use that already happened (benchmark labeling by hosted models) is `not_allowed` or `unclear`, add an owner decision item to `validation.md` with three options:
+  - keep the past use, document the assessment and stop new hosted processing;
+  - replace the items in a future benchmark version;
+  - remove them from the next benchmark version.
+
+  The frozen benchmark is not edited.
+- [ ] T023 [P] [US1] Create `topics/productdev/compliance/datasets.yaml` with `datasets: []` and a comment that third-party datasets of this topic are listed here, and that feature 005 adds the security and condition-monitoring files with this schema.
 
 **Checkpoint**: The register is complete for everything published, and the meta stage passes.
 
@@ -170,8 +176,8 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] Write `tests/compliance/test_render.py`. On the fixture register, rendering produces every file in contracts/documents.md, and each file contains its required elements (one assertion per element listed in the contract). Rendering twice gives byte-identical output.
-- [ ] T024 [P] [US2] Write `tests/compliance/test_notices.py`. Seeded violations:
+- [ ] T024 [P] [US2] Write `tests/compliance/test_render.py`. On the fixture register, rendering produces every file in contracts/documents.md, and each file contains its required elements (one assertion per element listed in the contract). Rendering twice gives byte-identical output.
+- [ ] T025 [P] [US2] Write `tests/compliance/test_notices.py`. Seeded violations:
   - C-N1: a route in `recipients.yaml` missing from `PRIVACY.md`;
   - C-N2: a retention in `PRIVACY.md` differs from the register;
   - C-N3: a hand-edited `NOTICE`.
@@ -180,26 +186,26 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Create the Jinja templates in `src/mobility_model_zoo/compliance/templates/`: `PRIVACY.md.j2`, `COPYRIGHT_POLICY.md.j2`, `SECURITY.md.j2`, `NOTICE.j2`, `THIRD_PARTY_NOTICES.md.j2`, `REUSE.toml.j2`, `rights-request.yml.j2`, `record-of-processing.md.j2`, `lia-dpia.md.j2`, `ai-act.md.j2`, `training-data-summary.md.j2`. Content per contracts/documents.md, in English.
+- [ ] T026 [US2] Create the Jinja templates in `src/mobility_model_zoo/compliance/templates/`: `PRIVACY.md.j2`, `COPYRIGHT_POLICY.md.j2`, `SECURITY.md.j2`, `NOTICE.j2`, `THIRD_PARTY_NOTICES.md.j2`, `REUSE.toml.j2`, `rights-request.yml.j2`, `record-of-processing.md.j2`, `lia-dpia.md.j2`, `ai-act.md.j2`, `training-data-summary.md.j2`. Content per contracts/documents.md, in English.
   - `PRIVACY.md` has the Art. 21 objection right as its own section.
   - Contacts come only from `controller.yaml`.
   - No text mentions Miskatonic other than the e-mail addresses and the imprint and privacy links.
-- [ ] T026 [US2] Implement `src/mobility_model_zoo/compliance/render.py` and `zoo compliance render [--check]`. It writes these files and nothing else; in `--check` mode it compares and reports C-N3 per file.
+- [ ] T027 [US2] Implement `src/mobility_model_zoo/compliance/render.py` and `zoo compliance render [--check]`. It writes these files and nothing else; in `--check` mode it compares and reports C-N3 per file.
   - `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, `REUSE.toml`;
   - `LICENSES/` (Apache-2.0, MIT, CC-BY-4.0, CC-BY-SA-4.0 texts from SPDX);
   - `.github/ISSUE_TEMPLATE/rights-request.yml`;
   - `docs/compliance/record-of-processing.md`, `docs/compliance/lia-dpia.md`;
   - per release with a compliance record: `zoo/models/<m>/releases/<v>.ai-act.md` and `<v>.training-data-summary.md`.
-- [ ] T027 [US2] Implement the notices checks C-N1 and C-N2 in `checks.py`. Add the documentation-only stage set to `zoo compliance check --ci`: meta, notices and drift. T023 and T024 pass.
-- [ ] T028 [US2] Add the new card sections to the model card. Edit `src/mobility_model_zoo/release/card.py` (`SECTIONS`) and `templates/model_card.md.j2`:
+- [ ] T028 [US2] Implement the notices checks C-N1 and C-N2 in `checks.py`. Add the documentation-only stage set to `zoo compliance check --ci`: meta, notices and drift. T024 and T025 pass.
+- [ ] T029 [US2] Add the new card sections to the model card. Edit `src/mobility_model_zoo/release/card.py` (`SECTIONS`) and `templates/model_card.md.j2`:
   - "Training data and attribution": a TASL table from the source records plus modification notes and the NOTICE text, including the XLM-R MIT notice when `base_model` is `FacebookAI/xlm-roberta-large`.
   - "Teacher and labeling models": route, hosting provider and terms checked date.
   - "Out-of-scope use".
   - "Dual-use considerations": only for topics marked `security` in `card-lint.yaml`.
   - "Privacy and personal data": a summary, with links to `PRIVACY.md`, `COPYRIGHT_POLICY.md` and the AI Act record at the release tag.
 
-  The sections render only when a release compliance record exists. Published 0.1.0/0.1.1 cards keep rendering byte-identically: add a golden test in `tests/release/test_card_build.py`.
-- [ ] T029 [US2] Run `uv run zoo compliance render`, run `uv run reuse lint`, fix the REUSE globs until it passes, and commit the generated files. **GATE:** `render --check`, `reuse lint` and `check --ci` pass.
+  The sections render only when a release compliance record exists, and rule 10 requires them only then. Releases without a compliance record keep the current 15 required sections. Published 0.1.0/0.1.1 cards keep rendering byte-identically: add a golden test in `tests/release/test_card_build.py`.
+- [ ] T030 [US2] Run `uv run zoo compliance render`, run `uv run reuse lint`, fix the REUSE globs until it passes, and commit the generated files. **GATE:** `render --check`, `reuse lint` and `check --ci` pass.
 
 **Checkpoint**: Public documents exist and cannot drift.
 
@@ -213,23 +219,24 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Tests for User Story 4
 
-- [ ] T030 [P] [US4] Write `tests/compliance/test_publication.py`:
+- [ ] T031 [P] [US4] Write `tests/compliance/test_publication.py`:
   - **C-U2:** a fixture card containing a 31-word span copied from a fixture corpus fails; a 29-word span passes; a 40-word attributed quote from a `quote_allowed` source passes.
   - **C-U3:** a card with `erika.mustermann@example.org` fails.
-  - **C-U4:** an example marked `source: road` while `road.redistribution: unclear` fails.
+  - **C-U4:** an example without an entry in `examples/SOURCES.yaml` fails, and so does an entry `source: road` while `road.redistribution: unclear`; `source: synthetic` passes.
   - **C-U1:** a report whose file hash differs from the current file fails.
-- [ ] T031 [P] [US4] Write `tests/compliance/test_card_lint.py`:
+- [ ] T032 [P] [US4] Write `tests/compliance/test_card_lint.py`:
   - C-C1: a missing "Out-of-scope use" fails;
   - C-C2: "suitable as a safety function", "production-ready", "certified" and "this model is anonymous" each fail;
   - an Annex III phrase such as "for screening job applicants" fails;
   - the current `scout-large` card text plus the new sections passes.
-- [ ] T032 [P] [US4] Write `tests/compliance/test_repo_hygiene.py`:
+- [ ] T033 [P] [US4] Write `tests/compliance/test_repo_hygiene.py`:
   - C-G1: a missing `SECURITY.md` fails;
   - C-G2: `.github/FUNDING.yml`, "hire me", "consulting services" or "Miskatonic Analytics" in a README fails, while the e-mail address passes;
+  - C-G5: a committed file with `erika.mustermann@example.org` fails, while a creator credit from a register record and the controller contact pass;
   - C-G4: an mcu release without an SBOM fails;
   - C-L2: a NOTICE drift fails;
   - C-L3: a Hub licence mismatch (FakeHub) and a gated BY-SA repo each fail.
-- [ ] T033 [P] [US4] Write `tests/release/test_rule16.py` on the release fixtures:
+- [ ] T034 [P] [US4] Write `tests/release/test_rule16.py` on the release fixtures:
   - a draft without a compliance record fails C-S1;
   - a record with `memorisation` missing fails C-D1;
   - `training_compute_flop: 2e23` without a GPAI review fails C-D2;
@@ -239,33 +246,34 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 4
 
-- [ ] T034 [US4] Implement the corpus index and overlap scan in `src/mobility_model_zoo/compliance/scan.py`.
+- [ ] T035 [US4] Implement the corpus index and overlap scan in `src/mobility_model_zoo/compliance/scan.py`.
   - **`build_index(config, out)`:** hashed word 8-gram shingles (lowercased, Unicode-normalised) over `text.txt` of every snapshot used by the config's chunks, written to `data/compliance/corpus-index/<fingerprint>/`.
   - **`overlap(text, index)`:** the longest run of consecutive corpus words, found by chaining matching shingles.
   - **`pii(text)`:** the redact patterns plus IBAN, German phone, postcode with street, licence plate, tax ID and e-mail obfuscations.
-- [ ] T035 [US4] Implement `zoo compliance scan-publish --model M --version V`.
+- [ ] T036 [US4] Implement `zoo compliance scan-publish --model M --version V`.
   - **Files scanned:** the rendered card, `examples/*`, `zoo/models/<m>/results/<v>/*.json`, release notes, and the `.ai-act.md` and `.training-data-summary.md` files.
   - **Report:** `zoo/models/<m>/releases/<v>.publication-scan.json` with `index_fingerprint` and, per file, `path`, `sha256`, `overlap_max_words` and `pii_hits`. Counts only, no matched text.
   - **Exemptions:** attributed quotes from `quote_allowed` sources are recorded as `allowed_quote_words`.
   - **Checks:** C-U1–C-U4.
-- [ ] T036 [US4] Implement the card lint (C-C1, C-C2) from `compliance/lists/card-lint.yaml` in `checks.py`, and call it from gate rule 10 (`release/gate.py`) for drafts that have a compliance record.
-- [ ] T037 [US4] Implement the repository and licence checks in `checks.py`:
+- [ ] T037 [US4] Implement the card lint (C-C1, C-C2) from `compliance/lists/card-lint.yaml` in `checks.py`, and call it from gate rule 10 (`release/gate.py`) for drafts that have a compliance record.
+- [ ] T038 [US4] Implement the repository and licence checks in `checks.py`:
   - C-G1: required files;
   - C-G2: monetisation and branding patterns (allowlist the two e-mail addresses and the two URLs from `controller.yaml`);
   - C-G3: run `zoo history-check`'s gitleaks call in working-tree mode;
   - C-G4: SBOM for `runtime: mcu` releases;
+  - C-G5: `scan.pii` over every file listed by `git ls-files` with a text extension. The allowlist covers the contact lines from `controller.yaml`, the `creators` of source and dataset records whose licence requires attribution, and `tests/fixtures/compliance/`;
   - C-L1: `reuse lint` subprocess;
   - C-L2: drift of NOTICE, third-party notices and card attribution;
   - C-L3: Hub `cardData.license`, `base_model` and gating through the existing `hub.py`.
 
-  Add C-G1, C-G2 and C-L1 to `--ci`.
-- [ ] T038 [US4] Add gate rule 16 "compliance" to `src/mobility_model_zoo/release/gate.py`: rule table (`gate.py:40-55`), run order and `OFFLINE_RULES` in `release/cli.py`. It loads `zoo/models/<m>/releases/<v>.compliance.yaml` and runs the meta, model (C-D1, C-D2), publication (C-U1 from the committed report), card, licence, repository, notices and sign-off (C-S1) stages. Sandbox models are exempt from C-U and C-D but not from C-G or C-L.
-- [ ] T039 [US4] Fix rule 6 and the record template:
+  Add C-G1, C-G2, C-G5 and C-L1 to `--ci`.
+- [ ] T039 [US4] Add gate rule 16 "compliance" to `src/mobility_model_zoo/release/gate.py`: rule table (`gate.py:40-55`), run order and `OFFLINE_RULES` in `release/cli.py`. It loads `zoo/models/<m>/releases/<v>.compliance.yaml` and runs the meta, model (C-D1, C-D2), publication (C-U1 from the committed report), card, licence, repository, notices and sign-off (C-S1) stages. Sandbox models are exempt from C-U and C-D but not from C-G or C-L.
+- [ ] T040 [US4] Fix rule 6 and the record template:
   - In `src/mobility_model_zoo/productdev/jtbd/span/results.py:394`, read `training_on_outputs_permitted` from the route record: `yes` becomes true, `no` false, and `unclear` false unless a decision covers it.
   - In `release/gate.py` rule 6, require `output_training_permitted: yes` or a covering decision for every teacher route.
 
-  Do not edit published records. T033 passes.
-- [ ] T040 [US4] Implement `zoo compliance signoff --model M --version V`: it sets `state: signed_off`, `signed_off_by` (from `git config user.name`) and `signed_off_at`, and refuses unless all other stages pass.
+  Do not edit published records. T034 passes.
+- [ ] T041 [US4] Implement `zoo compliance signoff --model M --version V`: it sets `state: signed_off`, `signed_off_by` (from `git config user.name`) and `signed_off_at`, and refuses unless all other stages pass.
 
 **Checkpoint**: Nothing can be published without a clean scan, card lint, licence files and sign-off.
 
@@ -277,30 +285,30 @@ description: "Tasks for feature 006: compliance harness"
 
 **Independent Test**: quickstart scenario 4. `zoo check scout-large 0.1.2` passes all rules including 16; files and metric values are identical to 0.1.1.
 
-- [ ] T041 [US3] Implement `zoo compliance art9-scan --config C` with the lexicon from `compliance/lists/special-categories.yaml`. It writes counts per category and source class into the release compliance record (`scans.art9_counts`) and never writes text or chunk ids into git. Run it on `configs/productdev/jtbd/span-train-v1.yaml` (training chunks) and `pilot-v1.yaml` (benchmark).
+- [ ] T042 [US3] Implement `zoo compliance art9-scan --config C` with the lexicon from `compliance/lists/special-categories.yaml`. It writes counts per category and source class into the release compliance record (`scans.art9_counts`) and never writes text or chunk ids into git. Run it on `configs/productdev/jtbd/span-train-v1.yaml` (training chunks) and `pilot-v1.yaml` (benchmark).
   - If hits exist outside `parliamentary-records`, add an owner decision item to `validation.md`: keep with rationale for 0.1.x, or plan 0.2 without them.
   - Test in `tests/compliance/test_art9.py` on synthetic text.
-- [ ] T042 [US3] Create the synthetic redaction test set `tests/fixtures/compliance/redaction-set/items.jsonl`: 300 German and English sentences with invented identifiers (e-mail, phone, handles, profile URLs, IBAN, postcode with street, licence plate), each annotated with spans. Implement `zoo compliance redaction-recall`, which runs `redact.py` patterns plus `scan.pii` on the set and prints recall per type. Run it, record the result in `validation.md`, and add a test that recall is ≥ 0.95 (D9). If it falls short, extend the patterns before continuing.
-- [ ] T043 [US3] Create `zoo/models/scout-large/releases/0.1.2.yaml`:
+- [ ] T043 [US3] Create the synthetic redaction test set `tests/fixtures/compliance/redaction-set/items.jsonl`: 300 German and English sentences with invented identifiers (e-mail, phone, handles, profile URLs, IBAN, postcode with street, licence plate), each annotated with spans. Implement `zoo compliance redaction-recall`, which runs `redact.py` patterns plus `scan.pii` on the set and prints recall per type. Run it, record the result in `validation.md`, and add a test that recall is ≥ 0.95 (D9). If it falls short, extend the patterns before continuing.
+- [ ] T044 [US3] Create `zoo/models/scout-large/releases/0.1.2.yaml`:
   - copy of 0.1.1 with `version: 0.1.2`, `change_type: patch`, `date` today;
   - `changes: "Compliance documentation: full attribution (TASL), teacher and labeling routes, privacy notice and copyright policy links, NOTICE text. Weights, files and metrics unchanged."`;
   - the same `files` and `staging`;
   - `recipe.git_commit` set to the current commit;
   - `published: null`.
 
-  Copy `results/0.1.1/` to `results/0.1.2/` with `version` changed only. Rule 3 checks the identical sha256 and metrics.
-- [ ] T044 [US3] Create `zoo/models/scout-large/releases/0.1.2.compliance.yaml`:
+  Copy `results/0.1.1/` to `results/0.1.2/` with `version` changed only. Rule 3 checks the identical sha256 and metrics. Create `zoo/models/scout-large/examples/SOURCES.yaml`, one entry per example file, with `source: synthetic` and a note that the texts are fictional and written for the card. Check each example text against the corpus index (T046) before recording it.
+- [ ] T045 [US3] Create `zoo/models/scout-large/releases/0.1.2.compliance.yaml`:
   - **AI system:** `ai_system.is_system: true`, rationale "weights plus inference code published".
   - **GPAI:** `gpai.is_gpai: false`, `generative: false`, `params: 560e6`, `training_compute_flop` estimated as 6 × params × fine-tuning tokens (from the training log; `method` stated), `base_model_compute_flop` as published for XLM-R or `unknown` with date, rationale.
   - **Exclusion and purpose:** `exclusion_basis: art2_12`, `monetisation: none`, `intended_purpose` and `out_of_scope` from the model card, `annex_iii_match: none`, `annex_i: {legislation: none, safety_component: false}`, `art50_trigger: none`, `legal_references` with dates.
   - **Export:** `export: {self_classification: "not listed (EU 2021/821)", rationale}`.
   - **Licence manifest:** Apache-2.0 weights, MIT base, notices.
   - **Provenance:** `sources`, the route ids from `recipients.yaml` and `recipients_sha256`.
-  - **Scans:** `redaction_recall` from T042; `art9_counts` from T041; `memorisation: {status: not_applicable, rationale: "token-classification encoder without generative head; outputs are spans of the input text"}`.
+  - **Scans:** `redaction_recall` from T043; `art9_counts` from T042; `memorisation: {status: not_applicable, rationale: "token-classification encoder without generative head; outputs are spans of the input text"}`.
   - **State:** `state: draft`.
-- [ ] T045 [US3] Render the card and documents for 0.1.2 with `zoo compliance render`. Build the corpus index, then run `zoo compliance scan-publish --model scout-large --version 0.1.2`. Fix any C-U finding in templates or examples (the examples are fictional; verify they pass). Commit the scan report.
-- [ ] T046 [US3] Run `uv run zoo check scout-large 0.1.2` and `uv run zoo compliance check --model scout-large --version 0.1.2`. **GATE:** every rule passes except C-S1. Then present the rendered card and the owner decision items from `validation.md` to the owner (AskUserQuestion). After approval, run `zoo compliance signoff` and re-run `zoo check`.
-- [ ] T047 [US3] (ops) Publish 0.1.2 through the existing pipeline:
+- [ ] T046 [US3] Render the card and documents for 0.1.2 with `zoo compliance render`. Build the corpus index, then run `zoo compliance scan-publish --model scout-large --version 0.1.2`. Fix any C-U finding in templates or examples (the examples are fictional; verify they pass). Commit the scan report.
+- [ ] T047 [US3] Run `uv run zoo check scout-large 0.1.2` and `uv run zoo compliance check --model scout-large --version 0.1.2`. **GATE:** every rule passes except C-S1. Then present the rendered card and the owner decision items from `validation.md` to the owner (AskUserQuestion). After approval, run `zoo compliance signoff` and re-run `zoo check`.
+- [ ] T048 [US3] (ops) Publish 0.1.2 through the existing pipeline:
   1. push the tag `scout-large/v0.1.2`;
   2. `release-verify` builds the preview;
   3. the owner approves the preview;
@@ -316,11 +324,11 @@ description: "Tasks for feature 006: compliance harness"
 
 **Goal**: Fetch, ingest, pre-send, post-receive, retention and train stages are enforced in `jtbd`.
 
-**Independent Test**: quickstart scenario 3 (data path part). Every seeded violation in C-F1–C-F8, C-I1–C-I6, C-P1–C-P6, C-R1 and C-T1–C-T5 fails at its stage.
+**Independent Test**: quickstart scenario 3 (data path part). Every seeded violation in C-F1–C-F8, C-I1–C-I7, C-P1–C-P6, C-R1 and C-T1–C-T5 fails at its stage.
 
 ### Tests for User Story 5
 
-- [ ] T048 [P] [US5] Write `tests/compliance/test_signals.py` with `httpx.MockTransport`:
+- [ ] T049 [P] [US5] Write `tests/compliance/test_signals.py` with `httpx.MockTransport`:
   - **C-F1:** robots.txt disallows `GPTBot` only, which blocks; a robots.txt network error blocks with "retry later"; robots.txt 404 means allowed; robots.txt 403 blocks.
   - **C-F2:** `/.well-known/tdmrep.json` with `tdm-reservation: 1`, and the same as a header, block.
   - **C-F3:** `X-Robots-Tag: noai`, and the `<meta name="robots" content="noai">` variant, block.
@@ -330,17 +338,18 @@ description: "Tasks for feature 006: compliance harness"
   - **C-F7:** a 402 response, or a login form, blocks.
   - **C-F8:** `register` without `--signals` is refused.
   - A clean site passes, and the crawl manifest line contains every verdict.
-- [ ] T049 [P] [US5] Write `tests/compliance/test_ingest_presend.py`:
+- [ ] T050 [P] [US5] Write `tests/compliance/test_ingest_presend.py`:
   - **C-I1:** a chunk from a source without a record fails.
   - **C-I2:** a CC-BY-NC source with `training_allowed` fails.
   - **C-I4:** a human-subject source with `consent_or_ethics: unknown` and no decision fails.
   - **C-I6:** a forum chunk with a health statement is quarantined.
+  - **C-I7:** a Reddit-class source without `platform_terms`, or with `ml_use: unclear` and no decision, fails.
   - **C-P1:** a chunk with an outdated `patterns_version` fails.
   - **C-P2:** an unredacted `erika.mustermann@example.org` fails before any backend call. Use a fake backend that fails if called.
   - **C-P4:** a `consumer_cli` route for a new run fails.
   - **C-P5:** a `provider_order: null` OpenRouter model fails at run start.
   - **C-P6:** a response whose `provider` differs from the route is discarded and the run fails.
-- [ ] T050 [P] [US5] Write `tests/compliance/test_retention_train.py`:
+- [ ] T051 [P] [US5] Write `tests/compliance/test_retention_train.py`:
   - **C-R1:** a snapshot with `retention_until` yesterday is reported.
   - **`delete`:** removes the raw file, logs hash and URL, and sets `deleted_at`.
   - **C-T1:** a suppressed URL in the training data fails.
@@ -351,30 +360,30 @@ description: "Tasks for feature 006: compliance harness"
 
 ### Implementation for User Story 5
 
-- [ ] T051 [US5] Implement `src/mobility_model_zoo/compliance/signals.py` per research R4: robots.txt (RFC 9309; project agent, `*`, AI agents list; fail closed), TDMRep (well-known file, header, meta), `X-Robots-Tag` and meta robots, ai.txt, deny and piracy lists, the terms keyword screen, and access-barrier detection. It returns a `SignalVerdict` with every field of the crawl manifest entry (data-model.md).
-- [ ] T052 [US5] Wire the signals into `jtbd/sources/snapshot.py`:
+- [ ] T052 [US5] Implement `src/mobility_model_zoo/compliance/signals.py` per research R4: robots.txt (RFC 9309; project agent, `*`, AI agents list; fail closed), TDMRep (well-known file, header, meta), `X-Robots-Tag` and meta robots, ai.txt, deny and piracy lists, the terms keyword screen, and access-barrier detection. It returns a `SignalVerdict` with every field of the crawl manifest entry (data-model.md).
+- [ ] T053 [US5] Wire the signals into `jtbd/sources/snapshot.py`:
   - **`fetch_url`:** replace `robots_allowed` (fails open today at lines 313–318) with `signals.check`. Write each attempt to `data/compliance/crawl-manifest.jsonl`. Refuse with exit 3 naming the check.
   - **User agent:** `USER_AGENT` (line 25) becomes `mobility-model-zoo-crawler/1.0 (+https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md)`. Keep the robots.txt group matching for the old token `jtbd-pilot` as well.
   - **`register_file` (line 353):** require a `--signals` YAML with `url`, `verdicts` and `checked_at`. Add the option in `jtbd/cli.py` (`source register`).
   - **`jtbd/sources/reddit.py`:** run the same checks for the API host's robots.txt and terms.
 
-  T048 passes, and the existing `tests/unit/test_sources.py` and `test_forum_posts.py` stay green after their fixtures are adjusted for the new user agent.
-- [ ] T053 [US5] Implement the ingest checks C-I1–C-I6 in `checks.py` and call them from `jtbd/corpus/autochunk.py` before chunks are written. Quarantined chunk ids go to `data/compliance/quarantine.jsonl` (outside git), and chunks of classes with `art9_handling: quarantine` are excluded when flagged.
-- [ ] T054 [US5] Implement the pre-send and post-receive checks in `jtbd/labeling/runner.py`:
+  T049 passes, and the existing `tests/unit/test_sources.py` and `test_forum_posts.py` stay green after their fixtures are adjusted for the new user agent.
+- [ ] T054 [US5] Implement the ingest checks C-I1–C-I7 in `checks.py` and call them from `jtbd/corpus/autochunk.py` before chunks are written. Quarantined chunk ids go to `data/compliance/quarantine.jsonl` (outside git), and chunks of classes with `art9_handling: quarantine` are excluded when flagged.
+- [ ] T055 [US5] Implement the pre-send and post-receive checks in `jtbd/labeling/runner.py`:
   - **Before each batch (C-P1–C-P5):** re-run `scan.pii` on the exact text to be sent, compare `redaction.patterns_version` with the current `PATTERNS_VERSION`, check quarantine, and check the route via `register.route_for(model_cfg)`.
   - **In `jtbd/labeling/openrouter.py`:** refuse `provider_order: null` at backend construction, and pass `provider.order` equal to the route's hosting provider.
   - **After each response (C-P6):** compare `backend_meta.provider` with the route. On a mismatch, delete nothing already written, mark the attempt as `error: provider_mismatch`, and stop the run.
 
   Local routes (Ollama, openai_compat to localhost) skip C-P4/C-P5 but not C-P1–C-P3.
-- [ ] T055 [US5] Update `configs/productdev/jtbd/models.yaml`. Every OpenRouter teacher entry with `provider_order: null` (lines 165–247) gets `route:` pointing to a route record and `provider_order:` set to the route's hosting provider. Routes without `allowed_for` are left in place but refused at run start.
+- [ ] T056 [US5] Update `configs/productdev/jtbd/models.yaml`. Every OpenRouter teacher entry with `provider_order: null` (lines 165–247) gets `route:` pointing to a route record and `provider_order:` set to the route's hosting provider. Routes without `allowed_for` are left in place but refused at run start.
 
   Add a `route:` key to every model entry, and extend `jtbd/config.py` so that `route` loads. Unknown keys must still fail.
-- [ ] T056 [US5] Add the backend `anthropic_api` in `jtbd/labeling/anthropic_api.py` (Anthropic SDK, structured JSON output with the same schema as `claude_cli`, model version from the response, `backend_meta` with the request id), registered in `labeling/base.py`. Its route in `providers.yaml` is `claude-api` with `access_path: api`. It gets `allowed_for: []` until the owner signs a DPA and the commercial terms check is recorded. Test it with a fake client in `tests/unit/test_anthropic_api_backend.py`. No paid call in this feature.
-- [ ] T057 [US5] Implement retention (C-R1):
+- [ ] T057 [US5] Add the backend `anthropic_api` in `jtbd/labeling/anthropic_api.py` (Anthropic SDK, structured JSON output with the same schema as `claude_cli`, model version from the response, `backend_meta` with the request id), registered in `labeling/base.py`. Its route in `providers.yaml` is `claude-api` with `access_path: api`. It gets `allowed_for: []` until the owner signs a DPA and the commercial terms check is recorded. Test it with a fake client in `tests/unit/test_anthropic_api_backend.py`. No paid call in this feature.
+- [ ] T058 [US5] Implement retention (C-R1):
   - `zoo compliance retention [--fail]`, which reads snapshot `retention_until` and register retention;
   - `zoo compliance delete --snapshot ID --reason TEXT`, which removes `raw.*` and `text.txt`, appends to `data/compliance/deletions.jsonl` and sets `deleted_at` in the source record;
   - a retention report line in `jtbd doctor` (`jtbd/doctor.py`).
-- [ ] T058 [US5] Implement the train checks C-T1–C-T5 in `checks.py` and call them from `jtbd/span/datacheck.py`, writing the result into `provenance.json`. T049 and T050 pass.
+- [ ] T059 [US5] Implement the train checks C-T1–C-T5 in `checks.py` and call them from `jtbd/span/datacheck.py`, writing the result into `provenance.json`. T050 and T051 pass.
 
 **Checkpoint**: Future data generation cannot bypass the register.
 
@@ -386,15 +395,15 @@ description: "Tasks for feature 006: compliance harness"
 
 **Independent Test**: quickstart scenario 5.
 
-- [ ] T059 [P] [US6] Write `tests/compliance/test_requests.py`:
+- [ ] T060 [P] [US6] Write `tests/compliance/test_requests.py`:
   - `request add` stores only an HMAC identifier;
   - it fails without `MMZ_SUPPRESSION_KEY`;
   - the deadline is set to 1 month for objection, erasure and access, and 14 days for takedown;
   - a suppressed URL blocks a later fetch (C-F5), and a suppressed identifier blocks training (C-T1);
   - `watch review` clears C-M2.
-- [ ] T060 [US6] Implement `src/mobility_model_zoo/compliance/hashing.py`: HMAC-SHA-256 over NFKC-lowercased identifiers and canonical URLs with `MMZ_SUPPRESSION_KEY`. Implement `zoo compliance request add/close` and `zoo compliance watch review` per contracts/cli.md, writing `compliance/requests.yaml` and `compliance/suppression.yaml`.
-- [ ] T061 [US6] Add the meta stage to `.github/workflows/zoo-audit.yml` (weekly), with a step `uv run zoo compliance check --stage meta`. No secrets are needed for this step.
-- [ ] T062 [US6] Document the request handling for the owner in `docs/compliance/requests.md` (English): how to receive, hash, search the stores (snapshots, chunks, runs, published files), answer within the deadline, and suppress. Link it from `PRIVACY.md` through its template.
+- [ ] T061 [US6] Implement `src/mobility_model_zoo/compliance/hashing.py`: HMAC-SHA-256 over NFKC-lowercased identifiers and canonical URLs with `MMZ_SUPPRESSION_KEY`. Implement `zoo compliance request add/close` and `zoo compliance watch review` per contracts/cli.md, writing `compliance/requests.yaml` and `compliance/suppression.yaml`.
+- [ ] T062 [US6] Add the meta stage to `.github/workflows/zoo-audit.yml` (weekly), with a step `uv run zoo compliance check --stage meta`. No secrets are needed for this step.
+- [ ] T063 [US6] Document the request handling for the owner in `docs/compliance/requests.md` (English): how to receive, hash, search the stores (snapshots, chunks, runs, published files), answer within the deadline, and suppress. Link it from `PRIVACY.md` through its template.
 
 **Checkpoint**: Requests have a channel, a log and an effect.
 
@@ -402,35 +411,36 @@ description: "Tasks for feature 006: compliance harness"
 
 ## Phase 9: Polish & Cross-Cutting
 
-- [ ] T063 Add `uv run zoo compliance check --ci` and `uv run reuse lint` as steps in `.github/workflows/ci.yml`, after the tests.
-- [ ] T064 [P] Update `README.md` with a short "Compliance" section linking `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE` and `docs/compliance/`. Update `docs/adding-a-model.md` with the register records, compliance record, scan and sign-off. Update `docs/hf-org/README.md` with the policy links (Hugging Face org card; push via the existing process). Keep the README section within the drift rules: README is not generated, so link only.
-- [ ] T065 [P] Update feature 005 docs on branch `005-topic-layout-security-merge` after this feature is merged:
+- [ ] T064 Add `uv run zoo compliance check --ci` and `uv run reuse lint` as steps in `.github/workflows/ci.yml`, after the tests.
+- [ ] T065 [P] Update `README.md` with a short "Compliance" section linking `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE` and `docs/compliance/`. Update `docs/adding-a-model.md` with the register records, compliance record, scan and sign-off. Update `docs/hf-org/README.md` with the policy links (Hugging Face org card; push via the existing process). Keep the README section within the drift rules: README is not generated, so link only.
+- [ ] T066 [P] Update feature 005 docs on branch `005-topic-layout-security-merge` after this feature is merged:
   - dataset declarations move to `topics/<topic>/compliance/datasets.yaml` with the register schema;
-  - the 005 task numbers T047–T054 refer to it;
-  - the edge release record gets a compliance record.
+  - the 005 task numbers T048–T055 refer to it;
+  - the edge release record gets a compliance record;
+  - 005 builds the firmware SBOM generator (CycloneDX) that C-G4 checks.
 
   Record this as a note in `specs/005-topic-layout-security-merge/plan.md`.
-- [ ] T066 Run the full quickstart (scenarios 1–5) and the full test suite. Write results and runtimes to `validation.md`. Run `uv run zoo history-check`. Open the PR "006: compliance harness and scout-large 0.1.2" with `gh pr create`; the body lists the owner decisions and gates. **GATE:** CI green.
+- [ ] T067 Run the full quickstart (scenarios 1–5) and the full test suite. Write results and runtimes to `validation.md`. Run `uv run zoo history-check`. Open the PR "006: compliance harness and scout-large 0.1.2" with `gh pr create`; the body lists the owner decisions and gates. **GATE:** CI green.
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Overall order:** Setup (T001–T003) → Foundational (T004–T007) → US1 (T008–T022) → US2 (T023–T029) → US4 (T030–T040) → US3 (T041–T047) → US5 (T048–T058) → US6 (T059–T062) → Polish (T063–T066).
+- **Overall order:** Setup (T001–T003) → Foundational (T004–T007) → US1 (T008–T023) → US2 (T024–T030) → US4 (T031–T041) → US3 (T042–T048) → US5 (T049–T059) → US6 (T060–T063) → Polish (T064–T067).
 - **US2** needs the US1 register: the documents render from it.
 - **US4** needs US2 (card sections, NOTICE) and US1.
-- **US3** needs US1, US2 and US4. T047 needs the owner's approval of the preview.
-- **US5** needs US1 (routes, sources, lists) and the T034 PII scan. It is independent of US3.
+- **US3** needs US1, US2 and US4. T048 needs the owner's approval of the preview.
+- **US5** needs US1 (routes, sources, lists) and the T035 PII scan. It is independent of US3.
 - **US6** needs US1 and the US5 fetch and train wiring (for suppression).
 
 ### Parallel opportunities
 
 - **Phase 2:** T007 in parallel with T005 and T006.
-- **US1:** T008 and T009 together; T012–T015 together; T022 any time after T010.
-- **US2:** T023 and T024 together.
-- **US4:** T030–T033 together; T036 and T037 after T034.
-- **US5:** T048–T050 together; T055 and T056 in parallel with T053.
-- **Polish:** T064 and T065 together.
+- **US1:** T008 and T009 together; T012–T015 together; T023 any time after T010.
+- **US2:** T024 and T025 together.
+- **US4:** T031–T034 together; T037 and T038 after T035.
+- **US5:** T049–T051 together; T056 and T057 in parallel with T054.
+- **Polish:** T065 and T066 together.
 
 ## Implementation Strategy
 
