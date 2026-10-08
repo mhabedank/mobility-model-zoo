@@ -431,8 +431,8 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - per-topic quick commands (`jtbd …`, `security can-ids …`, `condmon …`, `edge run -b sim`, `zoo data list`).
 
   Remove the "Later topics, for example cyber security or IoT" sentence. Update `docs/adding-a-model.md` for `runtime: mcu`, device measurements, dataset declarations and task documents.
-- [ ] T079 Run the full quickstart (scenarios 1–5) and write the results, plus the runtime of the default `pytest` run and of the CI `test` job (plan goals: under 4 and under 10 minutes), into `specs/005-topic-layout-security-merge/validation.md`. Run `uv run zoo history-check` once more over the final branch (one-time check, FR-023). Push the branch and open a PR "005: topic layout and merge of mobility-security-ml" with `gh pr create`; the body has the summary, the GATE results and the list of old staging repos. **GATE**: CI green on the PR (`test`, `edge-sim`, `edge-qemu`, `firmware`).
-- [ ] T080 [P] Update the memory note `project-zoo-scope-broad-mobility` if the topic list changed (security and condition-monitoring now exist). Mark tasks done in this file.
+- [X] T079 Run the full quickstart (scenarios 1–5) and write the results, plus the runtime of the default `pytest` run and of the CI `test` job (plan goals: under 4 and under 10 minutes), into `specs/005-topic-layout-security-merge/validation.md`. Run `uv run zoo history-check` once more over the final branch (one-time check, FR-023). Push the branch and open a PR "005: topic layout and merge of mobility-security-ml" with `gh pr create`; the body has the summary, the GATE results and the list of old staging repos. **GATE**: CI green on the PR (`test`, `edge-sim`, `edge-qemu`, `firmware`).
+- [X] T080 [P] Update the memory note `project-zoo-scope-broad-mobility` if the topic list changed (security and condition-monitoring now exist). Mark tasks done in this file.
 
 ---
 

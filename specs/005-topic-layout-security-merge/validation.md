@@ -81,4 +81,4 @@ Nothing to delete.
 5. Edge: `edge build -t native` and the sim HIL suite pass (30 passed, 4 skipped); `zoo check` of the four models as in US4; `tests/release/test_card_mcu.py` renders the mcu card. QEMU runs in CI (`edge-qemu`).
 6. Credentials: `HF_RELEASE_TOKEN` secret and `HIL_RUNNER_ENABLED=false` variable present. Retirement after the merge.
 
-Runtime of the default test suite (`HF_HUB_OFFLINE=1 uv run pytest`, with the edge and edge-train extras): about 150 s on an M3 Pro (goal: under 4 minutes). The CI `test` job runs without TensorFlow; its time is recorded from the PR run.
+Runtime of the default test suite (`HF_HUB_OFFLINE=1 uv run pytest`, with the edge and edge-train extras): about 150 s on an M3 Pro (goal: under 4 minutes). CI on PR #9: all checks green; `test` 3 min 11 s to 3 min 19 s (goal: under 10 minutes), `edge-sim` 1.5 min, `edge-qemu` 1.8 min, all 11 firmware targets build, `picket-forest-host` and `verify-licenses` pass.
