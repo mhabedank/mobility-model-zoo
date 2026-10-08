@@ -1,0 +1,54 @@
+# Path map for origin/claude/cool-volta-rqsgdx of mhabedank/mobility-security-ml
+# (specs/005-topic-layout-security-merge/contracts/path-map.md, section C). Directories end in "/".
+renames:
+  - {from: README.md, to: docs/edge/hil-bench.md}
+  - {from: docs/ci.md, to: docs/edge/ci.md}
+  - {from: docs/extending.md, to: docs/edge/extending.md}
+  - {from: docs/hardware.md, to: docs/edge/hardware.md}
+  - {from: docs/protocol.md, to: docs/edge/protocol.md}
+  - {from: docs/datasets.md, to: topics/condition-monitoring/research/datasets-volta.md}
+  - {from: hilbench/data/, to: src/mobility_model_zoo/datasets/}
+  - {from: hilbench/ml/__init__.py, to: src/mobility_model_zoo/edge/int8/__init__.py}
+  - {from: hilbench/ml/model.py, to: src/mobility_model_zoo/edge/int8/model.py}
+  - {from: hilbench/ml/quant.py, to: src/mobility_model_zoo/edge/int8/quant.py}
+  - {from: hilbench/ml/reference.py, to: src/mobility_model_zoo/edge/int8/reference.py}
+  - {from: hilbench/ml/floatnet.py, to: src/mobility_model_zoo/edge/int8/floatnet.py}
+  - {from: hilbench/ml/codegen.py, to: src/mobility_model_zoo/edge/int8/codegen.py}
+  - {from: hilbench/ml/tflite_import.py, to: src/mobility_model_zoo/edge/int8/tflite_import.py}
+  - {from: hilbench/ml/train.py, to: src/mobility_model_zoo/edge/int8/train.py}
+  - {from: hilbench/ml/datasets.py, to: src/mobility_model_zoo/edge/bench/synthetic.py}
+  - {from: hilbench/ml/zoo.py, to: src/mobility_model_zoo/edge/bench/reference_models.py}
+  - {from: hilbench/ml/features.py, to: src/mobility_model_zoo/condition_monitoring/sound_anomaly/features.py}
+  - {from: hilbench/ml/train_real.py, to: src/mobility_model_zoo/edge/train_real.py}
+  - {from: hilbench/, to: src/mobility_model_zoo/edge/bench/}
+  - {from: firmware/lib/benchapp/, to: firmware/bench/lib/benchapp/}
+  - {from: firmware/lib/microinfer/, to: firmware/bench/lib/microinfer/}
+  - {from: firmware/native/, to: firmware/bench/native/}
+  - {from: firmware/src/, to: firmware/bench/src/}
+  - {from: firmware/scripts/, to: firmware/bench/scripts/}
+  - {from: firmware/platformio.ini, to: firmware/bench/platformio.ini}
+  - {from: hil/, to: hil/}
+  - {from: tests/unit/test_c_engine.py, to: tests/edge/int8/test_c_engine.py}
+  - {from: tests/unit/test_quant.py, to: tests/edge/int8/test_quant.py}
+  - {from: tests/unit/test_tflite_import.py, to: tests/edge/int8/test_tflite_import.py}
+  - {from: tests/unit/data/, to: tests/edge/int8/data/}
+  - {from: tests/unit/test_config_discovery.py, to: tests/edge/bench/test_config_discovery.py}
+  - {from: tests/unit/test_device_session.py, to: tests/edge/bench/test_device_session.py}
+  - {from: tests/unit/test_flash_power.py, to: tests/edge/bench/test_flash_power.py}
+  - {from: tests/unit/test_models_zoo.py, to: tests/edge/bench/test_models_zoo.py}
+  - {from: tests/unit/conftest.py, to: tests/edge/bench/conftest.py}
+  - {from: tests/unit/test_data_range.py, to: tests/datasets/test_download_range.py}
+  - {from: tests/unit/test_train_real.py, to: tests/edge/test_train_real.py}
+  - {from: tests/hil/, to: tests/edge/hil/}
+strip:
+  - {glob: firmware/lib/modelzoo/src/*, reason: generated model sources (402 KB, rewritten by every training commit); generated at build time}
+  - {glob: models/zoo/*, reason: weights, eval sets and manifest; release artefacts belong in staging, synthetic references are regenerated}
+  - {glob: models/train-request.json, reason: CI training that committed weights back to the branch is not adopted}
+  - {glob: models/hub-release.json, reason: separate Hugging Face publishing is dropped}
+drop:
+  - {glob: hilbench/hub.py, reason: separate Hugging Face publishing; releases go through the zoo pipeline only}
+  - {glob: .github/workflows/*, reason: replaced by the zoo workflows (ci.yml, firmware.yml, hil.yml, datasets.yml)}
+  - {glob: conftest.py, reason: the bench pytest plugin is loaded with -p}
+  - {glob: .gitignore, reason: the zoo .gitignore applies}
+  - {glob: LICENSE, reason: same Apache-2.0 licence as the zoo}
+  - {glob: pyproject.toml, reason: dependencies merged by hand into the zoo pyproject}

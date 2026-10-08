@@ -23,9 +23,9 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 
 **Purpose**: Baseline and tooling before anything moves.
 
-- [ ] T001 Record the baseline: run `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --offline pytest -q` and `uv run zoo validate --all` on branch `005-topic-layout-security-merge` and write the counts (expected 363 passed, 1 skipped, 1 deselected) into `specs/005-topic-layout-security-merge/validation.md` under "Baseline".
-- [ ] T002 [P] Check tools and write versions into `specs/005-topic-layout-security-merge/validation.md`: `git filter-repo --version`, `gitleaks version`, `gh auth status`, `cc --version`, `make --version`; install `gitleaks` with `brew install gitleaks` if missing.
-- [ ] T003 [P] Anchor the data ignore in `.gitignore`: replace `data/` with `/data/`, and add `/results/`, `firmware/bench/lib/modelzoo/`, `firmware/bench/.pio/`, `firmware/picket-forest/c/generated/*_model.h`, `firmware/picket-forest/c/generated/test_vectors.h`, `build/` (research R5, contracts/cli.md `edge build`). Verify with `git check-ignore -v data/x src/mobility_model_zoo/datasets/x` that only the first is ignored.
+- [X] T001 Record the baseline: run `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --offline pytest -q` and `uv run zoo validate --all` on branch `005-topic-layout-security-merge` and write the counts (expected 363 passed, 1 skipped, 1 deselected) into `specs/005-topic-layout-security-merge/validation.md` under "Baseline".
+- [X] T002 [P] Check tools and write versions into `specs/005-topic-layout-security-merge/validation.md`: `git filter-repo --version`, `gitleaks version`, `gh auth status`, `cc --version`, `make --version`; install `gitleaks` with `brew install gitleaks` if missing.
+- [X] T003 [P] Anchor the data ignore in `.gitignore`: replace `data/` with `/data/`, and add `/results/`, `firmware/bench/lib/modelzoo/`, `firmware/bench/.pio/`, `firmware/picket-forest/c/generated/*_model.h`, `firmware/picket-forest/c/generated/test_vectors.h`, `build/` (research R5, contracts/cli.md `edge build`). Verify with `git check-ignore -v data/x src/mobility_model_zoo/datasets/x` that only the first is ignored.
 
 ---
 
@@ -34,20 +34,20 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
 **Purpose**: Constitution and import tooling. **No story work starts before this phase is complete.**
 
 - [X] T004 Amend `.specify/memory/constitution.md` from 1.4.0 to **2.0.0** (MAJOR), done as a separate step with `/speckit-constitution` on 2026-10-08 (commit `d5ec1c1`). It follows the owner directions and covers: the model-labeled vs. ground-truth scope note; metric naming instead of an accuracy ban (III); the agreement pilot only for model-labeled tasks (IV); budgets and tools per task (V, VIII); measurement origin; dataset storage outside git with a redistribution check (VI, IX); the topic layout; resources; quality gates per reference kind (research R12).
-- [ ] T005 [P] Update `README.md` link text if it quotes the constitution version, and add a test `tests/unit/test_constitution_version.py` that the footer version of `.specify/memory/constitution.md` equals `2.0.0` and the sync report mentions "1.4.0 → 2.0.0".
-- [ ] T006 Write the path maps as data: `scripts/import/path-map-goldberg.yaml` and `scripts/import/path-map-volta.yaml`, each with `renames:` (list of `{from, to}`, directories end in `/`), `strip:` (list of globs) and `drop:` (files neither renamed nor stripped, with a `reason`), copied exactly from contracts/path-map.md sections B and C.
-- [ ] T007 Implement `scripts/import/import_branch.py` (stdlib plus `pyyaml`). Arguments: `--source /tmp/msml`, `--branch <ref>`, `--map <yaml>`, `--out <dir>`. Steps:
+- [X] T005 [P] Update `README.md` link text if it quotes the constitution version, and add a test `tests/unit/test_constitution_version.py` that the footer version of `.specify/memory/constitution.md` equals `2.0.0` and the sync report mentions "1.4.0 → 2.0.0".
+- [X] T006 Write the path maps as data: `scripts/import/path-map-goldberg.yaml` and `scripts/import/path-map-volta.yaml`, each with `renames:` (list of `{from, to}`, directories end in `/`), `strip:` (list of globs) and `drop:` (files neither renamed nor stripped, with a `reason`), copied exactly from contracts/path-map.md sections B and C.
+- [X] T007 Implement `scripts/import/import_branch.py` (stdlib plus `pyyaml`). Arguments: `--source /tmp/msml`, `--branch <ref>`, `--map <yaml>`, `--out <dir>`. Steps:
   1. Fresh `git clone --no-local --single-branch --branch <ref>` into `<out>`.
   2. List every path that ever existed: `git log --all --format= --name-only | sort -u`.
   3. Fail with exit 2 if any path matches no rename, strip or drop entry, listing the paths.
   4. Run `git filter-repo --force` with `--invert-paths --paths-from-file` for strip and drop, then a second pass with `--path-rename from:to` for every rename.
   5. Write `<out>.merge-log.csv` with columns `branch,old_path,new_path,status,reason`.
-- [ ] T008 [P] Write `tests/unit/test_import_branch.py`: build a small git repository in `tmp_path` with three commits (a renamed file, a stripped file, an unmapped file), run `import_branch.py`, and assert:
+- [X] T008 [P] Write `tests/unit/test_import_branch.py`: build a small git repository in `tmp_path` with three commits (a renamed file, a stripped file, an unmapped file), run `import_branch.py`, and assert:
   - an unmapped path makes it exit 2;
   - after adding a drop entry, the stripped path is absent from `git log --all --name-only`;
   - the renamed file has its original author and date;
   - the merge log lists all three paths.
-- [ ] T009 [P] Implement `scripts/import/check_merge_log.py`: reads `topics/security/research/merge-log.md` (Markdown table generated from the two CSVs) and the source branches; exits 0 only if every path of both branches appears with a new path or a reason (SC-001). Test in `tests/unit/test_check_merge_log.py` on a fixture table.
+- [X] T009 [P] Implement `scripts/import/check_merge_log.py`: reads `topics/security/research/merge-log.md` (Markdown table generated from the two CSVs) and the source branches; exits 0 only if every path of both branches appears with a new path or a reason (SC-001). Test in `tests/unit/test_check_merge_log.py` on a fixture table.
 
 **Checkpoint**: Constitution 2.0.0 is in force; the import tool is tested.
 

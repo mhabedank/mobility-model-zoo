@@ -1,6 +1,14 @@
 # Pilot data is never committed (constitution Principle VI)
-data/
+/data/
 .env
+
+# Build outputs of the edge tooling (feature 005); regenerated, never committed
+/results/
+/build/
+firmware/bench/lib/modelzoo/
+firmware/bench/.pio/
+firmware/picket-forest/c/generated/*_model.h
+firmware/picket-forest/c/generated/test_vectors.h
 
 # Python
 __pycache__/
