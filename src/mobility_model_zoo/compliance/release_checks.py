@@ -375,6 +375,20 @@ def stage_repository(ctx) -> list[Finding]:
 EXAMPLE_ADDRESSES: list[str] = []
 
 
+def secret_scan(root: Path) -> list[Finding]:
+    """C-G3: gitleaks over the git history, as `zoo history-check` runs it; missing tool fails."""
+    from mobility_model_zoo.release.errors import UsageError
+    from mobility_model_zoo.release.history import secret_findings
+
+    if not (root / ".git").exists():
+        return []  # not a git work tree (unit-test fixtures); the zoo repository always is one
+    try:
+        failures = secret_findings(root)
+    except UsageError as e:
+        return [Finding("C-G3", "repository", "gitleaks", "-", str(e))]
+    return [Finding("C-G3", "repository", "git history", "-", f) for f in failures]
+
+
 # ---- sign-off (C-S1) -------------------------------------------------------------------------
 
 

@@ -1,6 +1,6 @@
 # Contract: commands
 
-New `zoo compliance` command group and changes to existing commands. Exit codes follow the `zoo` convention: 0 ok, 1 usage, 2 check failed, 3 refused, 4 external service, 5 missing input, 6 internal. Every failure prints `stage / record / field / reason`.
+New `zoo compliance` command group and changes to existing commands. Exit codes follow the existing `zoo` errors: a failed check exits like a failed gate (1), a usage error exits 2. Refusals in `jtbd` use the jtbd exit codes. Every failure prints `stage / record / field / reason [check id]`.
 
 ## `zoo compliance`
 

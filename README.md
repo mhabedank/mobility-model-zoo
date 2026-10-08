@@ -5,7 +5,8 @@ A collection of small, fast machine learning models for mobility, grouped by top
 - Models and their latest versions: [zoo/MODELS.md](zoo/MODELS.md)
 - On Hugging Face: [huggingface.co/mobility-model-zoo](https://huggingface.co/mobility-model-zoo)
 - Constitution (the project rules): [.specify/memory/constitution.md](.specify/memory/constitution.md)
-- License: [Apache-2.0](LICENSE)
+- License: [Apache-2.0](LICENSE); third-party notices: [NOTICE](NOTICE), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+- Privacy notice, copyright policy, security contact: [PRIVACY.md](PRIVACY.md), [COPYRIGHT_POLICY.md](COPYRIGHT_POLICY.md), [SECURITY.md](SECURITY.md)
 
 ## Topics
 
@@ -27,6 +28,15 @@ Later topics, for example cyber security or IoT, are added as a new entry in [zo
   Step-by-step guide: [docs/adding-a-model.md](docs/adding-a-model.md). Commands and gate rules: [specs/003-model-zoo-hf-release/contracts/cli.md](specs/003-model-zoo-hf-release/contracts/cli.md).
 - Model names follow `<name>-<variant>`, for example `scout-large`; topic and task are tags, and each topic has a Hugging Face collection. Names never change after the first publication.
 - Datasets, training data and raw source texts are never published. Models, methods, prompts and evaluation results are.
+
+## Compliance
+
+Training data, published material and the naming of third parties are governed by a compliance register and fail-closed checks (feature 006, not legal advice):
+
+- **Register:** `compliance/` (controller, labeling routes and their providers, owner decisions, waivers, requests, suppression list, legal watch list) and `topics/<topic>/compliance/` (source classes with their legitimate-interest assessment, one record per source or dataset with licence, attribution, opt-out signals, personal data and retention). Release evidence lives next to each release record (`<version>.compliance.yaml`, AI Act classification, training data summary, publication scan).
+- **Checks:** `jtbd source fetch` honours robots.txt (including AI crawler agents), TDM reservations, `noai` and ai.txt; chunking refuses sources without a record and excludes special categories; labeling re-scans every text for personal identifiers and sends only through approved, pinned routes; training refuses licences and teachers that do not allow it; `zoo check` runs gate rule 16 (publication scan, card lint, licence files, repository hygiene, owner sign-off). The check ids are listed in [specs/006-compliance-harness/contracts/checks.md](specs/006-compliance-harness/contracts/checks.md).
+- **Generated documents:** `uv run zoo compliance render` writes the privacy notice, copyright policy, security policy, notices, REUSE files, the record of processing and the legitimate-interest and impact assessment ([docs/compliance/](docs/compliance/)) from the register; CI fails when a committed copy differs (`uv run zoo compliance check --ci`).
+- **Requests:** objections, erasure, access and takedown requests are handled as described in [docs/compliance/requests.md](docs/compliance/requests.md).
 
 ## Setup
 
@@ -117,6 +127,6 @@ Each request then takes the analysis time only: 0.72 s for the interview, about 
 - `data/` holds snapshots, chunks, raw model responses and analysis. It is gitignored and is **never** committed or published (Principle VI).
 - Each source is fetched **once** and stored as a complete raw snapshot. Its `source.yaml` records the origin, license, legal basis, permitted uses (`benchmark_only` or `training_allowed`) and `retention_until`. `jtbd source fetch` refuses a second fetch of the same canonical URL unless it is given `--update --reason`.
 - Usernames and direct identifiers are removed before labeling (`jtbd corpus redact`, then `jtbd corpus pii-review` with a local model instead of a manual review, then `jtbd corpus redact-check`).
-- Reddit content comes only through the official Data API, is always `benchmark_only`, and is deleted or access-restricted when the research ends (§ 60d UrhG). Arctic Shift is used only to find thread IDs.
-- When a snapshot's `retention_until` date has passed, delete its directory under `data/snapshots/`, together with the chunks and runs derived from it. The benchmark manifest in `benchmarks/` keeps only hashes, never text.
+- Reddit content comes only through the official Data API, is always `benchmark_only`, and is fetched only once the Reddit platform terms are recorded as allowing it (check C-I7). Arctic Shift is used only to find thread IDs.
+- When a snapshot's `retention_until` date has passed (`uv run zoo compliance retention`), delete it with `uv run zoo compliance delete --snapshot <id> --reason …`, which logs the hashes and marks the source record. The benchmark manifest in `benchmarks/` keeps only hashes, never text.
 - Raw model responses under `data/runs/*/raw/` are never edited.

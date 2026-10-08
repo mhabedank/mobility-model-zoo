@@ -411,8 +411,8 @@ description: "Tasks for feature 006: compliance harness"
 
 ## Phase 9: Polish & Cross-Cutting
 
-- [ ] T064 Add `uv run zoo compliance check --ci` and `uv run reuse lint` as steps in `.github/workflows/ci.yml`, after the tests.
-- [ ] T065 [P] Update `README.md` with a short "Compliance" section linking `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE` and `docs/compliance/`. Update `docs/adding-a-model.md` with the register records, compliance record, scan and sign-off. Update `docs/hf-org/README.md` with the policy links (Hugging Face org card; push via the existing process). Keep the README section within the drift rules: README is not generated, so link only.
+- [X] T064 Add `uv run zoo compliance check --ci` and `uv run reuse lint` as steps in `.github/workflows/ci.yml`, after the tests.
+- [X] T065 [P] Update `README.md` with a short "Compliance" section linking `PRIVACY.md`, `COPYRIGHT_POLICY.md`, `SECURITY.md`, `NOTICE` and `docs/compliance/`. Update `docs/adding-a-model.md` with the register records, compliance record, scan and sign-off. Update `docs/hf-org/README.md` with the policy links (Hugging Face org card; push via the existing process). Keep the README section within the drift rules: README is not generated, so link only.
 - [ ] T066 [P] Update feature 005 docs on branch `005-topic-layout-security-merge` after this feature is merged:
   - dataset declarations move to `topics/<topic>/compliance/datasets.yaml` with the register schema;
   - the 005 task numbers T048–T055 refer to it;
@@ -420,7 +420,7 @@ description: "Tasks for feature 006: compliance harness"
   - 005 builds the firmware SBOM generator (CycloneDX) that C-G4 checks.
 
   Record this as a note in `specs/005-topic-layout-security-merge/plan.md`.
-- [ ] T067 Run the full quickstart (scenarios 1–5) and the full test suite. Write results and runtimes to `validation.md`. Run `uv run zoo history-check`. Open the PR "006: compliance harness and scout-large 0.1.2" with `gh pr create`; the body lists the owner decisions and gates. **GATE:** CI green.
+- [X] T067 Run the full quickstart (scenarios 1–5) and the full test suite. Write results and runtimes to `validation.md`. Run `uv run zoo history-check`. Open the PR "006: compliance harness and scout-large 0.1.2" with `gh pr create`; the body lists the owner decisions and gates. **GATE:** CI green.
 
 ---
 

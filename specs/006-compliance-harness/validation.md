@@ -25,6 +25,19 @@
 - `zoo check scout-large 0.1.2 --offline`: every rule passes except C-S1 (owner sign-off missing); rules 5 and 12 need the Hub.
 - Card preview: `reports/scout-large/model-card-preview-0.1.2.md`. Its privacy section states what was and was not checked for the 0.1.x data, instead of the generic text.
 
+## Final validation (2026-10-08)
+
+- Default test suite: 474 passed, 1 skipped, 1 deselected in 108 s (baseline 363 passed in 120 s); plan goal under 4 minutes met.
+- `zoo validate --all`: ok, including the compliance register and gate rule 16 for scout-large 0.1.2.
+- `zoo compliance check --ci`: meta, notices, drift, licence (REUSE), repository (hygiene, personal data scan, gitleaks) pass in 2 s.
+- `zoo check scout-large 0.1.2 --offline`: every offline rule passes, including rule 16 after the owner's sign-off; rules 5 and 12 run in `release-verify` with Hub access.
+- `zoo history-check`: no data files, model files or secrets in any commit.
+- Seeded violations: every check id of contracts/checks.md has a failing test in tests/compliance (or tests/release/test_rule16.py) and the clean fixtures pass (SC-003).
+
+## Owner decisions taken on 2026-10-08
+
+Recorded in compliance/decisions.yaml: D-routing-scc (hosted routes with DPA and SCCs), D-interviews-0.1.x, D-accessibility-0.1.x, D-benchmark-optouts; scout-large 0.1.2 signed off. Still open: the Claude consumer training setting (item 2), recorded as `unknown` on route claude-consumer-cli until the owner checks it.
+
 ## Owner decision items
 
 Collected for the owner (AskUserQuestion before the 0.1.2 sign-off, T047). Nothing below changes a published file.
