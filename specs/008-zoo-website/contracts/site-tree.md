@@ -11,11 +11,11 @@ The base is `https://mhabedank.github.io/mobility-model-zoo/`. All internal link
 
 In this order:
 
-1. Hero: the zoo's purpose (`zoo/site.yaml` tagline) and two actions, "Browse the models" and "Read the principles".
-2. Three short value points (local, measured on frozen data, published with a model card). These are the principles in short form, without numbers.
+1. Hero: the zoo's vision (`zoo/site.yaml` tagline) and mission (`lead`) and two actions, "Browse the models" and "Read the principles".
+2. Three short value points (compliant by design, runs where your data is, known quality and limits). These are the principles in short form, without numbers.
 3. Topics: one block per topic in `topics.yaml`, with its title, description and HF collection link.
 4. Models: one tile per non-sandbox model, with name, topic, task, latest version and a status chip. Published and deprecated tiles link to the model page; "in progress" tiles do not link.
-5. Principles: the four from `zoo/site.yaml`.
+5. Principles: the three to five from `zoo/site.yaml`.
 
 ## `/models/<name>/` model page (status published or deprecated)
 
