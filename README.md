@@ -52,7 +52,7 @@ Training data, published material and the naming of third parties are governed b
 Prerequisites: Python 3.12 and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --extra jtbd --extra release --extra edge   # what CI installs
+uv sync --extra jtbd --extra release --extra edge   # what CI installs for a full run
 uv run pytest
 uv run zoo --help
 ```
