@@ -13,6 +13,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urldefrag, urlparse
 
+from mobility_model_zoo.compliance.release_checks import BRAND, FUNDING
 from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
@@ -36,7 +37,8 @@ RESOURCE_ATTRS = {
     ("use", "href"),
 }
 CSS_URL = re.compile(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)|@import\s+['"]([^'"]+)['"]""")
-ADVERTISING = re.compile(r"\b(sponsor|donate|donation|pricing|consulting|hire us|book a call)\b", re.I)
+# Advertising wording beyond the repository-wide markers of the compliance harness (FUNDING).
+ADVERTISING = re.compile(r"\b(sponsor|donate|donation|hire us|book a call)\b", re.I)
 MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 300_000
 
 
@@ -354,16 +356,17 @@ def check_resources(out: Path) -> Iterable[Finding]:
 
 
 def check_branding(site: dict, out: Path) -> Iterable[Finding]:
-    """P3: no company branding (the imprint link is the one allowed mention), no advertising."""
+    """P3: no company branding (the imprint link is the one allowed mention), no advertising
+    (the compliance harness markers BRAND and FUNDING plus ADVERTISING)."""
     for path in pages(out):
         html = path.read_text(encoding="utf-8")
-        mentions = html.lower().count("miskatonic")
+        mentions = len(BRAND.findall(html))
         allowed = html.count(site["legal"]["imprint"])
         if mentions > allowed:
-            yield Finding("P3", rel(out, path), "mentions Miskatonic outside the imprint link")
+            yield Finding("P3", rel(out, path), "names the consulting brand outside the imprint link")
         page = parse(path)
         for chunk in page.text:
-            m = ADVERTISING.search(chunk)
+            m = ADVERTISING.search(chunk) or FUNDING.search(chunk)
             if m:
                 yield Finding("P3", rel(out, path), f"advertising wording {m.group(0)!r}")
 

@@ -43,7 +43,7 @@ Each is an automated test in `tests/website/` (fast) or `tests/website/test_brow
 - `uv run pytest -q`: 718 passed, 13 skipped (whole repository).
 - `uv run pytest -q -m slow tests/website`: 2 passed (browser checks and injected faults).
 - `uv run zoo validate --all`: ok.
-- `uv run zoo compliance check --ci`: ok. The repository stage first reported a false positive of the PII scan in `topics/security/research/notes/competition-open-models.md` (pattern `licence_plate_de` on the dataset name "CAN-FD 2021", from commit 4b3e768); the text now reads "CAN-FD (2021)" (separate commit).
+- `uv run zoo compliance check --ci`: ok. The repository stage first reported a false positive of the PII scan in `topics/security/research/notes/competition-open-models.md` (pattern `licence_plate_de` on a dataset name followed by its year, from commit 4b3e768); the text now reads "CAN-FD (2021)" (separate commit).
 
 ## Open
 

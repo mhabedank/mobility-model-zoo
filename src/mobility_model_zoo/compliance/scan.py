@@ -89,6 +89,11 @@ class Hit:
 URL_KINDS = {"profile_url", "user_path_url"}
 # Placeholders used in documentation and examples, and addresses that are not personal.
 PLACEHOLDER_NAMES = {"name", "user", "username", "someuser", "someone", "max", "erika.mustermann"}
+# Code tokens that look like @handles: CSS at-rules (`@font-face` matches as `@font`) and Python
+# decorators in specs and docs. They name no person.
+CODE_AT_TOKENS = {"font", "media", "import", "keyframes", "supports", "page", "charset", "layer",
+                  "container", "namespace", "pytest", "dataclass", "property", "staticmethod",
+                  "classmethod", "cache"}
 NON_PERSONAL_DOMAINS = {
     "example.org",
     "example.com",
@@ -108,7 +113,8 @@ def _is_placeholder(kind: str, match: str) -> bool:
             or any(domain.endswith("." + d) for d in NON_PERSONAL_DOMAINS)
         )
     if kind in ("at_handle", "reddit_user"):
-        return m.lstrip("/").removeprefix("u/").lstrip("@") in PLACEHOLDER_NAMES
+        name = m.lstrip("/").removeprefix("u/").lstrip("@")
+        return name in PLACEHOLDER_NAMES or (kind == "at_handle" and name in CODE_AT_TOKENS)
     return False
 
 
