@@ -5,6 +5,10 @@
 #include "src/picket_forest.h"
 #include "src/test_vectors.h"
 
+#ifndef PF_TARGET
+#define PF_TARGET "esp8266"
+#endif
+
 #ifndef TV_EXPECTED_ALARMS
 #define TV_EXPECTED_ALARMS (-1) /* test vectors generated without the alarm stage */
 #endif
@@ -59,7 +63,7 @@ void setup()
 void loop()
 {
     const float mhz = ESP.getCpuFreqMHz();
-    Serial.printf("PICKET_FOREST_RESULT {\"target\":\"esp8266\",\"cpu_mhz\":%.0f,\"frames\":%d,"
+    Serial.printf("PICKET_FOREST_RESULT {\"target\":\"" PF_TARGET "\",\"cpu_mhz\":%.0f,\"frames\":%d,"
                   "\"score_mismatches\":%d,\"attack_frames\":%d,\"detected\":%d,"
                   "\"alarms\":%d,\"expected_alarms\":%d,"
                   "\"latency_us\":{\"median\":%.2f,\"mean\":%.2f,\"p99\":%.2f,\"max\":%.2f},"

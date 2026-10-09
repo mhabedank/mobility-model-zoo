@@ -169,3 +169,42 @@ def freeze(
         roles[c["role"]] = roles.get(c["role"], 0) + 1
     n = len(manifest["captures"])
     say(f"{benchmark}: {n} captures {roles}, frozen at {manifest['frozen_at']}")
+
+
+@can_ids.command()
+def measure(
+    target: str = typer.Option("host", help="host, esp32-qemu or esp8266"),
+    board: str = typer.Option(None, "-b", "--board", help="board id in hil/boards.yaml (esp8266)"),
+    export: Path = typer.Option(None, help="exported model ($MMZ_DATA/derived/picket-forest/export)"),
+    out: Path = typer.Option(None, help="performance results file to merge into"),
+) -> None:
+    """Measure the whole detection chain and merge the metrics into a results file."""
+    from mobility_model_zoo.edge.paths import REPO_ROOT, derived_dir
+    from mobility_model_zoo.security.can_ids import measure as m
+
+    export = export or derived_dir("picket-forest") / "export"
+    if not (export / "picket_forest_model.h").exists():
+        say(f"no exported model in {export}: run `security can-ids forest export` first")
+        raise typer.Exit(5)
+    out = out or REPO_ROOT / "zoo/models/picket-forest/results/0.1.0/performance.json"
+    if target == "host":
+        run = m.run_host(export)
+    elif target == "esp32-qemu":
+        run = m.run_qemu(export)
+    elif target == "esp8266":
+        if not board:
+            say("esp8266 needs -b BOARD (see `uv run edge list`)")
+            raise typer.Exit(2)
+        run = m.run_board(export, board)
+    else:
+        say(f"unknown target {target}")
+        raise typer.Exit(2)
+    try:
+        new = m.metrics(target, run)
+    except ValueError as e:
+        say(str(e))
+        raise typer.Exit(1) from None
+    m.merge(out, new, "picket-forest", "0.1.0")
+    for metric in new:
+        where = f"{metric['origin']}, {metric['hardware']}"
+        say(f"{metric['name']}: {metric['value']} {metric['unit']} ({where})")

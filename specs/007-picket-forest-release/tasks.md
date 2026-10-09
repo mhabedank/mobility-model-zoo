@@ -237,13 +237,13 @@
 
   Run it and record the parity result and the chosen hyperparameters in `validation.md` under "US4".
 - [ ] T027 [US4] Add `security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
-- [ ] T028 [P] [US4] Create a PlatformIO project in `firmware/picket-forest/platformio/` (`platformio.ini` with envs `esp32` and `esp8266` = `d1_mini` at 160 MHz, framework arduino):
+- [X] T028 [P] [US4] (CI build deferred, see validation.md) Create a PlatformIO project in `firmware/picket-forest/platformio/` (`platformio.ini` with envs `esp32` and `esp8266` = `d1_mini` at 160 MHz, framework arduino):
   - `src/` reuses the existing replay sketch `firmware/picket-forest/esp8266/picket_forest_bench/bench.cpp` and the C sources through `lib_extra_dirs`/`build_src_filter`; no copies;
   - a pre-script copies the exported headers and a synthetic test-vector header (from the T027 examples, not dataset frames) into a gitignored `generated/` folder;
   - the sketch prints `PICKET_FOREST_RESULT` with frames, cycles or µs per frame (median, p99), score mismatches against the expected scores, alarms, state bytes and free heap.
 
   Add the envs to `.github/workflows/firmware.yml` (build only).
-- [ ] T029 [US4] Create `src/mobility_model_zoo/security/can_ids/measure.py` and wire `security can-ids measure --target host|esp32-qemu|esp8266 -b BOARD [--out FILE]` in `security/cli.py` per contracts/cli.md:
+- [X] T029 [US4] Create `src/mobility_model_zoo/security/can_ids/measure.py` and wire `security can-ids measure --target host|esp32-qemu|esp8266 -b BOARD [--out FILE]` in `security/cli.py` per contracts/cli.md:
   - **`host`:** times the scorer of T022 over the examples (median and p99 µs per frame), origin `host`.
   - **`esp32-qemu`:** builds the `esp32` env and runs it in QEMU through `mobility_model_zoo.edge.bench.qemu`. Reads the result line and takes `flash_kb` (detector code plus rodata from the linker map) and `ram_kb` (state bytes plus static data). Origin `emulator`; the latency description says "not representative".
   - **`esp8266 -b BOARD`:** builds the `esp8266` env, flashes it through the bench flasher of the board in `hil/boards.yaml`, reads the result line over serial, and records `latency_us`, `latency_p99_us` and `ram_kb` with origin `real_board` and hardware "ESP8266 (Wemos D1 mini), 160 MHz, substitute for the reference board ESP32-S3".
