@@ -27,8 +27,7 @@ FAST = ["picket-forest", "ctrl-shuffled", "ctrl-id-lookup", "bl-can-logic"]
 def _write_csv(path: Path, df) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     data = [
-        "".join(f"{b:02X}" for b in row)
-        for row in df[[f"b{i}" for i in range(8)]].to_numpy(np.uint8)
+        "".join(f"{b:02X}" for b in row) for row in df[[f"b{i}" for i in range(8)]].to_numpy(np.uint8)
     ]
     lines = ["timestamp,arbitration_id,data_field,attack"]
     lines += [
@@ -45,7 +44,11 @@ def bench(tmp_path_factory):
     seed = 0
     for s in ("set_01", "set_02"):
         for split in SPLITS:
-            caps = ("DoS-1", "DoS-2", "fuzzing-1", "fuzzing-2") if split == "train_01" else ("DoS-1", "scan-1")
+            caps = (
+                ("DoS-1", "DoS-2", "fuzzing-1", "fuzzing-2")
+                if split == "train_01"
+                else ("DoS-1", "scan-1")
+            )
             for cap in caps:
                 seed += 1
                 attack = {"DoS": "dos", "fuzzing": "fuzzing", "scan": "scan"}[cap.split("-")[0]]
