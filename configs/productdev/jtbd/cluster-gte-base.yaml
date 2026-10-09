@@ -5,8 +5,8 @@
 name: cluster-gte-base
 encoder:
   model_id: Alibaba-NLP/gte-multilingual-base
-  revision: null                  # pin to a commit before the first real run (T008)
-  licence_basis: null             # model card licence, checked before first use (T008)
+  revision: null                  # pin with topics/productdev/scripts/cluster/pin_revisions.py (T008)
+  licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09 via web search; read the LICENSE file and the remote code when pinning)"
   prefix: ""
   trust_remote_code: true        # the model ships its own architecture code; loaded only at the pinned revision
   pooling: mean
@@ -16,7 +16,10 @@ encoder:
 nli:
   model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
   revision: null
-  licence_basis: null             # including the licences of its training data (T008)
+  # Open (T008): the model itself is MIT, but its training data multilingual-NLI-26lang-2mil7
+  # includes ANLI subsets, whose licence must be checked for commercial use before this model is
+  # used. Owner decision; until then the stage refuses to load it.
+  licence_basis: null
 neighbours:
   k: 30
   candidate_floor: 0.50
