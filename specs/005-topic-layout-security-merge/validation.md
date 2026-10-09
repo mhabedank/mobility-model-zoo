@@ -82,3 +82,9 @@ Nothing to delete.
 6. Credentials: `HF_RELEASE_TOKEN` secret and `HIL_RUNNER_ENABLED=false` variable present. Retirement after the merge.
 
 Runtime of the default test suite (`HF_HUB_OFFLINE=1 uv run pytest`, with the edge and edge-train extras): about 150 s on an M3 Pro (goal: under 4 minutes). CI on PR #9: all checks green; `test` 3 min 11 s to 3 min 19 s (goal: under 10 minutes), `edge-sim` 1.5 min, `edge-qemu` 1.8 min, all 11 firmware targets build, `picket-forest-host` and `verify-licenses` pass.
+
+## Retirement of the old repository (2026-10-09)
+
+- PR #9 merged with a merge commit (`d136177`), so the imported history stays; `origin/main` shows both "Import mobility-security-ml" merges (T075 gate). Owner confirmed the retirement on 2026-10-09.
+- `mhabedank/mobility-security-ml`: README "archived, moved to mobility-model-zoo" with the path table pushed to `main` (`c1020d9`); secrets `HF_RELEASE_TOKEN` and `HF_STAGING_TOKEN` deleted (secret list empty; no variables); repository archived (`isArchived: true`). The `claude/*` branches stay readable.
+- Deleting the GitHub secrets does not revoke the tokens: the owner revokes them on Hugging Face if they differ from the zoo's tokens.
