@@ -1,7 +1,7 @@
 # 06 – Competitive landscape of CAN intrusion detection (2026-10-09)
 
 Where `picket-forest` and `picket-mlp` stand against open models, published results, embedded deployments, commercial products and hardware alternatives, and what we must change to have a defensible USP. Sources and verification marks (`[V]` checked in the source, `[U]` snippet or secondary) are in the notes:
-[open models](notes/competition-open-models.md), [commercial and regulation](notes/competition-commercial.md), [hardware alternatives](notes/competition-hardware-alternatives.md); the literature base is [02 – Literature](02-literature.md).
+[open models](notes/competition-open-models.md), [commercial and regulation](notes/competition-commercial.md), [hardware alternatives](notes/competition-hardware-alternatives.md), [state of the art on hard protocols](notes/competition-sota-protocols.md); the literature base is [02 – Literature](02-literature.md).
 
 Our own numbers below are **pre-zoo research results, not benchmark results** ([picket-forest research card](../reports/picket-forest/research-card.md)). They must be reproduced on the frozen benchmark `can-ids-v1` before any claim is made.
 
