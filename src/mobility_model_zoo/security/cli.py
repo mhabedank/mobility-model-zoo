@@ -82,8 +82,48 @@ def evaluate(
     raise typer.Exit(NOT_FROZEN)
 
 
+def benchmark_sources(data: Path | None = None) -> dict[str, Path]:
+    """Data roots of can-ids-v1 in the data cache (or below `data`)."""
+    from mobility_model_zoo.datasets.download import dataset_dir
+
+    root = (lambda ds: Path(data) / ds) if data else dataset_dir
+    return {"can-train-and-test": root("can-train-and-test") / "extracted", "road": root("road")}
+
+
+def benchmark_dir(benchmark: str = BENCHMARK) -> Path:
+    from mobility_model_zoo.edge.paths import REPO_ROOT
+
+    return REPO_ROOT / "topics" / "security" / "benchmarks" / benchmark
+
+
 @can_ids.command()
-def freeze() -> None:
-    """Freeze benchmark can-ids-v1 (split manifest with hashes)."""
-    say(f"benchmark {BENCHMARK}: freezing needs the dataset declarations of feature 005 US3")
-    raise typer.Exit(NOT_FROZEN)
+def freeze(
+    benchmark: str = typer.Option(BENCHMARK, help="benchmark version"),
+    data: Path = typer.Option(None, help="folder with can-train-and-test/ and road/ ($MMZ_DATA)"),
+) -> None:
+    """Freeze the benchmark: manifest with hashes; duplicates must be resolved first."""
+    from mobility_model_zoo.security.can_ids import benchmark as bm
+
+    if benchmark != BENCHMARK:
+        say(f"unknown benchmark {benchmark}; this version knows {BENCHMARK}")
+        raise typer.Exit(2)
+    sources = benchmark_sources(data)
+    missing = [ds for ds, root in sources.items() if not root.exists()]
+    if missing:
+        say(f"not downloaded: {', '.join(missing)} (uv run zoo data download <id>)")
+        raise typer.Exit(5)
+    out = benchmark_dir(benchmark)
+    try:
+        manifest = bm.freeze(sources, out, out / "resolutions.yaml")
+    except bm.UnresolvedDuplicates as e:
+        say(str(e))
+        say(f"record a resolution per group in {out / 'resolutions.yaml'} and run freeze again")
+        raise typer.Exit(1) from None
+    except bm.FrozenChanged as e:
+        say(str(e))
+        raise typer.Exit(3) from None
+    roles: dict[str, int] = {}
+    for c in manifest["captures"]:
+        roles[c["role"]] = roles.get(c["role"], 0) + 1
+    n = len(manifest["captures"])
+    say(f"{benchmark}: {n} captures {roles}, frozen at {manifest['frozen_at']}")

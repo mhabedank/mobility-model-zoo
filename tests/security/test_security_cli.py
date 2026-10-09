@@ -34,7 +34,8 @@ def test_unknown_dataset_is_a_usage_error():
 
 
 @pytest.mark.parametrize("argv", [["can-ids", "evaluate", "picket-mlp"], ["can-ids", "freeze"]])
-def test_benchmark_not_frozen_yet(argv):
+def test_benchmark_not_frozen_yet(argv, tmp_path, monkeypatch):
+    monkeypatch.setenv("MMZ_DATA", str(tmp_path))  # never touch the real data cache or benchmark
     assert runner.invoke(app, argv).exit_code == 5
 
 

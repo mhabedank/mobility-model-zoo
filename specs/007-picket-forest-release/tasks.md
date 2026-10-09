@@ -69,7 +69,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Write `tests/security/can_ids/test_benchmark.py` on tiny synthetic can-train-and-test and ROAD trees in `tmp_path`, built with the `frames` writers. It covers:
+- [X] T007 [P] [US1] Write `tests/security/can_ids/test_benchmark.py` on tiny synthetic can-train-and-test and ROAD trees in `tmp_path`, built with the `frames` writers. It covers:
   - (a) the manifest fields of data-model.md "Benchmark manifest". `captures[].id` is unique; no frame data appears in the file.
   - (b) A second freeze gives a byte-identical manifest. A changed manifest is refused with exit 3, and identical content is a no-op with exit 0.
   - (c) Two captures with equal content and different vehicle or split labels stop the freeze with exit 1, naming both. With a `resolutions.yaml` entry (`action: keep|drop|relabel`, `reason` required), the freeze passes and records `resolutions_sha256`.
@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Create `src/mobility_model_zoo/security/can_ids/benchmark.py` per research R1, R2 and R6. It provides:
+- [X] T008 [US1] Create `src/mobility_model_zoo/security/can_ids/benchmark.py` per research R1, R2 and R6. It provides:
   - `load_captures(data_dir)`, which yields common-format frames with dataset, set, split, vehicle, attack family and role;
   - `capture_hash(df)`, the SHA-256 of the frame columns `ts_us, can_id, dlc, b0..b7, label` in row order;
   - `episode_count(df)`, using the 1.0 s gap;
@@ -90,7 +90,7 @@
   - `verify_captures(manifest, data_dir)`.
 
   The manifest format follows data-model.md, with the protocol constants episode gap 1.0 s, grace 1.0 s, budgets [1, 10], benign keep 0.1, seed 0 and recall FPR 0.001. Attack families come from the capture names (`DoS`, `fuzzing`, `interval`, `rpm`, `speed`, `standstill`, `systematic`, `force-neutral`, `double`, `triple`, …; ROAD: `fabrication`, `fuzzing`, `masquerade`, `accelerator`).
-- [ ] T009 [US1] Wire `security can-ids freeze [--benchmark can-ids-v1] [--data DIR]` in `src/mobility_model_zoo/security/cli.py` to `benchmark.freeze`, with the exit codes of contracts/cli.md. Missing dataset gives 5; an unresolved duplicate gives 1; a change to a frozen manifest gives 3.
+- [X] T009 [US1] Wire `security can-ids freeze [--benchmark can-ids-v1] [--data DIR]` in `src/mobility_model_zoo/security/cli.py` to `benchmark.freeze`, with the exit codes of contracts/cli.md. Missing dataset gives 5; an unresolved duplicate gives 1; a change to a frozen manifest gives 3.
 - [ ] T010 [US1] Run the freeze on the real data. First check the suspect pairs (set_01/test_04 vs set_02/test_01, set_03/test_04 vs set_04/test_01).
   - Write every duplicate group with its resolution and reason to `topics/security/benchmarks/can-ids-v1/resolutions.yaml`.
   - Commit `manifest.json` and `resolutions.yaml`.
