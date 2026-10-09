@@ -136,3 +136,31 @@ def test_changed_capture_stops_the_run(bench, tmp_path):
             ev.run(["bl-can-logic"], manifest, sources, cache=tmp_path / "cache")
     finally:
         path.write_text(original)
+
+
+def _dets(sh_auc, ref_auc, sh_f1, pf_f1):
+    def det(auc, f1):
+        return {"sets": {"set_01": {"splits": {"s": {"frame": {"auc_roc": auc, "f1": f1}}}}}}
+
+    return {
+        "ctrl-shuffled": det(sh_auc, sh_f1),
+        "bl-isolation-forest": det(ref_auc, 0.0),
+        "picket-forest": det(0.99, pf_f1),
+    }
+
+
+def test_shuffled_control_is_judged_against_the_label_free_reference():
+    # novelty effect: high AUROC, but not above the label-free reference -> no leak
+    leaks, superseded = ev.shuffled_leakage(_dets(0.85, 0.9, 0.1, 0.9))
+    assert leaks == [] and superseded  # the original rule is still reported
+    leaks, _ = ev.shuffled_leakage(_dets(0.97, 0.9, 0.1, 0.9))
+    assert any("label-free reference" in r for r in leaks)
+    leaks, _ = ev.shuffled_leakage(_dets(0.5, 0.9, 0.5, 0.9))
+    assert any("half of picket-forest" in r for r in leaks)
+
+
+def test_shuffled_control_needs_the_reference():
+    d = _dets(0.5, 0.5, 0.0, 0.9)
+    del d["bl-isolation-forest"]
+    leaks, _ = ev.shuffled_leakage(d)
+    assert leaks and "cannot be judged" in leaks[0]

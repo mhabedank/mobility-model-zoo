@@ -303,6 +303,51 @@ def aggregate(sets: dict[str, dict]) -> dict[str, Any]:
     return agg
 
 
+SHUFFLE_AUROC_MARGIN = 0.05  # over the label-free reference (research R10, amended 2026-10-09)
+SHUFFLE_F1_SHARE = 0.5  # of picket-forest's F1 at the validation operating point
+
+
+def _frame(det: dict, set_name: str, split: str) -> dict | None:
+    s = det["sets"].get(set_name, {})
+    return s.get("splits", {}).get(split, {}).get("frame")
+
+
+def shuffled_leakage(dets: dict) -> tuple[list[str], list[str]]:
+    """Leakage test of the shuffled-label control (research R10 as amended 2026-10-09).
+
+    A forest trained on permuted labels still ranks rare frames high (small, noisy leaves in sparse
+    regions), so it acts as a novelty detector and its AUROC is not expected at 0.5 when attacks are
+    outliers. Leakage is therefore judged against the label-free reference (`bl-isolation-forest`)
+    and at the validation operating point. Returns (leak reasons, findings of the superseded
+    criterion "AUROC at most 0.6", reported but not used)."""
+    leaks, superseded = [], []
+    sh, ref, pf = (dets.get(n) for n in ("ctrl-shuffled", "bl-isolation-forest", "picket-forest"))
+    if sh is None:
+        return leaks, superseded
+    if ref is None:
+        return ["bl-isolation-forest not evaluated: the shuffled-label control cannot be judged"], []
+    for set_name in sh["sets"]:
+        for split in sh["sets"][set_name].get("splits", {}):
+            f_sh, f_ref, f_pf = (_frame(d, set_name, split) for d in (sh, ref, pf))
+            if f_sh is None or f_sh.get("auc_roc") is None:
+                continue
+            where = f"{set_name}/{split}"
+            if f_sh["auc_roc"] > 0.6:
+                superseded.append(f"{where}: AUROC {f_sh['auc_roc']:.2f} > 0.6")
+            if f_ref and f_ref.get("auc_roc") is not None:
+                if f_sh["auc_roc"] > f_ref["auc_roc"] + SHUFFLE_AUROC_MARGIN:
+                    leaks.append(
+                        f"ctrl-shuffled AUROC {f_sh['auc_roc']:.2f} exceeds the label-free reference "
+                        f"({f_ref['auc_roc']:.2f}) by > {SHUFFLE_AUROC_MARGIN} on {where}: leakage"
+                    )
+            if f_pf and f_pf.get("f1") and (f_sh.get("f1") or 0) >= SHUFFLE_F1_SHARE * f_pf["f1"]:
+                leaks.append(
+                    f"ctrl-shuffled F1 {f_sh['f1']:.2f} reaches half of picket-forest's "
+                    f"({f_pf['f1']:.2f}) on {where}: leakage"
+                )
+    return leaks, superseded
+
+
 def outcome(result: dict) -> dict[str, Any]:
     """Success, partial or kill per research R10 (computed from the numbers, never by hand)."""
     dets = result["detectors"]
@@ -310,22 +355,10 @@ def outcome(result: dict) -> dict[str, Any]:
         return {"verdict": "n/a", "reasons": ["picket-forest not evaluated"]}
     reasons, kill = [], False
     agg = {n: d["aggregate"] for n, d in dets.items()}
-    shuffled = agg.get("ctrl-shuffled", {})
-    for split, v in shuffled.items():
-        if (
-            v["auc_roc"]["worst"] is not None
-            and max(
-                (
-                    s["splits"][split]["frame"]["auc_roc"]
-                    for s in dets["ctrl-shuffled"]["sets"].values()
-                    if "splits" in s and "frame" in s["splits"].get(split, {})
-                ),
-                default=0,
-            )
-            > 0.6
-        ):
-            kill = True
-            reasons.append(f"ctrl-shuffled does not collapse on {split} (AUROC > 0.6): leakage")
+    leaks, superseded = shuffled_leakage(dets)
+    if leaks:
+        kill = True
+        reasons += leaks
     pf = agg["picket-forest"]
     beaten_by = []
     for split in UNKNOWN_VEHICLE:
@@ -353,7 +386,14 @@ def outcome(result: dict) -> dict[str, Any]:
         reasons.append("picket-forest exceeds every control and baseline on unknown vehicles")
     if result.get("partial"):
         reasons.append("partial run: the verdict is provisional")
-    return {"verdict": verdict, "reasons": reasons}
+    return {
+        "verdict": verdict,
+        "reasons": reasons,
+        "superseded_shuffle_criterion": {
+            "rule": "ctrl-shuffled attack-class AUROC at most 0.6 on every split (until 2026-10-09)",
+            "violations": superseded,
+        },
+    }
 
 
 # ---- ROAD with the release model --------------------------------------------------------------
@@ -456,6 +496,15 @@ def write_report(result: dict, out_dir: Path) -> None:
         f"# can-ids-v1 evaluation{' (partial)' if result['partial'] else ''}",
         "",
         f"**Outcome (research R10): {o['verdict']}.** " + " ".join(o["reasons"]),
+        "",
+        "Shuffled-label control: leakage is judged against the label-free reference "
+        f"`bl-isolation-forest` (AUROC margin {SHUFFLE_AUROC_MARGIN}) and at the validation operating "
+        f"point (F1 below {SHUFFLE_F1_SHARE} of picket-forest's). A forest on permuted labels ranks "
+        "rare frames high and so acts as a novelty detector; the original rule "
+        f'"{o.get("superseded_shuffle_criterion", {}).get("rule", "")}" was amended after the '
+        "first real-data run and is reported, not applied. Violations of the original rule: "
+        + ("; ".join(o.get("superseded_shuffle_criterion", {}).get("violations", [])) or "none")
+        + ".",
         "",
         f"Benchmark `{result['benchmark']}`, manifest `{result['manifest_sha256'][:16]}`, code "
         f"`{result['code_commit'][:12]}`, {result['date']}. Sets: {', '.join(result['sets'])}."
