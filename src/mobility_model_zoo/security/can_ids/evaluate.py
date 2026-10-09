@@ -264,9 +264,26 @@ def run(
     return out
 
 
+def rejudge(result: dict) -> dict:
+    """Recompute aggregates and outcome of a stored run with the current code (no training);
+    the stored per-capture metrics are unchanged. Records the commit that judged it."""
+    for det_res in result["detectors"].values():
+        det_res["aggregate"] = aggregate(det_res["sets"])
+    result["outcome"] = outcome(result)
+    result["judged_at_commit"] = code_commit()
+    return result
+
+
 def _headline(split_res: dict, budget: str) -> float | None:
+    """Share of episodes detected *at* the budget: the rule is chosen on validation, and a split
+    whose test false-alarm rate exceeds the budget counts 0 (the budget was not met there)."""
     b = (split_res.get("budgets") or {}).get(budget)
-    return None if b is None else b.get("episode_recall")
+    if b is None:
+        return None
+    fa = b.get("false_alarms_per_hour")
+    if fa is not None and not np.isnan(fa) and fa > float(budget):
+        return 0.0
+    return b.get("episode_recall")
 
 
 def aggregate(sets: dict[str, dict]) -> dict[str, Any]:
@@ -290,10 +307,12 @@ def aggregate(sets: dict[str, dict]) -> dict[str, Any]:
             for b in ("1", "10"):
                 h = _headline(r, b)
                 vals[f"episode_detection_fa{b}"].append(np.nan if h is None else h)
+                fa = ((r.get("budgets") or {}).get(b) or {}).get("false_alarms_per_hour")
+                vals[f"test_fa_per_hour_rule{b}"].append(np.nan if fa is None else fa)
         agg[split] = {
             k: {
                 "median": float(np.nanmedian(v)) if not np.all(np.isnan(v)) else None,
-                "worst": float(np.nanmax(v) if k.startswith("fa_per_hour") else np.nanmin(v))
+                "worst": float(np.nanmax(v) if ("fa_per_hour" in k) else np.nanmin(v))
                 if not np.all(np.isnan(v))
                 else None,
                 "sets": len(v),
@@ -517,7 +536,9 @@ def write_report(result: dict, out_dir: Path) -> None:
         "## Headline: attack episodes detected at a false-alarm budget",
         "",
         "Median over the sets (worst set in brackets). Episodes: attack frames separated by more "
-        "than 1 s; an alarm up to 1 s after an episode still detects it.",
+        "than 1 s; an alarm up to 1 s after an episode still detects it. The alarm rule of each "
+        "budget is chosen on validation captures; where its false-alarm rate on the test split "
+        "exceeds the budget, the split counts 0 (the budget was not met).",
         "",
         "| Detector | Split | ≤ 1 FA/h | ≤ 10 FA/h | F1 (attack) | AUROC | Default rule FA/h |",
         "|---|---|---|---|---|---|---|",

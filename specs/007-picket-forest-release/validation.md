@@ -46,3 +46,9 @@
 - PlatformIO project `firmware/picket-forest/platformio/` (envs `esp32`, `esp8266` = D1 mini at 160 MHz) reusing the existing replay sketch; `security can-ids measure` generates the sketch's sources, exported headers and synthetic test vectors.
 - Local check with the 3-tree fixture model: both envs build; Espressif QEMU 9.2.2 (installed in `~/qemu`) runs the ESP32 image: 4,000 frames, 0 score mismatches against the host build, 2 of 2 expected alarms; detector code 2.3 KiB, detector state 10.2 KiB.
 - Not added to `firmware.yml`: the build needs an exported model; CI builds it once the release export is staged (follow-up).
+
+## US2 full run (2026-10-09)
+
+- `security can-ids evaluate all --report`: all four sets, 15 detectors, C-vs-Python parity 0 mismatches. Original run stored as `runs/all.json` (copy of the first judgement kept outside git).
+- Defect found in the headline: "episodes detected at <= N FA/h" took the alarm rule chosen on validation but never checked the false-alarm rate on the test split; baselines alarming about 3000 times per hour on unknown vehicles were credited 100 %. Fixed: a split whose test false-alarm rate exceeds the budget counts 0; the test rate is reported (`test_fa_per_hour_rule{1,10}`). The stored run was re-judged with `evaluate all --from-run --report` (no retraining; `judged_at_commit` recorded).
+- Outcome under the amended R10 rule: kill, from `ctrl-shuffled` alone (F1 at the validation operating point reaches half of picket-forest's on four set/split cells; AUROC above the isolation-forest reference by more than 0.05 on set_02 and set_04 unknown vehicle, unknown attack). Without the shuffled control the outcome would be partial (timing-only and forest-with-id controls match picket-forest on unknown vehicles at the event level).

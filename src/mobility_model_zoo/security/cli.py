@@ -79,6 +79,9 @@ def evaluate(
     sets: list[str] = typer.Option(None, "--sets", help="only these sets (partial run)"),
     report: bool = typer.Option(False, help="write report, metrics and quality results"),
     data: Path = typer.Option(None, help="folder with can-train-and-test/ and road/ ($MMZ_DATA)"),
+    from_run: bool = typer.Option(
+        False, "--from-run", help="recompute metrics and outcome from the stored run (no training)"
+    ),
 ) -> None:
     """Score detectors on the frozen benchmark (same harness and protocol for all)."""
     import json
@@ -100,14 +103,21 @@ def evaluate(
     manifest = json.loads(manifest_path.read_text())
     sources = benchmark_sources(data)
     cache = derived_dir("picket-forest") / "features"
-    try:
-        result = ev.run(names, manifest, sources, sets=sets or None, cache=cache)
-        if "picket-forest" in names and not sets:
-            result["road"] = ev.evaluate_road(manifest, sources, cache)
-    except bm.CaptureChanged as e:
-        say(str(e))
-        raise typer.Exit(1) from None
     runs = derived_dir("can-ids-v1") / "runs"
+    if from_run:
+        stored = runs / f"{detector}.json"
+        if not stored.exists():
+            say(f"no stored run {stored}")
+            raise typer.Exit(2)
+        result = ev.rejudge(json.loads(stored.read_text()))
+    else:
+        try:
+            result = ev.run(names, manifest, sources, sets=sets or None, cache=cache)
+            if "picket-forest" in names and not sets:
+                result["road"] = ev.evaluate_road(manifest, sources, cache)
+        except bm.CaptureChanged as e:
+            say(str(e))
+            raise typer.Exit(1) from None
     runs.mkdir(parents=True, exist_ok=True)
     (runs / f"{detector}.json").write_text(json.dumps(result, indent=1, default=float) + "\n")
     o = result["outcome"]

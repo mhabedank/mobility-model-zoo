@@ -164,3 +164,18 @@ def test_shuffled_control_needs_the_reference():
     del d["bl-isolation-forest"]
     leaks, _ = ev.shuffled_leakage(d)
     assert leaks and "cannot be judged" in leaks[0]
+
+
+def test_headline_counts_zero_when_the_test_split_exceeds_the_budget():
+    within = {"budgets": {"10": {"episode_recall": 0.8, "false_alarms_per_hour": 9.0}}}
+    over = {"budgets": {"10": {"episode_recall": 1.0, "false_alarms_per_hour": 3000.0}}}
+    assert ev._headline(within, "10") == 0.8
+    assert ev._headline(over, "10") == 0.0
+    assert ev._headline({"budgets": {}}, "10") is None
+
+
+def test_rejudge_recomputes_without_training(bench, tmp_path):
+    _, sources, manifest = bench
+    res = ev.run(["bl-can-logic"], manifest, sources, sets=["set_01"], cache=tmp_path / "c")
+    again = ev.rejudge(json.loads(json.dumps(res, default=float)))
+    assert again["outcome"]["verdict"] == res["outcome"]["verdict"] and again["judged_at_commit"]
