@@ -1,0 +1,29 @@
+# Third encoder candidate of the training-free baseline (feature 009, research R5, task T007).
+# Thresholds are starting values; `jtbd cluster tune --split dev` replaces them (T032, T043, T044).
+# A real encoder or NLI model is loaded only with a pinned revision and a recorded licence basis
+# (T008); until then the stage refuses to load it.
+name: cluster-gte-base
+encoder:
+  model_id: Alibaba-NLP/gte-multilingual-base
+  revision: null                  # pin to a commit before the first real run (T008)
+  licence_basis: null             # model card licence, checked before first use (T008)
+  prefix: ""
+  trust_remote_code: true        # the model ships its own architecture code; loaded only at the pinned revision
+  pooling: mean
+  normalize: true
+  batch_size: 64
+  max_length: 128
+nli:
+  model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+  revision: null
+  licence_basis: null             # including the licences of its training data (T008)
+neighbours:
+  k: 30
+  candidate_floor: 0.50
+thresholds:
+  t_dup: 0.88
+  t_spec: 0.75
+  t_nli: 0.80
+levels: [0.70, 0.55]
+representative: medoid
+settings_changes: []

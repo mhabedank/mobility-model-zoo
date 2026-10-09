@@ -118,6 +118,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "tests/unit/*",
             "tests/integration/*",
             "tests/fixtures/mini-corpus/*",
+            "tests/fixtures/cluster/*",
             "tests/fixtures/rename-hashes.json",
             "tests/helpers.py",
             "tests/span_helpers.py",

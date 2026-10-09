@@ -1,0 +1,53 @@
+# Benchmark cluster-v1 of the jtbd-cluster task (feature 009, research R10-R12, task T005).
+# Its own data directory keeps the cluster benchmark apart from the extraction benchmark's frozen
+# hashes. Snapshots and the ledger are shared (crawl once; one ledger, named budgets).
+root: ../../..
+benchmark_version: cluster-v1
+test_fixture: false
+budget_name: cluster-v1
+
+paths:
+  # The extraction paths below are required by the shared loader; the cluster task reads its own
+  # guideline and criteria from the `cluster` block.
+  guideline: topics/productdev/guideline/guideline-v2.md
+  examples: topics/productdev/guideline/examples-v2
+  domain: configs/productdev/jtbd/domain/mobility.yaml
+  models: configs/productdev/jtbd/models.yaml
+  criteria: configs/productdev/jtbd/decision-criteria.yaml
+  teacher_scoring: configs/productdev/jtbd/teacher-scoring.yaml
+  budget: configs/productdev/jtbd/budget-cluster.yaml
+  data: data/cluster
+  snapshots: data/snapshots
+  ledger: data/budget/ledger.jsonl
+  benchmarks: topics/productdev/benchmarks
+  reports: topics/productdev/reports
+
+cluster:
+  pool:
+    span_run: null                # filled in T063: run id of the released scout-large over the pool chunks
+    configs: [configs/productdev/jtbd/pilot-v1.yaml, configs/productdev/jtbd/span-train-v1.yaml]
+    splits: [main]
+    exclude_splits: [holdout]     # the extraction pilot's holdout is never used
+  split_by: snapshot
+  dev_fraction: 0.30
+  seed: 20261009
+  pairs:
+    test: 1200
+    dev: 400
+    holdout: 300
+    strata: {high: 0.34, middle: 0.33, random: 0.33}
+    same_kind_only: true
+    samplers:
+      - {name: labse, model_id: sentence-transformers/LaBSE, revision: null, licence_basis: null}
+      - {name: lexical, method: token_set_ratio}
+  sets: {test: 12, dev: 4, holdout: 4, size: 40, neighbourhood_k: 39, coarse_partition: optional}
+  reference_models: [claude-reference, gpt-mini-reference]
+  batch_size: 20
+  guideline: topics/productdev/guideline/cluster-v1/guideline-cluster-v1.md
+  examples: topics/productdev/guideline/cluster-v1/examples.yaml
+  criteria: configs/productdev/jtbd/cluster-criteria.yaml
+  # Spec FR-027, constitution VI: pool, pair and set lists and reference answers under data/cluster/
+  # are never published (redistribution not allowed, licences of the source chunks apply).
+  retention:
+    rule: "while the benchmark version is current"
+    review_by_months_after_freeze: 24

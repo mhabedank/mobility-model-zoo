@@ -1,0 +1,16 @@
+# Cash budget of feature 009 (spec SC-007; constitution: Resources & Cost Discipline).
+# Used by configs/productdev/jtbd/cluster-v1.yaml (budget_name cluster-v1). Its own file because
+# budget.yaml is part of the pilot's frozen hashes. The ledger is shared; rows carry the budget name.
+budget_eur: 20
+# Guard cap below the key's hard limit. Owner to confirm before T035 whether a separate OpenRouter
+# key is used (api_key_env below) or the pilot's key with a cap of what is left on it.
+key_cap_eur: 18.4
+api_key_env: OPENROUTER_API_KEY_CLUSTER
+openrouter_fee: 0.055
+usd_to_eur: 0.92
+# EUR per million tokens; list prices as upper bound (the ledger uses OpenRouter's reported cost).
+# claude-reference runs through the consumer CLI subscription and has no per-token cash cost.
+prices:
+  gpt-mini-reference: {input: 0.69, cached_input: null, output: 4.14}   # as budget.yaml (USD 0.75 / 4.50, 2026-10-06)
+# Reference VM for the speed and memory measurement (T057), EUR per hour, upper bound.
+reference_vm_eur_per_hour: 0.10

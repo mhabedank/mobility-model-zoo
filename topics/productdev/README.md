@@ -7,11 +7,13 @@ Models that support product discovery in mobility. Hugging Face collection: [Pro
 | Task | Tool | Models |
 |---|---|---|
 | `jtbd`: extract jobs-to-be-done, pains and gains with verbatim evidence from German and English texts | `jtbd` | [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) |
+| `jtbd-cluster`: merge duplicate items, link more specific needs and cluster them into opportunities ([task document](tasks/jtbd-cluster.md)) | `jtbd cluster` | none yet (training-free baseline in development, feature 009) |
 
 ## What is where
 
 | Folder | Content |
 |---|---|
+| [tasks/](tasks/) | Task documents: scope, reference, benchmark, metrics, tool, budget |
 | [guideline/](guideline/) | Labeling guideline and examples (frozen per benchmark version) |
 | [benchmarks/](benchmarks/) | Frozen benchmark manifests (hashes only, never text) |
 | [reports/](reports/) | Pilot, spike and release reports, model card previews |
