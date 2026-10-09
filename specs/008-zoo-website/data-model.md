@@ -27,7 +27,7 @@ The site has no database. Every entity is a view over files that already exist, 
 | `title` | str | "Mobility Model Zoo" |
 | `canonical_url` | URL | `https://mhabedank.github.io/mobility-model-zoo/` |
 | `tagline` | str | no digits |
-| `principles` | list of `{title, text}` | same four principles as the HF org card |
+| `principles` | list of `{title, text}` | the zoo's principles (three to five), the same as on the HF org card |
 | `legal.imprint` | URL | `https://miskatonic-analytics.com/imprint.html` |
 | `legal.privacy` | URL | `PRIVACY.md` on GitHub (main) |
 | `legal.copyright` | URL | `COPYRIGHT_POLICY.md` on GitHub (main) |

@@ -3,28 +3,30 @@
 # zoo/models/<name>/site.yaml; model facts come from the release records.
 title: Mobility Model Zoo
 canonical_url: https://mhabedank.github.io/mobility-model-zoo/
-tagline: Small models for mobility. Measured, not claimed.
+tagline: Safer, more affordable and better mobility through AI.
 lead: >-
-  An open, non-commercial collection of small, fast machine learning models for mobility, from
-  product development to vehicles and embedded systems. Every model runs locally, is measured on a
-  frozen benchmark and is published with a model card that says how good it is, against what, how
-  fast on which hardware, and where it fails.
+  We build machine learning models for real mobility problems and make them available to everyone,
+  for research and for commercial products. From product development to vehicles and embedded
+  systems, every model is checked for compliance, runs on your own hardware and is published with a
+  model card that says how good it is, against what, and where it fails.
 values:
+  - title: Compliant by design
+    text: Licences, privacy and the EU AI Act are checked before a model ships, not afterwards.
   - title: Runs where your data is
-    text: From a laptop down to a microcontroller. No hosted API at runtime, no cost per call.
-  - title: Measured on frozen data
-    text: Every model is scored on a frozen benchmark with a fixed harness, and every number names what it is measured against.
-  - title: Published with a model card
-    text: Quality, speed on named hardware, known failure modes and the provenance of the training data, for every version.
+    text: From a laptop down to a control unit in the vehicle. No data leaves your company, no cost per call.
+  - title: Known quality, known limits
+    text: Every model card says what the model achieves, measured against what, and where it fails.
 principles:
-  - title: Measured, not claimed
-    text: Every model is scored on a frozen benchmark with a fixed harness, and the card reports quality, speed on named hardware and known failure modes.
-  - title: Immutable versions
-    text: Each release is one tagged version and is never overwritten. Older versions stay available; a broken version is marked deprecated.
-  - title: Open method, closed data
-    text: Models, methods, prompts and evaluation results are published. Datasets and source texts are not, because they contain text written by people who did not agree to its redistribution.
-  - title: Compliance
-    text: Sources and their licences are credited for every release. The privacy notice says how texts are collected and processed and how to object.
+  - title: Compliance comes first
+    text: No model ships before its compliance check has passed. Sources and licences are checked and credited, personal data is kept to a minimum, and every release comes with its EU AI Act classification and a summary of its training data. If a model cannot be released lawfully, it is not released.
+  - title: Built for real use cases
+    text: Every model solves one concrete mobility problem and is ready for production, with a documented interface, a stable output format and a card that says what the model is for and what it must not be used for.
+  - title: Right-sized, from decision models to LLMs
+    text: Every task gets the smallest model that does the job well, from a compact decision model on a control unit to a large language model. It runs on your own hardware, so no data leaves your company, nothing depends on an outside service and there is no cost per call.
+  - title: Known quality, known limits
+    text: Every model states what it achieves, at what speed on which hardware, measured against what, and where it fails. You decide whether it fits your use case before you deploy it, not after.
+  - title: Open for everyone, including commercial use
+    text: Models, methods, prompts and evaluation results are published under an open licence, and companies may build commercial products on them. The model card names the licence that applies; datasets are shared only where their own licences allow it.
 legal:
   imprint: https://miskatonic-analytics.com/imprint.html
   privacy: https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md

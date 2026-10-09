@@ -1,7 +1,7 @@
 {% extends "base.html.j2" %}
 {% block main %}
 <section class="hero" aria-labelledby="title"><div class="wrap stack" style="gap:20px;max-width:1200px">
-<div class="eyebrow">Open · non-commercial · local-first</div>
+<div class="eyebrow">Vision</div>
 <h1 class="h-display" id="title" style="max-width:900px">{{ site.tagline }}</h1>
 <p class="lead muted" style="max-width:760px">{{ site.lead }}</p>
 <div class="row"><a class="btn" href="#models">Browse the models</a><a class="btn btn-ghost" href="#principles">Read the principles</a></div>
@@ -34,7 +34,7 @@
 </div>
 </div></section>
 <section class="sec" id="principles" aria-labelledby="p-h"><div class="wrap">
-<div class="sec-head"><div class="eyebrow">Principles</div><h2 class="h2" id="p-h">How the zoo publishes.</h2></div>
+<div class="sec-head"><div class="eyebrow">Principles</div><h2 class="h2" id="p-h">What the zoo stands for.</h2></div>
 <div class="grid2">
 {% for pr in site.principles %}<div class="stack" style="gap:6px"><h3 class="h3">{{ pr.title }}</h3><p class="muted">{{ pr.text }}</p></div>{% endfor %}
 </div>
