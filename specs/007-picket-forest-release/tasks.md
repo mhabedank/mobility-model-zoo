@@ -22,7 +22,7 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Download the declared datasets and record what was fetched:
+- [X] T001 Download the declared datasets and record what was fetched:
   - run `uv run zoo data download can-train-and-test` and `uv run zoo data download road`;
   - note the sizes, the `SOURCE.json` retrieval dates and the can-train-and-test repository revision in `specs/007-picket-forest-release/validation.md` (new file, section "Setup").
   - If the Bitbucket HEAD is the v1.5 layout instead of v1, record which split folders exist and stop for an owner decision before T008.
@@ -91,7 +91,7 @@
 
   The manifest format follows data-model.md, with the protocol constants episode gap 1.0 s, grace 1.0 s, budgets [1, 10], benign keep 0.1, seed 0 and recall FPR 0.001. Attack families come from the capture names (`DoS`, `fuzzing`, `interval`, `rpm`, `speed`, `standstill`, `systematic`, `force-neutral`, `double`, `triple`, …; ROAD: `fabrication`, `fuzzing`, `masquerade`, `accelerator`).
 - [X] T009 [US1] Wire `security can-ids freeze [--benchmark can-ids-v1] [--data DIR]` in `src/mobility_model_zoo/security/cli.py` to `benchmark.freeze`, with the exit codes of contracts/cli.md. Missing dataset gives 5; an unresolved duplicate gives 1; a change to a frozen manifest gives 3.
-- [ ] T010 [US1] Run the freeze on the real data. First check the suspect pairs (set_01/test_04 vs set_02/test_01, set_03/test_04 vs set_04/test_01).
+- [X] T010 [US1] Run the freeze on the real data. First check the suspect pairs (set_01/test_04 vs set_02/test_01, set_03/test_04 vs set_04/test_01).
   - Write every duplicate group with its resolution and reason to `topics/security/benchmarks/can-ids-v1/resolutions.yaml`.
   - Commit `manifest.json` and `resolutions.yaml`.
   - Record the counts (captures, frames, episodes per split) and every resolution in `validation.md` under "US1".

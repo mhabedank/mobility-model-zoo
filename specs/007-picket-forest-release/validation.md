@@ -2,7 +2,17 @@
 
 ## Setup
 
-- Download started 2026-10-09: ROAD from Zenodo (slow, about 3 h for 600 MB), then can-train-and-test from Bitbucket. Results recorded when finished.
+- ROAD: Zenodo record 10462796 (`road.zip`, 557 MB, 531 MB raw, 2.9 GB extracted), retrieved 2026-10-09 (`SOURCE.json` `retrieved_at` 07:06:33Z).
+- can-train-and-test: Bitbucket `raw/HEAD`, 237 files (README plus 236 CSVs), 7.47 GB, retrieved 2026-10-09 (download started 07:25:22Z). HEAD at download time: commit `2d293b6d0439c9a3d73c2e24b57943f9a6032162` (2023-09-06, "Update README.md"). The per-file SHA-256 in `SOURCE.json` pin the content.
+- Layout: v1 (`set_01`..`set_04`, each with `train_01` and `test_01`..`test_04`; CSV columns `timestamp,arbitration_id,data_field,attack`). No owner decision needed.
+
+## US1 freeze (2026-10-09)
+
+- First `security can-ids freeze` stopped (exit 1) on 12 duplicate groups: every capture of `set_01/test_04_unknown_vehicle_unknown_attack` is byte-identical (common-format hash) to the capture of the same name in `set_02/test_01_known_vehicle_known_attack`, with conflicting vehicles (README: Silverado vs Traverse).
+- Check: attack-free CAN-ID overlap with each set's `train_01`. `set_01/test_04` matches Traverse 100 %, Silverado 74 %, Impala 81 %; `set_01/test_02` matches Silverado 100 %. The upstream README is wrong for `set_01/test_04`: it is Traverse.
+- The other suspect pair (`set_03/test_04` vs `set_04/test_01`) is Forester on both sides (README and IDs agree); no conflict.
+- Owner decision (AskUserQuestion): relabel to `chevrolet_traverse`, keep in `set_01/test_04` (Traverse is not in set_01 training, so the split stays unknown vehicle). Recorded in `topics/security/benchmarks/can-ids-v1/resolutions.yaml`.
+- Second freeze: exit 0, 281 captures (train 49, validation 30, test 185, out_of_scope 17).
 
 ## Foundational
 
