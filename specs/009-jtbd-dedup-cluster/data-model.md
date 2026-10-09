@@ -57,7 +57,7 @@ All files live outside git under the JTBD data directory (`data/cluster/…`, gi
 | `representative` | item id | a member; correction may set it (R14) |
 | `parent` | `dg-…`, `cl-…` or null | a `dg-` parent has the same kind and is more general (FR-009) |
 | `children` | group ids | more specific groups |
-| `counts` | object | `mentions` (members), `independent_sources`, `independence_rule` (`origin`, `source_id`) |
+| `counts` | object | `mentions` (members), `independent_sources`, `independence_rule` (`origin` if every member's source has an origin, `source_id` if none has, else `mixed`) |
 | `distributions` | object | counts per value of actor_type, evidence_type, evidence_scope |
 | `dates` | object | `first`, `last`, `undated` count |
 | `statement` | object or null | from annotations; this feature never fills it (FR-014) |
@@ -122,7 +122,7 @@ Manifest like `LabelRunManifest` (role `reference`, backend, model version, sett
 
 ### Agreement and scores (`data/cluster/analysis/cluster-v1/`)
 
-- `agreement.json`: per level the reference-vs-reference statistic with bootstrap CI, contested counts, decision (`go`, `revise`, `rethink`).
+- `agreement.json`: per measurement level (duplicate, specificity, cluster level 1, cluster level 2) the reference-vs-reference statistic with bootstrap CI, contested counts, decision (`go`, `revise`, `rethink`).
 - `consensus.jsonl`: pairs both references agree on; `contested.jsonl`: the rest.
 - `score-<candidate>.json`: per level pair precision, recall, F1; B-cubed precision, recall, F1; specificity F1; ratio to the reference-vs-reference value; deterministic check results; settings hash.
 - `perf-<candidate>.json`: items, wall time, peak RSS, machine, origin (`real` or `scale-set`).

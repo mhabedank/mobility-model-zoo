@@ -41,7 +41,7 @@ No model is trained and nothing is released in this feature. A trained model fol
 - Thresholds tuned on development data only; benchmark frozen before labeling; criteria frozen before the pilot (FR-024).
 - Scout, its training objective and frozen extraction artifacts are not touched.
 
-**Scale/Scope**: about 5,000 to 10,000 real items in the pool; 1,600 labeled pairs plus 300 holdout pairs; 16 sets of 40 items; at most three encoder candidates on the benchmark; 50,000-item scale set for speed only.
+**Scale/Scope**: about 5,000 to 10,000 real items in the pool; 1,600 labeled pairs plus 300 holdout pairs; 20 sets of 40 items (12 test, 4 development, 4 holdout); at most three encoder candidates on the benchmark; 50,000-item scale set for speed only.
 
 ## Constitution Check
 
@@ -53,10 +53,10 @@ Constitution version **2.0.0**. Task: `jtbd-cluster` (`productdev`), tool `jtbd 
 |-----------|---------|------------|-------------|-----------------------|
 | I. Problem-First | yes | ✅ | ✅ | No persona, segment or scheme enters extraction or grouping; assignments are written downstream into annotations (R15). |
 | II. Grounded Evidence | yes | ✅ | ✅ | Quotes are carried byte-identical and checked (`check`); representatives are member quotes; no generated statements or labels (R9, R16). Groups of one are valid. |
-| III. Measure Before Optimizing | yes | ✅ | ✅ | Own frozen benchmark labeled by two reference families (R10, R11); contested pairs separate and scored neutrally; deterministic checks reported on their own; scores named as agreement with the named references; quality reported with time and memory (R17). |
+| III. Measure Before Optimizing | yes | ✅ | ✅ | Own frozen benchmark labeled by two reference families (R10, R11); contested pairs separate and scored neutrally; deterministic checks reported on their own; scores named as agreement with the named references; every scored candidate measured on the reference VM and reported as a quality-vs-cost Pareto front (R17). A measurement level that fails the pilot is not produced (R12). |
 | IV. Riskiest Assumption First | yes | ✅ | ✅ | Riskiest assumption: references agree on "same need" and "belongs together". Agreement pilot per level with criteria frozen before labeling, one re-pilot on holdout (R12). Baseline bar written down before scoring. |
 | V. Small and Local, Budgets per Task | yes | ✅ | ✅ | Budget: 50,000 items ≤ 15 min, ≤ 4 GB, CPU, reference VM; measurement origin recorded; scale set labeled as such (R17). No runtime API. |
-| VI. Clean Provenance | yes | ✅ | ✅ | Pool only from redacted, permitted chunks; pilot holdout untouched; no author metadata (R3); pre-send checks and approved routes for reference calls (R11); benchmark text and labels never published, manifest holds hashes only; retention as the JTBD data store. Third-party model licences recorded before use. |
+| VI. Clean Provenance | yes | ✅ | ✅ | Pool only from redacted, permitted chunks; pilot holdout untouched; no author metadata (R3); pre-send checks and approved routes for reference calls (R11); benchmark text and labels never published, manifest holds hashes only; the `cluster-v1` data declared as a topic dataset with its retention period; reports quote no corpus text. Third-party model licences recorded before use. |
 | VII. Metadata over Inference | yes | ✅ | ✅ | Date, source class and origin come from the bundle, never inferred (R2). |
 | VIII. Fair Comparison | yes | ✅ | ✅ | Every candidate is tuned on the same development split and scored with the same harness and benchmark version (R12). |
 | IX. Reproducible, Dated Releases | partly | ✅ | ✅ | No release. Settings pinned by model revision and hashed into every result; deterministic output with the embedding cache (R6, R13). |
@@ -92,8 +92,11 @@ configs/productdev/jtbd/
 ├── cluster-v1.yaml                  # benchmark: pool, split, sampling, sizes, seeds, reference models, budget name
 ├── cluster-criteria.yaml            # agreement thresholds, revise/rethink rules, baseline bar (frozen)
 ├── cluster-baseline.yaml            # stage settings: encoder + revision, NLI + revision, k, thresholds, levels
-└── budget.yaml                      # + budget block cluster-v1 (€20)
+├── cluster-e5-small.yaml            # second encoder candidate
+├── cluster-gte-base.yaml            # third encoder candidate
+└── budget-cluster.yaml              # own budget file cluster-v1 (€20); budget.yaml is frozen with the pilot
 topics/productdev/
+├── compliance/datasets.yaml         # + dataset cluster-v1 (benchmark pool, pairs, sets, reference answers), retention
 ├── tasks/jtbd-cluster.md            # task document: scope, reference, benchmark, metrics, tool, budget, riskiest assumption
 ├── guideline/cluster-v1/            # guideline-cluster-v1.md + examples (DE/EN: same, more specific, different, clusters)
 └── benchmarks/cluster-v1/manifest.json

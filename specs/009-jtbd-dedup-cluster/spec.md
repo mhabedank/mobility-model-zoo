@@ -23,6 +23,11 @@ Constitution principle X requires this to be a separate downstream stage: scout 
 - Q: Is an item that only differs in specificity ("find a parking space" vs. "find a parking space downtown in the evening") a duplicate, a child in the hierarchy, or a different need? → A: A child in the hierarchy. "Duplicate" means the same need only. The guideline labels a pair as *same*, *more specific than* or *different*; a more specific duplicate group of the same kind becomes a child of the more general one, so the detail level stays visible (FR-008, FR-009).
 - Q: May a cluster bundle a job together with its pains and gains? → A: Yes. Clusters may combine groups of different kind, so a cluster can be read as a job with its pains and gains (Opportunity Solution Tree). Duplicate groups and the specificity relation stay within one kind; an outcome-driven landscape is built by filtering by kind (FR-004, FR-011).
 
+## Scope
+
+- **In**: merging items that state the same need into duplicate groups (within one kind); the relation *more specific than* between groups of one kind; clusters of groups across kinds in one or two levels; counts of mentions and independent sources; continuity across runs (stable ids, human corrections, change report); empty slots for statements and assignments; source dates; the task's benchmark, agreement pilot and training-free baseline.
+- **Out**: prioritisation and opportunity scoring; importance and satisfaction values; generating normalised statements or labels; personas; any ontology or fixed taxonomy; changes to scout or its training objective; a user interface for editing corrections; training or releasing a model.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Duplicates become evidence-backed groups (Priority: P1)
@@ -137,7 +142,7 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - **FR-004**: Items of different kind MUST NOT be in the same duplicate group.
 - **FR-005**: Exact copies (identical quote from identical or copied source text, for example a text collected twice, a quoted forum reply or a repost) MUST be recognised deterministically, without a model, before any similarity step.
 - **FR-006**: Each duplicate group MUST carry: its id, kind, members, one representative quote chosen deterministically from its members, the number of mentions, the number of independent sources, and the distribution of actor type, evidence type and evidence scope over its members.
-- **FR-007**: Independent sources MUST be counted by author or thread where that metadata exists, otherwise by source id, and the record MUST state which rule was used.
+- **FR-007**: Independent sources MUST be counted by thread or origin where that metadata exists, otherwise by source id, and the record MUST state which rule was used. Author names MUST NOT be used or stored (constitution VI).
 - **FR-008**: What counts as a duplicate MUST be defined in a written guideline with examples in German and English. The guideline MUST label a pair of items as *same* (duplicate), *more specific than* (one states a narrower version of the other's need, for example "find a parking space downtown in the evening" vs. "find a parking space") or *different*. Only *same* merges items into one duplicate group.
 
 ### Clustering
@@ -159,23 +164,23 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - **FR-017**: When the stage runs again on extended input, every group and cluster whose members are unchanged MUST keep its id. When groups merge or split, the rule for which id survives MUST be fixed and documented, and the change MUST appear in a change report.
 - **FR-018**: Human corrections (merge, split, move to another parent, set representative quote) MUST be stored separately from the automatic result, MUST take precedence over it on every later run, and MUST be reported as stale when they no longer apply.
 - **FR-019**: Statements and assignments MUST stay attached to their group or cluster across runs as long as its id is kept.
-- **FR-020**: Given identical inputs, corrections and settings, the output MUST be identical.
+- **FR-020**: Given identical inputs, corrections, annotations, settings and stored vectors of earlier runs, the output MUST be identical.
 
 ### Budgets
 
-- **FR-021**: The stage MUST deduplicate and cluster the items of 10,000 texts (about 50,000 items) in at most 15 minutes, with at most 4 GB of RAM at peak, on the task's low-resource reference hardware (8 GB RAM, 4 vCPU, no GPU). It MUST NOT need a hosted API or network connection at runtime.
+- **FR-021**: The stage MUST deduplicate and cluster the items of 10,000 texts (about 50,000 items) in at most 15 minutes, with at most 4 GB of RAM at peak, on the task's low-resource reference hardware (8 GB RAM, 4 vCPU, no GPU). It MUST NOT need a hosted API, and after the models have been downloaded once it MUST NOT need a network connection.
 
 ### Measurement
 
 - **FR-022**: The task MUST have a frozen benchmark of item pairs and groups drawn from real scout outputs, labeled independently by at least two frontier reference models from different families under the guideline of FR-008: pairs as *same*, *more specific than* or *different*, and cluster membership across kinds. Benchmark manifests MUST contain hashes only, never text.
-- **FR-023**: Scores MUST be reported per level: for deduplication pair precision, recall and F1 and B-cubed precision, recall and F1; for the specificity relation precision, recall and F1 of *more specific than*; for clustering B-cubed F1 and a measure of agreement on the hierarchy. Each number MUST be named as agreement with the named reference models on the named benchmark version, with a confidence interval, and contested cases MUST be reported separately.
-- **FR-024**: Before any threshold is tuned or any model is trained, an agreement pilot MUST measure agreement between the reference models on each level. A level below its threshold MUST be redefined and re-piloted. Thresholds and kill criteria MUST be written down before the pilot runs.
-- **FR-025**: The first candidate MUST be training-free (multilingual similarity with a kind filter and a threshold or hierarchical grouping), tuned on a development split only. A trained model MAY follow only if the baseline misses the quality bar set before measurement; it is then released under its own model name through the zoo's release pipeline. Every candidate MUST be reported on quality and on the budgets of FR-021.
+- **FR-023**: Scores MUST be reported per level: for deduplication pair precision, recall and F1 and B-cubed precision, recall and F1; for the specificity relation precision, recall and F1 of *more specific than*; for clustering B-cubed F1 per cluster level that is produced. Agreement on the hierarchy is the combination of the specificity relation and the cluster partitions; a cluster level that has not been measured MUST NOT be produced. Each number MUST be named as agreement with the named reference models on the named benchmark version, with a confidence interval, and contested cases MUST be reported separately.
+- **FR-024**: Before any threshold is tuned or any model is trained, an agreement pilot MUST measure agreement between the reference models on each level. A level below its threshold MUST be redefined and re-piloted once. A level that still misses its threshold MUST NOT be produced: without duplicates the task stops; without the specificity relation more specific groups become siblings; without clusters the result holds groups only. Thresholds and kill criteria MUST be written down before the pilot runs.
+- **FR-025**: The first candidate MUST be training-free (multilingual similarity with a kind filter and a threshold or hierarchical grouping), tuned on a development split only. A trained model MAY follow only if the baseline misses the quality bar set before measurement; it is then released under its own model name through the zoo's release pipeline. Every candidate MUST be reported on quality and on the budgets of FR-021, measured on the reference hardware, as a quality-vs-cost Pareto front (constitution III).
 - **FR-026**: Deterministic checks MUST run independently of any model judgment and be reported on their own: every input item in exactly one group, quotes byte-identical, no group mixing kinds, hierarchy without cycles, counts consistent with members, output valid against the format.
 
 ### Provenance and personal data
 
-- **FR-027**: Benchmark items MUST come from scout outputs on corpus chunks that passed the JTBD corpus redaction, from sources whose records allow the use. Reference-model labels, benchmark text and development data MUST NOT be published, and their retention MUST be stated.
+- **FR-027**: Benchmark items MUST come from scout outputs on corpus chunks that passed the JTBD corpus redaction, from sources whose records allow the use. Reference-model labels, benchmark text and development data MUST NOT be published, MUST be declared as a dataset of the topic with their retention period, and reports MUST NOT quote corpus texts.
 - **FR-028**: Items sent to a reference model MUST pass the existing pre-send personal data check and go only through approved labeling routes.
 
 ### Key Entities
@@ -196,8 +201,8 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - **SC-001**: On a run over real scout outputs, 100% of input items are in exactly one group, 100% of quotes are byte-identical to the input, and 0 groups mix kinds.
 - **SC-002**: The agreement pilot reports, for each level, agreement between the reference models with a confidence interval and a go, revise or stop decision against thresholds written down before the pilot.
 - **SC-003**: The training-free baseline reaches at least 85% of the reference models' mutual agreement on deduplication pair F1, or the gap is reported and a trained candidate is decided on (FR-025).
-- **SC-004**: After adding 10% new texts to a previous run, at least 95% of groups whose members did not change keep their id, and 100% of human corrections that still apply remain in effect.
-- **SC-005**: The items of 10,000 texts are deduplicated and clustered in at most 15 minutes with at most 4 GB of RAM on the reference hardware, without network access.
+- **SC-004**: After adding 10% new texts to a previous run, 100% of groups and clusters whose members did not change keep their id, at least 90% of groups that only gained members keep their id, and 100% of human corrections that still apply remain in effect.
+- **SC-005**: 50,000 items (the items of about 10,000 texts) are deduplicated and clustered in at most 15 minutes with at most 4 GB of RAM on the reference hardware, without network access.
 - **SC-006**: A person who did not build the stage turns one result into the opportunity layer of an Opportunity Solution Tree and into a list of needs with mention and source counts, without converting the format, in under 30 minutes.
 - **SC-007**: Total cash spent on reference labeling and reference hardware stays at or below €20.
 
@@ -207,11 +212,12 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - Riskiest assumption (constitution IV): frontier reference models agree on what is the same need and what belongs together. The agreement pilot (FR-024) tests this before any tuning.
 - Input is the output of `scout-large`; the format also accepts outputs of later scout variants or of reference models as long as they use `jtbd-span-v1`.
 - Reference hardware is the one the JTBD task already uses (8 GB RAM, 4 vCPU, no GPU); development runs on the MacBook or the DGX Spark at no cash cost.
+- The zoo's own corpus holds fewer than 50,000 items. FR-021 and SC-005 are therefore checked on a scale set built from real items with unique source ids, labeled as a scale set in every record; the real items are measured as well.
 - Budget values in FR-021 are a first setting chosen to match scout's throughput; they can be revised in the plan with a recorded rationale.
 - The quality bar for the baseline (SC-003) follows the pilot's 85%-of-reference mark; the go thresholds of the agreement pilot are set in the plan before it runs.
 - The labeling backends, pre-send checks and consensus logic of `jtbd` are reused. Code is moved into a shared module only where this second task actually needs it (constitution, Tasks and Releases).
 - The €20 cash budget is separate from earlier features' budgets.
-- Out of scope: prioritisation and opportunity scoring; importance and satisfaction values (they come from surveys); generating normalised statements or labels; persona building; any ontology or fixed taxonomy; any change to scout or its training objective; a user interface for editing corrections (corrections are recorded in a file).
+- Scope in and out is listed under Scope; corrections are recorded in a file, not edited in a user interface.
 
 ## Constitution Compliance
 

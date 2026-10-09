@@ -63,7 +63,7 @@ Each entry: decision, rationale, alternatives considered. No spike or pilot meas
 - **Decision**:
   - **Item pool**: outputs of the released `scout-large` on stored, redacted chunks of the pilot-v2 main split and `span-train-v1`; the pilot holdout stays untouched. Sources are split by snapshot into development (30%) and test (70%); thresholds are tuned on development only.
   - **Pairs** (same kind): about 1,200 test and 400 development pairs, stratified by similarity under two samplers that are not candidates (LaBSE cosine and a lexical token-set ratio): one third high, one third middle, one third random. Plus 300 holdout pairs for one re-pilot.
-  - **Sets** (any kind): 12 test and 4 development sets of 40 items, each a seed item and its neighbourhood, for cluster membership.
+  - **Sets** (any kind): 12 test, 4 development and 4 holdout sets of 40 items (20 in all), each a seed item and its neighbourhood, for cluster membership; each labeled with a fine partition and an optional coarser one for a second cluster level.
   - Manifest with hashes only under `topics/productdev/benchmarks/cluster-v1/`, frozen with the guideline and the decision criteria before labeling.
 - **Rationale**: Random pairs are almost all "different" and say nothing about the decision boundary; stratified sampling with non-candidate samplers avoids building the benchmark around one candidate. Splitting by snapshot prevents near-duplicate leakage between development and test.
 - **Alternatives**: labeling full groupings of thousands of items, rejected: too expensive and unreliable for an LLM; labeling only pairs, rejected: cannot measure clusters.
@@ -80,9 +80,9 @@ Each entry: decision, rationale, alternatives considered. No spike or pilot meas
   - Duplicate level: Cohen's kappa between the references on `same` vs. not-same ≥ 0.60.
   - Specificity level: kappa on {A more specific, B more specific, neither} over pairs both call not-same ≥ 0.40.
   - Cluster level: B-cubed F1 between the two references' partitions, averaged over sets, ≥ 0.60.
-  - Below a threshold: revise the guideline once and re-pilot on the 300 holdout pairs and 4 fresh sets. Still below: that level is "rethink"; for specificity and clusters the stage still runs, but the level is reported as unmeasured, and for duplicates the task stops.
+  - Below a threshold: revise the guideline once and re-pilot on the 300 holdout pairs and 4 holdout sets. Still below: that measurement level is "rethink" and is not produced (spec FR-024): for duplicates the task stops; for specificity, more specific groups become siblings in their cluster; for clusters, the result holds groups only. A second cluster level is produced only if the B-cubed agreement of the references holds at that level too (sets are labeled with an optional second, coarser partition).
   - Baseline bar (SC-003): candidate's agreement with the consensus ≥ 85% of the reference-vs-reference value, per level. Contested pairs (references disagree) are reported separately and scored neutrally.
-- **Rationale**: Same structure as the extraction pilot (go, revise, rethink; one rerun; holdout), so results are read the same way. Kappa thresholds follow common practice for "substantial" (0.6) and "moderate" (0.4) agreement; specificity is expected to be harder.
+- **Rationale**: Same structure as the extraction pilot (go, revise, rethink; one rerun; holdout), and the same rule as feature 004 for failed dimensions (absent from the output, not guessed), so results are read the same way. Kappa thresholds follow common practice for "substantial" (0.6) and "moderate" (0.4) agreement; specificity is expected to be harder.
 - **Alternatives**: single composite threshold, rejected: hides which level fails.
 
 ## R13. Stable ids across runs (FR-017)
@@ -110,7 +110,7 @@ Each entry: decision, rationale, alternatives considered. No spike or pilot meas
 
 ## R17. Budgets and measurement
 
-- **Decision**: Stage settings for the measured candidate in `configs/productdev/jtbd/cluster-baseline.yaml`; budget block `cluster-v1` in `budget.yaml` (€20 cash, reference VM 8 GB RAM, 4 vCPU, no GPU). Speed is measured with `jtbd cluster perf` on the reference VM in a child process (wall time, peak RSS, no network after model download): once on all available real items, and once on a 50,000-item scale set made by resampling real items with unique source ids and a non-word suffix that defeats exact-copy merging. The scale set is labeled as such and used only for time and memory.
+- **Decision**: Stage settings per candidate in `configs/productdev/jtbd/cluster-baseline.yaml`, `cluster-e5-small.yaml` and `cluster-gte-base.yaml`; budget in its own file `budget-cluster.yaml` (€20 cash; the shared `budget.yaml` is part of the frozen pilot hashes). Reference VM: 8 GB RAM, 4 vCPU, no GPU. Speed is measured with `jtbd cluster perf` on the reference VM for every candidate that is scored on test, and the report shows quality against time and memory as a Pareto front (constitution III) in a child process (wall time, peak RSS, no network after model download): once on all available real items, and once on a 50,000-item scale set made by resampling real items with unique source ids and a non-word suffix that defeats exact-copy merging. The scale set is labeled as such and used only for time and memory.
 - **Rationale**: FR-021 and SC-005 need a 50,000-item measurement; the zoo's stored corpus holds fewer real items, and the report says so.
 
 ## R18. Dependencies
