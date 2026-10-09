@@ -200,6 +200,14 @@
       ],
       "default": "python",
       "description": "python (default) or mcu (microcontroller model, int8 engine)"
+    },
+    "engine": {
+      "enum": [
+        "int8",
+        "emlearn"
+      ],
+      "default": "int8",
+      "description": "mcu models: int8 engine (npz) or emlearn tree model (C headers); gate rules 12/13 pick the path"
     }
   },
   "allOf": [

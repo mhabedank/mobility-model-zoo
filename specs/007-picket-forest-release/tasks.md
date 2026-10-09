@@ -26,31 +26,31 @@
   - run `uv run zoo data download can-train-and-test` and `uv run zoo data download road`;
   - note the sizes, the `SOURCE.json` retrieval dates and the can-train-and-test repository revision in `specs/007-picket-forest-release/validation.md` (new file, section "Setup").
   - If the Bitbucket HEAD is the v1.5 layout instead of v1, record which split folders exist and stop for an owner decision before T008.
-- [ ] T002 [P] Create `topics/security/benchmarks/README.md`. It says that the folder holds frozen benchmark manifests with hashes only (no frames), and that a frozen manifest never changes: a change makes a new version (constitution IX).
+- [X] T002 [P] Create `topics/security/benchmarks/README.md`. It says that the folder holds frozen benchmark manifests with hashes only (no frames), and that a frozen manifest never changes: a change makes a new version (constitution IX).
 
 ---
 
 ## Phase 2: Foundational (blocks all stories)
 
-- [ ] T003 Write `tests/security/can_ids/test_metrics_alarm.py` before the fix (FR-008, research R4). It covers:
+- [X] T003 Write `tests/security/can_ids/test_metrics_alarm.py` before the fix (FR-008, research R4). It covers:
   - a one-frame episode whose alarm falls in the grace window, which gives a defined latency;
   - an alarm on the first attack frame, which gives 0 ms;
   - several episodes, where the median and the p95 of time to alarm are non-empty whenever at least one episode is detected;
   - false alarms counted outside `[start, end + grace]`.
-- [ ] T004 Fix `alarm_metrics` in `src/mobility_model_zoo/security/can_ids/metrics.py`:
+- [X] T004 Fix `alarm_metrics` in `src/mobility_model_zoo/security/can_ids/metrics.py`:
   - latency is the time of the first alarm in `[start, end + grace]` minus `start`;
   - add `p95_latency_ms`;
   - add `mcc` to `frame_metrics`;
   - add `recall_at_fpr(y, score, fpr=0.001)`, with the threshold chosen on benign validation frames passed in by the caller, never on the test data.
 
   T003 must pass. The existing tests in `tests/security/can_ids/test_can_metrics.py` must stay green.
-- [ ] T005 Add a `budget_operating_point(val_caps, val_scores, thr, budget_per_hour)` function to `src/mobility_model_zoo/security/can_ids/metrics.py`. Per research R3, it:
+- [X] T005 Add a `budget_operating_point(val_caps, val_scores, thr, budget_per_hour)` function to `src/mobility_model_zoo/security/can_ids/metrics.py`. Per research R3, it:
   - scans the alarm grid `k ∈ {1,2,3,5,8} × window_ms ∈ {50,200,1000}` with a 1 s hold-off on validation captures;
   - returns the rule with the highest episode recall whose false alarms per hour are ≤ budget;
   - returns `None` when no rule fits.
 
   Add its test to `tests/security/can_ids/test_metrics_alarm.py`.
-- [ ] T006 [P] Add an `engine` field to `src/mobility_model_zoo/release/schemas/model.schema.json` and the compliance fields `runtime` and `sbom`:
+- [X] T006 [P] Add an `engine` field to `src/mobility_model_zoo/release/schemas/model.schema.json` and the compliance fields `runtime` and `sbom`:
   - `engine`: `{"enum": ["int8", "emlearn"], "default": "int8"}`, only meaningful with `runtime: mcu`;
   - in `src/mobility_model_zoo/compliance/schemas/release-compliance.schema.json`, add `runtime` (`python|mcu`) and `sbom` (string path), with `sbom` required when `runtime` is `mcu`. Check C-G4 expects them, but the schema rejected them;
   - copy all release schemas to `specs/007-picket-forest-release/contracts/`, the release-compliance schema to `specs/006-compliance-harness/contracts/schemas/`, and switch `tests/release/test_schemas.py` `CONTRACTS` to the 007 folder;
