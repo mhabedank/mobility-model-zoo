@@ -108,13 +108,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [P] [US2] Write `tests/security/can_ids/test_detectors.py` on synthetic frames from `synth.py` (T019 can come first; if not, use a local helper):
+- [X] T011 [P] [US2] Write `tests/security/can_ids/test_detectors.py` on synthetic frames from `synth.py` (T019 can come first; if not, use a local helper):
   - every detector in the registry implements `fit(train_caps, val_caps)` and `score(caps) -> list[np.ndarray]`;
   - `ctrl-shuffled` on a separable toy problem scores near chance;
   - `ctrl-id-lookup` scores 1.0 when attacks use an ID that never appears benign;
   - `bl-mean-interval` and `bl-binning` flag a doubled message rate;
   - `bl-can-logic` flags an unknown ID, three repeats of the same ID and a too-short interval.
-- [ ] T012 [P] [US2] Write `tests/security/can_ids/test_evaluate.py` on a two-set synthetic benchmark frozen in `tmp_path`. Assert:
+- [X] T012 [P] [US2] Write `tests/security/can_ids/test_evaluate.py` on a two-set synthetic benchmark frozen in `tmp_path`. Assert:
   - each set trains only on its own train captures, which is checked by recording the captures the detector saw;
   - thresholds and the alarm operating point come from validation captures;
   - the report contains no support-weighted metric (a search for "weighted" finds nothing);
@@ -126,7 +126,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Create `src/mobility_model_zoo/security/can_ids/detectors.py` with a registry and one interface, per research R5.
+- [X] T013 [US2] Create `src/mobility_model_zoo/security/can_ids/detectors.py` with a registry and one interface, per research R5.
   - **picket-forest:** reuses `forest.py` (`select`, `fit`, `vote_score`, feature set `no_can_id`, 10 % benign subsampling with seed 0).
   - **Controls:**
     - `ctrl-id-lookup`: per-ID attack rate on training data; an unseen ID scores the global rate.
@@ -138,7 +138,7 @@
     - `bl-can-logic`: interval too short, ID repeated three times in a row, ID not in the training whitelist.
     - `bl-isolation-forest`: on the 13 features.
     - `bl-orig-{dt,rf,et,gnb,logreg,mlp}`: scikit-learn defaults on the original frame features (timestamp, ID, data bytes); the report notes the absolute timestamp as a shortcut feature.
-- [ ] T014 [US2] Create `src/mobility_model_zoo/security/can_ids/evaluate.py`. For each detector × set it:
+- [X] T014 [US2] Create `src/mobility_model_zoo/security/can_ids/evaluate.py`. For each detector × set it:
   - verifies hashes (`benchmark.verify_captures`) and loads cached features from `$MMZ_DATA/derived/picket-forest/features/`;
   - fits on the set's train captures;
   - chooses the score threshold on validation (best F1, as in `forest.best_threshold`) and the operating points for budgets 1 and 10 with `budget_operating_point` (T005);
@@ -149,7 +149,7 @@
   For ROAD, it trains the release model on demand with the recipe of T026 (`train_01` of all four sets, selection on validation captures) and caches it in `$MMZ_DATA/derived/picket-forest/export/`. It reports fabrication and fuzzing in the main tables and masquerade and accelerator in an out-of-scope table (FR-013). T026 reuses this cached model.
 
   It also records, for every detector, its cost: model size (tree nodes or parameters, and estimated flash) and per-frame latency on the host. For picket-forest it runs the C host scorer on every test capture and counts score mismatches against Python.
-- [ ] T015 [US2] Write the report and the results in `evaluate.py`.
+- [X] T015 [US2] Write the report and the results in `evaluate.py`.
   - **`topics/security/reports/picket-forest/can-ids-v1/report.md`** starts with the outcome per research R10 (success, partial or kill), computed from the numbers. Then come:
     - headline tables, controls, baselines, per attack family, ROAD, out of scope;
     - the quality-vs-cost Pareto table (headline at ≤ 10 false alarms per hour on unknown vehicles against flash and host latency), marking the Pareto-optimal detectors (constitution III);
@@ -157,12 +157,12 @@
     - limitations, `code_commit` and `manifest_sha256`.
   - **`metrics.json`** holds the full numbers.
   - **`zoo/models/picket-forest/results/0.1.0/quality.json`** holds metric names `<metric>_<split>_<agg>` (data-model.md), each with `reference`, `benchmark: can-ids-v1` and `n_items`.
-- [ ] T016 [US2] Wire `security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
+- [X] T016 [US2] Wire `security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
 - [ ] T017 [US2] Fast check: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --sets set_01` and record the runtime and partial results in `validation.md` under "US2 (partial)". Fix anything that fails before the full run.
 - [ ] T018 [US2] Full run: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --report`.
   - Record the runtime, the R10 outcome, the headline per split (median and worst set) for picket-forest and for the best control and baseline, and the ROAD results in `validation.md` under "US2".
   - Commit the report, `metrics.json` and `quality.json`.
-  - **GATE**: `ctrl-shuffled` collapses (attack F1 below 0.1 on every split); otherwise stop and investigate leakage (research R10, kill).
+  - **GATE**: `ctrl-shuffled` collapses (attack-class AUROC at most 0.6 on every split, research R10); otherwise stop and investigate leakage (research R10, kill).
 
 **Checkpoint**: The honest numbers exist. The card text may only claim what this report supports (SC-004).
 

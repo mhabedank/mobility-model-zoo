@@ -141,3 +141,10 @@ def test_training_commands_check_the_declaration(cmd, monkeypatch):
     monkeypatch.setattr(forest, "require_training_allowed", refuse)
     with pytest.raises(UsageRefused):
         forest.main([cmd])
+
+
+def test_emlearn_import_keeps_numpy_error_state():
+    pytest.importorskip("emlearn")
+    before = np.geterr()
+    forest._import_emlearn()
+    assert np.geterr() == before

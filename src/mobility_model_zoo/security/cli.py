@@ -74,12 +74,54 @@ def mlp(ctx: typer.Context) -> None:
 
 @can_ids.command()
 def evaluate(
-    model: str = typer.Argument(..., help="picket-forest or picket-mlp"),
+    detector: str = typer.Argument(..., help="picket-forest, a control, a baseline, or all"),
     benchmark: str = typer.Option(BENCHMARK, help="frozen benchmark id"),
+    sets: list[str] = typer.Option(None, "--sets", help="only these sets (partial run)"),
+    report: bool = typer.Option(False, help="write report, metrics and quality results"),
+    data: Path = typer.Option(None, help="folder with can-train-and-test/ and road/ ($MMZ_DATA)"),
 ) -> None:
-    """Score a model on every split of the frozen benchmark (frame and event metrics)."""
-    say(f"benchmark {benchmark} is not frozen yet: run `security can-ids freeze` first")
-    raise typer.Exit(NOT_FROZEN)
+    """Score detectors on the frozen benchmark (same harness and protocol for all)."""
+    import json
+
+    from mobility_model_zoo.edge.paths import REPO_ROOT, derived_dir
+    from mobility_model_zoo.security.can_ids import benchmark as bm
+    from mobility_model_zoo.security.can_ids import evaluate as ev
+    from mobility_model_zoo.security.can_ids.detectors import registry
+
+    manifest_path = benchmark_dir(benchmark) / "manifest.json"
+    if not manifest_path.exists():
+        say(f"benchmark {benchmark} is not frozen yet: run `security can-ids freeze` first")
+        raise typer.Exit(NOT_FROZEN)
+    names = list(registry()) if detector == "all" else [detector]
+    unknown = [n for n in names if n not in registry()]
+    if unknown:
+        say(f"unknown detector {unknown[0]}; choose from {', '.join(registry())} or all")
+        raise typer.Exit(2)
+    manifest = json.loads(manifest_path.read_text())
+    sources = benchmark_sources(data)
+    cache = derived_dir("picket-forest") / "features"
+    try:
+        result = ev.run(names, manifest, sources, sets=sets or None, cache=cache)
+        if "picket-forest" in names and not sets:
+            result["road"] = ev.evaluate_road(manifest, sources, cache)
+    except bm.CaptureChanged as e:
+        say(str(e))
+        raise typer.Exit(1) from None
+    runs = derived_dir("can-ids-v1") / "runs"
+    runs.mkdir(parents=True, exist_ok=True)
+    (runs / f"{detector}.json").write_text(json.dumps(result, indent=1, default=float) + "\n")
+    o = result["outcome"]
+    say(f"outcome: {o['verdict']} - {' '.join(o['reasons'])}")
+    if report:
+        out = REPO_ROOT / "topics" / "security" / "reports" / "picket-forest" / benchmark
+        ev.write_report(result, out)
+        say(f"report: {out / 'report.md'}")
+        if result["partial"]:
+            say("partial run: quality results not written")
+        elif "picket-forest" in names:
+            q = REPO_ROOT / "zoo" / "models" / "picket-forest" / "results" / "0.1.0" / "quality.json"
+            ev.write_quality(result, q, "picket-forest", "0.1.0")
+            say(f"quality results: {q}")
 
 
 def benchmark_sources(data: Path | None = None) -> dict[str, Path]:

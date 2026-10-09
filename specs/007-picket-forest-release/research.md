@@ -51,7 +51,7 @@ Decisions for [plan.md](plan.md). The evidence for the benchmark and metric choi
   | `ctrl-id-lookup` | control | attack rate per CAN ID learned on train, used as a score; shows how much is identifier memorisation |
   | `ctrl-timing-only` | control | forest on the timing features only |
   | `ctrl-forest-with-id` | control | picket-forest's recipe with the raw ID feature (`full` feature set) |
-  | `ctrl-shuffled` | control | picket-forest's recipe with training labels shuffled within each capture; must collapse |
+  | `ctrl-shuffled` | control | picket-forest's recipe with training labels permuted across all training frames before subsampling, five seeds, averaged leaf probabilities (hard votes would be biased by frame density); must collapse (any signal left is leakage) |
   | `bl-mean-interval`, `bl-binning` | baseline | Blevins et al. 2021 timing detectors, benign-only |
   | `bl-can-logic` | baseline | interval, three-repeat and ID-whitelist rules (Lampe & Meng) |
   | `bl-isolation-forest` | baseline | unsupervised, frame features |
@@ -124,7 +124,7 @@ Decisions for [plan.md](plan.md). The evidence for the benchmark and metric choi
 Written before the first zoo evaluation.
 
 - **Riskiest assumption**: detection transfers to unknown vehicles without identifier memorisation.
-- **Success** (USP claim allowed): on `test_02` and `test_04` (unknown vehicle), picket-forest's median attack-class F1 and its headline detection share at ≤ 10 false alarms per hour both exceed every control and baseline. `ctrl-shuffled` collapses (F1 below 0.1).
+- **Success** (USP claim allowed): on `test_02` and `test_04` (unknown vehicle), picket-forest's median attack-class F1 and its headline detection share at ≤ 10 false alarms per hour both exceed every control and baseline. `ctrl-shuffled` collapses: attack-class AUROC at most 0.6 on every split (a ranking measure; F1 alone misleads when the attack share is high).
 - **Partial**: picket-forest beats the baselines, but a control (`ctrl-timing-only` or `ctrl-forest-with-id`) is at least as good. The card reports this split by split and the USP rests on event-level honesty and the device footprint, not on superior transfer.
 - **Kill for the transfer claim**: `ctrl-id-lookup` reaches picket-forest's F1 on an unknown-vehicle split, or `ctrl-shuffled` does not collapse (leakage). No transfer claim is made. The release proceeds with the honest numbers only after the leak is understood and the benchmark is fixed as a new version.
 - **Release blockers independent of the claim**: any C-versus-Python score mismatch; a missing set; a manifest hash mismatch.

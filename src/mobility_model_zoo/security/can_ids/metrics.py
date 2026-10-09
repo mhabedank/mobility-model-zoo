@@ -9,6 +9,7 @@ from sklearn.metrics import (
     matthews_corrcoef,
     precision_score,
     recall_score,
+    roc_auc_score,
 )
 
 GRACE_S = 1.0  # an alarm up to 1 s after an episode still detects it (benchmark protocol)
@@ -36,7 +37,9 @@ def frame_metrics(y: np.ndarray, score: np.ndarray, threshold: float = 0.5) -> d
         "fpr": float(np.mean(pred[y == 0])) if np.any(y == 0) else float("nan"),
         "mcc": float(matthews_corrcoef(y, pred)) if 0 < y.sum() < y.size else float("nan"),
     }
-    out["auc_pr"] = float(average_precision_score(y, score)) if 0 < y.sum() < y.size else float("nan")
+    both = 0 < y.sum() < y.size
+    out["auc_pr"] = float(average_precision_score(y, score)) if both else float("nan")
+    out["auc_roc"] = float(roc_auc_score(y, score)) if both else float("nan")
     return out
 
 

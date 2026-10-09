@@ -389,9 +389,20 @@ def float32_split_literal(threshold: float) -> str:
     return np.format_float_scientific(t, unique=True) + "f"
 
 
+def _import_emlearn():
+    """emlearn sets numpy.seterr(all='raise') globally at import (emlearn/bayes.py); restore the
+    caller's error state so underflows elsewhere in the pipeline keep their normal behaviour."""
+    state = np.geterr()
+    try:
+        import emlearn
+        import emlearn.cgen
+    finally:
+        np.seterr(**state)
+    return emlearn
+
+
 def to_c(clf, idx: list[int], thr: float, alarm: dict, export_dir: Path) -> None:
-    import emlearn
-    import emlearn.cgen
+    emlearn = _import_emlearn()
 
     original = emlearn.cgen.constant
 
