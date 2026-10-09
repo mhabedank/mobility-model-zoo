@@ -1,0 +1,12 @@
+{
+  "kind": "performance",
+  "model": "edge-fixture-tiny",
+  "version": "0.1.0",
+  "synthetic": true,
+  "source_run": null,
+  "metrics": [
+    {"name": "latency_us", "value": 12, "unit": "us", "description": "Synthetic median latency (test number)", "reference": null, "benchmark": null, "n_items": 3, "hardware": "ESP32 in QEMU, 240 MHz", "origin": "emulator", "date": "2026-10-08"},
+    {"name": "flash_kb", "value": 1.5, "unit": "KiB", "description": "Synthetic flash (test number)", "reference": null, "benchmark": null, "n_items": null, "hardware": "host simulator", "origin": "simulator", "date": "2026-10-08"},
+    {"name": "ram_kb", "value": 0.2, "unit": "KiB", "description": "Synthetic RAM (test number)", "reference": null, "benchmark": null, "n_items": null, "hardware": "host simulator", "origin": "simulator", "date": "2026-10-08"}
+  ]
+}

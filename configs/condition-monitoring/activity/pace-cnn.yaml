@@ -1,0 +1,50 @@
+# pace-cnn: task activity (topics/condition-monitoring/tasks/activity.md).
+# Train: uv run condmon activity train --config configs/condition-monitoring/activity/pace-cnn.yaml
+# Sections other than `train` document values fixed in the code; the command refuses the
+# config if they differ (edge/int8/keras_export.py load_config).
+model: pace-cnn
+train:
+  epochs: 20
+  seed: 0
+  version: 0.1.0
+architecture:
+  input:
+  - 1
+  - 128
+  - 9
+  blocks:
+  - conv:
+    - 16
+    - 5
+    batch_norm: true
+    relu: true
+    max_pool: 2
+  - conv:
+    - 32
+    - 5
+    batch_norm: true
+    relu: true
+    max_pool: 2
+  - conv:
+    - 32
+    - 3
+    batch_norm: true
+    relu: true
+    avg_pool: 32
+  dropout: 0.3
+  outputs: 6
+data:
+  dataset: uci-har
+  channels:
+  - body_acc_x
+  - body_acc_y
+  - body_acc_z
+  - body_gyro_x
+  - body_gyro_y
+  - body_gyro_z
+  - total_acc_x
+  - total_acc_y
+  - total_acc_z
+  test: official test split (30 % of the subjects)
+  validation: a seventh of the training windows
+  normalisation: per channel, mean and std of the training windows

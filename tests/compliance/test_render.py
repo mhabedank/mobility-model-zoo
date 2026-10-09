@@ -51,7 +51,11 @@ def _tree(root):
         "zoo/models/model-x/model.yaml",
         {"topic": "t", "base_model": "FacebookAI/xlm-roberta-large"},
     )
-    write(root, "zoo/models/model-x/releases/0.1.0.yaml", {"version": "0.1.0"})
+    write(
+        root,
+        "zoo/models/model-x/releases/0.1.0.yaml",
+        {"version": "0.1.0", "published": {"at": "2026-10-08"}},
+    )
     return root
 
 
@@ -109,3 +113,15 @@ def test_attribution_only_for_training_sources(register_tree):
 def test_no_branding_in_generated_text(register_tree):
     out = render.render_all(load(_tree(register_tree)))
     assert not any("Miskatonic" in text for text in out.values())
+
+
+def test_unstaged_drafts_are_not_in_the_notices(register_tree):
+    _tree(register_tree)
+    write(register_tree, "zoo/models/model-y/model.yaml", {"topic": "t", "base_model": None})
+    write(
+        register_tree,
+        "zoo/models/model-y/releases/0.1.0.yaml",
+        {"version": "0.1.0", "staging": {"revision": ""}},
+    )
+    names = [n for n, _, _ in render._published_models(register_tree)]
+    assert "model-x" in names and "model-y" not in names

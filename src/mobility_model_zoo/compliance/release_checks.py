@@ -14,7 +14,7 @@ from typing import Any
 import yaml
 
 from mobility_model_zoo.compliance.findings import Finding, is_unknown
-from mobility_model_zoo.compliance.scan import CorpusIndex, overlap_spans, pii
+from mobility_model_zoo.compliance.scan import MASK, CorpusIndex, overlap_spans, pii
 
 VERBATIM_MAX_WORDS = 30  # decision D7
 GPAI_FLOP = 1e23
@@ -343,7 +343,7 @@ def stage_repository(ctx) -> list[Finding]:
         text = (root / rel).read_text(encoding="utf-8", errors="replace")
         public = not rel.startswith(BRAND_ALLOWED_PREFIXES) and not rel.startswith("tests/")
         if public:
-            for m in FUNDING.finditer(text):
+            for m in FUNDING.finditer(MASK.sub(" ", text)):  # URLs of cited sources are not markers
                 findings.append(
                     Finding("C-G2", "repository", rel, "-", f"monetisation marker '{m.group(0)}'")
                 )

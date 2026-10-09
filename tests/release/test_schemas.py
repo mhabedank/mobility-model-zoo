@@ -10,7 +10,7 @@ import pytest
 from mobility_model_zoo.release.registry import SCHEMAS, schema_errors
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACTS = ROOT / "specs/003-model-zoo-hf-release/contracts"
+CONTRACTS = ROOT / "specs/005-topic-layout-security-merge/contracts"  # latest owner of the format
 PACKAGED = ROOT / "src/mobility_model_zoo/release/schemas"
 
 
@@ -53,5 +53,6 @@ def test_patterns_from_the_data_model(zoo_env):
     assert not _invalid(
         "model", model, lambda d: d.update(license="MIT", license_exception="base model is MIT")
     )
-    assert _invalid("results", quality, lambda d: d["metrics"][0].update(name="span_accuracy"))
+    # the "accuracy" ban moved to gate rule 10 (model_consensus only), feature 005
+    assert not _invalid("results", quality, lambda d: d["metrics"][0].update(name="span_accuracy"))
     assert _invalid("model", model, lambda d: d["card"].update(how_to_run="print('no placeholders')"))

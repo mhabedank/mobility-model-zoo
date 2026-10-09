@@ -1,0 +1,106 @@
+# Firmware builds for every bench target (PlatformIO) and the host check of the picket-forest C port.
+name: firmware
+
+on:
+  push:
+    paths:
+      - "firmware/**"
+      - "hil/**"
+      - "src/mobility_model_zoo/edge/**"
+      - "src/mobility_model_zoo/security/can_ids/**"
+      - ".github/workflows/firmware.yml"
+  pull_request:
+    paths:
+      - "firmware/**"
+      - "hil/**"
+      - "src/mobility_model_zoo/edge/**"
+      - "src/mobility_model_zoo/security/can_ids/**"
+      - ".github/workflows/firmware.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    name: bench ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [esp8266, esp8266_160mhz, esp32, esp32s3, esp32s3_usb, esp32c3, esp32c3_usb,
+                 rp2040, rp2350, stm32f446, nrf52840]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ matrix.target }}-${{ hashFiles('firmware/bench/platformio.ini') }}
+          restore-keys: pio-${{ matrix.target }}-
+      # The PlatformIO pre-script (firmware/bench/scripts/gen_modelzoo.py) calls `uv run python`.
+      - run: uv sync --extra edge --extra edge-hw
+      - run: uv run edge build -t ${{ matrix.target }} -v
+      - name: firmware size
+        run: |
+          cat build/fw/${{ matrix.target }}/manifest.json
+          ls -l build/fw/${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fw-${{ matrix.target }}
+          path: build/fw/${{ matrix.target }}
+
+  summary:
+    name: firmware size overview
+    needs: bench
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fw-*
+          path: fw
+      - name: RAM / flash per target
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          print("| Target | RAM used | Flash used | build |\n|---|---:|---:|---|")
+          def size(u, t):
+              if not u:
+                  return "-"
+              return f"{u / 1024:.1f} / {t / 1024:.0f} KiB" if t else f"{u / 1024:.1f} KiB"
+          for m in sorted(pathlib.Path("fw").glob("*/manifest.json")):
+              d = json.loads(m.read_text())
+              print(f"| {d['target']} | {size(d.get('ram_used'), d.get('ram_total'))} | "
+                    f"{size(d.get('flash_used'), d.get('flash_total'))} | {d.get('build_id', '-')} |")
+          PY
+          cat "$GITHUB_STEP_SUMMARY"
+
+  # Host build of the picket-forest detector (C99, -Werror) and bit-exact parity with Python.
+  # The trained model header is not committed, so the parity test trains a 3-tree forest on
+  # synthetic frames, exports it with emlearn and compiles host_score.c + picket_forest.c +
+  # the can_features library with gcc (tests/security/can_ids/test_forest_port.py).
+  picket-forest-host:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CC: gcc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: can_features library (C99, -Werror)
+        run: |
+          F=firmware/components/can_features
+          for f in $F/msml_can_features.c $F/msml_alarm.c; do
+            gcc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -I $F/include -c "$f" -o "/tmp/$(basename "$f" .c).o"
+          done
+      # emlearn + scikit-learn without the TensorFlow-heavy edge-train extra
+      - name: emlearn available (the parity test would otherwise skip)
+        run: uv run --extra edge --with "emlearn>=0.23" --with scikit-learn --with pandas python -c "import emlearn, sklearn"
+      - name: picket-forest C port matches Python
+        run: uv run --extra edge --with "emlearn>=0.23" --with scikit-learn --with pandas pytest tests/security/can_ids -q -rs

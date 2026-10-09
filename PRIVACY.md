@@ -22,6 +22,26 @@ Personal data appears in these texts only incidentally: names of people who spea
 
 ## Sources and legal basis
 
+### machine-sound-datasets
+
+Published recordings of machine sounds (fans, pumps, valves, slide rails) from research datasets, downloaded from the publishers.
+Used for: not used yet.
+
+- Legal basis: no personal data is processed.
+- Special categories: none expected; the data are sensor recordings without free text, and they are never sent to a language model.
+- Safeguards: Licence and use check per dataset, data kept outside git with a retention date, no publication of the data.
+- Retention: Local cache only; delete 12 months after the last training run that used it. Purpose: Reproduce the frozen benchmark and the training set of a current model.
+
+### imu-activity-datasets
+
+Published motion-sensor recordings of volunteers (accelerometer and gyroscope windows, subjects identified only by number) from research datasets, downloaded from the publishers.
+Used for: not used yet.
+
+- Legal basis: legitimate interest, Art. 6(1)(f) GDPR. Our interest: Train and evaluate activity recognition on microcontrollers. Why it does not override your interests: Volunteers took part in a published study; the publishers identify subjects only by number; the data is not redistributed and the model outputs only an activity class.
+- Special categories: none expected; the data are sensor recordings without free text, and they are never sent to a language model.
+- Safeguards: Licence and use check per dataset, data kept outside git with a retention date, no publication of the data, no attempt to re-identify subjects, objection channel (PRIVACY.md).
+- Retention: Local cache only; delete 12 months after the last training run that used it. Purpose: Reproduce the frozen benchmark and the training set of a current model.
+
 ### Parliamentary records
 
 Plenary and committee records published by parliaments (Germany, UK, Ireland, US, Wales, Scotland, EU, Austria, Switzerland, German state parliaments, Canada).
@@ -76,6 +96,16 @@ Forums: beteiligungsportal.baden-wuerttemberg.de, brummionline.com, drehscheibe-
 - Special categories (health, religion, political opinions and the other categories of Art. 9 GDPR) are detected and excluded before labeling.
 - Safeguards: benchmark_only, redaction plus local model review, special categories quarantined, platform terms checked (C-I7), objection channel and suppression list.
 - Retention: Delete when the benchmark is retired; review 24 months after freeze. Purpose: Reproduce the frozen benchmark.
+
+### can-bus-datasets
+
+Published CAN bus and vehicle-network recordings from research datasets (frame logs of test vehicles, simulated V2X messages, GNSS receiver features), downloaded from the publishers.
+Used for: not used yet.
+
+- Legal basis: legitimate interest, Art. 6(1)(f) GDPR. Our interest: Train and evaluate intrusion and spoofing detectors for vehicle networks. Why it does not override your interests: Recordings come from research test vehicles and simulations published for reuse; they may contain vehicle identifiers or positions of the test vehicles, not of private drivers; the data is not redistributed and models output only alarm scores.
+- Special categories: none expected; the data are sensor recordings without free text, and they are never sent to a language model.
+- Safeguards: Licence and use check per dataset, data kept outside git in a local cache with a retention date, no publication of the data, objection channel (PRIVACY.md).
+- Retention: Local cache only; delete 12 months after the last training run that used it. Purpose: Reproduce the frozen benchmark and the training set of a current model.
 
 ## Recipients
 

@@ -9,3 +9,21 @@ Models that support product discovery in mobility, starting with jobs-to-be-done
 | Model | Task | Latest version | Status | Hugging Face |
 |-------|------|----------------|--------|--------------|
 | `scout-large` | jtbd | 0.1.2 | experimental | [mobility-model-zoo/scout-large](https://huggingface.co/mobility-model-zoo/scout-large) |
+
+## Automotive security (`security`)
+
+Small models that detect attacks on vehicle buses and radio interfaces, built to run on microcontrollers.
+
+| Model | Task | Latest version | Status | Hugging Face |
+|-------|------|----------------|--------|--------------|
+| `picket-forest` | can-ids | – | not published | [mobility-model-zoo/picket-forest](https://huggingface.co/mobility-model-zoo/picket-forest) |
+| `picket-mlp` | can-ids | – | not published | [mobility-model-zoo/picket-mlp](https://huggingface.co/mobility-model-zoo/picket-mlp) |
+
+## Condition monitoring (`condition-monitoring`)
+
+Small models that watch machines and movement through sensors, built to run on microcontrollers.
+
+| Model | Task | Latest version | Status | Hugging Face |
+|-------|------|----------------|--------|--------------|
+| `hum-fan` | sound-anomaly | – | not published | [mobility-model-zoo/hum-fan](https://huggingface.co/mobility-model-zoo/hum-fan) |
+| `pace-cnn` | activity | – | not published | [mobility-model-zoo/pace-cnn](https://huggingface.co/mobility-model-zoo/pace-cnn) |

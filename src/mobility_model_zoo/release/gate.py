@@ -1,4 +1,4 @@
-"""The release gate: 14 rules (contracts/cli.md, "Release gate rules").
+"""The release gate: rules 1-16 (contracts/cli.md; rule 15 from feature 005, 16 from 006).
 
 Every rule returns a list of failure messages (empty = PASS) or raises `Skip`. `run_gate` runs all
 of them, prints one line per rule and raises `GateFailed` (exit 1) or, if the only problem is that
@@ -37,6 +37,8 @@ IGNORED_STAGING_FILES = {".gitattributes"}
 MIN_EXAMPLES = 3
 MAX_OUTPUT_CHARS = 4000
 AGREEMENT = "they are not measured against human ground truth"
+GROUND_TRUTH = cards.GROUND_TRUTH
+DEVICE_METRICS = ("flash_kb", "ram_kb", "latency_us")
 TITLES = {
     1: "schemas",
     2: "names",
@@ -52,6 +54,7 @@ TITLES = {
     12: "usage example",
     13: "examples",
     14: "sandbox",
+    15: "device evidence",
     16: "compliance",
 }
 
@@ -126,6 +129,30 @@ class Gate:
         failures += [
             f"releases/{self.version}.yaml {e}" for e in schema_errors("release-record", self.record)
         ]
+        if not self._blocked:
+            failures += self._runtime_failures()
+        return failures
+
+    @property
+    def mcu(self) -> bool:
+        return Registry.runtime(self.model) == "mcu"
+
+    def _runtime_failures(self) -> list[str]:
+        """Rule 1, conditional part: what each runtime needs (contracts/release-format.md)."""
+        m, failures = self.model, []
+        budget = (self.record.get("performance") or {}).get("budget") or {}
+        if self.mcu:
+            if not m["card"].get("device_usage"):
+                failures.append("model.yaml card.device_usage is required for runtime mcu")
+            if "ram_kb" not in budget:
+                failures.append("performance.budget must be {ram_kb, flash_kb, target} for runtime mcu")
+        else:
+            if not m.get("languages"):
+                failures.append("model.yaml languages must not be empty for runtime python")
+            if "{text}" not in m["card"]["how_to_run"]:
+                failures.append("card.how_to_run must contain {text} for runtime python")
+            if "ram_gb" not in budget:
+                failures.append("performance.budget must be {ram_gb, gpu: false} for runtime python")
         return failures
 
     def rule_2(self) -> list[str]:
@@ -243,8 +270,8 @@ class Gate:
         if m["license"] != "Apache-2.0" and not m.get("license_exception"):
             failures.append("license is not Apache-2.0 and license_exception is empty")
         if m.get("base_model_license") is None:
-            if m["topic"] != "sandbox":
-                failures.append("base_model_license may be null only in the sandbox topic")
+            if m.get("base_model"):
+                failures.append("base_model is set but base_model_license is null")
         elif m["base_model_license"] not in PERMISSIVE:
             failures.append(
                 f"base model license {m['base_model_license']} is not known to permit publication"
@@ -252,6 +279,7 @@ class Gate:
         for t in self.record["provenance"]["teachers"]:
             if not t["training_on_outputs_permitted"]:
                 failures.append(f"teacher {t['model_id']} does not permit training on its outputs")
+        failures += self._dataset_failures()
         creg = self._compliance()
         if creg is not None and creg.release(self.name, self.version) is not None:
             for t in self.record["provenance"]["teachers"]:
@@ -259,6 +287,38 @@ class Gate:
                     failures.append(f"teacher {t['model_id']}: a provider route does not permit "
                                     "training on outputs (compliance/providers.yaml) and no decision "
                                     "covers it")
+        return failures
+
+    def _datasets(self) -> dict[str, Any]:
+        from mobility_model_zoo.datasets.registry import load
+
+        return load(self.reg.zoo.parent)
+
+    def _dataset_failures(self) -> list[str]:
+        """Rule 6 for declared datasets: declaration, licence, use, share-alike, non-commercial."""
+        failures = []
+        sources = self.record["provenance"]["sources"]
+        declared = self._datasets() if any(s.get("dataset") for s in sources) else {}
+        for s in sources:
+            licence = s["license"]
+            if "-NC" in licence.upper() and s["permitted_use"] == "training_allowed":
+                failures.append(f"source {s['origin']}: non-commercial licence {licence} for training")
+            if licence.upper().startswith("CC-BY-SA") and self.model["license"] != licence:
+                failures.append(
+                    f"source {s['origin']} is {licence} (share-alike): the model license must be "
+                    f"{licence}, not {self.model['license']}"
+                )
+            ds = s.get("dataset")
+            if not ds:
+                continue
+            d = declared.get(ds)
+            if d is None:
+                failures.append(f"dataset {ds} is not declared in topics/*/compliance/datasets.yaml")
+                continue
+            if d.license != licence:
+                failures.append(f"dataset {ds}: declared license {d.license} differs from {licence}")
+            if d.permitted_use != "training_allowed" or d.status != "active":
+                failures.append(f"dataset {ds} is {d.permitted_use}, status {d.status}")
         return failures
 
     def _compliance(self):
@@ -328,13 +388,23 @@ class Gate:
             p = PurePosixPath(f["path"])
             if p.is_absolute() or ".." in p.parts:
                 failures.append(f"{p} is not a relative path inside the repo")
-            elif p.parts[0] == "data" or p.name == ".env" or p.suffix == ".jsonl":
+            elif (
+                p.parts[0] == "data"
+                or p.name == ".env"
+                or p.suffix == ".jsonl"
+                or p.name.endswith(".eval.npz")
+            ):
                 failures.append(f"{p} may not be uploaded (data, secrets or labeling output)")
             elif str(p) in {"README.md", "build.json"}:
                 failures.append(f"{p} is generated by the pipeline and may not be staged")
         return failures
 
     def rule_12(self) -> list[str]:
+        if self.mcu:
+            if self.offline:
+                raise Skip("loads the staged int8 model; needs the Hub")
+            examples = self.reg.device_examples(self.name)
+            return self._device_example(*examples[0]) if examples else ["no examples/*.json"]
         if self.runner is None:
             raise Skip("runs the model; needs the Hub and a clean environment")
         examples = self.reg.examples(self.name)
@@ -342,6 +412,8 @@ class Gate:
         return self._run_example(name, text)
 
     def rule_13(self) -> list[str]:
+        if self.mcu:
+            return self._device_examples_rule()
         examples = self.reg.examples(self.name)
         failures = []
         if len(examples) < MIN_EXAMPLES:
@@ -351,6 +423,85 @@ class Gate:
         for name, text in examples:
             if name not in self.example_outputs:
                 failures += self._run_example(name, text)
+        return failures
+
+    def _device_examples_rule(self) -> list[str]:
+        examples = self.reg.device_examples(self.name)
+        failures = []
+        if len(examples) < MIN_EXAMPLES:
+            failures.append(f"{len(examples)} examples/*.json; at least {MIN_EXAMPLES} are required")
+        declared = None
+        for name, ex in examples:
+            missing = [k for k in ("input", "expected", "source") if k not in ex]
+            if missing:
+                failures.append(f"{name} lacks {', '.join(missing)}")
+                continue
+            if ex["source"] != "synthetic":
+                declared = declared if declared is not None else self._datasets()
+                d = declared.get(ex["source"])
+                if d is None or d.redistribution != "allowed":
+                    state = "undeclared" if d is None else f"redistribution {d.redistribution}"
+                    failures.append(
+                        f"{name}: source {ex['source']} is {state}; examples must be synthetic or "
+                        "from a dataset whose declaration allows redistribution"
+                    )
+        if self.offline or failures:
+            return failures
+        for name, ex in examples:
+            if name not in self.example_outputs:
+                failures += self._device_example(name, ex)
+        return failures
+
+    def _staged_qmodel(self):
+        """The staged int8 model (the `.npz` in files[]), loaded once."""
+        import tempfile
+
+        from mobility_model_zoo.edge.int8.model import QModel
+
+        if getattr(self, "_qmodel", None) is None:
+            npz = [f["path"] for f in self.record["files"] if f["path"].endswith(".npz")]
+            if not npz:
+                raise ZooError("files[] has no .npz int8 model")
+            r = self.record["staging"]
+            with tempfile.TemporaryDirectory() as tmp:
+                path = self.hub.download(r["repo"], npz[0], r["revision"], Path(tmp))
+                self._qmodel = QModel.load(path)
+        return self._qmodel
+
+    def _device_example(self, name: str, ex: dict[str, Any]) -> list[str]:
+        """Rules 12/13 for mcu: the example must match bit-exactly on the host reference."""
+        import json
+
+        import numpy as np
+
+        from mobility_model_zoo.edge.int8.reference import run_model
+
+        qm = self._staged_qmodel()
+        got = run_model(qm, np.asarray(ex["input"], dtype=np.int8)).reshape(-1)
+        expected = np.asarray(ex["expected"], dtype=np.int64).reshape(-1)
+        if got.shape != expected.shape or not np.array_equal(got.astype(np.int64), expected):
+            return [f"{name}: host reference output differs from expected"]
+        self.example_outputs[name] = json.dumps({"output": got.astype(int).tolist()})
+        return []
+
+    def rule_15(self) -> list[str]:
+        """Device evidence for mcu models (contracts/release-format.md)."""
+        if not self.mcu:
+            raise Skip("only for runtime mcu")
+        try:
+            metrics = self.reg.results(self.name, self.version, "performance")["metrics"]
+        except UsageError as e:
+            return [str(e)]
+        failures = []
+        names = {m["name"] for m in metrics}
+        failures += [f"performance metric {n} is missing" for n in DEVICE_METRICS if n not in names]
+        for m in metrics:
+            if m["name"] in DEVICE_METRICS and not (m.get("origin") and m.get("hardware")):
+                failures.append(f"performance metric {m['name']} needs origin and hardware")
+        if self.record["status"] != "experimental" and not any(
+            m["name"] == "latency_us" and m.get("origin") == "real_board" for m in metrics
+        ):
+            failures.append("no real-board latency: only status experimental may rely on emulators")
         return failures
 
     def _run_example(self, name: str, text: str) -> list[str]:
@@ -390,7 +541,7 @@ class Gate:
 
     def rule_10(self) -> list[str]:
         card = self._card()
-        failures = card_structure(card)
+        failures = card_structure(card, self.record["evaluation"].get("reference_kind"))
         root = self.reg.zoo.parent
         failures += [f"figure {f['path']} is not in the repository"
                      for f in self.model["card"].get("figures", []) if not (root / f["path"]).is_file()]
@@ -429,7 +580,7 @@ class Gate:
         return self.card
 
     # ---- running -------------------------------------------------------------------------------
-    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 10, 16)
+    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 15, 10, 16)
 
     def run(self, say: Callable[[str], None] | None = None) -> None:
         say = say or (lambda line: print(line, file=sys.stderr))
@@ -465,11 +616,13 @@ class Gate:
         messages = [f"rule {n}: {m}" for n, found in sorted(failing.items()) for m in found]
         if set(failing) == {4}:
             raise ImmutabilityRefused("; ".join(messages))
-        raise GateFailed(messages)
+        error = GateFailed(messages)
+        error.gate = self  # per-rule results for callers that report them
+        raise error
 
 
 # ---- card checks shared by rules 9 and 10 ------------------------------------------------------
-def card_structure(card: str) -> list[str]:
+def card_structure(card: str, reference_kind: str | None = None) -> list[str]:
     failures = []
     front, body = cards.split_card(card)
     found = cards.sections(body)
@@ -481,10 +634,15 @@ def card_structure(card: str) -> list[str]:
             failures.append(f"card section '{title}' is empty")
     if not body.lstrip().startswith("# "):
         failures.append("card has no title")
-    if AGREEMENT not in found.get("Quality", ""):
-        failures.append("the Quality section must say the numbers are agreement, not ground truth")
-    if "accuracy" in card.lower():
-        failures.append("the card must not use the word 'accuracy' (spec FR-014)")
+    if (reference_kind or "model_consensus") == "ground_truth":
+        if GROUND_TRUTH not in " ".join(found.get("Quality", "").split()):
+            failures.append(f"the Quality section must say: {GROUND_TRUTH}")
+    else:
+        if AGREEMENT not in found.get("Quality", ""):
+            failures.append("the Quality section must say the numbers are agreement, not ground truth")
+        # agreement with reference models is not accuracy (constitution 2.0.0, III metric naming)
+        if "accuracy" in card.lower():
+            failures.append("the card must not use the word 'accuracy' for model-consensus quality")
     for key in ("license", "language", "library_name", "pipeline_tag", "tags", "model-index"):
         if key not in front:
             failures.append(f"card metadata lacks {key}")

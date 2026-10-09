@@ -44,9 +44,11 @@ def test_valid_fixture_passes_offline(zoo_env):
 
 def test_valid_fixture_passes_online(zoo_env, runner):
     gate = run_gate(zoo_env, online=True, runner=runner)
-    # Rule 16 (compliance) skips in fixture registries without a compliance register.
-    assert all(status == "PASS" for n, (status, _) in gate.results.items() if n != 16), gate.results
-    assert gate.results[16][0] == "SKIP"
+    # Rule 15 (device evidence) is for mcu models; rule 16 (compliance) skips in fixture registries
+    # without a compliance register.
+    skipped = {15, 16}
+    assert all(s == "PASS" for n, (s, _) in gate.results.items() if n not in skipped), gate.results
+    assert gate.results[15][0] == "SKIP" and gate.results[16][0] == "SKIP"
     assert len(gate.example_outputs) == 3
 
 

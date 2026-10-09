@@ -1,0 +1,52 @@
+name: pace-cnn
+topic: condition-monitoring
+task: activity
+variant: cnn
+runtime: mcu
+title: 'Pace (CNN): activity recognition from IMU windows on a microcontroller'
+summary: A small int8 convolutional network that classifies 2.56-second windows of accelerometer and gyroscope signals into six activities (walking, walking upstairs, walking downstairs, sitting, standing, lying). It runs on the zoo's int8 engine on microcontrollers.
+license: Apache-2.0
+license_exception: null
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: other
+library_name: litert
+tags: [time-series-classification, imu, activity-recognition, tinyml, int8]
+repos:
+  public: mobility-model-zoo/pace-cnn
+  staging: mobility-model-zoo/pace-cnn-staging
+card:
+  intended_use: |
+    A research baseline for classifying IMU windows on microcontrollers, as a first step towards pedestrian, micromobility and manoeuvre detection with the same pipeline.
+  out_of_scope: |
+    Transport-mode or vehicle classes (the training data has none); fall detection as a safety function; identifying or profiling persons.
+  input_output: |
+    Input: a window of 128 samples x 9 channels (body acceleration, gyroscope, total acceleration; 50 Hz) normalised per channel and quantized to int8. Output: six int8 class scores.
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.edge.int8.model import QModel
+    from mobility_model_zoo.edge.int8.reference import run_model
+
+    model = QModel.load(hf_hub_download("{repo_id}", "pace-cnn.npz", revision="{revision}"))
+    print(run_model(model, model.test_inputs[0]).tolist())  # int8 scores of the six activities
+  device_usage: |
+    /* Sources generated from {repo_id} at {revision}: `uv run edge build`. */
+    #include "model_zoo.h"
+
+    static int8_t arena[MI_ZOO_ARENA_SIZE];
+    int8_t window[1152], scores[6];
+    mi_invoke(&mi_model_pace_cnn, window, scores, arena, sizeof arena);
+  limitations: |
+    - No vehicle or transport-mode classes; the sensor was worn on the belt. Manoeuvre or transport-mode recognition needs other data with the same pipeline.
+    - Trained on 30 volunteers of UCI HAR; other placements, sensors and populations are untested.
+    - Sitting and standing are the classes most often confused in this dataset.
+  citation: |
+    @misc{mobility-model-zoo-pace-cnn,
+      title  = {Pace (CNN): activity recognition from IMU windows on a microcontroller, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/pace-cnn}
+    }

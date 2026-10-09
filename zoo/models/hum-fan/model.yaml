@@ -1,0 +1,53 @@
+name: hum-fan
+topic: condition-monitoring
+task: sound-anomaly
+variant: fan
+runtime: mcu
+title: 'Hum (fan): machine-sound anomaly detection on a microcontroller'
+summary: A small int8 autoencoder that learns the normal sound of a fan from log-mel features of one microphone and scores how unusual a 10-second clip sounds. It runs on the zoo's int8 engine on microcontrollers and needs only recordings of the machine in normal condition.
+license: CC-BY-SA-4.0
+license_exception: "trained on MIMII (CC BY-SA 4.0); share-alike applies to the weights"
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: audio-classification
+library_name: litert
+tags: [anomaly-detection, machine-sound, condition-monitoring, tinyml, int8]
+repos:
+  public: mobility-model-zoo/hum-fan
+  staging: mobility-model-zoo/hum-fan-staging
+card:
+  intended_use: |
+    Acoustic condition monitoring of auxiliary units such as fans and pumps (for example battery and power-electronics cooling in electric vehicles, climate blowers, charger cooling) as a research baseline; retraining on own normal recordings of a specific unit.
+  out_of_scope: |
+    Safety functions or decisions about whether a vehicle may operate; fault classification (which part fails); remaining-useful-life estimates; recording or analysing speech.
+  input_output: |
+    Input: windows of 5 x 40 log-mel frames (64 ms frames, 16 kHz, channel 0), normalised with the stored mean and standard deviation and quantized to int8. Output: the int8 reconstruction of the window; the anomaly score is the mean squared reconstruction error, averaged over the windows of a 10 s clip and compared with the stored threshold.
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.edge.int8.model import QModel
+    from mobility_model_zoo.edge.int8.reference import run_model
+
+    model = QModel.load(hf_hub_download("{repo_id}", "hum-fan.npz", revision="{revision}"))
+    print(run_model(model, model.test_inputs[0]).tolist())  # int8 reconstruction of one window
+  device_usage: |
+    /* Sources generated from {repo_id} at {revision}: `uv run edge build`. */
+    #include "model_zoo.h"
+
+    static int8_t arena[MI_ZOO_ARENA_SIZE];
+    int8_t window[200], reconstruction[200];
+    mi_invoke(&mi_model_hum_fan, window, reconstruction, arena, sizeof arena);
+  limitations: |
+    - The recordings come from a factory hall, not from a vehicle. The model shows that the pipeline and the hardware work; for a specific unit, retrain on own normal recordings.
+    - Trained on two fans of the MIMII dataset at 6 dB SNR; other machines, microphones and noise levels are untested.
+    - The threshold is the 95th percentile of validation normals; it will need tuning per installation.
+    - The weights are under CC BY-SA 4.0 because the training data is (share-alike).
+  citation: |
+    @misc{mobility-model-zoo-hum-fan,
+      title  = {Hum (fan): machine-sound anomaly detection on a microcontroller, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/hum-fan}
+    }

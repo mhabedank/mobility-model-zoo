@@ -7,3 +7,11 @@ topics:
   title: Pipeline tests
   description: Test models for the release pipeline. Never public.
   hf_collection: null
+- id: security
+  title: Automotive security
+  description: Small models that detect attacks on vehicle buses and radio interfaces, built to run on microcontrollers.
+  hf_collection: null
+- id: condition-monitoring
+  title: Condition monitoring
+  description: Small models that watch machines and movement through sensors, built to run on microcontrollers.
+  hf_collection: null

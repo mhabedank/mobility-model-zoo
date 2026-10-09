@@ -1,0 +1,42 @@
+"""picket-mlp features and labels on tiny synthetic candump logs (no TensorFlow needed)."""
+
+import numpy as np
+
+from mobility_model_zoo.security.can_ids import frames
+from mobility_model_zoo.security.can_ids.mlp import can_features, split_of
+
+
+def _log(tmp_path):
+    lines = []
+    for i in range(200):
+        lines.append(f"({1000 + i * 0.01:.6f}) can0 0C8#{i % 256:02X}00000000000000")
+        lines.append(f"({1000 + i * 0.01 + 0.005:.6f}) can0 1A0#11223344")
+    p = tmp_path / "x.log"
+    p.write_text("\n".join(lines) + "\n")
+    return p
+
+
+def test_candump_features(tmp_path):
+    f = frames.to_arrays(frames.read_candump(_log(tmp_path)))
+    assert len(f["t"]) == 400 and set(f["id"].tolist()) == {0xC8, 0x1A0}
+    assert f["dlc"].tolist()[:2] == [8, 4]
+    x = can_features(f, {0xC8})
+    assert x.shape == (400, 32)
+    assert np.allclose(x[0, 0:11], [(0xC8 >> b) & 1 for b in range(11)])
+    assert x[2, 31] == 1.0 and x[3, 31] == 0.0  # known-ID flag
+    assert abs(x[2, 22] - 1 / 64) < 1e-6  # counter byte changed one bit
+    assert abs(x[4, 21] - 0.5) < 1e-6  # periodic: same inter-arrival time
+
+
+def test_road_labels_interval_and_id(tmp_path):
+    df = frames.read_candump(_log(tmp_path))
+    y = frames.road_labels(df, {"injection_interval": [0.5, 1.0], "injection_id": "0x1A0"})
+    assert y.sum() == 50 and set(df["can_id"][y == 1].tolist()) == {0x1A0}
+    y = frames.road_labels(df, {"injection_interval": [0.5, 1.0], "injection_id": "XXX"})  # fuzzing
+    assert y.sum() == 101
+
+
+def test_split_is_deterministic():
+    assert split_of("attacks/correlated_signal_attack_2_masquerade.log") == "test"
+    assert split_of("attacks/correlated_signal_attack_1.log") == "train"
+    assert split_of("ambient/x.log") == split_of("ambient/x.log")

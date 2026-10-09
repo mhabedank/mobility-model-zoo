@@ -1,0 +1,24 @@
+# Source classes of the security topic (compliance register, schema source-classes.schema.json).
+# LIA = legitimate-interest assessment (Art. 6(1)(f) GDPR), one per class (D10).
+classes:
+- id: can-bus-datasets
+  description: Published CAN bus and vehicle-network recordings from research datasets (frame logs of
+    test vehicles, simulated V2X messages, GNSS receiver features), downloaded from the publishers.
+  copyright_basis: licence
+  gdpr_legal_basis: art6_1_f
+  lia:
+    purpose: Train and evaluate intrusion and spoofing detectors for vehicle networks.
+    necessity: Attack recordings with labels exist only in research datasets; recording own attacks on
+      road vehicles is not possible without a test vehicle and a lab.
+    balancing: Recordings come from research test vehicles and simulations published for reuse; they
+      may contain vehicle identifiers or positions of the test vehicles, not of private drivers; the
+      data is not redistributed and models output only alarm scores.
+    safeguards: Licence and use check per dataset, data kept outside git in a local cache with a
+      retention date, no publication of the data, objection channel (PRIVACY.md).
+    decided_at: '2026-10-08'
+  art9_handling: not_applicable
+  retention_purpose: Reproduce the frozen benchmark and the training set of a current model.
+  retention_rule: Local cache only; delete 12 months after the last training run that used it.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-08'
+  next_review: '2027-04-08'

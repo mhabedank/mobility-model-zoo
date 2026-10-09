@@ -1,0 +1,53 @@
+name: picket-mlp
+topic: security
+task: can-ids
+variant: mlp
+runtime: mcu
+title: 'Picket (MLP): int8 CAN bus intrusion detection'
+summary: A small int8 neural network (32-64-32-2) that classifies every classic CAN frame as benign or attack from 32 per-frame features. It runs on the zoo's int8 engine on microcontrollers, bit-exactly with the host reference and the TFLite interpreter.
+license: Apache-2.0
+license_exception: null
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: tabular-classification
+library_name: litert
+tags: [can-bus, intrusion-detection, tinyml, int8, tflite]
+repos:
+  public: mobility-model-zoo/picket-mlp
+  staging: mobility-model-zoo/picket-mlp-staging
+card:
+  intended_use: |
+    Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; comparing a neural network with tree models on the same benchmark and the same microcontrollers.
+  out_of_scope: |
+    Deployment in vehicles on public roads: the model is not a validated or certified safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+  input_output: |
+    Input: 32 int8 features of one CAN frame (11 identifier bits, DLC, 8 payload bytes, inter-arrival timing of the identifier, payload changes against the previous frame of the same identifier, known-identifier flag), quantized with the model's input scale. Output: two int8 scores (benign, attack).
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.edge.int8.model import QModel
+    from mobility_model_zoo.edge.int8.reference import run_model
+
+    model = QModel.load(hf_hub_download("{repo_id}", "picket-mlp.npz", revision="{revision}"))
+    print(run_model(model, model.test_inputs[0]).tolist())  # int8 scores: benign, attack
+  device_usage: |
+    /* Sources generated from {repo_id} at {revision}: `uv run edge build`. */
+    #include "model_zoo.h"
+
+    static int8_t arena[MI_ZOO_ARENA_SIZE];
+    int8_t features[32], scores[2];
+    mi_invoke(&mi_model_picket_mlp, features, scores, arena, sizeof arena);
+  limitations: |
+    - Per-frame features without context windows: attacks that only show over several frames are harder to see.
+    - Trained on one vehicle (ROAD, a real vehicle on a dynamometer); transfer to other vehicles is the riskiest assumption of the task and is tested on the can-ids-v1 benchmark before release.
+    - Masquerade attacks at normal timing are likely missed.
+    - No adversarial evaluation yet; the model and its features are public. Do not rely on it as the only line of defence.
+  citation: |
+    @misc{mobility-model-zoo-picket-mlp,
+      title  = {Picket (MLP): int8 CAN bus intrusion detection, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/picket-mlp}
+    }

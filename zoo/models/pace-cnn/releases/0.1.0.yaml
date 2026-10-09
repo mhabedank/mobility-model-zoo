@@ -1,0 +1,39 @@
+model: pace-cnn
+version: 0.1.0
+date: 2026-10-08
+status: experimental
+change_type: initial
+changes: 'Draft of the first release (feature 005): registered, not trained on the frozen benchmark yet.'
+output_format_version: pace-cnn-v1
+sandbox: false
+files: []
+staging:
+  repo: mobility-model-zoo/pace-cnn-staging
+  revision: ''
+recipe:
+  git_commit: 9a6ad6e347ec1ef72efcccca2be4192fea7d8017
+  config: configs/condition-monitoring/activity/pace-cnn.yaml
+  doc: topics/condition-monitoring/tasks/activity.md
+provenance:
+  sources:
+  - origin: dataset uci-har (topics/*/compliance/datasets.yaml)
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 0
+    dataset: uci-har
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: uci-har-v1
+  reference: labels of the uci-har dataset
+  reference_kind: ground_truth
+  results: results/0.1.0/quality.json
+performance:
+  hardware: ESP32-S3 (HIL bench)
+  budget:
+    ram_kb: 32
+    flash_kb: 128
+    target: ESP32-S3
+  results: results/0.1.0/performance.json
+published: null
+deprecated: null

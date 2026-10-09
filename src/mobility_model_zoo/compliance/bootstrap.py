@@ -66,7 +66,7 @@ LICENCES: list[tuple[str, str, str | None]] = [
     (
         r"Senedd Commission copyright",
         "LicenseRef-Senedd-Commission-Copyright",
-        "https://senedd.wales/help/copyright/",
+        "https://research.senedd.wales/commission/access-to-information/copyright/",
     ),
     (
         r"Scottish Parliament copyright",

@@ -16,7 +16,7 @@ from mobility_model_zoo.release import publish as ops
 from mobility_model_zoo.release.errors import GateFailed, UsageError, ZooError
 from mobility_model_zoo.release.registry import Registry, parse_version
 
-OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 16}
+OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16}
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -64,13 +64,33 @@ def _runner() -> Any:
     return VenvRunner(Path.cwd(), os.environ.get(RELEASE_TOKEN))
 
 
+def topic_folder_failures(reg: Registry) -> list[str]:
+    """Every public topic has topics/<id>/README.md and its dataset declarations (feature 005)."""
+    failures = []
+    for topic in reg.topics():
+        if topic["id"] == "sandbox":
+            continue
+        base = reg.root / "topics" / topic["id"]
+        for rel in ("README.md", "compliance/datasets.yaml"):
+            if not (base / rel).is_file():
+                failures.append(f"topic {topic['id']}: topics/{topic['id']}/{rel} is missing")
+    return failures
+
+
 def _mount_compliance() -> None:
     from mobility_model_zoo.compliance.cli import app as compliance_app
 
     app.add_typer(compliance_app, name="compliance")
 
 
+def _mount_data() -> None:
+    from mobility_model_zoo.datasets.cli import app as data_app
+
+    app.add_typer(data_app, name="data")
+
+
 _mount_compliance()
+_mount_data()
 
 
 @app.command("validate")
@@ -107,6 +127,7 @@ def validate_cmd(
                 except GateFailed as e:
                     failures += [f"{name} {version}: {f}" for f in e.failures]
         if all_models:
+            failures += topic_folder_failures(reg)
             from mobility_model_zoo.compliance.checks import Context, stage_meta
             from mobility_model_zoo.compliance.register import Register
 
@@ -114,6 +135,12 @@ def validate_cmd(
             failures += [f"compliance: {f.line()}" for f in findings]
             if not findings:
                 say("compliance register: ok")
+            from mobility_model_zoo.datasets.registry import validate as validate_datasets
+
+            data_problems = validate_datasets(reg.root)
+            failures += [f"datasets: {p}" for p in data_problems]
+            if not data_problems:
+                say("datasets: ok")
         if failures:
             raise GateFailed(failures)
 

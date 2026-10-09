@@ -1,5 +1,5 @@
 # Problem domain given to every model (Principle I: a domain, never a persona).
-# Domain-specific content lives only here and in guideline/, so later domains need no code changes.
+# Domain-specific content lives only here and in topics/productdev/guideline/, so later domains need no code changes.
 name: Mobility
 definition: >-
   Mobility: moving people and goods, including vehicles, transport services, infrastructure,

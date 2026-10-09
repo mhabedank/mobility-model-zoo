@@ -20,7 +20,9 @@ jobs:
         with:
           enable-cache: true
       # torch comes from the CPU-only index on Linux (pyproject [tool.uv.sources])
-      - run: uv sync --all-extras
+      # No TensorFlow (edge-train) and no PlatformIO (edge-hw) here; labeling-api keeps the
+      # Anthropic backend unit tests running. The firmware jobs live in firmware.yml / edge-* below.
+      - run: uv sync --extra jtbd --extra release --extra edge --extra labeling-api
       - run: uv run ruff check
       - run: uv run pytest -q
       - run: uv run zoo validate --all
@@ -31,3 +33,73 @@ jobs:
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
             | tar -xz -C /usr/local/bin gitleaks
       - run: uv run zoo compliance check --ci
+
+  # HIL suite against the native firmware simulator (no hardware, no PlatformIO).
+  edge-sim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra edge
+      - run: uv run edge build -t native
+      - run: uv run pytest tests/edge/hil -m hil --hil-board sim -q
+
+  # Real ESP32 firmware running in Espressif's QEMU (hil/qemu-boards.yaml). ESP32-S3/-C3 need
+  # ESP-IDF >= 5 to boot in QEMU; the Arduino 2.x core (IDF 4.4) asserts there, so only esp32.
+  edge-qemu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      QEMU_RELEASE: esp-develop-9.2.2-20250817
+      QEMU_VERSION: esp_develop_9.2.2_20250817
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-esp32-${{ hashFiles('firmware/bench/platformio.ini') }}
+          restore-keys: pio-esp32-
+      - name: QEMU cache
+        id: qemu-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/qemu
+          key: qemu-xtensa-${{ env.QEMU_RELEASE }}
+      - name: Espressif QEMU
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libslirp0 libsdl2-2.0-0 libpixman-1-0
+          if [ "${{ steps.qemu-cache.outputs.cache-hit }}" != "true" ]; then
+            curl -sSfL "https://github.com/espressif/qemu/releases/download/$QEMU_RELEASE/qemu-xtensa-softmmu-$QEMU_VERSION-x86_64-linux-gnu.tar.xz" \
+              | tar xJ -C "$HOME"
+          fi
+          echo "$HOME/qemu/bin" >> "$GITHUB_PATH"
+      - run: uv sync --extra edge --extra edge-hw
+      - run: uv run edge build -t esp32
+      - name: HIL suite on the emulated board
+        run: |
+          uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --quick --no-build --require-all \
+            --results results/esp32-qemu --junit results/esp32-qemu/junit.xml
+      - name: diagnostics
+        if: failure()
+        run: |
+          for f in build/fw/*/qemu.log results/*/logs/*.log; do
+            [ -f "$f" ] || continue
+            echo "=== $f"; tail -n 60 "$f" | cut -c1-300
+          done
+      - name: stop QEMU
+        if: always()
+        run: uv run python -m mobility_model_zoo.edge.bench.qemu stop --port 5555 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qemu-esp32-qemu
+          path: |
+            results/
+            build/fw/*/qemu.log
+          if-no-files-found: ignore

@@ -41,14 +41,18 @@ PII_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         ),
     ),
     ("reddit_user", re.compile(r"(?<![\w/])/?u/[A-Za-z0-9_-]{3,20}\b")),
-    ("at_handle", re.compile(r"(?<![\w.@\[\]/])@[A-Za-z0-9_]{2,30}\b(?![{/])")),
+    # a handle starts with a letter or underscore: "@50 Hz", "@360 MHz" are not handles
+    ("at_handle", re.compile(r"(?<![\w.@\[\]/])@[A-Za-z_][A-Za-z0-9_]{1,29}\b(?![{/])")),
     (
         "phone_labeled",
         re.compile(r"(?i)\b(?:tel|telefon|phone|fon|mobil|handy)\.?:?\s*[+\d][\d\s/().-]{6,}\d"),
     ),
     (
         "phone_international",
-        re.compile(r"(?<![\w+\-/.])(?:\+|00)\d{1,3}[\s./-]?(?:\(?\d{1,5}\)?[\s./-]?){2,5}\d{2,}"),
+        # not followed by more hex or an ellipsis: "00112233…" is a payload, not a number
+        re.compile(
+            r"(?<![\w+\-/.])(?:\+|00)\d{1,3}[\s./-]?(?:\(?\d{1,5}\)?[\s./-]?){2,5}\d{2,}(?![\w…])"
+        ),
     ),
     ("phone_de", re.compile(r"(?<![\w/.\-])(?<!ISSN )(?<!ISBN )0\d{2,5}[\s/-]\d{4,}(?:[\s-]\d{2,})*\b")),
     ("iban", re.compile(r"\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){3,7}(?:\s?[A-Z0-9]{1,4})?\b")),

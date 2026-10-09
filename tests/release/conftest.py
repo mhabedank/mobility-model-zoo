@@ -74,6 +74,33 @@ def zoo_env(tmp_path: Path) -> ZooEnv:
     return make_env(tmp_path)
 
 
+def make_mcu_env(root: Path) -> ZooEnv:
+    """The sandbox registry with the mcu fixture `edge-fixture-tiny` staged (feature 005 T055)."""
+    from edge_fixture import NAME, npz_bytes, tiny_model, write_examples
+
+    env = make_env(root)
+    model = tiny_model()
+    write_examples(env.reg.model_dir(NAME), model)
+    staged = {"model.npz": npz_bytes(model)}
+    revision = env.hub.seed(env.reg.model_raw(NAME)["repos"]["staging"], staged, private=True)
+    record = env.reg.record_raw(NAME, VERSION)
+    record["files"] = [
+        {"path": p, "sha256": hashlib.sha256(b).hexdigest(), "size_bytes": len(b)}
+        for p, b in sorted(staged.items())
+    ]
+    record["staging"]["revision"] = revision
+    record["recipe"]["git_commit"] = git(root, "rev-parse", "HEAD")
+    env.reg.write_record(NAME, VERSION, record)
+    env.model = NAME
+    env.qmodel = model
+    return env
+
+
+@pytest.fixture
+def mcu_env(tmp_path: Path) -> ZooEnv:
+    return make_mcu_env(tmp_path)
+
+
 class FakeRunner:
     """Stands in for the clean-environment runner: returns a deterministic output per code."""
 

@@ -5,6 +5,22 @@ Last updated: 2026-10-08. One assessment per source class (decision D10) and one
 
 ## Legitimate-interest assessments
 
+### machine-sound-datasets
+
+- **Purpose:** Train and evaluate anomaly detectors for machine sounds.
+- **Necessity:** Labelled recordings of faulty machines exist only in research datasets.
+- **Balancing:** The recordings are of machines in a factory hall and contain no personal data as far as the publishers state; no balancing against data subjects is needed.
+- **Safeguards:** Licence and use check per dataset, data kept outside git with a retention date, no publication of the data.
+- **Decided:** 2026-10-08
+
+### imu-activity-datasets
+
+- **Purpose:** Train and evaluate activity recognition on microcontrollers.
+- **Necessity:** Labelled IMU windows of many people exist only in research datasets.
+- **Balancing:** Volunteers took part in a published study; the publishers identify subjects only by number; the data is not redistributed and the model outputs only an activity class.
+- **Safeguards:** Licence and use check per dataset, data kept outside git with a retention date, no publication of the data, no attempt to re-identify subjects, objection channel (PRIVACY.md).
+- **Decided:** 2026-10-08
+
 ### parliamentary-records
 
 - **Purpose:** Build and evaluate a model that extracts jobs, pains and gains from mobility debates.
@@ -43,6 +59,14 @@ Last updated: 2026-10-08. One assessment per source class (decision D10) and one
 - **Necessity:** Forums are the main source of first-hand user statements in the benchmark.
 - **Balancing:** Posts are public but written by private persons; usernames and contact identifiers are redacted before labeling; texts are never used for training or published.
 - **Safeguards:** benchmark_only, redaction plus local model review, special categories quarantined, platform terms checked (C-I7), objection channel and suppression list.
+- **Decided:** 2026-10-08
+
+### can-bus-datasets
+
+- **Purpose:** Train and evaluate intrusion and spoofing detectors for vehicle networks.
+- **Necessity:** Attack recordings with labels exist only in research datasets; recording own attacks on road vehicles is not possible without a test vehicle and a lab.
+- **Balancing:** Recordings come from research test vehicles and simulations published for reuse; they may contain vehicle identifiers or positions of the test vehicles, not of private drivers; the data is not redistributed and models output only alarm scores.
+- **Safeguards:** Licence and use check per dataset, data kept outside git in a local cache with a retention date, no publication of the data, objection channel (PRIVACY.md).
 - **Decided:** 2026-10-08
 
 ## Short impact assessment

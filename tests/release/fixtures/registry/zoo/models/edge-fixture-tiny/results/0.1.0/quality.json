@@ -1,0 +1,10 @@
+{
+  "kind": "quality",
+  "model": "edge-fixture-tiny",
+  "version": "0.1.0",
+  "synthetic": true,
+  "source_run": null,
+  "metrics": [
+    {"name": "int8_accuracy", "value": 0.5, "unit": null, "description": "Synthetic share of correct classes (test number)", "reference": "synthetic labels", "benchmark": "synthetic", "n_items": 3, "hardware": null, "date": "2026-10-08"}
+  ]
+}
