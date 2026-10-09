@@ -73,3 +73,18 @@ Training needs `uv sync --extra edge --extra edge-train`. Training runs locally,
 volta `train` workflow (`models/train-request.json`), which committed model parameters and reports
 back to the branch, was not adopted. Trained files go to staging with `zoo stage`, see
 [docs/adding-a-model.md](../../../docs/adding-a-model.md).
+
+## Candidates: benign CAN traffic from many vehicles (noted 2026-10-09)
+
+Benign traffic from many vehicles would let us measure false alarms per hour on vehicles a model has never seen, the weakest point of `picket-forest` ([06 – Competitive landscape](06-competitive-landscape.md)). Attacks can be injected synthetically for detection rates; the real attacks of can-train-and-test and ROAD stay the core benchmark. None of these is declared or downloaded yet; each needs a declaration in `topics/security/compliance/datasets.yaml` before use.
+
+| Candidate | What it is | Licence / access | Notes |
+|---|---|---|---|
+| **commaCarSegments** (`commaai/commaCarSegments` on Hugging Face) | Raw CAN from the openpilot user fleet, "over 300 different production vehicles", USA and worldwide; segments of `rlog.zst` (openpilot cereal logs, read with openpilot's `LogReader`) | MIT on the dataset card [V, 2026-10-09; 18,641 downloads, updated 2026-01-16] | Bus behind the comma device (usually ADAS/camera bus, not always OBD). Logs also contain GPS and other sensors: use CAN messages only and drop everything else at ingest. Benign only. Likely the largest open source of multi-vehicle CAN traffic. |
+| **PIVOT** (University of Memphis, NSF grants 2213733, 2213735, 2245323) | "Open community platform for sharing vehicle telematics data for research and innovation", aims at crowdsourced CAN datasets | Not checked; platform at pivot.cssec.memphis.edu | Poster 2023 [V]; content and terms of the shared data not yet reviewed |
+| **DETROIT** (Pesé et al., University of Michigan, IEEE SECON 2022) | Open-source framework for vehicle data collection, translation and sharing; crowdsources translation tables by automated CAN reverse engineering | Framework open source; shared data not checked | Paper [V]; whether raw CAN logs are available is unknown |
+| **AutoPi community library** | Users of the AutoPi telematics dongle share OBD PIDs per make, model and year | Shares PID definitions, not raw logs [U] | Useful for decoding, not as traffic data |
+| **DIMO** (dimo.org; hardware first by AutoPi, later own devices) | Blockchain-based network: drivers plug in an OBD-II device, data is signed with an Ethereum key on the device, owners grant access and earn tokens | Developer API (GraphQL) to normalised, decoded signals (location, speed, battery, odometer, tyre pressure, trouble codes) with owner consent [U, vendor pages]; no open raw-CAN dataset found | Decoded signals at low rate, not raw frames with timing, so not usable for frame-level intrusion detection; access needs owner consent per vehicle. The community the owner remembered (dongles, anonymised data, distributed ledger) is very likely DIMO |
+| **comma2k19** (`commaai/comma2k19`) | 33 h of driving, CAN plus IMU and GNSS, one vehicle model | MIT [V] | Already listed in [03 – Datasets](03-datasets.md); single vehicle |
+
+PIVOT, DETROIT, the AutoPi library and DIMO are kept as later sources; for intrusion detection, which needs raw frames with timing, none of them looks usable today (owner's assessment, 2026-10-09).

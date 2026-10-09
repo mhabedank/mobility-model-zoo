@@ -372,6 +372,26 @@ def _normalize(text: str) -> str:
 
 
 # ---- reading cards back (rules 9 and 10) -------------------------------------------------------
+def parse_card_examples(text: str) -> dict[str, str]:
+    """Example outputs of a rendered card: file name -> the fenced block after `Output:`.
+
+    Used to keep outputs on a card-only update and by the website (feature 008)."""
+    outputs, name = {}, None
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("### Example ") and "`" in line:
+            name = line.split("`")[1]
+        if name and line == "Output:":
+            j = i + 2  # skip the blank line and the opening fence
+            block = []
+            while j + 1 < len(lines) and not lines[j + 1].startswith("```"):
+                j += 1
+                block.append(lines[j])
+            outputs[name] = "\n".join(block)
+            name = None
+    return outputs
+
+
 def split_card(card: str) -> tuple[dict[str, Any], str]:
     """(front matter, body)."""
     if not card.startswith("---\n"):

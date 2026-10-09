@@ -1,0 +1,26 @@
+{% extends "base.html.j2" %}
+{% block title %}Output format {{ fmt.id }} · {{ site.title }}{% endblock %}
+{% block description %}{{ fmt.title }}: every field of {{ fmt.id }}.{% endblock %}
+{% block main %}
+<section class="hero" aria-labelledby="title"><div class="wrap stack" style="gap:16px">
+<div class="eyebrow">Output format</div>
+<h1 class="h-display" id="title">{{ fmt.id }}</h1>
+<p class="lead muted">{{ fmt.title }}. Produced by {% for r in fmt.produced_by %}<a href="{{ root }}models/{{ r.name }}/">{{ r.name }} {{ r.version }}</a>{% if not loop.last %}, {% endif %}{% endfor %}.</p>
+<p><a href="{{ site.repo }}/blob/main/{{ fmt.schema_path }}">JSON schema</a></p>
+</div></section>
+<section class="sec" aria-labelledby="in-h"><div class="wrap grid2">
+<div class="stack"><h2 class="h3" id="in-h">Input</h2><ul class="small">{% for line in fmt.input %}<li>{{ line | md | striptags }}</li>{% endfor %}</ul></div>
+<div class="stack"><h2 class="h3">Guarantees</h2><ul class="small">{% for line in fmt.rules %}<li>{{ line | md }}</li>{% endfor %}</ul></div>
+</div></section>
+<section class="sec" aria-labelledby="f-h"><div class="wrap stack" style="gap:20px">
+<h2 class="h2" id="f-h">Fields</h2>
+{% include "partials/fields.html.j2" %}
+{% if fmt.edge_cases %}
+<h2 class="h3">Edge cases</h2>
+<div class="tw"><table class="tbl"><thead><tr><th scope="col">Input</th><th scope="col">What you get</th></tr></thead><tbody>
+{% for e in fmt.edge_cases %}<tr><td>{{ e.input }}</td><td>{{ e.output | md }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+<h2 class="h3">Versioning</h2><div class="prose">{{ fmt.versioning | md }}</div>
+</div></section>
+{% endblock %}

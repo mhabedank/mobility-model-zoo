@@ -97,3 +97,14 @@ Base model: XLM-RoBERTa large (FacebookAI/xlm-roberta-large), MIT, Copyright (c)
 | Interviews with SHARED GREEN DEAL Experiment Participants - Sustainable Mobility | SHARED GREEN DEAL | https://zenodo.org/api/records/15325897/files/Mobility_PT10_anonymised.docx/content | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Text extracted from the source document, split into chunks, personal identifiers redacted and labeled by language models; the text itself is not redistributed. |
 | Interviews with SHARED GREEN DEAL Experiment Participants - Sustainable Mobility | SHARED GREEN DEAL | https://zenodo.org/api/records/15325897/files/Mobility_PT11_anonymised.docx/content | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Text extracted from the source document, split into chunks, personal identifiers redacted and labeled by language models; the text itself is not redistributed. |
 
+
+## Website
+
+The project website (`zoo site`) bundles these works. They are not part of any model.
+
+| Work | Copyright | Licence | Where |
+|---|---|---|---|
+| Figtree 2.002 (variable, Latin subset) | 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
+| JetBrains Mono 2.211 (variable, Latin subset) | 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
+| axe-core 4.14.0 (only used by the accessibility check, not deployed) | 2015-2026 Deque Systems, Inc. | MPL-2.0 | `src/mobility_model_zoo/site/checks_vendor/` |
+

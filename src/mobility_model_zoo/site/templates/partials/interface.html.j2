@@ -1,0 +1,20 @@
+<section class="sec" id="interface" aria-labelledby="if-h"><div class="wrap stack" style="gap:28px">
+<div class="sec-head" style="margin:0"><div class="eyebrow">Interface</div><h2 class="h2" id="if-h">One text in, one JSON object out.</h2></div>
+<div class="prose">{{ p.m.card.input_output | md }}</div>
+{% if p.fmt %}
+{% set fmt = p.fmt %}
+<div class="grid2">
+<div class="stack"><h3 class="h3">Input</h3><ul class="small">{% for line in fmt.input %}<li>{{ line | md | striptags }}</li>{% endfor %}</ul></div>
+<div class="stack"><h3 class="h3">Guarantees</h3><ul class="small">{% for line in fmt.rules %}<li>{{ line | md }}</li>{% endfor %}</ul></div>
+</div>
+{% include "partials/fields.html.j2" %}
+{% if fmt.edge_cases %}
+<div class="stack"><h3 class="h3">Edge cases</h3>
+<div class="tw"><table class="tbl"><thead><tr><th scope="col">Input</th><th scope="col">What you get</th></tr></thead><tbody>
+{% for e in fmt.edge_cases %}<tr><td>{{ e.input }}</td><td>{{ e.output | md }}</td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% endif %}
+<div class="stack"><h3 class="h3">Versioning</h3><div class="prose">{{ fmt.versioning | md }}</div><p>Full reference: <a href="{{ root }}formats/{{ fmt.id }}/">output format {{ fmt.id }}</a> · <a href="{{ site.repo }}/blob/{{ p.latest.tag }}/{{ fmt.schema_path }}">JSON schema</a>.</p></div>
+{% endif %}
+</div></section>

@@ -11,6 +11,8 @@ pinned: false
 
 Small, fast machine learning models for mobility in the broad sense: from product development and data analysis to vehicles, IoT and embedded systems. Every model runs locally, from a laptop down to a microcontroller, is versioned, and ships with a model card that says what it does, how good it is and measured against what, how fast it is on which hardware, and where it fails.
 
+Website with quickstarts, interface documentation and worked examples: [mhabedank.github.io/mobility-model-zoo](https://mhabedank.github.io/mobility-model-zoo/)
+
 ## Topics
 
 | Topic | What it covers |

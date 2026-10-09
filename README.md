@@ -2,6 +2,7 @@
 
 A collection of small, fast machine learning models for mobility, grouped by topic. Every model runs locally, is versioned, and is published on Hugging Face with a model card that says what it does, how good it is (and measured against what), how fast it is on which hardware, and where it fails.
 
+- Website: [mhabedank.github.io/mobility-model-zoo](https://mhabedank.github.io/mobility-model-zoo/)
 - Models and their latest versions: [zoo/MODELS.md](zoo/MODELS.md)
 - On Hugging Face: [huggingface.co/mobility-model-zoo](https://huggingface.co/mobility-model-zoo)
 - Constitution (the project rules): [.specify/memory/constitution.md](.specify/memory/constitution.md)

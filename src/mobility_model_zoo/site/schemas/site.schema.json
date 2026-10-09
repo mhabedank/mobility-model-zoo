@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mhabedank/mobility-model-zoo/schemas/site.schema.json",
+  "title": "Per-model site text (zoo/models/<name>/site.yaml)",
+  "description": "The only hand-written model prose on the website. Numbers may appear only as {metric:<kind>.<name>} placeholders that resolve against the latest published release; `zoo site check` (rule F2 in checks.md) rejects free-standing numbers such as '0.72' or '8 s', while digits inside names such as 'M3 Pro' or 'jtbd-span-v1' are allowed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tagline",
+    "audience",
+    "differentiators",
+    "quickstart_example"
+  ],
+  "$defs": {
+    "prose": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Plain text; placeholders {metric:(quality|performance).<metric_name>}."
+    }
+  },
+  "properties": {
+    "tagline": {
+      "$ref": "#/$defs/prose",
+      "maxLength": 120
+    },
+    "audience": {
+      "$ref": "#/$defs/prose"
+    },
+    "differentiators": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "text"
+        ],
+        "properties": {
+          "title": {
+            "$ref": "#/$defs/prose",
+            "maxLength": 60
+          },
+          "text": {
+            "$ref": "#/$defs/prose"
+          }
+        }
+      }
+    },
+    "quickstart_example": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+\\.(txt|json)$"
+    },
+    "hardware_note": {
+      "$ref": "#/$defs/prose"
+    },
+    "motif": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+\\.svg$"
+    },
+    "charts": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "metrics"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "quality_vs_speed",
+              "latency_per_machine"
+            ]
+          },
+          "metrics": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "description": "Metric-name prefix in the results JSON, e.g. latency_9k_chars_s"
+          },
+          "labels": {
+            "type": "string",
+            "description": "Repository path of a JSON label file, read at the release tag"
+          }
+        }
+      }
+    },
+    "metric_cards": {
+      "type": "array",
+      "maxItems": 6,
+      "description": "Headline metrics of the quality section; each card prints the value, what it is compared with and what it is measured against or on.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "metric"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "metric": {
+            "type": "string",
+            "pattern": "^(quality|performance)\\.[a-z0-9_]+$"
+          },
+          "compare": {
+            "type": "string",
+            "pattern": "^(quality|performance)\\.[a-z0-9_]+$"
+          },
+          "compare_label": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

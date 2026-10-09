@@ -27,3 +27,10 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# Website build output and example-output cache (feature 008); regenerated, never committed
+/_site/
+/.cache/
+
+# Raw Claude Design export of feature 008 (embeds third-party runtime code); the extracted sources in design/source/ are kept
+/specs/008-zoo-website/design/*.html

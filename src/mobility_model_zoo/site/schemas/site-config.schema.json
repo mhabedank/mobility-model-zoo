@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mhabedank/mobility-model-zoo/schemas/site-config.schema.json",
+  "title": "Site-wide settings of the zoo website (zoo/site.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "canonical_url", "tagline", "lead", "principles", "legal", "repo", "hf_org"],
+  "properties": {
+    "title": {"type": "string", "minLength": 1},
+    "canonical_url": {"type": "string", "format": "uri", "pattern": "^https://.+/$"},
+    "tagline": {"type": "string", "minLength": 1},
+    "lead": {"type": "string", "minLength": 1},
+    "values": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "text"],
+        "properties": {"title": {"type": "string"}, "text": {"type": "string"}}
+      }
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "text"],
+        "properties": {"title": {"type": "string"}, "text": {"type": "string"}}
+      }
+    },
+    "legal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["imprint", "privacy", "copyright"],
+      "properties": {
+        "imprint": {"type": "string", "format": "uri"},
+        "privacy": {"type": "string", "format": "uri"},
+        "copyright": {"type": "string", "format": "uri"}
+      }
+    },
+    "repo": {"type": "string", "format": "uri"},
+    "hf_org": {"type": "string", "format": "uri"}
+  }
+}

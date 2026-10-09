@@ -1,4 +1,4 @@
-"""The release gate: rules 1-16 (contracts/cli.md; rule 15 from feature 005, 16 from 006).
+"""The release gate: rules 1-17 (contracts/cli.md; rule 15 from feature 005, 16 from 006, 17 from 008).
 
 Every rule returns a list of failure messages (empty = PASS) or raises `Skip`. `run_gate` runs all
 of them, prints one line per rule and raises `GateFailed` (exit 1) or, if the only problem is that
@@ -56,6 +56,7 @@ TITLES = {
     14: "sandbox",
     15: "device evidence",
     16: "compliance",
+    17: "site text",
 }
 
 
@@ -350,6 +351,15 @@ class Gate:
             return e.failures
         return []
 
+    def rule_17(self) -> list[str]:
+        """Website text (feature 008): `site.yaml` is valid and every number in it resolves against
+        this version's results, so publishing can never break the site build (spec FR-005)."""
+        if self.model["topic"] == "sandbox" or self.record.get("sandbox"):
+            raise Skip("sandbox models have no website page")
+        from mobility_model_zoo.site.context import pitch_errors
+
+        return pitch_errors(self.reg, self.name, self.version)
+
     def publication_card(self) -> str:
         """The card as scanned for publication: without model outputs (they are spans of the
         fictional example inputs), so the scan and the gate hash the same text."""
@@ -580,7 +590,7 @@ class Gate:
         return self.card
 
     # ---- running -------------------------------------------------------------------------------
-    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 15, 10, 16)
+    ORDER = (1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 12, 13, 9, 15, 10, 16, 17)
 
     def run(self, say: Callable[[str], None] | None = None) -> None:
         say = say or (lambda line: print(line, file=sys.stderr))

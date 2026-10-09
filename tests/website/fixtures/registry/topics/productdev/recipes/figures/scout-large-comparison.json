@@ -1,0 +1,128 @@
+{
+  "scout": [
+    {
+      "id": "",
+      "label": "4 vCPU, 8 GB (reference)",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "chunks_per_min": 21.6204,
+      "latency_9k_chars_s": 8.1057,
+      "quality": 0.723395
+    },
+    {
+      "id": "mac_m3pro_cpu",
+      "label": "MacBook M3 Pro, CPU",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, CPU only",
+      "chunks_per_min": 77.3468,
+      "latency_9k_chars_s": 1.9361,
+      "quality": 0.723395
+    },
+    {
+      "id": "mac_m3pro_gpu",
+      "label": "MacBook M3 Pro, GPU",
+      "hardware": "MacBook Pro, Apple M3 Pro, 36 GB, GPU (MPS)",
+      "chunks_per_min": 231.1152,
+      "latency_9k_chars_s": 0.8404,
+      "quality": 0.723395
+    },
+    {
+      "id": "dgx_spark_gpu",
+      "label": "DGX Spark, GPU",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU (CUDA)",
+      "chunks_per_min": 1259.5553,
+      "latency_9k_chars_s": 0.1219,
+      "quality": 0.723395
+    }
+  ],
+  "others": [
+    {
+      "id": "claude",
+      "label": "Claude Opus 5.5 (reference)",
+      "hardware": "Anthropic, Claude Code CLI (subscription)",
+      "chunks_per_min": 2.934049893518439,
+      "n": 150,
+      "how": "60 / median call latency while labeling the benchmark",
+      "quality": null,
+      "quality_run": null
+    },
+    {
+      "id": "gpt_mini",
+      "label": "GPT-5.4 mini (reference)",
+      "hardware": "OpenAI via OpenRouter",
+      "chunks_per_min": 9.6774,
+      "n": 20,
+      "how": "sample at concurrency 1",
+      "quality": null,
+      "quality_run": null
+    },
+    {
+      "id": "mimo",
+      "label": "MiMo V2.6 Pro (teacher)",
+      "hardware": "OpenRouter, provider chosen per request",
+      "chunks_per_min": 0.9582781657917054,
+      "n": 150,
+      "how": "60 / median call latency while labeling the benchmark",
+      "quality": 0.909491,
+      "quality_run": "run-teacher_candidate-teacher-or-mimo-v2.6-pro-main-6b5662fa"
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek V4.1 Flash",
+      "hardware": "OpenRouter, provider chosen per request",
+      "chunks_per_min": 0.3977553340647612,
+      "n": 182,
+      "how": "60 / median call latency while labeling the benchmark",
+      "quality": 0.835701,
+      "quality_run": "run-teacher_candidate-teacher-or-deepseek-v4.1-flash-main-6b5662fa"
+    },
+    {
+      "id": "qwen3_8_27b_dgx",
+      "label": "Qwen3.8 27B, DGX Spark",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU, Ollama",
+      "chunks_per_min": 2.1476510067114094,
+      "n": 150,
+      "how": "60 / median call latency while labeling the benchmark",
+      "quality": 0.890416,
+      "quality_run": "run-teacher_candidate-teacher-qwen3.8-main-6b5662fa"
+    },
+    {
+      "id": "gemma4_e4b_dgx",
+      "label": "Gemma4 E4B, DGX Spark",
+      "hardware": "NVIDIA DGX Spark (GB10), GPU, Ollama",
+      "chunks_per_min": 7.508869852513282,
+      "n": 150,
+      "how": "60 / median call latency while labeling the benchmark",
+      "quality": 0.667169,
+      "quality_run": "run-baseline-baseline-gemma4-e4b-main-6b5662fa"
+    },
+    {
+      "id": "qwen3_5_4b",
+      "label": "Qwen3.5 4B, 4 vCPU",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "chunks_per_min": 0.9249,
+      "n": 150,
+      "how": "jtbd perf on the reference machine, one chunk at a time",
+      "quality": 0.615253,
+      "quality_run": "run-baseline-baseline-qwen3.5-4b-main-6b5662fa"
+    },
+    {
+      "id": "ministral_3b",
+      "label": "Ministral 3B, 4 vCPU",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "chunks_per_min": 0.6933,
+      "n": 150,
+      "how": "jtbd perf on the reference machine, one chunk at a time",
+      "quality": 0.604384,
+      "quality_run": "run-baseline-baseline-ministral-3b-main-6b5662fa"
+    },
+    {
+      "id": "gemma4_e2b",
+      "label": "Gemma4 E2B, 4 vCPU",
+      "hardware": "railway service, 4 vCPU limit, 8 GB RAM limit, no GPU",
+      "chunks_per_min": 1.456,
+      "n": 150,
+      "how": "jtbd perf on the reference machine, one chunk at a time",
+      "quality": 0.567877,
+      "quality_run": "run-baseline-baseline-gemma4-e2b-main-6b5662fa"
+    }
+  ]
+}

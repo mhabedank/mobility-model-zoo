@@ -34,3 +34,14 @@ Controller: Martin Habedank (private person), privacy@miskatonic-analytics.com. 
   - forum-review: Delete when the benchmark is retired; review 24 months after freeze.
   - can-bus-datasets: Local cache only; delete 12 months after the last training run that used it.
 - **Technical and organisational measures:** texts stored outside the public repository on the controller's machine; identifiers redacted before labeling (pattern redaction plus a local model review); special categories quarantined; fail-closed checks before texts leave the machine; no publication of texts; suppression list; keyed hashes instead of names in request records.
+
+## Processing activity: project website
+
+- **Purposes:** providing the static project website that presents the published models (https://mhabedank.github.io/mobility-model-zoo/).
+- **Categories of data subjects and personal data:** visitors of the website: IP address and technical request data, processed by the host.
+- **Legal basis:** Art. 6(1)(f) GDPR, legitimate interest in providing the website securely.
+- **Recipients:** GitHub, Inc. (USA) as host of GitHub Pages; GitHub logs visitors' IP addresses for security purposes.
+- **Transfers to third countries:** United States; GitHub states that it complies with the EU-U.S. Data Privacy Framework.
+- **Retention:** by GitHub under its privacy statement; the controller receives and stores no visitor data.
+- **Technical and organisational measures:** static pages only; no cookies, analytics, tracking or third-party resources, checked automatically before every deployment (`zoo site check`, checks P1 and P2).
+
