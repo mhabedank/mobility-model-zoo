@@ -1,6 +1,16 @@
 # mobility-model-zoo
 
-A collection of small, fast machine learning models for mobility, grouped by topic. Every model runs locally, is versioned, and is published on Hugging Face with a model card that says what it does, how good it is (and measured against what), how fast it is on which hardware, and where it fails.
+**Safer, more affordable and better mobility through AI.**
+
+We build machine learning models for real mobility problems and make them available to everyone, for research and for commercial products: from product development to vehicles and embedded systems, from compact decision models to large language models. Models are grouped by topic, and every model is published on Hugging Face with a model card that says what it does, how good it is (and measured against what), how fast it is on which hardware, and where it fails.
+
+What the zoo stands for ([in full on the website](https://mhabedank.github.io/mobility-model-zoo/#principles)):
+
+- **Compliance comes first.** No model ships before its compliance check has passed.
+- **Built for real use cases.** Every model solves one concrete mobility problem and is ready for production.
+- **Right-sized, from decision models to LLMs.** The smallest model that does the job well, on your own hardware.
+- **Known quality, known limits.** Every model states what it achieves, measured against what, and where it fails.
+- **Open for everyone, including commercial use.** Models, methods and results are published under an open licence.
 
 - Website: [mhabedank.github.io/mobility-model-zoo](https://mhabedank.github.io/mobility-model-zoo/)
 - Models and their latest versions: [zoo/MODELS.md](zoo/MODELS.md)
