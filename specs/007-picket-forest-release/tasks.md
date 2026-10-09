@@ -176,12 +176,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Create `src/mobility_model_zoo/security/can_ids/synth.py` and `tests/security/can_ids/test_synth.py` (research R8). The generator `generate(attack, n_frames=2000, seed)` produces:
+- [X] T019 [P] [US3] Create `src/mobility_model_zoo/security/can_ids/synth.py` and `tests/security/can_ids/test_synth.py` (research R8). The generator `generate(attack, n_frames=2000, seed)` produces:
   - periodic benign IDs (10–100 ms periods, ±2 % jitter, counter and checksum bytes);
   - one injected attack per sequence: `fabrication` (extra frames on an existing ID with a changed payload), `dos` (ID 0x000 at 0.2 ms), `fuzzing` (random IDs and payloads) or `scan` (sequential IDs).
 
   The output is in the common frame format plus labels. The test checks determinism per seed and that every sequence contains at least one attack episode.
-- [ ] T020 [P] [US3] Create a tree-model fixture `edge-fixture-forest` in `tests/release/fixtures/registry/zoo/models/edge-fixture-forest/`:
+- [X] T020 [P] [US3] Create a tree-model fixture `edge-fixture-forest` in `tests/release/fixtures/registry/zoo/models/edge-fixture-forest/`:
   - topic `sandbox`, `runtime: mcu`, `engine: emlearn`;
   - a release record, synthetic results with `origin`, and a `device_usage` that uses `picket_forest_process`.
 
@@ -191,7 +191,7 @@
   - writes three `examples/*.json` per data-model.md "Tree-model example": `source: synthetic`, `frames`, `expected_scores` as 8-digit hex float32 bit patterns, `expected_alarms` as frame indices.
 
   Add an `mcu_forest_env` fixture to `tests/release/conftest.py`. Skip when emlearn or a C compiler is missing.
-- [ ] T021 [P] [US3] Write `tests/release/test_gate_emlearn.py`. It asserts:
+- [X] T021 [P] [US3] Write `tests/release/test_gate_emlearn.py`. It asserts:
   - the fixture passes offline and online (rules 12, 13 and 15 PASS);
   - one flipped bit in `expected_scores` fails rules 12 and 13, and restoring it passes (SC-006);
   - a changed `expected_alarms` fails;
@@ -200,8 +200,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Extract the host scorer build from `security/can_ids/forest.py` (`build_host_scorer`, `host_scores`) into a reusable function `build_scorer(headers_dir, out_dir) -> Path`. It compiles with `-ffp-contract=off` from the C sources at the current checkout (`firmware/picket-forest/c`, `firmware/components/can_features`). Keep `forest.py` using it.
-- [ ] T023 [US3] Extend `src/mobility_model_zoo/release/gate.py` for `engine: emlearn` (research R7).
+- [X] T022 [US3] Extract the host scorer build from `security/can_ids/forest.py` (`build_host_scorer`, `host_scores`) into a reusable function `build_scorer(headers_dir, out_dir) -> Path`. It compiles with `-ffp-contract=off` from the C sources at the current checkout (`firmware/picket-forest/c`, `firmware/components/can_features`). Keep `forest.py` using it.
+- [X] T023 [US3] Extend `src/mobility_model_zoo/release/gate.py` for `engine: emlearn` (research R7).
   - Rule 12 and rule 13 online: download the staged files to a temporary folder, check that the staged `c/` sources equal the repository sources at the recipe commit, build the scorer from the staged files only, replay each example (frames written to the binary frame format of `frames_to_bin`), and compare the scores bit by bit and the alarm indices (alarms recomputed with `forest_features.alarms` and the staged alarm rule).
   - Offline, rule 13 checks the example count (≥ 3), the fields and `source`.
   - Rule 11 additionally rejects staged files over 5 MB except `model.joblib`.
@@ -209,13 +209,13 @@
   Extend `tests/release/test_gate_emlearn.py`: a staged source that differs from the repository fails rule 12.
 
   The `engine: int8` path stays unchanged.
-- [ ] T024 [US3] Extend the mcu card in `src/mobility_model_zoo/release/card.py` and `templates/model_card.md.j2` for `engine: emlearn`:
+- [X] T024 [US3] Extend the mcu card in `src/mobility_model_zoo/release/card.py` and `templates/model_card.md.j2` for `engine: emlearn`:
   - Each example is shown as a summary: frames, attack frames, expected alarms, and the first 5 frames as a table.
   - The "On the device" C block comes from `device_usage`.
   - The python card stays byte-identical, and the int8 mcu golden card is unchanged.
 
   Add a golden file `tests/release/fixtures/golden/edge-fixture-forest-0.1.0.README.md`, rendered via `ZOO_UPDATE_GOLDEN=1`.
-- [ ] T025 [US3] Run the release tests (`uv run pytest tests/release -q`) and record the result in `validation.md` under "US3".
+- [X] T025 [US3] Run the release tests (`uv run pytest tests/release -q`) and record the result in `validation.md` under "US3".
 
 **Checkpoint**: The gate can verify picket-forest.
 

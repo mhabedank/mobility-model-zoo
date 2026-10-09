@@ -197,6 +197,28 @@ def device_examples(reg: Registry, name: str) -> list[dict[str, Any]]:
     """Examples of an mcu model for the card: compact JSON of input and expected output."""
     out = []
     for n, ex in reg.device_examples(name):
+        if "frames" in ex:  # emlearn tree model: a frame sequence (feature 007)
+            alarms = list(ex.get("expected_alarms", []))
+            out.append(
+                {
+                    "name": n,
+                    "source": ex.get("source", ""),
+                    "attack": (ex.get("generator") or {}).get("attack", ""),
+                    "n_frames": len(ex["frames"]),
+                    "n_alarms": len(alarms),
+                    "alarms": ", ".join(str(a) for a in alarms) if alarms else "none",
+                    "head": [
+                        {
+                            "ts": f[0],
+                            "id": f"0x{f[1]:03X}",
+                            "dlc": f[2],
+                            "data": " ".join(f"{b:02X}" for b in f[3][: f[2]]),
+                        }
+                        for f in ex["frames"][:5]
+                    ],
+                }
+            )
+            continue
         out.append(
             {
                 "name": n,
@@ -343,6 +365,7 @@ def render(inp: CardInput) -> str:
             model["card"].get("device_usage", ""), model["repos"]["public"], f"v{version}", ""
         ).strip(),
         device_examples=device_examples(reg, name) if mcu else [],
+        tree=mcu and model.get("engine") == "emlearn",
         datasets=dataset_rows(reg, record),
         ground_truth=GROUND_TRUTH
         if record["evaluation"].get("reference_kind") == "ground_truth"

@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import time
 from collections.abc import Sequence
@@ -329,35 +328,10 @@ def write_config_header(path: Path, idx: list[int], threshold: float, alarm: dic
 
 
 def build_host_scorer(export_dir: Path) -> Path:
-    import subprocess
+    """Host build of the C detector from the repository sources and the exported headers."""
+    from mobility_model_zoo.security.can_ids.scorer import build_scorer
 
-    exe = export_dir / "host_score"
-    subprocess.run(
-        [
-            os.environ.get("CC", "cc"),
-            "-std=c99",
-            "-O2",
-            "-ffp-contract=off",
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-Wno-unused-parameter",  # emlearn-generated trees ignore features_length
-            "-I",
-            str(export_dir),
-            "-I",
-            str(C_DIR),
-            "-I",
-            str(FEATURES_DIR / "include"),
-            str(C_DIR / "host_score.c"),
-            str(C_DIR / "picket_forest.c"),
-            str(FEATURES_DIR / "msml_can_features.c"),
-            str(FEATURES_DIR / "msml_alarm.c"),
-            "-o",
-            str(exe),
-        ],
-        check=True,
-    )
-    return exe
+    return build_scorer(export_dir, export_dir)
 
 
 def host_scores(exe: Path, df, work_dir: Path, stem: str = "parity") -> np.ndarray:

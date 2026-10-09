@@ -103,7 +103,9 @@ def alarm_metrics(
     }
 
 
-def recall_at_fpr(y: np.ndarray, score: np.ndarray, benign_val_scores: np.ndarray, fpr: float = 0.001) -> float:
+def recall_at_fpr(
+    y: np.ndarray, score: np.ndarray, benign_val_scores: np.ndarray, fpr: float = 0.001
+) -> float:
     """Attack-class recall at the threshold that gives `fpr` on benign validation frames.
 
     The threshold comes from validation data passed in by the caller, never from the test frames.
