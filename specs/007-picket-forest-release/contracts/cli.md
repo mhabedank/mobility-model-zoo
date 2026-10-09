@@ -29,7 +29,7 @@ Outcomes:
 
 ## `security can-ids forest export|convert|testvectors` (changed)
 
-- `export` trains the release model on `train_01` of all four sets and writes the staged files listed in [data-model.md](../data-model.md).
+- `export` trains the release model on `train_01` of all four sets and writes the staged files listed in [data-model.md](../data-model.md), including the `c/` sources and `sbom.cdx.json`.
 - `examples --out zoo/models/picket-forest/examples` (new) writes the synthetic examples ([research R8](../research.md)) with expected scores and alarms from the host scorer.
 
 ## `security can-ids measure [--target host|esp32-qemu|esp8266 -b BOARD] [--out FILE]`
@@ -44,9 +44,9 @@ It writes or merges performance metrics in the results format, with `origin` `ho
 
 | Rule | `runtime: mcu`, `engine: emlearn` |
 |---|---|
-| 12 | Builds the host scorer from the staged headers and the C sources at the recipe commit. Replays the first example. Compares scores (bit patterns) and alarm indices. |
+| 12 | Builds the host scorer from the staged files only (headers and `c/` sources). Checks that the staged sources equal the repository sources at the recipe commit. Replays the first example. Compares scores (bit patterns) and alarm indices. |
 | 13 | At least 3 examples; each `source` is synthetic or a dataset with `redistribution: allowed`. Online, replays every example as in rule 12. |
 | 11 | Additionally rejects staged `*.npz` evaluation sets and any file of more than 5 MB except `model.joblib` |
-| 15 | Unchanged: `latency_us`, `flash_kb`, `ram_kb` with origin and hardware; `experimental` may rely on host and emulator evidence |
+| 15 | Unchanged: `latency_us`, `flash_kb`, `ram_kb` with origin and hardware. picket-forest 0.1.0 provides a real-board latency (ESP8266, named substitute) besides host and emulator values. |
 
 The `engine: int8` path is unchanged.

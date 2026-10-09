@@ -50,13 +50,14 @@
   - returns `None` when no rule fits.
 
   Add its test to `tests/security/can_ids/test_metrics_alarm.py`.
-- [ ] T006 [P] Add an `engine` field to `src/mobility_model_zoo/release/schemas/model.schema.json`:
-  - `{"enum": ["int8", "emlearn"], "default": "int8"}`, only meaningful with `runtime: mcu`;
-  - copy the schema to `specs/007-picket-forest-release/contracts/model.schema.json`;
-  - point `tests/release/test_schemas.py` `CONTRACTS` at the 007 contracts for the model schema; the other schemas keep their 005 copies;
+- [ ] T006 [P] Add an `engine` field to `src/mobility_model_zoo/release/schemas/model.schema.json` and the compliance fields `runtime` and `sbom`:
+  - `engine`: `{"enum": ["int8", "emlearn"], "default": "int8"}`, only meaningful with `runtime: mcu`;
+  - in `src/mobility_model_zoo/compliance/schemas/release-compliance.schema.json`, add `runtime` (`python|mcu`) and `sbom` (string path), with `sbom` required when `runtime` is `mcu`. Check C-G4 expects them, but the schema rejected them;
+  - copy all release schemas to `specs/007-picket-forest-release/contracts/`, the release-compliance schema to `specs/006-compliance-harness/contracts/schemas/`, and switch `tests/release/test_schemas.py` `CONTRACTS` to the 007 folder;
+  - add a test that a release-compliance record with `runtime: mcu` and no `sbom` fails C-G4, and passes with it;
   - set `engine: emlearn` in `zoo/models/picket-forest/model.yaml`.
 
-**Checkpoint**: The metrics are correct and tested, and the schema knows tree models.
+**Checkpoint**: The metrics are correct and tested, and the schemas know tree models and the mcu compliance fields.
 
 ---
 
@@ -119,7 +120,9 @@
   - the report contains no support-weighted metric (a search for "weighted" finds nothing);
   - `quality.json` validates against `results.schema.json`, with `reference_kind` set in the release record, a `reference` text and `benchmark: can-ids-v1`;
   - a partial run (`--sets`) is marked `partial: true` and refuses to write `quality.json`;
-  - a hash mismatch makes the run exit 1.
+  - a set that cannot be loaded is listed as missing and makes the report partial (spec edge case "Missing set");
+  - a hash mismatch makes the run exit 1;
+  - the report contains the Pareto table and the C-versus-Python check section.
 
 ### Implementation for User Story 2
 
@@ -141,9 +144,17 @@
   - chooses the score threshold on validation (best F1, as in `forest.best_threshold`) and the operating points for budgets 1 and 10 with `budget_operating_point` (T005);
   - scores the four test splits, storing the scores per data-model.md "Detector run" with `run.json`.
 
-  It then computes the headline and secondary metrics per split and aggregates them as the median over sets and the worst set. For ROAD, it evaluates the release model of T026 on the ROAD test captures, reporting fabrication and fuzzing in the main tables and masquerade and accelerator in an out-of-scope table (FR-013).
+  It then computes the headline and secondary metrics per split and aggregates them as the median over sets and the worst set. A set that cannot be loaded is recorded as missing.
+
+  For ROAD, it trains the release model on demand with the recipe of T026 (`train_01` of all four sets, selection on validation captures) and caches it in `$MMZ_DATA/derived/picket-forest/export/`. It reports fabrication and fuzzing in the main tables and masquerade and accelerator in an out-of-scope table (FR-013). T026 reuses this cached model.
+
+  It also records, for every detector, its cost: model size (tree nodes or parameters, and estimated flash) and per-frame latency on the host. For picket-forest it runs the C host scorer on every test capture and counts score mismatches against Python.
 - [ ] T015 [US2] Write the report and the results in `evaluate.py`.
-  - **`topics/security/reports/picket-forest/can-ids-v1/report.md`** starts with the outcome per research R10 (success, partial or kill), computed from the numbers; then come headline tables, controls, baselines, per attack family, ROAD, out of scope, limitations, `code_commit` and `manifest_sha256`.
+  - **`topics/security/reports/picket-forest/can-ids-v1/report.md`** starts with the outcome per research R10 (success, partial or kill), computed from the numbers. Then come:
+    - headline tables, controls, baselines, per attack family, ROAD, out of scope;
+    - the quality-vs-cost Pareto table (headline at ≤ 10 false alarms per hour on unknown vehicles against flash and host latency), marking the Pareto-optimal detectors (constitution III);
+    - the deterministic check: C-versus-Python score mismatches on all test captures (must be 0);
+    - limitations, `code_commit` and `manifest_sha256`.
   - **`metrics.json`** holds the full numbers.
   - **`zoo/models/picket-forest/results/0.1.0/quality.json`** holds metric names `<metric>_<split>_<agg>` (data-model.md), each with `reference`, `benchmark: can-ids-v1` and `n_items`.
 - [ ] T016 [US2] Wire `security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
@@ -191,9 +202,11 @@
 
 - [ ] T022 [US3] Extract the host scorer build from `security/can_ids/forest.py` (`build_host_scorer`, `host_scores`) into a reusable function `build_scorer(headers_dir, out_dir) -> Path`. It compiles with `-ffp-contract=off` from the C sources at the current checkout (`firmware/picket-forest/c`, `firmware/components/can_features`). Keep `forest.py` using it.
 - [ ] T023 [US3] Extend `src/mobility_model_zoo/release/gate.py` for `engine: emlearn` (research R7).
-  - Rule 12 and rule 13 online: download the staged headers to a temporary folder, build the scorer once, replay each example (frames written to the binary frame format of `frames_to_bin`), and compare the scores bit by bit and the alarm indices (alarms recomputed with `forest_features.alarms` and the staged alarm rule).
+  - Rule 12 and rule 13 online: download the staged files to a temporary folder, check that the staged `c/` sources equal the repository sources at the recipe commit, build the scorer from the staged files only, replay each example (frames written to the binary frame format of `frames_to_bin`), and compare the scores bit by bit and the alarm indices (alarms recomputed with `forest_features.alarms` and the staged alarm rule).
   - Offline, rule 13 checks the example count (≥ 3), the fields and `source`.
   - Rule 11 additionally rejects staged files over 5 MB except `model.joblib`.
+
+  Extend `tests/release/test_gate_emlearn.py`: a staged source that differs from the repository fails rule 12.
 
   The `engine: int8` path stays unchanged.
 - [ ] T024 [US3] Extend the mcu card in `src/mobility_model_zoo/release/card.py` and `templates/model_card.md.j2` for `engine: emlearn`:
@@ -218,7 +231,9 @@
 
 - [ ] T026 [US4] Change `security can-ids forest export` in `src/mobility_model_zoo/security/can_ids/forest.py` so that it:
   - trains the release model on `train_01` of all four sets with the config of `configs/security/can-ids/picket-forest.yaml`. Selection uses validation captures only; if it picks other hyperparameters than 30 trees, depth 12, alarm 3 in 200 ms, the config is updated with the reason;
-  - writes to `$MMZ_DATA/derived/picket-forest/export/` the files `picket_forest_model.h`, `picket_forest_config.h`, `model.joblib` and `config.json` (with `manifest_sha256` and `code_commit`).
+  - reuses the release model cached by T014 if its recipe hash matches, otherwise trains it;
+  - writes to `$MMZ_DATA/derived/picket-forest/export/` the files `picket_forest_model.h`, `picket_forest_config.h`, `model.joblib`, `config.json` (with `manifest_sha256` and `code_commit`) and the `c/` sources (`picket_forest.{c,h}`, `msml_can_features.{c,h}`, `msml_alarm.{c,h}`);
+  - writes `sbom.cdx.json` (CycloneDX 1.5: component per source file with SHA-256, plus emlearn and scikit-learn with versions) and a test in `tests/security/can_ids/test_forest_port.py` that the SBOM lists every staged source with its hash.
 
   Run it and record the parity result and the chosen hyperparameters in `validation.md` under "US4".
 - [ ] T027 [US4] Add `security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
@@ -240,7 +255,7 @@
   - Record the numbers in `validation.md` under "US4", including the ESP8266 latency against the 100 µs target and the ESP32 image against 16 KB RAM and 128 KB flash.
   - Commit `zoo/models/picket-forest/results/0.1.0/performance.json`.
 - [ ] T031 [US4] Complete `zoo/models/picket-forest/releases/0.1.0.yaml`: `files[]` (via `zoo stage`), `recipe` (commit of the export, `configs/security/can-ids/picket-forest.yaml`, `topics/security/tasks/can-ids.md`), `provenance.sources` (`can-train-and-test` with `dataset`, `count` = training frames), `evaluation` (`benchmark: can-ids-v1`, `reference_kind: ground_truth`, `reference`: the can-train-and-test labels and the ROAD injection labels), and `performance` (hardware, budget `{ram_kb: 16, flash_kb: 128, target: ESP32-S3}`). Set `used_by` in `topics/security/compliance/datasets.yaml` for `can-train-and-test` (training and evaluation) and `road` (evaluation).
-- [ ] T032 [US4] Write `zoo/models/picket-forest/releases/0.1.0.compliance.yaml` with the compliance harness:
+- [ ] T032 [US4] Write `zoo/models/picket-forest/releases/0.1.0.compliance.yaml` with the compliance harness. Set `runtime: mcu` and `sbom: sbom.cdx.json` (check C-G4). It also records:
   - AI Act classification: not high-risk, not a safety component, open-source exclusion; intended purpose is research and monitoring;
   - the dual-use note;
   - datasets with attribution;
@@ -283,7 +298,7 @@
 - **Setup (T001–T002)**: no dependencies; T001 needs network access and disk space.
 - **Foundational (T003–T006)**: after Setup; blocks US1 and US2. T006 blocks US3.
 - **US1 (T007–T010)**: after Foundational.
-- **US2 (T011–T018)**: after US1, because evaluation needs the frozen manifest. The ROAD part of T014 needs the release model from T026, so ROAD is evaluated after T026 or T014 trains it on demand.
+- **US2 (T011–T018)**: after US1, because evaluation needs the frozen manifest. T014 trains the release model on demand for ROAD, and T026 reuses it.
 - **US3 (T019–T025)**: after T006; independent of US1 and US2 (synthetic data only).
 - **US4 (T026–T035)**: T026 after US1 (hyperparameter selection on validation captures). T027–T030 after T022 (scorer) and T026. T033 after T018 (report). T034 after US3 and all of T026–T033. T035 last.
 - **Polish (T036–T039)**: after T035, except T038, which runs before the PR in T035 as well.

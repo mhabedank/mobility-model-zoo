@@ -81,8 +81,10 @@ Decisions for [plan.md](plan.md). The evidence for the benchmark and metric choi
     - `picket_forest_model.h` (generated forest);
     - `picket_forest_config.h` (inputs, threshold, alarm rule);
     - `model.joblib` (host reference);
-    - `config.json` (selection, parity).
-  - Rules 12 and 13 build the host scorer from the staged headers plus the C sources at the recipe commit (`firmware/picket-forest/c`, `firmware/components/can_features`) with `-ffp-contract=off`.
+    - `config.json` (selection, parity);
+    - the C sources of the detector, features and alarm stage under `c/` (`picket_forest.{c,h}`, `msml_can_features.{c,h}`, `msml_alarm.{c,h}`), so the release builds without the repository;
+    - `sbom.cdx.json`, a CycloneDX bill of materials of these sources and the generator versions (emlearn, scikit-learn).
+  - Rules 12 and 13 build the host scorer from the staged files only, with `-ffp-contract=off`. The gate also checks that the staged sources are identical to the repository sources at the recipe commit.
   - Each example is replayed, and per-frame scores (float32 bits) and alarm frame indices are compared exactly.
 - **Rationale**:
   - The existing int8 path loads an npz.

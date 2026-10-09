@@ -107,7 +107,7 @@ The owner stages the trained artefacts and completes the release record, results
 
 **Acceptance Scenarios**:
 
-1. **Given** the whole detection chain (features, forest, alarm stage) built for the simulator and for an emulated ESP32, **When** it is measured, **Then** performance results give flash, RAM and per-frame latency, each with hardware and origin. The real board is the owner's ESP8266 (Wemos D1 mini), a named substitute for the reference board ESP32-S3. The release is experimental (below 1.0.0).
+1. **Given** the whole detection chain (features, forest, alarm stage) built for the host, for an emulated ESP32 and for the ESP8266 board, **When** it is measured, **Then** performance results give flash, RAM and per-frame latency, each with hardware and origin. The real board is the owner's ESP8266 (Wemos D1 mini), a named substitute for the reference board ESP32-S3. The release is experimental (below 1.0.0).
 2. **Given** the published model, **When** the card is read, **Then** it says:
    - the model was trained on the training splits of all four vehicles;
    - the quality numbers come from the per-set protocol, which tests on unseen vehicles and attacks;
@@ -126,7 +126,7 @@ The owner stages the trained artefacts and completes the release record, results
 - **Captures without attack episodes** (benign only): they count towards false alarms per hour and not towards detection.
 - **Episodes shorter than the alarm window**: they are counted and reported as such. They are not dropped.
 - **Single-frame alarm rules**: time to alarm is defined (0 ms when the first flagged frame is the first attack frame). The suspected bug that yields an empty median is fixed and covered by a test.
-- **Rerun without a cache**: a set whose training split cannot be featurised in the time budget is reported as missing, never silently skipped.
+- **Missing set**: a set that cannot be loaded or featurised is reported as missing in the report and in `metrics.json`. A report with a missing set is partial and cannot feed the quality results; nothing is silently skipped.
 - **Unclear redistribution**: ROAD and can-train-and-test both have `redistribution: unclear`. No frame of either dataset appears in published examples.
 - **Timestamp resolution**: ROAD has a 100 µs resolution and can-train-and-test has finer timestamps. Time to alarm is reported with the resolution of its source.
 
@@ -172,6 +172,10 @@ The owner stages the trained artefacts and completes the release record, results
 - **FR-012**: `security can-ids evaluate MODEL --benchmark can-ids-v1` MUST write:
   - a quality results file in the zoo results format, with reference kind `ground_truth` and the benchmark name;
   - a report under `topics/security/reports/picket-forest/` with all numbers, the code version and the manifest hash.
+
+  The report MUST also contain:
+  - a quality-vs-cost Pareto table over all detectors: headline against model size (flash or tree nodes) and per-frame latency on the host (constitution III);
+  - the deterministic checks of the deployed format: the C-versus-Python score agreement of picket-forest on the benchmark test captures.
 - **FR-013**: ROAD masquerade and accelerator captures MUST be reported separately and marked out of scope; they MUST NOT enter the headline.
 
 **Release gate**
@@ -189,8 +193,8 @@ The owner stages the trained artefacts and completes the release record, results
   - the quality numbers come from the per-set protocol;
   - the published model has no untouched test set.
 - **FR-018**: The release MUST include:
-  - the C headers (model, configuration), the host reference model file and the feature and alarm sources needed to build it;
-  - a compliance record (datasets, attribution, AI Act classification, dual-use note);
+  - the C headers (model, configuration), the host reference model file and the C sources of the detector, features and alarm stage, all staged, so the model builds without the repository;
+  - a compliance record (datasets, attribution, AI Act classification, dual-use note) with a CycloneDX software bill of materials of the device code (compliance check C-G4);
   - a model card with limitations, a dual-use note, a statement that it is not a safety mechanism and the C usage.
 
   It is published through tag, `release-verify`, owner approval and `release-publish`.
@@ -215,7 +219,29 @@ The owner stages the trained artefacts and completes the release record, results
 - **SC-005**: `zoo check picket-forest 0.1.0` passes every offline rule, and the release-verify run passes every rule, before the owner's approval.
 - **SC-006**: Changing one expected score in one example makes rules 12 and 13 fail; restoring it makes them pass.
 - **SC-007**: The card states the model's false alarms per hour on unknown vehicles, its recall on unseen scans and fuzzing, and that masquerade is not detected, each with the number from the report.
-- **SC-008**: picket-forest 0.1.0 is public on Hugging Face in the security collection. It is the first model there with event-level results on unseen vehicles and attacks.
+- **SC-008**: picket-forest 0.1.0 is public on Hugging Face in the security collection, and its card reports event-level results on unseen vehicles and attacks.
+
+## Budgets
+
+From the task document `topics/security/tasks/can-ids.md` (constitution V):
+
+- **Reference board**: ESP32-S3.
+- **Memory**: at most 16 KB RAM (features, model state and alarm stage) and 128 KB flash.
+- **Latency**: the whole chain under 100 µs per frame on the reference board. At 500 kbit/s and full load a frame takes at least about 225 µs.
+- **Measured here**: on the host, on an emulated ESP32 (memory and correctness) and on an ESP8266 (Wemos D1 mini) as a named substitute for the reference board.
+- **Cash**: none. Everything runs locally.
+
+## Constitution Compliance
+
+| Principle | How this feature complies |
+|---|---|
+| I, II, VII, X | Not applicable (JTBD task only). |
+| III Measure before optimising | Ground-truth task with the labels of can-train-and-test and ROAD as reference, frozen as `can-ids-v1` before the first zoo result. Test data is never used for thresholds or selection (FR-011). Metric names state the reference; there are no support-weighted metrics (FR-007). The report gives the deterministic C-versus-Python check and a quality-vs-cost Pareto table (FR-012). |
+| IV Riskiest assumption first | Transfer to unknown vehicles without identifier memorisation, tested by the shortcut controls (FR-009). Success, partial and kill criteria are recorded before the evaluation ([research R10](research.md)). |
+| V Small and local, budgets | Budgets above. Every measurement names its hardware and origin; the emulator is never presented as hardware, and the ESP8266 is named as a substitute. |
+| VI Clean provenance | Declared datasets (CC BY 4.0, training allowed, redistribution unclear). No dataset frame is published; the examples are synthetic (FR-015). |
+| VIII Fair comparison | One benchmark version and one harness for picket-forest, controls and baselines (FR-009, FR-010). |
+| IX Reproducible releases | Frozen, versioned benchmark; model reproducible from configuration and code version; published only through the release pipeline. |
 
 ## Assumptions
 

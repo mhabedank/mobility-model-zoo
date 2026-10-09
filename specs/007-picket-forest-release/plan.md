@@ -10,7 +10,7 @@ The feature does five things:
 
 - **Freeze `can-ids-v1`.** The benchmark covers can-train-and-test v1 (official splits) and ROAD held-out captures. Every capture is hashed, and duplicate captures under different labels must be resolved and recorded before the freeze.
 - **Evaluate in one harness.** picket-forest runs next to four shortcut controls and a set of baselines.
-- **Report what an operator sees.** The headline is event-level: the share of attack episodes detected at ≤ 1 and ≤ 10 false alarms per hour, and the time to alarm. Other metrics are attack-class only.
+- **Report what an operator sees.** The headline is event-level: the share of attack episodes detected at ≤ 1 and ≤ 10 false alarms per hour, and the time to alarm. Other metrics are attack-class only. The report adds a quality-vs-cost Pareto table over all detectors and the C-versus-Python check of the deployed format.
 - **Release-gate support for tree models.** A new `engine: emlearn` path in the release gate replays synthetic frame examples through a host build of the staged C code.
 - **Release 0.1.0 as experimental.** The release adds host, emulator and real-board (ESP8266 substitute) measurements, a compliance record and a card. It goes through the existing pipeline.
 
@@ -61,7 +61,7 @@ Success, partial and kill criteria for the transfer claim are fixed in advance (
 | III Measure before optimising | Ground-truth task; the reference is the labels of can-train-and-test and ROAD, frozen as `can-ids-v1` before the first zoo result. Thresholds and alarm points are chosen on validation captures (R3). The deterministic C-versus-Python check is reported on its own (gate rules 12/13). Metric names state the reference; support-weighted metrics are banned (FR-007). |
 | IV Riskiest assumption first | Named: transfer to unknown vehicles without identifier memorisation. Success, partial and kill criteria are written before the evaluation (R10). |
 | V Small, local, budgets | Budgets from the task document (16 KB RAM, 128 KB flash, ESP32-S3, latency target in R9). Every measurement records its origin; emulator latency is labelled as not representative. |
-| VI Clean provenance | Datasets are declared (CC BY 4.0, `training_allowed`, redistribution `unclear`). Examples are synthetic only (R8). The data stays in `$MMZ_DATA`. Attribution goes into the card and notices through the compliance record. |
+| VI Clean provenance | Datasets are declared (CC BY 4.0, `training_allowed`, redistribution `unclear`). Examples are synthetic only (R8). The data stays in `$MMZ_DATA`. Attribution goes into the card and notices through the compliance record, together with an SBOM of the device code. |
 | VIII Fair comparison | All detectors use the same benchmark version and harness (R5). |
 | IX Reproducible, dated releases | The benchmark is frozen and versioned. The model is reproducible from the config and the code commit. The release goes through the existing pipeline. |
 | Tasks and releases | The release is `experimental` without real-board latency (gate rule 15). |

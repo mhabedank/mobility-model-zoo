@@ -81,6 +81,15 @@ Rules:
   - `picket_forest_model.h`;
   - `picket_forest_config.h`;
   - `model.joblib`;
-  - `config.json`.
+  - `config.json`;
+  - `c/picket_forest.{c,h}`, `c/msml_can_features.{c,h}`, `c/msml_alarm.{c,h}`;
+  - `sbom.cdx.json` (CycloneDX: the source files with SHA-256, the emlearn and scikit-learn versions).
+
+## Release compliance record, change
+
+The release-compliance schema gets two optional fields, which compliance check C-G4 already expects but the schema did not allow:
+
+- `runtime`: `python` or `mcu`;
+- `sbom`: the path of the staged SBOM, for example `sbom.cdx.json`. It is required when `runtime` is `mcu`.
 - `evaluation`: `benchmark: can-ids-v1`, `reference_kind: ground_truth`.
 - `performance.budget`: `{ram_kb: 16, flash_kb: 128, target: ESP32-S3}`.
