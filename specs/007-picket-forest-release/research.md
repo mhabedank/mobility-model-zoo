@@ -101,16 +101,21 @@ Decisions for [plan.md](plan.md). The evidence for the benchmark and metric choi
 ## R9 Device evidence
 
 - **Decision**:
-  - **Host:** `latency_us` of the host scorer per frame (whole chain), origin `host`, hardware = host CPU.
-  - **Emulator:**
-    - add a PlatformIO project `firmware/picket-forest/platformio/` with env `esp32`, which builds the existing replay benchmark;
-    - run it in Espressif QEMU through the bench's QEMU tooling;
-    - record `ram_kb` (detector state from the `PICKET_FOREST_RESULT` line plus static data from the image's size report), `flash_kb` (code and rodata of the detector objects from the linker map) and `latency_us`;
-    - all with origin `emulator`. The card states that emulator latency is not representative.
-  - **Real board:** added later with `origin: real_board` if hardware exists.
-- **Budgets** (task document): ≤ 16 KB RAM and ≤ 128 KB flash on ESP32-S3. Latency target: the whole chain under 100 µs per frame on the reference board (full load at 500 kbit/s is at most about 4,400 frames/s, i.e. ≥ 225 µs per frame; 100 µs leaves headroom for the ECU's other work). Verified only on a real board.
-- **Rationale**: Constitution V (origin recorded, emulator not presented as hardware) and gate rule 15 (experimental may rely on emulator evidence).
-- **Alternatives**: The ESP-IDF project in CI. Rejected: it needs the full ESP-IDF toolchain; PlatformIO is already in the bench CI.
+  - **Host**: `latency_us` of the host scorer per frame (whole chain), origin `host`, hardware = host CPU.
+  - **Real board (required in 0.1.0)**: the owner's Wemos D1 mini (ESP8266, run at 160 MHz). Steps:
+    - add an `esp8266` env (d1_mini, 160 MHz) to the PlatformIO replay benchmark;
+    - flash it over USB through the bench's flasher;
+    - read the `PICKET_FOREST_RESULT` line;
+    - record `latency_us` (median and p99 per frame, whole chain), `ram_kb` (detector state plus static data) and a score check against the host on every replayed frame.
+
+    Origin `real_board`, hardware "ESP8266 (Wemos D1 mini), 160 MHz, substitute for the reference board ESP32-S3". The ESP8266 has no FPU (software floating point) and a weaker core, so its latency is a conservative bound for the ESP32-S3. Bit-exactness on it is a strong portability check. No CAN transceiver is needed: frames are replayed from flash.
+  - **Emulator**: PlatformIO env `esp32` of the same project, run in Espressif QEMU through the bench's QEMU tooling. Records `ram_kb` and `flash_kb` for the ESP32 image (detector objects from the linker map), the score check, and `latency_us` marked as not representative. Origin `emulator`.
+  - **Not measured in this feature**: reception through a CAN controller and transceiver at full bus load; ESP32-S3 on real hardware.
+- **Budgets** (task document): ≤ 16 KB RAM and ≤ 128 KB flash on ESP32-S3. Latency target: the whole chain under 100 µs per frame on the reference board (full load at 500 kbit/s is at most about 4,400 frames/s, that is ≥ 225 µs per frame). The ESP8266 result is reported against the same target as a conservative check.
+- **Rationale**: Constitution V allows a named substitute when the reference hardware is not available, and requires the origin of every measurement. Gate rule 15 gets a real-board latency. The version stays `experimental` anyway (below 1.0.0).
+- **Alternatives**:
+  - QEMU only: rejected, because emulator timing is not representative.
+  - Buying an ESP32-S3: deferred to the owner; a later patch release can add its numbers.
 
 ## R10 Riskiest assumption, success and kill criteria (constitution IV)
 

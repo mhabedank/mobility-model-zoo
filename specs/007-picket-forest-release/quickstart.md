@@ -6,7 +6,7 @@ Run from the repository root on branch `007-picket-forest-release`.
 
 - Python 3.12 and `uv`, with `uv sync --extra jtbd --extra release --extra edge --extra edge-train`. Training needs scikit-learn and emlearn.
 - A C compiler and `make`.
-- Optional: PlatformIO and Espressif QEMU, for the emulator measurement.
+- PlatformIO (`--extra edge-hw`), Espressif QEMU, and the D1 mini on USB with an entry in `hil/boards.yaml` (`uv run edge discover`).
 - About 10 GB free in `$MMZ_DATA`.
 
 ```bash
@@ -56,6 +56,7 @@ uv run security can-ids forest export
 uv run security can-ids forest examples --out zoo/models/picket-forest/examples
 uv run security can-ids measure --target host --out zoo/models/picket-forest/results/0.1.0/performance.json
 uv run security can-ids measure --target esp32-qemu --out zoo/models/picket-forest/results/0.1.0/performance.json
+uv run security can-ids measure --target esp8266 -b esp8266-1 --out zoo/models/picket-forest/results/0.1.0/performance.json   # D1 mini on USB
 uv run zoo stage picket-forest 0.1.0 --from "$MMZ_DATA/derived/picket-forest/export"
 uv run zoo compliance scan-publish --model picket-forest --version 0.1.0
 uv run zoo check picket-forest 0.1.0 --offline     # all offline rules pass (SC-005)

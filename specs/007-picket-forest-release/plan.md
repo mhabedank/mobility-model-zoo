@@ -12,7 +12,7 @@ The feature does five things:
 - **Evaluate in one harness.** picket-forest runs next to four shortcut controls and a set of baselines.
 - **Report what an operator sees.** The headline is event-level: the share of attack episodes detected at ≤ 1 and ≤ 10 false alarms per hour, and the time to alarm. Other metrics are attack-class only.
 - **Release-gate support for tree models.** A new `engine: emlearn` path in the release gate replays synthetic frame examples through a host build of the staged C code.
-- **Release 0.1.0 as experimental.** The release adds host and emulator measurements, a compliance record and a card. It goes through the existing pipeline.
+- **Release 0.1.0 as experimental.** The release adds host, emulator and real-board (ESP8266 substitute) measurements, a compliance record and a card. It goes through the existing pipeline.
 
 Success, partial and kill criteria for the transfer claim are fixed in advance ([research R10](research.md)).
 
@@ -37,7 +37,7 @@ Success, partial and kill criteria for the transfer claim are fixed in advance (
 **Project Type**: Library and CLI inside the zoo monorepo (`security` task tool, `zoo` release tool), plus firmware.
 
 **Performance Goals**:
-- Whole detection chain under 100 µs per frame on the reference board (headroom against about 225 µs per frame at full 500 kbit/s load). This is verified only on a real board, which is optional in this feature.
+- Whole detection chain under 100 µs per frame on the reference board (headroom against about 225 µs per frame at full 500 kbit/s load). This is checked on the owner's ESP8266 (D1 mini) as a conservative substitute.
 - The full evaluation run completes within one working day locally.
 
 **Constraints**:

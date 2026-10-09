@@ -107,7 +107,7 @@ The owner stages the trained artefacts and completes the release record, results
 
 **Acceptance Scenarios**:
 
-1. **Given** the whole detection chain (features, forest, alarm stage) built for the simulator and for an emulated ESP32, **When** it is measured, **Then** performance results give flash, RAM and per-frame latency, each with hardware and origin. A real-board measurement is added if the owner has the hardware. Without one, the release stays experimental.
+1. **Given** the whole detection chain (features, forest, alarm stage) built for the simulator and for an emulated ESP32, **When** it is measured, **Then** performance results give flash, RAM and per-frame latency, each with hardware and origin. The real board is the owner's ESP8266 (Wemos D1 mini), a named substitute for the reference board ESP32-S3. The release is experimental (below 1.0.0).
 2. **Given** the published model, **When** the card is read, **Then** it says:
    - the model was trained on the training splits of all four vehicles;
    - the quality numbers come from the per-set protocol, which tests on unseen vehicles and attacks;
@@ -181,7 +181,7 @@ The owner stages the trained artefacts and completes the release record, results
 
 **Device evidence**
 
-- **FR-016**: The whole detection chain (features, forest, alarm stage) MUST be measured. The measurement gives flash, RAM and per-frame latency, each with hardware and origin. A simulator and an emulated ESP32 are required; a real board is optional.
+- **FR-016**: The whole detection chain (features, forest, alarm stage) MUST be measured. The measurement gives flash, RAM and per-frame latency, each with hardware and origin. Required: a host build, an emulated ESP32 (memory and correctness), and the ESP8266 (Wemos D1 mini) as a named substitute for the reference board (real-board latency and bit-exact scores).
 
 **Release**
 
@@ -194,7 +194,7 @@ The owner stages the trained artefacts and completes the release record, results
   - a model card with limitations, a dual-use note, a statement that it is not a safety mechanism and the C usage.
 
   It is published through tag, `release-verify`, owner approval and `release-publish`.
-- **FR-019**: The release MUST be `experimental` unless a real-board latency exists (gate rule 15).
+- **FR-019**: The release MUST be `experimental` (version below 1.0.0). Every measurement MUST name its hardware, and the ESP8266 MUST be named as a substitute for the reference board.
 
 ### Key Entities
 
@@ -223,7 +223,7 @@ The owner stages the trained artefacts and completes the release record, results
 - The benchmark uses can-train-and-test as provided by the download (v1.5 layout if the repository HEAD is v1.5). Masquerade and suppression splits of v1.5 (`test_05`, `test_06`) are reported separately and are out of scope for the headline.
 - The model configuration of the pre-zoo research is kept for 0.1.0: 30 trees, depth 12, min_samples_leaf 20, features without the raw identifier, alarm rule 3 frames in 200 ms with 1 s hold-off. It is reselected only through the documented validation procedure, never on test data.
 - Hosted compute is not needed. Training and evaluation run on the owner's machine; the full evaluation may take hours.
-- No CAN transceiver is available yet. Real-board latency is optional, and 0.1.0 is released as experimental.
+- The owner has ESP8266 boards (Wemos D1 mini) but no ESP32 and no CAN transceiver. Frames are replayed from flash, so no transceiver is needed. Reception at full bus load and ESP32-S3 hardware numbers come later.
 - The Hugging Face collection for the security topic is created at the first publication (existing pipeline behaviour).
 - Out of scope:
   - the rule layer and calibration phase (0.2.0);

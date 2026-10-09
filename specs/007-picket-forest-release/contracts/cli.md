@@ -32,11 +32,13 @@ Outcomes:
 - `export` trains the release model on `train_01` of all four sets and writes the staged files listed in [data-model.md](../data-model.md).
 - `examples --out zoo/models/picket-forest/examples` (new) writes the synthetic examples ([research R8](../research.md)) with expected scores and alarms from the host scorer.
 
-## `security can-ids measure [--target host|esp32-qemu] [--out FILE]`
+## `security can-ids measure [--target host|esp32-qemu|esp8266 -b BOARD] [--out FILE]`
 
 - `host` times the host scorer over the synthetic examples.
 - `esp32-qemu` builds the PlatformIO replay benchmark for ESP32, runs it in QEMU and reads the `PICKET_FOREST_RESULT` line and the image size report.
-- It writes or merges performance metrics in the results format, with `origin` `host` or `emulator`.
+- `esp8266 -b BOARD` builds the same benchmark for the ESP8266 env, flashes the board from the inventory (for example the D1 mini) and reads the result line over serial.
+
+It writes or merges performance metrics in the results format, with `origin` `host`, `emulator` or `real_board`.
 
 ## Gate changes (`zoo check`, `zoo build`)
 
