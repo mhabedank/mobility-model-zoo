@@ -16,7 +16,7 @@ from mobility_model_zoo.release import publish as ops
 from mobility_model_zoo.release.errors import GateFailed, UsageError, ZooError
 from mobility_model_zoo.release.registry import Registry, parse_version
 
-OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16}
+OFFLINE_RULES = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17}
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -89,8 +89,15 @@ def _mount_data() -> None:
     app.add_typer(data_app, name="data")
 
 
+def _mount_site() -> None:
+    from mobility_model_zoo.site.cli import app as site_app
+
+    app.add_typer(site_app, name="site")
+
+
 _mount_compliance()
 _mount_data()
+_mount_site()
 
 
 @app.command("validate")

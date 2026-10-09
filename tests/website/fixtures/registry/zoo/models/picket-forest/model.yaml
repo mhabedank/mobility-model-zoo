@@ -1,0 +1,58 @@
+name: picket-forest
+topic: security
+task: can-ids
+variant: forest
+runtime: mcu
+title: 'Picket (forest): CAN bus intrusion detection on a microcontroller'
+summary: A random forest that scores every classic CAN frame from 13 streaming timing and payload features and raises an alarm when several frames in a short window look like an attack. It is exported to plain C with emlearn and runs on ESP32-class microcontrollers; the C scores are identical to the Python scores.
+license: Apache-2.0
+license_exception: null
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: tabular-classification
+library_name: sklearn
+tags: [can-bus, intrusion-detection, tinyml, emlearn, random-forest]
+repos:
+  public: mobility-model-zoo/picket-forest
+  staging: mobility-model-zoo/picket-forest-staging
+card:
+  intended_use: |
+    Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; a baseline for TinyML intrusion detection on microcontrollers; a starting point for a security sensor that reports events to an IDS manager.
+  out_of_scope: |
+    Deployment in vehicles on public roads: the model is not a validated or certified safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+  input_output: |
+    Input: one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes); the C library keeps per-identifier state for the timing features. Output: an attack score per frame (share of trees voting attack) and an alarm flag from the alarm stage (k flagged frames within a window, then a hold-off).
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    import joblib
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.security.can_ids.forest import vote_score
+    from mobility_model_zoo.security.can_ids.forest_features import extract
+
+    saved = joblib.load(hf_hub_download("{repo_id}", "model.joblib", revision="{revision}"))
+    # frames: a DataFrame in the format of security/can_ids/can_train_and_test.parse_csv
+    scores = vote_score(saved["model"], extract(frames)[:, saved["input_index"]])
+  device_usage: |
+    /* Generated headers from {repo_id} at {revision}: firmware/picket-forest/c/generated/. */
+    #include "picket_forest.h"
+
+    static picket_forest_t ids;
+    picket_forest_init(&ids);
+    float score;
+    int alarm = picket_forest_process(&ids, ts_us, can_id, dlc, data, &score);
+  limitations: |
+    - Unknown vehicles raise false alarms: in the pre-zoo research run, some legitimate identifiers of an unseen vehicle were flagged persistently. A short learning phase on the new vehicle is the planned fix.
+    - Attack types whose pattern differs from the training attacks are often missed (for example fuzzing and systematic identifier scanning when not seen in training).
+    - The alarm stage trades detection for fewer false alarms: short attack episodes with few injected frames can go unreported.
+    - Masquerade attacks (frames that replace a silenced ECU at its normal timing) are likely missed by timing-based features.
+    - Training data: four vehicles from two manufacturers, 11-bit identifiers, classic CAN. Other makes, CAN FD and real attack tooling are untested.
+    - No adversarial evaluation yet: an attacker who knows the features can shape injection timing to evade the detector. The model, its features and its thresholds are public; do not rely on it as the only line of defence.
+  citation: |
+    @misc{mobility-model-zoo-picket-forest,
+      title  = {Picket (forest): CAN bus intrusion detection on a microcontroller, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/picket-forest}
+    }

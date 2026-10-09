@@ -1,0 +1,42 @@
+{% extends "base.html.j2" %}
+{% block main %}
+<section class="hero" aria-labelledby="title"><div class="wrap stack" style="gap:20px;max-width:1200px">
+<div class="eyebrow">Open · non-commercial · local-first</div>
+<h1 class="h-display" id="title" style="max-width:900px">{{ site.tagline }}</h1>
+<p class="lead muted" style="max-width:760px">{{ site.lead }}</p>
+<div class="row"><a class="btn" href="#models">Browse the models</a><a class="btn btn-ghost" href="#principles">Read the principles</a></div>
+</div></section>
+{% if site["values"] %}
+<section class="sec" aria-label="What every model has"><div class="wrap grid3">
+{% for v in site["values"] %}<div class="stack" style="gap:6px"><h2 class="h3">{{ v.title }}</h2><p class="muted small">{{ v.text }}</p></div>{% endfor %}
+</div></section>
+{% endif %}
+<section class="sec" id="models" aria-labelledby="m-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Models</div><h2 class="h2" id="m-h">{{ linked | length }} published, {{ models | selectattr("status", "equalto", "in_progress") | list | length }} in progress.</h2></div>
+<div class="grid3">
+{% for sm in models | sort(attribute="status", reverse=True) %}
+{% set topic = topics | selectattr("id", "equalto", sm.m.topic) | first %}
+{% set motif_name = (sm.pitch.get("motif") if sm.pitch and sm.pitch.get("motif") else sm.name ~ ".svg") %}
+{% set inner %}
+<div class="tile-top"><span class="tile-name">{{ motif(motif_name, 40) }}<span class="h3" style="font-size:20px">{{ sm.name }}</span></span>
+<span class="chip{% if sm.status == 'in_progress' %} wip{% elif sm.status == 'deprecated' %} deprecated{% endif %}"><i></i>{{ {"published": "published", "deprecated": "deprecated", "in_progress": "in progress"}[sm.status] }}</span></div>
+<p class="small">{{ sm.m.title }}</p>
+<dl><dt>Topic</dt><dd>{{ topic.title if topic else sm.m.topic }}</dd><dt>Task</dt><dd>{{ sm.m.task }}</dd><dt>Latest</dt><dd class="mono">{{ sm.latest or "none yet" }}</dd></dl>
+{% endset %}
+{% if sm.name in linked %}<a class="tile" href="models/{{ sm.name }}/">{{ inner }}</a>{% else %}<div class="tile">{{ inner }}</div>{% endif %}
+{% endfor %}
+</div>
+</div></section>
+<section class="sec" id="topics" aria-labelledby="t-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Topics</div><h2 class="h2" id="t-h">{{ topics | length }} fields, one way of working.</h2></div>
+<div class="grid3">
+{% for t in topics %}<div class="card stack" style="gap:8px"><h3 class="h3" style="font-size:20px">{{ t.title }}</h3><p class="small muted">{{ t.description }}</p>{% if t.hf_collection %}<a class="small" href="{{ topic_url(t) }}">Collection on Hugging Face</a>{% endif %}</div>{% endfor %}
+</div>
+</div></section>
+<section class="sec" id="principles" aria-labelledby="p-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Principles</div><h2 class="h2" id="p-h">How the zoo publishes.</h2></div>
+<div class="grid2">
+{% for pr in site.principles %}<div class="stack" style="gap:6px"><h3 class="h3">{{ pr.title }}</h3><p class="muted">{{ pr.text }}</p></div>{% endfor %}
+</div>
+</div></section>
+{% endblock %}

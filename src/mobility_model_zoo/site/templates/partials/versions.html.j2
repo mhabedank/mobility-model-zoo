@@ -1,0 +1,10 @@
+<section class="sec" id="versions" aria-labelledby="v-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Versions</div><h2 class="h2" id="v-h">Every version stays available and never changes.</h2></div>
+<div class="tw"><table class="tbl">
+<thead><tr><th scope="col">Version</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Output format</th><th scope="col">Changes</th><th scope="col">Files</th></tr></thead>
+<tbody>
+{% for r in p.releases %}
+<tr{% if r.deprecated %} class="deprecated"{% endif %}><td class="mono">{{ r.version }}</td><td>{{ r.date }}</td><td><span class="chip{% if r.deprecated %} deprecated{% endif %}"><i></i>{{ "deprecated" if r.deprecated else r.status }}</span>{% if r.deprecated %}<p class="cap">{{ r.deprecated.reason }}</p>{% endif %}</td><td class="mono">{{ r.output_format_version }}</td><td class="small">{{ r.changes }}</td><td>{% if r.links.get("hf_tree") %}<a href="{{ r.links.get("hf_tree") }}">v{{ r.version }}</a>{% else %}–{% endif %}</td></tr>
+{% endfor %}
+</tbody></table></div>
+</div></section>

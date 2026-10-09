@@ -1,0 +1,9 @@
+{% extends "base.html.j2" %}
+{% block title %}Page not found · {{ site.title }}{% endblock %}
+{% block main %}
+<section class="hero" aria-labelledby="title"><div class="wrap stack" style="gap:16px">
+<h1 class="h1" id="title">This page does not exist.</h1>
+<p class="lead muted">It may have moved. Model pages live under <code>models/&lt;name&gt;/</code>.</p>
+<div class="row"><a class="btn" href="{{ root }}">Start page</a><a class="btn btn-ghost" href="{{ root }}#models">All models</a></div>
+</div></section>
+{% endblock %}

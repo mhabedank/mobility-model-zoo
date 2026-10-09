@@ -1,0 +1,54 @@
+# Website text of scout-large (feature 008). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
+# Numbers only as {metric:<kind>.<name>} placeholders: they resolve against the results of the
+# latest release, so this text stays true after the next release (checks B2, F2; gate rule 17).
+tagline: Finds jobs, pains and gains in mobility texts and quotes each one verbatim, on your own machine.
+audience: >-
+  For product managers, UX researchers and ML engineers in mobility who read interviews, forum
+  posts, reviews and studies and want the evidence in them as structured, checkable data.
+differentiators:
+  - title: Runs locally
+    text: >-
+      One 9,240-character interview takes {metric:performance.latency_9k_chars_s} on four CPU cores
+      with {metric:performance.peak_ram_gb} of memory. No hosted API, no cost per text, and the texts
+      never leave your machine.
+  - title: Fast on a GPU
+    text: >-
+      {metric:performance.chunks_per_min_dgx_spark_gpu} on a DGX Spark and
+      {metric:performance.chunks_per_min_mac_m3pro_gpu} on a MacBook M3 Pro GPU. The generative
+      models it was compared with manage between {metric:performance.comparison_chunks_per_min_deepseek}
+      and {metric:performance.comparison_chunks_per_min_gpt_mini}, one request at a time.
+  - title: Evidence you can check
+    text: >-
+      Every item is a verbatim quote with character offsets into your text, so a person can find it
+      again. On the benchmark, the share of quotes that are verbatim spans of the input is
+      {metric:quality.quotes_verbatim_rate}, where one means every quote.
+  - title: Measured, not claimed
+    text: >-
+      A comparison composite of {metric:quality.comparison_composite} against
+      {metric:quality.comparison_composite_best_baseline} for the best zero-shot small model:
+      agreement with two frontier reference models on a frozen benchmark, not accuracy.
+quickstart_example: 02-depot-charging.txt
+hardware_note: >-
+  Needs Python and about {metric:performance.peak_ram_gb} of memory. A CPU is enough; a CUDA or Apple
+  GPU makes it much faster. The model files are downloaded from Hugging Face on first use.
+motif: scout-large.svg
+metric_cards:
+  - label: Comparison composite
+    metric: quality.comparison_composite
+    compare: quality.comparison_composite_best_baseline
+    compare_label: best zero-shot small model
+  - label: One 9,240-character interview on four CPU cores
+    metric: performance.latency_9k_chars_s
+  - label: Peak memory
+    metric: performance.peak_ram_gb
+  - label: Throughput on a DGX Spark
+    metric: performance.chunks_per_min_dgx_spark_gpu
+    compare: performance.comparison_chunks_per_min_gpt_mini
+    compare_label: fastest generative model compared
+charts:
+  - type: quality_vs_speed
+    metrics: chunks_per_min
+    labels: topics/productdev/recipes/figures/scout-large-comparison.json
+  - type: latency_per_machine
+    metrics: latency_9k_chars_s
+    labels: topics/productdev/recipes/figures/scout-large-comparison.json

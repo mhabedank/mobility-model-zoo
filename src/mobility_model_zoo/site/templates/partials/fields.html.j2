@@ -1,0 +1,8 @@
+<div class="tw"><table class="tbl" id="fields-{{ fmt.id }}">
+<caption>Fields of {{ fmt.id }}</caption>
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Allowed values</th><th scope="col">Meaning</th><th scope="col">Empty case</th></tr></thead>
+<tbody>
+{% for r in fmt.rows %}
+<tr><td class="mono"><code>{{ r.path }}</code>{% if r.required %} <span class="cap">required</span>{% endif %}</td><td class="mono">{{ r.type }}</td><td>{% for v in r.enum %}<code>{{ v }}</code>{% if not loop.last %} {% endif %}{% else %}–{% endfor %}</td><td>{{ r.meaning | md }}{% if r.notes %}<p class="cap">{{ r.notes }}</p>{% endif %}</td><td>{{ (r.empty_case | md) if r.empty_case else "–" }}</td></tr>
+{% endfor %}
+</tbody></table></div>

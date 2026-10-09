@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Identity system</title>
+<script src="d21819c5-98b7-4309-a9d3-7f6f1a3ad866"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Figtree";src:url("1a1d2198-6888-4038-80a4-4e7b5a083962") format("woff2");font-weight:300 900;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("c5cce176-e832-4e93-831a-d70affa2c543") format("woff2");font-weight:100 800;font-style:normal;font-display:swap}
+body{margin:0}
+.t-light{--bg:#F7F8FC;--surface:#FFFFFF;--surface-2:#EDF0FA;--text:#0E1330;--muted:#4B5478;--border:#C9D0E8;--border-strong:#6F7AA6;--link:#1B3BD8;--link-hover:#1228A6;--focus:#1B3BD8;--accent:#1B3BD8;--on-accent:#FFFFFF;--mark:#6FFFC8;--code-bg:#EDF0FA;--job-bg:#D6E0FF;--job-ink:#1B3BD8;--pain-bg:#FFDDBD;--pain-ink:#A84A07;--gain-bg:#B5F3D8;--gain-ink:#0A6E4E;--s-a:#1B3BD8;--s-b:#6F7AA6;--s-c:#A84A07}
+.t-dark{--bg:#0A0F2E;--surface:#111846;--surface-2:#19235C;--text:#EEF1FF;--muted:#A7B1DE;--border:#2F3C86;--border-strong:#6F7DC4;--link:#A3B5FF;--link-hover:#D2DBFF;--focus:#6FFFC8;--accent:#6FFFC8;--on-accent:#0A0F2E;--mark:#6FFFC8;--code-bg:#0D1338;--job-bg:#2B41B0;--job-ink:#A3B5FF;--pain-bg:#8A4310;--pain-ink:#FFB27A;--gain-bg:#0B6148;--gain-ink:#6FFFC8;--s-a:#6FFFC8;--s-b:#A7B1DE;--s-c:#FFB27A}
+.mz{font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.6;color:var(--text);background:var(--bg);-webkit-text-size-adjust:100%}
+.mz *{box-sizing:border-box}
+.mz h1,.mz h2,.mz h3,.mz h4,.mz p,.mz ul,.mz ol,.mz figure,.mz pre,.mz dl,.mz dd{margin:0}
+.mz a{color:var(--link);text-underline-offset:3px}
+.mz a:hover{color:var(--link-hover)}
+.mz :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.mono,.mz code,.mz pre{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.wrap{max-width:1200px;margin:0 auto;padding:0 32px}
+.h-display{font-size:clamp(34px,5.4vw,52px);line-height:1.08;font-weight:700;letter-spacing:-.025em}
+.h1{font-size:clamp(30px,4vw,38px);line-height:1.15;font-weight:700;letter-spacing:-.02em}
+.h2{font-size:clamp(24px,3vw,30px);line-height:1.2;font-weight:700;letter-spacing:-.015em}
+.h3{font-size:22px;line-height:1.3;font-weight:650;letter-spacing:-.01em}
+.lead{font-size:20px;line-height:1.55}
+.small{font-size:15px;line-height:1.5}
+.cap{font-size:13px;line-height:1.45;color:var(--muted)}
+.muted{color:var(--muted)}
+.eyebrow{font-size:13px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sec{padding:72px 0;border-top:1px solid var(--border)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.panel{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(520px,100%),1fr));gap:24px}
+.hd{border-bottom:1px solid var(--border);background:var(--bg)}
+.hd-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 24px;padding:8px 24px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--text)!important;text-decoration:none;font-weight:700;font-size:18px;letter-spacing:-.01em;min-height:44px}
+.nav{display:flex;flex-wrap:wrap;gap:0 20px}
+.nav a{color:var(--text);text-decoration:none;min-height:44px;display:inline-flex;align-items:center;font-weight:500;font-size:15px;border-bottom:2px solid transparent}
+.nav a:hover{color:var(--text);border-bottom-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 20px;border-radius:8px;background:var(--accent);color:var(--on-accent)!important;font:inherit;font-weight:650;text-decoration:none;border:0;cursor:pointer}
+.btn:hover{filter:brightness(1.1);color:var(--on-accent)}
+.btn-ghost{background:transparent;color:var(--text)!important;border:1.5px solid var(--border-strong)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:2px 11px;border-radius:999px;border:1px solid var(--border-strong);color:var(--text);line-height:1.6}
+.chip i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--text);background:var(--mark);display:inline-block}
+.chip.wip i{background:transparent}
+.tile{display:flex;flex-direction:column;gap:10px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);text-decoration:none}
+.tile:hover{border-color:var(--accent)}
+.tile dl{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:14px}
+.tile dt{color:var(--muted)}
+.tile dd{margin:0}
+.metric{display:flex;flex-direction:column;gap:4px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.metric .v{font-size:40px;line-height:1.1;font-weight:700;letter-spacing:-.025em}
+.metric .ref{font-size:15px;line-height:1.45}
+.metric .hw{font-size:13px;line-height:1.45;color:var(--muted)}
+.code{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.code-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 6px 4px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
+.code pre{padding:16px 18px;overflow-x:auto;font-size:14px;line-height:1.7;white-space:pre}
+.copy{min-height:44px;padding:0 14px;background:transparent;border:1px solid var(--border-strong);border-radius:8px;color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.copy:hover{border-color:var(--accent)}
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;line-height:1.45}
+.tbl th{text-align:left;font-weight:650;font-size:13px;color:var(--muted);padding:10px 14px;border-bottom:1.5px solid var(--border-strong);white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.callout{display:flex;gap:14px;padding:16px 18px;border:1px solid var(--border-strong);background:var(--surface-2);border-radius:10px}
+.callout svg{flex:none;margin-top:3px}
+.hl{font:inherit;color:var(--text);padding:1px 3px;margin:0 -1px;border-radius:4px;border:0;border-bottom:2px solid var(--job-ink);cursor:pointer;line-height:inherit;background:var(--job-bg)}
+.hl.pain{background:var(--pain-bg);border-bottom:2px dashed var(--pain-ink)}
+.hl.gain{background:var(--gain-bg);border-bottom:2px dotted var(--gain-ink)}
+.hl.sel,.jitem.sel{outline:2px solid var(--text);outline-offset:1px}
+.viewer{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;align-items:start}
+.vtext{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;font-size:17px;line-height:2}
+.jitem{display:block;width:100%;text-align:left;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);cursor:pointer;margin-bottom:10px;font:inherit}
+.jitem pre{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.55}
+.kinds{display:flex;flex-wrap:wrap;gap:10px}
+.kinds span{font-size:13px;font-weight:600;padding:1px 8px;border-radius:4px;color:var(--text);border-bottom:2px solid var(--job-ink);background:var(--job-bg)}
+.kinds .pain{background:var(--pain-bg);border-bottom:2px dashed var(--pain-ink)}
+.kinds .gain{background:var(--gain-bg);border-bottom:2px dotted var(--gain-ink)}
+.ft{border-top:1px solid var(--border);padding:28px 0;font-size:15px;color:var(--muted);display:flex;flex-direction:column;gap:14px}
+.ft nav{display:flex;flex-wrap:wrap;gap:0 22px}
+.ft nav a{min-height:44px;display:inline-flex;align-items:center}
+.sw{width:36px;height:36px;border-radius:8px;border:1px solid var(--border-strong);flex:none}
+.tokrow{display:grid;grid-template-columns:36px 1fr auto;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
+.ch text{fill:var(--text);font-family:"Figtree",system-ui,sans-serif;font-size:13px}
+.ch .mut{fill:var(--muted);font-size:12px}
+.ch .ax{stroke:var(--border-strong);stroke-width:1.5;fill:none}
+.ch .gr{stroke:var(--border);stroke-width:1;fill:none}
+.ch .sa{fill:var(--s-a)}
+.ch .sbl{stroke:var(--s-b);stroke-width:2;stroke-dasharray:6 5;fill:none}
+.ch .sband{fill:var(--s-c);fill-opacity:.16;stroke:var(--s-c);stroke-width:1.5;stroke-dasharray:6 5}
+.lol{display:grid;grid-template-columns:minmax(110px,170px) 1fr;gap:6px 14px;align-items:center;font-size:15px}
+.lol .tr{position:relative;height:44px;border-bottom:1px solid var(--border)}
+.lol .ln{position:absolute;left:0;top:50%;height:3px;background:var(--s-a);border-radius:2px}
+.lol .dt{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--s-a)}
+.lol .vl{position:absolute;top:2px;font-size:14px;font-weight:650;white-space:nowrap}
+.lol .gh{position:absolute;left:0;right:0;top:50%;border-top:2px dashed var(--border-strong)}
+@media (max-width:640px){.wrap{padding:0 16px}.sec{padding:48px 0}.panel{padding:16px}}
+</style>
+</helmet>
+<div class="mz t-light" id="top">
+
+<div class="wrap" style="padding-top:64px;padding-bottom:56px;display:flex;flex-direction:column;gap:20px">
+<div class="eyebrow">Web identity · v1 proposal</div>
+<h1 class="h-display" style="max-width:900px">Mobility Model Zoo, extended from a mark into a system.</h1>
+<p class="lead muted" style="max-width:760px">Calm, precise, technical. Royal blue and mint carried over unchanged from the mark; ink-navy text; one sans-serif and one monospace, both self-hosted. Everything below is built from the tokens on this sheet, in light and dark.</p>
+<nav class="row small" aria-label="Sheet contents" style="gap:8px 20px">
+<a href="#mark">Mark</a><a href="#color">Colour</a><a href="#type">Type</a><a href="#space">Space</a><a href="#motif">Motif</a><a href="#charts">Charts</a><a href="#components">Components</a>
+</nav>
+</div>
+
+<section class="sec" id="mark"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">01 · Mark</div><h2 class="h2">The mark stays; it gets a wordmark and a one-colour form.</h2><p class="muted" style="max-width:720px">Redrawn as vector from the supplied PNG (sampled #1B3BD8 and #6FFFC8, white). Shape and proportions are unchanged. The wordmark is set in Figtree Bold, tracking −1%.</p></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:20px">
+<div class="card stack" style="align-items:flex-start">
+<svg sc-camel-view-box="0 0 512 512" width="144" height="144" role="img" aria-label="Mobility Model Zoo mark"><rect width="512" height="512" fill="#1B3BD8"></rect><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="#fff" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="#6FFFC8"></circle></svg>
+<div class="cap">Mark · unchanged. Square, no added rounding. Minimum size 24 px.</div>
+</div>
+<div class="card stack" style="justify-content:space-between">
+<div style="display:flex;align-items:center;gap:12px;padding:20px 0"><svg sc-camel-view-box="0 0 512 512" width="48" height="48" aria-hidden="true"><rect width="512" height="512" fill="#1B3BD8"></rect><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="#fff" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="#6FFFC8"></circle></svg><span style="font-size:28px;font-weight:700;letter-spacing:-.01em">Mobility Model Zoo</span></div>
+<div class="cap">Horizontal lockup. Clear space = height of the mint dot on every side; wordmark cap height ≈ 0.45 × mark.</div>
+</div>
+<div class="t-dark" style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:12px">
+<div style="display:flex;align-items:center;gap:12px;padding:20px 0;color:var(--text)"><svg sc-camel-view-box="0 0 512 512" width="48" height="48" aria-hidden="true"><rect width="512" height="512" fill="#1B3BD8"></rect><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="#fff" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="#6FFFC8"></circle></svg><span style="font-size:28px;font-weight:700;letter-spacing:-.01em">Mobility Model Zoo</span></div>
+<div class="cap">Lockup on dark. The blue square keeps its colour; on #0A0F2E it reads as an object, so no outline is added.</div>
+</div>
+<div class="card stack" style="justify-content:space-between">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 0;color:var(--text)">
+<svg sc-camel-view-box="0 0 512 512" width="48" height="48" aria-hidden="true"><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="currentColor" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="currentColor"></circle></svg>
+<div class="t-dark" style="background:var(--bg);color:var(--text);padding:8px;border-radius:8px;display:flex"><svg sc-camel-view-box="0 0 512 512" width="48" height="48" aria-hidden="true"><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="currentColor" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="currentColor"></circle></svg></div>
+</div>
+<div class="cap">Monochrome. One colour (text colour of the surface), for favicons, print, stamps, README badges.</div>
+</div>
+</div>
+</div></section>
+
+<section class="sec" id="color"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">02 · Colour tokens</div><h2 class="h2">Blue and mint, with ink-navy text. Mint never carries text on light.</h2><p class="muted" style="max-width:760px">Blue is the action and link colour on light; mint takes over that role on dark. Mint on white is 1.2:1, so on light it only appears as a filled dot or marker, always paired with an ink outline or bracket. Backgrounds are tinted toward the blue (saturation below 0.1) instead of grey. The three item kinds differ in lightness, hue and underline style (solid, dashed, dotted), so they never rely on colour alone.</p></div>
+<div class="grid2">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div class="mz {{t.cls}} panel">
+<h3 class="h3">{{t.name}}</h3>
+<div class="stack" style="gap:0">
+<sc-for list="{{t.tokens}}" as="k" hint-placeholder-count="12">
+<div class="tokrow"><span class="sw" style="background: {{k.css}}"></span><span><span class="mono" style="font-size:13px">{{k.var}}</span><br><span class="cap">{{k.role}}</span></span><span class="mono" style="font-size:13px">{{k.hex}}</span></div>
+</sc-for>
+</div>
+<div class="stack" style="gap:8px"><h4 class="h3" style="font-size:18px">Contrast (WCAG 2.1)</h4><p class="cap">Text pairs need 4.5:1, non-text pairs (markers, borders of controls, focus ring) 3:1. Computed from the hex values above.</p></div>
+<div class="tw"><sc-raw-table class="tbl"><sc-raw-thead><sc-raw-tr><sc-raw-th>Foreground</sc-raw-th><sc-raw-th>Background</sc-raw-th><sc-raw-th>Ratio</sc-raw-th><sc-raw-th>Need</sc-raw-th><sc-raw-th>AA</sc-raw-th></sc-raw-tr></sc-raw-thead><sc-raw-tbody>
+<sc-for list="{{t.pairs}}" as="p" hint-placeholder-count="14">
+<sc-raw-tr><sc-raw-td class="mono" style="font-size:13px">{{p.fg}}</sc-raw-td><sc-raw-td class="mono" style="font-size:13px">{{p.bg}}</sc-raw-td><sc-raw-td><strong>{{p.ratio}}</strong></sc-raw-td><sc-raw-td>{{p.need}}</sc-raw-td><sc-raw-td>{{p.pass}}</sc-raw-td></sc-raw-tr>
+</sc-for>
+</sc-raw-tbody></sc-raw-table></div>
+</div>
+</sc-for>
+</div>
+</div></section>
+
+<section class="sec" id="type"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">03 · Typography</div><h2 class="h2">Figtree for text, JetBrains Mono for code. Both SIL OFL 1.1, self-hosted.</h2><p class="muted" style="max-width:760px">Figtree has the friendly, round geometry of the M and stays plain at small sizes; JetBrains Mono has clear 0/O and 1/l/I distinctions, which matters for offsets and identifiers. Both ship as variable WOFF2 (Latin subset, covers ä ö ü ß), loaded from the site’s own origin with font-display: swap. No Google Fonts link, no third-party loading. Fallbacks: system-ui for text, ui-monospace for code.</p></div>
+<div class="grid2">
+<div class="card stack" style="gap:8px"><div class="eyebrow">Text</div><div style="font-size:64px;line-height:1.05;font-weight:700;letter-spacing:-.03em">Aa Ää ß</div><p class="mono" style="font-size:13px;color:var(--muted)">Figtree · 400 / 500 / 650 / 700</p><p>Measured, not claimed. Zwei Modelle, ein Benchmark: 0123456789 · 0.72 · 8.1 s</p></div>
+<div class="card stack" style="gap:8px"><div class="eyebrow">Code</div><div class="mono" style="font-size:56px;line-height:1.1;font-weight:600;letter-spacing:-.03em">{ } 0O 1lI</div><p class="mono" style="font-size:13px;color:var(--muted)">JetBrains Mono · 400 / 600</p><p class="mono" style="font-size:15px">"start": 128, "end": 187</p></div>
+</div>
+<div class="tw"><sc-raw-table class="tbl"><sc-raw-thead><sc-raw-tr><sc-raw-th>Step</sc-raw-th><sc-raw-th>Size / line</sc-raw-th><sc-raw-th>Weight</sc-raw-th><sc-raw-th>Use</sc-raw-th><sc-raw-th>Specimen</sc-raw-th></sc-raw-tr></sc-raw-thead><sc-raw-tbody>
+<sc-for list="{{scale}}" as="r" hint-placeholder-count="8">
+<sc-raw-tr><sc-raw-td class="mono" style="font-size:13px">{{r.name}}</sc-raw-td><sc-raw-td class="mono" style="font-size:13px">{{r.size}}</sc-raw-td><sc-raw-td>{{r.weight}}</sc-raw-td><sc-raw-td>{{r.use}}</sc-raw-td><sc-raw-td><span style="font-size: {{r.px}}px; line-height:1.2; font-weight: {{r.w}}; letter-spacing: {{r.ls}}">{{r.sample}}</span></sc-raw-td></sc-raw-tr>
+</sc-for>
+</sc-raw-tbody></sc-raw-table></div>
+</div></section>
+
+<section class="sec" id="space"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">04 · Space, radius, shadow</div><h2 class="h2">Flat and quiet: borders do the work shadows usually do.</h2></div>
+<div class="grid2">
+<div class="card stack"><h3 class="h3" style="font-size:18px">Spacing · 4 px base</h3>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+<sc-for list="{{spaces}}" as="s" hint-placeholder-count="9"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width: {{s.px}}px; height: {{s.px}}px; background:var(--accent); border-radius:2px"></div><span class="mono cap">{{s.px}}</span></div></sc-for>
+</div>
+<p class="cap">4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96. Sections: 72 desktop, 48 mobile. Content column 1200 max, text 720 max.</p></div>
+<div class="card stack"><h3 class="h3" style="font-size:18px">Radius · shadow</h3>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+<div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:72px;height:72px;border:1.5px solid var(--border-strong);border-radius:4px"></div><span class="mono cap">4 · code, chips</span></div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:72px;height:72px;border:1.5px solid var(--border-strong);border-radius:8px"></div><span class="mono cap">8 · buttons</span></div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:72px;height:72px;border:1.5px solid var(--border-strong);border-radius:12px"></div><span class="mono cap">12 · cards</span></div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:72px;height:72px;border:1.5px solid var(--border-strong);border-radius:999px"></div><span class="mono cap">999 · pills</span></div>
+</div>
+<p class="cap">Shadow: none. Elevation = 1 px border (--border) on a surface (--surface) over the page (--bg). A hovered tile swaps its border to --accent. Focus ring: 3 px solid --focus, 2 px offset, always visible, never removed.</p></div>
+</div>
+</div></section>
+
+<section class="sec" id="motif"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">05 · Visual idea</div><h2 class="h2">Marked evidence: a span of text with brackets at both ends.</h2><p class="muted" style="max-width:760px">The M is built from fat, rounded, slightly leaning strokes with one mint dot. The motif keeps that grammar: round-capped bars at an 8° lean, one mint element, ink brackets. For scout-large the bars are lines of text and the bracketed mint span is the quote that was found, which is exactly what the output contains: a verbatim span with start and end offsets. Each later model gets its own picture in the same grammar. No mascot, no illustration.</p></div>
+<div class="grid2">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div class="mz {{t.cls}} panel" style="gap:24px">
+<div class="eyebrow">Sub-mark and hero graphic · {{t.name}}</div>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:center">
+<svg sc-camel-view-box="0 0 96 96" width="120" height="120" role="img" aria-label="scout-large sub-mark: three lines of text, one span bracketed and marked"><g transform="translate(10,0) skewX(-8)"><path d="M22 24H62" stroke="var(--border-strong)" stroke-width="8" stroke-linecap="round" fill="none"></path><path d="M22 72H52" stroke="var(--border-strong)" stroke-width="8" stroke-linecap="round" fill="none"></path><path d="M34 48H62" stroke="var(--mark)" stroke-width="16" stroke-linecap="round" fill="none"></path><path d="M22 48H82" stroke="var(--border-strong)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M32 36V60M64 36V60" stroke="var(--text)" stroke-width="4.5" stroke-linecap="round" fill="none"></path></g></svg>
+<svg sc-camel-view-box="0 0 96 96" width="48" height="48" aria-hidden="true"><g transform="translate(10,0) skewX(-8)"><path d="M22 24H62" stroke="var(--border-strong)" stroke-width="8" stroke-linecap="round" fill="none"></path><path d="M22 72H52" stroke="var(--border-strong)" stroke-width="8" stroke-linecap="round" fill="none"></path><path d="M34 48H62" stroke="var(--mark)" stroke-width="16" stroke-linecap="round" fill="none"></path><path d="M32 36V60M64 36V60" stroke="var(--text)" stroke-width="5" stroke-linecap="round" fill="none"></path></g></svg>
+<p class="cap" style="flex:1;min-width:180px">Sub-mark at 120 px and as favicon / model-tile glyph at 48 px. In light the mint is paired with ink brackets; on dark the mint stands on its own.</p>
+</div>
+<svg sc-camel-view-box="0 0 480 270" width="100%" role="img" aria-label="Abstract lines of text with three marked spans in the three item colours" style="max-width:520px;height:auto">
+<g transform="translate(36,0) skewX(-8)" stroke-linecap="round" fill="none">
+<path d="M20 30H300M20 64H420M20 98H360M20 132H440M20 166H280M20 200H400M20 234H330" stroke="var(--border-strong)" stroke-width="7"></path>
+<rect x="124" y="50" width="132" height="28" rx="14" fill="var(--job-bg)" stroke="none"></rect><path d="M134 64H246" stroke="var(--text)" stroke-width="7"></path><path d="M126 82H254" stroke="var(--job-ink)" stroke-width="3"></path><path d="M122 46V82M258 46V82" stroke="var(--text)" stroke-width="3.5"></path>
+<rect x="196" y="118" width="166" height="28" rx="14" fill="var(--pain-bg)" stroke="none"></rect><path d="M206 132H352" stroke="var(--text)" stroke-width="7"></path><path d="M198 150H358" stroke="var(--pain-ink)" stroke-width="3" stroke-dasharray="7 5"></path><path d="M194 114V150M364 114V150" stroke="var(--text)" stroke-width="3.5"></path>
+<rect x="64" y="186" width="128" height="28" rx="14" fill="var(--gain-bg)" stroke="none"></rect><path d="M74 200H182" stroke="var(--text)" stroke-width="7"></path><path d="M66 218H188" stroke="var(--gain-ink)" stroke-width="3" stroke-dasharray="1 6"></path><path d="M62 182V218M194 182V218" stroke="var(--text)" stroke-width="3.5"></path>
+</g></svg>
+</div>
+</sc-for>
+</div>
+<div class="card stack" style="gap:16px"><div class="eyebrow">Same grammar for later models (sketches, not final)</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:20px">
+<div class="stack" style="gap:6px"><svg sc-camel-view-box="0 0 96 96" width="72" height="72" aria-hidden="true"><g transform="translate(10,0) skewX(-8)" stroke-linecap="round" fill="none" stroke="var(--border-strong)" stroke-width="8"><path d="M18 78V50M32 78V30M46 78V40M60 78V22M74 78V56"></path><path d="M60 78V22" stroke="var(--mark)" stroke-width="12"></path><path d="M52 14H68" stroke="var(--text)" stroke-width="4.5"></path></g></svg><strong>picket-forest</strong><span class="cap">Pickets of unequal height; one stands out.</span></div>
+<div class="stack" style="gap:6px"><svg sc-camel-view-box="0 0 96 96" width="72" height="72" aria-hidden="true"><g transform="translate(10,0) skewX(-8)" stroke-linecap="round" fill="none" stroke="var(--border-strong)" stroke-width="8"><path d="M20 30V50M36 30V50M52 30V50M68 30V50M20 62V82M36 62V82M52 62V82M68 62V82"></path><path d="M52 62V82" stroke="var(--mark)" stroke-width="12"></path><path d="M44 56H60" stroke="var(--text)" stroke-width="4.5"></path></g></svg><strong>picket-mlp</strong><span class="cap">Pickets in layers; one cell marked.</span></div>
+<div class="stack" style="gap:6px"><svg sc-camel-view-box="0 0 96 96" width="72" height="72" aria-hidden="true"><g transform="translate(10,0) skewX(-8)" stroke-linecap="round" fill="none" stroke="var(--border-strong)" stroke-width="8"><path d="M16 48V48M30 38V58M44 26V70M58 38V58M72 48V48M86 48V48"></path><path d="M44 26V70" stroke="var(--mark)" stroke-width="12"></path><path d="M36 20H52M36 76H52" stroke="var(--text)" stroke-width="4.5"></path></g></svg><strong>hum-fan</strong><span class="cap">A hum as symmetric bars; the peak is marked.</span></div>
+<div class="stack" style="gap:6px"><svg sc-camel-view-box="0 0 96 96" width="72" height="72" aria-hidden="true"><g transform="translate(10,0) skewX(-8)" stroke-linecap="round" fill="none" stroke="var(--border-strong)" stroke-width="8"><path d="M14 48H20M30 48H36M46 48H52M62 48H68M78 48H84"></path><path d="M30 48H52" stroke="var(--mark)" stroke-width="16"></path><path d="M26 34V62M56 34V62" stroke="var(--text)" stroke-width="4.5"></path></g></svg><strong>pace-cnn</strong><span class="cap">Frames in a row; a sliding window brackets three.</span></div>
+</div>
+<p class="cap">Rules: stroke 8 on a 96 grid, round caps, 8° lean, one mint element per picture, ink brackets mark the thing the model finds. The model name is the caption, the picture never carries text.</p></div>
+</div></section>
+
+<section class="sec" id="charts"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">06 · Chart style</div><h2 class="h2">One highlighted series, everything else in grey-blue; references drawn as lines, not guesses.</h2><p class="muted" style="max-width:760px">scout-large is the only filled shape and uses the accent (blue on light, mint on dark). Comparison models use the muted blue-grey; generative models use the orange of the pain colour, a different lightness, so greyscale and colour-blind readers still separate them. Dashed means “a reference, not a measurement of this model”. Labels are 12–13 px at the smallest, written next to the mark, no legends to decode. Chart 2 is plain HTML, so it reflows on a phone.</p></div>
+<div class="grid2">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div class="mz {{t.cls}} panel" style="gap:28px">
+<figure class="stack" style="gap:10px">
+<figcaption class="h3" style="font-size:18px">Agreement composite against speed</figcaption>
+<svg class="ch" sc-camel-view-box="0 0 360 400" width="100%" style="max-width:520px;height:auto" role="img" aria-label="Scatter: scout-large reaches composite 0.72 at 1,260 texts per minute on a DGX Spark. Dashed line: best zero-shot small model, 0.67. Shaded band: generative models compared, 0.4 to 10 texts per minute.">
+<path class="gr" d="M48 340H344M48 233H344M48 127H344M48 20H344"></path>
+<path class="gr" d="M107 20V340M167 20V340M226 20V340M285 20V340"></path>
+<rect class="sband" x="84" y="20" width="83" height="320" rx="6"></rect>
+<text x="125" y="44" text-anchor="middle">generative</text><text x="125" y="60" text-anchor="middle">models</text><text class="mut" x="125" y="78" text-anchor="middle">0.4–10 / min</text>
+<path class="sbl" d="M48 159H344"></path>
+<text class="mut" x="340" y="177" text-anchor="end">best zero-shot small model: 0.67</text>
+<path class="ax" d="M48 20V340H344"></path>
+<text class="mut" x="44" y="344" text-anchor="end">0.5</text><text class="mut" x="44" y="237" text-anchor="end">0.6</text><text class="mut" x="44" y="131" text-anchor="end">0.7</text><text class="mut" x="44" y="24" text-anchor="end">0.8</text>
+<text class="mut" x="48" y="360" text-anchor="middle">0.1</text><text class="mut" x="107" y="360" text-anchor="middle">1</text><text class="mut" x="167" y="360" text-anchor="middle">10</text><text class="mut" x="226" y="360" text-anchor="middle">100</text><text class="mut" x="285" y="360" text-anchor="middle">1,000</text><text class="mut" x="344" y="360" text-anchor="middle">10,000</text>
+<text class="mut" x="196" y="384" text-anchor="middle">texts per minute (log scale)</text>
+<circle class="sa" cx="291" cy="105" r="8"></circle>
+<text x="279" y="94" text-anchor="end" style="font-weight:700">scout-large 0.72</text>
+</svg>
+<p class="cap">Composite = agreement with two frontier reference models on the frozen benchmark, not accuracy. scout-large: DGX Spark, 1,260 texts/min.</p>
+</figure>
+<figure class="stack" style="gap:10px">
+<figcaption class="h3" style="font-size:18px">Time to read one 9,240-character interview</figcaption>
+<div class="lol">
+<div>DGX Spark</div><div class="tr"><div class="ln" style="width:7.9%"></div><div class="dt" style="left:7.9%"></div><div class="vl" style="left:11%">0.12 s</div></div>
+<div>MacBook M3 Pro, GPU</div><div class="tr"><div class="ln" style="width:46%"></div><div class="dt" style="left:46%"></div><div class="vl" style="left:49%">0.84 s</div></div>
+<div>4 CPU cores, 2.5 GB memory</div><div class="tr"><div class="ln" style="width:95%"></div><div class="dt" style="left:95%"></div><div class="vl" style="right:6%">8.1 s</div></div>
+<div class="mut">[fourth machine]</div><div class="tr"><div class="gh"></div><div class="vl cap" style="left:0">to be filled from the benchmark run</div></div>
+</div>
+<p class="cap">Log scale, 0.1 s to 10 s; every line starts at 0.1 s. Same text on every machine. Placeholders stay dashed until measured.</p>
+</figure>
+</div>
+</sc-for>
+</div>
+</div></section>
+
+<section class="sec" id="components"><div class="wrap stack" style="gap:32px">
+<div class="stack" style="gap:8px"><div class="eyebrow">07 · Components</div><h2 class="h2">The same set in light and dark.</h2><p class="muted" style="max-width:760px">Metrics always print their reference and hardware on the card. In the output viewer, click a marked quote or a JSON object: the other side highlights and keeps the selection. Without JavaScript both sides are fully readable; the linking is a convenience.</p></div>
+<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(min(620px,100%),1fr))">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div class="mz {{t.cls}} panel" style="padding:0;gap:0;overflow:hidden">
+
+<header class="hd"><div class="hd-in">
+<a class="brand" href="#top"><svg sc-camel-view-box="0 0 512 512" width="30" height="30" aria-hidden="true"><rect width="512" height="512" fill="#1B3BD8"></rect><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="#fff" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="#6FFFC8"></circle></svg><span>Mobility Model Zoo</span></a>
+<nav class="nav" aria-label="Main"><a href="#top">Models</a><a href="#top">Topics</a><a href="#top">Principles</a><a href="#top">Hugging Face</a></nav>
+</div></header>
+
+<div style="padding:40px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Hero</div>
+<h3 class="h1">Small models for mobility. Measured, not claimed.</h3>
+<p class="lead muted">Open, non-commercial, local-first. Every model is benchmarked on frozen data and published with an honest model card.</p>
+<div class="row"><a class="btn" href="#top">Browse the models</a><a class="btn btn-ghost" href="#top">Read the principles</a></div>
+</div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Model tiles</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px">
+<a class="tile" href="#top"><div class="row" style="justify-content:space-between;gap:8px"><span class="h3" style="font-size:20px">scout-large</span><span class="chip"><i></i>published</span></div>
+<dl><dt>Topic</dt><dd>productdev</dd><dt>Task</dt><dd>Jobs, pains, gains in text</dd><dt>Latest</dt><dd class="mono">[v1.0.0]</dd></dl></a>
+<a class="tile" href="#top"><div class="row" style="justify-content:space-between;gap:8px"><span class="h3" style="font-size:20px">picket-forest</span><span class="chip wip"><i></i>in progress</span></div>
+<dl><dt>Topic</dt><dd>[topic]</dd><dt>Task</dt><dd>[task]</dd><dt>Latest</dt><dd class="mono">none yet</dd></dl></a>
+</div></div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Metric cards</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px">
+<sc-for list="{{t.metrics}}" as="m" hint-placeholder-count="4">
+<div class="metric"><div class="cap">{{m.label}}</div><div class="v">{{m.value}}</div><div class="ref">{{m.ref}}</div><div class="hw">{{m.hw}}</div></div>
+</sc-for>
+</div></div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Code block with copy</div>
+<div class="code"><div class="code-top"><span>shell</span><button class="copy" type="button" sc-camel-on-click="{{t.copyInstall}}">{{t.copyLabel}}</button></div><pre>{{t.install}}</pre></div>
+<div class="code"><div class="code-top"><span>python</span><button class="copy" type="button" sc-camel-on-click="{{t.copyPy}}">{{t.copyLabel}}</button></div><pre>{{t.py}}</pre></div>
+</div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Field table</div>
+<div class="tw"><sc-raw-table class="tbl"><sc-raw-thead><sc-raw-tr><sc-raw-th>Field</sc-raw-th><sc-raw-th>Type</sc-raw-th><sc-raw-th>Meaning</sc-raw-th></sc-raw-tr></sc-raw-thead><sc-raw-tbody>
+<sc-for list="{{t.fields}}" as="f" hint-placeholder-count="6">
+<sc-raw-tr><sc-raw-td class="mono" style="font-size:13px;white-space:nowrap">{{f.name}}</sc-raw-td><sc-raw-td class="mono" style="font-size:13px">{{f.type}}</sc-raw-td><sc-raw-td>{{f.desc}}</sc-raw-td></sc-raw-tr>
+</sc-for>
+</sc-raw-tbody></sc-raw-table></div>
+</div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Output viewer</div>
+<div class="kinds"><span>job</span><span class="pain">pain</span><span class="gain">gain</span></div>
+<div class="viewer">
+<div class="vtext" lang="en"><sc-for list="{{t.segs}}" as="s" hint-placeholder-count="7"><sc-if value="{{s.marked}}" hint-placeholder-val="{{ false }}"><button type="button" class="{{s.cls}}" sc-camel-on-click="{{s.pick}}" aria-pressed="{{s.pressed}}" title="{{s.title}}">{{s.text}}</button></sc-if><sc-if value="{{s.plain}}" hint-placeholder-val="{{ true }}"><span>{{s.text}}</span></sc-if></sc-for></div>
+<div><sc-for list="{{t.items}}" as="i" hint-placeholder-count="3"><button type="button" class="jitem {{i.sel}}" sc-camel-on-click="{{i.pick}}" aria-pressed="{{i.pressed}}"><pre>{{i.json}}</pre></button></sc-for></div>
+</div>
+<p class="cap">Illustrative text and values, not benchmark output.</p>
+</div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Versions table</div>
+<div class="tw"><sc-raw-table class="tbl"><sc-raw-thead><sc-raw-tr><sc-raw-th>Version</sc-raw-th><sc-raw-th>Date</sc-raw-th><sc-raw-th>Format</sc-raw-th><sc-raw-th>Status</sc-raw-th><sc-raw-th>Note</sc-raw-th></sc-raw-tr></sc-raw-thead><sc-raw-tbody>
+<sc-raw-tr><sc-raw-td class="mono" style="font-size:13px">[v1.0.0]</sc-raw-td><sc-raw-td>[date]</sc-raw-td><sc-raw-td class="mono" style="font-size:13px">jtbd-span-v1</sc-raw-td><sc-raw-td><span class="chip"><i></i>published</span></sc-raw-td><sc-raw-td>Immutable. Fixes ship as a new version.</sc-raw-td></sc-raw-tr>
+</sc-raw-tbody></sc-raw-table></div>
+</div>
+
+<div style="padding:32px 24px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)">
+<div class="eyebrow">Limitations callout</div>
+<div class="callout" role="note"><svg width="22" height="22" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M12 7.5v5.5M12 16.5v.01"></path></svg><div class="stack" style="gap:6px"><strong>Limitations</strong><p class="small">The composite measures agreement with two frontier reference models, not accuracy against human labels.</p></div></div>
+</div>
+
+<footer class="wrap" style="width:100%;padding:0 24px"><div class="ft">
+<div class="brand" style="font-size:16px;color:var(--text)"><svg sc-camel-view-box="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="512" height="512" fill="#1B3BD8"></rect><path d="M120 345 L152 160 L212 258 L302 160 L270 345" fill="none" stroke="#fff" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="376" cy="331" r="44" fill="#6FFFC8"></circle></svg><span>Mobility Model Zoo</span></div>
+<nav aria-label="Legal"><a href="#top">Imprint</a><a href="#top">Privacy notice</a><a href="#top">Copyright policy</a><a href="#top">Licence: Apache-2.0</a></nav>
+<p class="cap">Private, non-commercial project. No cookies, no analytics, no third-party requests. © [year] [name]</p>
+</div></footer>
+</div>
+</sc-for>
+</div>
+</div></section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:10200}}">
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 0, copied: '' }; }
+  lum(h) {
+    h = h.replace('#', '');
+    const c = [0, 2, 4].map((i) => parseInt(h.substr(i, 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  ratio(a, b) {
+    const x = this.lum(a), y = this.lum(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  copy(key, text) {
+    try { navigator.clipboard.writeText(text); } catch (e) {}
+    this.setState({ copied: key });
+    setTimeout(() => this.setState({ copied: '' }), 1600);
+  }
+  renderVals() {
+    const L = { bg: '#F7F8FC', surface: '#FFFFFF', surface2: '#EDF0FA', text: '#0E1330', muted: '#4B5478', border: '#C9D0E8', borderStrong: '#6F7AA6', link: '#1B3BD8', focus: '#1B3BD8', accent: '#1B3BD8', onAccent: '#FFFFFF', mark: '#6FFFC8', code: '#EDF0FA', job: '#D6E0FF', jobInk: '#1B3BD8', pain: '#FFDDBD', painInk: '#A84A07', gain: '#B5F3D8', gainInk: '#0A6E4E', sa: '#1B3BD8', sc: '#A84A07' };
+    const D = { bg: '#0A0F2E', surface: '#111846', surface2: '#19235C', text: '#EEF1FF', muted: '#A7B1DE', border: '#2F3C86', borderStrong: '#6F7DC4', link: '#A3B5FF', focus: '#6FFFC8', accent: '#6FFFC8', onAccent: '#0A0F2E', mark: '#6FFFC8', code: '#0D1338', job: '#2B41B0', jobInk: '#A3B5FF', pain: '#8A4310', painInk: '#FFB27A', gain: '#0B6148', gainInk: '#6FFFC8', sa: '#6FFFC8', sc: '#FFB27A' };
+    const tokDefs = [
+      ['--bg', 'bg', 'page background'], ['--surface', 'surface', 'cards, tables, tiles'], ['--surface-2', 'surface2', 'callouts, hover rows'],
+      ['--text', 'text', 'text and headings'], ['--muted', 'muted', 'captions, secondary text'], ['--border', 'border', 'hairlines, card edges'],
+      ['--border-strong', 'borderStrong', 'control edges, axes (3:1)'], ['--link', 'link', 'links'], ['--focus', 'focus', 'focus ring'],
+      ['--accent', 'accent', 'buttons, selected state'], ['--on-accent', 'onAccent', 'text on accent'], ['--mark', 'mark', 'mint: dots, markers (decorative)'],
+      ['--code-bg', 'code', 'code blocks, JSON'], ['--job-bg', 'job', 'highlight: job'], ['--job-ink', 'jobInk', 'underline: job (solid)'],
+      ['--pain-bg', 'pain', 'highlight: pain'], ['--pain-ink', 'painInk', 'underline: pain (dashed)'], ['--gain-bg', 'gain', 'highlight: gain'], ['--gain-ink', 'gainInk', 'underline: gain (dotted)']
+    ];
+    const pairDefs = [
+      ['text', 'bg', 4.5], ['text', 'surface', 4.5], ['text', 'surface2', 4.5], ['muted', 'bg', 4.5], ['muted', 'surface', 4.5], ['muted', 'surface2', 4.5],
+      ['link', 'bg', 4.5], ['link', 'surface', 4.5], ['onAccent', 'accent', 4.5], ['text', 'code', 4.5], ['text', 'job', 4.5], ['text', 'pain', 4.5], ['text', 'gain', 4.5],
+      ['jobInk', 'job', 3], ['painInk', 'pain', 3], ['gainInk', 'gain', 3], ['borderStrong', 'surface', 3], ['focus', 'bg', 3], ['sa', 'bg', 3], ['sc', 'bg', 3]
+    ];
+    const kebab = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+    const mk = (P) => ({
+      tokens: tokDefs.map((d) => ({ var: d[0], role: d[2], hex: P[d[1]], css: 'var(' + d[0] + ')' })),
+      pairs: pairDefs.map((d) => { const r = this.ratio(P[d[0]], P[d[1]]); return { fg: kebab(d[0]), bg: kebab(d[1]), ratio: r.toFixed(2) + ':1', need: d[2] + ':1', pass: r >= d[2] ? 'pass' : 'FAIL' }; })
+    });
+    const text = 'I need to get the kids to school and be at the depot by eight. The app never shows me whether the charger at the station is free, so I drive there and wait twenty minutes. What I like is that the new tram line gets me home in half the time.';
+    const quotes = [
+      { kind: 'job', q: 'get the kids to school and be at the depot by eight', score: 0.91 },
+      { kind: 'pain', q: 'never shows me whether the charger at the station is free', score: 0.87 },
+      { kind: 'gain', q: 'the new tram line gets me home in half the time', score: 0.78 }
+    ];
+    const sel = this.state.sel;
+    const items = quotes.map((x, n) => { const start = text.indexOf(x.q); return { n, kind: x.kind, quote: x.q, start, end: start + x.q.length, score: x.score }; });
+    const segs = []; let pos = 0;
+    items.forEach((it) => {
+      if (it.start > pos) segs.push({ marked: false, plain: true, text: text.slice(pos, it.start) });
+      segs.push({ marked: true, plain: false, text: it.quote, cls: 'hl ' + it.kind + (it.n === sel ? ' sel' : ''), pick: () => this.setState({ sel: it.n }), pressed: it.n === sel ? 'true' : 'false', title: it.kind + ' · ' + it.start + '–' + it.end });
+      pos = it.end;
+    });
+    if (pos < text.length) segs.push({ marked: false, plain: true, text: text.slice(pos) });
+    const jitems = items.map((it) => ({
+      sel: it.n === sel ? 'sel' : '', pressed: it.n === sel ? 'true' : 'false', pick: () => this.setState({ sel: it.n }),
+      json: JSON.stringify({ quote: it.quote, start: it.start, end: it.end, kind: it.kind, score: it.score, actor_type: 'private_user', evidence_type: 'self_report', evidence_scope: 'individual' }, null, 2)
+    }));
+    const install = 'pip install [package-name]';
+    const py = 'from [package] import load\nmodel = load("scout-large")\ntext = open("interview.txt", encoding="utf-8").read()\nfor item in model.extract(text):\n    print(item["kind"], item["score"], item["quote"])';
+    const fields = [
+      { name: 'quote', type: 'string', desc: 'Verbatim span from the input.' },
+      { name: 'start, end', type: 'integer', desc: 'Character offsets: text[start:end] equals quote.' },
+      { name: 'kind', type: 'enum', desc: 'job, pain or gain.' },
+      { name: 'score', type: 'number', desc: 'Model score for the span.' },
+      { name: 'actor_type', type: 'string', desc: 'Who the span is about. Values: [per jtbd-span-v1].' },
+      { name: 'evidence_type', type: 'string', desc: 'What kind of evidence the span is. Values: [per jtbd-span-v1].' },
+      { name: 'evidence_scope', type: 'string', desc: 'How far the evidence reaches. Values: [per jtbd-span-v1].' }
+    ];
+    const metrics = [
+      { label: 'Comparison composite', value: '0.72', ref: 'vs. 0.67 for the best zero-shot small model', hw: 'Agreement with two frontier reference models, frozen benchmark. Not accuracy.' },
+      { label: 'One 9,240-character interview', value: '8.1 s', ref: 'on 4 CPU cores', hw: '2.5 GB memory' },
+      { label: 'One 9,240-character interview', value: '0.84 s', ref: 'on a MacBook M3 Pro GPU', hw: 'Same text, same output' },
+      { label: 'Throughput', value: '1,260 / min', ref: 'texts on a DGX Spark · vs. 0.4–10 / min for the generative models compared', hw: 'DGX Spark · 0.12 s per 9,240-character interview' }
+    ];
+    const base = (cls, name, P) => Object.assign({ cls, name }, mk(P), {
+      metrics, fields, segs, items: jitems, install, py,
+      copyLabel: this.state.copied ? 'Copied' : 'Copy',
+      copyInstall: () => this.copy('i', install), copyPy: () => this.copy('p', py)
+    });
+    const scale = [
+      { name: 'display', px: 52, size: '52 / 56', weight: 'Bold 700', w: 700, ls: '-.025em', use: 'Page title', sample: 'Measured' },
+      { name: 'h1', px: 38, size: '38 / 44', weight: 'Bold 700', w: 700, ls: '-.02em', use: 'Section lead', sample: 'Quality and speed' },
+      { name: 'h2', px: 30, size: '30 / 36', weight: 'Bold 700', w: 700, ls: '-.015em', use: 'Section heading', sample: 'Intended use' },
+      { name: 'h3', px: 22, size: '22 / 28', weight: 'Semibold 650', w: 650, ls: '-.01em', use: 'Card title', sample: 'scout-large' },
+      { name: 'lead', px: 20, size: '20 / 31', weight: 'Regular 400', w: 400, ls: '0', use: 'Intro paragraph', sample: 'Small, fast models.' },
+      { name: 'body', px: 17, size: '17 / 27', weight: 'Regular 400', w: 400, ls: '0', use: 'Text', sample: 'Every model runs locally.' },
+      { name: 'small', px: 15, size: '15 / 22', weight: 'Regular 400', w: 400, ls: '0', use: 'Tables, tiles', sample: 'Versions and fields' },
+      { name: 'caption', px: 13, size: '13 / 19', weight: 'Regular 400', w: 400, ls: '0', use: 'Hardware, references', sample: 'DGX Spark · 4 CPU cores' }
+    ];
+    return {
+      themes: [base('t-light', 'Light', L), base('t-dark', 'Dark', D)],
+      scale,
+      spaces: [4, 8, 12, 16, 24, 32, 48, 64, 96].map((px) => ({ px }))
+    };
+  }
+}
+</script>
+
+
+</body></html>

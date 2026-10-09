@@ -27,7 +27,7 @@ from mobility_model_zoo.release.hub import sha256_file
 from mobility_model_zoo.release.registry import ORG, Registry, parse_version, schema_errors
 
 Say = Callable[[str], None]
-PUBLISH_RULES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15}
+PUBLISH_RULES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 17}
 
 
 def _today() -> str:
@@ -320,21 +320,8 @@ def deprecate(
     return commit
 
 
-def _examples_from_hub(hub: Any, repo: str, version: str) -> dict[str, str]:
+def _examples_from_hub(hub: Any, repo: str, version: str, revision: str = "main") -> dict[str, str]:
     """Example outputs from the published card, so a card-only update keeps them."""
     with tempfile.TemporaryDirectory() as tmp:
-        text = hub.download(repo, "README.md", "main", Path(tmp)).read_text(encoding="utf-8")
-    outputs, name = {}, None
-    lines = text.splitlines()
-    for i, line in enumerate(lines):
-        if line.startswith("### Example ") and "`" in line:
-            name = line.split("`")[1]
-        if name and line == "Output:":
-            j = i + 2  # skip the blank line and the opening fence
-            block = []
-            while j + 1 < len(lines) and not lines[j + 1].startswith("```"):
-                j += 1
-                block.append(lines[j])
-            outputs[name] = "\n".join(block)
-            name = None
-    return outputs
+        text = hub.download(repo, "README.md", revision, Path(tmp)).read_text(encoding="utf-8")
+    return cards.parse_card_examples(text)

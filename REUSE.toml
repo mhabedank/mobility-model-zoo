@@ -6,3 +6,17 @@ path = "**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025-2026 Martin Habedank"
 SPDX-License-Identifier = "Apache-2.0"
+
+# Website fonts (feature 008): SIL Open Font License 1.1, notice in OFL.txt next to the files.
+[[annotations]]
+path = ["src/mobility_model_zoo/site/static/fonts/**", "specs/008-zoo-website/design/source/fonts/**"]
+precedence = "override"
+SPDX-FileCopyrightText = ["2022 The Figtree Project Authors", "2020 The JetBrains Mono Project Authors"]
+SPDX-License-Identifier = "OFL-1.1"
+
+# axe-core, vendored for the accessibility check of the website; never deployed.
+[[annotations]]
+path = "src/mobility_model_zoo/site/checks_vendor/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2015-2026 Deque Systems, Inc."
+SPDX-License-Identifier = "MPL-2.0"

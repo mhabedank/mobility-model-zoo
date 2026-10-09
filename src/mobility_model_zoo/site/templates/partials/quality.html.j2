@@ -1,0 +1,45 @@
+<section class="sec" id="quality" aria-labelledby="q-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Quality and speed</div><h2 class="h2" id="q-h">Measured on a frozen benchmark and on named hardware.</h2></div>
+{% if p.benchmark or p.checks %}
+<div class="checks" role="note">
+{% if p.benchmark %}<span>Benchmark <strong class="mono">{{ p.benchmark }}</strong> (frozen)</span>{% endif %}
+{% for c in p.checks %}<span>{{ c.description }}: <strong>{{ c.value }}</strong></span>{% endfor %}
+</div>
+{% endif %}
+{% if p.cards %}
+<div class="grid3" style="margin-bottom:32px">
+{% for c in p.cards %}
+<div class="metric"><div class="cap">{{ c.label }}</div><div class="v">{{ c.m.value }}{% if c.m.unit %} <small>{{ c.m.unit }}</small>{% endif %}<sup><a href="#fn-{{ c.note }}" aria-label="Note {{ c.note }}">{{ c.note }}</a></sup></div>
+{% if c.compare %}<div class="ref">vs. {{ c.compare.m.value }}{% if c.compare.m.unit %} {{ c.compare.m.unit }}{% endif %} for the {{ c.compare.label }}</div>{% endif %}
+<div class="hw">{{ c.m.against | ucfirst }}.</div></div>
+{% endfor %}
+</div>
+{% endif %}
+{% if p.charts %}
+<div class="grid2" style="margin-bottom:32px">
+{% for ch in p.charts %}
+<figure class="chart">
+<figcaption>{{ ch.caption }}</figcaption>
+{{ ch.html }}
+<p class="cap">{{ ch.note }}</p>
+<details><summary>Values of this chart</summary><div class="tw"><table class="tbl">
+<thead><tr>{% for c in ch.columns %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+<tbody>{% for r in ch.rows %}<tr>{% for cell in r %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div></details>
+</figure>
+{% endfor %}
+</div>
+{% endif %}
+<details><summary>All metrics of version {{ p.latest.version }}</summary>
+<div class="tw"><table class="tbl">
+<caption>Quality</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">What it is</th><th scope="col">Measured against</th><th scope="col">Items</th></tr></thead>
+<tbody>{% for r in p.quality_rows %}<tr><td class="mono"><code>{{ r.name }}</code></td><td>{{ r.value }}{% if r.unit %} {{ r.unit }}{% endif %}</td><td>{{ r.description }}</td><td>{{ r.against }}</td><td>{{ r.n_items if r.n_items is not none else "–" }}</td></tr>{% endfor %}</tbody>
+</table>
+<table class="tbl">
+<caption>Speed and memory</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">What it is</th><th scope="col">Measured on</th></tr></thead>
+<tbody>{% for r in p.performance_rows %}<tr><td class="mono"><code>{{ r.name }}</code></td><td>{{ r.value }}{% if r.unit %} {{ r.unit }}{% endif %}</td><td>{{ r.description }}</td><td>{{ r.against }}</td></tr>{% endfor %}</tbody>
+</table></div>
+</details>
+</div></section>
