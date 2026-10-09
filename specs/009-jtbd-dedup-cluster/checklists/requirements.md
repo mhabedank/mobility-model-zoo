@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,6 +31,6 @@
 
 ## Notes
 
-- Two [NEEDS CLARIFICATION] markers remain: FR-008 (granularity of "duplicate") and FR-011 (clusters across kinds). Both are owner decisions that change the guideline and the benchmark.
+- Both owner questions were answered on 2026-10-09 (see Clarifications in spec.md): "more specific than" becomes a child in the hierarchy (FR-008, FR-009); clusters may combine kinds, duplicate groups may not (FR-011).
 - FR-025 names the kind of training-free baseline (multilingual similarity, kind filter, threshold or hierarchical grouping). This is kept on purpose: it is a scope decision of the owner (simplest candidate first), not a technology choice; libraries and models are left to the plan.
 - Metric names in FR-023 (pair F1, B-cubed) define what is measured, not how it is built.

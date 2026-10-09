@@ -16,6 +16,13 @@ This feature builds the stage between extraction and the opportunity methods. It
 
 Constitution principle X requires this to be a separate downstream stage: scout and its training objective stay unchanged. Because deduplication and clustering have no ground truth, this is a model-labeled task with its own frozen benchmark and its own agreement pilot. The first answer is the simplest one that needs no training; a trained model follows only if that answer is not good enough.
 
+## Clarifications
+
+### Session 2026-10-09
+
+- Q: Is an item that only differs in specificity ("find a parking space" vs. "find a parking space downtown in the evening") a duplicate, a child in the hierarchy, or a different need? → A: A child in the hierarchy. "Duplicate" means the same need only. The guideline labels a pair as *same*, *more specific than* or *different*; a more specific duplicate group of the same kind becomes a child of the more general one, so the detail level stays visible (FR-008, FR-009).
+- Q: May a cluster bundle a job together with its pains and gains? → A: Yes. Clusters may combine groups of different kind, so a cluster can be read as a job with its pains and gains (Opportunity Solution Tree). Duplicate groups and the specificity relation stay within one kind; an outcome-driven landscape is built by filtering by kind (FR-004, FR-011).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Duplicates become evidence-backed groups (Priority: P1)
@@ -66,6 +73,8 @@ The product researcher wants to see which needs belong together. The stage arran
 1. **Given** duplicate groups, **When** clustering runs, **Then** every group and every cluster has at most one parent, the result is a forest without cycles, and every node can be traced down to its member quotes.
 2. **Given** a cluster, **When** it is read, **Then** it shows the number of mentions, the number of independent sources and the distribution of actor type and evidence over everything below it.
 3. **Given** a cluster, **When** it is read, **Then** it has a representative original quote and an empty statement slot, and no generated label.
+4. **Given** two groups of the same kind where one states a more specific version of the other's need, **When** clustering runs, **Then** the more specific group is a child of the more general group, not merged into it.
+5. **Given** a job and pains or gains that belong to it, **When** clustering runs, **Then** they can be in the same cluster, the cluster shows its distribution by kind, and filtering the result by kind yields one-kind lists without losing any group.
 
 ---
 
@@ -110,7 +119,7 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - **Source metadata missing** (no author, thread or date): independence falls back to the source id and the item is marked undated; the run does not fail.
 - **The same quote extracted twice from overlapping texts** of one source: recognised as an exact copy and counted once.
 - **A scout output in a different format version**: the stage refuses it with a clear message instead of guessing.
-- **A human correction contradicts a kind rule** (merging a pain with a job): refused with a message; kind separation of duplicates holds (FR-004).
+- **A human correction contradicts a kind rule** (merging a pain group with a job group into one duplicate group, or making a pain group the more specific child of a job group): refused with a message; kind separation of duplicates and of the specificity relation holds (FR-004). Moving groups of different kind into one cluster is allowed (FR-011).
 - **A correction refers to an item that a later run no longer contains**: reported as stale (User Story 4, scenario 3).
 - **Input far larger than the measured volume**: the stage still produces a correct result; the run time is reported, and the budget in FR-021 states what is guaranteed.
 - **Reference models disagree on a pair**: the pair is contested and reported separately, never merged into the consensus score.
@@ -129,13 +138,13 @@ A downstream step (a person or a later model) writes a normalised statement for 
 - **FR-005**: Exact copies (identical quote from identical or copied source text, for example a text collected twice, a quoted forum reply or a repost) MUST be recognised deterministically, without a model, before any similarity step.
 - **FR-006**: Each duplicate group MUST carry: its id, kind, members, one representative quote chosen deterministically from its members, the number of mentions, the number of independent sources, and the distribution of actor type, evidence type and evidence scope over its members.
 - **FR-007**: Independent sources MUST be counted by author or thread where that metadata exists, otherwise by source id, and the record MUST state which rule was used.
-- **FR-008**: What counts as a duplicate MUST be defined in a written guideline with examples in German and English, including how to treat items that differ only in specificity. [NEEDS CLARIFICATION: Is "more specific than" (e.g. "find a parking space" vs. "find a parking space downtown in the evening") a duplicate, a child in the hierarchy, or a different need?]
+- **FR-008**: What counts as a duplicate MUST be defined in a written guideline with examples in German and English. The guideline MUST label a pair of items as *same* (duplicate), *more specific than* (one states a narrower version of the other's need, for example "find a parking space downtown in the evening" vs. "find a parking space") or *different*. Only *same* merges items into one duplicate group.
 
 ### Clustering
 
-- **FR-009**: The stage MUST arrange duplicate groups into a hierarchy of clusters in which every group and cluster has at most one parent, without cycles.
-- **FR-010**: Each cluster MUST carry: its id, its parent id (or none), its children, a representative original quote, and the number of mentions, the number of independent sources and the attribute distributions aggregated over all items below it.
-- **FR-011**: Whether a cluster may combine groups of different kind MUST be decided before the benchmark is frozen. [NEEDS CLARIFICATION: May a cluster bundle a job together with its pains and gains (natural for an Opportunity Solution Tree), or are clusters always of one kind (separate lists, as in an outcome-driven landscape)?]
+- **FR-009**: The stage MUST arrange duplicate groups into a hierarchy in which every group and cluster has at most one parent, without cycles. A duplicate group whose need is a more specific version of another group's need of the same kind MUST be that group's child; otherwise a group's parent is a cluster or none.
+- **FR-010**: Each cluster MUST carry: its id, its parent id (or none), its children, a representative original quote, and the number of mentions, the number of independent sources, the distribution by kind and the attribute distributions aggregated over all items below it.
+- **FR-011**: A cluster MAY combine duplicate groups of different kind, so that a job and its pains and gains can form one cluster. Duplicate groups and the specificity relation (FR-009) MUST stay within one kind. Filtering the output by kind MUST yield one-kind lists in which every group of that kind appears exactly once.
 - **FR-012**: Deduplication and clustering MAY be produced by one tool as two levels, but MUST be measured and reported separately.
 
 ### Output and downstream slots
@@ -158,8 +167,8 @@ A downstream step (a person or a later model) writes a normalised statement for 
 
 ### Measurement
 
-- **FR-022**: The task MUST have a frozen benchmark of item pairs and groups drawn from real scout outputs, labeled independently by at least two frontier reference models from different families under the guideline of FR-008. Benchmark manifests MUST contain hashes only, never text.
-- **FR-023**: Scores MUST be reported per level: for deduplication pair precision, recall and F1 and B-cubed precision, recall and F1; for clustering B-cubed F1 and a measure of agreement on the hierarchy. Each number MUST be named as agreement with the named reference models on the named benchmark version, with a confidence interval, and contested cases MUST be reported separately.
+- **FR-022**: The task MUST have a frozen benchmark of item pairs and groups drawn from real scout outputs, labeled independently by at least two frontier reference models from different families under the guideline of FR-008: pairs as *same*, *more specific than* or *different*, and cluster membership across kinds. Benchmark manifests MUST contain hashes only, never text.
+- **FR-023**: Scores MUST be reported per level: for deduplication pair precision, recall and F1 and B-cubed precision, recall and F1; for the specificity relation precision, recall and F1 of *more specific than*; for clustering B-cubed F1 and a measure of agreement on the hierarchy. Each number MUST be named as agreement with the named reference models on the named benchmark version, with a confidence interval, and contested cases MUST be reported separately.
 - **FR-024**: Before any threshold is tuned or any model is trained, an agreement pilot MUST measure agreement between the reference models on each level. A level below its threshold MUST be redefined and re-piloted. Thresholds and kill criteria MUST be written down before the pilot runs.
 - **FR-025**: The first candidate MUST be training-free (multilingual similarity with a kind filter and a threshold or hierarchical grouping), tuned on a development split only. A trained model MAY follow only if the baseline misses the quality bar set before measurement; it is then released under its own model name through the zoo's release pipeline. Every candidate MUST be reported on quality and on the budgets of FR-021.
 - **FR-026**: Deterministic checks MUST run independently of any model judgment and be reported on their own: every input item in exactly one group, quotes byte-identical, no group mixing kinds, hierarchy without cycles, counts consistent with members, output valid against the format.
@@ -173,8 +182,8 @@ A downstream step (a person or a later model) writes a normalised statement for 
 
 - **Item**: One scout finding: kind, verbatim quote, source id, offsets, score, attributes, source date. Never altered.
 - **Source**: A collected text with its metadata (id, class, date, author or thread where available). Defines independence.
-- **Duplicate group**: Items of one kind that state the same need. Holds members, a representative quote, counts and attribute distributions, a statement slot and assignments.
-- **Cluster**: A node in the hierarchy above duplicate groups. Holds parent, children, a representative quote, aggregated counts, a statement slot and assignments.
+- **Duplicate group**: Items of one kind that state the same need. Holds members, a representative quote, counts and attribute distributions, a statement slot and assignments. May be the child of a more general group of the same kind.
+- **Cluster**: A node in the hierarchy above duplicate groups, possibly combining kinds. Holds parent, children, a representative quote, aggregated counts including the distribution by kind, a statement slot and assignments.
 - **Assignment**: A link from a group or cluster to a value in an external scheme, with its origin.
 - **Correction**: A human merge, split, move or choice of representative, stored apart from the automatic result and applied on every run.
 - **Change report**: What a run changed compared with the previous one, by id.
