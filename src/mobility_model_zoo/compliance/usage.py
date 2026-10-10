@@ -4,7 +4,7 @@ One derivation for the release gate, the train checks, the dataset guard and the
 FR-022). A release's inputs are its training sources and datasets, its base model, its teachers, the
 third-party models it loads at run time and data produced by zoo models. Each input's licence is
 resolved through the project's licence list (`compliance/lists/licence-allowlist.yaml`); an input
-whose licence cannot be resolved fails closed (C-U1).
+whose licence cannot be resolved fails closed (C-K1).
 """
 
 from __future__ import annotations
@@ -222,11 +222,11 @@ def third_party_class(
 ) -> tuple[UsageClass, list[str], list[Finding]]:
     """Restriction of a third-party model: its weights licence combined with every licence of the
     training data its model card names (training data governs, FR-019). Returns the class, the
-    reasons and findings for unresolved licences (C-U1) and unknown training-data licences (C-X2)."""
+    reasons and findings for unresolved licences (C-K1) and unknown training-data licences (C-X2)."""
     cls, reasons, findings = COMMERCIAL, [], []
     entry = licences.get(record.get("weights_licence"))
     if entry is None:
-        findings.append(Finding("C-U1", "usage", record["id"], "weights_licence",
+        findings.append(Finding("C-K1", "usage", record["id"], "weights_licence",
                                 f"licence {record.get('weights_licence')} is not on the licence list"))
     else:
         cls = cls.combine(entry.restriction)
@@ -240,7 +240,7 @@ def third_party_class(
             continue
         entry = licences.get(licence)
         if entry is None:
-            findings.append(Finding("C-U1", "usage", record["id"], "training_data",
+            findings.append(Finding("C-K1", "usage", record["id"], "training_data",
                                     f"licence {licence} of {data.get('name')} is not listed"))
             continue
         # Only the non-commercial term of third-party training data carries over: share-alike terms
@@ -286,7 +286,7 @@ def third_party_findings(root: Path, register: Any) -> list[Finding]:
         _, _, found = third_party_class(rec, licences)
         used = bool(rec.get("used_by"))
         for f in found:
-            if f.check_id == "C-U1" or (used and not _decision_covers(register, rec["id"])):
+            if f.check_id == "C-K1" or (used and not _decision_covers(register, rec["id"])):
                 findings.append(Finding(f.check_id, "meta", f"{rel}#{rec['id']}", f.field, f.reason))
         for use in rec.get("used_by") or []:
             findings += _used_by_findings(root, rec, use)
@@ -409,7 +409,7 @@ def _add_source(root, out, source, licences, declared, by_origin) -> None:
     licence = resolve_source_licence(source, licences, declared, by_origin)
     entry = licences.get(licence)
     if entry is None:
-        out.findings.append(Finding("C-U1", "usage", ident, "license",
+        out.findings.append(Finding("C-K1", "usage", ident, "license",
                                     f"licence {source.get('license')!r} resolves to no entry of the "
                                     "licence list"))
         return
@@ -424,7 +424,7 @@ def _add_source(root, out, source, licences, declared, by_origin) -> None:
     if producer:
         producer_cls = zoo_model_class(root, producer)
         if producer_cls is None:
-            out.findings.append(Finding("C-U1", "usage", ident, "produced_by",
+            out.findings.append(Finding("C-K1", "usage", ident, "produced_by",
                                         f"producer {producer} is not a zoo model with a usage class"))
         elif not producer_cls.commercial:
             out.add(RestrictingInput("zoo_model_output", f"{producer} → {ident}", str(producer_cls),
@@ -446,7 +446,7 @@ def _add_base_model(root, out, model, licences) -> None:
     licence = model.get("base_model_license")
     entry = licences.get(licence)
     if entry is None:
-        out.findings.append(Finding("C-U1", "usage", base, "base_model_license",
+        out.findings.append(Finding("C-K1", "usage", base, "base_model_license",
                                     f"licence {licence} is not on the licence list"))
         return
     out.add(RestrictingInput("base_model", base, licence, entry.restriction, entry.release_licences))
@@ -475,7 +475,7 @@ def _add_teacher(root, out, teacher, register) -> None:
 def release_findings(
     declared: UsageClass, licence: str, derivation: Derivation, licences: LicenceList
 ) -> list[Finding]:
-    """C-U2: the declared class must cover the derived class. C-U3: the release licence must mark the
+    """C-K2: the declared class must cover the derived class. C-K3: the release licence must mark the
     declared class and satisfy every share-alike input; share-alike inputs that no single licence
     satisfies are a conflict."""
     findings = []
@@ -483,15 +483,15 @@ def release_findings(
         for item in derivation.restricting:
             if not declared.covers(item.restriction):
                 findings.append(Finding(
-                    "C-U2", "usage", item.id, "usage_class",
+                    "C-K2", "usage", item.id, "usage_class",
                     f"{item.text()} makes the model {item.restriction.restriction()}, but it is "
                     f"declared {declared}"))
     marked = licences.licence_class(licence)
     if marked is None:
-        findings.append(Finding("C-U3", "usage", licence, "license",
+        findings.append(Finding("C-K3", "usage", licence, "license",
                                 f"release licence {licence} is not on the licence list"))
     elif marked != declared:
-        findings.append(Finding("C-U3", "usage", licence, "license",
+        findings.append(Finding("C-K3", "usage", licence, "license",
                                 f"release licence {licence} marks the model {marked}, but it is "
                                 f"declared {declared}"))
     share_alike = [i for i in derivation.inputs if i.restriction.share_alike]
@@ -501,24 +501,24 @@ def release_findings(
         allowed = options if allowed is None else allowed & options
     if allowed is not None and not allowed:
         names = ", ".join(i.text() for i in share_alike)
-        findings.append(Finding("C-U3", "usage", "share-alike", "license",
+        findings.append(Finding("C-K3", "usage", "share-alike", "license",
                                 f"no single release licence satisfies the share-alike inputs: {names}"))
     elif allowed is not None and licence not in allowed:
-        findings.append(Finding("C-U3", "usage", licence, "license",
+        findings.append(Finding("C-K3", "usage", licence, "license",
                                 f"share-alike inputs require the release licence to be one of "
                                 f"{', '.join(sorted(allowed))}, not {licence}"))
     return findings
 
 
 def name_findings(name: str, variant: str, declared: UsageClass) -> list[Finding]:
-    """C-U4: `<name>-<variant>-nc` for non-commercial classes, never `-nc` for commercial ones."""
+    """C-K4: `<name>-<variant>-nc` for non-commercial classes, never `-nc` for commercial ones."""
     if declared.commercial:
         if name.endswith(NC_SUFFIX):
-            return [Finding("C-U4", "usage", name, "name",
+            return [Finding("C-K4", "usage", name, "name",
                             "name ends in -nc but the model is declared commercial")]
         return []
     if not name.endswith(f"-{variant}{NC_SUFFIX}"):
-        return [Finding("C-U4", "usage", name, "name",
+        return [Finding("C-K4", "usage", name, "name",
                         "name must be <name>-<variant>-nc for a non-commercial model")]
     return []
 
@@ -551,7 +551,7 @@ def audit(root: Path, register: Any = None, only: str | None = None) -> list[dic
             declared = UsageClass.parse(model.get("usage_class"))
         except ValueError as e:
             declared = None
-            findings.append(Finding("C-U2", "usage", name, "usage_class", str(e)))
+            findings.append(Finding("C-K2", "usage", name, "usage_class", str(e)))
         derivation = derive_release(root, model, record, register=register, declared=declared_ds,
                                     licences=licences)
         findings += derivation.findings
@@ -560,7 +560,7 @@ def audit(root: Path, register: Any = None, only: str | None = None) -> list[dic
             findings += name_findings(name, model.get("variant", ""), declared)
             usage = record.get("usage")
             if usage is not None and usage != usage_block(declared, model["license"], derivation):
-                findings.append(Finding("C-U5", "usage", name, "usage",
+                findings.append(Finding("C-K5", "usage", name, "usage",
                                         "`usage` of the release record differs from the derivation"))
         out.append({
             "model": name,

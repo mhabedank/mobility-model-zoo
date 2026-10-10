@@ -49,7 +49,7 @@ def test_unresolved_free_text_licence_is_c_u1(tmp_path):
     _add_source(tmp_path, out, {"origin": "https://example.org/x", "license": "ask the author",
                                 "permitted_use": "training_allowed"},
                 LicenceList.load(ROOT), {}, {})
-    assert [f.check_id for f in out.findings] == ["C-U1"]
+    assert [f.check_id for f in out.findings] == ["C-K1"]
 
 
 def test_cli_text_and_json(monkeypatch):

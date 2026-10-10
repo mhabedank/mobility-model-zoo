@@ -314,17 +314,17 @@ class Gate:
         expected = usage_block(declared, m["license"], derivation)
         usage = r.get("usage")
         if usage is None and not r.get("published"):
-            failures.append("C-U5: the release record lacks `usage`; expected "
+            failures.append("C-K5: the release record lacks `usage`; expected "
                             + json.dumps(expected, sort_keys=True))
         elif usage is not None and usage != expected:
-            failures.append("C-U5: `usage` of the release record differs from the derivation; "
+            failures.append("C-K5: `usage` of the release record differs from the derivation; "
                             "expected " + json.dumps(expected, sort_keys=True))
         for v in self.reg.versions(self.name):
             if parse_version(v) >= parse_version(self.version):
                 continue
             earlier = (self.reg.record_raw(self.name, v).get("usage") or {}).get("class")
             if earlier and earlier != str(declared):
-                failures.append(f"C-U5: version {v} is {earlier}; a model's usage class never "
+                failures.append(f"C-K5: version {v} is {earlier}; a model's usage class never "
                                 "changes, a new class needs a new model name")
         return failures
 

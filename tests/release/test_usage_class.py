@@ -153,14 +153,14 @@ def as_commercial(env: ZooEnv) -> None:
 
 def test_name_suffix_rules(nc_env):
     as_commercial(nc_env)
-    assert "C-U4: name ends in -nc but the model is declared commercial" in failures(
+    assert "C-K4: name ends in -nc but the model is declared commercial" in failures(
         run_gate(nc_env), 2)
 
 
 def test_refused_nc_dataset_on_commercial_model(nc_env):
     as_commercial(nc_env)
     reason = failures(run_gate(nc_env), 6)
-    assert f"C-U2: dataset {NC_DATASET} (CC-BY-NC-4.0) makes the model non-commercial" in reason
+    assert f"C-K2: dataset {NC_DATASET} (CC-BY-NC-4.0) makes the model non-commercial" in reason
 
 
 def test_refused_nc_base_model(nc_env):
@@ -168,7 +168,7 @@ def test_refused_nc_base_model(nc_env):
     edit(nc_env,
          model=lambda m: m.update(base_model="org/nc-base", base_model_license="CC-BY-NC-4.0"),
          record=lambda r: r["provenance"].update(sources=[]))
-    assert "C-U2: base model org/nc-base (CC-BY-NC-4.0)" in failures(run_gate(nc_env), 6)
+    assert "C-K2: base model org/nc-base (CC-BY-NC-4.0)" in failures(run_gate(nc_env), 6)
 
 
 def test_refused_teacher_with_nc_only_outputs(nc_env):
@@ -176,7 +176,7 @@ def test_refused_teacher_with_nc_only_outputs(nc_env):
     teacher = {"model_id": "org/teacher", "license_basis": "terms: non-commercial training only",
                "training_on_outputs_permitted": True, "outputs_non_commercial": True}
     edit(nc_env, record=lambda r: (r["provenance"].update(sources=[], teachers=[teacher])))
-    assert "C-U2: teacher org/teacher" in failures(run_gate(nc_env), 6)
+    assert "C-K2: teacher org/teacher" in failures(run_gate(nc_env), 6)
 
 
 def test_refused_third_party_runtime_model(nc_env):
@@ -191,7 +191,7 @@ def test_refused_third_party_runtime_model(nc_env):
     edit(nc_env, model=lambda m: m.update(runtime_models=["org/encoder"]),
          record=lambda r: r["provenance"].update(sources=[]))
     reason = failures(run_gate(nc_env), 6)
-    assert "C-U2: third-party model org/encoder" in reason and "MS MARCO" in reason
+    assert "C-K2: third-party model org/encoder" in reason and "MS MARCO" in reason
 
 
 def test_refused_output_of_nc_zoo_model(nc_env):
@@ -203,7 +203,7 @@ def test_refused_output_of_nc_zoo_model(nc_env):
                                      produced_by="labeler-small-nc")])
     edit(nc_env, record=lambda r: r["provenance"].update(sources=[source("labels-v1", "CC-BY-4.0")]))
     reason = failures(run_gate(nc_env), 6)
-    assert "C-U2: data produced by labeler-small-nc" in reason
+    assert "C-K2: data produced by labeler-small-nc" in reason
 
 
 @pytest.mark.parametrize("licence", ["CC-BY-NC-ND-4.0", "unknown", "LicenseRef-all-rights-reserved"])
@@ -214,7 +214,7 @@ def test_inputs_that_forbid_training_are_refused_for_every_class(nc_env, licence
          "count": 3}]))
     if usage_class == "commercial":
         as_commercial(nc_env)
-    assert "C-U1" in failures(run_gate(nc_env), 6)
+    assert "C-K1" in failures(run_gate(nc_env), 6)
 
 
 def test_benchmark_only_source_is_refused(nc_env):
@@ -227,16 +227,16 @@ def test_missing_nc_suffix_is_refused(mcu_env):
     data = mcu_env.reg.model_raw(mcu_env.model)
     data.update(usage_class="non-commercial", license="CC-BY-NC-4.0", license_exception="owner's choice")
     write_model(mcu_env, mcu_env.model, data)
-    assert "C-U4: name must be <name>-<variant>-nc" in failures(run_gate(mcu_env), 2)
+    assert "C-K4: name must be <name>-<variant>-nc" in failures(run_gate(mcu_env), 2)
 
 
 def test_usage_class_never_changes_between_versions(nc_env):
     old = nc_env.reg.record_raw(NC_NAME, VERSION)
     old["usage"] = {**NC_USAGE, "class": "commercial"}
     nc_env.reg.write_record(NC_NAME, "0.0.9", {**old, "version": "0.0.9"})
-    assert "C-U5: version 0.0.9 is commercial" in failures(run_gate(nc_env), 6)
+    assert "C-K5: version 0.0.9 is commercial" in failures(run_gate(nc_env), 6)
 
 
 def test_draft_record_without_usage_is_refused(nc_env):
     edit(nc_env, record=lambda r: r.pop("usage"))
-    assert "C-U5: the release record lacks `usage`" in failures(run_gate(nc_env), 6)
+    assert "C-K5: the release record lacks `usage`" in failures(run_gate(nc_env), 6)

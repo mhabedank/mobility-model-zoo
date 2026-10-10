@@ -46,7 +46,7 @@ Initial additions: `CC-BY-NC-4.0 {non_commercial}`, `CC-BY-NC-SA-4.0 {non_commer
 
 ## Release record (`zoo/models/<name>/releases/<version>.yaml`), changed
 
-New optional object, required by the gate for records not yet published:
+New optional object, required by the gate for records not yet published. `class` is the release's usage class as users get it (the declared class, which the gate checks covers the derived one); `restricting_inputs` are the inputs that restrict the derived class:
 
 ```yaml
 usage:
@@ -113,10 +113,10 @@ A stage that loads registered third-party models writes `third_party_models: [{i
 | C-T2 | train | input cannot train any model, or non-commercial input for a commercial target |
 | C-T3 | train | share-alike input for a target class without share-alike |
 | C-I2 | ingest | licence not on the list, `benchmark_only`, or non-commercial licence for a commercial target |
-| C-U1 | usage | input licence unresolved |
-| C-U2 | usage | declared class does not cover the derived class |
-| C-U3 | usage | release licence does not satisfy the class, or share-alike conflict |
-| C-U4 | usage | name suffix `-nc` does not match the class |
-| C-U5 | usage | class differs from an earlier release or from `model.yaml` |
+| C-K1 | usage | input licence unresolved |
+| C-K2 | usage | declared class does not cover the derived class |
+| C-K3 | usage | release licence does not satisfy the class, or share-alike conflict |
+| C-K4 | usage | name suffix `-nc` does not match the class |
+| C-K5 | usage | class differs from an earlier release or from `model.yaml` |
 | C-X1 | meta | third-party model missing, unpinned or recorded differently |
 | C-X2 | meta | third-party training-data licence `unknown` without owner decision |

@@ -102,7 +102,7 @@ def test_rule6_licence_differs(mcu_env):
 def test_rule6_share_alike_needs_same_model_licence(mcu_env):
     declare(mcu_env, "mimii")
     edit_record(mcu_env, lambda r: r["provenance"].update(sources=[source("mimii", "CC-BY-SA-4.0")]))
-    assert "C-U2: dataset mimii (CC-BY-SA-4.0) makes the model share-alike" in failures(
+    assert "C-K2: dataset mimii (CC-BY-SA-4.0) makes the model share-alike" in failures(
         run_gate(mcu_env), 6)
 
 

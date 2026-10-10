@@ -107,7 +107,7 @@ def deriv(*inputs):
 def test_nc_input_on_commercial_model_is_c_u2():
     d = deriv(RestrictingInput("dataset", "tue-can-v2", "CC-BY-NC-4.0", NON_COMMERCIAL))
     findings = release_findings(COMMERCIAL, "Apache-2.0", d, licences())
-    assert [f.check_id for f in findings] == ["C-U2"]
+    assert [f.check_id for f in findings] == ["C-K2"]
     assert "tue-can-v2" in findings[0].reason and "CC-BY-NC-4.0" in findings[0].reason
 
 
@@ -119,7 +119,7 @@ def test_nc_model_with_nc_licence_passes():
 def test_release_licence_must_mark_the_class():
     d = deriv(RestrictingInput("dataset", "x", "CC-BY-NC-4.0", NON_COMMERCIAL))
     assert [f.check_id for f in release_findings(NON_COMMERCIAL, "Apache-2.0", d, licences())] == \
-        ["C-U3"]
+        ["C-K3"]
 
 
 def test_share_alike_nc_needs_nc_sa_licence():
@@ -127,7 +127,7 @@ def test_share_alike_nc_needs_nc_sa_licence():
     assert release_findings(NC_SA, "CC-BY-NC-SA-4.0", deriv(item), licences()) == []
     checks = [f.check_id for f in release_findings(NON_COMMERCIAL, "CC-BY-NC-4.0", deriv(item),
                                                    licences())]
-    assert "C-U2" in checks  # the share-alike term was dropped
+    assert "C-K2" in checks  # the share-alike term was dropped
 
 
 def test_share_alike_conflict_names_both_inputs():

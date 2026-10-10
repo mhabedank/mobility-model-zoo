@@ -112,7 +112,7 @@ def test_unknown_training_data_licence_blocks_only_a_used_model(register_tree):
 
 def test_unlisted_licence_is_c_u1(register_tree):
     register(register_tree, record(weights_licence="LicenseRef-something"))
-    assert [c for c, _ in checks(register_tree)] == ["C-U1"]
+    assert [c for c, _ in checks(register_tree)] == ["C-K1"]
 
 
 def test_stage_metadata(register_tree):
