@@ -10,6 +10,13 @@ State on 2026-10-09, branch `009-jtbd-dedup-cluster`, PR #14 (draft). The cloud 
 
 ## First steps locally
 
+0. **Make feature 009 the active Spec Kit feature.** `.specify/feature.json` is gitignored, so a fresh clone does not know it; without it `/speckit-implement` and the other commands cannot find the feature directory.
+
+   ```bash
+   git fetch origin && git checkout 009-jtbd-dedup-cluster
+   printf '{\n  "feature_directory": "specs/009-jtbd-dedup-cluster"\n}\n' > .specify/feature.json
+   ```
+
 1. **T009, the `cluster` extra.** Add to `[project.optional-dependencies]` in `pyproject.toml`, then regenerate the lockfile with the repository's tooling:
 
    ```toml
