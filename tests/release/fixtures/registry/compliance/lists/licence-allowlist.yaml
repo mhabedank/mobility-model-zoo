@@ -32,3 +32,6 @@ licences:
 - {id: LicenseRef-Senedd-Commission-Copyright, note: Senedd Commission copyright, reuse terms}
 # Licences of third-party training data only (never our training data)
 - {id: LicenseRef-MSMARCO-terms, non_commercial: true, trains: false, note: "MS MARCO terms: non-commercial research purposes only"}
+- {id: LicenseRef-Quora-terms, non_commercial: true, trains: false, note: "Quora Question Pairs: non-commercial use under Quora's terms"}
+- {id: LicenseRef-CommonCrawl-ToU, trains: false, note: "Common Crawl terms of use, read 2026-10-10: limited access licence, no non-commercial or share-alike term; the user indemnifies Common Crawl for AI training (section 9)"}
+- {id: CC-BY-SA-3.0, share_alike: true, release_licences: [CC-BY-SA-3.0, CC-BY-SA-4.0], trains: false, note: Wikipedia and derived datasets}

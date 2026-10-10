@@ -30,6 +30,7 @@ SHARED = {
     "requests.yaml": ("requests", "requests"),
     "suppression.yaml": ("suppression", "entries"),
     "legal-watch.yaml": ("legal-watch", "items"),
+    "third-party-models.yaml": ("third-party-models", "models"),
 }
 TOPIC = {
     "source-classes.yaml": ("source-classes", "classes"),

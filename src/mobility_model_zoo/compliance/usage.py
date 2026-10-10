@@ -251,6 +251,93 @@ def third_party_class(
     return cls, reasons, findings
 
 
+HF_ID = re.compile(r"^[\w.-]+/[\w.-]+$")
+
+
+def _pinned_models(data: Any, path: str = ""):
+    """(dotted key, model id, revision, code revision) of every mapping that names a Hugging Face
+    model (`model_id` or `name` of the form org/name) together with a `revision`."""
+    if isinstance(data, dict):
+        mid = data.get("model_id") or data.get("name")
+        if "revision" in data and isinstance(mid, str) and HF_ID.match(mid):
+            yield path, mid, data.get("revision"), data.get("code_revision")
+        for k, v in data.items():
+            yield from _pinned_models(v, f"{path}.{k}" if path else str(k))
+    elif isinstance(data, list):
+        for i, v in enumerate(data):
+            yield from _pinned_models(v, f"{path}.{i}")
+
+
+def _decision_covers(register: Any, model_id: str) -> bool:
+    needle = f"{THIRD_PARTY.as_posix()}#{model_id}"
+    return any(needle in d.get("scope", []) for d in register.records("decisions"))
+
+
+def third_party_findings(root: Path, register: Any) -> list[Finding]:
+    """Checks C-X1 and C-X2 of the meta stage (FR-017, FR-018): every base model and every pinned
+    model in the settings under configs/ is registered with the same revision (and remote-code
+    commit); every `used_by` reference resolves; a used model has no unknown training-data licence
+    unless an owner decision covers it; every licence of a record is on the licence list."""
+    licences = LicenceList.load(root)
+    records = {r["id"]: r for r in register.records("third-party-models")}
+    findings: list[Finding] = []
+    rel = THIRD_PARTY.as_posix()
+    for rec in records.values():
+        _, _, found = third_party_class(rec, licences)
+        used = bool(rec.get("used_by"))
+        for f in found:
+            if f.check_id == "C-U1" or (used and not _decision_covers(register, rec["id"])):
+                findings.append(Finding(f.check_id, "meta", f"{rel}#{rec['id']}", f.field, f.reason))
+        for use in rec.get("used_by") or []:
+            findings += _used_by_findings(root, rec, use)
+    for model_yaml in sorted((root / "zoo" / "models").glob("*/model.yaml")):
+        model = yaml.safe_load(model_yaml.read_text(encoding="utf-8")) or {}
+        base = model.get("base_model")
+        if base and base not in records:
+            findings.append(Finding("C-X1", "meta", model_yaml.relative_to(root).as_posix(),
+                                    "base_model", f"base model {base} is not in {rel}"))
+        for mid in model.get("runtime_models") or []:
+            if mid not in records:
+                findings.append(Finding("C-X1", "meta", model_yaml.relative_to(root).as_posix(),
+                                        "runtime_models", f"{mid} is not in {rel}"))
+    for config in sorted((root / "configs").rglob("*.yaml")):
+        data = yaml.safe_load(config.read_text(encoding="utf-8"))
+        for key, mid, revision, code_revision in _pinned_models(data):
+            where = f"{config.relative_to(root).as_posix()}#{key}"
+            rec = records.get(mid)
+            if rec is None:
+                findings.append(Finding("C-X1", "meta", where, "model_id", f"{mid} is not in {rel}"))
+            elif revision != rec["revision"]:
+                findings.append(Finding("C-X1", "meta", where, "revision",
+                                        f"{mid} is pinned to {revision}, the register says "
+                                        f"{rec['revision']}"))
+            elif rec.get("remote_code") and code_revision != rec["remote_code"]["revision"]:
+                findings.append(Finding("C-X1", "meta", where, "code_revision",
+                                        f"{mid} loads remote code from {rec['remote_code']['repo']}; "
+                                        f"pin code_revision to {rec['remote_code']['revision']}"))
+    return findings
+
+
+def _used_by_findings(root: Path, rec: dict[str, Any], use: dict[str, str]) -> list[Finding]:
+    where = f"{THIRD_PARTY.as_posix()}#{rec['id']}"
+    if use["kind"] == "base_model":
+        path = root / "zoo" / "models" / use["ref"] / "model.yaml"
+        model = yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else None
+        if not model or model.get("base_model") != rec["id"]:
+            return [Finding("C-X1", "meta", where, "used_by",
+                            f"zoo model {use['ref']} does not have {rec['id']} as its base model")]
+        return []
+    file, _, key = use["ref"].partition("#")
+    path = root / file
+    node: Any = yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else None
+    for part in key.split(".") if key else []:
+        node = node.get(part) if isinstance(node, dict) else None
+    mid = (node or {}).get("model_id") or (node or {}).get("name") if isinstance(node, dict) else None
+    if mid != rec["id"]:
+        return [Finding("C-X1", "meta", where, "used_by", f"{use['ref']} does not name {rec['id']}")]
+    return []
+
+
 def third_party_metadata(root: Path, ids: list[str]) -> list[dict[str, Any]]:
     """For stage outputs (FR-020): id, revision, usage class and reason of each registered model."""
     licences, records, out = LicenceList.load(root), third_party_records(root), []

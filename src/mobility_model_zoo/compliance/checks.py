@@ -117,7 +117,9 @@ def stage_meta(ctx: Context) -> list[Finding]:
                     "an AI system without monetisation relies on art2_12",
                 )
             )
-    return findings
+    from mobility_model_zoo.compliance.usage import third_party_findings
+
+    return findings + third_party_findings(ctx.root, reg)
 
 
 # ---- notices (C-N1, C-N2) and drift (C-N3) --------------------------------------------------
