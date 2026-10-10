@@ -242,7 +242,7 @@ def cmd_alarms(args) -> None:
 
 
 def cmd_evaluate(args) -> None:
-    require_training_allowed(DATASET)
+    require_training_allowed(DATASET, model=MODEL)
     args.out.mkdir(parents=True, exist_ok=True)
     results = {}
     for set_name in args.sets:
@@ -479,7 +479,7 @@ def convert_and_check(export_dir: Path, data: Path) -> None:
 
 
 def cmd_export(args) -> None:
-    require_training_allowed(DATASET)
+    require_training_allowed(DATASET, model=MODEL)
     export_dir = args.out / "export"
     export_dir.mkdir(parents=True, exist_ok=True)
     idx = cols(FEATURE_SETS[EXPORT_FEATURES])

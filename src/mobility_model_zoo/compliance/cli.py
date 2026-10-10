@@ -67,6 +67,40 @@ def check_cmd(
     _run(fn)
 
 
+@app.command("usage")
+def usage_cmd(
+    model: str | None = typer.Option(None, "--model", help="Only this model."),
+    as_json: bool = typer.Option(False, "--json", help="Machine-readable output."),
+) -> None:
+    """Declared and derived usage class of every model, with the inputs that restrict it
+    (constitution 2.1.0; feature 011). Read-only; exit 1 when a model has a blocking finding."""
+    import json
+
+    from mobility_model_zoo.compliance.usage import audit
+
+    def fn() -> None:
+        root = _root()
+        reg = Register.load(root) if (root / "compliance" / "controller.yaml").exists() else None
+        rows = audit(root, reg, model)
+        if model and not rows:
+            raise UsageError(f"unknown model {model!r}")
+        if as_json:
+            print(json.dumps(rows, indent=2, ensure_ascii=False))
+        else:
+            for row in rows:
+                state = "BLOCKED" if row["findings"] else "ok"
+                print(f"{row['model']}  declared {row['declared']}  derived {row['derived']}  "
+                      f"licence {row['licence']}  {state}")
+                for i in row["restricting_inputs"]:
+                    print(f"  {i['restriction']}: {i['kind']} {i['id']} ({i['licence']})")
+                for f in row["findings"]:
+                    print(f"  {f['check']} {f['reason']} [{f['record']}]")
+        if any(row["findings"] for row in rows):
+            raise typer.Exit(1)
+
+    _run(fn)
+
+
 def _not_implemented(name: str):
     def cmd() -> None:
         say(f"zoo compliance {name}: not implemented yet")

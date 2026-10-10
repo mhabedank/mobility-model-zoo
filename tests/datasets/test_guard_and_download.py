@@ -24,6 +24,27 @@ def test_training_guard_allows_active_training_data():
     require_training_allowed("road")
 
 
+def test_training_guard_checks_the_usage_class(tmp_path):
+    """Non-commercial data trains non-commercial models only (constitution 2.1.0, feature 011)."""
+    import yaml
+
+    from mobility_model_zoo.datasets.registry import declarations
+
+    rec = next(r for _, r in declarations() if r["id"] == "road")
+    rec.update(licence="CC-BY-NC-4.0", commercial_use=False)
+    d = tmp_path / "topics" / "security" / "compliance"
+    d.mkdir(parents=True)
+    (d / "datasets.yaml").write_text(yaml.safe_dump({"datasets": [rec]}))
+    for name, cls in (("picket-x", "commercial"), ("picket-x-nc", "non-commercial")):
+        (tmp_path / "zoo" / "models" / name).mkdir(parents=True)
+        (tmp_path / "zoo" / "models" / name / "model.yaml").write_text(f"usage_class: {cls}\n")
+    with pytest.raises(UsageRefused, match="non-commercial data cannot train picket-x"):
+        require_training_allowed("road", tmp_path, model="picket-x")
+    with pytest.raises(UsageRefused):
+        require_training_allowed("road", tmp_path)  # no model named: commercial by default
+    require_training_allowed("road", tmp_path, model="picket-x-nc")
+
+
 def test_training_entry_points_call_the_guard(monkeypatch):
     from mobility_model_zoo.edge.int8 import keras_export
 

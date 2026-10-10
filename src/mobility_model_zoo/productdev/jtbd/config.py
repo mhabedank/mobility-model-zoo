@@ -31,7 +31,9 @@ SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
     "min_usable_chunks": 600,
     "retention": {},
 }
-SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", *SPAN_TRAIN_DEFAULTS}
+# `model`: the zoo model this dataset trains; its declared usage class decides which licences may
+# train it (constitution 2.1.0, feature 011). Without it the target counts as commercial.
+SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", "model", *SPAN_TRAIN_DEFAULTS}
 
 
 @dataclass

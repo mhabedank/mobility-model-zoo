@@ -1,0 +1,108 @@
+# Third-party models: base models, encoders and classifiers a zoo model or a pipeline stage loads
+# (constitution 2.1.0, Principle VI; feature 011, research R8). Schema:
+# src/mobility_model_zoo/compliance/schemas/third-party-models.schema.json.
+# Each model is pinned to a revision, and remote code it loads to its own commit. The restriction is
+# derived, not stored: the weights licence combined with the licences of the training data its model
+# card names; where the training data is more restrictive than the weights, the training data
+# governs. A training-data licence `unknown` is check C-X2 once the model is used (used_by not
+# empty), unless an owner decision in compliance/decisions.yaml lists the record id.
+# Training data as named on each model card, read on 2026-10-10.
+models:
+- id: FacebookAI/xlm-roberta-large
+  revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  remote_code: null
+  weights_licence: MIT
+  training_data_named: true
+  training_data:
+  - {name: "CC-100 (filtered CommonCrawl, 100 languages)", url: "https://data.statmt.org/cc-100/", licence: LicenseRef-CommonCrawl-ToU}
+  used_by:
+  - {kind: base_model, ref: scout-large}
+  - {kind: stage, ref: "configs/productdev/jtbd/span-xlmr.yaml#base_encoder"}
+  notes: Base model of scout-large. Common Crawl terms grant a limited access licence without non-commercial or share-alike terms.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+# Candidates of feature 009 (deduplication and clustering); that feature adds its used_by entries.
+- id: intfloat/multilingual-e5-base
+  revision: d128750597153bb5987e10b1c3493a34e5a4502a
+  remote_code: null
+  weights_licence: MIT
+  training_data_named: true
+  training_data: &e5-data
+  - {name: filtered mC4, url: "https://huggingface.co/datasets/mc4", licence: ODC-By-1.0}
+  - {name: CC News, url: "https://huggingface.co/datasets/intfloat/multilingual_cc_news", licence: LicenseRef-CommonCrawl-ToU}
+  - {name: NLLB, url: "https://huggingface.co/datasets/allenai/nllb", licence: ODC-By-1.0}
+  - {name: Wikipedia, url: "https://huggingface.co/datasets/intfloat/wikipedia", licence: CC-BY-SA-3.0}
+  - {name: filtered Reddit, url: "https://www.reddit.com/", licence: unknown}
+  - {name: S2ORC, url: "https://github.com/allenai/s2orc", licence: ODC-By-1.0}
+  - {name: Stackexchange, url: "https://stackexchange.com/", licence: CC-BY-SA-4.0}
+  - {name: xP3, url: "https://huggingface.co/datasets/bigscience/xP3", licence: Apache-2.0}
+  - {name: miscellaneous unsupervised SBERT data, url: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2", licence: unknown}
+  - {name: MS MARCO, url: "https://microsoft.github.io/msmarco/", licence: LicenseRef-MSMARCO-terms}
+  - {name: Natural Questions, url: "https://github.com/facebookresearch/DPR", licence: CC-BY-SA-3.0}
+  - {name: TriviaQA, url: "https://github.com/facebookresearch/DPR", licence: unknown}
+  - {name: NLI from SimCSE (SNLI and MNLI), url: "https://github.com/princeton-nlp/SimCSE", licence: CC-BY-SA-4.0}
+  - {name: ELI5, url: "https://huggingface.co/datasets/eli5", licence: unknown}
+  - {name: DuReader Retrieval, url: "https://github.com/baidu/DuReader/tree/master/DuReader-Retrieval", licence: Apache-2.0}
+  - {name: KILT FEVER, url: "https://huggingface.co/datasets/kilt_tasks", licence: CC-BY-SA-3.0}
+  - {name: KILT HotpotQA, url: "https://huggingface.co/datasets/kilt_tasks", licence: CC-BY-SA-4.0}
+  - {name: SQuAD, url: "https://huggingface.co/datasets/squad", licence: CC-BY-SA-4.0}
+  - {name: Quora duplicate questions, url: "https://huggingface.co/datasets/quora", licence: LicenseRef-Quora-terms}
+  - {name: Mr. TyDi, url: "https://huggingface.co/datasets/castorini/mr-tydi", licence: Apache-2.0}
+  - {name: MIRACL, url: "https://huggingface.co/datasets/miracl/miracl", licence: Apache-2.0}
+  used_by: []
+  notes: Fine-tuned on MS MARCO and Quora, both for non-commercial use only, so the model is non-commercial for the zoo. Reddit, TriviaQA, ELI5 and the SBERT mix are unknown.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+- id: intfloat/multilingual-e5-small
+  revision: 614241f622f53c4eeff9890bdc4f31cfecc418b3
+  remote_code: null
+  weights_licence: MIT
+  training_data_named: true
+  training_data: *e5-data
+  used_by: []
+  notes: Same training data as multilingual-e5-base (model card, 2026-10-10).
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+- id: Alibaba-NLP/gte-multilingual-base
+  revision: 9bbca17d9273fd0d03d5725c7a4b0f6b45142062
+  remote_code: {repo: Alibaba-NLP/new-impl, revision: 40ced75c3017eb27626c9d4ea981bde21a2662f4}
+  weights_licence: Apache-2.0
+  training_data_named: false
+  training_data: []
+  used_by: []
+  notes: The model card names no training data. Remote code in Alibaba-NLP/new-impl (Apache-2.0 header) reviewed 2026-10-10, model code only, no network or file access.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+- id: sentence-transformers/LaBSE
+  revision: 836121a0533e5664b21c7aacc5d22951f2b8b25b
+  remote_code: null
+  weights_licence: Apache-2.0
+  training_data_named: false
+  training_data: []
+  used_by: []
+  notes: The model card names no training data.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+- id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
+  remote_code: null
+  weights_licence: MIT
+  training_data_named: true
+  training_data:
+  - {name: multilingual-NLI-26lang-2mil7, url: "https://huggingface.co/datasets/MoritzLaurer/multilingual-NLI-26lang-2mil7", licence: unknown}
+  - {name: XNLI, url: "https://github.com/facebookresearch/XNLI", licence: CC-BY-NC-4.0}
+  - {name: MultiNLI, url: "https://huggingface.co/datasets/multi_nli", licence: unknown}
+  - {name: ANLI, url: "https://github.com/facebookresearch/anli", licence: CC-BY-NC-4.0}
+  - {name: FEVER-NLI, url: "https://fever.ai/", licence: CC-BY-SA-3.0}
+  - {name: LingNLI, url: "https://github.com/Alicia-Parrish/ling_in_loop", licence: unknown}
+  - {name: WANLI, url: "https://huggingface.co/datasets/alisawuffles/WANLI", licence: CC-BY-4.0}
+  used_by: []
+  notes: XNLI and ANLI are CC BY-NC 4.0 (LICENSE files on GitHub, read 2026-10-10), so the model is non-commercial for the zoo.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'

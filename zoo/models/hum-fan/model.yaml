@@ -6,6 +6,7 @@ runtime: mcu
 title: 'Hum (fan): machine-sound anomaly detection on a microcontroller'
 summary: A small int8 autoencoder that learns the normal sound of a fan from log-mel features of one microphone and scores how unusual a 10-second clip sounds. It runs on the zoo's int8 engine on microcontrollers and needs only recordings of the machine in normal condition.
 license: CC-BY-SA-4.0
+usage_class: commercial-share-alike
 license_exception: "trained on MIMII (CC BY-SA 4.0); share-alike applies to the weights"
 base_model: null
 base_model_license: null

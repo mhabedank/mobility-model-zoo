@@ -34,5 +34,9 @@ performance:
     ram_gb: 1
     gpu: false
   results: results/0.1.0/performance.json
+usage:
+  class: commercial
+  licence: Apache-2.0
+  restricting_inputs: []
 published: null
 deprecated: null
