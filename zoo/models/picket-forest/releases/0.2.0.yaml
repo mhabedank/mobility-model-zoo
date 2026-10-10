@@ -1,0 +1,43 @@
+model: picket-forest
+version: 0.2.0
+date: 2026-10-10
+status: experimental
+change_type: major
+changes: 'Draft (feature 010). Calibrate on the vehicle, then detect: a fixed per-vehicle table learned from benign traffic, 10 vehicle-relative features (frame counts per ID against the calibrated maximum, unknown-ID counts), the forest, and an event-level decision (spread over an injection episode, fuzzing state). On can-ids-v3: ROAD F1 0.997, 0 false alarms per hour on the ROAD test ambient captures, at most 0.86 per hour on unknown vehicles; KCID (vehicles in no training data): 0 alarms in 74.9 h. Not yet exported to C and not measured on a device; the shuffled-label control fails its pre-registered rule (explained in specs/010-picket-forest-v2/validation.md).'
+output_format_version: picket-forest-v2
+sandbox: false
+files: []
+staging:
+  repo: mobility-model-zoo/picket-forest-staging
+  revision: ''
+recipe:
+  git_commit: ''
+  config: configs/security/can-ids/picket-forest.yaml
+  doc: topics/security/tasks/can-ids.md
+provenance:
+  sources:
+  - origin: dataset can-train-and-test (topics/*/compliance/datasets.yaml)
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 0
+    dataset: can-train-and-test
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: can-ids-v3
+  reference: labels of the can-train-and-test and ROAD datasets; KCID benign traces for false alarms
+  reference_kind: ground_truth
+  results: results/0.2.0/quality.json
+performance:
+  hardware: ESP32-S3 (HIL bench)
+  budget:
+    ram_kb: 16
+    flash_kb: 128
+    target: ESP32-S3
+  results: results/0.2.0/performance.json
+usage:
+  class: commercial
+  licence: Apache-2.0
+  restricting_inputs: []
+published: null
+deprecated: null

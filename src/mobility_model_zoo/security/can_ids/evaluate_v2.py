@@ -308,6 +308,9 @@ def evaluate_set(det, manifest, s, sources, cache, tabs) -> dict[str, Any]:
 
 def release_model(name, manifest, sources, cache, tabs):
     """Detector trained on the training captures of all four sets, threshold on all validation."""
+    from mobility_model_zoo.datasets import require_training_allowed
+
+    require_training_allowed("can-train-and-test", model="picket-forest")
     det = registry()[name]
     ctt = [c for c in manifest["captures"] if c["dataset"] == "can-train-and-test"]
     calib_ids = {
@@ -496,3 +499,75 @@ def outcome(result: dict) -> dict[str, Any]:
         "success" if met and controls_ok else ("goal missed" if not met else "control failed")
     )
     return out
+
+
+# ---- results and report ----------------------------------------------------------------------
+
+
+def write_quality(
+    result: dict, path: Path, model: str, version: str, extra: list[dict] | None = None
+) -> dict:
+    """quality.json (results format) of `picket-forest-v2` from a complete run."""
+    r = result["detectors"]["picket-forest-v2"]
+    n_sets = len(r["sets"])
+    ref = "can-train-and-test attack labels (official splits)"
+    metrics = []
+
+    def add(name, value, desc, reference, n):
+        metrics.append(
+            {
+                "name": name,
+                "value": float(value),
+                "unit": None,
+                "description": desc,
+                "reference": reference,
+                "benchmark": result["benchmark"],
+                "n_items": n,
+                "hardware": None,
+                "date": result["date"],
+            }
+        )
+
+    for split, a in r["aggregate"].items():
+        for key, label in (
+            ("f1", "attack-class F1 per frame"),
+            ("fa_per_hour_default", "false alarms per hour of the alarm rule"),
+        ):
+            for agg in ("median", "worst"):
+                v = (a.get(key) or {}).get(agg)
+                if v is not None:
+                    add(
+                        f"{key}_{split}_{agg}",
+                        v,
+                        f"{label}, {split.replace('_', ' ')}, {agg} over {n_sets} sets",
+                        ref,
+                        n_sets,
+                    )
+    road = r["road"]
+    add(
+        "f1_road",
+        road["in_scope"]["frame"]["f1"],
+        "attack-class F1 per frame on ROAD (fabrication, fuzzing)",
+        "ROAD injection labels",
+        road["in_scope"]["captures"],
+    )
+    add(
+        "fa_per_hour_road_ambient",
+        road["ambient"]["default_rule"]["false_alarms_per_hour"],
+        "false alarms per hour on the ROAD test ambient captures",
+        "ROAD ambient captures (no attacks)",
+        road["ambient"]["captures"],
+    )
+    for m in extra or []:
+        metrics.append({**m, "date": m.get("date", result["date"])})
+    data = {
+        "kind": "quality",
+        "model": model,
+        "version": version,
+        "synthetic": False,
+        "source_run": f"{result['benchmark']} run ({result['code_commit'][:12]})",
+        "metrics": metrics,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=1) + "\n")
+    return data
