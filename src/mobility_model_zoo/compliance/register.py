@@ -159,6 +159,21 @@ class Register:
             r.get("output_training_permitted") == "yes" or self.decision_covers(r["id"]) for r in routes
         )
 
+    def output_training_terms(self, model_id: str) -> str:
+        """`yes`, `non_commercial`, `no` or `unclear` over every route that served this teacher: the
+        most restrictive route wins; a decision covering a route counts as `yes` (feature 011)."""
+        routes = [r for r in self.teacher_routes(model_id) if not r["id"].endswith("-unrecorded")]
+        if not routes:
+            return "no"
+        terms = {
+            "yes" if self.decision_covers(r["id"]) else r.get("output_training_permitted", "unclear")
+            for r in routes
+        }
+        for value in ("no", "unclear", "non_commercial"):
+            if value in terms:
+                return value
+        return "yes"
+
     def decision_covers(self, route_id: str) -> bool:
         needle = f"compliance/providers.yaml#{route_id}"
         return any(

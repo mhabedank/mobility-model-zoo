@@ -44,7 +44,6 @@ def _bad(**changes):
     "rec",
     [
         _bad(id="Road_1"),
-        _bad(commercial_use=False),
         _bad(licence="CC-BY-NC-4.0"),
         _bad(licence="CC-BY-ND-4.0"),
         _bad(status="rejected", reason=None),
@@ -56,8 +55,7 @@ def _bad(**changes):
     ],
     ids=[
         "bad-id",
-        "training-not-commercial",
-        "training-nc",
+        "training-nc-marked-commercial",
         "training-nd",
         "rejected-without-reason",
         "broken-empty-reason",
@@ -74,6 +72,27 @@ def test_rule_violations_are_rejected(tmp_path, rec):
 def test_duplicate_id_across_topics(tmp_path):
     root = _tree(tmp_path, {"security": [_real("road")], "other": [_real("road")]})
     assert any("declared in topics" in p for p in validate(root))
+
+
+def test_nc_dataset_may_train_non_commercial_models(tmp_path):
+    # constitution 2.1.0: NC data is training_allowed with commercial_use false
+    rec = _bad(licence="CC-BY-NC-4.0", commercial_use=False)
+    assert validate(_tree(tmp_path, {"security": [rec]})) == []
+
+
+def _producer(root, name="teach-small-nc"):
+    d = root / "zoo" / "models" / name
+    d.mkdir(parents=True)
+    (d / "model.yaml").write_text("usage_class: non-commercial\n")
+
+
+def test_data_of_a_non_commercial_producer_is_non_commercial(tmp_path):
+    _producer(tmp_path / "a")
+    problems = validate(_tree(tmp_path / "a", {"security": [_bad(produced_by="teach-small-nc")]}))
+    assert any("commercial_use must be false" in p for p in problems)
+    _producer(tmp_path / "b")
+    rec = _bad(produced_by="teach-small-nc", commercial_use=False)
+    assert validate(_tree(tmp_path / "b", {"security": [rec]})) == []
 
 
 def test_valid_copy_passes(tmp_path):

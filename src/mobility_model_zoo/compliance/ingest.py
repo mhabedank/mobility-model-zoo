@@ -22,8 +22,15 @@ def harness_present(root: Path) -> bool:
     return (root / "compliance" / "controller.yaml").exists()
 
 
-def allowlisted(reg: Register) -> set[str]:
-    return {e["id"] for e in (reg.lists("licence-allowlist") or {}).get("licences", [])}
+def allowlisted(reg: Register, usage_class: str = "commercial") -> set[str]:
+    """Licences that may train a model of this usage class: listed, `trains` not false, and not
+    non-commercial unless the target class is non-commercial (constitution 2.1.0, VI)."""
+    nc_target = usage_class.startswith("non-commercial")
+    return {
+        e["id"]
+        for e in (reg.lists("licence-allowlist") or {}).get("licences", [])
+        if e.get("trains", True) and (nc_target or not e.get("non_commercial", False))
+    }
 
 
 def check_snapshots(reg: Register, snapshots: Iterable[dict[str, Any]]) -> list[Finding]:

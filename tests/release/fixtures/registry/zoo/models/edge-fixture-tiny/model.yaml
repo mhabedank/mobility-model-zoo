@@ -6,6 +6,7 @@ runtime: mcu
 title: Edge pipeline test model (tiny)
 summary: A tiny deterministic int8 model. It exists only to test the release pipeline for microcontroller models and is never public.
 license: Apache-2.0
+usage_class: commercial
 license_exception: null
 base_model: null
 base_model_license: null
