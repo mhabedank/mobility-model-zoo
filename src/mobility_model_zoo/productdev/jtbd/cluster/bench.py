@@ -78,7 +78,8 @@ def pool_from_config(config_path: Path, run_id: str) -> tuple[list[dict[str, Any
 
     corpus = load_settings(config_path)
     holdout = set(chunk_map(corpus, "holdout"))
-    chunks = {**chunk_map(corpus, "main"), **chunk_map(corpus, "holdout")}
+    chunks = {k: v for split in ("main", "train", "holdout")
+              for k, v in chunk_map(corpus, split).items()}
     lines = without_holdout(source_lines(corpus, run_id), holdout)
     meta = {}
     for line in lines:

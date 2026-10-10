@@ -66,3 +66,44 @@ def collect(settings: Settings, run_id: str, out: Path) -> dict[str, Any]:
                            for line in lines), encoding="utf-8")
     return {"bundle": str(out), "sources": len(lines),
             "items": sum(len(line["output"]["items"]) for line in lines)}
+
+
+def extract(settings: Settings, model_dir: Path, split: str = "main") -> dict[str, Any]:
+    """`jtbd cluster extract`: run a released span model over the stored chunks of one split and
+    write a span run for the benchmark pool (task T063). Unlike `jtbd span label` it registers no
+    candidate and needs no frozen extraction benchmark: the run is pool input, not an evaluation."""
+    import platform
+    from datetime import UTC, datetime
+
+    from mobility_model_zoo.productdev.jtbd.corpus.store import chunk_map
+    from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
+    from mobility_model_zoo.productdev.jtbd.jsonio import write_json
+    from mobility_model_zoo.productdev.jtbd.schema import LabelRunManifest, RunSettings
+    from mobility_model_zoo.productdev.jtbd.span.evaluate import MODEL_ID, model_sha256
+    from mobility_model_zoo.productdev.jtbd.span.extractor import SpanExtractor
+
+    if split == "holdout":
+        raise ValidationFailed("the holdout split never enters the cluster pool")
+    sha = model_sha256(model_dir)
+    run_id = f"run-student-{MODEL_ID}-pool-{sha[:12]}-{split}"
+    run_path = settings.runs_dir / run_id
+    chunks = chunk_map(settings, split)
+    extractor = SpanExtractor.from_pretrained(model_dir)
+    started = datetime.now(UTC)
+    for chunk_id, chunk in sorted(chunks.items()):
+        path = run_path / "parsed" / f"{chunk_id}.json"
+        if not path.exists():  # resumable
+            write_json(path, extractor.extract(chunk.text))
+    manifest = LabelRunManifest(
+        run_id=run_id, role="student", backend="span", model_id=MODEL_ID, model_version=sha[:12],
+        family="xlm-roberta", host=platform.node() or "local",
+        settings=RunSettings(temperature=0.0, structured_output="post_validation", max_retries=0,
+                             dimensions=extractor.dimensions, model_sha256=sha,
+                             thresholds=extractor.thresholds),
+        guideline_sha256="-", schema_sha256="-", criteria_sha256="-", split=split,
+        started_at=started, finished_at=datetime.now(UTC), status="complete",
+        deviations=["cluster pool run (feature 009, T063): not an evaluation of the model"])
+    data = manifest.model_dump(mode="json")
+    data["settings"] = {k: v for k, v in data["settings"].items() if v is not None}
+    write_json(run_path / "manifest.json", data)
+    return {"run_id": run_id, "chunks": len(chunks), "model_sha256": sha}

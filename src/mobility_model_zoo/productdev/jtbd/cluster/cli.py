@@ -48,6 +48,16 @@ def collect_cmd(ctx: typer.Context, run: str = typer.Option(..., "--run", help="
     _run(ctx, lambda s: collect(s, run, out))
 
 
+@app.command("extract")
+def extract_cmd(ctx: typer.Context,
+                model_dir: Path = typer.Option(..., "--model-dir", help="Released span model"),
+                split: str = typer.Option("main", "--split")) -> None:
+    """Span model over the stored chunks of a corpus config -> span run for the benchmark pool."""
+    from mobility_model_zoo.productdev.jtbd.cluster.collect import extract
+
+    _run(ctx, lambda s: extract(s, model_dir, split))
+
+
 @app.command("run")
 def run_cmd(inputs: list[Path] = typer.Option(..., "--input", help="Bundle file (repeatable)"),
             map_dir: Path = typer.Option(None, "--map", help="Map directory to write"),

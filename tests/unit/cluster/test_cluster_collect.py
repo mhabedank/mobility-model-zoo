@@ -75,3 +75,18 @@ def test_collect_refuses_a_non_span_run(tmp_path):
     pilot(config, "freeze")
     write_span_run(load_settings(config), span=False)
     pilot(config, "cluster", "collect", "--run", RUN, "--out", str(tmp_path / "b.jsonl"), expect=2)
+
+
+def test_extract_writes_a_span_run_that_collect_reads(tmp_path, tiny_span_model):
+    """`jtbd cluster extract` (T063): a pool run without a candidate registry or frozen benchmark."""
+    config = copy_fixture(tmp_path)
+    model = tiny_span_model(())
+    summary = pilot(config, "cluster", "extract", "--model-dir", str(model))
+    settings = load_settings(config)
+    assert summary["chunks"] == len(chunk_map(settings, "main"))
+    run = summary["run_id"]
+    assert run.startswith("run-student-scout-large-pool-")
+    out = tmp_path / "pool.jsonl"
+    assert pilot(config, "cluster", "collect", "--run", run, "--out", str(out))["sources"] == \
+        summary["chunks"]
+    pilot(config, "cluster", "extract", "--model-dir", str(model), "--split", "holdout", expect=1)
