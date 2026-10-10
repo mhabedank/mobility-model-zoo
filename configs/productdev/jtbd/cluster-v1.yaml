@@ -24,7 +24,11 @@ paths:
 
 cluster:
   pool:
-    span_run: null                # filled in T063: run id of the released scout-large over the pool chunks
+    # T063 (2026-10-10): the released scout-large 0.1.2 (model sha256 932c33e3a85a, byte-identical to
+    # the release files) over the pool chunks; the pilot run is its candidate evaluation c1.
+    span_run:
+      configs/productdev/jtbd/pilot-v1.yaml: run-student-scout-large-c1-932c33e3a85a-main-6b5662fa
+      configs/productdev/jtbd/span-train-v1.yaml: run-student-scout-large-pool-932c33e3a85a-train
     configs: [configs/productdev/jtbd/pilot-v1.yaml, configs/productdev/jtbd/span-train-v1.yaml]
     splits: [main]
     exclude_splits: [holdout]     # the extraction pilot's holdout is never used
@@ -37,10 +41,16 @@ cluster:
     dev: 400
     holdout: 300
     strata: {high: 0.34, middle: 0.33, random: 0.33}
+    # High and middle draw from the top 1% and the 1-20% band of the ranked sampler neighbours (set
+    # before the freeze, 2026-10-10): the pool has few paraphrases, and only the top percent of
+    # neighbour pairs (LaBSE cosine above about 0.64) holds a useful share of them.
+    bands: {high: 0.01, middle: 0.20}
     same_kind_only: true
     samplers:
-      - {name: labse, model_id: sentence-transformers/LaBSE, revision: 836121a0533e5664b21c7aacc5d22951f2b8b25b, licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09; the repository has no LICENSE file, rechecked 2026-10-10 when pinning)"}
-      - {name: lexical, method: token_set_ratio}
+      - {name: labse, model_id: sentence-transformers/LaBSE, revision: 836121a0533e5664b21c7aacc5d22951f2b8b25b, pooling: pooler, licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09; the repository has no LICENSE file, rechecked 2026-10-10 when pinning)"}
+      # token_sort_ratio, not token_set_ratio: the set ratio is 1.0 whenever one quote's words are a
+      # subset of the other's, so short generic quotes filled the high stratum (checked 2026-10-10).
+      - {name: lexical, method: token_sort_ratio}
   sets: {test: 12, dev: 4, holdout: 4, size: 40, neighbourhood_k: 39, coarse_partition: optional}
   reference_models: [claude-reference, gpt-mini-reference]
   batch_size: 20

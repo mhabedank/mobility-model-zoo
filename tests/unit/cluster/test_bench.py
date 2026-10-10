@@ -116,3 +116,8 @@ def test_revised_guideline_may_be_frozen_once_for_the_re_pilot(built, tmp_path):
     bench.set_state(built.settings(), "revise", "test")
     assert bench.freeze(built.settings())["revised"] is True
     assert bench.verify(built.settings())["state"] == "frozen"
+
+
+def test_fragments_without_a_word_are_not_sampled():
+    assert not bench.labelable(".") and not bench.labelable("B.") and not bench.labelable("Dr.")
+    assert bench.labelable("Bus late") and bench.labelable("Straße")

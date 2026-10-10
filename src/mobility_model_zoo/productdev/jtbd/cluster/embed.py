@@ -46,11 +46,12 @@ def normalise_rows(vectors: np.ndarray) -> np.ndarray:
     return vectors / np.where(norms == 0, 1, norms)
 
 
-POOLINGS = ("mean", "cls")
+POOLINGS = ("mean", "cls", "pooler")
 
 
 class HFEncoder:
-    """`transformers` encoder on CPU, mean-pooled or first-token (CLS) pooled as the model expects."""
+    """`transformers` encoder on CPU, pooled as the model expects: mean, first token (CLS), or the
+    model's pooler output (dense + tanh over CLS, as LaBSE was trained)."""
 
     def __init__(self, settings: dict[str, Any]):
         require_pinned(settings, "encoder")
@@ -80,7 +81,11 @@ class HFEncoder:
                 batch = [self.prefix + q for q in quotes[i:i + self.batch_size]]
                 enc = self.tokenizer(batch, padding=True, truncation=True,
                                      max_length=self.max_length, return_tensors="pt")
-                states = self.model(**enc).last_hidden_state
+                output = self.model(**enc)
+                if self.pooling == "pooler":
+                    rows.append(output.pooler_output.float().numpy())
+                    continue
+                states = output.last_hidden_state
                 if self.pooling == "cls":
                     rows.append(states[:, 0].float().numpy())
                     continue

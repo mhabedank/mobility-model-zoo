@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -25,7 +26,7 @@ import numpy as np
 import yaml
 
 from mobility_model_zoo.productdev.jtbd.cluster.bundle import items_from, read_bundle_lines
-from mobility_model_zoo.productdev.jtbd.cluster.embed import Encoder, make_encoder
+from mobility_model_zoo.productdev.jtbd.cluster.embed import EmbeddingCache, Encoder, make_encoder
 from mobility_model_zoo.productdev.jtbd.config import Settings
 from mobility_model_zoo.productdev.jtbd.errors import (
     FrozenHashMismatch,
@@ -39,6 +40,13 @@ STRATA = ("high", "middle", "random")
 SAMPLERS = {"labse", "lexical"}
 CANDIDATE_SETTINGS = ("cluster-baseline.yaml", "cluster-e5-small.yaml", "cluster-gte-base.yaml")
 STATES = ("draft", "frozen", "piloted", "revise", "decided")
+WORD = re.compile(r"[^\W\d_]{3}")  # a run of three letters in any script
+
+
+def labelable(quote: str) -> bool:
+    """Fragments without any word (".", "B.", "Dr.") are not sampled into pairs or sets: a
+    reference cannot judge them, so labels on them measure nothing. They stay in the pool."""
+    return bool(WORD.search(quote))
 
 
 @dataclass(frozen=True)
@@ -134,16 +142,24 @@ def labse_encoder(cluster: dict[str, Any]) -> Encoder:
     labse = next(s for s in cluster["pairs"]["samplers"] if s["name"] == "labse")
     return make_encoder({"model_id": labse["model_id"], "revision": labse.get("revision"),
                          "licence_basis": labse.get("licence_basis"),
-                         "pooling": labse.get("pooling", "cls"), "batch_size": 64,
+                         "pooling": labse.get("pooling", "pooler"), "batch_size": 64,
                          "max_length": 128})
 
 
-def lexical_similarity(quotes: list[str]) -> np.ndarray:
+LEXICAL_METHODS = ("token_sort_ratio", "token_set_ratio")
+
+
+def lexical_similarity(quotes: list[str], method: str = "token_sort_ratio") -> np.ndarray:
+    """Pairwise lexical similarity in [0, 1]. `token_sort_ratio` (default) compares whole word
+    sequences regardless of order; `token_set_ratio` scores 1.0 whenever one quote's words are a
+    subset of the other's, which makes every short generic quote a top pair."""
     from rapidfuzz import fuzz, process
 
+    if method not in LEXICAL_METHODS:
+        raise UsageError(f"lexical sampler method {method!r}: use one of {', '.join(LEXICAL_METHODS)}")
     if not quotes:
         return np.zeros((0, 0), dtype=np.float32)
-    return process.cdist(quotes, quotes, scorer=fuzz.token_set_ratio, dtype=np.float32) / 100.0
+    return process.cdist(quotes, quotes, scorer=getattr(fuzz, method), dtype=np.float32) / 100.0
 
 
 def pair_id(a: str, b: str) -> str:
@@ -151,11 +167,19 @@ def pair_id(a: str, b: str) -> str:
     return "pr-" + hashlib.sha256(f"{lo}|{hi}".encode()).hexdigest()[:12]
 
 
+BANDS = {"high": 0.10, "middle": 0.50}  # upper bounds as shares of ranked candidate pairs
+
+
 def sample_pairs(items: list[PoolItem], vectors: np.ndarray, n: int, shares: dict[str, float],
-                 seed: int, split: str, neighbours: int = 10) -> list[dict[str, Any]]:
-    """Same-kind pairs of one split, stratified: `high` and `middle` are the upper and middle third
-    of candidate pairs (each item's nearest neighbours under either sampler, ranked by the larger of
-    the two similarities); `random` are uniformly drawn same-kind pairs. Order of a and b is random."""
+                 seed: int, split: str, neighbours: int = 10,
+                 bands: dict[str, float] | None = None, similarity: dict | None = None,
+                 lexical: str = "token_sort_ratio") -> list[dict[str, Any]]:
+    """Same-kind pairs of one split, stratified. Candidate pairs are each item's nearest neighbours
+    under either sampler, ranked by the larger of the two similarities; `high` draws from the top
+    `bands.high` share of them, `middle` from the band up to `bands.middle`, `random` uniformly from
+    all same-kind pairs. Order of a and b is random. `similarity`, if given, receives the sampler
+    similarity of the drawn pairs per stratum (for the build report, never stored with the pairs)."""
+    bands = {**BANDS, **(bands or {})}
     rng = np.random.default_rng(seed)
     by_kind: dict[str, list[int]] = defaultdict(list)
     for i, item in enumerate(items):
@@ -165,7 +189,7 @@ def sample_pairs(items: list[PoolItem], vectors: np.ndarray, n: int, shares: dic
         if len(idx) < 2:
             continue
         cos = vectors[idx] @ vectors[idx].T
-        lex = lexical_similarity([items[i].quote for i in idx])
+        lex = lexical_similarity([items[i].quote for i in idx], lexical)
         for sims in (cos, lex):
             np.fill_diagonal(sims, -np.inf)
             k = min(neighbours, len(idx) - 1)
@@ -177,8 +201,9 @@ def sample_pairs(items: list[PoolItem], vectors: np.ndarray, n: int, shares: dic
                                              candidates.get((a, b), -1.0))
     ranked = sorted(candidates, key=lambda p: (-candidates[p], items[p[0]].item_id,
                                                items[p[1]].item_id))
-    third = len(ranked) // 3
-    pools = {"high": ranked[:third], "middle": ranked[third:2 * third]}
+    cut_high = max(1, round(len(ranked) * bands["high"]))
+    cut_middle = max(cut_high, round(len(ranked) * bands["middle"]))
+    pools = {"high": ranked[:cut_high], "middle": ranked[cut_high:cut_middle]}
     taken: set[tuple[int, int]] = set()
     out = []
     targets = {s: round(n * shares.get(s, 0)) for s in STRATA}
@@ -198,6 +223,11 @@ def sample_pairs(items: list[PoolItem], vectors: np.ndarray, n: int, shares: dic
         if p not in taken:
             taken.add(p)
             out.append((p, "random"))
+    if similarity is not None:
+        for (a, b), stratum in out:
+            sim = candidates.get((a, b))
+            if sim is not None:
+                similarity.setdefault(stratum, []).append(sim)
     rows = []
     for (a, b), stratum in out:
         first, second = (a, b) if rng.random() < 0.5 else (b, a)
@@ -265,14 +295,19 @@ def build(settings: Settings, encoder: Encoder | None = None,
                   key=lambda i: i.item_id)
     if encoder is None:
         encoder = labse_encoder(cluster)
-    vectors = encoder.embed([i.quote for i in pool])
+    cache = EmbeddingCache(settings.data_dir / "cache", encoder.model_id, encoder.revision,
+                           getattr(encoder, "variant", ""))
+    vectors = cache.get([i.quote for i in pool], encoder)
     pairs_cfg, sets_cfg = cluster["pairs"], cluster["sets"]
-    pairs, sets = [], []
+    pairs, sets, similarity = [], [], {}
+    lexical = next(s for s in pairs_cfg["samplers"] if s["name"] == "lexical").get(
+        "method", "token_sort_ratio")
     for k, split in enumerate(SPLITS):
-        idx = [j for j, item in enumerate(pool) if item.split == split]
+        idx = [j for j, item in enumerate(pool) if item.split == split and labelable(item.quote)]
         sub = [pool[j] for j in idx]
         pairs += sample_pairs(sub, vectors[idx], int(pairs_cfg[split]), pairs_cfg["strata"],
-                              seed + k, split)
+                              seed + k, split, bands=pairs_cfg.get("bands"),
+                              similarity=similarity.setdefault(split, {}), lexical=lexical)
         sets += build_sets(sub, vectors[idx], int(sets_cfg[split]), int(sets_cfg["size"]),
                            seed + 10 + k, split)
     out = bench_dir(settings)
@@ -282,7 +317,11 @@ def build(settings: Settings, encoder: Encoder | None = None,
     write_jsonl(out / "sets.jsonl", sets)
     save_manifest(settings, {"version": settings.benchmark_version, "state": "draft",
                              "built_at": _now(), "hashes": {}, "counts": counts(pool, pairs, sets)})
-    return {"bench": str(out), **counts(pool, pairs, sets)}
+    spread = {split: {st: {"min": round(min(v), 3), "median": round(float(np.median(v)), 3),
+                           "max": round(max(v), 3)} for st, v in sorted(by.items())}
+              for split, by in similarity.items()}
+    return {"bench": str(out), **counts(pool, pairs, sets), "sampler_similarity": spread,
+            "not_sampled_fragments": sum(1 for i in pool if not labelable(i.quote))}
 
 
 def counts(pool: list[PoolItem], pairs: list[dict], sets: list[dict]) -> dict[str, Any]:
