@@ -108,3 +108,77 @@ def check_cmd(map_dir: Path = typer.Option(..., "--map", help="Map directory"),
                 "skipped": [c["name"] for c in checks if c.get("skipped")]}
 
     _plain(go)
+
+
+# ---- building and measuring (user story 2; global --config cluster-v1.yaml) ----------------------
+
+bench_app = typer.Typer(no_args_is_help=True, help="Benchmark cluster-v1: pool, pairs and sets")
+app.add_typer(bench_app, name="bench")
+
+
+@bench_app.command("build")
+def bench_build_cmd(ctx: typer.Context) -> None:
+    """Item pool, split by snapshot, stratified pairs and neighbourhood sets (research R10)."""
+    from mobility_model_zoo.productdev.jtbd.cluster.bench import build
+
+    _run(ctx, build)
+
+
+@app.command("freeze")
+def freeze_cmd(ctx: typer.Context) -> None:
+    """Freeze guideline, examples, prompt, wire schema, criteria, budget and benchmark lists."""
+    from mobility_model_zoo.productdev.jtbd.cluster.bench import freeze
+
+    _run(ctx, freeze)
+
+
+@app.command("label")
+def label_cmd(ctx: typer.Context, model: str = typer.Option(..., "--model", help="Reference model id"),
+              split: str = typer.Option(..., "--split", help="dev, test or holdout"),
+              limit: int = typer.Option(None, "--limit", help="Label at most this many units")) -> None:
+    """Label pairs and sets of one split with one reference model (research R11)."""
+    from mobility_model_zoo.productdev.jtbd.cluster.label import label
+
+    _run(ctx, lambda s: label(s, model, split, limit))
+
+
+@app.command("agreement")
+def agreement_cmd(ctx: typer.Context,
+                  split: str = typer.Option(..., "--split", help="dev, test or holdout")) -> None:
+    """Reference-vs-reference agreement per level with CIs, consensus and contested pairs."""
+    from mobility_model_zoo.productdev.jtbd.cluster.metrics import run_agreement
+
+    def go(s):
+        result = run_agreement(s, split)
+        return {k: result[k] for k in ("split", "references", "levels", "consensus_pairs",
+                                       "contested_pairs")}
+
+    _run(ctx, go)
+
+
+@app.command("decide")
+def decide_cmd(ctx: typer.Context) -> None:
+    """Apply the frozen criteria: go, revise or rethink per level (spec FR-024)."""
+    from mobility_model_zoo.productdev.jtbd.cluster.decide import decide
+
+    _run(ctx, decide)
+
+
+@app.command("tune")
+def tune_cmd(ctx: typer.Context,
+             settings: Path = typer.Option(..., "--settings", help="Stage settings to tune"),
+             split: str = typer.Option(..., "--split", help="Only dev is allowed"),
+             out: Path = typer.Option(None, "--out", help="Tuned settings file")) -> None:
+    """Grid search of t_dup on development pairs; writes a new settings file with the grid."""
+    from mobility_model_zoo.productdev.jtbd.cluster.tune import tune
+
+    _run(ctx, lambda s: tune(s, settings, split, out))
+
+
+@app.command("score")
+def score_cmd(ctx: typer.Context,
+              settings: Path = typer.Option(..., "--settings", help="Candidate stage settings")) -> None:
+    """Run one candidate on the test pool and score it per level against the consensus."""
+    from mobility_model_zoo.productdev.jtbd.cluster.score import score
+
+    _run(ctx, lambda s: score(s, settings))

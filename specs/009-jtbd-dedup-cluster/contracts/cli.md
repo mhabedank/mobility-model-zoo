@@ -19,8 +19,8 @@ Sub-app of the JTBD tool (research R1). Global options of `jtbd` (`--config`) ap
 |---|---|
 | `jtbd cluster bench build --config cluster-v1.yaml` | Builds the item pool, the dev/test/holdout split by snapshot, stratified pairs and neighbourhood sets (R10). |
 | `jtbd cluster freeze --config cluster-v1.yaml` | Freezes guideline, examples, prompt, wire schema, criteria, budget and benchmark lists into the manifest (hashes only). |
-| `jtbd cluster label --model <reference-id> --split test\|holdout` | Labels pairs and sets with one reference model (R11): frozen hashes, budget guard, pre-send checks, approved routes, write-once raw responses, resumable. Only models with `role: reference` and `benchmark_labeler: true`. |
-| `jtbd cluster agreement --split test\|holdout` | Reference-vs-reference statistics per level with CIs, consensus and contested sets. |
+| `jtbd cluster label --model <reference-id> --split dev\|test\|holdout` | Labels pairs and sets with one reference model (R11): frozen hashes, budget guard, pre-send checks, approved routes, write-once raw responses, resumable. Only models with `role: reference` and `benchmark_labeler: true`. |
+| `jtbd cluster agreement --split dev\|test\|holdout` | Reference-vs-reference statistics per level with CIs, consensus and contested sets; `dev` serves tuning only. |
 | `jtbd cluster decide` | Applies the frozen criteria (R12): go, revise or rethink per level. |
 | `jtbd cluster tune --settings <file> --split dev` | Grid search of `t_dup`, `t_spec`, `t_nli` and cluster levels on development pairs and sets only; writes the chosen values into a new settings file with the grid recorded. Refuses `--split test`. |
 | `jtbd cluster score --settings <file>` | Runs the stage on the test pool and scores it per level against the consensus; contested pairs reported separately and scored neutrally. |

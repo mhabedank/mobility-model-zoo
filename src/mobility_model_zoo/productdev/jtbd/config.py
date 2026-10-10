@@ -33,8 +33,9 @@ SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
 }
 SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", *SPAN_TRAIN_DEFAULTS}
 # Benchmark config of the jtbd-cluster task (feature 009, data-model.md "Benchmark").
-CLUSTER_KEYS = {"pool", "split_by", "dev_fraction", "seed", "pairs", "sets", "reference_models",
-                "batch_size", "guideline", "examples", "criteria", "retention"}
+CLUSTER_KEYS = {"pool", "split_by", "dev_fraction", "holdout_fraction", "seed", "pairs", "sets",
+                "reference_models", "batch_size", "max_retries", "guideline", "examples", "criteria",
+                "retention"}
 
 
 @dataclass

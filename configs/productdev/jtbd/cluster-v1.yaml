@@ -30,6 +30,7 @@ cluster:
     exclude_splits: [holdout]     # the extraction pilot's holdout is never used
   split_by: snapshot
   dev_fraction: 0.30
+  holdout_fraction: 0.15          # snapshots kept for the one re-pilot (holdout pairs and sets)
   seed: 20261009
   pairs:
     test: 1200

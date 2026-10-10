@@ -33,7 +33,22 @@ from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
 OUTPUT_FORMAT_VERSION = "jtbd-cluster-v1"
 SETTINGS_KEYS = {"name", "encoder", "nli", "neighbours", "thresholds", "levels", "representative",
-                 "settings_changes", "tuning"}
+                 "settings_changes", "tuning", "decision"}
+
+
+def load_decision(settings: dict[str, Any], base: Path) -> dict[str, Any] | None:
+    """The agreement pilot's decision (`decision.json`, task T031) named by `decision:` in the
+    settings. A level that is not `go` is not produced (spec FR-024); a stopped task refuses to run."""
+    name = settings.get("decision")
+    if not name:
+        return None
+    path = Path(name) if Path(name).is_absolute() else base / name
+    if not path.exists():
+        raise UsageError(f"decision file not found: {path}")
+    decision = json.loads(path.read_text(encoding="utf-8"))
+    if decision.get("task_stopped"):
+        raise UsageError(f"{path}: the duplicate level ended `rethink`; the task is stopped")
+    return decision
 
 
 def load_stage_settings(path: Path | str) -> tuple[dict[str, Any], str]:
@@ -64,17 +79,25 @@ def representative(indices: list[int], vectors: np.ndarray) -> int:
 
 
 class ClusterStage:
-    def __init__(self, settings: dict[str, Any], settings_sha256: str, encoder: Encoder):
+    def __init__(self, settings: dict[str, Any], settings_sha256: str, encoder: Encoder,
+                 decision: dict[str, Any] | None = None):
         self.settings = settings
         self.settings_sha256 = settings_sha256
         self.encoder = encoder
+        # Levels the pilot allows; user stories 3 and later produce only these (spec FR-024).
+        self.decision = decision
+        self.specificity_allowed = bool(decision is None or decision.get("specificity_produced"))
+        self.cluster_levels_allowed = (len(settings.get("levels") or []) if decision is None
+                                       else int(decision.get("cluster_levels_produced", 0)))
 
     @classmethod
     def from_settings(cls, path: Path | str, encoder: Encoder | None = None) -> ClusterStage:
         settings, digest = load_stage_settings(path)
+        base = Path(path).resolve().parent
+        decision = load_decision(settings, base)
         if encoder is None:
-            encoder = make_encoder(settings["encoder"], base=Path(path).resolve().parent)
-        return cls(settings, digest, encoder)
+            encoder = make_encoder(settings["encoder"], base=base)
+        return cls(settings, digest, encoder, decision)
 
     def run(self, sources: list[Source], map_dir: Path | str | None = None,
             bundle_paths: list[Path | str] | None = None) -> dict[str, Any]:

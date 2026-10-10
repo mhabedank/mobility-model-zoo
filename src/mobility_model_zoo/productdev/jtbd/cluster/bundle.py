@@ -97,8 +97,7 @@ def file_sha256(path: Path | str) -> str:
 def read_bundle(path: Path | str) -> list[Source]:
     """Read and validate one bundle. Refuses other format versions and duplicate source ids."""
     path = Path(path)
-    sources: list[Source] = []
-    seen: set[str] = set()
+    lines = []
     for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
@@ -107,6 +106,19 @@ def read_bundle(path: Path | str) -> list[Source]:
             raw = json.loads(line)
         except json.JSONDecodeError as exc:
             raise ValidationFailed(f"{where}: not JSON ({exc.msg})") from exc
+        lines.append((where, raw))
+    return _sources(lines)
+
+
+def read_bundle_lines(lines: Iterable[dict[str, Any]], name: str = "bundle") -> list[Source]:
+    """Validate bundle lines already in memory (benchmark pool, tests)."""
+    return _sources([(f"{name}:{n}", raw) for n, raw in enumerate(lines, start=1)])
+
+
+def _sources(lines: list[tuple[str, Any]]) -> list[Source]:
+    sources: list[Source] = []
+    seen: set[str] = set()
+    for where, raw in lines:
         if not isinstance(raw, dict):
             raise ValidationFailed(f"{where}: a source line must be a JSON object")
         version = (raw.get("output") or {}).get("output_format_version")
