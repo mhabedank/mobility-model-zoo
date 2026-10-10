@@ -5,8 +5,8 @@
 name: cluster-baseline
 encoder:
   model_id: intfloat/multilingual-e5-base
-  revision: null                  # pin with topics/productdev/scripts/cluster/pin_revisions.py (T008)
-  licence_basis: "MIT (model card licence tag, checked 2026-10-09 via web search; read the LICENSE file when pinning)"
+  revision: d128750597153bb5987e10b1c3493a34e5a4502a  # pinned 2026-10-10 with topics/productdev/scripts/cluster/pin_revisions.py (T008)
+  licence_basis: "MIT (model card licence tag, checked 2026-10-09; the repository has no LICENSE file, rechecked 2026-10-10 when pinning)"
   prefix: "query: "
   trust_remote_code: false
   pooling: mean
@@ -15,7 +15,7 @@ encoder:
   max_length: 128
 nli:
   model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
-  revision: null
+  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
   # Open (T008): the model itself is MIT, but its training data multilingual-NLI-26lang-2mil7
   # includes ANLI subsets, whose licence must be checked for commercial use before this model is
   # used. Owner decision; until then the stage refuses to load it.

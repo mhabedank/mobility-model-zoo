@@ -9,6 +9,7 @@ from mobility_model_zoo.productdev.jtbd.cluster.embed import (
     HFEncoder,
     TableEncoder,
     make_encoder,
+    variant_of,
 )
 from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
@@ -65,6 +66,22 @@ def test_real_encoder_needs_pinned_revision_and_licence(missing):
         HFEncoder(settings)
     with pytest.raises(UsageError, match=missing):
         make_encoder(settings)
+
+
+def test_remote_code_needs_a_pinned_code_revision():
+    settings = {"model_id": "Alibaba-NLP/gte-multilingual-base", "revision": "abc",
+                "licence_basis": "Apache-2.0", "trust_remote_code": True}
+    with pytest.raises(UsageError, match="code_revision"):
+        HFEncoder(settings)
+
+
+def test_cache_variant_separates_pooling_and_prefix(tmp_path):
+    enc = CountingEncoder()
+    EmbeddingCache(tmp_path, enc.model_id, "r1", variant_of({"pooling": "mean"})).get(["A"], enc)
+    EmbeddingCache(tmp_path, enc.model_id, "r1", variant_of({"pooling": "cls"})).get(["A"], enc)
+    EmbeddingCache(tmp_path, enc.model_id, "r1", variant_of({"pooling": "cls"})).get(["A"], enc)
+    assert enc.calls == [["A"], ["A"]]
+    assert variant_of({}) == ""
 
 
 def test_table_backend_resolves_relative_to_settings():

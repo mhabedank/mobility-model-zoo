@@ -5,17 +5,18 @@
 name: cluster-gte-base
 encoder:
   model_id: Alibaba-NLP/gte-multilingual-base
-  revision: null                  # pin with topics/productdev/scripts/cluster/pin_revisions.py (T008)
-  licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09 via web search; read the LICENSE file and the remote code when pinning)"
+  revision: 9bbca17d9273fd0d03d5725c7a4b0f6b45142062  # pinned 2026-10-10 with topics/productdev/scripts/cluster/pin_revisions.py (T008)
+  licence_basis: "Apache-2.0 (model card licence tag; the repository has no LICENSE file; remote code in Alibaba-NLP/new-impl, Apache-2.0 header, reviewed 2026-10-10: model code only, imports torch, transformers and optional xformers, no network or file access)"
   prefix: ""
-  trust_remote_code: true        # the model ships its own architecture code; loaded only at the pinned revision
-  pooling: mean
+  trust_remote_code: true        # the architecture code lives in Alibaba-NLP/new-impl (config auto_map)
+  code_revision: 40ced75c3017eb27626c9d4ea981bde21a2662f4  # commit of Alibaba-NLP/new-impl; without it transformers loads `main`
+  pooling: cls                   # first token, as on the model card
   normalize: true
   batch_size: 64
   max_length: 128
 nli:
   model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
-  revision: null
+  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
   # Open (T008): the model itself is MIT, but its training data multilingual-NLI-26lang-2mil7
   # includes ANLI subsets, whose licence must be checked for commercial use before this model is
   # used. Owner decision; until then the stage refuses to load it.

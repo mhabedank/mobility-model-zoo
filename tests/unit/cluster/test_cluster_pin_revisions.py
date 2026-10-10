@@ -30,5 +30,25 @@ def test_pin_replaces_null_revisions_and_keeps_comments():
                        ("sentence-transformers/LaBSE", "sha-LaBSE")]
 
 
+def test_pin_fills_code_revision_from_the_code_repository():
+    text = (
+        "encoder:\n"
+        "  model_id: org/remote-model\n"
+        "  revision: null\n"
+        "  trust_remote_code: true\n"
+        "  code_revision: null            # remote code\n"
+    )
+    out, changes = pin_revisions.pin(text, lambda m: f"sha-{m}", lambda m: ("org/impl", "sha-impl"))
+    assert "  revision: sha-org/remote-model\n" in out
+    assert "  code_revision: sha-impl            # remote code\n" in out
+    assert changes == [("org/remote-model", "sha-org/remote-model"), ("org/impl", "sha-impl")]
+
+
+def test_code_revision_is_not_taken_for_a_model_revision():
+    text = "encoder:\n  model_id: org/m\n  revision: abc\n  code_revision: null\n"
+    out, changes = pin_revisions.pin(text, lambda m: "sha-m")
+    assert out == text and changes == []
+
+
 def test_settings_files_exist():
     assert all(p.exists() for p in pin_revisions.FILES)

@@ -79,7 +79,8 @@ class ClusterStage:
     def run(self, sources: list[Source], map_dir: Path | str | None = None,
             bundle_paths: list[Path | str] | None = None) -> dict[str, Any]:
         items = items_from(sources)
-        cache = EmbeddingCache(map_dir, self.encoder.model_id, self.encoder.revision)
+        cache = EmbeddingCache(map_dir, self.encoder.model_id, self.encoder.revision,
+                               getattr(self.encoder, "variant", ""))
         vectors = cache.get([i.quote for i in items], self.encoder) if items else np.zeros((0, 1))
         thresholds = self.settings["thresholds"]
         neighbours = self.settings["neighbours"]

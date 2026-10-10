@@ -1782,6 +1782,14 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+cluster = [
+    { name = "jsonschema" },
+    { name = "numpy" },
+    { name = "pyyaml" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "typer" },
+]
 edge = [
     { name = "httpx" },
     { name = "jsonschema" },
@@ -1853,11 +1861,13 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'release'", specifier = ">=0.27" },
     { name = "huggingface-hub", specifier = ">=1.19" },
     { name = "jinja2", marker = "extra == 'release'", specifier = ">=3.1" },
+    { name = "jsonschema", marker = "extra == 'cluster'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'edge'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'jtbd'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'release'", specifier = ">=4.23" },
     { name = "markdown-it-py", marker = "extra == 'release'", specifier = ">=3.0" },
     { name = "matplotlib", marker = "extra == 'jtbd'", specifier = ">=3.9" },
+    { name = "numpy", marker = "extra == 'cluster'", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'edge'", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'jtbd'", specifier = ">=1.26" },
     { name = "openai", marker = "extra == 'jtbd'", specifier = ">=1.40" },
@@ -1870,13 +1880,16 @@ requires-dist = [
     { name = "pyserial", marker = "extra == 'edge'", specifier = ">=3.5" },
     { name = "pytest-xdist", marker = "extra == 'edge-hw'", specifier = ">=3.3" },
     { name = "python-dotenv", marker = "extra == 'jtbd'", specifier = ">=1.0" },
+    { name = "pyyaml", marker = "extra == 'cluster'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'edge'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'jtbd'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'release'", specifier = ">=6.0" },
     { name = "rapidfuzz", marker = "extra == 'jtbd'", specifier = ">=3.14.6" },
     { name = "safetensors", specifier = ">=0.4" },
+    { name = "scikit-learn", marker = "extra == 'cluster'", specifier = ">=1.5" },
     { name = "scikit-learn", marker = "extra == 'edge-train'", specifier = ">=1.5" },
     { name = "scikit-learn", marker = "extra == 'jtbd'", specifier = ">=1.5" },
+    { name = "scipy", marker = "extra == 'cluster'", specifier = ">=1.13" },
     { name = "scipy", marker = "extra == 'jtbd'", specifier = ">=1.13" },
     { name = "sentencepiece", specifier = ">=0.2" },
     { name = "setuptools", marker = "extra == 'edge-train'", specifier = ">=70" },
@@ -1887,10 +1900,11 @@ requires-dist = [
     { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.4", index = "https://download.pytorch.org/whl/cpu" },
     { name = "trafilatura", marker = "extra == 'jtbd'", specifier = ">=1.12" },
     { name = "transformers", specifier = ">=4.46" },
+    { name = "typer", marker = "extra == 'cluster'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'jtbd'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'release'", specifier = ">=0.12" },
 ]
-provides-extras = ["jtbd", "release", "edge", "edge-hw", "edge-train", "labeling-api"]
+provides-extras = ["jtbd", "cluster", "release", "edge", "edge-hw", "edge-train", "labeling-api"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -38,7 +38,7 @@ cluster:
     strata: {high: 0.34, middle: 0.33, random: 0.33}
     same_kind_only: true
     samplers:
-      - {name: labse, model_id: sentence-transformers/LaBSE, revision: null, licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09 via web search)"}
+      - {name: labse, model_id: sentence-transformers/LaBSE, revision: 836121a0533e5664b21c7aacc5d22951f2b8b25b, licence_basis: "Apache-2.0 (model card licence tag, checked 2026-10-09; the repository has no LICENSE file, rechecked 2026-10-10 when pinning)"}
       - {name: lexical, method: token_set_ratio}
   sets: {test: 12, dev: 4, holdout: 4, size: 40, neighbourhood_k: 39, coarse_partition: optional}
   reference_models: [claude-reference, gpt-mini-reference]

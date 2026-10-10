@@ -1,7 +1,9 @@
 """Sentence embeddings of quotes and their cache (research R5, R6).
 
 `HFEncoder` loads a multilingual encoder at a pinned revision and refuses to load without one or
-without a recorded licence basis (T008). `TableEncoder` gives fixed vectors from a JSON table and is
+without a recorded licence basis (T008); a model that needs remote code also needs a pinned
+`code_revision`, because its `auto_map` may point to another repository whose code would otherwise
+be loaded from `main`. `TableEncoder` gives fixed vectors from a JSON table and is
 used by tests and dry runs, so nothing is downloaded there. Vectors are L2-normalised float32 rows.
 """
 
@@ -21,6 +23,7 @@ from mobility_model_zoo.productdev.jtbd.errors import UsageError
 class Encoder(Protocol):
     model_id: str
     revision: str
+    variant: str
 
     def embed(self, quotes: list[str]) -> np.ndarray: ...
 
@@ -32,6 +35,9 @@ def require_pinned(settings: dict[str, Any], what: str) -> None:
     if not settings.get("licence_basis"):
         raise UsageError(f"{what} {settings.get('model_id')!r}: record `licence_basis` before use "
                          "(T008)")
+    if settings.get("trust_remote_code") and not settings.get("code_revision"):
+        raise UsageError(f"{what} {settings.get('model_id')!r}: pin `code_revision` of the remote "
+                         "code before use (T008)")
 
 
 def normalise_rows(vectors: np.ndarray) -> np.ndarray:
@@ -40,8 +46,11 @@ def normalise_rows(vectors: np.ndarray) -> np.ndarray:
     return vectors / np.where(norms == 0, 1, norms)
 
 
+POOLINGS = ("mean", "cls")
+
+
 class HFEncoder:
-    """Mean-pooled `transformers` encoder on CPU."""
+    """`transformers` encoder on CPU, mean-pooled or first-token (CLS) pooled as the model expects."""
 
     def __init__(self, settings: dict[str, Any]):
         require_pinned(settings, "encoder")
@@ -54,11 +63,14 @@ class HFEncoder:
         self.prefix = settings.get("prefix", "")
         self.batch_size = int(settings.get("batch_size", 64))
         self.max_length = int(settings.get("max_length", 128))
+        self.pooling = settings.get("pooling", "mean")
+        if self.pooling not in POOLINGS:
+            raise UsageError(f"encoder pooling {self.pooling!r}: use one of {', '.join(POOLINGS)}")
         remote = bool(settings.get("trust_remote_code", False))
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, revision=self.revision,
-                                                       trust_remote_code=remote)
-        self.model = AutoModel.from_pretrained(self.model_id, revision=self.revision,
-                                               trust_remote_code=remote).eval()
+        code = {"trust_remote_code": True, "code_revision": settings["code_revision"]} if remote else {}
+        self.variant = variant_of(settings)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, revision=self.revision, **code)
+        self.model = AutoModel.from_pretrained(self.model_id, revision=self.revision, **code).eval()
 
     def embed(self, quotes: list[str]) -> np.ndarray:
         torch = self._torch
@@ -69,10 +81,21 @@ class HFEncoder:
                 enc = self.tokenizer(batch, padding=True, truncation=True,
                                      max_length=self.max_length, return_tensors="pt")
                 states = self.model(**enc).last_hidden_state
+                if self.pooling == "cls":
+                    rows.append(states[:, 0].float().numpy())
+                    continue
                 mask = enc["attention_mask"].unsqueeze(-1).to(states.dtype)
                 rows.append(((states * mask).sum(1) / mask.sum(1).clamp(min=1)).float().numpy())
         dim = self.model.config.hidden_size
         return normalise_rows(np.concatenate(rows) if rows else np.zeros((0, dim)))
+
+
+def variant_of(settings: dict[str, Any]) -> str:
+    """Settings besides model and revision that change the vectors; part of the cache identity."""
+    parts = {k: settings.get(k) for k in ("prefix", "pooling", "max_length", "code_revision")}
+    if not any(parts.values()):
+        return ""
+    return json.dumps(parts, sort_keys=True)
 
 
 class TableEncoder:
@@ -84,6 +107,7 @@ class TableEncoder:
         self.dim = dim
         self.model_id = model_id
         self.revision = revision
+        self.variant = ""
 
     @classmethod
     def from_file(cls, path: Path | str) -> TableEncoder:
@@ -114,11 +138,11 @@ class EmbeddingCache:
 
     A re-run embeds only new quotes; stored vectors are reused byte for byte."""
 
-    def __init__(self, map_dir: Path | str | None, model_id: str, revision: str):
+    def __init__(self, map_dir: Path | str | None, model_id: str, revision: str, variant: str = ""):
         self.vectors: dict[str, np.ndarray] = {}
         self.path: Path | None = None
         if map_dir is not None:
-            name = sha256_hex(f"{model_id}@{revision}")[:16]
+            name = sha256_hex(f"{model_id}@{revision}" + (f"#{variant}" if variant else ""))[:16]
             self.path = Path(map_dir) / "cache" / "embeddings" / f"{name}.npz"
             if self.path.exists():
                 with np.load(self.path, allow_pickle=False) as data:
