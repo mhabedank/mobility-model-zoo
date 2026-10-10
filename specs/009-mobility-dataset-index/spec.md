@@ -11,6 +11,9 @@
 - Visibility: internal for now, built so it can be published later as an open catalogue (FR-032).
 - Size of the first version: at least 2,000 entries in at least 30 languages besides German and
   English (SC-002).
+- Storage (planning, 2026-10-10): the zoo repository is public, so the index lives in a separate
+  private repository; code, schemas and vocabularies stay in the public repository.
+- Pilot languages: Spanish, Polish and Japanese.
 
 **Input**: User description: "Wir brauchen einen Datensatz index. Erstmal für Mobilitätsbezogene texte, videos, podcasts, papers etc. Ziel: besseres training für Scout und nachfolgende modelle. Momtan haben wir nur deutsche und englishe texte einbezogen, wir sollten explizit international gehen. zur nut muss dann halt der encoder angepasst werden. Ziel ist es nicht die daten runterzuladen, sondern eine übersicht über die ressourcen zu bekommen. diese müssen mindestens sprache (ggf land). quelle, art der quelle, typ der quelle, lizenz enthalten. darüber hinaus denke nach was der index noch braucht. es sollte dann im nachgang möglich sein, diese quellen runterzuladen. explizit können das ach nicht spracheliche quellen sein wie videos, bilder und audiodateien - auch grafiken und charts sind gut. auch tatsächlich quantitative daten (datenbanken, buckets, exceltabelle, json, xml etc pp) sind auch gut."
 
@@ -414,7 +417,7 @@ resources end up "unknown" or not usable, the index shows availability but does 
 training.
 
 Test before scaling discovery: a pilot discovery run in three target languages from different
-language families and three modalities. Success: in each pilot language, at least 30% of accepted
+language families (Spanish, Polish, Japanese) and three modalities. Success: in each pilot language, at least 30% of accepted
 entries have a determined licence and at least 10 entries are training_allowed. Kill or rethink
 criterion: if two of three pilot languages miss this, the discovery strategy (sources searched,
 kinds of source preferred) is revised before further languages are run. These criteria are fixed
@@ -434,8 +437,9 @@ before the pilot starts.
 - **Resources & Cost Discipline**: discovery uses local compute and the subscription first;
   pay-per-use APIs only with a stated cash budget in the plan. "Crawl once" is unaffected: the
   index fetches metadata only, and later downloads create one snapshot per resource.
-- **Project Scope**: the index is shared by all topics and therefore lives at the shared level of
-  the repository; topic relevance is a field, so new topics need no change to existing entries.
+- **Project Scope**: the index is shared by all topics; its code and vocabularies live at the shared
+  level of the public repository, its entries in a private repository until publication (FR-032).
+  Topic relevance is a field, so new topics need no change to existing entries.
 - Principles I, II, III, IV (agreement pilot), V, VIII and X concern model tasks and are not
   touched. Principle IV's rule to name and test the riskiest assumption first is applied above.
 
