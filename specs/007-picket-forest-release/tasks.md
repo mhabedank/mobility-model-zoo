@@ -158,8 +158,8 @@
   - **`metrics.json`** holds the full numbers.
   - **`zoo/models/picket-forest/results/0.1.0/quality.json`** holds metric names `<metric>_<split>_<agg>` (data-model.md), each with `reference`, `benchmark: can-ids-v1` and `n_items`.
 - [X] T016 [US2] Wire `security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
-- [ ] T017 [US2] Fast check: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --sets set_01` and record the runtime and partial results in `validation.md` under "US2 (partial)". Fix anything that fails before the full run.
-- [ ] T018 [US2] Full run: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --report`.
+- [X] T017 [US2] Fast check: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --sets set_01` and record the runtime and partial results in `validation.md` under "US2 (partial)". Fix anything that fails before the full run.
+- [X] T018 [US2] Full run: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --report`.
   - Record the runtime, the R10 outcome, the headline per split (median and worst set) for picket-forest and for the best control and baseline, and the ROAD results in `validation.md` under "US2".
   - Commit the report, `metrics.json` and `quality.json`.
   - **GATE**: `ctrl-shuffled` collapses (attack-class AUROC at most 0.6 on every split, research R10); otherwise stop and investigate leakage (research R10, kill).
@@ -229,14 +229,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T026 [US4] Change `security can-ids forest export` in `src/mobility_model_zoo/security/can_ids/forest.py` so that it:
+- [X] T026 **(code done and tested on synthetic data; not run on real data: release cancelled, see Outcome)** [US4] Change `security can-ids forest export` in `src/mobility_model_zoo/security/can_ids/forest.py` so that it:
   - trains the release model on `train_01` of all four sets with the config of `configs/security/can-ids/picket-forest.yaml`. Selection uses validation captures only; if it picks other hyperparameters than 30 trees, depth 12, alarm 3 in 200 ms, the config is updated with the reason;
   - reuses the release model cached by T014 if its recipe hash matches, otherwise trains it;
   - writes to `$MMZ_DATA/derived/picket-forest/export/` the files `picket_forest_model.h`, `picket_forest_config.h`, `model.joblib`, `config.json` (with `manifest_sha256` and `code_commit`) and the `c/` sources (`picket_forest.{c,h}`, `msml_can_features.{c,h}`, `msml_alarm.{c,h}`);
   - writes `sbom.cdx.json` (CycloneDX 1.5: component per source file with SHA-256, plus emlearn and scikit-learn with versions) and a test in `tests/security/can_ids/test_forest_port.py` that the SBOM lists every staged source with its hash.
 
   Run it and record the parity result and the chosen hyperparameters in `validation.md` under "US4".
-- [ ] T027 [US4] Add `security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
+- [X] T027 **(code done and tested; examples not written: release cancelled, see Outcome)** [US4] Add `security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
 - [X] T028 [P] [US4] (CI build deferred, see validation.md) Create a PlatformIO project in `firmware/picket-forest/platformio/` (`platformio.ini` with envs `esp32` and `esp8266` = `d1_mini` at 160 MHz, framework arduino):
   - `src/` reuses the existing replay sketch `firmware/picket-forest/esp8266/picket_forest_bench/bench.cpp` and the C sources through `lib_extra_dirs`/`build_src_filter`; no copies;
   - a pre-script copies the exported headers and a synthetic test-vector header (from the T027 examples, not dataset frames) into a gitignored `generated/` folder;
@@ -249,36 +249,36 @@
   - **`esp8266 -b BOARD`:** builds the `esp8266` env, flashes it through the bench flasher of the board in `hil/boards.yaml`, reads the result line over serial, and records `latency_us`, `latency_p99_us` and `ram_kb` with origin `real_board` and hardware "ESP8266 (Wemos D1 mini), 160 MHz, substitute for the reference board ESP32-S3".
 
   Every run merges its metrics into `--out` in `results.schema.json` format. Add `tests/security/can_ids/test_measure_forest.py` for the host target and for the parsing of the result lines.
-- [ ] T030 [US4] Measure.
+- [X] T030 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Measure.
   - Run `measure --target host`, `--target esp32-qemu` and, with the D1 mini on USB (`uv run edge discover`, entry in `hil/boards.yaml`), `--target esp8266 -b <id>`.
   - **GATE**: 0 score mismatches on the ESP8266 and in QEMU.
   - Record the numbers in `validation.md` under "US4", including the ESP8266 latency against the 100 µs target and the ESP32 image against 16 KB RAM and 128 KB flash.
   - Commit `zoo/models/picket-forest/results/0.1.0/performance.json`.
-- [ ] T031 [US4] Complete `zoo/models/picket-forest/releases/0.1.0.yaml`: `files[]` (via `zoo stage`), `recipe` (commit of the export, `configs/security/can-ids/picket-forest.yaml`, `topics/security/tasks/can-ids.md`), `provenance.sources` (`can-train-and-test` with `dataset`, `count` = training frames), `evaluation` (`benchmark: can-ids-v1`, `reference_kind: ground_truth`, `reference`: the can-train-and-test labels and the ROAD injection labels), and `performance` (hardware, budget `{ram_kb: 16, flash_kb: 128, target: ESP32-S3}`). Set `used_by` in `topics/security/compliance/datasets.yaml` for `can-train-and-test` (training and evaluation) and `road` (evaluation).
-- [ ] T032 [US4] Write `zoo/models/picket-forest/releases/0.1.0.compliance.yaml` with the compliance harness. Set `runtime: mcu` and `sbom: sbom.cdx.json` (check C-G4). It also records:
+- [X] T031 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Complete `zoo/models/picket-forest/releases/0.1.0.yaml`: `files[]` (via `zoo stage`), `recipe` (commit of the export, `configs/security/can-ids/picket-forest.yaml`, `topics/security/tasks/can-ids.md`), `provenance.sources` (`can-train-and-test` with `dataset`, `count` = training frames), `evaluation` (`benchmark: can-ids-v1`, `reference_kind: ground_truth`, `reference`: the can-train-and-test labels and the ROAD injection labels), and `performance` (hardware, budget `{ram_kb: 16, flash_kb: 128, target: ESP32-S3}`). Set `used_by` in `topics/security/compliance/datasets.yaml` for `can-train-and-test` (training and evaluation) and `road` (evaluation).
+- [X] T032 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Write `zoo/models/picket-forest/releases/0.1.0.compliance.yaml` with the compliance harness. Set `runtime: mcu` and `sbom: sbom.cdx.json` (check C-G4). It also records:
   - AI Act classification: not high-risk, not a safety component, open-source exclusion; intended purpose is research and monitoring;
   - the dual-use note;
   - datasets with attribution;
   - no personal data in published files.
 
   Then run `uv run zoo compliance render` and `uv run zoo compliance scan-publish --model picket-forest --version 0.1.0`.
-- [ ] T033 [US4] Update `zoo/models/picket-forest/model.yaml` card texts from the report:
+- [X] T033 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Update `zoo/models/picket-forest/model.yaml` card texts from the report:
   - the limitations name the numbers for false alarms per hour on unknown vehicles, recall on unseen scans and fuzzing, masquerade not detected, and classic CAN only (SC-007);
   - the text states that the published model is trained on all four vehicles and has no untouched test set, and that quality comes from the per-set protocol;
   - `how_to_run` uses the joblib host reference and `device_usage` the C API.
 
   Only claims supported by the R10 outcome (SC-004).
-- [ ] T034 [US4] Stage and check.
+- [X] T034 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Stage and check.
   - Run `uv run zoo stage picket-forest 0.1.0 --from "$MMZ_DATA/derived/picket-forest/export"`, `uv run zoo compliance signoff --model picket-forest --version 0.1.0` (owner), and `uv run zoo check picket-forest 0.1.0 --offline`.
   - **GATE**: all offline rules pass (SC-005).
   - Record the gate output in `validation.md`.
-- [ ] T035 [US4] Publish. Open the PR for `007-picket-forest-release` and get CI green. After the merge, tag `picket-forest/v0.1.0`:
+- [X] T035 **Cancelled 2026-10-10: R10 outcome kill and owner decision not to publish (see Outcome).** [US4] Publish. Open the PR for `007-picket-forest-release` and get CI green. After the merge, tag `picket-forest/v0.1.0`:
   - `release-verify` passes every rule and produces the card preview;
   - the owner reviews and approves with `release-publish` (`confirm=picket-forest/v0.1.0`).
 
   Verify that the model is public, in the security collection, and that `zoo audit` reports OK. Record everything in `validation.md`.
 
-**Checkpoint**: picket-forest 0.1.0 is public (SC-008).
+**Checkpoint**: picket-forest 0.1.0 is public (SC-008). Not reached: release cancelled (see Outcome).
 
 ---
 
@@ -350,3 +350,10 @@ Developer B: T019, T020, T021 (tests) → T022 → T023 → T024 → T025 (gate 
   - If the GATE in T018 fails, stop: a leak is a benchmark problem and leads to a new benchmark version, not a quick fix.
 - **Data never published**: no dataset frame is committed or staged. The examples and the firmware test vectors are synthetic.
 - **Origins**: emulator latency is never presented as hardware latency. The ESP8266 is always named as a substitute for the ESP32-S3.
+
+## Outcome (2026-10-10)
+
+- US1 (benchmark freeze), US2 (evaluation harness, full run) and US3 (release gate for tree models) are done; US4 (release) is cancelled.
+- The full run gave the research R10 outcome **kill** (shuffled-label control; partial without it). Frame-level attack-class F1 on unknown vehicles is high (median 0.94), but false alarms per hour on unknown vehicles, event-level detection and transfer to ROAD (F1 0.05) are far from production use.
+- The owner decided (2026-10-09/10) to publish only production-ready models. The analysis of problem, data and architecture is in `topics/security/research/07-production-readiness.md`; the follow-up survey in `08-problem-survey.md`.
+- Kept for reuse: the frozen benchmark `can-ids-v1` (with the `set_01/test_04` relabelling), the harness and its controls, the emlearn gate rules 12/13, the release export with SBOM, the device measurement path.

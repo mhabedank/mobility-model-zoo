@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-09
 
-**Status**: Draft
+**Status**: Closed 2026-10-10. US1–US3 done; US4 (release) cancelled after the R10 outcome "kill" and the owner decision to publish only production-ready models (see `tasks.md`, Outcome, and `topics/security/research/07-production-readiness.md`).
 
 **Input**: User description: "First release of picket-forest 0.1.0 (topic security, task can-ids): a frozen, honest benchmark can-ids-v1, evaluation of picket-forest on it, the release-gate support for tree models, device measurements, compliance record, model card and publication through the existing zoo release pipeline. Feature 007."
 
