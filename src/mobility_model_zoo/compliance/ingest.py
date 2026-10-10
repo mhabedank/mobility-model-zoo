@@ -22,14 +22,24 @@ def harness_present(root: Path) -> bool:
     return (root / "compliance" / "controller.yaml").exists()
 
 
-def allowlisted(reg: Register) -> set[str]:
-    return {e["id"] for e in (reg.lists("licence-allowlist") or {}).get("licences", [])}
+def allowlisted(reg: Register, usage_class: str = "commercial") -> set[str]:
+    """Licences that may train a model of this usage class: listed, `trains` not false, and not
+    non-commercial unless the target class is non-commercial (constitution 2.1.0, VI)."""
+    nc_target = usage_class.startswith("non-commercial")
+    return {
+        e["id"]
+        for e in (reg.lists("licence-allowlist") or {}).get("licences", [])
+        if e.get("trains", True) and (nc_target or not e.get("non_commercial", False))
+    }
 
 
-def check_snapshots(reg: Register, snapshots: Iterable[dict[str, Any]]) -> list[Finding]:
-    """snapshots: dicts with snapshot_id, origin_url, source_type and use ('train' or 'eval')."""
+def check_snapshots(
+    reg: Register, snapshots: Iterable[dict[str, Any]], usage_class: str = "commercial"
+) -> list[Finding]:
+    """snapshots: dicts with snapshot_id, origin_url, source_type and use ('train' or 'eval').
+    usage_class: declared class of the model the training chunks are for (commercial by default)."""
     findings: list[Finding] = []
-    allow = allowlisted(reg)
+    allow = allowlisted(reg, usage_class)
     classes = {c["id"]: c for c in reg.records("source-classes")}
     by_origin = {s["origin_url"]: s for s in reg.records("sources") + reg.records("datasets")}
     for snap in snapshots:
@@ -58,7 +68,7 @@ def check_snapshots(reg: Register, snapshots: Iterable[dict[str, Any]]) -> list[
                         "ingest",
                         rec["id"],
                         "licence",
-                        f"{licence} is not on the licence allowlist for training",
+                        f"{licence} is not on the licence list for training a {usage_class} model",
                     )
                 )
             if rec.get("permitted_use") != "training_allowed":

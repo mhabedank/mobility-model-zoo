@@ -241,7 +241,7 @@ def cmd_alarms(args) -> None:
 
 
 def cmd_evaluate(args) -> None:
-    require_training_allowed(DATASET)
+    require_training_allowed(DATASET, model=MODEL)
     args.out.mkdir(parents=True, exist_ok=True)
     results = {}
     for set_name in args.sets:
@@ -470,7 +470,7 @@ def cmd_export(args) -> None:
     from mobility_model_zoo.security.can_ids.release_export import export
     from mobility_model_zoo.security.cli import benchmark_dir, benchmark_sources
 
-    require_training_allowed("can-train-and-test")
+    require_training_allowed(DATASET, model=MODEL)
     path = benchmark_dir() / "manifest.json"
     if not path.exists():
         raise SystemExit(f"benchmark not frozen ({path}); run `security can-ids freeze` first")

@@ -10,7 +10,7 @@
 <p class="muted">{{ p.audience }}</p>
 <div class="row" style="gap:8px">
 {% for lang in p.m.languages %}<span class="chip">{{ {"de": "German", "en": "English"}.get(lang, lang) }}</span>{% endfor %}
-<span class="chip">Licence {{ p.m.license }}</span>
+<span class="chip">Licence {{ p.usage.licence }} · {{ p.usage["class"] }}</span>
 <span class="chip">Output {{ p.latest.output_format_version }}</span>
 </div>
 <div class="row"><a class="btn" href="#quickstart">Quickstart</a><a class="btn btn-ghost" href="#interface">Interface</a><a class="btn btn-ghost" href="{{ p.hf }}">Model card</a></div>

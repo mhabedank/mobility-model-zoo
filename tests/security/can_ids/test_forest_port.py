@@ -135,7 +135,7 @@ def test_end_to_end_c_matches_python(tmp_path):
 def test_training_commands_check_the_declaration(cmd, monkeypatch):
     from mobility_model_zoo.datasets import UsageRefused
 
-    def refuse(ds):
+    def refuse(ds, model=None):
         raise UsageRefused(ds)
 
     monkeypatch.setattr(forest, "require_training_allowed", refuse)

@@ -55,3 +55,5 @@ Check ids are stable and used in waivers and in failure messages. All carry the 
 | C-N2 | notices | the retention stated in a notice differs from the register or config |
 | C-N3 | drift | any generated document differs from its rendering |
 | C-S1 | sign-off | the release compliance record is not signed off |
+
+Feature 011 (usage class and non-commercial releases) changed C-I2, C-T2, C-T3 and C-T4 and added C-K1–C-K5, C-X1 and C-X2: [specs/011-usage-class-nc/contracts/checks.md](../../011-usage-class-nc/contracts/checks.md).

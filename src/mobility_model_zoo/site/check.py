@@ -314,8 +314,8 @@ def check_external_links(out: Path) -> Iterable[Finding]:
 
 
 def check_legal(site: dict, out: Path, root: Path | None = None) -> Iterable[Finding]:
-    """L3: legal links on every page; licence, limits and AI Act note on every model page; the
-    imprint is the one named in the compliance register."""
+    """L3: legal links on every page; licence, usage class, limits and AI Act note on every model
+    page; the imprint is the one named in the compliance register."""
     legal = site["legal"]
     controller = root / "compliance" / "controller.yaml" if root else None
     if controller and controller.exists():
@@ -337,6 +337,7 @@ def check_legal(site: dict, out: Path, root: Path | None = None) -> Iterable[Fin
                 ('id="limits"', "limitations section"),
                 ("ai-act.md", "AI Act note"),
                 ("Licence", "licence"),
+                ('<th scope="row">Usage</th>', "usage class"),
             ):
                 if needle not in text:
                     yield Finding("L3", rel(out, path), f"no {what}")
