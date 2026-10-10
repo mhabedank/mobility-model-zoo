@@ -202,6 +202,13 @@ def zoo_model_class(root: Path, model_id: str) -> UsageClass | None:
     return UsageClass.parse(value) if value in CLASSES else None
 
 
+def declared_class(root: Path, model_name: str | None) -> str:
+    """Declared usage class of a zoo model for train-time checks; commercial when the model is not
+    named or has no declaration (the strict default, FR-006)."""
+    cls = zoo_model_class(root, model_name) if model_name else None
+    return str(cls) if cls is not None else "commercial"
+
+
 def third_party_records(root: Path) -> dict[str, dict[str, Any]]:
     path = root / THIRD_PARTY
     if not path.exists():

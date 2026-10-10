@@ -25,5 +25,10 @@ licences:
 - {id: LicenseRef-OGL-UK-3.0, note: UK Open Government Licence v3.0}
 - {id: LicenseRef-Open-Parliament-Licence, note: UK Open Parliament Licence}
 - {id: LicenseRef-US-PD, note: US federal government works, public domain}
+# Reuse terms of parliaments and the EU: training_allowed in the register since the compliance harness
+- {id: LicenseRef-official-work-AT-7, note: Austrian official works, § 7 öUrhG}
+- {id: LicenseRef-EU-Reuse-Decision-2011-833, note: "Commission Decision 2011/833/EU: reuse with attribution, commercial use allowed"}
+- {id: LicenseRef-Scottish-Parliament-Licence, note: Scottish Parliament copyright, reuse terms}
+- {id: LicenseRef-Senedd-Commission-Copyright, note: Senedd Commission copyright, reuse terms}
 # Licences of third-party training data only (never our training data)
 - {id: LicenseRef-MSMARCO-terms, non_commercial: true, trains: false, note: "MS MARCO terms: non-commercial research purposes only"}

@@ -34,6 +34,17 @@ def test_nc_licence_for_training(register_tree):
     assert ingest_ids(register_tree, [snap()]) == {"C-I2"}
 
 
+def test_nc_licence_trains_non_commercial_models_only(register_tree):
+    # constitution 2.1.0: NC data may train NC models (feature 011)
+    seed(register_tree, "topics/t/compliance/sources.yaml",
+         lambda d: d["sources"][0].update(licence="CC-BY-NC-4.0"))
+    write(register_tree, "compliance/lists/licence-allowlist.yaml",
+          {"licences": [{"id": "CC-BY-4.0"}, {"id": "CC-BY-NC-4.0", "non_commercial": True}]})
+    reg = load(register_tree)
+    assert {f.check_id for f in check_snapshots(reg, [snap()])} == {"C-I2"}
+    assert check_snapshots(reg, [snap()], usage_class="non-commercial") == []
+
+
 def test_human_subjects_without_consent(register_tree):
     seed(
         register_tree,

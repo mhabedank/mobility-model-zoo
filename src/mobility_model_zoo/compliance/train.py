@@ -1,8 +1,10 @@
 """Train-stage checks (C-T1 … C-T5) and retention (C-R1), on plain data.
 
 Training data checks run in `jtbd span data-check` (and in future task tools) before a model is
-trained: suppressed or opted-out sources, licences that forbid training, share-alike that would bind
-the model licence, teacher routes without output rights, and redaction recall.
+trained: suppressed or opted-out sources, licences that forbid training or do not fit the declared
+usage class of the model (constitution 2.1.0: non-commercial data trains non-commercial models only),
+share-alike that the class does not carry, teacher routes without output rights, and redaction
+recall.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from typing import Any
 
 from mobility_model_zoo.compliance.findings import Finding, parse_date
 from mobility_model_zoo.compliance.register import Register
+from mobility_model_zoo.compliance.usage import LicenceList, UsageClass
 
 SIGNALS = ("robots", "tdmrep", "x_robots", "meta_noai", "ai_txt")
 LICENSED = (
@@ -36,11 +39,17 @@ def check_training(
     origins: Iterable[str],
     model_licence: str | None,
     teachers: Iterable[str],
+    usage_class: str = "commercial",
     url_hash=None,
     recall: float | None = None,
     min_recall: float = 0.95,
 ) -> list[Finding]:
     findings: list[Finding] = []
+    target = UsageClass.parse(usage_class)
+    licences = LicenceList.load(reg.root)
+    marked = licences.licence_class(model_licence) if model_licence else None
+    if marked is not None:
+        target = target.combine(marked)
     by_origin = {s["origin_url"]: s for s in reg.records("sources") + reg.records("datasets")}
     suppressed = {e["hash"] for e in reg.records("suppression") if e.get("kind") == "url"}
     share_alike = False
@@ -63,36 +72,39 @@ def check_training(
                 )
             )
         licence = rec.get("licence", "unknown")
-        if (
-            licence == "unknown"
-            or "-NC" in licence
-            or "-ND" in licence
-            or "noncommercial" in licence
-            or "all-rights-reserved" in licence
-        ):
+        entry = licences.get(licence)
+        if entry is None or not entry.trains:
+            # unknown, no-derivatives, all rights reserved and every licence not on the list
             findings.append(Finding("C-T2", "train", rec["id"], "licence", f"{licence} cannot train"))
+        elif target.commercial and (entry.non_commercial or rec.get("commercial_use") is False):
+            findings.append(Finding("C-T2", "train", rec["id"], "licence",
+                                    f"{licence} is non-commercial; the model is declared {target}"))
         if rec.get("permitted_use") != "training_allowed":
             findings.append(Finding("C-T2", "train", rec["id"], "permitted_use", "benchmark_only"))
-        share_alike |= "-SA-" in licence or licence.endswith("-SA")
-    if share_alike and model_licence and "SA" not in model_licence.upper():
+        share_alike |= bool(entry and entry.share_alike)
+    if share_alike and not target.share_alike:
         findings.append(
             Finding(
                 "C-T3",
                 "train",
                 "model",
                 "licence",
-                f"share-alike training data but model licence {model_licence}",
+                f"share-alike training data but the model is declared {target}"
+                + (f" with licence {model_licence}" if model_licence else ""),
             )
         )
     for teacher in teachers:
-        if not reg.output_training_permitted(teacher):
+        terms = reg.output_training_terms(teacher)
+        if terms in ("no", "unclear") or (terms == "non_commercial" and target.commercial):
             findings.append(
                 Finding(
                     "C-T4",
                     "train",
                     teacher,
                     "output_training_permitted",
-                    "a route of this teacher does not permit training on outputs",
+                    "a route of this teacher does not permit training on outputs"
+                    if terms != "non_commercial"
+                    else f"outputs may train non-commercial models only; the model is declared {target}",
                 )
             )
     if recall is not None and recall < min_recall:
