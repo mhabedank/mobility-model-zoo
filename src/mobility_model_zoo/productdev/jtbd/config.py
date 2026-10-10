@@ -22,7 +22,7 @@ DEFAULT_CONFIG = Path("configs/productdev/jtbd/pilot-v1.yaml")
 # its rows carry the budget name. Rows without a name belong to the pilot budget.
 DEFAULT_BUDGET = "pilot-v1"
 TOP_LEVEL_KEYS = {"root", "benchmark_version", "test_fixture", "paths", "pilot", "budget_name",
-                  "span_train"}
+                  "span_train", "cluster"}
 # Defaults of a training dataset config (feature 004, data-model.md "Training dataset").
 SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
     "redaction": {"version": "redact-v2", "review": "full"},
@@ -32,6 +32,10 @@ SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
     "retention": {},
 }
 SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", *SPAN_TRAIN_DEFAULTS}
+# Benchmark config of the jtbd-cluster task (feature 009, data-model.md "Benchmark").
+CLUSTER_KEYS = {"pool", "split_by", "dev_fraction", "holdout_fraction", "seed", "pairs", "sets",
+                "reference_models", "batch_size", "max_retries", "guideline", "examples", "criteria",
+                "retention"}
 
 
 @dataclass
@@ -58,6 +62,7 @@ class Settings:
     pilot: dict[str, Any]
     budget_name: str = DEFAULT_BUDGET
     span_train: dict[str, Any] | None = None
+    cluster: dict[str, Any] | None = None
 
     # ---- derived paths -------------------------------------------------------------------------
     @property
@@ -175,6 +180,7 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
         pilot=raw.get("pilot") or {},
         budget_name=raw.get("budget_name") or DEFAULT_BUDGET,
         span_train=_span_train(path, raw.get("span_train")),
+        cluster=_cluster(path, raw.get("cluster")),
     )
 
 
@@ -188,3 +194,12 @@ def _span_train(path: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None
     if merged["redaction"].get("review") not in ("full", "sampled", "model"):
         raise UsageError("span_train.redaction.review must be `full`, `sampled` or `model`")
     return merged
+
+
+def _cluster(path: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raw is None:
+        return None
+    unknown = set(raw) - CLUSTER_KEYS
+    if unknown:
+        raise UsageError(f"config {path} has unknown cluster keys: {sorted(unknown)}")
+    return raw

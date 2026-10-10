@@ -67,7 +67,7 @@ uv run pytest
 uv run zoo --help
 ```
 
-Extras: `jtbd` (JTBD measurement chain), `release` (release tool), `edge` (bench, int8 engine, datasets), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on each model card. Credentials and where they live: [docs/credentials.md](docs/credentials.md).
+Extras: `jtbd` (JTBD measurement chain), `cluster` (deduplication and clustering of JTBD items, `jtbd cluster`), `release` (release tool), `edge` (bench, int8 engine, datasets), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on each model card. Credentials and where they live: [docs/credentials.md](docs/credentials.md).
 
 Quick commands per topic:
 

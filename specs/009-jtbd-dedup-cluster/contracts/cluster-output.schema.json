@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-cluster-v1",
+  "title": "Output of the JTBD deduplication and clustering stage (jtbd-cluster-v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["output_format_version", "settings", "inputs", "items", "groups", "clusters", "checks"],
+  "$defs": {
+    "item_id": {"type": "string", "pattern": "^it-[0-9a-f]{12}$"},
+    "group_id": {"type": "string", "pattern": "^dg-[0-9]{6}$"},
+    "cluster_id": {"type": "string", "pattern": "^cl-[0-9]{6}$"},
+    "kind": {"enum": ["job", "pain", "gain"]},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mentions", "independent_sources", "independence_rule"],
+      "properties": {
+        "mentions": {"type": "integer", "minimum": 1},
+        "independent_sources": {"type": "integer", "minimum": 1},
+        "independence_rule": {"enum": ["origin", "source_id", "mixed"]}
+      }
+    },
+    "distributions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "actor_type": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "evidence_type": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "evidence_scope": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+      }
+    },
+    "dates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first", "last", "undated"],
+      "properties": {
+        "first": {"type": ["string", "null"], "format": "date"},
+        "last": {"type": ["string", "null"], "format": "date"},
+        "undated": {"type": "integer", "minimum": 0}
+      }
+    },
+    "statement": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["text", "by", "at"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "by": {"type": "string", "pattern": "^(person|model:.+)$"},
+        "at": {"type": "string", "format": "date"}
+      }
+    },
+    "assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scheme", "value", "origin"],
+        "properties": {
+          "scheme": {"type": "string", "minLength": 1},
+          "value": {"type": "string", "minLength": 1},
+          "origin": {"type": "string", "pattern": "^(person|model:.+)$"}
+        }
+      }
+    }
+  },
+  "properties": {
+    "output_format_version": {"const": "jtbd-cluster-v1"},
+    "settings": {
+      "type": "object",
+      "required": ["settings_sha256", "encoder", "thresholds"],
+      "properties": {
+        "settings_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "encoder": {"type": "object", "required": ["model_id", "revision"]},
+        "nli": {"type": ["object", "null"], "required": ["model_id", "revision"]},
+        "thresholds": {"type": "object"},
+        "specificity_produced": {"type": "boolean"}
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["input_format_version", "bundles", "sources", "items"],
+      "properties": {
+        "input_format_version": {"const": "jtbd-cluster-input-v1"},
+        "bundles": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+        "sources": {"type": "integer", "minimum": 0},
+        "items": {"type": "integer", "minimum": 0}
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["item_id", "source_id", "start", "end", "kind", "quote", "score", "date",
+                     "independence_key", "exact_copy_key", "group_id"],
+        "properties": {
+          "item_id": {"$ref": "#/$defs/item_id"},
+          "source_id": {"type": "string"},
+          "start": {"type": "integer", "minimum": 0},
+          "end": {"type": "integer", "minimum": 1},
+          "kind": {"$ref": "#/$defs/kind"},
+          "quote": {"type": "string", "minLength": 1},
+          "score": {"type": "number", "minimum": 0, "maximum": 1},
+          "actor_type": {"type": "string"},
+          "evidence_type": {"type": "string"},
+          "evidence_scope": {"type": "string"},
+          "date": {"type": ["string", "null"], "format": "date"},
+          "independence_key": {"type": "string"},
+          "exact_copy_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "group_id": {"$ref": "#/$defs/group_id"}
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group_id", "kind", "members", "representative", "parent", "children", "counts",
+                     "distributions", "dates", "statement", "assignments", "corrected"],
+        "properties": {
+          "group_id": {"$ref": "#/$defs/group_id"},
+          "kind": {"$ref": "#/$defs/kind"},
+          "members": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/item_id"}},
+          "representative": {"$ref": "#/$defs/item_id"},
+          "parent": {"oneOf": [{"$ref": "#/$defs/group_id"}, {"$ref": "#/$defs/cluster_id"}, {"type": "null"}]},
+          "children": {"type": "array", "items": {"$ref": "#/$defs/group_id"}},
+          "counts": {"$ref": "#/$defs/counts"},
+          "distributions": {"$ref": "#/$defs/distributions"},
+          "dates": {"$ref": "#/$defs/dates"},
+          "statement": {"$ref": "#/$defs/statement"},
+          "assignments": {"$ref": "#/$defs/assignments"},
+          "corrected": {"type": "boolean"}
+        }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cluster_id", "level", "parent", "children", "representative", "counts",
+                     "distributions", "dates", "kinds", "statement", "assignments", "corrected"],
+        "properties": {
+          "cluster_id": {"$ref": "#/$defs/cluster_id"},
+          "level": {"type": "integer", "minimum": 1},
+          "parent": {"oneOf": [{"$ref": "#/$defs/cluster_id"}, {"type": "null"}]},
+          "children": {"type": "array", "minItems": 1,
+                       "items": {"oneOf": [{"$ref": "#/$defs/group_id"}, {"$ref": "#/$defs/cluster_id"}]}},
+          "representative": {"$ref": "#/$defs/item_id"},
+          "counts": {"$ref": "#/$defs/counts"},
+          "distributions": {"$ref": "#/$defs/distributions"},
+          "dates": {"$ref": "#/$defs/dates"},
+          "kinds": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "job": {"type": "integer", "minimum": 0},
+              "pain": {"type": "integer", "minimum": 0},
+              "gain": {"type": "integer", "minimum": 0}
+            }
+          },
+          "statement": {"$ref": "#/$defs/statement"},
+          "assignments": {"$ref": "#/$defs/assignments"},
+          "corrected": {"type": "boolean"}
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "required": ["passed", "corrections"],
+      "properties": {
+        "passed": {"type": "boolean"},
+        "corrections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["index", "op", "status"],
+            "properties": {
+              "index": {"type": "integer", "minimum": 0},
+              "op": {"enum": ["merge", "split", "move", "representative"]},
+              "status": {"enum": ["applied", "stale", "refused"]},
+              "reason": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$comment": "Semantic rules checked by `jtbd cluster check`, not expressible here: every item is a member of exactly the group named by its group_id; quotes are byte-identical to the input bundle; all members of a group share its kind; a group's dg- parent has the same kind; every node has at most one parent and the structure has no cycles; parent and children lists agree; counts and distributions equal the aggregates over the items below each node; the representative is an item below the node."
+}

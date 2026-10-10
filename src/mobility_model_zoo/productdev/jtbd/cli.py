@@ -14,6 +14,7 @@ from typing import Any
 
 import typer
 
+from mobility_model_zoo.productdev.jtbd.cluster.cli import app as cluster_app
 from mobility_model_zoo.productdev.jtbd.config import Settings, load_settings
 from mobility_model_zoo.productdev.jtbd.errors import PilotError
 from mobility_model_zoo.productdev.jtbd.span.cli import app as span_app
@@ -31,6 +32,7 @@ app.add_typer(corpus_app, name="corpus")
 app.add_typer(spike_app, name="spike")
 
 app.add_typer(span_app, name="span")
+app.add_typer(cluster_app, name="cluster")
 
 
 def _log(message: str) -> None:

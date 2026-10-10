@@ -1,0 +1,179 @@
+# Examples for guideline cluster-v1 (feature 009, task T003). All quotes are fictional.
+# Kept as YAML, not Markdown: the German examples are data for the prompt, not prose.
+pairs:
+  # --- German -----------------------------------------------------------------------------
+  - lang: de
+    kind: pain
+    a: "Morgens finde ich in der Innenstadt einfach keinen Parkplatz."
+    b: "Die Parkplatzsuche in der Stadt kostet mich jeden Tag Nerven."
+    label: same
+    why: "Both state that finding a parking space in town is hard."
+  - lang: de
+    kind: job
+    a: "Ich will die Kinder sicher zur Schule bringen."
+    b: "Meine Kinder sollen ohne Gefahr zur Schule kommen."
+    label: same
+    why: "The same job in other words."
+  - lang: de
+    kind: gain
+    a: "Mit dem Jobticket spare ich jeden Monat Geld."
+    b: "Das Jobticket ist günstiger als mein Auto."
+    label: same
+    why: "Both state the saving from the job ticket."
+  - lang: de
+    kind: pain
+    a: "Der Bus kommt ständig zu spät."
+    b: "Auf den Bus ist kein Verlass, er hat fast immer Verspätung."
+    label: same
+    why: "Same pain: the bus is late."
+  - lang: de
+    kind: job
+    a: "Abends in der Altstadt einen Parkplatz finden."
+    b: "Einen Parkplatz finden."
+    label: a_more_specific
+    why: "A adds place and time to B's job."
+  - lang: de
+    kind: pain
+    a: "Mit dem Kinderwagen komme ich nicht in den Bus."
+    b: "Mit dem Kinderwagen in den Bus zu steigen ist an der Haltestelle Marktplatz unmöglich, weil die Rampe fehlt."
+    label: b_more_specific
+    why: "B adds a stop and a cause to A's pain."
+  - lang: de
+    kind: gain
+    a: "Ein sicherer Abstellplatz für Fahrräder."
+    b: "Ein überdachter, abschließbarer Fahrradparkplatz direkt am Bahnhof."
+    label: b_more_specific
+    why: "B narrows A's gain to a covered, lockable place at the station."
+  - lang: de
+    kind: job
+    a: "Pünktlich zur Frühschicht im Werk ankommen."
+    b: "Pünktlich zur Arbeit kommen."
+    label: a_more_specific
+    why: "A is a special case of B (early shift, plant)."
+  - lang: de
+    kind: pain
+    a: "Der Bus kommt ständig zu spät."
+    b: "Die Busse sind im Berufsverkehr total überfüllt."
+    label: different
+    why: "Lateness and crowding are two separate pains on the same topic."
+  - lang: de
+    kind: job
+    a: "Einen Parkplatz finden."
+    b: "Das Auto günstig abstellen."
+    label: different
+    why: "Finding a space and keeping the cost low are separate jobs."
+  - lang: de
+    kind: gain
+    a: "Mit dem Rad bin ich schneller als mit dem Auto."
+    b: "Radfahren hält mich fit."
+    label: different
+    why: "Speed and fitness are separate gains."
+  - lang: de
+    kind: pain
+    a: "Die Straße ist wegen Bauarbeiten gesperrt."
+    b: "Ich komme deshalb jeden Tag zu spät zur Arbeit."
+    label: different
+    why: "Cause and effect are separate items (rule 5)."
+  # --- English ----------------------------------------------------------------------------
+  - lang: en
+    kind: pain
+    a: "Charging stations on the motorway are always occupied."
+    b: "I can never get a free charger at motorway services."
+    label: same
+    why: "Same pain: motorway chargers are taken."
+  - lang: en
+    kind: job
+    a: "Get my parcels delivered while I am at work."
+    b: "Receive deliveries even when nobody is at home."
+    label: same
+    why: "Same job in other words."
+  - lang: en
+    kind: gain
+    a: "A single ticket for bus and train would make things so much easier."
+    b: "One ticket that works across all operators."
+    label: same
+    why: "Same gain: one ticket across modes and operators."
+  - lang: en
+    kind: pain
+    a: "The app shows the wrong departure times."
+    b: "Real-time information in the app is unreliable."
+    label: same
+    why: "Same pain: unreliable times in the app."
+  - lang: en
+    kind: job
+    a: "Charge my car overnight in a shared residential garage."
+    b: "Charge my car at home."
+    label: a_more_specific
+    why: "A narrows B to a shared residential garage overnight."
+  - lang: en
+    kind: pain
+    a: "Cycling feels unsafe."
+    b: "Cycling on the ring road feels unsafe because there is no separated lane."
+    label: b_more_specific
+    why: "B adds a place and a cause to A."
+  - lang: en
+    kind: gain
+    a: "Step-free access at every station."
+    b: "Step-free access at the stations on my line."
+    label: b_more_specific
+    why: "B narrows A's gain to the stations on one line."
+  - lang: en
+    kind: job
+    a: "Get to the hospital for weekly appointments without a car."
+    b: "Get to appointments without a car."
+    label: a_more_specific
+    why: "A adds the destination and frequency."
+  - lang: en
+    kind: pain
+    a: "Charging stations on the motorway are always occupied."
+    b: "Charging at motorway services is far too expensive."
+    label: different
+    why: "Availability and price are separate pains."
+  - lang: en
+    kind: job
+    a: "Plan a trip that combines train and bike."
+    b: "Take my bike on the train."
+    label: different
+    why: "Planning a combined trip and carrying a bike on board are separate jobs."
+  - lang: en
+    kind: gain
+    a: "The new tram line is quieter than the buses."
+    b: "The new tram line is faster than the buses."
+    label: different
+    why: "Quiet and speed are separate gains."
+  - lang: en
+    kind: pain
+    a: "The bus is never on time."
+    b: "The bus is very reliable."
+    label: different
+    why: "Opposite statements (rule 4)."
+sets:
+  - id: example-set-commute
+    items:
+      - {id: s1, kind: job, quote: "Get to work on time."}
+      - {id: s2, kind: pain, quote: "The train is often cancelled in the morning."}
+      - {id: s3, kind: gain, quote: "A direct connection would save me twenty minutes."}
+      - {id: s4, kind: job, quote: "Morgens einen Sitzplatz in der S-Bahn bekommen."}
+      - {id: s5, kind: pain, quote: "Die S-Bahn ist morgens so voll, dass ich stehen muss."}
+      - {id: s6, kind: job, quote: "Einen Parkplatz in der Nähe des Büros finden."}
+      - {id: s7, kind: pain, quote: "Parking near the office is impossible after eight."}
+    clusters:
+      - {cluster_id: c1, members: [s1, s2, s3]}
+      - {cluster_id: c2, members: [s4, s5]}
+      - {cluster_id: c3, members: [s6, s7]}
+    coarse:
+      - {group_id: g1, clusters: [c1, c2, c3]}
+    why: "Each job forms a cluster with its pains and gains; all three serve the daily commute."
+  - id: example-set-charging
+    items:
+      - {id: e1, kind: job, quote: "Charge my car at home."}
+      - {id: e2, kind: pain, quote: "Our landlord does not allow a wallbox."}
+      - {id: e3, kind: pain, quote: "Charging stations on the motorway are always occupied."}
+      - {id: e4, kind: gain, quote: "Ein Schnelllader am Supermarkt wäre ideal."}
+      - {id: e5, kind: pain, quote: "The bus is never on time."}
+    clusters:
+      - {cluster_id: c1, members: [e1, e2]}
+      - {cluster_id: c2, members: [e3, e4]}
+      - {cluster_id: c3, members: [e5]}
+    coarse: null
+    why: "Home charging and charging on the way are separate opportunities; the bus pain stands alone; no broader goal is clear."

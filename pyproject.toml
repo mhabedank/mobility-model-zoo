@@ -32,6 +32,15 @@ jtbd = [
     "python-dotenv>=1.0",
     "rapidfuzz>=3.14.6",
 ]
+# Deduplication and clustering stage (`jtbd cluster`, feature 009) for users who run it after scout
+cluster = [
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+    "typer>=0.12",
+]
 # Release tool (`zoo`)
 release = [
     "jsonschema>=4.23",

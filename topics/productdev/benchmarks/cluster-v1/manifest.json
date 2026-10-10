@@ -1,0 +1,54 @@
+{
+  "version": "cluster-v1",
+  "state": "frozen",
+  "built_at": "2026-10-10T09:47:11.467559+00:00",
+  "hashes": {
+    "guideline": "ad0ec27f7a963ebcbeb1622664a1cd8e7af1755e4796e3c9fe60026000cd55fb",
+    "examples": "f74b6145a405f42278a8cb519bfd943809426eb30b3e9ceb083372afd612cdf8",
+    "prompt": "e27a6e8ad65e5c17846c56d88ea062bde975d418ad3e6888cec2a2cbac81d448",
+    "wire_schema": "ec108cce806b616482550129d0909ec2c4b59e6de2bec19099a382206345111d",
+    "criteria": "c3797974d377d1f882e2a0fd8b0d3edc8c04674a3684860ec3638a9bd77399c9",
+    "budget": "b0d966713a0e27a2f6a29c937fbf7566f8230641040ded5822b9a21a2d062e29",
+    "pairs": "fd65132cd77db893b30ecce352eb1e1aef96d3e6c289398bcea9e3bdce7a133a",
+    "sets": "c17285773520431553b51b3e6f7dc518ce7a216567c563beab2881b3fa496596",
+    "pool": "725208bdbbef6fcb921646bf83d492d7c092f1cac7266c3efaae1b4b59db9b92"
+  },
+  "counts": {
+    "items": {
+      "dev": 3823,
+      "test": 7146,
+      "holdout": 1814
+    },
+    "snapshots": {
+      "dev": 50,
+      "test": 90,
+      "holdout": 25
+    },
+    "pairs": {
+      "dev": {
+        "high": 136,
+        "middle": 132,
+        "random": 132
+      },
+      "test": {
+        "high": 408,
+        "middle": 396,
+        "random": 396
+      },
+      "holdout": {
+        "high": 102,
+        "middle": 99,
+        "random": 99
+      }
+    },
+    "sets": {
+      "dev": 4,
+      "test": 12,
+      "holdout": 4
+    }
+  },
+  "frozen_at": "2026-10-10T09:47:17.568314+00:00",
+  "retention_review_by": "2028-10-10",
+  "reruns": 0,
+  "events": []
+}
