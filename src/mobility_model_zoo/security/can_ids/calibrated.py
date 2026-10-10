@@ -25,6 +25,7 @@ MIN_WINDOW_S = 0.25  # count window per ID: max(MIN_WINDOW_S, WINDOW_PERIODS x m
 WINDOW_PERIODS = 4
 W_BUS = 256  # bus frames for the short unknown-ID count and the bus rate
 W_BUS_LONG = 2048  # bus frames for the long unknown-ID count
+MAX_SPAN_S = 2.0  # bus-frame windows never reach further back than this (recording gaps, bus sleep)
 MIN_FRAMES = 5  # an ID needs this many benign frames to get a period
 LOG_CAP = 8.0  # log2 ratios are clipped to +-LOG_CAP
 
@@ -36,8 +37,8 @@ FEATURE_NAMES = [
     "dlc_changed_cal",  # DLC differs from the calibrated DLC of this ID
     "hamming",  # bits changed against the previous frame of this ID
     "bytes_changed",
-    "unknown_count",  # unknown-ID frames among the last W_BUS bus frames
-    "unknown_count_long",  # unknown-ID frames among the last W_BUS_LONG bus frames
+    "unknown_count",  # unknown-ID frames among the last W_BUS bus frames (within MAX_SPAN_S)
+    "unknown_count_long",  # unknown-ID frames among the last W_BUS_LONG bus frames (within MAX_SPAN_S)
     "log_bus_rate",  # log2(bus rate over the last W_BUS frames / calibrated bus rate)
 ]
 
@@ -120,10 +121,14 @@ def _log_ratio(num: np.ndarray, den: np.ndarray) -> np.ndarray:
     return np.clip(r, -LOG_CAP, LOG_CAP)
 
 
-def _window_sum(flags: np.ndarray, w: int) -> np.ndarray:
+def _window_sum(flags: np.ndarray, w: int, ts: np.ndarray | None = None) -> np.ndarray:
+    """Sum of flags over the last w frames, limited to frames within MAX_SPAN_S if ts is given."""
     csum = np.r_[0.0, np.cumsum(flags)]
     idx = np.arange(flags.size)
-    return csum[idx + 1] - csum[np.maximum(idx + 1 - w, 0)]
+    lo = np.maximum(idx + 1 - w, 0)
+    if ts is not None:
+        lo = np.maximum(lo, np.searchsorted(ts, ts - MAX_SPAN_S, side="right"))
+    return csum[idx + 1] - csum[lo]
 
 
 def features(cap: dict, table: Table) -> np.ndarray:
@@ -157,8 +162,8 @@ def features(cap: dict, table: Table) -> np.ndarray:
     x[:, 5] = np.unpackbits(diff, axis=1).sum(axis=1)
     x[:, 6] = (diff != 0).sum(axis=1)
     unk = (~known).astype(np.float64)
-    x[:, 7] = _window_sum(unk, W_BUS)
-    x[:, 8] = _window_sum(unk, W_BUS_LONG)
+    x[:, 7] = _window_sum(unk, W_BUS, ts)
+    x[:, 8] = _window_sum(unk, W_BUS_LONG, ts)
     back = np.arange(n) - W_BUS
     bspan = np.where(back >= 0, ts - ts[np.maximum(back, 0)], np.nan)
     rate = np.full(n, table.bus_rate or np.nan)

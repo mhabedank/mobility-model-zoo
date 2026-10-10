@@ -104,3 +104,15 @@ def test_binary_detectors_keep_their_decision():
     c = _cap("fabrication", 4)
     calib = ev2._calibrate(Fixed("f", "baseline", "fixed"), [c], [1, 10])
     assert calib["threshold"] == 0.5
+
+
+def test_unknown_id_state_does_not_survive_a_recording_gap():
+    table = cal.calibrate([_benign(5)])
+    c = _cap("fuzzing", 5)
+    y = c["y"] == 1
+    cut = np.flatnonzero(y)[-1] + 1  # end of the fuzzing episode
+    gap = {k: v.copy() if isinstance(v, np.ndarray) else v for k, v in c.items()}
+    gap["ts"][cut:] += 50.0  # 50 s without frames after the episode
+    x = cal.features(gap, table)
+    after = np.arange(y.size) >= cut
+    assert x[after & (gap["ts"] > gap["ts"][cut] + 0.01), 8].max() < 8
