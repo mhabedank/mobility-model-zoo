@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator
 from mobility_model_zoo.compliance.register import SCHEMA_DIR, schema
 
 REPO = Path(__file__).resolve().parents[2]
-CONTRACT = REPO / "specs" / "006-compliance-harness" / "contracts" / "schemas"
+CONTRACT = REPO / "specs" / "011-usage-class-nc" / "contracts" / "compliance"  # latest owner
 
 
 def errors(stem, data):
@@ -42,7 +42,7 @@ def test_valid_examples():
     [
         ("sources", {"sources": [source(permitted_use="always")]}),
         ("sources", {"sources": [source(redistribution="maybe")]}),
-        ("sources", {"sources": [source(licence="CC-BY-NC-4.0")]}),  # NC must be benchmark_only
+        ("sources", {"sources": [source(licence="CC-BY-ND-4.0")]}),  # ND must be benchmark_only
         ("sources", {"sources": [source(quote_allowed=True, licence="MIT")]}),
         ("source-classes", {"classes": [{**source_class(), "copyright_basis": "tdm_60d"}]}),  # D5
         ("source-classes", {"classes": [{**source_class(), "art9_handling": "allowed_by_decision"}]}),

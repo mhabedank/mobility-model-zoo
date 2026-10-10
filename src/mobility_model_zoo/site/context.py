@@ -15,7 +15,7 @@ from typing import Any
 
 import jsonschema
 
-from mobility_model_zoo.release.card import REPO_URL
+from mobility_model_zoo.release.card import REPO_URL, usage_line
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml, parse_version
 from mobility_model_zoo.site import facts
@@ -115,12 +115,18 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
             site_release(reg, name, v)
             for v in sorted(reg.published_versions(name), key=parse_version, reverse=True)
         ]
+        rec = reg.record_raw(name, latest) if latest else {}
+        usage = rec.get("usage") or {"class": model.get("usage_class", "commercial"),
+                                     "licence": model["license"]}
         out.append(
             {
                 "name": name,
                 "m": model,
                 "status": state,
                 "latest": latest,
+                # constitution 2.1.0: every model states what users may do with it (feature 011)
+                "usage": {"class": usage["class"], "licence": usage["licence"],
+                          "text": usage_line(model, rec)},
                 "releases": releases,
                 "pitch": load_pitch(reg, name) if latest else optional_pitch(reg, name),
             }

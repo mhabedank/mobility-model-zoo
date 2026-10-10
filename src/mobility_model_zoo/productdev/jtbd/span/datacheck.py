@@ -60,6 +60,7 @@ def _compliance_train(settings: Settings, origins: list[str],
     from mobility_model_zoo.compliance.ingest import harness_present
     from mobility_model_zoo.compliance.register import Register
     from mobility_model_zoo.compliance.train import check_training, suppressed_identifier_findings
+    from mobility_model_zoo.compliance.usage import declared_class
 
     if not harness_present(settings.base):
         if settings.test_fixture:
@@ -72,8 +73,9 @@ def _compliance_train(settings: Settings, origins: list[str],
     teachers = sorted({json.loads(m.read_text(encoding="utf-8")).get("model_id")
                        for m in settings.runs_dir.glob("*/manifest.json")
                        if json.loads(m.read_text(encoding="utf-8")).get("role") == "teacher"})
+    target = declared_class(settings.base, (settings.span_train or {}).get("model"))
     findings = check_training(reg, origins=origins, model_licence=None, teachers=teachers,
-                              url_hash=url_hasher())
+                              url_hash=url_hasher(), usage_class=target)
     findings += suppressed_identifier_findings(reg, chunks or [], url_hasher())
     return {"checked": True, "findings": StageFailed(findings).failures if findings else []}
 

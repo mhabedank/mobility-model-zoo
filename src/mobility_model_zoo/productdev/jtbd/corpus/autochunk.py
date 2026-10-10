@@ -121,7 +121,10 @@ def _compliance_ingest(settings: Settings, mapping: dict[str, Any]):
         snap = load_snapshot(settings, snapshot_id)
         snaps.append({"snapshot_id": snapshot_id, "origin_url": snap.origin_url,
                       "source_type": snap.source_type, "use": meta["use"]})
-    findings = check_snapshots(reg, snaps)
+    from mobility_model_zoo.compliance.usage import declared_class
+
+    target = declared_class(settings.base, (settings.span_train or {}).get("model"))
+    findings = check_snapshots(reg, snaps, usage_class=target)
     if findings:
         raise ValidationFailed("compliance ingest check failed: "
                                + "; ".join(StageFailed(findings).failures[:10]))

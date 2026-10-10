@@ -196,6 +196,10 @@
               },
               "training_on_outputs_permitted": {
                 "type": "boolean"
+              },
+              "outputs_non_commercial": {
+                "type": "boolean",
+                "description": "The teacher's terms permit training on its outputs for non-commercial models only"
               }
             }
           }
@@ -341,6 +345,68 @@
             "string",
             "null"
           ]
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "licence",
+        "restricting_inputs"
+      ],
+      "description": "Usage class of this release (feature 011): required by the gate for records not yet published; published records without it stay valid",
+      "properties": {
+        "class": {
+          "enum": [
+            "commercial",
+            "commercial-share-alike",
+            "non-commercial",
+            "non-commercial-share-alike"
+          ]
+        },
+        "licence": {
+          "type": "string",
+          "description": "Release licence (SPDX id or LicenseRef-)"
+        },
+        "restricting_inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "id",
+              "licence",
+              "restriction"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "source",
+                  "dataset",
+                  "base_model",
+                  "teacher",
+                  "third_party",
+                  "zoo_model_output"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "licence": {
+                "type": "string"
+              },
+              "restriction": {
+                "enum": [
+                  "non-commercial",
+                  "share-alike",
+                  "non-commercial-share-alike"
+                ]
+              }
+            }
+          }
         }
       }
     }
