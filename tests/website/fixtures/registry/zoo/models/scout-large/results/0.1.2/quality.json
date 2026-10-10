@@ -1,0 +1,229 @@
+{
+  "kind": "quality",
+  "model": "scout-large",
+  "version": "0.1.2",
+  "synthetic": false,
+  "source_run": "run-student-scout-large-c1-932c33e3a85a-main-6b5662fa",
+  "metrics": [
+    {
+      "name": "agreement_relevance",
+      "value": 0.539185,
+      "unit": null,
+      "description": "Agreement with the reference on relevance (kappa), 95% CI 0.249986-0.764049",
+      "date": "2026-10-07",
+      "n_items": 147,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "agreement_item_matching",
+      "value": 0.588235,
+      "unit": null,
+      "description": "Agreement with the reference on item matching (f1), 95% CI 0.548562-0.625282",
+      "date": "2026-10-07",
+      "n_items": 1164,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "agreement_kind",
+      "value": 0.831548,
+      "unit": null,
+      "description": "Agreement with the reference on kind (kappa), 95% CI 0.778463-0.883767",
+      "date": "2026-10-07",
+      "n_items": 412,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "agreement_actor_type",
+      "value": 0.774281,
+      "unit": null,
+      "description": "Agreement with the reference on actor type (kappa), 95% CI 0.69857-0.838218",
+      "date": "2026-10-07",
+      "n_items": 404,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "agreement_evidence_type",
+      "value": 0.848892,
+      "unit": null,
+      "description": "Agreement with the reference on evidence type (quadratic_weighted_kappa), 95% CI 0.76975-0.908006",
+      "date": "2026-10-07",
+      "n_items": 340,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "agreement_evidence_scope",
+      "value": 0.758232,
+      "unit": null,
+      "description": "Agreement with the reference on evidence scope (kappa), 95% CI 0.6683-0.833914",
+      "date": "2026-10-07",
+      "n_items": 380,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite",
+      "value": 0.723395,
+      "unit": null,
+      "description": "Mean agreement over the dimensions this model outputs (relevance, item matching, kind, actor type, evidence type, evidence scope)",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "quotes_verbatim_rate",
+      "value": 1.0,
+      "unit": null,
+      "description": "Share of quotes that are verbatim spans of the input",
+      "date": "2026-10-07",
+      "n_items": 1441,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "schema_valid_rate",
+      "value": 1.0,
+      "unit": null,
+      "description": "Share of outputs valid against the jtbd-span-v1 schema",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "consistency_rate",
+      "value": 1.0,
+      "unit": null,
+      "description": "Share of passed consistency checks (dimensions, order, relevance)",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "contested_items",
+      "value": 1574,
+      "unit": null,
+      "description": "Benchmark items the reference models disagree on, reported separately and scored neutrally",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_best_baseline",
+      "value": 0.667169,
+      "unit": null,
+      "description": "Same composite for the best zero-shot small baseline (baseline-gemma4-e4b)",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_teacher",
+      "value": 0.909491,
+      "unit": null,
+      "description": "Same composite for the teacher (teacher-or-mimo-v2.6-pro)",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_reference",
+      "value": 1.0,
+      "unit": null,
+      "description": "Same composite for the two reference models against each other, on consensus units",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_reference_85pct",
+      "value": 0.85,
+      "unit": null,
+      "description": "85% of the reference value: the pilot's bar for a usable small model",
+      "date": "2026-10-07",
+      "n_items": 150,
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2"
+    },
+    {
+      "name": "comparison_composite_mimo",
+      "value": 0.909491,
+      "unit": null,
+      "description": "Same composite for MiMo V2.6 Pro (teacher) (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_deepseek",
+      "value": 0.835701,
+      "unit": null,
+      "description": "Same composite for DeepSeek V4.1 Flash (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_qwen3_8_27b_dgx",
+      "value": 0.890416,
+      "unit": null,
+      "description": "Same composite for Qwen3.8 27B, DGX Spark (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_gemma4_e4b_dgx",
+      "value": 0.667169,
+      "unit": null,
+      "description": "Same composite for Gemma4 E4B, DGX Spark (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_qwen3_5_4b",
+      "value": 0.615253,
+      "unit": null,
+      "description": "Same composite for Qwen3.5 4B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_ministral_3b",
+      "value": 0.604384,
+      "unit": null,
+      "description": "Same composite for Ministral 3B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    },
+    {
+      "name": "comparison_composite_gemma4_e2b",
+      "value": 0.567877,
+      "unit": null,
+      "description": "Same composite for Gemma4 E2B, 4 vCPU (zero-shot, from its benchmark run)",
+      "date": "2026-10-07",
+      "reference": "the consensus of claude-reference and gpt-mini-reference (frontier reference models)",
+      "benchmark": "pilot-v2",
+      "n_items": 150
+    }
+  ]
+}

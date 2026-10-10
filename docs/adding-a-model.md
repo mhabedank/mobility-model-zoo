@@ -40,7 +40,8 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
 
    Microcontroller models set `runtime: mcu`, may leave `languages` empty and need `card.device_usage`, a C snippet that calls the model on the device (see [picket-mlp](../zoo/models/picket-mlp/model.yaml)). `how_to_run` then shows the Python host reference.
 2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt` (microcontroller models: `examples/*.json` with `input`, `expected` and `source`, see below). Do not use benchmark chunks. Record where each example comes from in `zoo/models/<name>/examples/SOURCES.yaml` (`source: synthetic`, or a source whose register record allows redistribution; check C-U4).
-3. Create the private staging repository (owner, with `HF_RELEASE_TOKEN`), then add it to the repository list of `HF_STAGING_TOKEN` on the Hub:
+3. Write the website text in `zoo/models/<name>/site.yaml` ([docs/website.md](website.md)): tagline, audience, three to five differentiators and the quickstart example. Numbers only as `{metric:<kind>.<name>}` placeholders. Gate rule 17 checks it before every publish; sandbox models do not need it. A new output format also needs `zoo/formats/<format>.yaml`.
+4. Create the private staging repository (owner, with `HF_RELEASE_TOKEN`), then add it to the repository list of `HF_STAGING_TOKEN` on the Hub:
 
    ```bash
    uv run zoo init-model <name>

@@ -197,7 +197,8 @@ def test_rule15_experimental_with_emulator_passes(mcu_env):
 
 def test_python_fixture_unchanged(zoo_env, runner):
     gate = run_gate(zoo_env, online=True, runner=runner)
-    assert all(s == "PASS" for n, (s, _) in gate.results.items() if n not in (15, 16)), gate.results
+    # 15: mcu only; 16: no compliance register in fixtures; 17: sandbox models have no website page
+    assert all(s == "PASS" for n, (s, _) in gate.results.items() if n not in (15, 16, 17)), gate.results
 
 
 @pytest.mark.parametrize("path", sorted(ROOT.glob("zoo/models/*/releases/*.yaml")), ids=lambda p: p.name)

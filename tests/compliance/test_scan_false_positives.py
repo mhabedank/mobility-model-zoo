@@ -11,6 +11,8 @@ from mobility_model_zoo.compliance.scan import pii
         "accelerometer + gyroscope @50 Hz",
         "Person detect 73 ms @360 MHz",
         "#3 INFER can_ids_mlp 00112233…",
+        "@font-face rules and @media queries, no @import",  # CSS at-rules (feature 008)
+        "slow tests (`@pytest.mark.slow`, skipped without Playwright)",
     ],
 )
 def test_technical_text_is_not_pii(text):

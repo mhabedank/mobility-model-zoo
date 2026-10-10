@@ -4,7 +4,7 @@
 
 | Workflow | Runner | Content |
 |---|---|---|
-| `ci.yml` | GitHub-hosted | unit tests; job `edge-sim`: HIL suite against simulated boards; job `edge-qemu`: HIL suite on the ESP32 firmware in QEMU |
+| `ci.yml` | GitHub-hosted | job `checks` on every pull request (ruff, repository-wide tests, `zoo validate`, compliance check); job `test`: the tests of the areas a pull request touches; job `edge-sim`: HIL suite against simulated boards; job `edge-qemu`: HIL suite on the ESP32 firmware in QEMU. `edge-sim` and `edge-qemu` run only when edge code, firmware or `hil/` change. Pushes to `main` run everything. The mapping from paths to tests is in `scripts/ci/select_tests.py` |
 | `firmware.yml` | GitHub-hosted | firmware build for all targets with a size overview (on changes of `firmware/`, `hil/`, `src/mobility_model_zoo/edge/`) |
 | `hil.yml` | **self-hosted, label `hil`** | `uv run edge run --parallel --slow` on all connected boards, nightly and manually; runs only when the repository variable `HIL_RUNNER_ENABLED` is `true`, otherwise the job is skipped |
 

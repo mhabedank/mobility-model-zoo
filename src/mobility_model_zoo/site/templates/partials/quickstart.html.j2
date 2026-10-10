@@ -1,0 +1,15 @@
+<section class="sec" id="quickstart" aria-labelledby="qs-h"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">Quickstart</div><h2 class="h2" id="qs-h">Install, load, extract.</h2>
+<p class="muted">{{ p.hardware_note }}</p></div>
+<ol class="steps" style="list-style:none;padding:0">
+<li class="step"><h3>Install version {{ p.latest.version }}</h3>
+<div class="code"><div class="code-top"><span>shell</span><button class="copy" type="button" data-copy="qs-install">Copy</button></div><pre id="qs-install"><code>{{ p.install }}</code></pre></div></li>
+<li class="step"><h3>Run it on a text</h3>
+<div class="code"><div class="code-top"><span>python</span><button class="copy" type="button" data-copy="qs-run">Copy</button></div><pre id="qs-run" class="wrap-pre"><code>{{ p.how_to_run }}</code></pre></div></li>
+{% if p.quick %}
+<li class="step"><h3>Get this output</h3>
+<p class="small muted" style="margin-bottom:10px">For the example text <code>{{ p.quick.file }}</code>, the released model returns:</p>
+<div class="code"><div class="code-top"><span>json · output of v{{ p.latest.version }}, from the published model card</span><button class="copy" type="button" data-copy="qs-out">Copy</button></div><pre id="qs-out" class="wrap-pre"><code>{{ p.quick.json }}</code></pre></div></li>
+{% endif %}
+</ol>
+</div></section>

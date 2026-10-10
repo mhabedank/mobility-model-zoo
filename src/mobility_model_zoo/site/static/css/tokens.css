@@ -1,0 +1,75 @@
+/* Design tokens of the zoo website (feature 008), from the Claude Design identity sheet
+   (specs/008-zoo-website/design/source/identity-system.html). Light by default, dark when the
+   system asks for it. Swapping the identity means changing this file only (FR-024). */
+
+@font-face {
+  font-family: "Figtree";
+  src: url("../fonts/Figtree-variable-latin.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/JetBrainsMono-variable-latin.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --bg:#F7F8FC;
+  --surface:#FFFFFF;
+  --surface-2:#EDF0FA;
+  --text:#0E1330;
+  --muted:#4B5478;
+  --border:#C9D0E8;
+  --border-strong:#6F7AA6;
+  --link:#1B3BD8;
+  --link-hover:#1228A6;
+  --focus:#1B3BD8;
+  --accent:#1B3BD8;
+  --on-accent:#FFFFFF;
+  --mark:#6FFFC8;
+  --code-bg:#EDF0FA;
+  --job-bg:#D6E0FF;
+  --job-ink:#1B3BD8;
+  --pain-bg:#FFDDBD;
+  --pain-ink:#A84A07;
+  --gain-bg:#B5F3D8;
+  --gain-ink:#0A6E4E;
+  --s-a:#1B3BD8;
+  --s-b:#6F7AA6;
+  --s-c:#A84A07;
+  --brand-blue: #1B3BD8;
+  --brand-mint: #6FFFC8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#0A0F2E;
+    --surface:#111846;
+    --surface-2:#19235C;
+    --text:#EEF1FF;
+    --muted:#A7B1DE;
+    --border:#2F3C86;
+    --border-strong:#6F7DC4;
+    --link:#A3B5FF;
+    --link-hover:#D2DBFF;
+    --focus:#6FFFC8;
+    --accent:#6FFFC8;
+    --on-accent:#0A0F2E;
+    --mark:#6FFFC8;
+    --code-bg:#0D1338;
+    --job-bg:#2B41B0;
+    --job-ink:#A3B5FF;
+    --pain-bg:#8A4310;
+    --pain-ink:#FFB27A;
+    --gain-bg:#0B6148;
+    --gain-ink:#6FFFC8;
+    --s-a:#6FFFC8;
+    --s-b:#A7B1DE;
+    --s-c:#FFB27A;
+  }
+}

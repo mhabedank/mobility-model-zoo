@@ -1,0 +1,11 @@
+# Where each example text comes from (check C-U4). Examples are published with the model card.
+examples:
+- file: 01-night-shift.txt
+  source: synthetic
+  note: Fictional statement written for the model card; not taken from any collected source.
+- file: 02-depot-charging.txt
+  source: synthetic
+  note: Fictional statement written for the model card; not taken from any collected source.
+- file: 03-cargo-bike.txt
+  source: synthetic
+  note: Fictional statement written for the model card; not taken from any collected source.

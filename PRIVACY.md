@@ -107,6 +107,12 @@ Used for: not used yet.
 - Safeguards: Licence and use check per dataset, data kept outside git in a local cache with a retention date, no publication of the data, objection channel (PRIVACY.md).
 - Retention: Local cache only; delete 12 months after the last training run that used it. Purpose: Reproduce the frozen benchmark and the training set of a current model.
 
+## Website
+
+The project website at https://mhabedank.github.io/mobility-model-zoo/ shows the published models. It is a set of static pages hosted by GitHub Pages (GitHub, Inc., USA). When you visit it, GitHub logs and stores your IP address for security purposes, whether or not you are signed in to GitHub, and processes the usual technical request data to deliver the pages. The legal basis is Art. 6(1)(f) GDPR: the legitimate interest in providing the website securely. GitHub's handling is described in the GitHub General Privacy Statement (https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement); for transfers to the United States, GitHub states that it complies with the EU-U.S. Data Privacy Framework.
+
+The website sets no cookies, uses no analytics or tracking and loads no content from other servers; fonts and scripts are served from the site itself. The controller receives no data about visitors.
+
 ## Recipients
 
 The texts are labeled by language models. Labeling runs on the controller's own computer where possible. The following routes received texts; the list is generated from the labeling logs.

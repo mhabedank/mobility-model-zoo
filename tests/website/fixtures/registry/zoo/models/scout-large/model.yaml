@@ -1,0 +1,53 @@
+name: scout-large
+topic: productdev
+task: jtbd
+variant: large
+title: 'Scout (large): jobs, pains and gains in mobility texts'
+summary: Finds jobs-to-be-done, pains and gains in German and English mobility texts and quotes them verbatim, with actor type, evidence type and evidence scope. On the frozen benchmark pilot-v2 (guideline v2) it reaches a comparison composite of 0.72, against 0.67 for the best zero-shot small model, measured as agreement with two frontier reference models (Claude and the GPT mini tier). It reads a 9,240-character interview in 8.1 s on 4 CPU cores with 2.5 GB of memory, in 0.84 s on the GPU of a MacBook M3 Pro and in 0.12 s on a DGX Spark, where it processes 1,260 texts per minute; the generative models of the pilot manage between 0.4 and 10 per minute.
+license: Apache-2.0
+license_exception: null
+base_model: FacebookAI/xlm-roberta-large
+base_model_license: MIT
+languages: [de, en]
+pipeline_tag: token-classification
+library_name: pytorch
+tags: [jobs-to-be-done, product-discovery, evidence-extraction, span-extraction, xlm-roberta]
+repos:
+  public: mobility-model-zoo/scout-large
+  staging: mobility-model-zoo/scout-large-staging
+card:
+  intended_use: |
+    Product discovery in mobility: finding what people try to get done (jobs), what gets in their way (pains) and what they would gain, in interviews, forum posts, reviews, studies and other texts. Every item comes with the sentence or clause it was found in, so a person can check it. The output is input for later steps (deduplication, clustering, prioritization), which this model does not do.
+  out_of_scope: |
+    Decisions about individuals; profiling or identifying the authors of texts; texts outside mobility (it was trained on mobility texts only); treating the output as a complete or final list of needs without human review.
+  figures:
+    - path: topics/productdev/recipes/figures/scout-large-quality-speed.png
+      alt: Quality against texts per minute for scout-large on a MacBook GPU and a DGX Spark GPU and for the generative models of the pilot
+    - path: topics/productdev/recipes/figures/scout-large-10k-texts.png
+      alt: Time to process 10,000 texts for scout-large on four machines and for the generative models of the pilot
+  input_output: |
+    Input: a text in German or English, any length (it is read in overlapping 512-token windows). Output: JSON in the format `jtbd-span-v1`: `output_format_version`; `relevant` (does the text contain jobs, pains or gains at all) and `relevance_probability`; `dimensions`, the attribute dimensions this model produces (here `actor_type`, `evidence_type` and `evidence_scope`); and `items`. Each item has `kind` (job, pain or gain), `quote` with its character offsets `start` and `end` (always a verbatim span of the input), a `score`, and one value per produced dimension. An empty list is a valid result.
+  install: pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    import json
+
+    from mobility_model_zoo.productdev.jtbd.span import SpanExtractor
+
+    model = SpanExtractor.from_pretrained("{repo_id}", revision="{revision}")
+    print(json.dumps(model.extract({text}), ensure_ascii=False, indent=2))
+  limitations: |
+    - Quality numbers are agreement with frontier reference models (Claude and, for budget reasons, the mini tier of the GPT family) on the frozen benchmark pilot-v2 with guideline v2, not a check against human judgement.
+    - Its weakest dimensions are relevance (kappa 0.54) and item matching (F1 0.59): it does not always agree with the references on whether a text is about mobility needs at all, or on which statements count as items. Even the two reference models disagree on which statements are items; the pilot recorded item matching as an open question.
+    - It does not produce a free-text actor or an English statement of the job, pain or gain, which the generative approach does; it gives the actor type and the verbatim quote only.
+    - Items are whole sentences or clauses; a job that spans several sentences is split.
+    - It was trained on labels from one teacher model (MiMo V2.6 Pro), mostly on parliamentary hearings and plenary debates in English and German; forum and review texts were not available for training, so informal user language is less well covered.
+    - Trained on German and English mobility texts; other languages and domains are untested.
+    - Speed comparisons with generative models use one request at a time for every model (their median call latency on the benchmark). Hosted models can run many requests in parallel, at a cost per text and subject to rate limits; scout-large runs locally and can be batched as well.
+    - Texts can contain personal data. The model does not remove it; redact texts before sharing outputs.
+  citation: |
+    @misc{mobility-model-zoo-scout,
+      title  = {Scout (large): jobs, pains and gains in mobility texts, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/scout-large}
+    }

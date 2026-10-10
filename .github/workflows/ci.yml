@@ -1,17 +1,49 @@
 name: ci
 
+# Pull requests run only what their changes need (scripts/ci/select_tests.py): the checks job always,
+# the tests of the touched areas, torch only for the JTBD tests, the firmware jobs only for edge
+# changes. Pushes to main and manual runs run everything.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# A new push to a pull request cancels its older run; on main every commit is tested.
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  test:
+  changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    outputs:
+      tests: ${{ steps.select.outputs.tests }}
+      torch: ${{ steps.select.outputs.torch }}
+      edge: ${{ steps.select.outputs.edge }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # the pull request merge commit and its base
+      - id: select
+        run: |
+          # On a pull request HEAD is the merge commit; its first parent is the base branch.
+          if [ "${{ github.event_name }}" = "pull_request" ] && git rev-parse -q --verify HEAD^2 >/dev/null; then
+            python3 scripts/ci/select_tests.py --diff HEAD^1 HEAD >> "$GITHUB_OUTPUT"
+          else
+            python3 scripts/ci/select_tests.py --all >> "$GITHUB_OUTPUT"
+          fi
+
+  # Every pull request: lint, repository-wide tests, registry validation and the compliance harness.
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UV_NO_SYNC: "1"  # uv run would otherwise install torch, a base dependency
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,12 +51,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      # torch comes from the CPU-only index on Linux (pyproject [tool.uv.sources])
-      # No TensorFlow (edge-train) and no PlatformIO (edge-hw) here; labeling-api keeps the
-      # Anthropic backend unit tests running. The firmware jobs live in firmware.yml / edge-* below.
-      - run: uv sync --extra jtbd --extra release --extra edge --extra labeling-api
+      - run: uv sync --extra jtbd --extra release --extra edge --no-install-package torch
       - run: uv run ruff check
-      - run: uv run pytest -q
+      - run: uv run pytest -q $(python3 scripts/ci/select_tests.py --guards)
       - run: uv run zoo validate --all
       # Compliance harness (feature 006): register, notices, drift, REUSE, repository hygiene and the
       # secret scan (C-G3 needs gitleaks).
@@ -34,25 +63,57 @@ jobs:
             | tar -xz -C /usr/local/bin gitleaks
       - run: uv run zoo compliance check --ci
 
-  # HIL suite against the native firmware simulator (no hardware, no PlatformIO).
-  edge-sim:
+  test:
+    needs: changes
+    if: needs.changes.outputs.tests != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      TESTS: ${{ needs.changes.outputs.tests }}
+      TORCH: ${{ needs.changes.outputs.torch }}
+      UV_NO_SYNC: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gate rule 8 looks up recipe commits in the full history
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      # torch comes from the CPU-only index on Linux (pyproject [tool.uv.sources]) and is installed
+      # only when JTBD tests are selected. No TensorFlow (edge-train) and no PlatformIO (edge-hw)
+      # here; labeling-api keeps the Anthropic backend unit tests running.
+      - run: |
+          skip=""
+          [ "$TORCH" = "true" ] || skip="--no-install-package torch"
+          uv sync --extra jtbd --extra release --extra edge --extra labeling-api $skip
+      - run: uv run pytest -q $TESTS
+
+  # HIL suite against the native firmware simulator (no hardware, no PlatformIO).
+  edge-sim:
+    needs: changes
+    if: needs.changes.outputs.edge == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      UV_NO_SYNC: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - run: uv sync --extra edge
+      - run: uv sync --extra edge --no-install-package torch
       - run: uv run edge build -t native
       - run: uv run pytest tests/edge/hil -m hil --hil-board sim -q
 
   # Real ESP32 firmware running in Espressif's QEMU (hil/qemu-boards.yaml). ESP32-S3/-C3 need
   # ESP-IDF >= 5 to boot in QEMU; the Arduino 2.x core (IDF 4.4) asserts there, so only esp32.
   edge-qemu:
+    needs: changes
+    if: needs.changes.outputs.edge == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
+      UV_NO_SYNC: "1"
       QEMU_RELEASE: esp-develop-9.2.2-20250817
       QEMU_VERSION: esp_develop_9.2.2_20250817
     steps:
@@ -79,7 +140,7 @@ jobs:
               | tar xJ -C "$HOME"
           fi
           echo "$HOME/qemu/bin" >> "$GITHUB_PATH"
-      - run: uv sync --extra edge --extra edge-hw
+      - run: uv sync --extra edge --extra edge-hw --no-install-package torch
       - run: uv run edge build -t esp32
       - name: HIL suite on the emulated board
         run: |

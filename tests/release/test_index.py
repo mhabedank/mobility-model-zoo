@@ -37,6 +37,14 @@ def add_topic_and_model(env, topic: str, name: str) -> None:
         repos={"public": f"mobility-model-zoo/{name}", "staging": f"mobility-model-zoo/{name}-staging"},
     )
     (dst / "model.yaml").write_text(dump_yaml(model), encoding="utf-8")
+    # A public model needs its website text before it can be published (gate rule 17, feature 008).
+    site = {
+        "tagline": "Finds anomalies in test data.",
+        "audience": "For the release tests.",
+        "differentiators": [{"title": t, "text": f"{t} test text."} for t in ("One", "Two", "Three")],
+        "quickstart_example": "01-bus.txt",
+    }
+    (dst / "site.yaml").write_text(dump_yaml(site), encoding="utf-8")
     record = env.reg.record_raw(name, env.version)
     record.update(model=name, sandbox=False)
     record["staging"]["repo"] = model["repos"]["staging"]

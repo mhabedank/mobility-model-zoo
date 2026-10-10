@@ -1,0 +1,10 @@
+{
+  "kind": "quality",
+  "model": "sandbox-pipeline-tiny",
+  "version": "0.1.0",
+  "synthetic": true,
+  "source_run": null,
+  "metrics": [
+    {"name": "item_f1", "value": 0.5, "unit": null, "description": "Synthetic item matching F1 (test number)", "reference": "none (synthetic)", "benchmark": "synthetic", "n_items": 3, "hardware": null, "date": "2026-10-01"}
+  ]
+}

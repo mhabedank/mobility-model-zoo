@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-span-v1",
+  "title": "Output of the JTBD span extractor (jtbd-span-v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["output_format_version", "relevant", "relevance_probability", "dimensions", "items"],
+  "properties": {
+    "output_format_version": {"const": "jtbd-span-v1"},
+    "relevant": {"type": "boolean"},
+    "relevance_probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "dimensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["actor_type", "evidence_type", "evidence_scope"]}
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "quote", "start", "end", "score"],
+        "properties": {
+          "kind": {"enum": ["job", "pain", "gain"]},
+          "quote": {"type": "string", "minLength": 1},
+          "start": {"type": "integer", "minimum": 0},
+          "end": {"type": "integer", "minimum": 1},
+          "score": {"type": "number", "minimum": 0, "maximum": 1},
+          "actor_type": {"enum": ["individual", "worker", "organization", "public_sector", "society"]},
+          "evidence_type": {"enum": ["opinion", "anecdote", "routine", "observation", "measurement"]},
+          "evidence_scope": {"enum": ["single", "multiple", "quantified"]}
+        }
+      }
+    }
+  },
+  "$comment": "Semantic rules checked by `jtbd check`, not expressible here: every item has exactly the attribute keys listed in `dimensions`; quote == text[start:end]; start < end; items sorted by start and non-overlapping; relevant == false implies items == []."
+}

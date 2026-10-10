@@ -1,0 +1,71 @@
+name: site
+
+# The zoo website (feature 008, specs/008-zoo-website/contracts/cli.md): build from the registry,
+# run every check of contracts/checks.md, deploy to GitHub Pages from main.
+# After a release, release-publish pushes the updated records with GITHUB_TOKEN, which does not
+# start push workflows; workflow_run rebuilds the site from main instead.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "zoo/**"
+      - "src/mobility_model_zoo/site/**"
+      - "src/mobility_model_zoo/release/card.py"
+      - "PRIVACY.md"
+      - "COPYRIGHT_POLICY.md"
+      - ".github/workflows/site.yml"
+  pull_request:
+    paths:
+      - "zoo/**"
+      - "src/mobility_model_zoo/site/**"
+      - "src/mobility_model_zoo/release/card.py"
+      - "PRIVACY.md"
+      - "COPYRIGHT_POLICY.md"
+      - ".github/workflows/site.yml"
+  workflow_run:
+    workflows: [release-publish]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || '' }}
+          fetch-depth: 0  # chart labels are read at release tags
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra release --group site-check
+      - run: uv run playwright install --with-deps chromium
+      - run: uv run zoo site build
+      - run: uv run zoo site check --a11y
+      - run: rm -rf _site/_build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

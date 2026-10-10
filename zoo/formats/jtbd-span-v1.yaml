@@ -1,0 +1,60 @@
+# Field meanings of the output format jtbd-span-v1, for the website (feature 008, FR-008).
+# Types, required fields and allowed values come from the JSON schema named below; this file only
+# adds what the schema cannot say. `zoo site build` fails if a schema path has no entry here or an
+# entry has no schema path (check B5).
+id: jtbd-span-v1
+title: Jobs, pains and gains as verbatim spans
+schema: src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v1.schema.json
+input:
+  - A text in German or English, as one string. Any length; long texts are read in overlapping 512-token windows and the results are merged.
+  - Other languages and texts outside mobility are untested; the model still returns a valid output.
+  - The offsets in the output count characters (Unicode code points) of exactly the string you passed in.
+rules:
+  - "Every quote is a verbatim span of the input: `text[start:end] == quote`."
+  - Items are sorted by `start` and never overlap.
+  - Every item has exactly the attribute keys listed in `dimensions`.
+  - "`relevant: false` always comes with `items: []`."
+edge_cases:
+  - input: Empty or whitespace-only text
+    output: "A valid output with `relevant: false` and `items: []`."
+  - input: A text on another subject, or without jobs, pains or gains
+    output: "`relevant: false` and `items: []`. This is a correct result, not an error."
+  - input: A very long text
+    output: Read in overlapping windows; offsets always refer to the whole text you passed in.
+  - input: Another language
+    output: Untested. The output stays valid, but its quality is unknown.
+versioning: >-
+  Every output carries `output_format_version`. A change that breaks a parser (a renamed or removed
+  field, a new required field, a changed meaning) gets a new format version; the old version stays
+  documented. Before 1.0.0, an experimental model may change its output format in a minor release.
+fields:
+  output_format_version:
+    meaning: The format of this output. Always `jtbd-span-v1` for this format.
+  relevant:
+    meaning: Whether the text contains jobs, pains or gains in mobility at all. scout-large sets it to true when its best item clears the relevance threshold.
+    empty_case: "`false` for empty texts, texts on other subjects and texts without items; then `items` is empty."
+  relevance_probability:
+    meaning: The mean probability of the model's relevance head over the windows of the text, from 0 to 1. Informational; `relevant` itself is decided from the item scores.
+  dimensions:
+    meaning: The attribute dimensions the model produces for every item, a subset of `actor_type`, `evidence_type` and `evidence_scope`.
+  items:
+    meaning: The jobs, pains and gains found in the text, one object per item, sorted by `start`.
+    empty_case: An empty list is a valid result. It means the model found no item, not that something failed.
+  items[].kind:
+    meaning: "`job`: something an actor is trying to get done. `pain`: a problem, obstacle, risk, cost or frustration in getting it done. `gain`: a benefit or desired improvement the actor experiences or wants."
+  items[].quote:
+    meaning: The sentence or clause the item was found in, copied verbatim from the input. Items are whole sentences or clauses; a job that spans several sentences is split.
+  items[].start:
+    meaning: Character offset where the quote starts in the input (inclusive, from 0).
+  items[].end:
+    meaning: Character offset where the quote ends in the input (exclusive). `text[start:end] == quote`.
+  items[].score:
+    meaning: The model's score for this span and kind, from 0 to 1. Higher is more confident; it is not a calibrated probability.
+  items[].actor_type:
+    meaning: "Who has the job, pain or gain. `individual`: a private person or group of users. `worker`: a person acting in their job in the domain. `organization`: a company, operator or association. `public_sector`: a state body or authority. `society`: the public at large."
+    notes: The model gives the type only; it does not name the actor in free text.
+  items[].evidence_type:
+    meaning: "How directly the text supports the item, from lowest to highest: `opinion` (a belief or wish), `anecdote` (a specific experience), `routine` (a recurring practice), `observation` (what was systematically observed or reported by several people), `measurement` (a quantified result of a defined measurement or survey)."
+    notes: When the grade is uncertain, the lower grade is the correct one.
+  items[].evidence_scope:
+    meaning: "How far the evidence reaches: `single` (one actor, one occurrence), `multiple` (several actors or occurrences, or a general statement), `quantified` (the quote itself states a number, share, frequency or amount)."

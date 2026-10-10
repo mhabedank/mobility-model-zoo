@@ -1,0 +1,31 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ p.name }}: {{ p.m.title }} · {{ site.title }}{% endblock %}
+{% block description %}{{ p.m.title }}. {{ p.pitch.tagline }}{% endblock %}
+{% block banner %}
+{% if p.status == "deprecated" %}
+<div class="banner" role="note"><div class="wrap"><strong>Deprecated.</strong> {{ p.latest.deprecated.reason }}{% if p.latest.deprecated.successor %} Use version {{ p.latest.deprecated.successor }} instead.{% endif %}</div></div>
+{% endif %}
+{% endblock %}
+{% block main %}
+{% include "partials/hero.html.j2" %}
+{% include "partials/why.html.j2" %}
+{% include "partials/quickstart.html.j2" %}
+{% include "partials/interface.html.j2" %}
+{% include "partials/viewer.html.j2" %}
+{% include "partials/quality.html.j2" %}
+{% include "partials/limits.html.j2" %}
+{% include "partials/provenance.html.j2" %}
+{% include "partials/versions.html.j2" %}
+{% include "partials/cite.html.j2" %}
+{% if p.notes %}
+<section class="sec" id="notes" aria-labelledby="notes-h"><div class="wrap">
+<h2 class="h3" id="notes-h">What the numbers are measured against</h2>
+<ol class="notes">
+{% for n in p.notes %}
+<li id="fn-{{ loop.index }}">{{ n.text }} <span class="mono">{{ n.metric }}</span> in <a href="{{ site.repo }}/blob/{{ p.latest.tag }}/{{ n.source }}">{{ n.source }}</a>.</li>
+{% endfor %}
+</ol>
+</div></section>
+{% endif %}
+{% endblock %}
+{% block footer_links %}<a href="{{ p.hf }}">{{ p.name }} on Hugging Face</a>{% endblock %}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% block title %}{{ site.title }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ site.tagline }}{% endblock %}">
+<link rel="canonical" href="{{ site.canonical_url }}{{ path }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:title" content="{{ self.title() }}">
+<meta property="og:description" content="{{ self.description() }}">
+<meta property="og:url" content="{{ site.canonical_url }}{{ path }}">
+<meta property="og:image" content="{{ site.canonical_url }}assets/img/og.png">
+<link rel="icon" href="{{ root }}assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="{{ root }}assets/fonts/Figtree-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ root }}assets/fonts/JetBrainsMono-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ root }}assets/css/tokens.css">
+<link rel="stylesheet" href="{{ root }}assets/css/site.css">
+<script src="{{ root }}assets/js/site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+<div class="wrap hd-in">
+<a class="brand" href="{{ root }}">{{ mark(30) }}<span>{{ site.title }}</span></a>
+<nav class="nav" aria-label="Main">
+<a href="{{ root }}#models">Models</a>
+<a href="{{ root }}#topics">Topics</a>
+<a href="{{ root }}#principles">Principles</a>
+<a href="{{ site.hf_org }}">Hugging Face</a>
+<a href="{{ site.repo }}">GitHub</a>
+</nav>
+</div>
+</header>
+{% block banner %}{% endblock %}
+<main id="main" tabindex="-1">
+{% block main %}{% endblock %}
+</main>
+<footer class="wrap">
+<div class="ft">
+<a class="brand" href="{{ root }}">{{ mark(24) }}<span>{{ site.title }}</span></a>
+<nav aria-label="Legal">
+<a href="{{ site.legal.imprint }}">Imprint</a>
+<a href="{{ site.legal.privacy }}">Privacy notice</a>
+<a href="{{ site.legal.copyright }}">Copyright policy</a>
+<a href="{{ site.repo }}/blob/main/LICENSE">Licence of the code</a>
+{% block footer_links %}{% endblock %}
+</nav>
+<p class="cap">Private, non-commercial project. No cookies, no analytics, no third-party requests.</p>
+</div>
+</footer>
+</body>
+</html>
