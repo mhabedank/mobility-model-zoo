@@ -39,3 +39,26 @@ Seven detectors, four sets plus ROAD, threshold from can-train-and-test validati
 - All alarms of the failing cell fall into two 4–5 s captures (`set_04/test_04/fuzzing-1`, `-2`, byte-identical to `set_02/train_01/fuzzing-1`, `-2`). Their benign frames use 12 IDs that occur in none of the four vehicles' calibration captures (ID overlap 0–8 %).
 - Audit of all 174 unique can-train-and-test captures with the same test (share of benign frames whose ID is known to the labelled vehicle below 0.9, or a better-matching vehicle): exactly four captures flagged, all with the same 12 foreign IDs: `set_01/train_01/DoS-1`, `DoS-2` and `set_02/train_01/fuzzing-1`, `fuzzing-2`. They were also the source of the start-of-capture false alarms seen during development.
 - New benchmark version `can-ids-v3` = `can-ids-v2` without these captures (role `excluded`, reason recorded). Because the audit followed the first test run, v2 stays the primary result and v3 is reported as the corrected result next to it.
+
+## Test run on can-ids-v3 (2026-10-10, corrected benchmark, same configuration as the v2 run)
+
+- picket-forest-v2 (forest only): ROAD F1 0.679 (goal missed), ROAD ambient 0.00 FA/h, unknown-vehicle false alarms worst 0.51 per hour (goal met), episode recall 0.80. rules-v2: ROAD 0.997, worst 9.85 FA/h. Shuffled-label control failed again under the amended rule.
+- Without the four excluded captures the forest's ROAD F1 also drops on development data (0.82 → 0.52): those mislabelled captures had taught it patterns that happened to fit ROAD. The forest's ROAD result is fragile.
+- Independent check on AutoHack (one further vehicle, three buses, release model trained on can-train-and-test only, calibration = attack-free head of the AutoHack train file: 16 s B-CAN, 72 s P-CAN, 340 s C-CAN): F1 0.83 / 0.68 / 0.71, but 105 / 371 / 741 false alarms per hour. Calibration that short is not enough; reported as a limitation.
+
+## Development decisions after the v3 run (2026-10-10, development data only)
+
+- Cause of the ROAD gap: label convention. can-train-and-test labels only injected frames; ROAD labels every frame of the attacked ID during the injection, and every frame during fuzzing. A frame classifier trained on the first convention finds about half on ROAD.
+- Added an event-level decision on top of the forest (`calibrated.event_flags`): once the forest flags at least two frames of an ID within its count window and the ID's count is at least 25 % above the calibrated maximum, the following frames of that ID are flagged while this holds; plus the fuzzing state (unknown-ID counts). Variants compared on development data only:
+
+| Variant | ROAD dev F1 | ROAD held-out ambient FA/h | ctt dev FA/h (set_01..04) |
+|---|---|---|---|
+| forest only (v3 training) | 0.520 | 0.00 | 0.00 / 0.00 / 0.00 / 0.00 |
+| forest + event, confirm 1, margin 0 | 0.899 | 0.00 | 0.00 / 1.07 / 2.80 / 1.36 |
+| confirm 2 | 0.897 | 0.00 | 0.00 / 0.00 / 2.80 / 0.68 |
+| margin 0.25 | 0.899 | 0.00 | 0.00 / 0.00 / 1.86 / 0.68 |
+| **confirm 2, margin 0.25 (chosen)** | 0.898 | 0.00 | 0.00 / 0.00 / 1.86 / 0.68 |
+
+- Release candidate `picket-forest-v2` = calibrated forest + event decision (confirm 2, margin 0.25). The forest alone is reported as `ctrl-forest-v2-frames`. Frame-level controls (raw CAN ID, shuffled labels) are compared with `ctrl-forest-v2-frames`, the same decision level; this is fixed before the next test run.
+- Test use: this is the third time the ROAD test captures are scored (v2, v3, now). The configuration was chosen on development data only; the repeated use is stated in the report.
+- Harness runs (detector, set) jobs and release models in 4 parallel processes (identical results to a serial run).

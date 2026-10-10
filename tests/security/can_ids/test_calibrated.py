@@ -80,3 +80,17 @@ def test_plan_uses_separate_benign_captures_and_refuses_overlap():
     m = {**v1, "calibration": {"set_01": {"A": ["s1/af"], "B": ["s1/t2"]}}}
     with pytest.raises(ev2.CalibrationOverlap):
         ev2.check_disjoint(m)
+
+
+def test_event_flags_spread_over_an_injection_and_flag_fuzzing():
+    table = cal.calibrate([_benign(3)])
+    c = _cap("fabrication", 3)
+    x = cal.features(c, table)
+    y = c["y"] == 1
+    first_two = np.zeros(y.size, bool)
+    first_two[np.flatnonzero(y)[:2]] = True  # the model flags only two injected frames
+    out = cal.event_flags(c, x, table, first_two, confirm=2, margin=0.25) > 0
+    assert out[y].sum() > first_two[y].sum()  # the episode of that ID is spread
+    none = cal.event_flags(c, x, table, np.zeros(y.size, bool), confirm=2, margin=0.25)
+    fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
+    assert np.array_equal(none > 0, fuzz)  # without model flags only the fuzzing state remains

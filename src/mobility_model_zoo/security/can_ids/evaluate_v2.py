@@ -21,6 +21,7 @@ import numpy as np
 from mobility_model_zoo.security.can_ids import calibrated as cal
 from mobility_model_zoo.security.can_ids import detectors as dets
 from mobility_model_zoo.security.can_ids import evaluate as ev
+from mobility_model_zoo.security.can_ids import forest
 
 BENCHMARK = "can-ids-v2"
 BENIGN_FAMILIES = ("attack-free", "accessory")
@@ -148,6 +149,37 @@ class CalForest(dets.Forest):
         return super().score(self._view(caps))
 
 
+class EventForest(CalForest):
+    """picket-forest-v2: the calibrated forest plus the event-level decision of
+    `calibrated.event_flags` (spread over an ID's injection episode, fuzzing state). The frame
+    threshold is chosen on validation captures from the forest scores; frames flagged by the event
+    logic score 1.0, the others keep the forest score."""
+
+    CONFIRM = 2
+    MARGIN = 0.25
+
+    def fit(self, train, val):
+        super().fit(train, val)
+        sv = np.concatenate(super().score(val))
+        yv = np.concatenate([c["y"] for c in val])
+        self.info["frame_threshold"] = float(forest.best_threshold(yv, sv))
+
+    def score(self, caps):
+        out = []
+        for c, s in zip(caps, super().score(caps), strict=True):
+            n = len(cal.FEATURE_NAMES)
+            flags = cal.event_flags(
+                c,
+                c["Xc"][:, :n],
+                c["table"],
+                s >= self.info["frame_threshold"],
+                self.CONFIRM,
+                self.MARGIN,
+            )
+            out.append(np.where(flags > 0, 1.0, s).astype(np.float32))
+        return out
+
+
 class Rules(dets.Detector):
     """Rules-only baseline on the same calibration table (no training)."""
 
@@ -184,8 +216,13 @@ def exclude(v2: dict, captures: dict[str, str], benchmark: str) -> dict[str, Any
 def registry() -> dict[str, dets.Detector]:
     base = dets.registry()
     return {
-        "picket-forest-v2": CalForest(
-            "picket-forest-v2", "model", "random forest on 10 calibrated, vehicle-relative features"
+        "picket-forest-v2": EventForest(
+            "picket-forest-v2",
+            "model",
+            "random forest on 10 calibrated, vehicle-relative features plus event-level decision",
+        ),
+        "ctrl-forest-v2-frames": CalForest(
+            "ctrl-forest-v2-frames", "control", "picket-forest-v2 without the event-level decision"
         ),
         "rules-v2": Rules(
             "rules-v2", "baseline", "rules on the calibration table (rate, unknown IDs, DLC)"
@@ -207,7 +244,7 @@ def registry() -> dict[str, dets.Detector]:
 
 def _with_xc(cap: dict, table: cal.Table) -> dict:
     xc = cal.features(cap, table)
-    return {**cap, "Xc": np.column_stack([xc, cap["can_id"].astype(np.float32)])}
+    return {**cap, "Xc": np.column_stack([xc, cap["can_id"].astype(np.float32)]), "table": table}
 
 
 def tables(manifest: dict, sources, cache) -> dict[tuple[str, str], cal.Table]:
@@ -301,7 +338,22 @@ def evaluate_road(det, calib, manifest, sources, cache, tabs) -> dict[str, Any]:
     return out
 
 
-def run(names, manifest, sources, cache) -> dict[str, Any]:
+def _job(args):
+    kind, name, s, manifest, sources, cache, tabs = args
+    if kind == "set":
+        return evaluate_set(registry()[name], manifest, s, sources, cache, tabs)
+    det, calib = release_model(name, manifest, sources, cache, tabs)
+    return {
+        "road": evaluate_road(det, calib, manifest, sources, cache, tabs),
+        "road_threshold": calib["threshold"],
+    }
+
+
+def run(names, manifest, sources, cache, workers: int = 1) -> dict[str, Any]:
+    """Every (detector, set) and every release model is an independent job; `workers` > 1 runs
+    them in parallel processes (results are identical to a serial run)."""
+    from concurrent.futures import ProcessPoolExecutor
+
     check_disjoint(manifest)
     tabs = tables(manifest, sources, cache)
     result: dict[str, Any] = {
@@ -312,15 +364,23 @@ def run(names, manifest, sources, cache) -> dict[str, Any]:
         "detectors": {},
     }
     sets = sorted(s for s in manifest["calibration"] if s != "road")
+    jobs = [("set", n, s) for n in names for s in sets] + [("road", n, None) for n in names]
+    args = [(k, n, s, manifest, sources, cache, tabs) for k, n, s in jobs]
+    if workers > 1:
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            outs = list(pool.map(_job, args))
+    else:
+        outs = [_job(a) for a in args]
     for name in names:
-        r: dict[str, Any] = {"sets": {}}
-        for s in sets:
-            r["sets"][s] = evaluate_set(registry()[name], manifest, s, sources, cache, tabs)
+        result["detectors"][name] = {"sets": {}}
+    for (kind, name, s), out in zip(jobs, outs, strict=True):
+        if kind == "set":
+            result["detectors"][name]["sets"][s] = out
+        else:
+            result["detectors"][name].update(out)
+    for name in names:
+        r = result["detectors"][name]
         r["aggregate"] = ev.aggregate(r["sets"])
-        det, calib = release_model(name, manifest, sources, cache, tabs)
-        r["road"] = evaluate_road(det, calib, manifest, sources, cache, tabs)
-        r["road_threshold"] = calib["threshold"]
-        result["detectors"][name] = r
     result["outcome"] = outcome(result)
     return result
 
@@ -374,10 +434,15 @@ def outcome(result: dict) -> dict[str, Any]:
     def f1(n, split):
         return agg[n].get(split, {}).get("f1", {}).get("median")
 
+    # frame-level controls are compared with the frame-level forest (same decision level)
+    ref = "ctrl-forest-v2-frames" if "ctrl-forest-v2-frames" in d else m
+
     checks = []
     if "ctrl-forest-v2-with-id" in d:
         worse = [
-            s for s in UNKNOWN_VEHICLE if (f1("ctrl-forest-v2-with-id", s) or 0) > (f1(m, s) or 0) + 0.05
+            s
+            for s in UNKNOWN_VEHICLE
+            if (f1("ctrl-forest-v2-with-id", s) or 0) > (f1(ref, s) or 0) + 0.05
         ]
         checks.append(("raw CAN ID adds no more than 0.05 F1 on unknown vehicles", not worse, worse))
     if "ctrl-id-lookup" in d:

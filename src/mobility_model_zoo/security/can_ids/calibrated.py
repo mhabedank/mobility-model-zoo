@@ -172,3 +172,36 @@ def rules(x: np.ndarray, margin: float = 0.25) -> np.ndarray:
     over = x[:, 2] > np.log2(1 + margin)
     fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
     return (over | fuzz | (x[:, 4] == 1)).astype(np.float32)
+
+
+def event_flags(
+    cap: dict,
+    x: np.ndarray,
+    table: Table,
+    model_flags: np.ndarray,
+    confirm: int = 1,
+    margin: float = 0.0,
+) -> np.ndarray:
+    """Event-level decision on top of the model's frame flags (feature 010):
+
+    - spread: once the model flags a frame of an ID, every following frame of that ID is flagged
+      while the ID's count stays above the calibrated maximum (the injection episode of that ID);
+    - fuzzing state: several unknown IDs among the last bus frames flag the frame.
+
+    Streaming: per ID the time of the last model flag; the spread ends as soon as the count falls
+    back to the calibrated maximum or no model flag was seen for one count window."""
+    ts = cap["ts"]
+    ids = cap["can_id"].astype(np.int64)
+    out = model_flags.astype(bool).copy()
+    over = (x[:, 3] > 0) & (x[:, 2] > np.log2(1 + margin))
+    for i in np.unique(ids):
+        idx = np.flatnonzero(ids == i)
+        win = table.window.get(int(i), MIN_WINDOW_S)
+        recent: list[float] = []
+        for k in idx:
+            if model_flags[k]:
+                recent = [t for t in recent if ts[k] - t <= win] + [ts[k]]
+            elif over[k] and len(recent) >= confirm and ts[k] - recent[-1] <= win:
+                out[k] = True
+    fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
+    return (out | fuzz).astype(np.float32)
