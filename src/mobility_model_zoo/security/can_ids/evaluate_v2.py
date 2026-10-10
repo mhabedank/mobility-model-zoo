@@ -158,6 +158,29 @@ class Rules(dets.Detector):
         return [cal.rules(c["Xc"][:, : len(cal.FEATURE_NAMES)]) for c in caps]
 
 
+def exclude(v2: dict, captures: dict[str, str], benchmark: str) -> dict[str, Any]:
+    """A new benchmark version without some captures (role `excluded` with the reason); the frozen
+    source version is referenced by hash. Used for can-ids-v3 (feature 010)."""
+    src_sha = hashlib.sha256(json.dumps(v2, sort_keys=True).encode()).hexdigest()
+    m = json.loads(json.dumps({k: v for k, v in v2.items() if k != "frozen_at"}))
+    m["benchmark"] = benchmark
+    m["based_on"] = {"benchmark": v2["benchmark"], "manifest_sha256": src_sha}
+    shas = {c["sha256"] for c in m["captures"] if c["id"] in captures}
+    for c in m["captures"]:
+        if c["sha256"] in shas:
+            c["role"] = "excluded"
+            c["excluded_reason"] = captures.get(c["id"]) or next(
+                captures[x["id"]]
+                for x in m["captures"]
+                if x["sha256"] == c["sha256"] and x["id"] in captures
+            )
+    for vehicles in m["calibration"].values():
+        for v, ids in vehicles.items():
+            vehicles[v] = [i for i in ids if i not in captures]
+    check_disjoint(m)
+    return m
+
+
 def registry() -> dict[str, dets.Detector]:
     base = dets.registry()
     return {
@@ -282,7 +305,7 @@ def run(names, manifest, sources, cache) -> dict[str, Any]:
     check_disjoint(manifest)
     tabs = tables(manifest, sources, cache)
     result: dict[str, Any] = {
-        "benchmark": BENCHMARK,
+        "benchmark": manifest["benchmark"],
         "date": dt.date.today().isoformat(),
         "code_commit": ev.code_commit(),
         "calibration_minutes": {f"{s}/{v}": round(t.seconds / 60, 1) for (s, v), t in tabs.items()},
