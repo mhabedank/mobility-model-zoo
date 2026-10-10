@@ -55,6 +55,10 @@ Known-vehicle cells are not part of the goal; the worst one (`set_01`, Impala, k
 - **Test reuse:** the ROAD and can-train-and-test test captures were scored five times during this feature (v2; v3; event candidate with a harness bug; corrected harness; after the recording-gap fix). Every change was decided on development data, except two flaws found by diagnosing test results (harness threshold, recording gap); both are logged. KCID is the independent confirmation.
 - Data findings published in the validation log: four can-train-and-test captures carry benign traffic of no labelled vehicle; the CAN-MIRGU archive at UCI is corrupt.
 
+## Verification after the result (memorisation, blind spots)
+
+See `specs/010-picket-forest-v2/validation.md`, section "Verification". In short: no memorisation (untrained rules give the same numbers); detector live on unseen vehicles (injected attacks: rules 30/30 episodes, event candidate 23/30, missing fabrications); false alarms depend strongly on the calibration (ROAD: 44 FA/h with 15 min, 0 with 142 min); one new legitimate ID causes 444–531 FA/h on AutoHack C-CAN; KCID Honda CR-V is a gateway-filtered port with 6 IDs and weak evidence. The false-alarm goal is therefore met only under a calibration that covers the vehicle; it is not shown in general.
+
 ## Not done yet
 
 - C port of the calibration table and the event decision, device measurement (ESP32-S3 budget 16 KB RAM, 128 KB flash), release export and card.
