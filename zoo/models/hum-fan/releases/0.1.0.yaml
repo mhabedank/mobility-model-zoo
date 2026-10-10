@@ -35,5 +35,13 @@ performance:
     flash_kb: 256
     target: ESP32-S3
   results: results/0.1.0/performance.json
+usage:
+  class: commercial-share-alike
+  licence: CC-BY-SA-4.0
+  restricting_inputs:
+  - kind: dataset
+    id: mimii
+    licence: CC-BY-SA-4.0
+    restriction: share-alike
 published: null
 deprecated: null

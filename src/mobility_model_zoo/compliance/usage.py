@@ -527,3 +527,49 @@ def usage_block(declared: UsageClass, licence: str, derivation: Derivation) -> d
     """The `usage` object of a release record (FR-013)."""
     return {"class": str(declared), "licence": licence,
             "restricting_inputs": [i.record() for i in derivation.restricting]}
+
+
+# ---- audit (FR-021, research R14) ----------------------------------------------------------------
+
+
+def audit(root: Path, register: Any = None, only: str | None = None) -> list[dict[str, Any]]:
+    """Declared and derived usage class of every zoo model's latest release, read-only."""
+    from mobility_model_zoo.datasets.registry import load
+    from mobility_model_zoo.release.registry import Registry, parse_version
+
+    reg = Registry(root)
+    licences, declared_ds = LicenceList.load(root), load(root)
+    out = []
+    for name in reg.model_names():
+        if only and name != only:
+            continue
+        model = reg.model_raw(name)
+        versions = sorted(reg.versions(name), key=parse_version)
+        record = reg.record_raw(name, versions[-1]) if versions else {"provenance": {}}
+        findings: list[Finding] = []
+        try:
+            declared = UsageClass.parse(model.get("usage_class"))
+        except ValueError as e:
+            declared = None
+            findings.append(Finding("C-U2", "usage", name, "usage_class", str(e)))
+        derivation = derive_release(root, model, record, register=register, declared=declared_ds,
+                                    licences=licences)
+        findings += derivation.findings
+        if declared is not None:
+            findings += release_findings(declared, model["license"], derivation, licences)
+            findings += name_findings(name, model.get("variant", ""), declared)
+            usage = record.get("usage")
+            if usage is not None and usage != usage_block(declared, model["license"], derivation):
+                findings.append(Finding("C-U5", "usage", name, "usage",
+                                        "`usage` of the release record differs from the derivation"))
+        out.append({
+            "model": name,
+            "version": versions[-1] if versions else None,
+            "declared": model.get("usage_class"),
+            "derived": str(derivation.cls),
+            "licence": model.get("license"),
+            "restricting_inputs": [i.record() for i in derivation.restricting],
+            "findings": [{"check": f.check_id, "record": f.record, "field": f.field,
+                          "reason": f.reason} for f in findings],
+        })
+    return out

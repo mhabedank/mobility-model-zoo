@@ -89,11 +89,11 @@ description: "Tasks of feature 011: usage class and non-commercial releases"
 
 **Independent Test**: `uv run zoo compliance usage` lists six models with class or finding in under a minute and changes no file.
 
-- [ ] T032 [US4] Command `zoo compliance usage [--model NAME] [--json]` in `src/mobility_model_zoo/compliance/cli.py` per contracts/cli.md (text and JSON output, exit codes 0/1/2), using `derive_release` on each model's latest release record; read-only.
-- [ ] T033 [US4] Add the `usage` block to the draft release records (status `draft`, `published` empty) of hum-fan, pace-cnn, picket-forest and picket-mlp under `zoo/models/*/releases/`, with the values the derivation gives; leave published records unchanged.
+- [X] T032 [US4] Command `zoo compliance usage [--model NAME] [--json]` in `src/mobility_model_zoo/compliance/cli.py` per contracts/cli.md (text and JSON output, exit codes 0/1/2), using `derive_release` on each model's latest release record; read-only.
+- [X] T033 [US4] Add the `usage` block to the draft release records (status `draft`, `published` empty) of hum-fan, pace-cnn, picket-forest and picket-mlp under `zoo/models/*/releases/`, with the values the derivation gives; leave published records unchanged.
 - [X] T034 [US4] Rewrite the zoo-wide copy in `zoo/site.yaml`: the lead and the principle "Open for everyone, including commercial use" promise open licences and per-model usage classes instead of commercial use for every model (constitution 2.1.0); keep the other texts.
-- [ ] T035 [US4] Tests in `tests/compliance/test_usage_audit.py`: the audit on the repository lists all six models, runs offline in under 60 s, leaves `git status` clean (compare file hashes), and reports an unresolved free-text licence as C-U1; a site test asserts the start page shows each model's class and `zoo/site.yaml` contains no "including commercial use".
-- [ ] T036 [US4] Run the audit on the repository and record the result (classes and any findings, with the owner decisions they need) in `specs/011-usage-class-nc/audit-2026-10-10.md`; fix findings that are data gaps (missing register entries, unresolvable licences) and list real restrictions for the owner.
+- [X] T035 [US4] Tests in `tests/compliance/test_usage_audit.py`: the audit on the repository lists all six models, runs offline in under 60 s, leaves `git status` clean (compare file hashes), and reports an unresolved free-text licence as C-U1; a site test asserts the start page shows each model's class and `zoo/site.yaml` contains no "including commercial use".
+- [X] T036 [US4] Run the audit on the repository and record the result (classes and any findings, with the owner decisions they need) in `specs/011-usage-class-nc/audit-2026-10-10.md`; fix findings that are data gaps (missing register entries, unresolvable licences) and list real restrictions for the owner.
 
 ## Phase 7: Polish & Cross-Cutting
 
