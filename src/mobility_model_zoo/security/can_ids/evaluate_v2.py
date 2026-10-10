@@ -149,14 +149,28 @@ class CalForest(dets.Forest):
         return super().score(self._view(caps))
 
 
+def _calibrate(det, val, budgets):
+    """Validation operating points; detectors with a binary decision keep threshold 0.5."""
+    calib = ev.calibrate(det, val, budgets)
+    if getattr(det, "binary", False):
+        sv = det.score(val)
+        calib = {
+            **calib,
+            "threshold": 0.5,
+            "points": {str(b): ev.budget_operating_point(val, sv, 0.5, b) for b in budgets},
+        }
+    return calib
+
+
 class EventForest(CalForest):
     """picket-forest-v2: the calibrated forest plus the event-level decision of
     `calibrated.event_flags` (spread over an ID's injection episode, fuzzing state). The frame
-    threshold is chosen on validation captures from the forest scores; frames flagged by the event
-    logic score 1.0, the others keep the forest score."""
+    threshold is chosen on validation captures from the forest scores; the output is the final
+    0/1 decision (forest flags, spread and fuzzing state)."""
 
     CONFIRM = 2
     MARGIN = 0.25
+    binary = True
 
     def fit(self, train, val):
         super().fit(train, val)
@@ -176,12 +190,16 @@ class EventForest(CalForest):
                 self.CONFIRM,
                 self.MARGIN,
             )
-            out.append(np.where(flags > 0, 1.0, s).astype(np.float32))
+            # binary output: the decision is complete here (forest threshold chosen on validation
+            # in fit); a second threshold search on mixed scores would flag extra frames
+            out.append(flags.astype(np.float32))
         return out
 
 
 class Rules(dets.Detector):
     """Rules-only baseline on the same calibration table (no training)."""
+
+    binary = True
 
     def fit(self, train, val):
         self.model = None
@@ -270,7 +288,7 @@ def evaluate_set(det, manifest, s, sources, cache, tabs) -> dict[str, Any]:
     val = [_load(e, sources, cache, tabs, s) for e in by_role["validation"]]
     det.fit(train, val)
     del train
-    calib = ev.calibrate(det, val, manifest["protocol"]["budgets_per_hour"])
+    calib = _calibrate(det, val, manifest["protocol"]["budgets_per_hour"])
     splits = {}
     for split in manifest["protocol"]["can_train_and_test_tests"]:
         caps = [_load(e, sources, cache, tabs, s) for e in by_role["test"] if e["split"] == split]
@@ -303,7 +321,7 @@ def release_model(name, manifest, sources, cache, tabs):
     val = [_load(e, sources, cache, tabs, e["set"]) for e in ctt if e["role"] == "validation"]
     det.fit(train, val)
     del train
-    return det, ev.calibrate(det, val, manifest["protocol"]["budgets_per_hour"])
+    return det, _calibrate(det, val, manifest["protocol"]["budgets_per_hour"])
 
 
 def evaluate_road(det, calib, manifest, sources, cache, tabs) -> dict[str, Any]:

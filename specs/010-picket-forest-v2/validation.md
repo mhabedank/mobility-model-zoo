@@ -62,3 +62,9 @@ Seven detectors, four sets plus ROAD, threshold from can-train-and-test validati
 - Release candidate `picket-forest-v2` = calibrated forest + event decision (confirm 2, margin 0.25). The forest alone is reported as `ctrl-forest-v2-frames`. Frame-level controls (raw CAN ID, shuffled labels) are compared with `ctrl-forest-v2-frames`, the same decision level; this is fixed before the next test run.
 - Test use: this is the third time the ROAD test captures are scored (v2, v3, now). The configuration was chosen on development data only; the repeated use is stated in the report.
 - Harness runs (detector, set) jobs and release models in 4 parallel processes (identical results to a serial run).
+
+## Harness bug found (2026-10-10)
+
+- The first test run of the event candidate (`event.json`: ROAD F1 0.997, ROAD ambient 16.1 FA/h, unknown-vehicle worst 9.85 FA/h) did not execute the logged design: the harness searched a second threshold on the mixed output (event frames 1.0, other frames forest score) and landed below the forest threshold, flagging extra frames. The development logic on the same release training gives 0 alarms on all four ROAD test ambient captures.
+- Fix: the event candidate (and the rules) output the final 0/1 decision; the harness keeps threshold 0.5 for binary detectors (`_calibrate`). Regression test added. The run is repeated with the fixed harness; the faulty run stays recorded here.
+- Leave-one-out over the eight ROAD train ambient captures (development data, 2.36 h): 0 false alarms for every event variant (confirm 2/3, margin 0.25/0.5/1.0) and for the forest alone; development ambient data cannot separate the variants. Independent false-alarm data are added: KCID (DTU, CC BY 4.0), Ford Focus and Honda CR-V (vehicles in no other dataset used here) and the OBD request/response experiment (diagnostic traffic), fetched by ranged reads (disk space).

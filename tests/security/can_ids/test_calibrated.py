@@ -94,3 +94,13 @@ def test_event_flags_spread_over_an_injection_and_flag_fuzzing():
     none = cal.event_flags(c, x, table, np.zeros(y.size, bool), confirm=2, margin=0.25)
     fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
     assert np.array_equal(none > 0, fuzz)  # without model flags only the fuzzing state remains
+
+
+def test_binary_detectors_keep_their_decision():
+    class Fixed(ev2.Rules):
+        def score(self, caps):
+            return [np.where(np.arange(c["y"].size) % 2 == 0, 1.0, 0.0).astype(np.float32) for c in caps]
+
+    c = _cap("fabrication", 4)
+    calib = ev2._calibrate(Fixed("f", "baseline", "fixed"), [c], [1, 10])
+    assert calib["threshold"] == 0.5
