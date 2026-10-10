@@ -277,6 +277,30 @@ def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any]
     }
 
 
+USAGE_KINDS = {"source": "source", "dataset": "dataset", "base_model": "base model",
+               "teacher": "teacher", "third_party": "third-party model",
+               "zoo_model_output": "data produced by"}
+
+
+def usage_line(model: dict[str, Any], record: dict[str, Any]) -> str:
+    """What users may do with the model, from the release record's `usage` (feature 011, FR-014).
+    Published records from before constitution 2.1.0 have no `usage`: the declared class and the
+    licence of model.yaml stand in, without inputs."""
+    usage = record.get("usage") or {"class": model.get("usage_class", "commercial"),
+                                     "licence": model["license"], "restricting_inputs": []}
+    cls, licence = usage["class"], usage["licence"]
+    inputs = "; ".join(f"{USAGE_KINDS[i['kind']]} {i['id']} ({i['licence']})"
+                       for i in usage["restricting_inputs"])
+    if cls.startswith("non-commercial"):
+        why = f"because of {inputs}" if inputs else "the owner chose this restriction"
+        text = f"Non-commercial use only · licence {licence} · {why}."
+    else:
+        text = f"Commercial use permitted · licence {licence}."
+    if cls.endswith("share-alike"):
+        text += f" Derivatives must keep {licence}."
+    return text
+
+
 @dataclass
 class CardInput:
     """Everything a card is rendered from. `examples` maps file name -> model output (or None)."""
@@ -326,6 +350,7 @@ def render(inp: CardInput) -> str:
         topic=topic,
         topic_url=topic_url(topic),
         banner=_banner(model, record, inp.deprecated_banner),
+        usage=usage_line(model, record),
         front_matter=front_matter(model, record, quality),
         install=install_line(model, version),
         figures=figure_urls(model, version),

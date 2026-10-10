@@ -7,6 +7,7 @@ the version already exists, `ImmutabilityRefused` (exit 3).
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from collections.abc import Callable
@@ -32,7 +33,6 @@ from mobility_model_zoo.release.registry import (
     schema_errors,
 )
 
-PERMISSIVE = {"Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "CC-BY-4.0"}
 IGNORED_STAGING_FILES = {".gitattributes"}
 MIN_EXAMPLES = 3
 MAX_OUTPUT_CHARS = 4000
@@ -163,10 +163,14 @@ class Gate:
             failures.append(f"model.yaml name {m.get('name')!r} differs from directory {name!r}")
         if self.reg.topic(m.get("topic", "")) is None:
             failures.append(f"unknown topic {m.get('topic')!r} (not in zoo/topics.yaml)")
-        # <name>-<variant> (constitution 1.4.0): topic and task are fields and tags, not segments.
+        # <name>-<variant> (constitution 1.4.0): topic and task are fields and tags, not segments;
+        # non-commercial models end in -nc (constitution 2.1.0).
         variant = m.get("variant") or ""
-        if not variant or not name.endswith(f"-{variant}") or name == f"-{variant}":
+        nc = m.get("usage_class", "").startswith("non-commercial")
+        base = name.removesuffix("-nc") if nc else name
+        if not variant or not base.endswith(f"-{variant}") or base == f"-{variant}":
             failures.append("name must be <name>-<variant> ending with the model's variant")
+        failures += self._name_suffix_failures(name, variant)
         if r.get("model") != name:
             failures.append(f"release record model {r.get('model')!r} differs from {name!r}")
         if m["repos"]["public"] != f"{ORG}/{name}":
@@ -267,16 +271,12 @@ class Gate:
         return failures
 
     def rule_6(self) -> list[str]:
+        """Licences and the usage class (constitution 2.1.0, VI and IX; feature 011)."""
         m, failures = self.model, []
         if m["license"] != "Apache-2.0" and not m.get("license_exception"):
             failures.append("license is not Apache-2.0 and license_exception is empty")
-        if m.get("base_model_license") is None:
-            if m.get("base_model"):
-                failures.append("base_model is set but base_model_license is null")
-        elif m["base_model_license"] not in PERMISSIVE:
-            failures.append(
-                f"base model license {m['base_model_license']} is not known to permit publication"
-            )
+        if m.get("base_model") and m.get("base_model_license") is None:
+            failures.append("base_model is set but base_model_license is null")
         for t in self.record["provenance"]["teachers"]:
             if not t["training_on_outputs_permitted"]:
                 failures.append(f"teacher {t['model_id']} does not permit training on its outputs")
@@ -284,11 +284,58 @@ class Gate:
         creg = self._compliance()
         if creg is not None and creg.release(self.name, self.version) is not None:
             for t in self.record["provenance"]["teachers"]:
-                if not creg.output_training_permitted(t["model_id"]):
+                if creg.output_training_terms(t["model_id"]) in ("no", "unclear"):
                     failures.append(f"teacher {t['model_id']}: a provider route does not permit "
                                     "training on outputs (compliance/providers.yaml) and no decision "
                                     "covers it")
+        return failures + self._usage_failures(creg)
+
+    def _usage_failures(self, creg) -> list[str]:
+        """The declared usage class covers the class derived from every input, the licence marks it,
+        and a release record not yet published stores it (FR-009 to FR-013)."""
+        from mobility_model_zoo.compliance.usage import (
+            LicenceList,
+            UsageClass,
+            derive_release,
+            release_findings,
+            usage_block,
+        )
+
+        m, r = self.model, self.record
+        try:
+            declared = UsageClass.parse(m.get("usage_class"))
+        except ValueError as e:
+            return [str(e)]
+        root = self.reg.zoo.parent
+        licences = LicenceList.load(root)
+        derivation = derive_release(root, m, r, register=creg, licences=licences)
+        found = derivation.findings + release_findings(declared, m["license"], derivation, licences)
+        failures = [f"{f.check_id}: {f.reason} [{f.record}]" for f in found]
+        expected = usage_block(declared, m["license"], derivation)
+        usage = r.get("usage")
+        if usage is None and not r.get("published"):
+            failures.append("C-U5: the release record lacks `usage`; expected "
+                            + json.dumps(expected, sort_keys=True))
+        elif usage is not None and usage != expected:
+            failures.append("C-U5: `usage` of the release record differs from the derivation; "
+                            "expected " + json.dumps(expected, sort_keys=True))
+        for v in self.reg.versions(self.name):
+            if parse_version(v) >= parse_version(self.version):
+                continue
+            earlier = (self.reg.record_raw(self.name, v).get("usage") or {}).get("class")
+            if earlier and earlier != str(declared):
+                failures.append(f"C-U5: version {v} is {earlier}; a model's usage class never "
+                                "changes, a new class needs a new model name")
         return failures
+
+    def _name_suffix_failures(self, name: str, variant: str) -> list[str]:
+        from mobility_model_zoo.compliance.usage import UsageClass, name_findings
+
+        try:
+            declared = UsageClass.parse(self.model.get("usage_class"))
+        except ValueError:
+            return []  # rule 1 reports the schema error
+        return [f"{f.check_id}: {f.reason}" for f in name_findings(name, variant, declared)]
 
     def _datasets(self) -> dict[str, Any]:
         from mobility_model_zoo.datasets.registry import load
@@ -296,19 +343,13 @@ class Gate:
         return load(self.reg.zoo.parent)
 
     def _dataset_failures(self) -> list[str]:
-        """Rule 6 for declared datasets: declaration, licence, use, share-alike, non-commercial."""
+        """Rule 6 for declared datasets: declaration, licence, permitted use and status."""
         failures = []
         sources = self.record["provenance"]["sources"]
         declared = self._datasets() if any(s.get("dataset") for s in sources) else {}
+        # Non-commercial and share-alike terms are checked by the usage class (_usage_failures).
         for s in sources:
             licence = s["license"]
-            if "-NC" in licence.upper() and s["permitted_use"] == "training_allowed":
-                failures.append(f"source {s['origin']}: non-commercial licence {licence} for training")
-            if licence.upper().startswith("CC-BY-SA") and self.model["license"] != licence:
-                failures.append(
-                    f"source {s['origin']} is {licence} (share-alike): the model license must be "
-                    f"{licence}, not {self.model['license']}"
-                )
             ds = s.get("dataset")
             if not ds:
                 continue
@@ -552,6 +593,9 @@ class Gate:
     def rule_10(self) -> list[str]:
         card = self._card()
         failures = card_structure(card, self.record["evaluation"].get("reference_kind"))
+        usage = cards.usage_line(self.model, self.record)
+        if f"**Usage:** {usage}" not in card:
+            failures.append(f"the card must state its usage below the version line: {usage}")
         root = self.reg.zoo.parent
         failures += [f"figure {f['path']} is not in the repository"
                      for f in self.model["card"].get("figures", []) if not (root / f["path"]).is_file()]

@@ -102,7 +102,8 @@ def test_rule6_licence_differs(mcu_env):
 def test_rule6_share_alike_needs_same_model_licence(mcu_env):
     declare(mcu_env, "mimii")
     edit_record(mcu_env, lambda r: r["provenance"].update(sources=[source("mimii", "CC-BY-SA-4.0")]))
-    assert "share-alike" in failures(run_gate(mcu_env), 6)
+    assert "C-U2: dataset mimii (CC-BY-SA-4.0) makes the model share-alike" in failures(
+        run_gate(mcu_env), 6)
 
 
 def test_rule6_non_commercial_training_source(mcu_env):
@@ -110,15 +111,21 @@ def test_rule6_non_commercial_training_source(mcu_env):
     edit_record(
         mcu_env, lambda r: r["provenance"].update(sources=[source("tue-can-v2", "CC-BY-NC-4.0")])
     )
-    assert "non-commercial" in failures(run_gate(mcu_env), 6)
+    # declared commercial: refused because the dataset is non-commercial (and rejected)
+    assert "makes the model non-commercial, but it is declared commercial" in failures(
+        run_gate(mcu_env), 6)
 
 
 def test_rule6_hum_fan_like_settings_pass(mcu_env):
     declare(mcu_env, "mimii")
     edit_model(
         mcu_env,
-        lambda m: m.update(license="CC-BY-SA-4.0", license_exception="trained on MIMII (CC BY-SA 4.0)"),
+        lambda m: m.update(license="CC-BY-SA-4.0", license_exception="trained on MIMII (CC BY-SA 4.0)",
+                           usage_class="commercial-share-alike"),
     )
+    usage = {"class": "commercial-share-alike", "licence": "CC-BY-SA-4.0", "restricting_inputs": [
+        {"kind": "dataset", "id": "mimii", "licence": "CC-BY-SA-4.0", "restriction": "share-alike"}]}
+    edit_record(mcu_env, lambda r: r.update(usage=usage))
     edit_record(mcu_env, lambda r: r["provenance"].update(sources=[source("mimii", "CC-BY-SA-4.0")]))
     assert failures(run_gate(mcu_env), 6) == ""
 

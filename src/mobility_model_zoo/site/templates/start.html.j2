@@ -21,7 +21,7 @@
 <div class="tile-top"><span class="tile-name">{{ motif(motif_name, 40) }}<span class="h3" style="font-size:20px">{{ sm.name }}</span></span>
 <span class="chip{% if sm.status == 'in_progress' %} wip{% elif sm.status == 'deprecated' %} deprecated{% endif %}"><i></i>{{ {"published": "published", "deprecated": "deprecated", "in_progress": "in progress"}[sm.status] }}</span></div>
 <p class="small">{{ sm.m.title }}</p>
-<dl><dt>Topic</dt><dd>{{ topic.title if topic else sm.m.topic }}</dd><dt>Task</dt><dd>{{ sm.m.task }}</dd><dt>Latest</dt><dd class="mono">{{ sm.latest or "none yet" }}</dd></dl>
+<dl><dt>Topic</dt><dd>{{ topic.title if topic else sm.m.topic }}</dd><dt>Task</dt><dd>{{ sm.m.task }}</dd><dt>Latest</dt><dd class="mono">{{ sm.latest or "none yet" }}</dd><dt>Usage</dt><dd>{{ sm.usage["class"] }}</dd></dl>
 {% endset %}
 {% if sm.name in linked %}<a class="tile" href="models/{{ sm.name }}/">{{ inner }}</a>{% else %}<div class="tile">{{ inner }}</div>{% endif %}
 {% endfor %}

@@ -1,7 +1,8 @@
 <section class="sec" id="provenance" aria-labelledby="pv-h"><div class="wrap stack" style="gap:24px">
 <div class="sec-head" style="margin:0"><div class="eyebrow">Licence and provenance</div><h2 class="h2" id="pv-h">What you may do with it, and what it was trained on.</h2></div>
 <div class="tw"><table class="tbl"><tbody>
-<tr><th scope="row">Licence</th><td>{{ p.m.license }}</td></tr>
+<tr><th scope="row">Licence</th><td>{{ p.usage.licence }}</td></tr>
+<tr><th scope="row">Usage</th><td>{{ p.usage.text }}</td></tr>
 {% if p.m.get("base_model") %}<tr><th scope="row">Base model</th><td><a href="https://huggingface.co/{{ p.m.get("base_model") }}">{{ p.m.get("base_model") }}</a>, {{ p.m.base_model_license }}</td></tr>{% endif %}
 {% if p.latest.links.get("training_data_summary") %}<tr><th scope="row">Training data</th><td><a href="{{ p.latest.links.get("training_data_summary") }}">Training-data summary and source attribution of v{{ p.latest.version }}</a></td></tr>{% endif %}
 {% if p.latest.links.get("ai_act") %}<tr><th scope="row">AI Act</th><td><a href="{{ p.latest.links.get("ai_act") }}">AI Act note of v{{ p.latest.version }}</a></td></tr>{% endif %}
