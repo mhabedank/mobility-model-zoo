@@ -459,7 +459,7 @@ def outcome(result: dict) -> dict[str, Any]:
         sub = {
             "ctrl-shuffled": d["ctrl-shuffled-v2"],
             "bl-isolation-forest": d["bl-isolation-forest"],
-            "picket-forest": d[m],
+            "picket-forest": d[ref],
         }
         leaks, superseded = ev.shuffled_leakage(sub)
         checks.append(("shuffled-label control (amended rule of feature 007)", not leaks, leaks))
