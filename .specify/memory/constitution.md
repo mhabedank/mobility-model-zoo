@@ -1,44 +1,28 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.4.0 → 2.0.0
-Bump rationale: MAJOR. Owner directions of 2026-10-08, made while merging the automotive security
-work (feature 005) into the zoo. Three rules are removed or redefined in a way that is not backward
-compatible:
-- Principle VIII no longer makes Ludwig the primary training framework. Tools follow the task.
-- Principles VI and IX no longer forbid publishing datasets outright. The rule now keeps datasets
-  out of the git repository and allows publication only after a redistribution check.
-- Principle V no longer fixes one universal budget ("little RAM, no dedicated GPU"). Each task
-  defines its own budgets and reference hardware.
-The ban on calling results "accuracy" is replaced by an honesty rule on metric naming that applies
-to every task.
+Version change: 2.0.0 → 2.1.0
+Bump rationale: MINOR. Owner direction of 2026-10-10: a model that is not yet production ready MAY
+be published with release status `experimental`. This expands the release guidance in Principle
+IX and the release gate; no rule is removed or redefined incompatibly (the release-record schema
+already knows the statuses `experimental` and `released`).
 
 Modified principles:
-- Scope note (before I): split into model-labeled tasks and ground-truth tasks.
-- III. Measure Before Optimizing: reference per task; metric naming rule; frontier consensus only
-  for model-labeled tasks; quality-vs-cost reporting uses the task's budgets.
-- IV. Validate the Riskiest Assumption First: agreement pilot applies to model-labeled tasks.
-- V. Small and Local by Default → V. Small and Local by Default, Budgets per Task.
-- VI. Clean Provenance, Quality First: dataset declarations, redistribution check, share-alike and
-  non-commercial rules; datasets stored outside the git repository.
-- VIII. Fair Architecture Comparison: Ludwig rule removed; tool choice per task.
-- IX. Reproducible, Dated Releases: raw-label retention for model-labeled tasks; dataset
-  publication only after the redistribution check.
+- IX. Reproducible, Dated Releases: release statuses defined; `released` requires production
+  readiness against the task's success criteria and budgets; `experimental` allowed below that,
+  with the card stating what is not met; a kill outcome blocks the claims it concerns, not an
+  experimental release.
 
 Modified sections:
-- Preamble: topics security and condition monitoring named.
-- Project Scope & Iterative Delivery: repository layout by topic.
-- Resources & Cost Discipline: CI runners and hardware-in-the-loop bench boards added; "target
-  hardware" generalised.
-- Development Workflow & Quality Gates: "gate before reporting a result" per reference kind;
-  "gate before a release" mentions dataset declarations.
+- Development Workflow & Quality Gates: "gate before a release" checks the status rule.
 
-Added sections: none (layout rule added to Project Scope).
-Removed sections: none.
+Added sections: none. Removed sections: none.
 
-Previous reports: 1.3.0 → 1.4.0 changed model naming to `<name>-<variant>` with one Hugging Face
-collection per topic; 1.2.0 → 1.3.0 made the project the multi-topic `mobility-model-zoo`, added
-release rules to IX and the section "Tasks and Releases".
+Previous reports: 1.4.0 → 2.0.0 (MAJOR, 2026-10-08) removed Ludwig as the primary framework,
+allowed dataset publication after a redistribution check, made budgets per task and replaced the
+"accuracy" ban by a metric-naming honesty rule; 1.3.0 → 1.4.0 changed model naming to
+`<name>-<variant>` with one Hugging Face collection per topic; 1.2.0 → 1.3.0 made the project the
+multi-topic `mobility-model-zoo`.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -46,10 +30,11 @@ changed rules):
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
-Follow-up (code that encodes rules changed here; handled by feature 005):
-- release gate rule 10 and results.schema.json ban the word "accuracy";
-- release-record.schema.json fixes `budget{ram_gb, gpu: false}`;
-- the model card template has fixed "no GPU" and "source texts" wording.
+Follow-up (outside this amendment):
+- feature 007: picket-forest 0.1.0 can be published as `experimental` under this rule (the US4
+  tasks were marked cancelled on 2026-10-10 and need reopening).
+- release gate and card template: check whether a card of an `experimental` release must carry a
+  "not production ready" statement automatically.
 -->
 
 # mobility-model-zoo Constitution
@@ -221,11 +206,20 @@ same way. A fixed framework would force the wrong tool onto some tasks.
   marked deprecated, never silently overwritten or deleted.
 - Models MUST be published only through the release pipeline, after its release gate passes and
   after the project owner approves the reviewed model card.
+- Every release has a status. `released` MUST be used only for a production-ready model: it meets
+  the success criteria and budgets of its task on the frozen benchmark, including the operational
+  criteria the task defines (for example false alarms per hour). A model that does not yet meet
+  them MAY be published with status `experimental`. Its model card MUST say that it is not
+  production ready, name every criterion it misses with the measured value, and make no claim
+  beyond the evidence. A kill outcome (Principle IV) blocks the claims it concerns, not an
+  `experimental` release; the card reports the outcome.
 - Training data, raw source text and labeling outputs MUST NOT be published. Datasets follow
   Principle VI: published only with `redistribution: allowed`, versioned and with attribution.
 
 Rationale: Frontier models and base models change quickly. Frozen, dated artifacts keep
-results comparable and let the benchmark itself be audited later.
+results comparable and let the benchmark itself be audited later. The status tells users at a
+glance whether a model is ready for use or a documented research result, so an honest model that
+falls short can still be shared without overstating it.
 
 ### X. Scope Discipline
 
@@ -348,7 +342,9 @@ labeled and walled off from gates and releases stops them from turning into unme
   reference), not only the training-time format.
 - Gate before a release: model, configuration, prompts and evaluation results MUST be
   reproducible from the versioned configuration, and every included source and dataset MUST have
-  recorded origin, license and permitted use.
+  recorded origin, license and permitted use. The release status MUST follow Principle IX:
+  `released` only when the task's success criteria and budgets are met, otherwise `experimental`
+  with the unmet criteria on the model card.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
   section with a rationale and the simpler alternative that was rejected.
 
@@ -366,4 +362,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-08
+**Version**: 2.1.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-10
