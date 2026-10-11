@@ -177,7 +177,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Writer:** `write_parquet(df, path)`.
   - **Tests:** `tests/security/can_ids/test_frames.py` on tiny synthetic CSV and candump files.
 - [X] T035 [US2] Make `security/can_ids/metrics.py` (goldberg) the metric code for both CAN models. `mlp.py` reports frame metrics through it and drops its inline metric code. Keep goldberg `tests/test_metrics.py` (now `tests/security/can_ids/test_metrics.py`) green.
-- [X] T036 [US2] Create the task CLIs per contracts/cli.md: `src/mobility_model_zoo/security/cli.py` (`security can-ids frames|evaluate|freeze|forest …|mlp train`) and `src/mobility_model_zoo/condition_monitoring/cli.py` (`condmon sound-anomaly train|evaluate|freeze`, `condmon activity train|evaluate|freeze`). Register `edge = mobility_model_zoo.edge.bench.cli:main`, `security = mobility_model_zoo.security.cli:app` and `condmon = mobility_model_zoo.condition_monitoring.cli:app` in `pyproject.toml` `[project.scripts]`. `evaluate` and `freeze` may exit 5 ("benchmark not frozen yet") in this feature.
+- [X] T036 [US2] Create the task CLIs per contracts/cli.md: `src/mobility_model_zoo/security/cli.py` (`zoo-security can-ids frames|evaluate|freeze|forest …|mlp train`) and `src/mobility_model_zoo/condition_monitoring/cli.py` (`condmon sound-anomaly train|evaluate|freeze`, `condmon activity train|evaluate|freeze`). Register `edge = mobility_model_zoo.edge.bench.cli:main`, `security = mobility_model_zoo.security.cli:app` (renamed to `zoo-security` on 2026-10-11 because `security` shadowed macOS `/usr/bin/security` inside `uv run`) and `condmon = mobility_model_zoo.condition_monitoring.cli:app` in `pyproject.toml` `[project.scripts]`. `evaluate` and `freeze` may exit 5 ("benchmark not frozen yet") in this feature.
 - [X] T037 [US2] Update `pyproject.toml` per research R16:
   - Extras: `edge = [numpy, pyserial>=3.5, pyyaml>=6, jsonschema]`, `edge-hw = [esptool>=4.7, platformio>=6.1, pytest-xdist>=3.3]`, `edge-train = [tensorflow-cpu>=2.16, tflite>=2.10, ai-edge-litert, scikit-learn>=1.5, emlearn>=0.23, setuptools>=70, pandas>=2.2, pyarrow>=17]`.
   - pytest: marker `hil`, and `addopts = "-m 'not slow and not hil' -p mobility_model_zoo.edge.bench.pytest_plugin"`.
@@ -196,7 +196,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - **Reference:** dataset labels.
   - **Benchmark:** `can-ids-v1`, built per research R8 (can-train-and-test four-way splits plus ROAD held-out captures).
   - **Metrics:** frame P/R/F1/FPR/AUC-PR; event episode recall, time to alarm, false alarms per hour (headline). Formulas as in `metrics.py`.
-  - **Tool:** `security can-ids`.
+  - **Tool:** `zoo-security can-ids`.
   - **Frameworks:** scikit-learn + emlearn for trees, Keras + LiteRT int8 for neural nets, each with the reason (constitution VIII: tools follow the task).
   - **Riskiest assumption:** detection transfers to unseen vehicles and unseen attack types; it is tested by the four-way split before any scaling (constitution IV).
   - **Budget:** at most 16 KB RAM and 128 KB flash on ESP32-S3.
@@ -428,7 +428,7 @@ description: "Tasks for feature 005: topic layout and merge of mobility-security
   - a topics table: id, title, collection (link or "not yet published"), models;
   - a short "Repository layout" section linking `docs/layout.md`;
   - setup with extras (`edge`, `edge-hw`, `edge-train`);
-  - per-topic quick commands (`jtbd …`, `security can-ids …`, `condmon …`, `edge run -b sim`, `zoo data list`).
+  - per-topic quick commands (`jtbd …`, `zoo-security can-ids …`, `condmon …`, `edge run -b sim`, `zoo data list`).
 
   Remove the "Later topics, for example cyber security or IoT" sentence. Update `docs/adding-a-model.md` for `runtime: mcu`, device measurements, dataset declarations and task documents.
 - [X] T079 Run the full quickstart (scenarios 1–5) and write the results, plus the runtime of the default `pytest` run and of the CI `test` job (plan goals: under 4 and under 10 minutes), into `specs/005-topic-layout-security-merge/validation.md`. Run `uv run zoo history-check` once more over the final branch (one-time check, FR-023). Push the branch and open a PR "005: topic layout and merge of mobility-security-ml" with `gh pr create`; the body has the summary, the GATE results and the list of old staging repos. **GATE**: CI green on the PR (`test`, `edge-sim`, `edge-qemu`, `firmware`).

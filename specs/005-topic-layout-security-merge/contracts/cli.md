@@ -25,15 +25,15 @@ Same subcommands and options as `hilbench` on the volta branch, with these chang
 - Default inventory: `hil/boards.yaml` (`MMZ_BOARDS` overrides); results in `results/edge/<timestamp>/` (gitignored).
 - `edge measure MODEL.npz -b BOARD --out FILE.json`: runs the performance suite for one model and writes performance metrics in the `results.schema.json` format with `origin` set from the board type (`real_board`, `emulator`, `simulator`).
 
-## `security can-ids` (task tool, `mobility_model_zoo.security.can_ids`)
+## `zoo-security can-ids` (task tool, `mobility_model_zoo.security.can_ids`)
 
 | Command | Behaviour |
 |---|---|
-| `security can-ids frames DATASET` | Converts a downloaded dataset (`can-train-and-test`, `road`) into the common frame format (Parquet) under `$MMZ_DATA/derived/`. |
-| `security can-ids evaluate MODEL --benchmark can-ids-v1` | Scores a model on every split of the frozen benchmark; writes frame and event metrics (quality results format). |
-| `security can-ids forest evaluate|alarms|export|convert|testvectors` | The goldberg pipeline steps for `picket-forest`; `testvectors` writes into `$MMZ_DATA/derived/`, never into the repository. |
-| `security can-ids mlp train [--epochs N] [--seed S]` | Trains `picket-mlp` (int8, bit-exact check against TFLite), output outside the repository. |
-| `security can-ids freeze` | Freezes benchmark `can-ids-v1` (split manifest with hashes). |
+| `zoo-security can-ids frames DATASET` | Converts a downloaded dataset (`can-train-and-test`, `road`) into the common frame format (Parquet) under `$MMZ_DATA/derived/`. |
+| `zoo-security can-ids evaluate MODEL --benchmark can-ids-v1` | Scores a model on every split of the frozen benchmark; writes frame and event metrics (quality results format). |
+| `zoo-security can-ids forest evaluate|alarms|export|convert|testvectors` | The goldberg pipeline steps for `picket-forest`; `testvectors` writes into `$MMZ_DATA/derived/`, never into the repository. |
+| `zoo-security can-ids mlp train [--epochs N] [--seed S]` | Trains `picket-mlp` (int8, bit-exact check against TFLite), output outside the repository. |
+| `zoo-security can-ids freeze` | Freezes benchmark `can-ids-v1` (split manifest with hashes). |
 
 ## `condmon` (task tools, `mobility_model_zoo.condition_monitoring`)
 

@@ -18,7 +18,7 @@ Metrics name this reference. Agreement with other models is never reported as ac
 
 ## Benchmark `can-ids-v1`
 
-Built from the common frame format (`security/can_ids/frames.py`: `ts_us, can_id, dlc, b0..b7, label, capture, vehicle`) and frozen at first use (`security can-ids freeze`, split manifest with hashes):
+Built from the common frame format (`security/can_ids/frames.py`: `ts_us, can_id, dlc, b0..b7, label, capture, vehicle`) and frozen at first use (`zoo-security can-ids freeze`, split manifest with hashes):
 
 - **can-train-and-test, four-way split** per set (set_01..set_04): train on `train_01`; test on known vehicle × known attack, unknown vehicle × known attack, known vehicle × unknown attack and unknown vehicle × unknown attack.
 - **ROAD held-out captures:** attack captures whose name ends in `_2` (also `_2_masquerade`), and every fourth ambient capture by a CRC32 hash of the file name.
@@ -42,7 +42,7 @@ The headline pair is false alarms per hour at the chosen alarm rule, reported wi
 
 ## Tool
 
-`uv run security can-ids …` (`frames`, `forest evaluate|alarms|export|convert|testvectors`, `mlp train`, `evaluate`, `freeze`). Data and outputs live in `$MMZ_DATA`, never in the repository.
+`uv run zoo-security can-ids …` (`frames`, `forest evaluate|alarms|export|convert|testvectors`, `mlp train`, `evaluate`, `freeze`). Data and outputs live in `$MMZ_DATA`, never in the repository.
 
 ## Frameworks and why
 

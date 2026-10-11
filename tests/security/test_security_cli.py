@@ -1,4 +1,4 @@
-"""`security` task CLI (feature 005, T036)."""
+"""`zoo-security` task CLI (feature 005, T036)."""
 
 import json
 
