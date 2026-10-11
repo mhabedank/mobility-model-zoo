@@ -1,0 +1,42 @@
+# Third encoder candidate of the training-free baseline (feature 009, research R5, task T007).
+# Thresholds are starting values; `jtbd cluster tune --split dev` replaces them (T032, T043, T044).
+# A real encoder or NLI model is loaded only with a pinned revision and a recorded licence basis
+# (T008); until then the stage refuses to load it.
+# Usage class: non-commercial through the NLI model; the same encoder as cluster-gte-base, which
+# is the commercial line without the specificity relation.
+name: cluster-gte-base-nli
+encoder:
+  # Native transformers version of Alibaba-NLP/gte-multilingual-base: weights byte-identical
+  # (model.safetensors sha256 f5a35a10faa54da7717870af1517c9b41e9bd8e3880bc5a8e9363d4c3c63e9b0 in
+  # both repos, Alibaba-NLP at 9bbca17d9273fd0d03d5725c7a4b0f6b45142062), only config.json converted.
+  # The original's remote code (Alibaba-NLP/new-impl) does not run on transformers 5: its
+  # non-persistent buffers (position ids, RoPE tables) stay uninitialised and it calls the removed
+  # get_extended_attention_mask (found 2026-10-11).
+  model_id: alibaba-nlp-community/gte-multilingual-base
+  revision: fdaec56c6a50d6ebcf691f616ee83a166346b76c  # pinned 2026-10-11
+  licence_basis: "Apache-2.0 (model card licence tag of both repos; weights identical to Alibaba-NLP/gte-multilingual-base, checked 2026-10-11)"
+  prefix: ""
+  trust_remote_code: false
+  pooling: cls                   # first token, as on the model card
+  normalize: true
+  batch_size: 64
+  max_length: 128
+nli:
+  model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
+  # Non-commercial (constitution 2.1.0, principle VI): the weights are MIT, but the training data
+  # includes XNLI and ANLI (CC BY-NC 4.0); see compliance/third-party-models.yaml. A result with
+  # specificity links from this model is non-commercial. Owner decision 2026-10-11: measure the
+  # non-commercial line next to the commercial one.
+  licence_basis: "MIT weights; training data XNLI and ANLI CC BY-NC 4.0, so non-commercial (checked 2026-10-10)"
+neighbours:
+  k: 30
+  candidate_floor: 0.50
+  k_spec: 5          # specificity candidates per group (NLI cost; research R8, note of 2026-10-11)
+thresholds:
+  t_dup: 0.88
+  t_spec: 0.75
+  t_nli: 0.80
+levels: [0.70, 0.55]
+representative: medoid
+settings_changes: []

@@ -1,0 +1,25 @@
+# Agreement criteria of the jtbd-cluster task (feature 009, research R12, task T004).
+# Written down and committed before any reference labeling (constitution IV). Frozen into the
+# benchmark manifest; `jtbd cluster decide` refuses a changed file (exit 3).
+duplicate_kappa_min: 0.60        # Cohen's kappa, same vs. not-same
+specificity_kappa_min: 0.40      # kappa on {a more specific, b more specific, neither}, over pairs both call not-same
+cluster_bcubed_f1_min: 0.60      # B-cubed F1 between the two references' partitions, averaged over sets (per cluster level)
+revise:
+  max_reruns: 1
+  holdout_pairs: 300
+  holdout_sets: 4
+# A measurement level that still misses its threshold after the rerun is not produced (spec FR-024).
+rethink:
+  duplicate: stop_task
+  specificity: not_produced
+  clusters: not_produced
+  cluster_level_2: not_produced
+# Spec SC-003: a candidate's agreement with the consensus, as a share of the reference-vs-reference value.
+baseline_bar:
+  ratio_to_reference: 0.85
+  levels: [duplicate, specificity, clusters]
+contested: neutral               # pairs the references disagree on count neither as hit nor as error
+bootstrap:
+  resamples: 2000
+  seed: 20261009
+criteria_changes: []

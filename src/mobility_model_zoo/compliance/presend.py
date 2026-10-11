@@ -50,6 +50,12 @@ def route_allows(route: dict[str, Any], role: str) -> tuple[bool, str]:
     return True, ""
 
 
+def route_waiver(reg: Register, route_id: str, scope: str | None) -> dict[str, Any] | None:
+    """An unexpired C-P4 waiver for this route in this scope (record id `<route id>@<scope>`, e.g.
+    `claude-consumer-cli@benchmark:cluster-v1`). No waiver covers a route in general."""
+    return reg.waiver_for("C-P4", f"{route_id}@{scope}") if scope else None
+
+
 def check_batch(
     reg: Register,
     *,
@@ -60,8 +66,11 @@ def check_batch(
     provider_order: list[str] | None,
     items: Iterable[tuple[str, str, str | None]],
     current_patterns: str,
+    scope: str | None = None,
 ) -> list[Finding]:
-    """items: (chunk id, text to be sent, redaction patterns version of the chunk)."""
+    """items: (chunk id, text to be sent, redaction patterns version of the chunk). `scope` names
+    the work the texts are sent for; only a waiver for that route and scope lifts the route rule
+    (C-P4). Redaction, quarantine and provider pinning (C-P1, C-P2, C-P3, C-P5) are never waived."""
     findings: list[Finding] = []
     blocked = quarantined(reg.root)
     for chunk_id, text, version in items:
@@ -95,7 +104,7 @@ def check_batch(
         findings.append(Finding("C-P4", "pre-send", model_id, "route", f"unknown route {route_id}"))
         return findings
     ok, why = route_allows(route, role)
-    if not ok:
+    if not ok and not route_waiver(reg, route_id, scope):
         findings.append(Finding("C-P4", "pre-send", route_id, "allowed_for", why))
     if backend == "openrouter":
         pinned = route.get("openrouter_provider")

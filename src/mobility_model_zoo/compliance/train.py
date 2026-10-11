@@ -33,6 +33,14 @@ LICENSED = (
 )
 
 
+def opted_out(rec: dict) -> bool:
+    """An opt-out signal is recorded and no licence grants the use (C-T1)."""
+    signals = rec.get("signals") or {}
+    return any(signals.get(k) == "deny" for k in SIGNALS) and not rec.get("licence", "").startswith(
+        LICENSED
+    )
+
+
 def check_training(
     reg: Register,
     *,
@@ -60,8 +68,7 @@ def check_training(
             continue
         if url_hash and url_hash(origin) in suppressed:
             findings.append(Finding("C-T1", "train", rec["id"], "-", "on the suppression list"))
-        signals = rec.get("signals") or {}
-        if any(signals.get(k) == "deny" for k in SIGNALS) and not rec["licence"].startswith(LICENSED):
+        if opted_out(rec):
             findings.append(
                 Finding(
                     "C-T1",

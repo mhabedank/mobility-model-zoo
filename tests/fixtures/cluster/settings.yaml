@@ -1,0 +1,15 @@
+# Stage settings for tests (feature 009, T011): fixed vectors from vectors.json, no download.
+name: cluster-test
+encoder:
+  backend: table
+  table: vectors.json
+neighbours:
+  k: 10
+  candidate_floor: 0.30
+thresholds:
+  t_dup: 0.88
+  t_spec: 0.75
+  t_nli: 0.80
+levels: [0.70]
+representative: medoid
+settings_changes: []

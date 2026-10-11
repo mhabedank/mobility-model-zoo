@@ -197,6 +197,25 @@ decisions:
   - check C-T1
   review_by: '2027-04-08'
   supersedes: null
+- id: D-cluster-v1-references
+  date: '2026-10-11'
+  decided_by: Martin Habedank
+  decision: The reference labels of benchmark cluster-v1 (feature 009) are produced as for pilot-v2, through the
+    Claude Code CLI on the consumer subscription ("Help improve Claude" off) and through GPT mini via OpenRouter
+    pinned to OpenAI. Both routes fail the route rule (D-claude-api, D-routing-scc); C-P4 is waived for these two
+    routes and this benchmark only (waivers W-cluster-v1-claude-cli, W-cluster-v1-gpt-mini). Redaction, quarantine,
+    opt-out exclusion and provider pinning stay enforced. The next benchmark version uses a route that meets
+    D-routing-scc.
+  rationale: 'Low friction for a one-off benchmark while the provider question (Anthropic API with zero data retention
+    or an EU router such as Cortecs, reviewed 2026-10-11) is open. Data: about 2,900 short quotes from public sources
+    (parliamentary records, published research interviews, papers, forums), redacted and re-scanned before sending;
+    the GDPR transfer risk is judged low. Accepted risks: the consumer terms restrict model development, and the dev
+    labels tune the threshold t_dup; the OpenRouter route has no zero data retention and no recorded DPA.'
+  scope:
+  - benchmark:cluster-v1
+  - compliance/waivers.yaml#W-cluster-v1-claude-cli
+  - compliance/waivers.yaml#W-cluster-v1-gpt-mini
+  review_by: '2026-12-31'
 - id: D-catalog-licences-2026-10
   date: '2026-10-11'
   decision: Four national licences found by the resource index are training_allowed with attribution and go on
@@ -213,4 +232,24 @@ decisions:
   - catalog:entries (feature 009)
   review_by: '2027-04-11'
   decided_by: Martin Habedank
+  supersedes: null
+- id: D-railway-perf
+  date: '2026-10-11'
+  decided_by: Martin Habedank
+  decision: Speed and memory are measured on a temporary Railway service (Railway Corporation, US) limited to
+    4 vCPU and 8 GB RAM, deployed in the EU West region (Amsterdam), with Railway as processor under its standard
+    Data Processing Addendum, which incorporates the standard contractual clauses of Commission Decision 2021/914.
+    Only redacted benchmark texts go there (for feature 009 the cluster-v1 pool of redacted quotes); the service
+    is deleted after the run. Recorded retrospectively for the scout-large 0.1.0 measurement of 2026-10-07, which
+    sent redacted benchmark chunks to a Railway service before the compliance harness existed.
+  rationale: 'Constitution III needs speed and memory on an 8 GB / 4 vCPU / no-GPU machine. Railway offers a DPA
+    with standard contractual clauses (railway.com/legal/dpa, read 2026-10-11) and an EU region; it gives no
+    contractual data residency (its control plane is operated in the US) and is not found on the Data Privacy
+    Framework list, so the clauses are the transfer mechanism (decision D-routing-scc). The texts are redacted
+    short quotes and run in an ephemeral container.'
+  scope:
+  - benchmark:cluster-v1
+  - scout-large@0.1.0
+  - topics/productdev/deploy/railway-perf
+  review_by: '2027-04-11'
   supersedes: null
