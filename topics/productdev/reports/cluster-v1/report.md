@@ -99,14 +99,31 @@ duplicates.
 
 ## Speed and memory
 
-Pending: `jtbd cluster perf` on a temporary Railway service (EU West, 4 vCPU and 8 GB RAM limits,
-no GPU; decision D-railway-perf), on the real pool and on a 50,000-item scale set made by resampling
-real items (time and memory only).
+`jtbd cluster perf` on a temporary Railway service in EU West (Amsterdam), limited to 4 vCPU and
+8 GB RAM, no GPU (AMD EPYC 9655P host; decision D-railway-perf), models downloaded beforehand and the
+Hugging Face hub offline during each run, 30 minutes per run at most:
+
+| Candidate | Real pool (12,495 items) | Scale set (50,000 items, resampled) |
+|---|---|---|
+| e5-small | 270 s, peak RSS 4.8 GB | stopped (memory) |
+| e5-base | stopped (memory, over 8 GB) | over 30 min |
+| gte-base (commercial) | over 30 min | over 30 min |
+| gte-base + NLI | over 30 min | over 30 min |
+
+![Quality against time](pareto.png)
+
+No candidate meets the stage budget (SC-005: 50,000 items in at most 15 minutes and 4 GB); already
+at 12,495 items the only finished run needs 4.8 GB. The likely cause is the average-linkage step on a
+dense candidate graph: with a candidate floor of 0.50 these encoders connect almost every item of a
+kind into one component, and the neighbour lists of merged clusters grow towards quadratic size.
+Keeping only edges close to `t_dup` (or a different grouping algorithm) is the first thing to try in
+the follow-up feature; it changes the candidate, so it has to be tuned and scored again.
 
 ## Cash
 
-EUR 3.94 of the EUR 20 budget, all on the OpenRouter key (GPT reference); the Claude reference ran
-on the subscription. The Railway service is added to the ledger after the measurement.
+EUR 4.69 of the EUR 20 budget: EUR 3.94 on the OpenRouter key (GPT reference, all splits including
+the relabelling with the revised guideline) and EUR 0.75 for the Railway service (upper bound from
+its limits and running time). The Claude reference ran on the subscription.
 
 ## Reader check (SC-006)
 
