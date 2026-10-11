@@ -505,10 +505,15 @@ def outcome(result: dict) -> dict[str, Any]:
 
 
 def write_quality(
-    result: dict, path: Path, model: str, version: str, extra: list[dict] | None = None
+    result: dict,
+    path: Path,
+    model: str,
+    version: str,
+    extra: list[dict] | None = None,
+    detector: str = "picket-forest-v2",
 ) -> dict:
-    """quality.json (results format) of `picket-forest-v2` from a complete run."""
-    r = result["detectors"]["picket-forest-v2"]
+    """quality.json (results format) of the released decision chain (`detector`) from a run."""
+    r = result["detectors"][detector]
     n_sets = len(r["sets"])
     ref = "can-train-and-test attack labels (official splits)"
     metrics = []

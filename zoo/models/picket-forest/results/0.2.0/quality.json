@@ -3,29 +3,29 @@
  "model": "picket-forest",
  "version": "0.2.0",
  "synthetic": false,
- "source_run": "can-ids-v3 run (b7aeb348ec0d)",
+ "source_run": "can-ids-v3 run (82a38e58093b)",
  "metrics": [
   {
    "name": "f1_known_vehicle_known_attack_median",
-   "value": 0.6220361827643046,
+   "value": 0.6215801789714548,
    "unit": null,
    "description": "attack-class F1 per frame, known vehicle known attack, median over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_known_vehicle_known_attack_worst",
-   "value": 0.26276940700435114,
+   "value": 0.2615885464836669,
    "unit": null,
    "description": "attack-class F1 per frame, known vehicle known attack, worst over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_known_vehicle_known_attack_median",
@@ -36,7 +36,7 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_known_vehicle_known_attack_worst",
@@ -47,29 +47,29 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_unknown_vehicle_known_attack_median",
-   "value": 0.5487672537054193,
+   "value": 0.5482336040582014,
    "unit": null,
    "description": "attack-class F1 per frame, unknown vehicle known attack, median over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_unknown_vehicle_known_attack_worst",
-   "value": 0.1794464753852992,
+   "value": 0.1792385627883974,
    "unit": null,
    "description": "attack-class F1 per frame, unknown vehicle known attack, worst over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_unknown_vehicle_known_attack_median",
@@ -80,7 +80,7 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_unknown_vehicle_known_attack_worst",
@@ -91,29 +91,29 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_known_vehicle_unknown_attack_median",
-   "value": 0.49543737117781206,
+   "value": 0.49271487946368886,
    "unit": null,
    "description": "attack-class F1 per frame, known vehicle unknown attack, median over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_known_vehicle_unknown_attack_worst",
-   "value": 0.14678820771996715,
+   "value": 0.14661656810628865,
    "unit": null,
    "description": "attack-class F1 per frame, known vehicle unknown attack, worst over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_known_vehicle_unknown_attack_median",
@@ -124,7 +124,7 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_known_vehicle_unknown_attack_worst",
@@ -135,40 +135,40 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_unknown_vehicle_unknown_attack_median",
-   "value": 0.7686205846671248,
+   "value": 0.7688684821426414,
    "unit": null,
    "description": "attack-class F1 per frame, unknown vehicle unknown attack, median over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_unknown_vehicle_unknown_attack_worst",
-   "value": 0.2615846615846616,
+   "value": 0.2615676300578035,
    "unit": null,
    "description": "attack-class F1 per frame, unknown vehicle unknown attack, worst over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_unknown_vehicle_unknown_attack_median",
-   "value": 0.2574935311954686,
+   "value": 0.0,
    "unit": null,
    "description": "false alarms per hour of the alarm rule, unknown vehicle unknown attack, median over 4 sets",
    "reference": "can-train-and-test attack labels (official splits)",
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_default_unknown_vehicle_unknown_attack_worst",
@@ -179,18 +179,18 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "f1_road",
-   "value": 0.997176309778601,
+   "value": 0.9967600259197926,
    "unit": null,
    "description": "attack-class F1 per frame on ROAD (fabrication, fuzzing)",
    "reference": "ROAD injection labels",
    "benchmark": "can-ids-v3",
    "n_items": 5,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_road_ambient",
@@ -201,7 +201,7 @@
    "benchmark": "can-ids-v3",
    "n_items": 4,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_kcid_ford_focus",
@@ -212,7 +212,7 @@
    "benchmark": "kcid",
    "n_items": 6,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_kcid_honda_cr_v",
@@ -223,7 +223,7 @@
    "benchmark": "kcid",
    "n_items": 2,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
   },
   {
    "name": "fa_per_hour_kcid_traverse_obd",
@@ -234,7 +234,18 @@
    "benchmark": "kcid",
    "n_items": 23,
    "hardware": null,
-   "date": "2026-10-10"
+   "date": "2026-10-11"
+  },
+  {
+   "name": "forest_score_auroc_road",
+   "value": 0.9564900757858719,
+   "unit": null,
+   "description": "AUROC of the forest score (information output, not the decision) on ROAD (fabrication, fuzzing)",
+   "reference": "ROAD injection labels",
+   "benchmark": "can-ids-v3",
+   "n_items": 5,
+   "hardware": null,
+   "date": "2026-10-11"
   }
  ]
 }

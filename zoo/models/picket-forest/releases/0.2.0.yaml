@@ -3,7 +3,7 @@ version: 0.2.0
 date: 2026-10-10
 status: experimental
 change_type: major
-changes: 'Draft (feature 010). Calibrate on the vehicle, then detect: a fixed per-vehicle table learned from benign traffic, 10 vehicle-relative features (frame counts per ID against the calibrated maximum, unknown-ID counts), the forest, and an event-level decision (spread over an injection episode, fuzzing state). On can-ids-v3: ROAD F1 0.997, 0 false alarms per hour on the ROAD test ambient captures, at most 0.86 per hour on unknown vehicles; KCID (vehicles in no training data): 0 alarms in 74.9 h. Not yet exported to C and not measured on a device; the shuffled-label control fails its pre-registered rule (explained in specs/010-picket-forest-v2/validation.md).'
+changes: 'Calibrate on the vehicle, then detect. A per-vehicle table learned on the host from benign traffic; 10 features relative to it (frame counts per identifier in 8 time buckets, unknown-identifier counts, DLC, payload changes), computed by the C library msml_cal on host and device alike. Rules on these features decide (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), then the alarm stage; the forest score is published as information (owner decision 2026-10-11). can-ids-v3: ROAD F1 0.997, 0 false alarms per hour on the ROAD test drives, at most 0.86 per hour on unknown vehicles; KCID Ford Focus and Traverse 0 alarms in 26.9 h. Experimental: calibration-dependent false alarms, new identifiers flood alarms, emulator-only device evidence.'
 output_format_version: picket-forest-v2
 sandbox: false
 files: []
@@ -11,7 +11,7 @@ staging:
   repo: mobility-model-zoo/picket-forest-staging
   revision: ''
 recipe:
-  git_commit: ''
+  git_commit: e6980dbcfd1d68e03d7bcd95dc6367beab41d2a6
   config: configs/security/can-ids/picket-forest.yaml
   doc: topics/security/tasks/can-ids.md
 provenance:
