@@ -1,6 +1,6 @@
 {
   "version": "cluster-v1",
-  "state": "frozen",
+  "state": "decided",
   "built_at": "2026-10-11T09:53:31.937796+00:00",
   "hashes": {
     "guideline": "1df2f9c37ebcabc96993c707e9d50e3a4d88f0c3d9735862764f2783c34c7da7",
@@ -76,6 +76,16 @@
       "at": "2026-10-11T10:36:50.221527+00:00",
       "state": "frozen",
       "event": "revised guideline frozen for re-pilot"
+    },
+    {
+      "at": "2026-10-11T10:59:03.338551+00:00",
+      "state": "piloted",
+      "event": "agreement on holdout"
+    },
+    {
+      "at": "2026-10-11T10:59:17.698277+00:00",
+      "state": "decided",
+      "event": "every level decided"
     }
   ],
   "frozen_at": "2026-10-11T09:53:37.459295+00:00",

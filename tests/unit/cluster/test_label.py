@@ -67,6 +67,19 @@ def test_set_answer_that_misses_an_item_is_invalid(frozen):
     assert all("missing items" in e["reason"] for e in manifest["excluded_units"])
 
 
+def test_excluded_units_can_be_retried_with_a_recorded_reason(frozen):
+    answer_units(frozen, "mock-a", "test",
+                 set_answer=lambda ids: {"clusters": [{"cluster_id": "c1", "members": ids[:-1]}],
+                                         "coarse": None})
+    assert label.label(frozen.settings(), "mock-a", "test")["excluded"] == 2
+    answer_units(frozen, "mock-a", "test")
+    out = label.label(frozen.settings(), "mock-a", "test", retry_excluded="output limit raised")
+    manifest = json.loads((run_dir(frozen) / "manifest.json").read_text())
+    assert out["status"] == "complete" and out["excluded"] == 0
+    assert [r["retry_reason"] for r in manifest["retried_units"]] == ["output limit raised"] * 2
+    assert len(list((run_dir(frozen) / "raw").glob("set-test-01.a*.json"))) == 3  # 2 kept + 1 new
+
+
 def test_set_answer_that_repeats_an_item_is_invalid():
     from mobility_model_zoo.productdev.jtbd.cluster.prompt import set_answer_errors
 

@@ -153,8 +153,11 @@ def _label_unit(model, system: str, unit: dict[str, Any], pool: dict[str, dict],
     return last_error, spent, versions
 
 
-def label(settings: Settings, model_id: str, split: str, limit: int | None = None) -> dict[str, Any]:
-    """`jtbd cluster label --model … --split …`."""
+def label(settings: Settings, model_id: str, split: str, limit: int | None = None,
+          retry_excluded: str | None = None) -> dict[str, Any]:
+    """`jtbd cluster label --model … --split …`. `retry_excluded` (a reason) labels the excluded
+    units of an existing run once more, for a cause on our side such as a too small output limit;
+    the earlier attempts stay in raw/ and the manifest records the retry and its reason."""
     cluster = bench.cfg(settings)
     if split not in LABEL_SPLITS:
         raise UsageError(f"--split must be one of {', '.join(LABEL_SPLITS)}")
@@ -179,6 +182,13 @@ def label(settings: Settings, model_id: str, split: str, limit: int | None = Non
     if manifest and manifest["status"] == "invalid_version_change":
         raise ValidationFailed(f"{run_id} is invalid (model version changed mid-run); move "
                                f"{run_path} aside and repeat the run")
+    if retry_excluded and manifest and manifest["excluded_units"]:
+        at = datetime.now(UTC).isoformat()
+        manifest.setdefault("retried_units", []).extend(
+            {**e, "retried_at": at, "retry_reason": retry_excluded}
+            for e in manifest["excluded_units"])
+        manifest.update(excluded_units=[], status="running", finished_at=None)
+        write_json(manifest_file, manifest)
     excluded = {e["unit"] for e in manifest["excluded_units"]} if manifest else set()
     todo = [u for u in units
             if u["unit"] not in excluded and not (parsed_dir / f"{u['unit']}.json").exists()]
@@ -197,6 +207,7 @@ def label(settings: Settings, model_id: str, split: str, limit: int | None = Non
             "settings": {"temperature": model.temperature,
                          "structured_output": model.structured_output, "max_retries": retries,
                          "reasoning_effort": entry.extra.get("reasoning_effort"),
+                         "max_output_tokens": getattr(model, "max_tokens", None),
                          "batch_size": int(cluster.get("batch_size", 20))},
             "hashes": manifest_b["hashes"], "prompt_sha256": prompt_sha256(settings),
             "started_at": datetime.now(UTC).isoformat(), "finished_at": None, "cost_eur": 0.0,

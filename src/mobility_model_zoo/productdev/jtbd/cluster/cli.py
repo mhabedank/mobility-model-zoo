@@ -145,11 +145,15 @@ def freeze_cmd(ctx: typer.Context) -> None:
 @app.command("label")
 def label_cmd(ctx: typer.Context, model: str = typer.Option(..., "--model", help="Reference model id"),
               split: str = typer.Option(..., "--split", help="dev, test or holdout"),
-              limit: int = typer.Option(None, "--limit", help="Label at most this many units")) -> None:
+              limit: int = typer.Option(None, "--limit", help="Label at most this many units"),
+              retry_excluded: str = typer.Option(
+                  None, "--retry-excluded",
+                  help="Reason for labeling the run's excluded units again (cause on our side)")
+              ) -> None:
     """Label pairs and sets of one split with one reference model (research R11)."""
     from mobility_model_zoo.productdev.jtbd.cluster.label import label
 
-    _run(ctx, lambda s: label(s, model, split, limit))
+    _run(ctx, lambda s: label(s, model, split, limit, retry_excluded))
 
 
 @app.command("agreement")
