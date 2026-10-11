@@ -5,8 +5,8 @@ from __future__ import annotations
 from mobility_model_zoo.site import budgets
 
 
-def test_words_counts_placeholders_as_one():
-    assert budgets.words("Runs in {metric:performance.latency_9k_chars_s} on four cores") == 6
+def test_words_counts_placeholders_as_value_and_unit():
+    assert budgets.words("Runs in {metric:performance.latency_9k_chars_s} on four cores") == 7
     assert budgets.words("  ") == 0
 
 
@@ -22,7 +22,7 @@ def test_visible_words_skips_budget_skip_and_closed_details():
         "<section><p>one two three</p>"
         '<div data-budget="skip"><span>chip chip</span></div>'
         "<details><summary>more here</summary><p>hidden hidden hidden</p></details>"
-        "<details open><summary>open</summary><p>shown words</p></details>"
+        "<details open><summary>open</summary><p>shown words<sup><a>1</a></sup></p></details>"
         "<script>var x = 1;</script></section>"
     )
     section = root.find(lambda n: n.tag == "section")

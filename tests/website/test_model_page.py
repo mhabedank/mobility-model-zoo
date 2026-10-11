@@ -87,10 +87,12 @@ def test_hero_shows_the_labels_of_the_preview_image(site_env):
     """FR-003: the page states at its top what the preview image states."""
     site_env.build()
     hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
-    assert '<span class="chip label-experimental">experimental</span>' in hero
+    # feature 013: the release-status chip carries the preview label and the record's status
+    assert "label-experimental" in hero and 'data-status="experimental"' in hero
     site_env.edit_yaml(
         f"zoo/models/{MODEL}/releases/{VERSION}.yaml", lambda r: r.update(status="released")
     )
     site_env.build()
     hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
     assert "label-" not in hero
+    assert 'data-status="released"' in hero

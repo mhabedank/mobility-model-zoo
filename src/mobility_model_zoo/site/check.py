@@ -583,7 +583,7 @@ def run_checks(
     offline: bool = False,
     say: Callable[[str], None] = print,
 ) -> list[Finding]:
-    from mobility_model_zoo.site import context
+    from mobility_model_zoo.site import context, depth
 
     if not (out / "index.html").exists():
         raise GateFailed([f"no site in {out}; run zoo site build first"])
@@ -603,6 +603,7 @@ def run_checks(
         ("O2", lambda: check_og_layout(out)),
         ("O4", lambda: check_og_parity(reg, out)),
         ("O5", lambda: check_og_hash(reg, out)),
+        ("D4", lambda: depth.check_overview(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

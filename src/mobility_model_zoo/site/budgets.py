@@ -5,7 +5,9 @@ the rendered page; both use the constants and `words()` below, so they cannot di
 
 Counting rule: words are whitespace-separated tokens of visible text. Text inside an element with
 `data-budget="skip"` (chips, buttons, the layer navigation) and inside a closed `<details>` (except
-its `<summary>`) does not count. A `{metric:…}` placeholder counts as one word.
+its `<summary>`) does not count, nor do footnote markers (`<sup>`). In hand-written input a
+`{metric:…}` placeholder counts as two words, a value and its unit, so the input is never counted
+lower than the page that renders it.
 """
 
 from __future__ import annotations
@@ -54,8 +56,8 @@ PLACEHOLDER = re.compile(r"\{metric:[^}]+\}")
 
 
 def words(text: str) -> int:
-    """Whitespace tokens; a placeholder is one token."""
-    return len(PLACEHOLDER.sub("X", text).split())
+    """Whitespace tokens; a placeholder is two (value and unit)."""
+    return len(PLACEHOLDER.sub("X Y", text).split())
 
 
 def sentences(text: str) -> int:
@@ -110,7 +112,7 @@ class Node:
     def _text(self, out: list[str], visible: bool) -> None:
         if self.tag in ("script", "style"):
             return
-        if visible and self.get("data-budget") == "skip":
+        if visible and (self.tag == "sup" or self.get("data-budget") == "skip"):
             return
         if visible and self.tag == "details" and "open" not in self.attrs:
             for c in self.children:  # a closed <details> shows its summary only

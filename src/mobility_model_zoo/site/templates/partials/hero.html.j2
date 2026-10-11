@@ -1,22 +1,47 @@
 <section class="hero" id="top" data-layer="overview" aria-labelledby="title">
+<span id="why"></span>
 <div class="wrap hero-in">
 <div class="stack" style="gap:20px">
-<div class="row" style="gap:10px">
+<div class="row" style="gap:10px" data-budget="skip">
 <span class="eyebrow">{{ p.topic.title }} · {{ p.m.task }}</span>
-<span class="chip{% if p.status == 'deprecated' %} deprecated{% endif %}"><i></i>{{ p.status }} · v{{ p.latest.version }}</span>
-{% for label in card.labels if label != p.status %}<span class="chip label-{{ label }}">{{ label }}</span>{% endfor %}
+<span class="chip status-{{ p.release_status }}{% if p.release_status in card.labels %} label-{{ p.release_status }}{% endif %}" data-status="{{ p.release_status }}"><i></i>{{ p.release_status }} · v{{ p.latest.version }}</span>
+{% for label in card.labels if label != p.release_status %}<span class="chip label-{{ label }}{% if label == 'deprecated' %} deprecated{% endif %}">{{ "Non-commercial" if label == "non-commercial" else label }}</span>{% endfor %}
 </div>
 <h1 class="h-display" id="title">{{ p.name }}</h1>
 <p class="lead">{{ p.tagline }}</p>
 <p class="muted">{{ p.audience }}</p>
-<div class="row" style="gap:8px">
+{% if p.status_sentence %}<p class="status-line status-{{ p.release_status }}" role="note">{{ p.status_sentence }} <a href="#limits">See the limits</a>.</p>{% endif %}
+<div class="row" style="gap:8px" data-budget="skip">
 {% for lang in p.m.languages %}<span class="chip">{{ {"de": "German", "en": "English"}.get(lang, lang) }}</span>{% endfor %}
 <span class="chip">Licence {{ p.usage.licence }} · {{ p.usage["class"] }}</span>
 <span class="chip">Output {{ p.latest.output_format_version }}</span>
 </div>
-<div class="row"><a class="btn" href="#quickstart">Quickstart</a><a class="btn btn-ghost" href="#interface">Interface</a><a class="btn btn-ghost" href="{{ p.hf }}">Model card</a></div>
+<div class="row" data-budget="skip"><a class="btn" href="#quickstart">Quickstart</a><a class="btn btn-ghost" href="#limits">Limits</a><a class="btn btn-ghost" href="#details">Details</a><a class="btn btn-ghost" href="{{ p.hf }}">Model card</a></div>
 </div>
 <div class="hero-art">{{ motif(p.pitch.get("motif") | replace(".svg", "-hero.svg"), 0) }}</div>
 </div>
-{% include "partials/why.html.j2" %}
+<div class="wrap overview-more">
+<h2 class="visually-hidden">Why use it</h2>
+<ul class="why">
+{% for d in p.differentiators %}
+<li class="card"><h3>{{ d.title }}</h3><p class="small">{{ d.text }}</p></li>
+{% endfor %}
+</ul>
+{% if p.not_for %}
+<div class="not-for" data-short="not-for">
+<h2 class="h3">Not for</h2>
+<ul>{% for t in p.not_for %}<li>{{ t }}</li>{% endfor %}</ul>
+<p class="small"><a href="#limits">All limits</a></p>
+</div>
+{% endif %}
+<nav class="layers" aria-label="On this page" data-budget="skip">
+<ol>
+<li><a href="#quality">Quality and speed</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#quickstart">Quickstart</a></li>
+<li><a href="#reference">Interface and examples</a></li>
+<li><a href="#details">Details and documents</a></li>
+</ol>
+</nav>
+</div>
 </section>
