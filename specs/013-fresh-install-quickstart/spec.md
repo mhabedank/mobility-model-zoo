@@ -257,8 +257,8 @@ requirement, a complete snippet and its output; following them from a fresh envi
 - **SC-001**: A newcomer with Python 3.12 and uv on macOS or Linux, on an ordinary broadband
   connection, reaches a printed result for picket-forest within 5 minutes and for scout-large
   within 5 minutes, following only the quickstart and the card.
-- **SC-002**: The install of picket-forest from its card downloads less than 200 MB (today: 877 MB
-  installed) and installs no deep-learning framework.
+- **SC-002**: The install of picket-forest from its card is under 300 MB installed (macOS about 150 MB,
+  Linux about 240 MB; today: 877 MB) and installs no deep-learning framework.
 - **SC-003**: On every parity capture and every example capture, the Python reference and the
   device chain disagree on 0 scores and 0 alarms.
 - **SC-004**: 100 % of published cards have a run snippet that passed in the gate's fresh

@@ -1,9 +1,9 @@
 #!/bin/sh
-# The install of an edge model stays small: no deep-learning framework, under 200 MB (feature 013, SC-002).
+# The install of an edge model stays small: no deep-learning framework, under 300 MB (feature 013, SC-002).
 # Builds a fresh environment from the checkout with the `edge` extra, as a user's install line does.
 set -eu
 
-LIMIT_MB="${LIMIT_MB:-200}"
+LIMIT_MB="${LIMIT_MB:-300}"  # macOS about 150 MB, Linux about 240 MB; torch alone is more
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT

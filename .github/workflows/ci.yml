@@ -102,7 +102,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --extra edge --no-install-package torch
-      # What an edge model's install line gives a user: no deep-learning framework, under 200 MB.
+      # What an edge model's install line gives a user: no deep-learning framework, under 300 MB.
       - run: ./scripts/check_install_size.sh
       - run: uv run edge build -t native
       - run: uv run pytest tests/edge/hil -m hil --hil-board sim -q

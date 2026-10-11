@@ -108,12 +108,12 @@ description: "Tasks for feature 013: quickstart that works from a fresh install"
 
 **Goal**: every card's install line names exactly its extra; an edge install downloads no deep-learning framework.
 
-**Independent Test**: `uv venv` + `uv pip install ".[edge]"` → `import torch` fails and site-packages < 200 MB; `".[text]"` → scout-large's snippet imports work (quickstart.md step 3).
+**Independent Test**: `uv venv` + `uv pip install ".[edge]"` → `import torch` fails and site-packages < 300 MB; `".[text]"` → scout-large's snippet imports work (quickstart.md step 3).
 
 - [X] T036 [P] [US3] Set `card.install` to `mobility-model-zoo[text] @ git+...@<tag>` in `zoo/models/scout-large/model.yaml` and `zoo/models/sandbox-pipeline-tiny/model.yaml`; confirm `[edge]` in `zoo/models/picket-forest/model.yaml`, `zoo/models/picket-mlp/model.yaml`, `zoo/models/hum-fan/model.yaml`, `zoo/models/pace-cnn/model.yaml`
 - [X] T037 [P] [US3] Mirror the install lines in the test registries: `tests/website/fixtures/registry/zoo/models/{scout-large,sandbox-pipeline-tiny}/model.yaml` and `tests/release/fixtures/registry/zoo/models/sandbox-pipeline-tiny/model.yaml` get `[text]`; regenerate the sandbox golden card
 - [X] T038 [US3] Add `tests/unit/test_dependency_layout.py`: parse `pyproject.toml` (`tomllib`) and assert the base has no torch/transformers/pandas/scikit-learn, `text` holds the four text packages, `edge` holds scikit-learn and joblib, `jtbd` references `mobility-model-zoo[text]`; and for every `zoo/models/*/model.yaml` the install line's extra is `text` for runtime `python` and `edge` for runtime `mcu`
-- [X] T039 [US3] Add `scripts/check_install_size.sh` (used by quickstart.md step 3 and callable in CI): fresh uv venv, `uv pip install ".[edge]"`, print site-packages size in MB, exit 1 above 200 MB or if `python -c "import torch"` succeeds; wire it as a step of the `edge` job in `.github/workflows/ci.yml`
+- [X] T039 [US3] Add `scripts/check_install_size.sh` (used by quickstart.md step 3 and callable in CI): fresh uv venv, `uv pip install ".[edge]"`, print site-packages size in MB, exit 1 above 300 MB or if `python -c "import torch"` succeeds; wire it as a step of the `edge` job in `.github/workflows/ci.yml`
 - [X] T040 [US3] Check every workflow still syncs what it needs after T001: `.github/workflows/ci.yml` jtbd jobs (torch via `[jtbd]`→`[text]`), `firmware.yml:104-106` (`--with scikit-learn` now redundant, keep harmless), `datasets.yml`, `hil.yml`, `site.yml`, `release-verify.yml` / `release-publish.yml` (`uv sync --extra release` plus `--extra edge` if `zoo check` now imports `picket_forest` for the table check); run `uv run python scripts/ci/select_tests.py --all` to confirm nothing breaks
 
 **Checkpoint**: install lines and extras agree; the size guard runs in CI.

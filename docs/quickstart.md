@@ -19,7 +19,7 @@ The last line must say `Python 3.12` or newer. uv downloads Python 3.12 if your 
 
 ## 2. picket-forest
 
-Install it. The edge extra holds what the model needs (numpy, scikit-learn) and no deep-learning framework, about 150 MB:
+Install it. The edge extra holds what the model needs (numpy, scikit-learn) and no deep-learning framework, roughly 150 to 250 MB:
 
 ```bash
 uv {install:picket-forest}

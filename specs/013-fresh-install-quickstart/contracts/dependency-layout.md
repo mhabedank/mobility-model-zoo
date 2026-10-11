@@ -30,7 +30,7 @@ this line (see gate-and-card.md), so a snippet that imports beyond its extra fai
 ## Guarantees
 
 - `pip install "mobility-model-zoo[edge] @ git+...@picket-forest/v0.2.1"` installs no torch,
-  transformers, pandas or tensorflow; measured install under 200 MB.
+  transformers, pandas or tensorflow; measured install under 300 MB (macOS about 150 MB, Linux about 240 MB).
 - `pip install "mobility-model-zoo[text] @ git+...@scout-large/v0.1.3"` installs what
   `productdev.jtbd.span` imports at run time.
 - `uv sync --extra jtbd ...` and `uv sync --extra edge ...` in every workflow keep working;

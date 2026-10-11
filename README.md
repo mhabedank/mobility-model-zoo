@@ -22,7 +22,7 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 
 ## Try it in five minutes
 
-You need Python 3.12 (uv fetches it) and [uv](https://docs.astral.sh/uv/). Make an environment and install picket-forest, the CAN bus intrusion detector (about 150 MB, no deep-learning framework):
+You need Python 3.12 (uv fetches it) and [uv](https://docs.astral.sh/uv/). Make an environment and install picket-forest, the CAN bus intrusion detector (roughly 150 to 250 MB, no deep-learning framework):
 
 ```bash
 uv venv --python 3.12 && source .venv/bin/activate

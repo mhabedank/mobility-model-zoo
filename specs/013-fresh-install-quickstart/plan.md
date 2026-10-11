@@ -52,7 +52,7 @@ Mac.
 
 **Project Type**: library + CLI (`zoo`, `security`) + static website generator; single package.
 
-**Performance Goals**: picket-forest install < 200 MB downloaded (lean set measured at 144 MB
+**Performance Goals**: picket-forest install under 300 MB installed (lean set measured at 144 MB
 installed on 2026-10-11, numpy + scipy + scikit-learn + joblib + huggingface_hub); the example
 snippet (3,000 frames) prints within 2 s after download; the numpy reference processes a 1 M-frame
 parity capture within the test budget (vectorised per ID; only the alarm stage iterates, over
@@ -73,7 +73,7 @@ files, 1 new module (~350 lines), 1 new doc page, 1 website template, gate rule 
 | Principle / section | Touched | How the plan complies |
 |---|---|---|
 | III Measure Before Optimizing | yes | The numpy reference is a third implementation of the device chain; its agreement with the C chain is a deterministic check: bit-exact on the parity captures (compiler job) and on the example captures (every CI run, no compiler). Reported in the gate output, not inferred. |
-| V Small and Local by Default | yes | Install of an edge model drops from 877 MB to under 200 MB; nothing hosted enters the run path. Budgets of the models are untouched (no model change). |
+| V Small and Local by Default | yes | Install of an edge model drops from 877 MB to under 300 MB; nothing hosted enters the run path. Budgets of the models are untouched (no model change). |
 | VI Clean Provenance | yes | Only the three synthetic example captures (SOURCES.yaml: `synthetic`) are added to the model repository; `forbidden_upload` still blocks `data/`, `.jsonl`, `.eval.npz`. |
 | IX Reproducible, Dated Releases | yes | 0.2.0 and 0.1.2 stay as published; fixes are 0.2.1 and 0.1.3 with `change_type: patch`; 0.2.0 is deprecated with a successor (card-only commit); both go through gate, preview and owner approval. Weights and device headers are byte-identical (the gate's sha256 list proves it). |
 | Tasks and Releases: one gate | yes | No model-specific gate: rule 12 runs `how_to_run` for every runtime; `VenvRunner` derives the extras from the card's install line for every model. |

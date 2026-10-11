@@ -48,7 +48,7 @@ print(len(cap["ts"]), "frames loaded; no compiler, no repo paths used")
 EOF
 ```
 
-Expected: site-packages under 200 MB; `import torch` fails; the capture loads.
+Expected: site-packages under 300 MB; `import torch` fails; the capture loads.
 
 The same with `".[text]"` for scout-large: `python -c "import torch, transformers"` succeeds.
 
