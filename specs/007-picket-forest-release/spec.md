@@ -35,7 +35,7 @@ The owner freezes the benchmark `can-ids-v1` from the declared datasets. Anyone 
 
 **Why this priority**: Every claim of the release depends on it. Without a frozen, checked benchmark the model cannot be released (gate rule 9) and no USP can be shown.
 
-**Independent Test**: With the datasets downloaded to the data cache, `security can-ids freeze` writes a manifest. A second run on the same files gives the same manifest. Scoring a trivial detector (all frames benign) gives the expected metrics.
+**Independent Test**: With the datasets downloaded to the data cache, `zoo-security can-ids freeze` writes a manifest. A second run on the same files gives the same manifest. Scoring a trivial detector (all frames benign) gives the expected metrics.
 
 **Acceptance Scenarios**:
 
@@ -48,7 +48,7 @@ The owner freezes the benchmark `can-ids-v1` from the declared datasets. Anyone 
 
 ### User Story 2 - picket-forest measured on the benchmark, next to baselines and shortcut controls (Priority: P1)
 
-The owner runs `security can-ids evaluate picket-forest --benchmark can-ids-v1` and gets a report in which picket-forest's headline numbers stand next to:
+The owner runs `zoo-security can-ids evaluate picket-forest --benchmark can-ids-v1` and gets a report in which picket-forest's headline numbers stand next to:
 
 - published-style baselines rerun on the same protocol;
 - shortcut controls, which would expose leakage if picket-forest's advantage came from it.
@@ -169,7 +169,7 @@ The owner stages the trained artefacts and completes the release record, results
 
 **Evaluation output**
 
-- **FR-012**: `security can-ids evaluate MODEL --benchmark can-ids-v1` MUST write:
+- **FR-012**: `zoo-security can-ids evaluate MODEL --benchmark can-ids-v1` MUST write:
   - a quality results file in the zoo results format, with reference kind `ground_truth` and the benchmark name;
   - a report under `topics/security/reports/picket-forest/` with all numbers, the code version and the manifest hash.
 

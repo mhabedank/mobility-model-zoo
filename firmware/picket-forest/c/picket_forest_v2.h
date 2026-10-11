@@ -9,7 +9,7 @@
  * hold-off). It returns 1 when the frame raises an alarm.
  *
  * Requires the generated files picket_forest_model.h, picket_forest_config.h and
- * picket_forest_table.h (see `security can-ids v2 export` / `v2 table`).
+ * picket_forest_table.h (see `zoo-security can-ids v2 export` / `v2 table`).
  */
 #ifndef PICKET_FOREST_V2_H
 #define PICKET_FOREST_V2_H

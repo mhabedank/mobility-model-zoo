@@ -87,7 +87,7 @@ labeling-api = [
 jtbd = "mobility_model_zoo.productdev.jtbd.cli:app"
 zoo = "mobility_model_zoo.release.cli:app"
 edge = "mobility_model_zoo.edge.bench.cli:main"
-security = "mobility_model_zoo.security.cli:app"
+zoo-security = "mobility_model_zoo.security.cli:app"
 condmon = "mobility_model_zoo.condition_monitoring.cli:app"
 
 [dependency-groups]

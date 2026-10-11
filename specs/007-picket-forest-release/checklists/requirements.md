@@ -31,5 +31,5 @@
 
 ## Notes
 
-- The spec names project commands (`security can-ids freeze|evaluate`, `zoo check`) and artefact kinds (C headers, host reference model) because they are the user-facing interface of this repository, as in specs 003–006; it does not prescribe code structure.
+- The spec names project commands (`zoo-security can-ids freeze|evaluate`, `zoo check`) and artefact kinds (C headers, host reference model) because they are the user-facing interface of this repository, as in specs 003–006; it does not prescribe code structure.
 - No clarification markers: the owner fixed scope, model configuration, budgets and out-of-scope items in the request and in the 2026-10-09 discussion.

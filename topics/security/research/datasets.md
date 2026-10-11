@@ -64,7 +64,7 @@ Apache-2.0 with attribution of the training data in the model card.
 uv run zoo data list                          # registry + rejected datasets
 uv run zoo data verify                        # check licences at the provider
 uv run zoo data download road                 # into $MMZ_DATA
-uv run security can-ids mlp train --download  # train picket-mlp, export int8, check bit-exactness -> $MMZ_DATA/derived/picket-mlp/
+uv run zoo-security can-ids mlp train --download  # train picket-mlp, export int8, check bit-exactness -> $MMZ_DATA/derived/picket-mlp/
 MMZ_EDGE_MODELS=$MMZ_DATA/derived/picket-mlp/picket-mlp.npz uv run edge run -b sim
                                               # HIL suite incl. accuracy on the device
 ```

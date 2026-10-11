@@ -8,7 +8,7 @@
 
 ## US1 freeze (2026-10-09)
 
-- First `security can-ids freeze` stopped (exit 1) on 12 duplicate groups: every capture of `set_01/test_04_unknown_vehicle_unknown_attack` is byte-identical (common-format hash) to the capture of the same name in `set_02/test_01_known_vehicle_known_attack`, with conflicting vehicles (README: Silverado vs Traverse).
+- First `zoo-security can-ids freeze` stopped (exit 1) on 12 duplicate groups: every capture of `set_01/test_04_unknown_vehicle_unknown_attack` is byte-identical (common-format hash) to the capture of the same name in `set_02/test_01_known_vehicle_known_attack`, with conflicting vehicles (README: Silverado vs Traverse).
 - Check: attack-free CAN-ID overlap with each set's `train_01`. `set_01/test_04` matches Traverse 100 %, Silverado 74 %, Impala 81 %; `set_01/test_02` matches Silverado 100 %. The upstream README is wrong for `set_01/test_04`: it is Traverse.
 - The other suspect pair (`set_03/test_04` vs `set_04/test_01`) is Forester on both sides (README and IDs agree); no conflict.
 - Owner decision (AskUserQuestion): relabel to `chevrolet_traverse`, keep in `set_01/test_04` (Traverse is not in set_01 training, so the split stays unknown vehicle). Recorded in `topics/security/benchmarks/can-ids-v1/resolutions.yaml`.
@@ -31,24 +31,24 @@
 
 ## US1/US2 code (2026-10-09)
 
-- `benchmark.py` and `security can-ids freeze`: hashes in the common frame format, roles (validation = highest-numbered capture per attack type in train_01; ROAD `_2` runs and every fourth ambient capture are test; masquerade and accelerator out of scope), conflicts (same content with different vehicle labels, or train/validation and test in one set) stop the freeze until `resolutions.yaml` records action and reason; frozen manifests are never rewritten. Tests: 6.
+- `benchmark.py` and `zoo-security can-ids freeze`: hashes in the common frame format, roles (validation = highest-numbered capture per attack type in train_01; ROAD `_2` runs and every fourth ambient capture are test; masquerade and accelerator out of scope), conflicts (same content with different vehicle labels, or train/validation and test in one set) stop the freeze until `resolutions.yaml` records action and reason; frozen manifests are never rewritten. Tests: 6.
 - `detectors.py`: picket-forest, 4 controls, 4 rule/statistics baselines and 6 original-benchmark models behind one interface. The shuffled-label control needed three iterations to be a valid leakage check:
   - labels shuffled within a capture keep a capture-level signal (AUROC 0.62);
   - shuffling after the label-dependent subsampling leaks through the frame selection (0.78);
   - hard majority votes of a forest trained on random, imbalanced labels rank dense regions higher (0.80).
 
   The control now permutes labels across all training frames before subsampling, averages five seeds and scores with leaf probabilities: AUROC below 0.6 on synthetic data, as it must be.
-- `evaluate.py` and `security can-ids evaluate`: per set fit on train, threshold and alarm operating points on validation only, four test splits; ROAD with the release model; Pareto table; C-versus-Python check; report, metrics, quality results (refused for partial runs). Tests: 5, including 0 C-versus-Python mismatches on a synthetic benchmark.
+- `evaluate.py` and `zoo-security can-ids evaluate`: per set fit on train, threshold and alarm operating points on validation only, four test splits; ROAD with the release model; Pareto table; C-versus-Python check; report, metrics, quality results (refused for partial runs). Tests: 5, including 0 C-versus-Python mismatches on a synthetic benchmark.
 - Third-party side effect found: emlearn calls `numpy.seterr(all='raise')` at import (`emlearn/bayes.py`); the export now restores numpy's error state, and the test suite isolates it per test.
 
 ## Device evidence path (2026-10-09)
 
-- PlatformIO project `firmware/picket-forest/platformio/` (envs `esp32`, `esp8266` = D1 mini at 160 MHz) reusing the existing replay sketch; `security can-ids measure` generates the sketch's sources, exported headers and synthetic test vectors.
+- PlatformIO project `firmware/picket-forest/platformio/` (envs `esp32`, `esp8266` = D1 mini at 160 MHz) reusing the existing replay sketch; `zoo-security can-ids measure` generates the sketch's sources, exported headers and synthetic test vectors.
 - Local check with the 3-tree fixture model: both envs build; Espressif QEMU 9.2.2 (installed in `~/qemu`) runs the ESP32 image: 4,000 frames, 0 score mismatches against the host build, 2 of 2 expected alarms; detector code 2.3 KiB, detector state 10.2 KiB.
 - Not added to `firmware.yml`: the build needs an exported model; CI builds it once the release export is staged (follow-up).
 
 ## US2 full run (2026-10-09)
 
-- `security can-ids evaluate all --report`: all four sets, 15 detectors, C-vs-Python parity 0 mismatches. Original run stored as `runs/all.json` (copy of the first judgement kept outside git).
+- `zoo-security can-ids evaluate all --report`: all four sets, 15 detectors, C-vs-Python parity 0 mismatches. Original run stored as `runs/all.json` (copy of the first judgement kept outside git).
 - Defect found in the headline: "episodes detected at <= N FA/h" took the alarm rule chosen on validation but never checked the false-alarm rate on the test split; baselines alarming about 3000 times per hour on unknown vehicles were credited 100 %. Fixed: a split whose test false-alarm rate exceeds the budget counts 0; the test rate is reported (`test_fa_per_hour_rule{1,10}`). The stored run was re-judged with `evaluate all --from-run --report` (no retraining; `judged_at_commit` recorded).
 - Outcome under the amended R10 rule: kill, from `ctrl-shuffled` alone (F1 at the validation operating point reaches half of picket-forest's on four set/split cells; AUROC above the isolation-forest reference by more than 0.05 on set_02 and set_04 unknown vehicle, unknown attack). Without the shuffled control the outcome would be partial (timing-only and forest-with-id controls match picket-forest on unknown vehicles at the event level).
