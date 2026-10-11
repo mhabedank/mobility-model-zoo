@@ -110,7 +110,7 @@ Phase 0 of [plan.md](plan.md). Each entry: decision, rationale, alternatives con
 - **Decision**:
   - `zoo data list|info|verify|download|path|tree`: shared dataset commands (release governance is cross-topic, so they live under `zoo`).
   - `edge`: the HIL bench (former `hilbench`: discover, doctor, list, targets, build, flash, info, console, reset, power, run, report, import-tflite, refs).
-  - `security can-ids …` and `condmon sound-anomaly|activity …`: one build-and-measure tool per task (constitution "Tasks and Releases"), as subcommand groups of one CLI per topic.
+  - `zoo-security can-ids …` and `condmon sound-anomaly|activity …`: one build-and-measure tool per task (constitution "Tasks and Releases"), as subcommand groups of one CLI per topic.
   - Environment variables: `MMZ_DATA`, `MMZ_BOARDS` (replacing `HILBENCH_*`).
   - Details: [contracts/cli.md](contracts/cli.md).
 - **Alternatives**: One entry point per task (rejected: four new console scripts for small tools).

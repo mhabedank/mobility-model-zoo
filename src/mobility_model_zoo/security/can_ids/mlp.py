@@ -1,7 +1,7 @@
 """picket-mlp: per-frame CAN intrusion detection MLP for the int8 engine (feature 005, T032).
 
     uv run zoo data download road
-    uv run security can-ids mlp train [--epochs 20] [--out DIR]
+    uv run zoo-security can-ids mlp train [--epochs 20] [--out DIR]
 
 Features a CAN gateway can compute with O(#IDs) state, a Keras MLP (32-64-32-2), full-integer
 int8 TFLite and the bit-exact host reference. Frames come from the common frame format

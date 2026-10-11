@@ -31,7 +31,7 @@ Recorded in a task document `topics/<topic>/tasks/<task>.md` (FR-009); not a reg
 | reference | dataset labels (ground truth) or model consensus |
 | benchmark | name and version (`can-ids-v1`, `mimii-fan-v1`, `uci-har-v1`), frozen at first use |
 | metrics | names, definitions, which one is the headline |
-| tool | CLI group (`security can-ids`, `condmon sound-anomaly`, `condmon activity`) |
+| tool | CLI group (`zoo-security can-ids`, `condmon sound-anomaly`, `condmon activity`) |
 | framework | chosen per task with justification (constitution VIII as amended) |
 | hardware budget | target boards, flash and RAM limits (Principle V) |
 

@@ -24,7 +24,7 @@ card:
   out_of_scope: |
     Deployment in vehicles on public roads: the model is not a validated or approved safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
   input_output: |
-    Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` (`security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
+    Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` (`zoo-security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
     import joblib

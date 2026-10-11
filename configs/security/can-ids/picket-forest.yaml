@@ -1,5 +1,5 @@
 # picket-forest: task can-ids (topics/security/tasks/can-ids.md).
-# Run: uv run security can-ids forest evaluate|export|alarms|convert|testvectors
+# Run: uv run zoo-security can-ids forest evaluate|export|alarms|convert|testvectors
 # Values from src/mobility_model_zoo/security/can_ids/forest.py (checked by
 # tests/unit/test_task_configs.py). The pipeline selects among the grid on validation captures.
 model: picket-forest
