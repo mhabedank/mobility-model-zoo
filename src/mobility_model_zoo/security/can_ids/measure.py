@@ -252,7 +252,8 @@ def metrics(target: str, run: dict) -> list[dict]:
         )
         note = " (emulator: not representative)"
     else:
-        hw = f"ESP8266 (Wemos D1 mini), {r['cpu_mhz']} MHz, {SUBSTITUTE}"
+        board = run.get("board") or "esp8266"
+        hw = f"ESP8266 (board {board}), {r['cpu_mhz']} MHz, {SUBSTITUTE}"
         origin, sfx, note = "real_board", "", ""
     out = [
         _metric(
