@@ -107,9 +107,27 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             ".claude/skills/catalog-discover/*",
         ),
     ),
-    ("site", (f"{SRC}/site/*", "zoo/site.yaml", "tests/website/*")),
+    (
+        "site",
+        (
+            f"{SRC}/site/*",
+            "zoo/site.yaml",
+            "tests/website/*",
+            "docs/quickstart.md",  # rendered at /quickstart/ (feature 013)
+        ),
+    ),
     ("registry", ("zoo/*",)),
-    ("edge", (f"{SRC}/edge/*", "firmware/*", "hil/*", "tests/edge/*", "tests/fixtures/edge-int8/*")),
+    (
+        "edge",
+        (
+            f"{SRC}/edge/*",
+            "firmware/*",
+            "hil/*",
+            "tests/edge/*",
+            "tests/fixtures/edge-int8/*",
+            "scripts/check_install_size.sh",
+        ),
+    ),
     # Research notes, reports and task documents of a topic are prose.
     ("docs", ("topics/*.md",)),
     ("security", (f"{SRC}/security/*", "configs/security/*", "topics/security/*", "tests/security/*")),

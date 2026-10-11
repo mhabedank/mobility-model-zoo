@@ -1,7 +1,8 @@
-"""The span model runs with the base install only (T013, research R18).
+"""The span model runs with the `text` extra only (T013, research R18; feature 013).
 
-Builds a fresh virtual environment with CPU-only torch, installs this repository without extras and
-runs `SpanExtractor` on the tiny model there. Run with `uv run pytest -m slow`.
+Builds a fresh virtual environment with CPU-only torch, installs this repository with the `text`
+extra (what the scout-large card names) and runs `SpanExtractor` on the tiny model there. Run with
+`uv run pytest -m slow`.
 """
 
 import json
@@ -28,9 +29,10 @@ print(json.dumps({{"extras": extras, "items": len(out["items"]),
 
 
 @pytest.mark.slow
-def test_span_extractor_runs_with_base_install_only(tiny_span_model):
+def test_span_extractor_runs_with_text_extra_only(tiny_span_model):
     model_dir = str(tiny_span_model())
-    code, out, err = VenvRunner(ROOT, hf_token=None).run(CODE.format(model_dir=model_dir))
+    runner = VenvRunner(ROOT, hf_token=None, install_line="pip install mobility-model-zoo[text]")
+    code, out, err = runner.run(CODE.format(model_dir=model_dir))
     assert code == 0, err
     result = json.loads(out.strip().splitlines()[-1])
     assert result["extras"] == [], "the fresh environment must not contain [jtbd] dependencies"

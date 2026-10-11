@@ -109,6 +109,7 @@ class Gate:
     git: GitRepo | None = None
     results: dict[int, tuple[str, str]] = field(default_factory=dict)
     example_outputs: dict[str, str] = field(default_factory=dict)
+    how_to_run_output: str | None = None  # what how_to_run printed in the fresh environment (mcu)
     model: dict[str, Any] = field(default_factory=dict)
     record: dict[str, Any] = field(default_factory=dict)
 
@@ -483,7 +484,8 @@ class Gate:
             if self.offline:
                 raise Skip("loads the staged model; needs the Hub")
             examples = self.reg.device_examples(self.name)
-            return self._device_example(*examples[0]) if examples else ["no examples/*.json"]
+            failures = self._device_example(*examples[0]) if examples else ["no examples/*.json"]
+            return failures + self._run_how_to_run()
         if self.runner is None:
             raise Skip("runs the model; needs the Hub and a clean environment")
         examples = self.reg.examples(self.name)
@@ -525,8 +527,12 @@ class Gate:
                         f"{name}: source {ex['source']} is {state}; examples must be synthetic or "
                         "from a dataset whose declaration allows redistribution"
                     )
+        if self.emlearn and str(self.record.get("output_format_version", "")).endswith("-v2"):
+            failures += self._v2_file_failures()
         if self.offline or failures:
             return failures
+        if self.emlearn and str(self.record.get("output_format_version", "")).endswith("-v2"):
+            failures += self._v2_table_failures()
         for name, ex in examples:
             if name not in self.example_outputs:
                 failures += self._device_example(name, ex)
@@ -637,6 +643,68 @@ class Gate:
             failures.append("no real-board latency: only status experimental may rely on emulators")
         return failures
 
+    def _run_how_to_run(self) -> list[str]:
+        """Rule 12 for mcu: the card's snippet runs as pasted in a fresh environment built from the
+        card's install line (feature 013); what it prints is shown on the card."""
+        if self.runner is None:
+            return []
+        r = self.record
+        code = cards.fill(
+            self.model["card"]["how_to_run"], r["staging"]["repo"], r["staging"]["revision"], ""
+        )
+        rc, out, err = self.runner.run(code)
+        if rc != 0:
+            tail = "\n".join(err.strip().splitlines()[-5:])
+            return [f"how_to_run failed (exit {rc}): {tail}"]
+        self.how_to_run_output = out.strip()[:MAX_OUTPUT_CHARS]
+        return []
+
+    def _v2_file_failures(self) -> list[str]:
+        """Rule 13 for the 0.2 chain: the files the card's snippet downloads are staged and equal
+        the registry (feature 013, contracts/model-repo-files.md)."""
+        from mobility_model_zoo.release.hub import sha256_file
+
+        staged = {f["path"]: f["sha256"] for f in self.record["files"]}
+        failures = []
+        for path in sorted((self.reg.model_dir(self.name) / "examples").glob("*.json")):
+            got = staged.get(f"examples/{path.name}")
+            if got is None:
+                failures.append(f"examples/{path.name} is not staged; the card's snippet downloads it")
+            elif got != sha256_file(path):
+                failures.append(f"staged examples/{path.name} differs from the registry file")
+        if "calibration_table.json" not in staged:
+            failures.append("calibration_table.json is not staged; the card's snippet downloads it")
+        return failures
+
+    def _v2_table_failures(self) -> list[str]:
+        """The staged calibration_table.json describes the same table as the staged header."""
+        import tempfile
+
+        import numpy as np
+
+        from mobility_model_zoo.security.can_ids import picket_forest as pf
+
+        r = self.record["staging"]
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            try:
+                as_json = pf.load_table(
+                    self.hub.download(r["repo"], "calibration_table.json", r["revision"], work)
+                )
+                header = self.hub.download(r["repo"], "picket_forest_table.h", r["revision"], work)
+                as_header = pf.table_from_header(header.read_text(encoding="utf-8"))
+            except ValueError as e:
+                return [f"calibration_table.json or picket_forest_table.h cannot be read: {e}"]
+        same = (
+            np.array_equal(as_json.entries(), as_header.entries())
+            and as_json.bus_rate == as_header.bus_rate
+        )
+        return (
+            []
+            if same
+            else ["calibration_table.json and picket_forest_table.h describe different tables"]
+        )
+
     def _run_example(self, name: str, text: str) -> list[str]:
         r = self.record
         code = cards.fill(
@@ -714,6 +782,7 @@ class Gate:
                     self.version,
                     record=self.record,
                     example_outputs=self.example_outputs,
+                    how_to_run_output=self.how_to_run_output,
                 )
             )
         return self.card

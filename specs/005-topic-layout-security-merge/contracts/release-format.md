@@ -45,14 +45,14 @@ See [data-model.md](../data-model.md), "Dataset declaration".
 | 6 | for every source with `dataset`: the declaration exists, its license equals the source license, `permitted_use` is `training_allowed`, `status` is `active`; if any source license is share-alike (`CC-BY-SA-*`), the model license equals it; a non-commercial license (`*-NC-*`) as a training source fails |
 | 7 | unchanged (`training_allowed` only) |
 | 10 | quality sentence per reference (constitution 2.0.0, III metric naming): `model_consensus` keeps the fixed agreement sentence and refuses "accuracy" in metric names, because agreement is not accuracy; `ground_truth` requires the sentence "Quality is measured against the labels of the datasets named below, on test data not used for training." and allows "accuracy"; every quality metric needs a `reference` |
-| 12 | `mcu`: instead of running the Python snippet, load the staged int8 model with the host reference and run the first example |
-| 13 | `mcu`: examples are `examples/*.json` with `input` (int8 vector), `expected` (output) and `source`; `source` is `synthetic` (random or generated vectors) or a dataset id whose declaration has `redistribution: allowed`; each must match bit-exactly on the host reference; at least 3 |
+| 12 | `mcu`: load the staged int8 model with the host reference and run the first example; then (feature 013) run the card's `how_to_run` as pasted in a fresh environment built from the card's own install line, extras included; a non-zero exit fails the release, and what the snippet printed appears on the card under "Output:". Runtime `python` runs the snippet once per example text, in the same kind of environment |
+| 13 | `mcu`: examples are `examples/*.json` with `input` (int8 vector), `expected` (output) and `source`; `source` is `synthetic` (random or generated vectors) or a dataset id whose declaration has `redistribution: allowed`; each must match bit-exactly on the host reference; at least 3. For the 0.2 tree chain (`output_format_version` ending in `-v2`, feature 013) every registry `examples/*.json` is also staged as `examples/<file>` with the same sha256, `calibration_table.json` is staged, and it describes the same table as the staged `picket_forest_table.h` |
 | 15 (new) | device evidence for `mcu`: performance metrics include `flash_kb`, `ram_kb` and `latency_us` with `origin` and `hardware`; unless `status` is `experimental`, at least one `latency_us` has `origin: real_board` |
 
 ## Model card template
 
 - Front matter: `runtime: mcu` adds the tags `tinyml`, `microcontroller` and the target names.
-- "How to run it": python unchanged; mcu shows the Python host reference (install line plus snippet) and the C usage from `card.device_usage`.
+- "How to run it": the Python requirement (from the package metadata), the install line and the snippet; mcu adds the recorded output of the snippet ("Output:"), the C usage from `card.device_usage` and, when `card.own_data` is set, "Use it on your own data" (shown, not run by the gate).
 - "Speed and memory": python unchanged; mcu: "Budget: {ram_kb} KB RAM, {flash_kb} KB flash on {target}." and a table with an "Measured on" column showing hardware and origin (real board, emulator, simulator).
 - "Quality": sentence per `reference_kind` (rule 10).
 - "Provenance": for sources with `dataset`, the table lists dataset, provider, license and attribution; the fixed text says the dataset is not redistributed with the model and links the provider.

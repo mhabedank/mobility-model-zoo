@@ -7,6 +7,7 @@ The website at https://mhabedank.github.io/mobility-model-zoo/ is a set of stati
 | Page | Content | Source |
 |---|---|---|
 | Start page `/` | purpose, topics, model tiles, principles | `zoo/site.yaml`, `zoo/topics.yaml`, every `model.yaml` and release record |
+| Quickstart `/quickstart/` | the five-minute walk-through: environment, install line, program and printed output of picket-forest and scout-large, and the common mistakes | [docs/quickstart.md](quickstart.md); `{install:<model>}`, `{snippet:<model>}` and `{output:<model>}` are filled from the latest published version of that model, so the page cannot drift from the cards |
 | Model page `/models/<name>/` | value proposition, quickstart, interface, worked examples, quality and speed, use and limits, provenance, versions, citation | `model.yaml`, `zoo/models/<name>/site.yaml`, release records, `results/<version>/*.json`, `examples/`, the published model card |
 | Output format `/formats/<id>/` | every field with type, allowed values and meaning | the format's JSON schema and `zoo/formats/<id>.yaml` |
 

@@ -20,6 +20,17 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 - License: [Apache-2.0](LICENSE); third-party notices: [NOTICE](NOTICE), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 - Privacy notice, copyright policy, security contact: [PRIVACY.md](PRIVACY.md), [COPYRIGHT_POLICY.md](COPYRIGHT_POLICY.md), [SECURITY.md](SECURITY.md)
 
+## Try it in five minutes
+
+You need Python 3.12 (uv fetches it) and [uv](https://docs.astral.sh/uv/). Make an environment and install picket-forest, the CAN bus intrusion detector (roughly 150 to 250 MB, no deep-learning framework):
+
+```bash
+uv venv --python 3.12 && source .venv/bin/activate
+uv pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@picket-forest/v0.2.1"
+```
+
+Then copy the program from the [model card](https://huggingface.co/mobility-model-zoo/picket-forest) into `demo.py` and run `python demo.py`: it downloads the model and an example capture and prints the alarms. The text model scout-large works the same way with `mobility-model-zoo[text]`. The full walk-through, with the mistakes newcomers make (wrong Python, an IPython from another environment, no `pip` inside uv environments), is [docs/quickstart.md](docs/quickstart.md) and, on the website, [Try it in five minutes](https://mhabedank.github.io/mobility-model-zoo/quickstart/).
+
 ## Topics
 
 | Topic | Title | Collection | Tasks and models |
@@ -64,12 +75,12 @@ Training data, published material and the naming of third parties are governed b
 Prerequisites: Python 3.12 and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --extra jtbd --extra release --extra edge   # what CI installs for a full run
+uv sync --extra jtbd --extra release --extra edge   # what CI installs for a full run (jtbd brings the text stack)
 uv run pytest
 uv run zoo --help
 ```
 
-Extras: `jtbd` (JTBD measurement chain), `release` (release tool), `edge` (bench, int8 engine, datasets), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on each model card. Credentials and where they live: [docs/credentials.md](docs/credentials.md).
+The base package holds only what every model shares (`huggingface_hub`, `numpy`). Extras: `text` (torch, transformers: what the text models need at run time), `edge` (what the microcontroller models need at run time, plus bench, int8 engine and datasets), `jtbd` (JTBD measurement chain; includes `text`), `release` (release tool), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on the model card, which names `text` or `edge`; see [docs/quickstart.md](docs/quickstart.md). Credentials and where they live: [docs/credentials.md](docs/credentials.md).
 
 Quick commands per topic:
 

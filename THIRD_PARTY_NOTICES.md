@@ -3,7 +3,7 @@
 
 Attribution of the third-party works used to train the published models (title, creator, source, licence, modifications). The texts themselves are not redistributed.
 
-## picket-forest 0.2.0
+## picket-forest 0.2.1
 
 | Title | Creators | Source | Licence | Modifications |
 |---|---|---|---|---|
