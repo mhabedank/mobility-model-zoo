@@ -3,6 +3,11 @@
 
 Attribution of the third-party works used to train the published models (title, creator, source, licence, modifications). The texts themselves are not redistributed.
 
+## picket-forest 0.2.0
+
+| Title | Creators | Source | Licence | Modifications |
+|---|---|---|---|---|
+
 ## scout-large 0.1.2
 
 Base model: XLM-RoBERTa large (FacebookAI/xlm-roberta-large), MIT, Copyright (c) Facebook, Inc. and its affiliates. (https://huggingface.co/FacebookAI/xlm-roberta-large).

@@ -290,6 +290,10 @@ def metrics(target: str, run: dict) -> list[dict]:
             origin,
         ),
     ]
+    if target == "esp32-qemu":
+        # rule 15 reads the plain names; for experimental releases the emulator may provide them
+        # (origin says so); a later real-board run replaces them
+        out += [{**m, "name": m["name"].replace("_esp32_qemu", "")} for m in out]
     return out
 
 

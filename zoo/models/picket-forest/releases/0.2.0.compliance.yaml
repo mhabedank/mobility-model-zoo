@@ -1,0 +1,90 @@
+model: picket-forest
+version: 0.2.0
+state: draft
+ai_system:
+  is_system: true
+  rationale: The weights (a random forest) are published together with the feature, decision and
+    alarm code for microcontrollers, so the release is usable as a machine-based system that infers
+    alarms from CAN frames (Art. 3(1)).
+gpai:
+  is_gpai: false
+  generative: false
+  params: 20000.0
+  training_compute_flop: 1.0e+12
+  base_model_compute_flop: unknown
+  method: 'Own upper estimate: a random forest of at most 30 trees on about 2 million subsampled
+    frames with 10 features; tree nodes of the release model are listed in config.json. No base model.'
+  rationale: A small task-specific detector for CAN intrusion detection; it does not generate content
+    and is not capable of a wide range of distinct tasks; compute many orders of magnitude below the
+    indicative 10^23 FLOP of the Commission GPAI guidelines (July 2025).
+exclusion_basis: art2_12
+monetisation: none
+intended_purpose: 'Research, teaching and bench testing of intrusion detection on classic CAN buses:
+  after a calibration on benign traffic of one vehicle, the detector flags frames that exceed the
+  calibrated frame counts, unknown-identifier bursts (fuzzing) and DLC changes, and raises alarms for
+  an IDS manager or a log. Status: experimental, not production ready.'
+out_of_scope:
+- Deployment in vehicles on public roads as a safety or security mechanism; any ISO/SAE 21434 or UNECE
+  R155 claim; active countermeasures (blocking or injecting frames) based on its output; identifying
+  drivers or tracking vehicles; CAN FD and automotive Ethernet.
+annex_iii_match: none (no use in biometrics, critical infrastructure management, employment, education,
+  essential services, law enforcement, migration or justice is intended)
+annex_i:
+  legislation: none
+  safety_component: false
+  rationale: A research and monitoring tool on a test bench; not placed on the market as a component of
+    a vehicle under Regulation (EU) 2018/858 or 2019/2144 and not a safety component; vehicle
+    integration would need its own type-approval and cybersecurity process.
+art50_trigger: none (no interaction with natural persons, no generated content)
+legal_references:
+  ai_act: Regulation (EU) 2024/1689 as amended by the digital omnibus (in force 2026-07-27)
+  guidelines:
+  - Commission guidelines on the definition of an AI system (Feb 2025)
+  - Commission guidelines on general-purpose AI models (July 2025)
+  checked_at: '2026-10-11'
+export:
+  self_classification: not listed (Regulation (EU) 2021/821, Annex I)
+  rationale: A defensive anomaly detector for in-vehicle CAN buses; no cryptography, no intrusion
+    software, not an IP network surveillance system (5A001.j concerns IP networks). Dual-use note on
+    the card - the published features and thresholds also tell an attacker what is detected.
+licences:
+  weights: Apache-2.0
+  code: Apache-2.0
+  base_model: null
+  notices:
+  - can-train-and-test by B. Lampe and W. Meng, DTU, doi:10.11583/DTU.24805533 (CC BY 4.0) - training data
+  - ROAD dataset by M. Verma et al., Oak Ridge National Laboratory (CC BY 4.0) - evaluation
+  - The Kidmose CANid Dataset (KCID), DTU, doi:10.11583/DTU.30483005 (CC BY 4.0) - evaluation
+  - AutoHack dataset, Korea University and Kookmin University, doi:10.5281/zenodo.19661007 (CC BY 4.0) - evaluation
+  - emlearn (MIT) - code generator of the forest
+  share_alike_inputs: false
+  gated: false
+provenance:
+  sources: []
+  benchmark_sources: []
+  datasets:
+  - can-train-and-test
+  - road
+  - kcid
+  - autohack
+  routes: []
+  recipients_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+scans:
+  redaction_recall: null
+  art9_counts: null
+  memorisation:
+    status: not_applicable
+    rationale: No dataset frame, payload or timestamp list is published; the examples are synthetic
+      (picket-synth generator, seed 42) and the staged calibration table belongs to that synthetic
+      vehicle. The forest holds split thresholds on 10 relative features, not records.
+  publication_scan: null
+decisions:
+- No labeling recipients (no model or service labeled data for this release); recipients_sha256 is the
+  hash of an empty recipient list.
+- Datasets other than can-train-and-test are used for evaluation only (benchmark_only).
+- Release status experimental (constitution 2.2.0); the calibrated rules decide, the forest score is
+  information (owner decision 2026-10-11).
+signed_off_by: null
+signed_off_at: null
+runtime: mcu
+sbom: sbom.cdx.json
