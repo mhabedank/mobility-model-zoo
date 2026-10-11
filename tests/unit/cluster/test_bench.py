@@ -121,3 +121,18 @@ def test_revised_guideline_may_be_frozen_once_for_the_re_pilot(built, tmp_path):
 def test_fragments_without_a_word_are_not_sampled():
     assert not bench.labelable(".") and not bench.labelable("B.") and not bench.labelable("Dr.")
     assert bench.labelable("Bus late") and bench.labelable("Straße")
+
+
+def test_refreeze_only_before_any_labeling(built):
+    s = built.settings()
+    bench.freeze(s)
+    (built.root / "budget.yaml").write_text("budget_eur: 20\nkey_cap_eur: 10\nprices: {}\n")
+    out = bench.freeze(s)
+    assert out["refrozen"] == ["budget"]
+    assert bench.verify(s)["events"][-1]["event"].startswith("re-frozen before any labeling")
+    run = s.runs_dir / "cluster-reference-mock-a-test-x" / "manifest.json"
+    run.parent.mkdir(parents=True)
+    run.write_text("{}")
+    (built.root / "budget.yaml").write_text("budget_eur: 20\nkey_cap_eur: 9\nprices: {}\n")
+    with pytest.raises(FrozenHashMismatch):
+        bench.freeze(s)

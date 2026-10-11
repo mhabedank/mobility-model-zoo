@@ -13,7 +13,7 @@ from mobility_model_zoo.productdev.jtbd.config import DEFAULT_BUDGET, ModelEntry
 from mobility_model_zoo.productdev.jtbd.errors import BudgetRefused, UsageError
 from mobility_model_zoo.productdev.jtbd.jsonio import append_jsonl, read_jsonl
 
-PAID_BACKENDS = {"openrouter"}
+PAID_BACKENDS = {"openrouter", "anthropic_api"}
 
 
 def ledger_rows(settings: Settings) -> list[dict[str, Any]]:

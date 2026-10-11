@@ -418,6 +418,17 @@ def freeze(settings: Settings) -> dict[str, Any]:
                                                   "event": "revised guideline frozen for re-pilot"})
         save_manifest(settings, manifest)
         return {"manifest": str(manifest_path(settings)), "state": "frozen", "revised": True}
+    if manifest["state"] == "frozen" and not label_runs(settings):
+        changed = sorted(k for k, v in manifest["hashes"].items() if hashes.get(k) != v)
+        if changed:
+            # Nothing is labeled yet, so no label depends on the old hashes; the change is recorded.
+            manifest["hashes"] = hashes
+            manifest.setdefault("events", []).append(
+                {"at": _now(), "state": "frozen",
+                 "event": f"re-frozen before any labeling: {', '.join(changed)} changed"})
+            save_manifest(settings, manifest)
+            return {"manifest": str(manifest_path(settings)), "state": "frozen",
+                    "refrozen": changed}
     if manifest["state"] != "draft":
         verify(settings, manifest)
         return {"manifest": str(manifest_path(settings)), "state": manifest["state"], "verified": True}
@@ -432,6 +443,11 @@ def _review_date(cluster: dict[str, Any]) -> str:
     today = datetime.now(UTC).date()
     year, month = divmod(today.month - 1 + months, 12)
     return today.replace(year=today.year + year, month=month + 1, day=min(today.day, 28)).isoformat()
+
+
+def label_runs(settings: Settings) -> list[Path]:
+    """Reference label runs of this benchmark (any split, any model)."""
+    return sorted(settings.runs_dir.glob("cluster-reference-*/manifest.json"))
 
 
 def verify(settings: Settings, manifest: dict[str, Any] | None = None) -> dict[str, Any]:
