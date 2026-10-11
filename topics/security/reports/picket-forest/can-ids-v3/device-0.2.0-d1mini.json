@@ -1,7 +1,7 @@
 {
  "kind": "performance",
  "model": "picket-forest",
- "version": "can-ids-v3",
+ "version": "0.2.0",
  "synthetic": false,
  "source_run": "security can-ids measure",
  "metrics": [

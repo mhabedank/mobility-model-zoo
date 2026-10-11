@@ -214,7 +214,9 @@ def measure(
     except ValueError as e:
         say(str(e))
         raise typer.Exit(1) from None
-    m.merge(out, new, "picket-forest", out.parent.name)  # results/<version>/performance.json
+    # results/<version>/performance.json; other paths keep the version given in the file name or 0.2.0
+    version = out.parent.name if out.parent.name[:1].isdigit() else "0.2.0"
+    m.merge(out, new, "picket-forest", version)
     for metric in new:
         where = f"{metric['origin']}, {metric['hardware']}"
         say(f"{metric['name']}: {metric['value']} {metric['unit']} ({where})")
