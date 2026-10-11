@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 import time
 from collections.abc import Callable
 from importlib import resources
@@ -117,8 +118,15 @@ def _evidence(reg: Registry, name: str, version: str, latest: dict[str, Any]) ->
     rec = reg.record_raw(name, version)
     out = []
     doc = (rec.get("recipe") or {}).get("doc")
-    if doc:
+    at_tag = doc and subprocess.run(
+        ["git", "-C", str(reg.root), "cat-file", "-e", f"{tag}:{doc}"], capture_output=True, check=False
+    )
+    model = reg.model_raw(name)
+    current = f"topics/{model['topic']}/recipes/{name}.md"
+    if at_tag and at_tag.returncode == 0:
         out.append({"label": "How it is built and measured", "url": context.gh_blob(doc, tag)})
+    elif (reg.root / current).exists():  # the recipe moved after the release (layout changes)
+        out.append({"label": "How it is built and measured", "url": context.gh_blob(current)})
     results = f"zoo/models/{name}/results/{version}"
     if (reg.root / results).is_dir():
         out.append({"label": f"Results of v{version}", "url": f"{REPO_URL}/tree/{tag}/{results}"})

@@ -29,7 +29,7 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
 
 ## Add a model
 
-1. Create `zoo/models/<name>/model.yaml` following [model.schema.json](../specs/005-topic-layout-security-merge/contracts/model.schema.json). `card.how_to_run` must contain the placeholders `{repo_id}`, `{revision}` and, for Python models, `{text}`, for example:
+1. Create `zoo/models/<name>/model.yaml` following [model.schema.json](../src/mobility_model_zoo/release/schemas/model.schema.json). `card.how_to_run` must contain the placeholders `{repo_id}`, `{revision}` and, for Python models, `{text}`, for example:
 
    ```python
    from mobility_model_zoo.<topic>.<module> import MyModel
@@ -42,7 +42,7 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
 
    Microcontroller models set `runtime: mcu`, may leave `languages` empty and need `card.device_usage`, a C snippet that calls the model on the device (see [picket-mlp](../zoo/models/picket-mlp/model.yaml)). `how_to_run` then shows the Python host reference.
 2. Put at least three example texts without personal data in `zoo/models/<name>/examples/*.txt` (microcontroller models: `examples/*.json` with `input`, `expected` and `source`, see below). Do not use benchmark chunks. Record where each example comes from in `zoo/models/<name>/examples/SOURCES.yaml` (`source: synthetic`, or a source whose register record allows redistribution; check C-U4).
-3. Write the website text in `zoo/models/<name>/site.yaml` ([docs/website.md](website.md)): tagline, audience, three to five differentiators and the quickstart example. Numbers only as `{metric:<kind>.<name>}` placeholders. If the tagline is longer than 90 characters or contains a number, add a `share_line` (at most 90 characters, no numbers) for the preview image of shared links; the image itself is drawn automatically. Gate rule 17 checks it before every publish; sandbox models do not need it. A new output format also needs `zoo/formats/<format>.yaml`.
+3. Write the website text in `zoo/models/<name>/site.yaml` ([docs/website.md](website.md)): tagline, audience (at most 25 words), three or four differentiators (title at most 5 words, text at most 20) and the quickstart example. Numbers only as `{metric:<kind>.<name>}` placeholders. Do not write the release status ("experimental", "released", "production ready"): the page and the card generate it from the release record. If the tagline is longer than 90 characters or contains a number, add a `share_line` (at most 90 characters, no numbers) for the preview image of shared links; the image itself is drawn automatically. Gate rule 17 checks it before every publish; sandbox models do not need it. A new output format also needs `zoo/formats/<format>.yaml`.
 4. Create the private staging repository (owner, with `HF_RELEASE_TOKEN`), then add it to the repository list of `HF_STAGING_TOKEN` on the Hub:
 
    ```bash
@@ -58,12 +58,33 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
    ```
 
    This uploads the files in one commit and writes `files[]` and `staging.revision` into `zoo/models/<name>/releases/<version>.yaml`.
-2. Fill in the rest of the release record: `changes`, `output_format_version`, `recipe` (the commit and the paths of the training configuration and the recipe document), `provenance`, `evaluation` and `performance`. Copy the numbers into `results/<version>/quality.json` and `performance.json`; the card shows only numbers from these files.
+2. Write the short forms of the card in `model.yaml` (feature 013, gate rule 18); the website shows them first and the card puts them under the summary and at the top of "Limitations and risks":
+   - `card.not_for`: the two or three most important things the model is not for (at most 15 words each, 40 together).
+   - `card.limits_short`: the most important known failure modes (at most 25 words each).
+   - `card.unmet_criteria`: for an `experimental` release, every success criterion of the task it does not meet, with the measured value as a placeholder and the target from the task document, or a short note; empty for `released`. Together with `limits_short` at most five items.
+
+   ```yaml
+   card:
+     not_for:
+       - Vehicles on public roads
+       - Active countermeasures such as blocking frames
+     limits_short:
+       - A legitimate identifier missing from the calibration floods alarms.
+     unmet_criteria:
+       - criterion: False alarms per hour on unknown vehicles
+         measured: "{metric:quality.fa_per_hour_unknown_worst}"
+         target: {op: "<=", value: 1, unit: per hour, source: topics/security/tasks/can-ids.md}
+       - criterion: Budgets measured on the reference board
+         note: the numbers of this release come from an emulator
+   ```
+
+   No free-standing numbers in these texts (check F2): numbers come from placeholders and `target.value`.
+3. Fill in the rest of the release record: `changes`, `output_format_version`, `recipe` (the commit and the paths of the training configuration and the recipe document), `provenance`, `evaluation` and `performance`. Copy the numbers into `results/<version>/quality.json` and `performance.json`; the card shows only numbers from these files.
    - Sources from a declared dataset carry `dataset: <id>`; the gate checks the declaration and the licence. Data under a non-commercial licence may train non-commercial models only (declaration `training_allowed` with `commercial_use: false`).
    - `usage` holds the release's usage class, its licence and the inputs that restrict it. The gate derives it from the inputs and prints the expected block when it is missing or differs (check C-K5); copy that block into the record.
    - `evaluation.reference_kind` is `ground_truth` when quality is measured against dataset labels (then "accuracy" is allowed) and `model_consensus` (default) for agreement with reference models.
    - Microcontroller models: `performance.budget` is `{ram_kb, flash_kb, target}`. Measure on the bench with `uv run edge measure <model>.npz -b <board> --out performance.json`; every metric records the hardware and whether it came from a real board, an emulator or the simulator. Gate rule 15 needs `latency_us`, `flash_kb` and `ram_kb`, and a real-board latency unless the version is experimental. Examples are `examples/*.json` with an int8 `input`, the `expected` output and a `source` (`synthetic` or a dataset whose declaration allows redistribution); the gate runs them bit-exactly on the host reference.
-3. Complete the compliance evidence (feature 006, gate rule 16):
+4. Complete the compliance evidence (feature 006, gate rule 16):
    - every training source and dataset has a record in `topics/<topic>/compliance/` (`uv run zoo compliance bootstrap-sources …` proposes them), and every labeling route is in `compliance/providers.yaml`;
    - write `zoo/models/<name>/releases/<version>.compliance.yaml` (AI Act classification, licences, provenance, scans; see [the data model](../specs/006-compliance-harness/data-model.md));
    - render the documents and scan everything that will be published:
@@ -74,21 +95,21 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
    uv run zoo compliance signoff --model <name> --version <version>   # the owner, after reviewing
    ```
 
-4. Check offline, then commit:
+5. Check offline, then commit:
 
    ```bash
    uv run zoo check <name> <version> --offline
    git commit -am "Release record for <name> <version>"
    ```
 
-5. Tag the commit on `main` and push the tag. This starts `release-verify`: the full gate, the build and a preview of the card on the staging branch `rc-v<version>`.
+6. Tag the commit on `main` and push the tag. This starts `release-verify`: the full gate, the build and a preview of the card on the staging branch `rc-v<version>`.
 
    ```bash
    git tag <name>/v<version> && git push origin <name>/v<version>
    ```
 
-6. Review the preview linked in the job summary.
-7. Approve by starting the `release-publish` workflow with `model=<name>`, `version=<version>` and `confirm=<name>/v<version>`. It publishes exactly the reviewed preview as one tagged commit, adds the model to its topic collection and commits the updated release record and `zoo/MODELS.md`.
+7. Review the preview linked in the job summary.
+8. Approve by starting the `release-publish` workflow with `model=<name>`, `version=<version>` and `confirm=<name>/v<version>`. It publishes exactly the reviewed preview as one tagged commit, adds the model to its topic collection and commits the updated release record and `zoo/MODELS.md`.
 
 A published version never changes. A fix is a new version. A broken version is deprecated (`release-publish` with `action: deprecate`), not deleted.
 

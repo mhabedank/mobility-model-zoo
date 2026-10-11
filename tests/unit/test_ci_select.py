@@ -30,8 +30,19 @@ def test_every_area_test_path_exists():
 
 def test_website_change_runs_website_tests_only():
     s = sel.select(["zoo/site.yaml", "src/mobility_model_zoo/site/templates/start.html.j2"])
-    assert s.tests == ("tests/release/test_gate_site_text.py", "tests/website")
+    # rules 17 and 18 of the release gate use the site checks (features 008 and 013)
+    assert s.tests == (
+        "tests/release/test_gate_site_text.py",
+        "tests/release/test_rule18.py",
+        "tests/website",
+    )
     assert not s.torch and not s.edge
+
+
+def test_release_schema_contract_runs_the_release_tests():
+    """The packaged schemas must equal the contract copy (tests/release/test_schemas.py)."""
+    s = sel.select(["specs/013-model-page-layout/contracts/release/model.schema.json"])
+    assert s.tests == ("tests/release",)
 
 
 def test_docs_change_runs_no_tests():

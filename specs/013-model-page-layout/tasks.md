@@ -189,13 +189,13 @@
 
 ## Phase 9: Polish & cross-cutting concerns
 
-- [ ] T064 [P] Update `docs/website.md`: the six layers and their sources, the budget table, checks D1–D6, the changed A2, gate rule 18
-- [ ] T065 [P] Update `docs/adding-a-model.md`: the new `card` fields `not_for`, `limits_short`, `unmet_criteria` with one example, the `site.yaml` word limits, gate rule 18
-- [ ] T066 [P] Add `src/mobility_model_zoo/site/budgets.py`, `tests/website/test_budgets.py`, `tests/website/test_layers_*.py` and `tests/release/test_rule18.py` to the path filters in `scripts/ci/select_tests.py` so site and release test jobs run when they change
-- [ ] T067 Run the full validation of [quickstart.md](quickstart.md) steps 1–5: `uv run pytest tests/website tests/release`, `uv run zoo site build`, `uv run zoo site check --a11y`; record D6 positions for both models next to the baseline in `specs/013-model-page-layout/validation.md` (SC-001–SC-004, SC-007)
-- [ ] T068 Run `uv run zoo compliance check` (REUSE, C1) and add licence headers to every new file
-- [ ] T070 Report the scout-large card gap (analysis U1): its published 0.1.2 card neither states "not production ready" nor names unmet success criteria with values (constitution 2.2.0, IX, amended after that release). Write the finding and the proposed fix (a card-only patch release 0.1.3 rendered with the new card template and the `unmet_criteria` of T039, for the owner to approve) to `specs/013-model-page-layout/validation.md` under "Open compliance gaps"; do not publish anything
-- [ ] T069 Prepare the reader test (SC-005): five-question script and result table in `specs/013-model-page-layout/validation.md` under "Reader test"; to be run after deployment, combinable with feature 008's open SC-001 test
+- [X] T064 [P] Update `docs/website.md`: the six layers and their sources, the budget table, checks D1–D6, the changed A2, gate rule 18
+- [X] T065 [P] Update `docs/adding-a-model.md`: the new `card` fields `not_for`, `limits_short`, `unmet_criteria` with one example, the `site.yaml` word limits, gate rule 18
+- [X] T066 [P] Add `src/mobility_model_zoo/site/budgets.py`, `tests/website/test_budgets.py`, `tests/website/test_layers_*.py` and `tests/release/test_rule18.py` to the path filters in `scripts/ci/select_tests.py` so site and release test jobs run when they change
+- [X] T067 Run the full validation of [quickstart.md](quickstart.md) steps 1–5: `uv run pytest tests/website tests/release`, `uv run zoo site build`, `uv run zoo site check --a11y`; record D6 positions for both models next to the baseline in `specs/013-model-page-layout/validation.md` (SC-001–SC-004, SC-007)
+- [X] T068 Run `uv run zoo compliance check` (REUSE, C1) and add licence headers to every new file
+- [X] T070 Report the scout-large card gap (analysis U1): its published 0.1.2 card neither states "not production ready" nor names unmet success criteria with values (constitution 2.2.0, IX, amended after that release). Write the finding and the proposed fix (a card-only patch release 0.1.3 rendered with the new card template and the `unmet_criteria` of T039, for the owner to approve) to `specs/013-model-page-layout/validation.md` under "Open compliance gaps"; do not publish anything
+- [X] T069 Prepare the reader test (SC-005): five-question script and result table in `specs/013-model-page-layout/validation.md` under "Reader test"; to be run after deployment, combinable with feature 008's open SC-001 test
 
 ---
 
