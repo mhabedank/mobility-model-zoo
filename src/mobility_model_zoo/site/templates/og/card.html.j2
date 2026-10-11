@@ -1,0 +1,21 @@
+{# Preview image of one page (specs/012-social-preview-images/contracts/share-card.md), drawn by
+   og.render at 1200 x 630 in the dark colour scheme. Loads only files of the built site. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ card.alt }}</title>
+<link rel="stylesheet" href="{{ root }}css/tokens.css">
+<link rel="stylesheet" href="{{ root }}css/og.css">
+</head>
+<body class="og og-{{ card.kind }}">
+{% if card.motif %}<div class="og-motif og-motif-l">{{ motif(card.motif, 0) }}</div><div class="og-motif og-motif-r">{{ motif(card.motif, 0) }}</div>{% endif %}
+<main class="og-stack">
+<div class="og-brand" data-og="brand"><span class="og-mark" data-og="mark">{{ mark(88 if card.kind == "zoo" else 56) }}</span>{% if card.kind != "zoo" %}<span class="og-wordmark">Mobility Model Zoo</span>{% endif %}</div>
+{% if card.eyebrow %}<p class="og-eyebrow">{{ card.eyebrow }}</p>{% endif %}
+<h1 class="og-title" data-og="title">{{ card.title }}</h1>
+<p class="og-line" data-og="line">{{ card.line }}</p>
+{% if card.labels %}<ul class="og-labels" data-og="labels">{% for label in card.labels %}<li>{{ label }}</li>{% endfor %}</ul>{% endif %}
+</main>
+</body>
+</html>

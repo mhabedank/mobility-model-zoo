@@ -76,5 +76,5 @@ from mobility_model_zoo.security.can_ids import picket_forest as pf
 benign = [pf.read_candump(p) for p in ["drive.log", "idle.log", "parked.log"]]  # candump -L logs, benign traffic only
 table = pf.calibrate(benign)  # cover driving, idle and parked; at least 60 minutes
 pf.save_table(table, "my_vehicle_table.json")  # use it in place of calibration_table.json above
-# For the device: `security can-ids v2 table drive.log idle.log parked.log` writes picket_forest_table.h
+# For the device: `zoo-security can-ids v2 table drive.log idle.log parked.log` writes picket_forest_table.h
 ```

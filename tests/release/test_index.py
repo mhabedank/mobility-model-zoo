@@ -45,6 +45,10 @@ def add_topic_and_model(env, topic: str, name: str) -> None:
         "quickstart_example": "01-bus.txt",
     }
     (dst / "site.yaml").write_text(dump_yaml(site), encoding="utf-8")
+    # ... and documentation of its output format (gate rule 17, B5).
+    formats = env.reg.zoo / "formats"
+    formats.mkdir(exist_ok=True)
+    (formats / "sandbox-v1.yaml").write_text(dump_yaml({"id": "sandbox-v1"}), encoding="utf-8")
     record = env.reg.record_raw(name, env.version)
     record.update(model=name, sandbox=False)
     record["staging"]["repo"] = model["repos"]["staging"]

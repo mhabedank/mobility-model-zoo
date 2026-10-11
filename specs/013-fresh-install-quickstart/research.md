@@ -152,7 +152,7 @@ website only — rejected, the spec names both.
 (`frames.py:61-80`): the same regular expression over the bytes of the file, numpy arrays out, no
 DataFrame. `frames.read_candump` keeps its DataFrame signature for the tooling by wrapping the
 numpy version. The second card snippet (`card.own_data`) uses it with `calibrate` and
-`save_table`; `security can-ids v2 table` writes `picket_forest_table.json` next to the header.
+`save_table`; `zoo-security can-ids v2 table` writes `picket_forest_table.json` next to the header.
 
 **Rationale**: the user-facing module must not import pandas (spec goal; `release_export_v2.py:29`
 is where today's import chain pulls it in).

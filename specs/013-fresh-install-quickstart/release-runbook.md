@@ -27,7 +27,7 @@ snapshot_download('mobility-model-zoo/picket-forest', revision='v0.2.0', local_d
 "
 rm -rf build/repack-0.2.1/.cache
 mkdir -p build/repack-0.2.1/examples && cp zoo/models/picket-forest/examples/*.json build/repack-0.2.1/examples/
-uv run security can-ids v2 table-json --from-header build/repack-0.2.1/picket_forest_table.h --out build/repack-0.2.1/calibration_table.json
+uv run zoo-security can-ids v2 table-json --from-header build/repack-0.2.1/picket_forest_table.h --out build/repack-0.2.1/calibration_table.json
 ```
 
 The directory holds the 12 files of 0.2.0 (byte-identical), the three example captures and

@@ -1,10 +1,10 @@
-"""`security` command line: task tools of the security topic (specs/005-…/contracts/cli.md).
+"""`zoo-security` command line: task tools of the security topic (specs/005-…/contracts/cli.md).
 
-    security can-ids frames road|can-train-and-test [--out DIR]
-    security can-ids forest evaluate|alarms|export|convert|testvectors [...]
-    security can-ids mlp train [--epochs N] [--seed S] [--out DIR]
-    security can-ids evaluate MODEL --benchmark can-ids-v1
-    security can-ids freeze
+    zoo-security can-ids frames road|can-train-and-test [--out DIR]
+    zoo-security can-ids forest evaluate|alarms|export|convert|testvectors [...]
+    zoo-security can-ids mlp train [--epochs N] [--seed S] [--out DIR]
+    zoo-security can-ids evaluate MODEL --benchmark can-ids-v1
+    zoo-security can-ids freeze
 
 Data and outputs live in $MMZ_DATA (default ~/.cache/mobility-model-zoo/datasets), never in the
 repository. Training needs the `edge-train` extra.
@@ -67,7 +67,7 @@ def mlp(ctx: typer.Context) -> None:
     from mobility_model_zoo.security.can_ids import mlp as model
 
     if not ctx.args or ctx.args[0] != "train":
-        say("usage: security can-ids mlp train [--epochs N] [--seed S] [--out DIR] [--download]")
+        say("usage: zoo-security can-ids mlp train [--epochs N] [--seed S] [--out DIR] [--download]")
         raise typer.Exit(2)
     model.main(ctx.args[1:])
 
@@ -93,7 +93,7 @@ def evaluate(
 
     manifest_path = benchmark_dir(benchmark) / "manifest.json"
     if not manifest_path.exists():
-        say(f"benchmark {benchmark} is not frozen yet: run `security can-ids freeze` first")
+        say(f"benchmark {benchmark} is not frozen yet: run `zoo-security can-ids freeze` first")
         raise typer.Exit(NOT_FROZEN)
     names = list(registry()) if detector == "all" else [detector]
     unknown = [n for n in names if n not in registry()]
@@ -194,7 +194,7 @@ def measure(
 
     export = export or derived_dir("picket-forest") / "export"
     if not (export / "picket_forest_model.h").exists():
-        say(f"no exported model in {export}: run `security can-ids forest export` first")
+        say(f"no exported model in {export}: run `zoo-security can-ids forest export` first")
         raise typer.Exit(5)
     out = out or REPO_ROOT / "zoo/models/picket-forest/results/0.1.0/performance.json"
     if target == "host":

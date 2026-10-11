@@ -113,7 +113,6 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             f"{SRC}/site/*",
             "zoo/site.yaml",
             "tests/website/*",
-            "scripts/site_og_image.py",
             "docs/quickstart.md",  # rendered at /quickstart/ (feature 013)
         ),
     ),

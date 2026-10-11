@@ -14,8 +14,8 @@ Feature extraction comes from `../components/can_features` (`msml_*`).
 
 Generate the model and test vectors before building the benchmarks:
 
-    uv run security can-ids forest export        # trains, writes $MMZ_DATA/derived/picket-forest/export/
-    uv run security can-ids forest testvectors   # copies headers into c/generated/
+    uv run zoo-security can-ids forest export        # trains, writes $MMZ_DATA/derived/picket-forest/export/
+    uv run zoo-security can-ids forest testvectors   # copies headers into c/generated/
 
 The benchmark replays recorded CAN frames (no CAN transceiver needed) and prints a line starting
 with `PICKET_FOREST_RESULT` every 5 seconds at 115200 baud.

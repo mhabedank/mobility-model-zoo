@@ -8,7 +8,7 @@ The models detect anomalies for monitoring and research. They are not safety mec
 
 | Task | Tool | Models |
 |---|---|---|
-| `can-ids`: intrusion detection on classic CAN | `security can-ids` | `picket-forest` (evaluated on `can-ids-v1`, not released: [report](reports/picket-forest/can-ids-v1/report.md), [why](research/07-production-readiness.md)), `picket-mlp` (registered, not published) |
+| `can-ids`: intrusion detection on classic CAN | `zoo-security can-ids` | `picket-forest` (evaluated on `can-ids-v1`, not released: [report](reports/picket-forest/can-ids-v1/report.md), [why](research/07-production-readiness.md)), `picket-mlp` (registered, not published) |
 
 ## What is where
 

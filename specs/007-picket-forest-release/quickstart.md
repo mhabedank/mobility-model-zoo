@@ -17,8 +17,8 @@ uv run zoo data download road
 ## 1. Benchmark (US1)
 
 ```bash
-uv run security can-ids freeze           # writes topics/security/benchmarks/can-ids-v1/manifest.json
-uv run security can-ids freeze           # second run: exit 0, no change (SC-001)
+uv run zoo-security can-ids freeze           # writes topics/security/benchmarks/can-ids-v1/manifest.json
+uv run zoo-security can-ids freeze           # second run: exit 0, no change (SC-001)
 git diff --stat topics/security/benchmarks/
 ```
 
@@ -27,8 +27,8 @@ If the first run exits 1 with duplicate groups, write `resolutions.yaml` and run
 ## 2. Evaluation (US2)
 
 ```bash
-uv run security can-ids evaluate picket-forest --benchmark can-ids-v1 --sets set_01   # fast check, partial
-uv run security can-ids evaluate all --benchmark can-ids-v1 --report                  # full run, hours
+uv run zoo-security can-ids evaluate picket-forest --benchmark can-ids-v1 --sets set_01   # fast check, partial
+uv run zoo-security can-ids evaluate all --benchmark can-ids-v1 --report                  # full run, hours
 ```
 
 The report must show:
@@ -52,11 +52,11 @@ A fixture tree model passes. Flipping one expected score bit fails rules 12 and 
 ## 4. Release (US4)
 
 ```bash
-uv run security can-ids forest export
-uv run security can-ids forest examples --out zoo/models/picket-forest/examples
-uv run security can-ids measure --target host --out zoo/models/picket-forest/results/0.1.0/performance.json
-uv run security can-ids measure --target esp32-qemu --out zoo/models/picket-forest/results/0.1.0/performance.json
-uv run security can-ids measure --target esp8266 -b esp8266-1 --out zoo/models/picket-forest/results/0.1.0/performance.json   # D1 mini on USB
+uv run zoo-security can-ids forest export
+uv run zoo-security can-ids forest examples --out zoo/models/picket-forest/examples
+uv run zoo-security can-ids measure --target host --out zoo/models/picket-forest/results/0.1.0/performance.json
+uv run zoo-security can-ids measure --target esp32-qemu --out zoo/models/picket-forest/results/0.1.0/performance.json
+uv run zoo-security can-ids measure --target esp8266 -b esp8266-1 --out zoo/models/picket-forest/results/0.1.0/performance.json   # D1 mini on USB
 uv run zoo stage picket-forest 0.1.0 --from "$MMZ_DATA/derived/picket-forest/export"
 uv run zoo compliance scan-publish --model picket-forest --version 0.1.0
 uv run zoo check picket-forest 0.1.0 --offline     # all offline rules pass (SC-005)

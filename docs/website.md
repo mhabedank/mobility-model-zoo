@@ -29,12 +29,13 @@ Gate rule 17 validates `site.yaml` against the release candidate, so a published
 
 ```bash
 uv run zoo site build                 # render into _site/ (fetches example outputs once, cached in .cache/site/)
+uv run zoo site build --no-images     # pages only, without Chromium; such a build fails check O1
 uv run zoo site check --a11y          # every check below; --offline skips external links
 uv run zoo site serve                 # http://localhost:8000/mobility-model-zoo/
 uv run pytest tests/website           # offline tests on a frozen registry; -m slow for the browser tests
 ```
 
-The browser checks need `uv sync --extra release --group site-check` and `uv run playwright install chromium` once.
+The preview images and the browser checks need `uv sync --extra release --group site-check` and `uv run playwright install chromium` once.
 
 ## Checks that block publication
 
@@ -46,6 +47,20 @@ All checks are listed in [checks.md](../specs/008-zoo-website/contracts/checks.m
 - Privacy: no resource from another host (P1), no request to another host and no cookie in the browser (P2), no branding or advertising (P3).
 - Accessibility: axe-core WCAG 2.1 AA in light and dark mode (A1), complete without JavaScript (A2), text alternatives (A3), keyboard (A4).
 - Weight: page size and deferred scripts (S1), Largest Contentful Paint at most 2 s on a slow mobile connection (S2).
+- Preview images: share line rules (B6), text fits (B7), metadata, size and format (O1), layout (O2), contrast (O3), same text as the registry and the page (O4), address matches the content (O5). Details in [specs/012-social-preview-images/contracts/checks.md](../specs/012-social-preview-images/contracts/checks.md).
+
+## Preview images for shared links
+
+When a page link is shared on LinkedIn, Mastodon, Slack, X, Bluesky or in a messenger, the preview shows an image made for that page. `zoo site build` draws one per shareable page (start page, every published model, every output format) from the template `templates/og/card.html.j2`, in headless Chromium, at 1200 × 630:
+
+- the zoo mark and wordmark, the page title (the model name), a one-line share text, and for models the labels `experimental`, `deprecated` and `non-commercial` as the latest release record states them; the model page shows the same labels at its top;
+- the model motif in two corners; mark and title inside the centre square, so a square crop in a messenger keeps them.
+
+Nobody designs or uploads an image: a newly published model gets its image in the same deploy as its page. The image's file name, `assets/og/<page>-<hash>.png`, carries a hash of everything drawn, so a changed image gets a new address and platforms that cache previews fetch it; an unchanged one keeps its address.
+
+The share text is `share_line` in the model's `site.yaml` (or in `zoo/site.yaml` for the start page), else the tagline. It has at most 90 characters, no free-standing numbers (an image cannot carry the note that says what a number is measured against), no `{metric:…}` placeholders and only characters the site font draws. Gate rule 17 checks it before every publish (B6).
+
+To see how a platform shows a page after the deploy, paste its URL into the LinkedIn Post Inspector or a draft post on Mastodon or Slack. Platforms cache previews for days; a new image address is picked up on the next share.
 
 ## Publishing
 
@@ -53,4 +68,4 @@ All checks are listed in [checks.md](../specs/008-zoo-website/contracts/checks.m
 
 ## Identity
 
-The design tokens (`static/css/tokens.css`) and components come from the Claude Design identity sheet in [specs/008-zoo-website/design/source/](../specs/008-zoo-website/design/source/). Changing the identity means changing `tokens.css` and `site.css`, not the templates. The Open Graph image is rendered by `scripts/site_og_image.py`. Fonts are Figtree and JetBrains Mono under the SIL Open Font License, served from the site itself.
+The design tokens (`static/css/tokens.css`) and components come from the Claude Design identity sheet in [specs/008-zoo-website/design/source/](../specs/008-zoo-website/design/source/). Changing the identity means changing `tokens.css` and `site.css`, not the templates. The preview images use the same tokens in the dark colour scheme, with their own styles in `static/css/og.css`. Fonts are Figtree and JetBrains Mono under the SIL Open Font License, served from the site itself.

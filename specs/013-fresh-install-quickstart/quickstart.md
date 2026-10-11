@@ -79,7 +79,7 @@ uv run python -m mobility_model_zoo.security.can_ids.release_export_v2 repack --
 ```
 
 (or the two documented steps: `snapshot_download(..., revision="v0.2.0")` into the directory,
-then `security can-ids v2 table-json --out build/repack-0.2.1/calibration_table.json` and a copy
+then `zoo-security can-ids v2 table-json --out build/repack-0.2.1/calibration_table.json` and a copy
 of `zoo/models/picket-forest/examples/*.json` into `examples/`). Then:
 
 ```bash

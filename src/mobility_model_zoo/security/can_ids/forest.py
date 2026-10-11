@@ -3,11 +3,11 @@
 Evaluation follows the can-train-and-test protocol: for each of the four sets, train on
 train_01 and test on four splits (known/unknown vehicle x known/unknown attack).
 
-    uv run security can-ids forest evaluate     # protocol results -> $MMZ_DATA/derived/picket-forest/
-    uv run security can-ids forest export       # final model on all vehicles -> C header
-    uv run security can-ids forest alarms       # recompute the alarm grid from stored scores
-    uv run security can-ids forest convert      # re-run C conversion and parity check (no training)
-    uv run security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
+    uv run zoo-security can-ids forest evaluate     # protocol results -> $MMZ_DATA/derived/picket-forest
+    uv run zoo-security can-ids forest export       # final model on all vehicles -> C header
+    uv run zoo-security can-ids forest alarms       # recompute the alarm grid from stored scores
+    uv run zoo-security can-ids forest convert      # re-run C conversion and parity check (no training)
+    uv run zoo-security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
 
 Every subcommand takes --data (dataset root, default $MMZ_DATA/can-train-and-test/extracted) and --out
 (derived files, default $MMZ_DATA/derived/picket-forest).
@@ -462,7 +462,7 @@ def cmd_export(args) -> None:
     require_training_allowed(DATASET, model=MODEL)
     path = benchmark_dir() / "manifest.json"
     if not path.exists():
-        raise SystemExit(f"benchmark not frozen ({path}); run `security can-ids freeze` first")
+        raise SystemExit(f"benchmark not frozen ({path}); run `zoo-security can-ids freeze` first")
     manifest = json.loads(path.read_text())
     config = export(args.out / "export", manifest, benchmark_sources(), args.out / "features")
     print(
@@ -566,7 +566,7 @@ def cmd_testvectors(args) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        prog="security can-ids forest", description="picket-forest CAN intrusion detector"
+        prog="zoo-security can-ids forest", description="picket-forest CAN intrusion detector"
     )
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(

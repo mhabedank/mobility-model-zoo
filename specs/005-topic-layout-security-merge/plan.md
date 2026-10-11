@@ -76,7 +76,7 @@ Constitution version **2.0.0** (amended from 1.4.0 on 2026-10-08 as a separate s
 | IX. Reproducible, Dated Releases | yes | ✅ | ✅ | Only the zoo pipeline publishes; volta's `hub` and `train` workflows dropped (R17); weights come from a retraining run at a zoo commit (R4); published versions untouched (R14). |
 | X. Scope Discipline | no | ✅ | ✅ | Scoped to JTBD; each new task states scope in its task document. |
 | Project Scope | yes | ✅ | ✅ | `<name>-<variant>` names (R7); one collection per topic; a new topic changes no existing model; topic layout added by amendment. |
-| Tasks and Releases | yes | ✅ | ✅ | One tool per task (`security can-ids`, `condmon …`); shared `datasets` and `edge` modules are extracted because three tasks use them (R5). |
+| Tasks and Releases | yes | ✅ | ✅ | One tool per task (`zoo-security can-ids`, `condmon …`); shared `datasets` and `edge` modules are extracted because three tasks use them (R5). |
 | Resources & Cost | yes | ✅ | ✅ | No cash cost; free CI runners for simulator and QEMU; real boards optional; development hardware kept apart from target boards (origin field). |
 | Technical Spikes | yes | ✅ | ✅ | `spike/` moves unchanged; `src/` still never imports it (test path updated). |
 | Development Workflow & Quality Gates | yes | ✅ | ✅ | Plan lists principles; amendment carries version bump and rationale; gate before reporting a result scoped per reference kind. |

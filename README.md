@@ -47,7 +47,7 @@ Package code lives in `src/mobility_model_zoo/` (one subpackage per topic plus t
 
 ## How the zoo is organized
 
-- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd`, for CAN intrusion detection `security can-ids`, for the condition-monitoring tasks `condmon` (below). Each task document in `topics/<topic>/tasks/` names its reference, benchmark, metrics, tools and hardware budget.
+- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd`, for CAN intrusion detection `zoo-security can-ids`, for the condition-monitoring tasks `condmon` (below). Each task document in `topics/<topic>/tasks/` names its reference, benchmark, metrics, tools and hardware budget.
 - **Releasing is the same for every model.** Each version has a release record in `zoo/models/<name>/releases/<version>.yaml`. The release tool `zoo` checks it with 16 gate rules (rule 15 for microcontroller models, rule 16 for compliance), builds the model card and publishes through GitHub Actions:
 
   1. `zoo stage` uploads the trained files to a private staging repository.
@@ -87,7 +87,7 @@ Quick commands per topic:
 ```bash
 uv run jtbd doctor                              # productdev: JTBD measurement chain
 uv run zoo data list                            # declared datasets of all topics
-uv run security can-ids --help                  # security: picket-forest, picket-mlp
+uv run zoo-security can-ids --help              # security: picket-forest, picket-mlp
 uv run condmon sound-anomaly --help             # condition-monitoring: hum-fan
 uv run condmon activity --help                  # condition-monitoring: pace-cnn
 uv run edge build -t native && uv run edge run -b sim   # HIL bench on the host simulator
@@ -127,7 +127,7 @@ uv run jtbd doctor
 
 Merged from the former repository `mhabedank/mobility-security-ml` with its history (feature 005; merge log: [topics/security/research/merge-log.md](topics/security/research/merge-log.md)).
 
-- **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run security can-ids frames|forest …|mlp train|evaluate|freeze`.
+- **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run zoo-security can-ids frames|forest …|mlp train|evaluate|freeze`.
 - **`sound-anomaly`** ([task document](topics/condition-monitoring/tasks/sound-anomaly.md)): `hum-fan`, an int8 autoencoder on MIMII fan sounds. **`activity`** ([task document](topics/condition-monitoring/tasks/activity.md)): `pace-cnn`, an int8 CNN on UCI HAR. Tool: `uv run condmon sound-anomaly|activity train|evaluate|freeze`.
 - Training reads the task configs (`configs/security/…`, `configs/condition-monitoring/…`, `--config`) and writes to `$MMZ_DATA/derived/<model>/`, never into the repository. `edge measure MODEL.npz -b BOARD` records latency, flash and RAM with the board and whether it was a real board, an emulator or the simulator.
 - The research of the former repository is in `topics/security/research/`; its results are kept in `topics/*/reports/<model>/` as pre-zoo research results, not benchmark results.

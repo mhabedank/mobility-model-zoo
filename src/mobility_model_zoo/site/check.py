@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import struct
 from collections.abc import Callable, Iterable
 from html.parser import HTMLParser
 from pathlib import Path
@@ -17,8 +18,9 @@ from mobility_model_zoo.compliance.release_checks import BRAND, FUNDING
 from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
+from mobility_model_zoo.site import og
+from mobility_model_zoo.site.facts import NUMBER, literal_numbers
 
-NUMBER = re.compile(r"(?<![\w.,-])\d+(?:[.,]\d+)*(?![\w-]|[.,]\d)")
 PREFIX = "/mobility-model-zoo/"
 RESOURCE_ATTRS = {
     ("img", "src"),
@@ -109,6 +111,11 @@ def pages(out: Path) -> list[Path]:
     return sorted(p for p in out.rglob("*.html") if "_build" not in p.parts)
 
 
+def card_pages(out: Path) -> list[Path]:
+    """The preview image pages (feature 012); P1 and P3 cover them too."""
+    return sorted((out / og.CARD_DIR).glob("*.html"))
+
+
 def rel(out: Path, path: Path) -> str:
     return str(path.relative_to(out))
 
@@ -162,14 +169,8 @@ def check_facts(reg: Registry, out: Path) -> Iterable[Finding]:
             )
 
 
-def literal_numbers(text: str) -> list[str]:
-    from mobility_model_zoo.site.facts import PLACEHOLDER
-
-    return [m.group(0) for m in NUMBER.finditer(PLACEHOLDER.sub(" ", text))]
-
-
 def _prose(pitch: dict) -> Iterable[tuple[str, str]]:
-    for key in ("tagline", "audience", "hardware_note"):
+    for key in ("tagline", "share_line", "audience", "hardware_note"):
         if pitch.get(key):
             yield key, pitch[key]
     for i, d in enumerate(pitch.get("differentiators", [])):
@@ -353,7 +354,7 @@ def check_legal(site: dict, out: Path, root: Path | None = None) -> Iterable[Fin
 
 def check_resources(out: Path) -> Iterable[Finding]:
     """P1: no resource is loaded from another host (navigation links are fine)."""
-    for path in pages(out):
+    for path in pages(out) + card_pages(out):
         for url in parse(path).resources:
             if external(url):
                 yield Finding("P1", rel(out, path), f"loads {url}")
@@ -367,7 +368,7 @@ def check_resources(out: Path) -> Iterable[Finding]:
 def check_branding(site: dict, out: Path) -> Iterable[Finding]:
     """P3: no company branding (the imprint link is the one allowed mention), no advertising
     (the compliance harness markers BRAND and FUNDING plus ADVERTISING)."""
-    for path in pages(out):
+    for path in pages(out) + card_pages(out):
         html = path.read_text(encoding="utf-8")
         mentions = len(BRAND.findall(html))
         allowed = html.count(site["legal"]["imprint"])
@@ -388,7 +389,8 @@ def check_size(out: Path) -> Iterable[Finding]:
         if p.is_file()
         and "_build" not in p.parts
         and p.suffix != ".woff2"
-        and p.name not in ("OFL.txt", "og.png")
+        and p.name != "OFL.txt"
+        and not rel(out, p).startswith(og.OG_DIR + "/")  # loaded by link previews, not visitors (O1)
     )
     if total > MAX_TOTAL_BYTES:
         yield Finding("S1", "(site)", f"{total} bytes without fonts, more than {MAX_TOTAL_BYTES}")
@@ -399,6 +401,163 @@ def check_size(out: Path) -> Iterable[Finding]:
         for script in parse(path).scripts:
             if script.get("src") and "defer" not in script:
                 yield Finding("S1", rel(out, path), f"script {script['src']} is not deferred")
+
+
+# ---- preview images (feature 012, specs/012-social-preview-images/contracts/checks.md) ---------
+class _Meta(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.meta: dict[str, str] = {}
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        a = dict(attrs)
+        key = a.get("property") or a.get("name")
+        if tag == "meta" and key and key.startswith(("og:image", "twitter:")):
+            self.meta[key] = a.get("content") or ""
+
+
+def og_meta(path: Path) -> dict[str, str]:
+    parser = _Meta()
+    parser.feed(path.read_text(encoding="utf-8"))
+    return parser.meta
+
+
+def png_size(path: Path) -> tuple[int, int] | None:
+    """Width and height from the IHDR chunk, or None if the file is not a PNG."""
+    head = path.read_bytes()[:24]
+    if len(head) < 24 or head[:8] != b"\x89PNG\r\n\x1a\n" or head[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", head[16:24])
+
+
+def og_manifest(out: Path) -> dict | None:
+    path = out / og.MANIFEST
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def page_file(out: Path, page: str) -> Path:
+    return out / page / "index.html"
+
+
+def check_og_files(site: dict, out: Path) -> Iterable[Finding]:
+    """O1: metadata on every shareable page; the image exists, is a 1200 x 630 PNG, small enough."""
+    manifest = og_manifest(out)
+    if manifest is None:
+        yield Finding("O1", og.MANIFEST, "missing; run zoo site build")
+        return
+    base = site["canonical_url"]
+    expected = {
+        "og:image:type": "image/png",
+        "og:image:width": str(og.WIDTH),
+        "og:image:height": str(og.HEIGHT),
+        "twitter:card": "summary_large_image",
+    }
+    targets = [(c["page"], page_file(out, c["page"]), c) for c in manifest["cards"]]
+    zoo = next((c for c in manifest["cards"] if c["kind"] == "zoo"), None)
+    if zoo and (out / "404.html").exists():
+        targets.append(("404.html", out / "404.html", zoo))
+    for page, path, card in targets:
+        name = page or "index.html"
+        if not path.exists():
+            yield Finding("O1", name, "page of this preview image does not exist")
+            continue
+        meta = og_meta(path)
+        for key in ("og:image", "og:image:alt", "twitter:image", "twitter:image:alt", *expected):
+            if not meta.get(key):
+                yield Finding("O1", name, f"no {key} tag")
+        for key, value in expected.items():
+            if meta.get(key) and meta[key] != value:
+                yield Finding("O1", name, f"{key} is {meta[key]!r}, not {value!r}")
+        for key in ("og:image", "twitter:image"):
+            if meta.get(key) and meta[key] != base + card["file"]:
+                yield Finding("O1", name, f"{key} is {meta[key]}, not {base + card['file']}")
+    for card in manifest["cards"]:
+        name, image = card["page"] or "index.html", out / card["file"]
+        if not image.exists():
+            yield Finding("O1", name, f"{card['file']} does not exist (built with --no-images?)")
+            continue
+        size = png_size(image)
+        if size is None:
+            yield Finding("O1", name, f"{card['file']} is not a PNG")
+        elif size != (og.WIDTH, og.HEIGHT):
+            yield Finding(
+                "O1", name, f"{card['file']} is {size[0]} x {size[1]}, not {og.WIDTH} x {og.HEIGHT}"
+            )
+        if image.stat().st_size > og.MAX_BYTES:
+            yield Finding(
+                "O1", name, f"{card['file']} has {image.stat().st_size} bytes, more than {og.MAX_BYTES}"
+            )
+
+
+def check_og_layout(out: Path) -> Iterable[Finding]:
+    """O2: no text overflows, all text inside the margins, mark and title inside the centre square."""
+    manifest = og_manifest(out) or {"cards": []}
+    lo, hi = og.SAFE_X
+    for card in manifest["cards"]:
+        name, layout = card["page"] or "index.html", card.get("layout")
+        if not layout:
+            continue  # O1 reports the missing image
+        for block in layout["overflow"]:
+            yield Finding("O2", name, f"{block} overflows its box")
+        for block, box in layout["boxes"].items():
+            if not box:
+                continue
+            x, y, w, h = box
+            if (
+                x < og.MARGIN - 0.5
+                or y < og.MARGIN - 0.5
+                or x + w > og.WIDTH - og.MARGIN + 0.5
+                or y + h > og.HEIGHT - og.MARGIN + 0.5
+            ):
+                yield Finding("O2", name, f"{block} lies outside the {og.MARGIN} px margins")
+            if block in ("mark", "title") and (x < lo - 0.5 or x + w > hi + 0.5):
+                yield Finding("O2", name, f"{block} lies outside the centre square x {lo}-{hi}")
+
+
+def check_og_parity(reg: Registry, out: Path) -> Iterable[Finding]:
+    """O4: title, line and labels on the image are the registry's; alt texts match the manifest."""
+    manifest = og_manifest(out) or {"cards": []}
+    built = {c["page"]: c for c in manifest["cards"]}
+    for card in og.site_cards(reg):
+        name = card["page"] or "index.html"
+        got = built.get(card["page"])
+        if got is None:
+            yield Finding("O4", name, "has no preview image")
+            continue
+        for key in ("title", "line", "labels", "alt"):
+            if got[key] != card[key]:
+                yield Finding("O4", name, f"{key} is {got[key]!r}, the registry says {card[key]!r}")
+        path = page_file(out, card["page"])
+        if path.exists():
+            meta = og_meta(path)
+            for key in ("og:image:alt", "twitter:image:alt"):
+                if meta.get(key) and meta[key] != got["alt"]:
+                    yield Finding("O4", name, f"{key} differs from the image's alt text")
+    for page in set(built) - {c["page"] for c in og.site_cards(reg)}:
+        yield Finding("O4", page or "index.html", "preview image for a page that should not have one")
+
+
+def check_og_hash(reg: Registry, out: Path) -> Iterable[Finding]:
+    """O5: each file name carries the hash of what is drawn; no image without a page."""
+    manifest = og_manifest(out) or {"cards": []}
+    renderer = og.renderer_id(reg.root)
+    named = set()
+    for card in manifest["cards"]:
+        name = card["page"] or "index.html"
+        html_path = out / card["html"]
+        named.add(card["file"])
+        if not html_path.exists():
+            yield Finding("O5", name, f"{card['html']} is missing")
+            continue
+        digest = og.input_hash(html_path.read_text(encoding="utf-8"), html_path.parent, renderer)
+        if og.card_file(card | {"slug": Path(card["html"]).stem}, digest) != card["file"]:
+            yield Finding(
+                "O5", name, f"{card['file']} does not carry the hash of its inputs ({digest[:12]})"
+            )
+    folder = out / og.OG_DIR
+    for image in sorted(folder.glob("*")) if folder.exists() else []:
+        if rel(out, image) not in named:
+            yield Finding("O5", rel(out, image), "no page uses this image")
 
 
 def check_language(out: Path) -> Iterable[Finding]:
@@ -432,6 +591,10 @@ def run_checks(
         ("P3", lambda: check_branding(site, out)),
         ("S1", lambda: check_size(out)),
         ("E1", lambda: check_language(out)),
+        ("O1", lambda: check_og_files(site, out)),
+        ("O2", lambda: check_og_layout(out)),
+        ("O4", lambda: check_og_parity(reg, out)),
+        ("O5", lambda: check_og_hash(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))
@@ -439,6 +602,7 @@ def run_checks(
         from mobility_model_zoo.site import a11y as browser
 
         checks.append(("A", lambda: browser.run(out)))
+        checks.append(("O3", lambda: browser.contrast(out)))
     findings: list[Finding] = []
     for check_id, fn in checks:
         if only and not any(i.startswith(check_id) or check_id.startswith(i) for i in only):
