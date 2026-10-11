@@ -1,0 +1,90 @@
+model: picket-forest
+version: 0.2.0
+date: 2026-10-10
+status: experimental
+change_type: initial
+changes: 'Calibrate on the vehicle, then detect. A per-vehicle table learned on the host from benign traffic;
+  10 features relative to it (frame counts per identifier in 8 time buckets, unknown-identifier counts,
+  DLC, payload changes), computed by the C library msml_cal on host and device alike. Rules on these features
+  decide (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change),
+  then the alarm stage; the forest score is published as information (owner decision 2026-10-11). can-ids-v3:
+  ROAD F1 0.997, 0 false alarms per hour on the ROAD test drives, at most 0.86 per hour on unknown vehicles;
+  KCID Ford Focus and Traverse 0 alarms in 26.9 h. Experimental: calibration-dependent false alarms, new
+  identifiers flood alarms, emulator-only device evidence.'
+output_format_version: picket-forest-v2
+sandbox: false
+files:
+- path: c/msml_alarm.c
+  sha256: 700c9df11110cc3303c07c5681842e07857763df5af9815deb7c08485871a561
+  size_bytes: 1386
+- path: c/msml_alarm.h
+  sha256: 552c745329e74fdb854545b8cbf15933f493cc160e75119c836a5c0aad971fd6
+  size_bytes: 1347
+- path: c/msml_cal.c
+  sha256: ad9d7b72c6f74853655c47a1a3cf8c8bce624a76851fe13b41975a59c1795b4e
+  size_bytes: 6969
+- path: c/msml_cal.h
+  sha256: ec65d8f1fbe697376e74ad21dae60ab754a35f2043eebe65896634fb4091031f
+  size_bytes: 3900
+- path: c/picket_forest_v2.c
+  sha256: 0e5b11057c725004a978eaccc972cf8fb5d543a90980c802aee9bfb805a8e460
+  size_bytes: 1237
+- path: c/picket_forest_v2.h
+  sha256: 4c8a0e3ac7ac6c97dc48d6e87f3d9e22695c0a8724e0d95376f5fe0de90adca8
+  size_bytes: 1603
+- path: config.json
+  sha256: 31096c28d84a412ee03c02151480ee7eb64860a416f9dc65b960d527f996ea79
+  size_bytes: 1129
+- path: model.joblib
+  sha256: d49f594963f2ed8bd58216c01a1b0ae5eedaf6dd0011ba74ca28bd0189e1860c
+  size_bytes: 338913
+- path: picket_forest_config.h
+  sha256: a92601ee7dcbf78d6201cb6626517400a326e146bd942cddb1d43d44fe5abedc
+  size_bytes: 389
+- path: picket_forest_model.h
+  sha256: 86f240af9a8304af1fdd035e3f3c040ec8517dc6ee8b00d755ebc9956e272d15
+  size_bytes: 427295
+- path: picket_forest_table.h
+  sha256: 327bb9eca8a22774dc9f40197b29b82d1f84d34a14254f2bfb0088afead69feb
+  size_bytes: 972
+- path: sbom.cdx.json
+  sha256: 86dae4d2c8451bbee2e65bf8a7d46d91ed4b725dbac79878d2a08c5c5fac61f3
+  size_bytes: 2459
+staging:
+  repo: mobility-model-zoo/picket-forest-staging
+  revision: ef51610d9cd91bc1472831394f5b66f9e7379abc
+recipe:
+  git_commit: e6980dbcfd1d68e03d7bcd95dc6367beab41d2a6
+  config: configs/security/can-ids/picket-forest.yaml
+  doc: topics/security/tasks/can-ids.md
+provenance:
+  sources:
+  - origin: dataset can-train-and-test (topics/*/compliance/datasets.yaml)
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 0
+    dataset: can-train-and-test
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: can-ids-v3
+  reference: labels of the can-train-and-test and ROAD datasets; KCID benign traces for false alarms
+  reference_kind: ground_truth
+  results: results/0.2.0/quality.json
+performance:
+  hardware: ESP32-S3 (HIL bench)
+  budget:
+    ram_kb: 16
+    flash_kb: 128
+    target: ESP32-S3
+  results: results/0.2.0/performance.json
+usage:
+  class: commercial
+  licence: Apache-2.0
+  restricting_inputs: []
+published:
+  repo_commit: 9d5beab03ad2cc57e4cdfca7bcf6a3dd3679144c
+  tag: v0.2.0
+  published_at: 2026-10-11T10:01:07Z
+  card_sha256: a379370dfe316f8da54e18f58ed38992034a2f17608de7de5cb7a92cabd66680
+deprecated: null

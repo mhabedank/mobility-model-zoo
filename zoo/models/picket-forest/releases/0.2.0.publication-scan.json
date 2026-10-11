@@ -1,0 +1,65 @@
+{
+  "model": "picket-forest",
+  "version": "0.2.0",
+  "threshold_words": 30,
+  "index_fingerprint": "7e9681d0548ca5cf732bbaa4847f3fd36beb591359c6362bc9c4313830198d50",
+  "restricted_fingerprint": "81dfb3e2b04c1d0eced824138bab662aa3b6bf213784ac333de5e092d2ed9142",
+  "files": [
+    {
+      "path": "README.md (model card)",
+      "sha256": "a379370dfe316f8da54e18f58ed38992034a2f17608de7de5cb7a92cabd66680",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/examples/01-fabrication.json",
+      "sha256": "db71d13116f4f33b99ebfb511bc25bacc282218db4e14b42c0e468c74bd42dd7",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/examples/02-dos.json",
+      "sha256": "1e3c6898cb2d3f06ce20b0781d0297ebf9e1de486813b25ac8e5be74feb2c1d9",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/examples/03-fuzzing.json",
+      "sha256": "cb9e3c7c755f9805ecc959afadc28c035b5361770358d604e71e5191c5770c14",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/results/0.2.0/performance.json",
+      "sha256": "abd07523d20c11e60132eaf9f6f04afaf6fab02ace79393d43b34c480c7b38df",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/results/0.2.0/quality.json",
+      "sha256": "2389547cd351c5a3909c262e89ee190dc422b83aecadc469abc96083cd909cf9",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/releases/0.2.0.ai-act.md",
+      "sha256": "c0ca164a43e8ad408887bb869a8d42d0540db0bccd3c7b7d8350e6000f82a8b6",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/picket-forest/releases/0.2.0.training-data-summary.md",
+      "sha256": "df020148cde3e8ffdeff279fb1442b315bd6a67058c4fb998291de3040568a24",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    }
+  ]
+}

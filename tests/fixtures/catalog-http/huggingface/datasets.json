@@ -1,0 +1,163 @@
+[
+ {
+  "id": "dcdc-upm/fatal_traffic_accidents_in_the_city_of_madrid_2024",
+  "author": "dcdc-upm",
+  "cardData": {
+   "license": "other",
+   "license_name": "city-of-madrid-open-data-portal",
+   "license_link": "https://datos.madrid.es/egob/catalogo/aviso-legal",
+   "language": [
+    "es"
+   ]
+  },
+  "disabled": false,
+  "gated": false,
+  "lastModified": "2025-09-05T10:25:22.000Z",
+  "createdAt": "2025-09-01T10:56:58.000Z",
+  "private": false,
+  "downloads": 79,
+  "likes": 0,
+  "tags": [
+   "language:es",
+   "license:other",
+   "size_categories:n<1K",
+   "format:parquet",
+   "modality:tabular",
+   "modality:text"
+  ]
+ },
+ {
+  "id": "example-user-2/tramites-bo",
+  "author": "example-user-2",
+  "cardData": {
+   "license": "cc0-1.0",
+   "language": [
+    "es"
+   ],
+   "pretty_name": "trámites-bo del portal www.gob.bo"
+  },
+  "disabled": false,
+  "gated": false,
+  "lastModified": "2025-10-28T00:18:46.000Z",
+  "createdAt": "2025-09-25T23:44:26.000Z",
+  "private": false,
+  "downloads": 60,
+  "likes": 1,
+  "tags": [
+   "language:es",
+   "license:cc0-1.0",
+   "size_categories:1K<n<10K",
+   "format:csv",
+   "modality:image",
+   "modality:tabular",
+   "modality:text"
+  ]
+ },
+ {
+  "id": "sirlab-ai/railway-forest-daylight__63k3mlcn",
+  "author": "sirlab-ai",
+  "cardData": {
+   "language": [
+    "en"
+   ],
+   "license": "other",
+   "license_name": "sirlab-synthetic-dataset-license-1.0",
+   "license_link": "https://www.sirlab.ai/legal/dataset-license/latest",
+   "pretty_name": "Railway Forest Scene 1 (Synthetic) - SiRLab"
+  },
+  "disabled": false,
+  "gated": "manual",
+  "lastModified": "2026-01-23T16:30:56.000Z",
+  "createdAt": "2026-01-23T16:25:08.000Z",
+  "private": false,
+  "downloads": 12,
+  "likes": 1,
+  "tags": [
+   "language:en",
+   "license:other",
+   "size_categories:n<1K",
+   "modality:3d"
+  ]
+ },
+ {
+  "id": "example-user-1/PublicTransportAI",
+  "author": "example-user-1",
+  "cardData": {
+   "license": "apache-2.0",
+   "pretty_name": "PublicTransportAI",
+   "language": [
+    "en",
+    "pt"
+   ]
+  },
+  "disabled": false,
+  "gated": false,
+  "lastModified": "2025-12-30T19:33:31.000Z",
+  "createdAt": "2025-01-06T19:39:09.000Z",
+  "private": false,
+  "downloads": 14,
+  "likes": 0,
+  "tags": [
+   "task_categories:time-series-forecasting",
+   "language:en",
+   "language:pt",
+   "license:apache-2.0",
+   "size_categories:1K<n<10K",
+   "format:csv"
+  ]
+ },
+ {
+  "id": "electricsheepafrica/africa-owid-share-with-convenient-access-to-public-transport",
+  "author": "electricsheepafrica",
+  "cardData": {
+   "license": "cc-by-4.0",
+   "language": [
+    "en"
+   ],
+   "pretty_name": "Share With Convenient Access To Public Transport | Africa (Our World in Data) | Africa (Electric Sheep Africa metadata inventory)"
+  },
+  "disabled": false,
+  "gated": false,
+  "lastModified": "2026-08-12T13:06:47.000Z",
+  "createdAt": "2026-06-07T03:42:27.000Z",
+  "private": false,
+  "downloads": 8,
+  "likes": 0,
+  "tags": [
+   "task_categories:tabular-classification",
+   "task_categories:tabular-regression",
+   "language:en",
+   "license:cc-by-4.0",
+   "size_categories:n<1K",
+   "format:parquet",
+   "modality:tabular",
+   "modality:text"
+  ]
+ },
+ {
+  "id": "DSTI/traffic-accidents-reports-800",
+  "author": "DSTI",
+  "cardData": {
+   "license": "mit",
+   "language": [
+    "en"
+   ],
+   "pretty_name": "800 Accident Reports"
+  },
+  "disabled": false,
+  "gated": false,
+  "lastModified": "2025-09-16T11:49:28.000Z",
+  "createdAt": "2025-08-25T21:03:51.000Z",
+  "private": false,
+  "downloads": 34,
+  "likes": 1,
+  "tags": [
+   "task_categories:text-generation",
+   "language:en",
+   "license:mit",
+   "size_categories:n<1K",
+   "format:parquet",
+   "modality:text"
+  ]
+ }
+]

@@ -175,6 +175,58 @@ def load(
                 ],
                 "segments": spans(name, file, text, output) if span_format else [],
                 "span_format": span_format,
+                "device": False,
+            }
+        )
+    return out
+
+
+# ---- examples of microcontroller models -------------------------------------------------------
+HEAD = 5  # frames or values shown inline; the full file is linked
+
+
+def device(
+    reg: Registry, name: str, version: str, schema: dict[str, Any] | None
+) -> list[dict[str, Any]]:
+    """Examples of an mcu model as committed with the release: the input (CAN frames or an int8
+    vector) and the result the release gate reproduced bit-exactly with the released C code
+    (checks B3, B4). Only the first frames are shown inline; the page links the full file."""
+    from mobility_model_zoo.site.context import file_at_tag, gh_blob
+
+    tag = f"{name}/v{version}"
+    out = []
+    for n, (file, _) in enumerate(reg.device_examples(name), 1):
+        rel = f"zoo/models/{name}/examples/{file}"
+        example = json.loads(file_at_tag(reg, rel, tag) or "{}")
+        if example.get("source") not in SHAREABLE_SOURCES:
+            raise GateFailed([f"B4 {name} {file}: source {example.get('source')!r} may not be shown"])
+        if schema is not None:
+            errors = sorted(jsonschema.Draft202012Validator(schema).iter_errors(example), key=str)
+            if errors:
+                raise GateFailed([f"B3 {name} {file}: {errors[0].message}"])
+        if "frames" in example:
+            frames = example["frames"]
+            head = "\n".join(json.dumps(f) for f in frames[:HEAD])
+            result = {"expected_alarms": example["expected_alarms"]}
+            what = {"kind": "frames", "total": len(frames), "shown": min(HEAD, len(frames))}
+        else:
+            head = json.dumps(example.get("input", []))
+            result = {"expected": example.get("expected", [])}
+            what = {"kind": "values", "total": len(example.get("input", [])), "shown": None}
+        out.append(
+            {
+                "n": n,
+                "file": file,
+                "device": True,
+                "span_format": False,
+                "text": "",
+                "head": head,
+                "what": what,
+                "attack": (example.get("generator") or {}).get("attack"),
+                "json": json.dumps(result, indent=2),
+                "url": gh_blob(rel, tag),
+                "found": [],
+                "segments": [],
             }
         )
     return out

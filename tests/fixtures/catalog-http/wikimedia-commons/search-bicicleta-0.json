@@ -1,0 +1,61 @@
+{
+  "batchcomplete": true,
+  "continue": {"gsroffset": 3, "continue": "gsroffset||"},
+  "query": {
+    "pages": [
+      {
+        "pageid": 1000002, "ns": 6, "title": "File:Bicycle diagram-es.svg", "index": 2,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 48211, "width": 600, "height": 400,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Bicycle_diagram-es.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Bicycle_diagram-es.svg",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000002",
+          "extmetadata": {
+            "Categories": {"value": "GFDL|Self-published work|Translation possible - SVG", "source": "commons-categories", "hidden": ""},
+            "ImageDescription": {"value": "Partes de una bicicleta", "source": "commons-desc-page"},
+            "Artist": {"value": "<a href=\"//commons.wikimedia.org/wiki/User:Uploader_A\" title=\"User:Uploader A\">Uploader A</a>", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "CC BY-SA 3.0", "source": "commons-desc-page", "hidden": ""},
+            "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/3.0", "source": "commons-desc-page"}
+          },
+          "mime": "image/svg+xml"
+        }]
+      },
+      {
+        "pageid": 1000001, "ns": 6, "title": "File:Commuting by bicycle.jpg", "index": 1,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 3120456, "width": 4000, "height": 3000,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Commuting_by_bicycle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Commuting_by_bicycle.jpg",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000001",
+          "extmetadata": {
+            "Categories": {"value": "Taken with Camera X|Commuting by bicycle|Self-published work|Photographs by Uploader A", "source": "commons-categories", "hidden": ""},
+            "ImageDescription": {"value": "A commuter on a bicycle. Contact: uploader-a@example.org", "source": "commons-desc-page"},
+            "Artist": {"value": "<a href=\"//commons.wikimedia.org/wiki/User:Uploader_A\" title=\"User:Uploader A\">Uploader A</a>", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "CC BY-SA 4.0", "source": "commons-desc-page", "hidden": ""},
+            "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0", "source": "commons-desc-page"}
+          },
+          "mime": "image/jpeg"
+        }]
+      },
+      {
+        "pageid": 1000003, "ns": 6, "title": "File:Gráfico uso de la bicicleta en Madrid 2010-2020.png", "index": 3,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 91234, "width": 1200, "height": 800,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Gr%C3%A1fico_uso_de_la_bicicleta_en_Madrid_2010-2020.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Gr%C3%A1fico_uso_de_la_bicicleta_en_Madrid_2010-2020.png",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000003",
+          "extmetadata": {
+            "Categories": {"value": "Cycling statistics|PD-USGov-DOT", "source": "commons-categories", "hidden": ""},
+            "ImageDescription": {"value": "Número de viajes en bicicleta por año", "source": "commons-desc-page"},
+            "Artist": {"value": "Uploader A", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "Public domain", "source": "commons-desc-page", "hidden": ""}
+          },
+          "mime": "image/png"
+        }]
+      }
+    ]
+  }
+}

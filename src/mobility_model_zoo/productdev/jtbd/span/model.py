@@ -30,13 +30,16 @@ class SpanTagger(nn.Module):
         hidden = encoder.config.hidden_size
         self.dimensions = {d: list(dimensions[d]) for d in ATTRIBUTE_LABELS if d in dimensions}
         self.dropout = nn.Dropout(0.1)
-        self.heads = nn.ModuleDict({
-            "bio": nn.Linear(hidden, len(BIO_LABELS)),
-            "relevance": nn.Linear(hidden, 1),
-            "unit": nn.Linear(hidden, len(UNIT_LABELS)),
-            "attrs": nn.ModuleDict({d: nn.Linear(hidden, len(labels))
-                                    for d, labels in self.dimensions.items()}),
-        })
+        self.heads = nn.ModuleDict(
+            {
+                "bio": nn.Linear(hidden, len(BIO_LABELS)),
+                "relevance": nn.Linear(hidden, 1),
+                "unit": nn.Linear(hidden, len(UNIT_LABELS)),
+                "attrs": nn.ModuleDict(
+                    {d: nn.Linear(hidden, len(labels)) for d, labels in self.dimensions.items()}
+                ),
+            }
+        )
 
     @classmethod
     def from_config(cls, config, dimensions: dict[str, list[str]]) -> SpanTagger:

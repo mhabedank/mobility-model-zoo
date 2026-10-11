@@ -152,4 +152,9 @@ def make_register_tree(root: Path) -> Path:
     write(root, "compliance/legal-watch.yaml", {"items": []})
     write(root, "topics/t/compliance/source-classes.yaml", {"classes": [source_class()]})
     write(root, "topics/t/compliance/sources.yaml", {"sources": [source()]})
+    # the project's licence list is part of the register (feature 011)
+    lists = root / "compliance" / "lists"
+    lists.mkdir(parents=True, exist_ok=True)
+    real = Path(__file__).resolve().parents[1] / "compliance" / "lists" / "licence-allowlist.yaml"
+    (lists / "licence-allowlist.yaml").write_text(real.read_text(encoding="utf-8"), encoding="utf-8")
     return root

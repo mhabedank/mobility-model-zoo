@@ -59,4 +59,10 @@ Reference board ESP32-S3. Per model at most **16 KB RAM** (features, model state
 
 ## Status
 
+- **Benchmark `can-ids-v1` frozen 2026-10-09** (`topics/security/benchmarks/can-ids-v1/`): 281 captures (train 49, validation 30, test 185, out of scope 17). The upstream README labels `set_01/test_04` as Silverado; CAN-ID overlap shows it is the Traverse, relabelled in `resolutions.yaml`.
+- **Evaluation 2026-10-09** (`topics/security/reports/picket-forest/can-ids-v1/`): picket-forest, four controls and eleven baselines on the same protocol. Headline: share of attack episodes detected at a false-alarm budget, counted only where the test split stays within the budget.
+- **picket-forest is not released.** Research R10 outcome: kill (shuffled-label control), partial without it. Frame-level attack-class F1 on unknown vehicles is high (median 0.94), but false alarms on unknown vehicles, event-level detection and transfer to ROAD (F1 0.05) are not production ready. Analysis: [07 – production readiness](../research/07-production-readiness.md). The per-vehicle calibration architecture it points to is not planned yet.
+- The device measurement path (host, ESP32 in QEMU, ESP8266 board as a named substitute for the ESP32-S3) exists but was not run for a release.
+
+
 Pre-zoo research results of `picket-forest` (from the former repository mhabedank/mobility-security-ml) are kept in `topics/security/reports/picket-forest/` and labelled "pre-zoo research result: not a benchmark result". They do not pass or fail a gate, set a threshold or appear in a model card.

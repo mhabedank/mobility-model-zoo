@@ -81,6 +81,9 @@ img, svg { max-width: 100%; }
   display: inline-block; }
 .chip.wip i, .chip.deprecated i { background: transparent; }
 .chip.deprecated { border-style: dashed; }
+/* usage restriction of a non-commercial model (feature 011), shown before the install line */
+.notice { margin-top: 14px; padding: 10px 14px; border: 1px solid var(--border-strong); border-left-width: 4px;
+  border-radius: 8px; color: var(--text); }
 
 /* ---- hero ------------------------------------------------------------------------------------ */
 .hero { padding: 64px 0 56px; }

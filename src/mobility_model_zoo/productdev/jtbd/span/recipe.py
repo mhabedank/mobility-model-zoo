@@ -33,8 +33,10 @@ def recipe_dimensions(recipe: dict[str, Any]) -> list[str]:
     """Attribute dimensions the model produces; set from the pilot's decision (T037)."""
     dims = recipe.get("dimensions")
     if dims is None:
-        raise ValidationFailed("the recipe's `dimensions` is not set yet; set it to the attribute "
-                               "dimensions that passed the pilot (T037)")
+        raise ValidationFailed(
+            "the recipe's `dimensions` is not set yet; set it to the attribute "
+            "dimensions that passed the pilot (T037)"
+        )
     unknown = set(dims) - set(ATTRIBUTES)
     if unknown:
         raise ValidationFailed(f"unknown dimensions in the recipe: {sorted(unknown)}")
@@ -56,8 +58,7 @@ def require_clean_tree(settings: Settings, paths: tuple[str, ...] = ("src", "con
     """Refuse uncommitted changes under `paths`, so a run is reproducible from its commit."""
     dirty = git(settings, "status", "--porcelain", "--", *paths)
     if dirty:
-        raise ValidationFailed(f"uncommitted changes under {list(paths)}; commit them first:\n"
-                               f"{dirty}")
+        raise ValidationFailed(f"uncommitted changes under {list(paths)}; commit them first:\n{dirty}")
 
 
 def release_bar_commit(settings: Settings, recipe: dict[str, Any]) -> str:
@@ -65,8 +66,9 @@ def release_bar_commit(settings: Settings, recipe: dict[str, Any]) -> str:
     rel = Path(recipe["_path"]).resolve().relative_to(settings.base.resolve()).as_posix()
     commits = git(settings, "log", "--format=%H", "--reverse", "-S", "release_bar:", "--", rel)
     if not commits:
-        raise ValidationFailed(f"the release bar in {rel} is not committed; commit it before "
-                               "training (Principle IV)")
+        raise ValidationFailed(
+            f"the release bar in {rel} is not committed; commit it before training (Principle IV)"
+        )
     return commits.splitlines()[0]
 
 
@@ -74,18 +76,23 @@ def check_release_bar(settings: Settings, recipe: dict[str, Any]) -> dict[str, A
     """The release bar was committed before this run and has not changed since, unless every
     change is recorded in `release_bar_changes` with date and rationale."""
     commit = release_bar_commit(settings, recipe)
-    done = subprocess.run(["git", "merge-base", "--is-ancestor", commit, "HEAD"],
-                          cwd=settings.base, capture_output=True, text=True)
+    done = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, "HEAD"],
+        cwd=settings.base,
+        capture_output=True,
+        text=True,
+    )
     if done.returncode != 0:
         raise ValidationFailed(f"the release bar commit {commit[:12]} is not an ancestor of HEAD")
     rel = Path(recipe["_path"]).resolve().relative_to(settings.base.resolve()).as_posix()
     original = (yaml.safe_load(git(settings, "show", f"{commit}:{rel}")) or {}).get("release_bar")
     changes = recipe.get("release_bar_changes") or []
     if recipe.get("release_bar") != original:
-        complete = [c for c in changes if isinstance(c, dict) and c.get("date")
-                    and c.get("rationale")]
+        complete = [c for c in changes if isinstance(c, dict) and c.get("date") and c.get("rationale")]
         if not complete:
-            raise ValidationFailed("release_bar changed since it was committed "
-                                   f"({commit[:12]}); record the change with date and rationale "
-                                   "in release_bar_changes (Principle IV)")
+            raise ValidationFailed(
+                "release_bar changed since it was committed "
+                f"({commit[:12]}); record the change with date and rationale "
+                "in release_bar_changes (Principle IV)"
+            )
     return {"release_bar_commit": commit, "release_bar_changes": changes}

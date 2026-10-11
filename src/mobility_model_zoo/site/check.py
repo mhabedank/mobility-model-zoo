@@ -286,15 +286,23 @@ def check_links(out: Path) -> Iterable[Finding]:
                     yield Finding("L1", rel(out, path), f"{url}: no element with id {fragment!r}")
 
 
-def check_external_links(out: Path) -> Iterable[Finding]:
-    """L2: external links answer (HEAD with a GET fallback, two retries)."""
+def check_external_links(out: Path, root: Path | None = None) -> Iterable[Finding]:
+    """L2: external links answer (HEAD with a GET fallback, two retries). Links to files of this
+    repository on main are checked in the checkout instead: a pull request may add the file."""
     import httpx
 
+    from mobility_model_zoo.release.card import REPO_URL
+
+    on_main = f"{REPO_URL}/blob/main/"
     urls: dict[str, str] = {}
     for path in pages(out):
         for url in parse(path).links:
-            if external(url):
-                urls.setdefault(urldefrag(url)[0], rel(out, path))
+            target = urldefrag(url)[0]
+            if root is not None and target.startswith(on_main):
+                if not (root / unquote(target[len(on_main) :])).exists():
+                    yield Finding("L2", rel(out, path), f"{target}: no such file in the repository")
+            elif external(url):
+                urls.setdefault(target, rel(out, path))
     with httpx.Client(
         follow_redirects=True, timeout=20, headers={"User-Agent": "mobility-model-zoo-site-check"}
     ) as client:
@@ -314,8 +322,8 @@ def check_external_links(out: Path) -> Iterable[Finding]:
 
 
 def check_legal(site: dict, out: Path, root: Path | None = None) -> Iterable[Finding]:
-    """L3: legal links on every page; licence, limits and AI Act note on every model page; the
-    imprint is the one named in the compliance register."""
+    """L3: legal links on every page; licence, usage class, limits and AI Act note on every model
+    page; the imprint is the one named in the compliance register."""
     legal = site["legal"]
     controller = root / "compliance" / "controller.yaml" if root else None
     if controller and controller.exists():
@@ -337,6 +345,7 @@ def check_legal(site: dict, out: Path, root: Path | None = None) -> Iterable[Fin
                 ('id="limits"', "limitations section"),
                 ("ai-act.md", "AI Act note"),
                 ("Licence", "licence"),
+                ('<th scope="row">Usage</th>', "usage class"),
             ):
                 if needle not in text:
                     yield Finding("L3", rel(out, path), f"no {what}")
@@ -425,7 +434,7 @@ def run_checks(
         ("E1", lambda: check_language(out)),
     ]
     if not offline:
-        checks.append(("L2", lambda: check_external_links(out)))
+        checks.append(("L2", lambda: check_external_links(out, reg.root)))
     if a11y:
         from mobility_model_zoo.site import a11y as browser
 

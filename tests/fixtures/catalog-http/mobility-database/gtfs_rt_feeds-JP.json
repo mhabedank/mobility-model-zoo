@@ -1,0 +1,164 @@
+[
+ {
+  "id": "jbda-kurobecity-shinkansenikuji-ishida-aimoto-minibus-tu",
+  "data_type": "gtfs_rt",
+  "created_at": "2026-04-03T00:03:59.979946Z",
+  "external_ids": [
+   {
+    "external_id": "kurobecity-shinkansenikuji-ishida-aimoto-minibus-tu",
+    "source": "jbda"
+   }
+  ],
+  "provider": "黒部市",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://gtfs-rt-files.buscatch.jp/toyama/kurobe_city_bus/TripUpdates.pb",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.ja",
+   "license_id": "CC0-1.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "license:public-domain",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "新幹線生地、石田三日市、愛本、電動ミニバス",
+  "note": "",
+  "related_links": [],
+  "entity_types": [
+   "tu"
+  ],
+  "feed_references": [
+   "jbda-kurobecity-shinkansenikuji-ishida-aimoto-minibus"
+  ],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Toyama Prefecture",
+    "municipality": "Kurobe"
+   }
+  ]
+ },
+ {
+  "id": "jbda-kurobecity-shinkansenikuji-ishida-aimoto-minibus-vp",
+  "data_type": "gtfs_rt",
+  "created_at": "2026-04-03T00:03:59.979946Z",
+  "external_ids": [
+   {
+    "external_id": "kurobecity-shinkansenikuji-ishida-aimoto-minibus-vp",
+    "source": "jbda"
+   }
+  ],
+  "provider": "黒部市",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://gtfs-rt-files.buscatch.jp/toyama/kurobe_city_bus/VehiclePositions.pb",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.ja",
+   "license_id": "CC0-1.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "license:public-domain",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "新幹線生地、石田三日市、愛本、電動ミニバス",
+  "note": "",
+  "related_links": [],
+  "entity_types": [
+   "vp"
+  ],
+  "feed_references": [
+   "jbda-kurobecity-shinkansenikuji-ishida-aimoto-minibus"
+  ],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Toyama Prefecture",
+    "municipality": "Kurobe"
+   }
+  ]
+ },
+ {
+  "id": "odpt-NagaiTransportation-AllLines-tu",
+  "data_type": "gtfs_rt",
+  "created_at": "2026-08-20T19:00:24.367949Z",
+  "external_ids": [
+   {
+    "external_id": "NagaiTransportation-AllLines-tu",
+    "source": "odpt"
+   }
+  ],
+  "provider": "永井運輸株式会社",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api-public.odpt.org/api/v4/gtfs/realtime/odpt_NagaiTransportation_AllLines_trip_update",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "永井バス（永井運輸株式会社）",
+  "note": null,
+  "related_links": [],
+  "entity_types": [
+   "tu"
+  ],
+  "feed_references": [
+   "odpt-NagaiTransportation-AllLines"
+  ],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Gunma Prefecture",
+    "municipality": "Maebashi"
+   }
+  ]
+ }
+]

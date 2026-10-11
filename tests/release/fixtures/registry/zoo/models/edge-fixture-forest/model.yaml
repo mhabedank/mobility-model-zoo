@@ -1,0 +1,47 @@
+name: edge-fixture-forest
+topic: sandbox
+task: pipeline
+variant: forest
+runtime: mcu
+engine: emlearn
+title: Edge pipeline test model (forest)
+summary: A tiny deterministic random forest exported to C. It exists only to test the release pipeline for microcontroller models and is never public.
+license: Apache-2.0
+usage_class: commercial
+license_exception: null
+base_model: null
+base_model_license: null
+languages: []
+pipeline_tag: tabular-classification
+library_name: sklearn
+tags: [pipeline-test]
+repos:
+  public: mobility-model-zoo/edge-fixture-forest
+  staging: mobility-model-zoo/edge-fixture-forest-staging
+card:
+  intended_use: Testing the release pipeline of the mobility model zoo for microcontroller models.
+  out_of_scope: Any real use. The model has random weights and its outputs mean nothing.
+  input_output: "Input: CAN frames in bus order. Output: an attack score per frame and an alarm flag."
+  install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    import joblib
+    from huggingface_hub import hf_hub_download
+
+    saved = joblib.load(hf_hub_download("{repo_id}", "model.joblib", revision="{revision}"))
+    print(saved["threshold"])
+  device_usage: |
+    /* Sources and generated headers from {repo_id} at {revision}. */
+    #include "picket_forest.h"
+
+    static picket_forest_t ids;
+    picket_forest_init(&ids);
+    float score;
+    int alarm = picket_forest_process(&ids, ts_us, can_id, dlc, data, &score);
+  limitations: Random weights. The outputs are deterministic but meaningless.
+  citation: |
+    @misc{mobility-model-zoo,
+      title  = {mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo}
+    }

@@ -43,8 +43,9 @@ from mobility_model_zoo.productdev.jtbd.schema import (
 )
 
 
-def with_repair(out: ChunkOutput, text: str, rule: QuoteRepair | None = None,
-                stats: Counter | None = None) -> list[LocatedItem]:
+def with_repair(
+    out: ChunkOutput, text: str, rule: QuoteRepair | None = None, stats: Counter | None = None
+) -> list[LocatedItem]:
     """The output's items with near-miss quotes repaired; unrepairable items are dropped.
 
     Every kept item's quote is its source passage with whitespace collapsed. `stats` counts
@@ -61,9 +62,19 @@ def with_repair(out: ChunkOutput, text: str, rule: QuoteRepair | None = None,
             stats["repaired" if span else "dropped"] += 1
             if span is None:
                 continue
-        items.append(LocatedItem(it.index, it.kind, " ".join(text[span[0]:span[1]].split()),
-                                 it.actor, it.actor_type, it.statement, it.evidence_type,
-                                 it.evidence_scope, span))
+        items.append(
+            LocatedItem(
+                it.index,
+                it.kind,
+                " ".join(text[span[0] : span[1]].split()),
+                it.actor,
+                it.actor_type,
+                it.statement,
+                it.evidence_type,
+                it.evidence_scope,
+                span,
+            )
+        )
     return items
 
 
@@ -77,10 +88,16 @@ def vote(values: dict[str, str], priority: list[str]) -> str:
     return next(iter(tied))
 
 
-def combine(outputs: Mapping[str, Mapping[str, ChunkOutput]], members: list[str], min_votes: int,
-            chunks: Mapping, min_iou: float, tie_break: Mapping[str, list[str]] | None = None,
-            quote_priority: list[str] | None = None, rule: QuoteRepair | None = None
-            ) -> dict[str, ChunkOutput]:
+def combine(
+    outputs: Mapping[str, Mapping[str, ChunkOutput]],
+    members: list[str],
+    min_votes: int,
+    chunks: Mapping,
+    min_iou: float,
+    tie_break: Mapping[str, list[str]] | None = None,
+    quote_priority: list[str] | None = None,
+    rule: QuoteRepair | None = None,
+) -> dict[str, ChunkOutput]:
     """Ensemble output per chunk. A chunk without a valid output from any member is excluded.
 
     Members are processed in the given order. Without `tie_break` and `quote_priority` (the
@@ -119,18 +136,34 @@ def combine(outputs: Mapping[str, Mapping[str, ChunkOutput]], members: list[str]
             if len(g) < min_votes:
                 continue
             rep = g[next(m for m in [*quote_priority, *members] if m in g)]
-            attrs = {a: vote({m: getattr(x, a) for m, x in g.items()}, tie_break[a])
-                     for a in ATTRIBUTE_DIMENSIONS}
-            items.append(LocatedItem(n, attrs["kind"], rep.quote, rep.actor, attrs["actor_type"],
-                                     rep.statement, attrs["evidence_type"],
-                                     attrs["evidence_scope"], rep.span))
+            attrs = {
+                a: vote({m: getattr(x, a) for m, x in g.items()}, tie_break[a])
+                for a in ATTRIBUTE_DIMENSIONS
+            }
+            items.append(
+                LocatedItem(
+                    n,
+                    attrs["kind"],
+                    rep.quote,
+                    rep.actor,
+                    attrs["actor_type"],
+                    rep.statement,
+                    attrs["evidence_type"],
+                    attrs["evidence_scope"],
+                    rep.span,
+                )
+            )
         result[chunk_id] = ChunkOutput(chunk_id, True, items)
     return result
 
 
-def _member_runs(settings: Settings, members: list[str], split: str,
-                 frozen: dict[str, Any], role: str = "teacher_candidate"
-                 ) -> dict[str, LabelRunManifest]:
+def _member_runs(
+    settings: Settings,
+    members: list[str],
+    split: str,
+    frozen: dict[str, Any],
+    role: str = "teacher_candidate",
+) -> dict[str, LabelRunManifest]:
     hashes = frozen["hashes"]
     runs = {}
     for member in members:
@@ -139,12 +172,17 @@ def _member_runs(settings: Settings, members: list[str], split: str,
             raise ValidationFailed(f"ensemble member {member}: no run {run_id}")
         run = load_run_manifest(settings, run_id)
         if run.status != "complete":
-            raise ValidationFailed(f"ensemble member {member}: {run_id} is not complete "
-                                   f"(status {run.status})")
+            raise ValidationFailed(
+                f"ensemble member {member}: {run_id} is not complete (status {run.status})"
+            )
         if (run.guideline_sha256, run.schema_sha256, run.criteria_sha256) != (
-                hashes["guideline"], hashes["schema"], hashes["criteria"]):
-            raise ValidationFailed(f"ensemble member {member}: {run_id} was labeled with other "
-                                   "frozen hashes")
+            hashes["guideline"],
+            hashes["schema"],
+            hashes["criteria"],
+        ):
+            raise ValidationFailed(
+                f"ensemble member {member}: {run_id} was labeled with other frozen hashes"
+            )
         runs[member] = run
     return runs
 
@@ -161,8 +199,9 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
     members = sorted(rule.members)
     entry = settings.model(rule.model_id)
     if entry.backend != "ensemble" or entry.role != "teacher_candidate":
-        raise ValidationFailed(f"{rule.model_id} must be configured with backend ensemble and "
-                               "role teacher_candidate")
+        raise ValidationFailed(
+            f"{rule.model_id} must be configured with backend ensemble and role teacher_candidate"
+        )
     role = "teacher" if split == "train" else "teacher_candidate"
     if role == "teacher":
         from mobility_model_zoo.productdev.jtbd.span.gates import check_teacher
@@ -172,8 +211,7 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     chunks = chunk_map(settings, split)
     outputs = {m: load_outputs(settings, run.run_id) for m, run in runs.items()}
-    combined = combine(outputs, members, rule.min_votes, chunks, min_iou,
-                       rule=scoring.quote_repair)
+    combined = combine(outputs, members, rule.min_votes, chunks, min_iou, rule=scoring.quote_repair)
 
     run_id = run_id_for(role, rule.model_id, split, frozen["hashes"]["guideline"])
     run_path = settings.runs_dir / run_id
@@ -188,8 +226,13 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
         model_version=" + ".join(f"{m}={runs[m].model_version}" for m in members),
         family=entry.family,
         host=entry.host,
-        settings=RunSettings(temperature="not_settable", structured_output="post_validation",
-                             max_retries=0, min_votes=rule.min_votes, min_iou=min_iou),
+        settings=RunSettings(
+            temperature="not_settable",
+            structured_output="post_validation",
+            max_retries=0,
+            min_votes=rule.min_votes,
+            min_iou=min_iou,
+        ),
         guideline_sha256=frozen["hashes"]["guideline"],
         schema_sha256=frozen["hashes"]["schema"],
         criteria_sha256=frozen["hashes"]["criteria"],
@@ -197,8 +240,11 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
         started_at=now,
         finished_at=now,
         cost_eur=round(sum(r.cost_eur for r in runs.values()), 6),
-        excluded_chunks=[{"chunk_id": c, "reason": "no valid output from any member"}
-                         for c, o in sorted(combined.items()) if o.relevant is None],
+        excluded_chunks=[
+            {"chunk_id": c, "reason": "no valid output from any member"}
+            for c, o in sorted(combined.items())
+            if o.relevant is None
+        ],
         license_basis="; ".join(f"{m}: {runs[m].license_basis}" for m in members),
         deviations=sorted({d for r in runs.values() for d in r.deviations}),
         status="complete",
@@ -207,12 +253,23 @@ def build_ensemble(settings: Settings, split: str = "main") -> dict[str, Any]:
     for chunk_id, out in sorted(combined.items()):
         if out.relevant is None:
             continue
-        doc = ExtractionOutput.model_validate({
-            "relevant": out.relevant,
-            "items": [{"kind": it.kind, "quote": it.quote, "actor": it.actor,
-                       "actor_type": it.actor_type, "statement": it.statement,
-                       "evidence_type": it.evidence_type, "evidence_scope": it.evidence_scope}
-                      for it in out.items]})
+        doc = ExtractionOutput.model_validate(
+            {
+                "relevant": out.relevant,
+                "items": [
+                    {
+                        "kind": it.kind,
+                        "quote": it.quote,
+                        "actor": it.actor,
+                        "actor_type": it.actor_type,
+                        "statement": it.statement,
+                        "evidence_type": it.evidence_type,
+                        "evidence_scope": it.evidence_scope,
+                    }
+                    for it in out.items
+                ],
+            }
+        )
         write_json(run_path / "parsed" / f"{chunk_id}.json", doc.model_dump(mode="json"))
     data = manifest.model_dump(mode="json")
     # No model is called: token limit and seed do not apply (the contract allows no null here).

@@ -1,0 +1,206 @@
+[
+ {
+  "id": "mdb-2213",
+  "data_type": "gtfs_rt",
+  "created_at": "2024-11-27T18:16:07.541330Z",
+  "external_ids": [
+   {
+    "external_id": "2213",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Empresa Malagueña de Transportes (EMT)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://gtfs.emtmalaga.es/GTFSRTapi/api/vehicleposition",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": null,
+  "seasonal": false,
+  "feed_name": "",
+  "note": "",
+  "related_links": [],
+  "entity_types": [
+   "vp"
+  ],
+  "feed_references": [
+   "mdb-2212"
+  ],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Andalusia",
+    "municipality": "Málaga"
+   }
+  ]
+ },
+ {
+  "id": "mdb-2214",
+  "data_type": "gtfs_rt",
+  "created_at": "2024-11-27T18:16:08.116872Z",
+  "external_ids": [
+   {
+    "external_id": "2214",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Empresa Malagueña de Transportes (EMT)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://gtfs.emtmalaga.es/GTFSRTapi/api/tripupdate",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": null,
+  "seasonal": false,
+  "feed_name": "",
+  "note": "",
+  "related_links": [],
+  "entity_types": [
+   "tu"
+  ],
+  "feed_references": [
+   "mdb-2212"
+  ],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Andalusia",
+    "municipality": "Málaga"
+   }
+  ]
+ },
+ {
+  "id": "mdb-2215",
+  "data_type": "gtfs_rt",
+  "created_at": "2024-11-27T18:16:08.690941Z",
+  "external_ids": [
+   {
+    "external_id": "2215",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Empresa Malagueña de Transportes (EMT)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "http://gtfs.emtmalaga.es/GTFSRTapi/api/alert",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": null,
+  "seasonal": false,
+  "feed_name": "",
+  "note": "",
+  "related_links": [],
+  "entity_types": [
+   "sa"
+  ],
+  "feed_references": [
+   "mdb-2212"
+  ],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Andalusia",
+    "municipality": "Málaga"
+   }
+  ]
+ },
+ {
+  "id": "tdg-80702",
+  "data_type": "gtfs_rt",
+  "created_at": "2025-12-10T14:31:57.104789Z",
+  "external_ids": [
+   {
+    "external_id": "80702",
+    "source": "tdg"
+   }
+  ],
+  "provider": "Syndicat des Mobilités Pays Basque-Adour",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://www.data.gouv.fr/api/1/datasets/r/29c3470e-5846-42d2-a9d6-e1168287143e",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+   "license_id": "ODbL-1.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:strong",
+    "domain:data",
+    "family:ODC",
+    "license:open-data-commons",
+    "notes:attribution-required",
+    "notes:share-alike",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "Réseau interurbain TXIK TXAK",
+  "note": null,
+  "related_links": [],
+  "entity_types": [
+   "sa"
+  ],
+  "feed_references": [
+   "tdg-80701"
+  ],
+  "locations": [
+   {
+    "country_code": "FR",
+    "country": "France",
+    "subdivision_name": "New Aquitaine",
+    "municipality": "Amorots-Succos"
+   },
+   {
+    "country_code": "FR",
+    "country": "France",
+    "subdivision_name": "New Aquitaine",
+    "municipality": "Tarnos"
+   },
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Autonomous Community of the Basque Country",
+    "municipality": "Irun"
+   }
+  ]
+ }
+]

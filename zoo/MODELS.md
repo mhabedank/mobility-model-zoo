@@ -17,7 +17,7 @@ Small models that detect attacks on vehicle buses and radio interfaces, built to
 
 | Model | Task | Latest version | Status | Hugging Face |
 |-------|------|----------------|--------|--------------|
-| `picket-forest` | can-ids | – | not published | [mobility-model-zoo/picket-forest](https://huggingface.co/mobility-model-zoo/picket-forest) |
+| `picket-forest` | can-ids | 0.2.0 | experimental | [mobility-model-zoo/picket-forest](https://huggingface.co/mobility-model-zoo/picket-forest) |
 | `picket-mlp` | can-ids | – | not published | [mobility-model-zoo/picket-mlp](https://huggingface.co/mobility-model-zoo/picket-mlp) |
 
 ## Condition monitoring (`condition-monitoring`)

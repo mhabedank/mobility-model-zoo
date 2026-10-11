@@ -6,7 +6,7 @@ canonical_url: https://mhabedank.github.io/mobility-model-zoo/
 tagline: Safer, more affordable and better mobility through AI.
 lead: >-
   We build machine learning models for real mobility problems and make them available to everyone,
-  for research and for commercial products. From product development to vehicles and embedded
+  for research and, where their licences allow it, for commercial products. From product development to vehicles and embedded
   systems, every model is checked for compliance, runs on your own hardware and is published with a
   model card that says how good it is, against what, and where it fails.
 values:
@@ -25,8 +25,8 @@ principles:
     text: Every task gets the smallest model that does the job well, from a compact decision model on a control unit to a large language model. It runs on your own hardware, so no data leaves your company, nothing depends on an outside service and there is no cost per call.
   - title: Known quality, known limits
     text: Every model states what it achieves, at what speed on which hardware, measured against what, and where it fails. You decide whether it fits your use case before you deploy it, not after.
-  - title: Open for everyone, including commercial use
-    text: Models, methods, prompts and evaluation results are published under an open licence, and companies may build commercial products on them. The model card names the licence that applies; datasets are shared only where their own licences allow it.
+  - title: Open, with the licence each model needs
+    text: Models, methods, prompts and evaluation results are published under open licences, and most models may be built into commercial products. A model whose training data or components allow only non-commercial use is released under a non-commercial licence, carries the suffix -nc in its name and says so on its card and page. Each model card names the licence that applies; datasets are shared only where their own licences allow it.
 legal:
   imprint: https://miskatonic-analytics.com/imprint.html
   privacy: https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md

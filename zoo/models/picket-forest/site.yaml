@@ -1,0 +1,35 @@
+# Website text of picket-forest (feature 010). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
+# Numbers only as {metric:<kind>.<name>} placeholders (checks B2, F2; gate rule 17).
+tagline: Experimental CAN intrusion detector for microcontrollers, calibrated on your vehicle's normal traffic.
+audience: >-
+  For researchers, students and embedded engineers who study in-vehicle network security on a test
+  bench and want an open, measured detector whose code, features and limits are public.
+differentiators:
+  - title: Calibrated on the vehicle
+    text: >-
+      The detector learns a table of normal frame counts per identifier from benign traffic of the
+      target vehicle and judges every frame against it. On unknown vehicles of the benchmark the worst
+      case is {metric:quality.fa_per_hour_default_unknown_vehicle_unknown_attack_worst} false alarms
+      per hour; ROAD reaches an attack-class F1 of {metric:quality.f1_road}.
+  - title: Small enough for a microcontroller
+    text: >-
+      Plain C, {metric:performance.flash_kb} of flash and {metric:performance.ram_kb} of memory on an
+      ESP32 (measured in an emulator). C and Python give identical results.
+  - title: Honest about its limits
+    text: >-
+      Experimental, not ready for production use: false alarms depend on how long and how varied the
+      calibration was, and a legitimate identifier missing from the calibration floods alarms. The
+      model card lists every limitation with numbers.
+quickstart_example: 01-fabrication.json
+hardware_note: >-
+  Needs a host with Python to build the calibration table and an ESP32-class microcontroller (or the
+  host build) to run the detector. Classic CAN only.
+metric_cards:
+  - label: Attack-class F1 on ROAD
+    metric: quality.f1_road
+  - label: Worst false alarms per hour, unknown vehicles
+    metric: quality.fa_per_hour_default_unknown_vehicle_unknown_attack_worst
+  - label: Flash (ESP32, emulator)
+    metric: performance.flash_kb
+  - label: Memory (ESP32, emulator)
+    metric: performance.ram_kb
