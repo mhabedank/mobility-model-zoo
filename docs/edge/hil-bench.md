@@ -167,7 +167,7 @@ mirrored on Hugging Face:
 ```bash
 uv sync --extra edge --extra edge-train
 uv run zoo data list                                # use cases, licences, HF mirror allowed?
-uv run security can-ids mlp train --download        # picket-mlp on ROAD
+uv run zoo-security can-ids mlp train --download    # picket-mlp on ROAD
 uv run condmon activity train --download            # pace-cnn on UCI HAR
 uv run condmon sound-anomaly train --download       # hum-fan on MIMII
 # each: train -> int8 -> bit-exact check -> $MMZ_DATA/derived/<model>/
@@ -176,7 +176,7 @@ MMZ_EDGE_MODELS=$MMZ_DATA/derived/pace-cnn/pace-cnn.npz uv run edge run -b sim
 ```
 
 `picket-forest` (the CAN IDS random forest) has its own pipeline:
-`uv run security can-ids forest evaluate|alarms|export|convert|testvectors`.
+`uv run zoo-security can-ids forest evaluate|alarms|export|convert|testvectors`.
 
 Training runs locally, not in CI. Publishing a model goes through the zoo release tool `zoo`
 (staging, gate, card, approved release), see [adding-a-model.md](../adding-a-model.md).

@@ -41,6 +41,10 @@ img, svg { max-width: 100%; }
 .eyebrow { font-size: 13px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .prose { max-width: 720px; }
 .prose > * + * { margin-top: 12px; }
+.prose code { overflow-wrap: anywhere; }
+/* Code blocks of rendered Markdown (the quickstart): wrap instead of scrolling sideways at 390 px. */
+.prose pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px;
+  font-size: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
 
 /* ---- layout ---------------------------------------------------------------------------------- */
 .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
@@ -205,3 +209,27 @@ figure.chart figcaption { font-size: 18px; font-weight: 650; }
   .metric .v { font-size: 32px; }
 }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ---- feature 014: layers of the model page ------------------------------------------------ */
+.status-line { padding: 10px 14px; border: 1px solid var(--border-strong); border-left-width: 4px;
+  border-radius: 8px; background: var(--surface-2); font-weight: 600; }
+.status-line a { font-weight: 600; }
+.overview-more { display: flex; flex-direction: column; gap: 24px; margin-top: 40px; }
+ul.why { list-style: none; padding: 0; margin: 0; }
+.not-for { display: flex; flex-direction: column; gap: 8px; }
+.not-for ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.layers ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 20px;
+  font-size: 15px; }
+.layers li { counter-increment: layer; }
+.layers li::before { content: counter(layer) "  "; color: var(--muted); font-variant-numeric: tabular-nums; }
+.layers ol { counter-reset: layer 1; }
+.metric .bar { width: 100%; max-width: 240px; height: auto; margin-top: 6px; }
+ul.why li + li, .layers li + li { margin-top: 0; }
+.limits-short { display: flex; flex-direction: column; gap: 10px; max-width: 860px; }
+.limits-short ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.limits-short li + li { margin-top: 0; }
+.limits-short .h3 { font-size: 19px; margin-top: 6px; }
+.evidence a { white-space: nowrap; }
+#limits details { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; background: var(--surface); }
+#limits details summary { cursor: pointer; font-weight: 600; }
+#limits details[open] summary { margin-bottom: 10px; }

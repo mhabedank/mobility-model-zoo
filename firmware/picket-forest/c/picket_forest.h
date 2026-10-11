@@ -7,7 +7,7 @@
  * picket_forest_score() gives the raw per-frame score: the share of trees voting "attack".
  *
  * Requires the generated files picket_forest_model.h and picket_forest_config.h
- * (see `uv run security can-ids forest export`).
+ * (see `uv run zoo-security can-ids forest export`).
  */
 #ifndef PICKET_FOREST_H
 #define PICKET_FOREST_H

@@ -2,7 +2,7 @@
 
 Exit codes follow the `zoo` convention (`release/errors.py`): 0 ok, 1 check failed, 2 usage, 3 refused, 5 missing input, 6 external service.
 
-## `security can-ids freeze [--benchmark can-ids-v1] [--data DIR]`
+## `zoo-security can-ids freeze [--benchmark can-ids-v1] [--data DIR]`
 
 This command freezes the benchmark.
 
@@ -18,7 +18,7 @@ Outcomes:
 | `manifest.json` already exists and its content would change | 3 | Refused (frozen; make a new version) |
 | `manifest.json` already exists with identical content | 0 | No-op |
 
-## `security can-ids evaluate DETECTOR --benchmark can-ids-v1 [--sets …] [--out DIR] [--report]`
+## `zoo-security can-ids evaluate DETECTOR --benchmark can-ids-v1 [--sets …] [--out DIR] [--report]`
 
 - `DETECTOR` is `picket-forest`, one of the controls `ctrl-id-lookup|ctrl-timing-only|ctrl-forest-with-id|ctrl-shuffled`, one of the baselines `bl-mean-interval|bl-binning|bl-can-logic|bl-isolation-forest|bl-orig-<model>`, or `all`.
 - It verifies every capture hash against the manifest before running (exit 1 on a mismatch, naming the capture).
@@ -27,12 +27,12 @@ Outcomes:
 - With `--report` it also writes `topics/security/reports/picket-forest/can-ids-v1/{report.md,metrics.json}` and `zoo/models/picket-forest/results/<version>/quality.json`.
 - `--sets` limits the run, for a fast check. A report built from a partial run is marked partial and cannot feed the quality results.
 
-## `security can-ids forest export|convert|testvectors` (changed)
+## `zoo-security can-ids forest export|convert|testvectors` (changed)
 
 - `export` trains the release model on `train_01` of all four sets and writes the staged files listed in [data-model.md](../data-model.md), including the `c/` sources and `sbom.cdx.json`.
 - `examples --out zoo/models/picket-forest/examples` (new) writes the synthetic examples ([research R8](../research.md)) with expected scores and alarms from the host scorer.
 
-## `security can-ids measure [--target host|esp32-qemu|esp8266 -b BOARD] [--out FILE]`
+## `zoo-security can-ids measure [--target host|esp32-qemu|esp8266 -b BOARD] [--out FILE]`
 
 - `host` times the host scorer over the synthetic examples.
 - `esp32-qemu` builds the PlatformIO replay benchmark for ESP32, runs it in QEMU and reads the `PICKET_FOREST_RESULT` line and the image size report.

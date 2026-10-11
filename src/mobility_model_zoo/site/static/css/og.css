@@ -1,0 +1,32 @@
+/* Preview image card (feature 012, contracts/share-card.md): 1200 x 630, drawn in the dark colour
+   scheme of tokens.css. Mark and title stay inside the centre square (x 285-915) that messengers
+   keep when they crop to a square; all text stays inside 48 px margins. */
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+body.og {
+  background: var(--bg); color: var(--text);
+  font-family: "Figtree", system-ui, sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; box-sizing: border-box; padding: 48px;
+}
+.og-stack { display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; width: 100%; }
+.og-brand { display: flex; align-items: center; gap: 16px; font-size: 30px; font-weight: 700; }
+.og-mark { display: inline-flex; }
+.og-mark svg { border-radius: 14px; }
+.og-wordmark { color: var(--text); }
+.og-eyebrow { margin: 0; font-size: 24px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+.og-title {
+  margin: 0; max-width: 630px; width: 630px; overflow: hidden; white-space: nowrap;
+  font-size: 76px; line-height: 1.1; font-weight: 700; letter-spacing: -.025em; color: var(--text);
+}
+.og-zoo .og-title { width: auto; max-width: 630px; }
+.og-line { margin: 0; max-width: 960px; font-size: 34px; line-height: 1.3; font-weight: 500; color: var(--muted); }
+.og-labels { display: flex; gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
+.og-labels li {
+  font-size: 22px; font-weight: 700; padding: 6px 16px; border-radius: 999px;
+  border: 2px solid var(--accent); color: var(--accent);
+}
+/* The model motif as decoration in two corners, clear of every text block. */
+.og-motif { position: absolute; width: 120px; height: 120px; color: var(--accent); opacity: .55; }
+.og-motif svg { width: 120px; height: 120px; }
+.og-motif-l { left: 32px; top: 32px; }
+.og-motif-r { right: 32px; bottom: 32px; }

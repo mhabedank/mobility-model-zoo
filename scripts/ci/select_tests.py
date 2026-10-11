@@ -42,8 +42,11 @@ AREAS: dict[str, Area] = {
     "compliance-tests": Area(("tests/compliance",)),
     "release-tests": Area(("tests/release",)),
     "datasets-tests": Area(("tests/datasets",)),
-    # The release gate imports the site checks (rule site-text).
-    "site": Area(("tests/website", "tests/release/test_gate_site_text.py")),
+    # The release gate imports the site checks (rules site-text and status-and-limits, features 008
+    # and 013).
+    "site": Area(
+        ("tests/website", "tests/release/test_gate_site_text.py", "tests/release/test_rule18.py")
+    ),
     # Model records, formats and topics feed the release tool and the website.
     "registry": Area(("tests/release", "tests/website")),
     # Compliance imports the JTBD redaction patterns and settings.
@@ -95,6 +98,9 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     ),
     ("compliance-tests", ("tests/compliance/*",)),
     ("release-tests", ("tests/release/*",)),
+    # The packaged release schemas must equal the contract copy of the feature that owns the format
+    # (tests/release/test_schemas.py), so a change to that copy runs the release tests.
+    ("release-tests", ("specs/*/contracts/release/*",)),
     ("datasets-tests", ("tests/datasets/*",)),
     (
         "catalog",
@@ -107,9 +113,27 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             ".claude/skills/catalog-discover/*",
         ),
     ),
-    ("site", (f"{SRC}/site/*", "zoo/site.yaml", "tests/website/*", "scripts/site_og_image.py")),
+    (
+        "site",
+        (
+            f"{SRC}/site/*",
+            "zoo/site.yaml",
+            "tests/website/*",
+            "docs/quickstart.md",  # rendered at /quickstart/ (feature 013)
+        ),
+    ),
     ("registry", ("zoo/*",)),
-    ("edge", (f"{SRC}/edge/*", "firmware/*", "hil/*", "tests/edge/*", "tests/fixtures/edge-int8/*")),
+    (
+        "edge",
+        (
+            f"{SRC}/edge/*",
+            "firmware/*",
+            "hil/*",
+            "tests/edge/*",
+            "tests/fixtures/edge-int8/*",
+            "scripts/check_install_size.sh",
+        ),
+    ),
     # Research notes, reports and task documents of a topic are prose.
     ("docs", ("topics/*.md",)),
     ("security", (f"{SRC}/security/*", "configs/security/*", "topics/security/*", "tests/security/*")),
@@ -131,6 +155,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "tests/unit/*",
             "tests/integration/*",
             "tests/fixtures/mini-corpus/*",
+            "tests/fixtures/cluster/*",
             "tests/fixtures/rename-hashes.json",
             "tests/helpers.py",
             "tests/span_helpers.py",

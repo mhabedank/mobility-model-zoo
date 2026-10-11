@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-cluster-input-v1",
+  "title": "One source line of a jtbd-cluster input bundle (jtbd-cluster-input-v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["input_format_version", "source_id", "source_class", "date", "output"],
+  "properties": {
+    "input_format_version": {"const": "jtbd-cluster-input-v1"},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_class": {"type": "string", "minLength": 1},
+    "date": {"type": ["string", "null"], "format": "date"},
+    "origin": {"type": ["string", "null"], "minLength": 1},
+    "text_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "output": {
+      "type": "object",
+      "required": ["output_format_version"],
+      "properties": {"output_format_version": {"const": "jtbd-span-v1"}},
+      "$comment": "The full document is validated against jtbd-span-v1 (src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v1.schema.json)."
+    }
+  },
+  "$comment": "source_id is unique within a bundle. Author names are never part of the input (research R3)."
+}

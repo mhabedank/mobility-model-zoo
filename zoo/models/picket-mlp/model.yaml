@@ -22,6 +22,10 @@ card:
     Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; comparing a neural network with tree models on the same benchmark and the same microcontrollers.
   out_of_scope: |
     Deployment in vehicles on public roads: the model is not a validated or certified safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+  not_for:
+    - Vehicles on public roads; it is not a validated or certified security mechanism
+    - Active countermeasures such as blocking or injecting frames
+    - CAN FD or automotive Ethernet
   input_output: |
     Input: 32 int8 features of one CAN frame (11 identifier bits, DLC, 8 payload bytes, inter-arrival timing of the identifier, payload changes against the previous frame of the same identifier, known-identifier flag), quantized with the model's input scale. Output: two int8 scores (benign, attack).
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
@@ -45,6 +49,13 @@ card:
     - Trained on one vehicle (ROAD, a real vehicle on a dynamometer); transfer to other vehicles is the riskiest assumption of the task and is tested on the can-ids-v1 benchmark before release.
     - Masquerade attacks at normal timing are likely missed.
     - No adversarial evaluation yet; the model and its features are public. Do not rely on it as the only line of defence.
+  limits_short:
+    - "Per-frame features without context: attacks spread over several frames are harder to see."
+    - Trained on one vehicle; transfer to other vehicles is untested.
+    - Masquerade attacks are likely missed, and there is no adversarial evaluation.
+  unmet_criteria:
+    - criterion: Trained and measured on the frozen benchmark
+      note: not done yet; this is the draft of the first release
   citation: |
     @misc{mobility-model-zoo-picket-mlp,
       title  = {Picket (MLP): int8 CAN bus intrusion detection, mobility-model-zoo},

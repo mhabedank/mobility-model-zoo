@@ -1,13 +1,18 @@
-<section class="sec" id="quickstart" aria-labelledby="qs-h"><div class="wrap">
+<section class="sec" id="quickstart" data-layer="quickstart" aria-labelledby="qs-h"><div class="wrap">
 <div class="sec-head"><div class="eyebrow">Quickstart</div><h2 class="h2" id="qs-h">{% if p.quick and p.quick.device %}Install, calibrate, detect.{% else %}Install, load, extract.{% endif %}</h2>
 <p class="muted">{{ p.hardware_note }}</p>
 {% if p.usage["class"].startswith("non-commercial") %}<p class="notice" role="note"><strong>Non-commercial use only.</strong> {{ p.usage.text }}</p>{% endif %}</div>
 <ol class="steps" style="list-style:none;padding:0">
 <li class="step"><h3>Install version {{ p.latest.version }}</h3>
+<p class="muted">Requires {{ p.python_requirement }}. New here? <a href="{{ root }}quickstart/">Start with the five-minute quickstart</a>.</p>
 <div class="code"><div class="code-top"><span>shell</span><button class="copy" type="button" data-copy="qs-install">Copy</button></div><pre id="qs-install"><code>{{ p.install }}</code></pre></div></li>
 <li class="step"><h3>{% if p.quick and p.quick.device %}Run it on CAN frames{% else %}Run it on a text{% endif %}</h3>
 <div class="code"><div class="code-top"><span>python</span><button class="copy" type="button" data-copy="qs-run">Copy</button></div><pre id="qs-run" class="wrap-pre"><code>{{ p.how_to_run }}</code></pre></div></li>
-{% if p.quick %}
+{% if p.run_output %}
+<li class="step"><h3>Get this output</h3>
+<p class="small muted" style="margin-bottom:10px">Running the snippet prints this, as recorded by the release gate in a fresh environment:</p>
+<div class="code"><div class="code-top"><span>text · output of v{{ p.latest.version }}, from the published model card</span><button class="copy" type="button" data-copy="qs-out">Copy</button></div><pre id="qs-out" class="wrap-pre"><code>{{ p.run_output }}</code></pre></div></li>
+{% elif p.quick %}
 <li class="step"><h3>Get this output</h3>
 {% if p.quick.device %}
 <p class="small muted" style="margin-bottom:10px">For the example <code>{{ p.quick.file }}</code>, the released C code returns:</p>
@@ -16,6 +21,10 @@
 <p class="small muted" style="margin-bottom:10px">For the example text <code>{{ p.quick.file }}</code>, the released model returns:</p>
 <div class="code"><div class="code-top"><span>json · output of v{{ p.latest.version }}, from the published model card</span>
 {% endif %}<button class="copy" type="button" data-copy="qs-out">Copy</button></div><pre id="qs-out" class="wrap-pre"><code>{{ p.quick.json }}</code></pre></div></li>
+{% endif %}
+{% if p.own_data %}
+<li class="step"><h3>Use it on your own data</h3>
+<div class="code"><div class="code-top"><span>python</span><button class="copy" type="button" data-copy="qs-own">Copy</button></div><pre id="qs-own" class="wrap-pre"><code>{{ p.own_data }}</code></pre></div></li>
 {% endif %}
 </ol>
 </div></section>

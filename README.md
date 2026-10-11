@@ -20,11 +20,22 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 - License: [Apache-2.0](LICENSE); third-party notices: [NOTICE](NOTICE), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 - Privacy notice, copyright policy, security contact: [PRIVACY.md](PRIVACY.md), [COPYRIGHT_POLICY.md](COPYRIGHT_POLICY.md), [SECURITY.md](SECURITY.md)
 
+## Try it in five minutes
+
+You need Python 3.12 (uv fetches it) and [uv](https://docs.astral.sh/uv/). Make an environment and install picket-forest, the CAN bus intrusion detector (roughly 150 to 250 MB, no deep-learning framework):
+
+```bash
+uv venv --python 3.12 && source .venv/bin/activate
+uv pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@picket-forest/v0.2.1"
+```
+
+Then copy the program from the [model card](https://huggingface.co/mobility-model-zoo/picket-forest) into `demo.py` and run `python demo.py`: it downloads the model and an example capture and prints the alarms. The text model scout-large works the same way with `mobility-model-zoo[text]`. The full walk-through, with the mistakes newcomers make (wrong Python, an IPython from another environment, no `pip` inside uv environments), is [docs/quickstart.md](docs/quickstart.md) and, on the website, [Try it in five minutes](https://mhabedank.github.io/mobility-model-zoo/quickstart/).
+
 ## Topics
 
 | Topic | Title | Collection | Tasks and models |
 |-------|-------|------------|------------------|
-| `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) |
+| `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large); `jtbd-cluster`: none yet (training-free baseline, feature 009) |
 | `security` | Automotive security | not yet published | `can-ids`: `picket-forest` (evaluated, not released), `picket-mlp` (registered, not released) |
 | `condition-monitoring` | Condition monitoring | not yet published | `sound-anomaly`: `hum-fan`; `activity`: `pace-cnn` (registered, not released) |
 
@@ -36,7 +47,7 @@ Package code lives in `src/mobility_model_zoo/` (one subpackage per topic plus t
 
 ## How the zoo is organized
 
-- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd`, for CAN intrusion detection `security can-ids`, for the condition-monitoring tasks `condmon` (below). Each task document in `topics/<topic>/tasks/` names its reference, benchmark, metrics, tools and hardware budget.
+- **Building and measuring belongs to a task.** Each task has one tool, shared by every model of that task, so that all of them are measured with the same benchmark and harness. For JTBD extraction this is `jtbd`, for CAN intrusion detection `zoo-security can-ids`, for the condition-monitoring tasks `condmon` (below). Each task document in `topics/<topic>/tasks/` names its reference, benchmark, metrics, tools and hardware budget.
 - **Releasing is the same for every model.** Each version has a release record in `zoo/models/<name>/releases/<version>.yaml`. The release tool `zoo` checks it with 16 gate rules (rule 15 for microcontroller models, rule 16 for compliance), builds the model card and publishes through GitHub Actions:
 
   1. `zoo stage` uploads the trained files to a private staging repository.
@@ -64,19 +75,19 @@ Training data, published material and the naming of third parties are governed b
 Prerequisites: Python 3.12 and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --extra jtbd --extra release --extra edge   # what CI installs for a full run
+uv sync --extra jtbd --extra release --extra edge   # what CI installs for a full run (jtbd brings the text stack)
 uv run pytest
 uv run zoo --help
 ```
 
-Extras: `jtbd` (JTBD measurement chain), `release` (release tool), `edge` (bench, int8 engine, datasets), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on each model card. Credentials and where they live: [docs/credentials.md](docs/credentials.md).
+The base package holds only what every model shares (`huggingface_hub`, `numpy`). Extras: `text` (torch, transformers: what the text models need at run time), `edge` (what the microcontroller models need at run time, plus bench, int8 engine and datasets), `jtbd` (JTBD measurement chain; includes `text`), `cluster` (deduplication and clustering of JTBD items, `jtbd cluster`; includes `text`), `release` (release tool), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on the model card, which names `text` or `edge`; see [docs/quickstart.md](docs/quickstart.md). Credentials and where they live: [docs/credentials.md](docs/credentials.md).
 
 Quick commands per topic:
 
 ```bash
 uv run jtbd doctor                              # productdev: JTBD measurement chain
 uv run zoo data list                            # declared datasets of all topics
-uv run security can-ids --help                  # security: picket-forest, picket-mlp
+uv run zoo-security can-ids --help              # security: picket-forest, picket-mlp
 uv run condmon sound-anomaly --help             # condition-monitoring: hum-fan
 uv run condmon activity --help                  # condition-monitoring: pace-cnn
 uv run edge build -t native && uv run edge run -b sim   # HIL bench on the host simulator
@@ -112,11 +123,24 @@ cp .env.example .env   # then fill in the keys and hosts
 uv run jtbd doctor
 ```
 
+## Topic: product development, task: deduplication and clustering (`jtbd cluster`)
+
+`jtbd cluster` turns the items of `scout-large` into an opportunity map: exact and near duplicates become evidence-backed groups (mentions and independent sources), more specific needs are linked under more general ones, and groups of every kind are clustered into opportunities. People can correct the structure and annotate nodes; ids stay stable across runs. Task document: [topics/productdev/tasks/jtbd-cluster.md](topics/productdev/tasks/jtbd-cluster.md); spec, plan and tasks: [specs/009-jtbd-dedup-cluster/](specs/009-jtbd-dedup-cluster/); CLI contract: [specs/009-jtbd-dedup-cluster/contracts/cli.md](specs/009-jtbd-dedup-cluster/contracts/cli.md).
+
+```bash
+uv sync --extra jtbd --extra cluster
+uv run jtbd cluster --help
+uv run jtbd cluster run --input items.jsonl --map map/ --settings configs/productdev/jtbd/cluster-gte-base.yaml
+uv run jtbd cluster report --map map/      # tree.md (opportunity tree) and needs.csv
+```
+
+The benchmark `cluster-v1` and its reference labels are built with `jtbd --config configs/productdev/jtbd/cluster-v1.yaml cluster bench build | freeze | label | agreement | decide | tune | score | perf`. Licences differ by settings file: `cluster-gte-base.yaml` is commercially usable and has no specificity relation; the files with the NLI model or an e5 encoder give non-commercial results (constitution, principle VI).
+
 ## Topics: automotive security and condition monitoring (edge models)
 
 Merged from the former repository `mhabedank/mobility-security-ml` with its history (feature 005; merge log: [topics/security/research/merge-log.md](topics/security/research/merge-log.md)).
 
-- **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run security can-ids frames|forest …|mlp train|evaluate|freeze`.
+- **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run zoo-security can-ids frames|forest …|mlp train|evaluate|freeze`.
 - **`sound-anomaly`** ([task document](topics/condition-monitoring/tasks/sound-anomaly.md)): `hum-fan`, an int8 autoencoder on MIMII fan sounds. **`activity`** ([task document](topics/condition-monitoring/tasks/activity.md)): `pace-cnn`, an int8 CNN on UCI HAR. Tool: `uv run condmon sound-anomaly|activity train|evaluate|freeze`.
 - Training reads the task configs (`configs/security/…`, `configs/condition-monitoring/…`, `--config`) and writes to `$MMZ_DATA/derived/<model>/`, never into the repository. `edge measure MODEL.npz -b BOARD` records latency, flash and RAM with the board and whether it was a real board, an emulator or the simulator.
 - The research of the former repository is in `topics/security/research/`; its results are kept in `topics/*/reports/<model>/` as pre-zoo research results, not benchmark results.

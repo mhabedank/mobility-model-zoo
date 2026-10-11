@@ -77,6 +77,21 @@ models:
   owner: Martin Habedank
   last_reviewed: '2026-10-10'
   next_review: '2027-04-10'
+- id: alibaba-nlp-community/gte-multilingual-base
+  revision: fdaec56c6a50d6ebcf691f616ee83a166346b76c
+  remote_code: null
+  weights_licence: Apache-2.0
+  training_data_named: false
+  training_data: []
+  used_by: []
+  notes: Native transformers version of Alibaba-NLP/gte-multilingual-base; model.safetensors is byte-identical
+    (sha256 f5a35a10faa54da7717870af1517c9b41e9bd8e3880bc5a8e9363d4c3c63e9b0 in both repos), only config.json
+    is converted, so no remote code is loaded. Used instead of the original because its remote code does not run
+    on transformers 5 (uninitialised position and RoPE buffers, removed get_extended_attention_mask; found
+    2026-10-11). The model card names no training data.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-11'
+  next_review: '2027-04-11'
 - id: sentence-transformers/LaBSE
   revision: 836121a0533e5664b21c7aacc5d22951f2b8b25b
   remote_code: null

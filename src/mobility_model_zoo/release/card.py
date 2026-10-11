@@ -11,6 +11,7 @@ import json
 import re
 from dataclasses import dataclass
 from importlib import resources
+from importlib.metadata import metadata
 from typing import Any
 
 import jinja2
@@ -24,16 +25,18 @@ GROUND_TRUTH = (
 )
 
 REPO_URL = "https://github.com/mhabedank/mobility-model-zoo"
+# Feature 014: the order of the website layers (overview, quality and speed, limits, how to run,
+# reference, details); specs/014-model-page-layout/contracts/card-order.md.
 SECTIONS = (
     "Summary",
-    "Intended use",
-    "Out-of-scope use",
-    "Input and output",
-    "How to run it",
-    "Examples",
     "Quality",
     "Speed and memory",
     "Limitations and risks",
+    "Intended use",
+    "Out-of-scope use",
+    "How to run it",
+    "Input and output",
+    "Examples",
     "Training data provenance",
     "Training recipe",
     "Version history",
@@ -59,6 +62,60 @@ BANNERS = {
     ),
     "released": ("Released.", "The output format is stable within this major version."),
 }
+# One sentence per release status, shared by the card and the website (feature 014, research R4).
+STATUS_SENTENCES = {
+    "experimental": "Experimental: not ready for production use.",
+    "released": "Released: meets the success criteria and budgets of its task.",
+}
+OPS = {"<=": "≤", ">=": "≥", "<": "<", ">": ">", "=": "="}
+
+
+def status_sentence(status: str) -> str:
+    return STATUS_SENTENCES.get(status, "")
+
+
+PLACEHOLDER = re.compile(r"\{metric:(quality|performance)\.([a-z0-9_]+)\}")
+
+
+def short_forms(
+    model: dict[str, Any], record: dict[str, Any], quality: dict[str, Any], performance: dict[str, Any]
+) -> dict[str, Any]:
+    """The card's short forms (feature 014): "Not for" under the summary; status sentence, unmet
+    criteria and short limits at the top of "Limitations and risks". Absent in model.yaml of older
+    tags, so every block may be empty."""
+    card = model.get("card") or {}
+    values = {("quality", m["name"]): m for m in quality.get("metrics", [])}
+    values.update({("performance", m["name"]): m for m in performance.get("metrics", [])})
+
+    def value(kind: str, metric_name: str) -> str:
+        m = values.get((kind, metric_name))
+        if m is None:
+            return f"(metric {kind}.{metric_name} missing)"
+        unit = m.get("unit") or ""
+        return f"{num(m['value'])} {unit}".strip()
+
+    def fill_in(text: str) -> str:
+        return PLACEHOLDER.sub(lambda g: value(g[1], g[2]), text)
+
+    unmet = []
+    for item in card.get("unmet_criteria") or []:
+        target = item.get("target")
+        aim = ""
+        if target:
+            unit = f" {target['unit']}" if target["unit"] else ""
+            aim = f" (target {OPS[target['op']]} {num(target['value'])}{unit})"
+        found = [value(k, n) for k, n in PLACEHOLDER.findall(item.get("measured", ""))]
+        note = item.get("note")
+        if found:
+            unmet.append(f"**{item['criterion']}**: {found[0]}{aim}" + (f"; {note}" if note else ""))
+        else:
+            unmet.append(f"**{item['criterion']}**: {note}{aim}")
+    return {
+        "status_sentence": status_sentence(record.get("status", "")),
+        "not_for": [fill_in(t) for t in card.get("not_for") or []],
+        "limits_short": [fill_in(t) for t in card.get("limits_short") or []],
+        "unmet": unmet,
+    }
 
 
 def num(value: Any) -> str:
@@ -86,6 +143,17 @@ def fill(code: str, repo_id: str, revision: str, text: str) -> str:
 
 def install_line(model: dict[str, Any], version: str) -> str:
     return model["card"]["install"].replace("<tag>", f"{model['name']}/v{version}")
+
+
+def python_requirement() -> str:
+    """The interpreter the install line needs, e.g. "Python 3.12 or newer".
+
+    Read from the package's own `Requires-Python` so the card and the website never drift from
+    `pyproject.toml`; pip refuses the install line with a bare version error on an older interpreter.
+    """
+    spec = metadata("mobility-model-zoo").get("Requires-Python") or ""
+    floor = re.match(r">=\s*(\d+\.\d+)", spec)
+    return f"Python {floor.group(1)} or newer" if floor else f"Python {spec}"
 
 
 def figure_urls(model: dict[str, Any], version: str) -> list[dict[str, str]]:
@@ -343,6 +411,7 @@ class CardInput:
     example_outputs: dict[str, str] | None = None
     deprecated_banner: bool = True
     model: dict[str, Any] | None = None  # model.yaml as of the version's tag (published versions)
+    how_to_run_output: str | None = None  # what how_to_run printed in the gate's fresh venv (mcu)
 
 
 def render(inp: CardInput) -> str:
@@ -384,9 +453,14 @@ def render(inp: CardInput) -> str:
         usage=usage_line(model, record),
         front_matter=front_matter(model, record, quality),
         install=install_line(model, version),
+        python_requirement=python_requirement(),
         figures=figure_urls(model, version),
         how_to_run=fill(
             model["card"]["how_to_run"], model["repos"]["public"], f"v{version}", first_text
+        ).strip(),
+        how_to_run_output=(inp.how_to_run_output or "").strip(),
+        own_data=fill(
+            model["card"].get("own_data", ""), model["repos"]["public"], f"v{version}", ""
         ).strip(),
         examples=[
             {"name": n, "text": t.strip(), "output": outputs.get(n, NO_OUTPUT).strip()}
@@ -394,6 +468,7 @@ def render(inp: CardInput) -> str:
         ],
         quality=quality,
         performance=performance,
+        short=short_forms(model, record, quality, performance),
         mcu=mcu,
         device_usage=fill(
             model["card"].get("device_usage", ""), model["repos"]["public"], f"v{version}", ""
@@ -447,6 +522,22 @@ def parse_card_examples(text: str) -> dict[str, str]:
             outputs[name] = "\n".join(block)
             name = None
     return outputs
+
+
+def parse_card_run_output(text: str) -> str | None:
+    """What `how_to_run` printed, as shown under "How to run it" of a rendered card (microcontroller
+    models); keeps it on a card-only update."""
+    in_section, lines = False, text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            in_section = line[3:].strip() == "How to run it"
+        elif in_section and line == "Output:":
+            j, block = i + 3, []  # skip the blank line and the opening fence
+            while j < len(lines) and not lines[j].startswith("```"):
+                block.append(lines[j])
+                j += 1
+            return "\n".join(block)
+    return None
 
 
 def split_card(card: str) -> tuple[dict[str, Any], str]:

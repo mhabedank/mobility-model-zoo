@@ -42,24 +42,43 @@ EU_BODY = "http://publications.europa.eu/resource/authority/corporate-body/"
 SPDX_URL = re.compile(r"spdx\.org/licenses/([A-Za-z0-9.+-]+)")
 EU_CC = re.compile(r"^CC_BY(?:_?(SA|NC|ND|NCSA|NCND|NC_SA|NC_ND))?_(\d)_(\d)$", re.IGNORECASE)
 CC_PARTS = {"": "", "SA": "-SA", "NC": "-NC", "ND": "-ND", "NCSA": "-NC-SA", "NCND": "-NC-ND"}
-EU_LICENCES = {"CC0": "CC0-1.0", "ODC_BY": "ODC-By-1.0", "ODC_ODBL": "ODbL-1.0", "ODC_PDDL": "PDDL-1.0",
-               "OGL_3_0": "LicenseRef-OGL-UK-3.0", "DL_DE_BY_2_0": "DL-DE-BY-2.0",
-               "DL_DE_ZERO_2_0": "DL-DE-ZERO-2.0", "ETALAB_2_0": "etalab-2.0"}
-URL_LICENCES = {"nationalarchives.gov.uk/doc/open-government-licence/version/3": "LicenseRef-OGL-UK-3.0",
-                "dcat-ap.de/def/licenses/dl-by-de/2.0": "DL-DE-BY-2.0",
-                "dcat-ap.de/def/licenses/dl-zero-de/2.0": "DL-DE-ZERO-2.0",
-                "etalab.gouv.fr/licence-ouverte-open-licence": "etalab-2.0"}
+EU_LICENCES = {
+    "CC0": "CC0-1.0",
+    "ODC_BY": "ODC-By-1.0",
+    "ODC_ODBL": "ODbL-1.0",
+    "ODC_PDDL": "PDDL-1.0",
+    "OGL_3_0": "LicenseRef-OGL-UK-3.0",
+    "DL_DE_BY_2_0": "DL-DE-BY-2.0",
+    "DL_DE_ZERO_2_0": "DL-DE-ZERO-2.0",
+    "ETALAB_2_0": "etalab-2.0",
+}
+URL_LICENCES = {
+    "nationalarchives.gov.uk/doc/open-government-licence/version/3": "LicenseRef-OGL-UK-3.0",
+    "dcat-ap.de/def/licenses/dl-by-de/2.0": "DL-DE-BY-2.0",
+    "dcat-ap.de/def/licenses/dl-zero-de/2.0": "DL-DE-ZERO-2.0",
+    "etalab.gouv.fr/licence-ouverte-open-licence": "etalab-2.0",
+}
 # EU file-type authority ids → IANA media types (used when a distribution gives no media_type)
 MEDIA_TYPES = {
-    "CSV": "text/csv", "TSV": "text/tab-separated-values", "JSON": "application/json",
-    "GEOJSON": "application/geo+json", "XML": "application/xml", "ZIP": "application/zip",
+    "CSV": "text/csv",
+    "TSV": "text/tab-separated-values",
+    "JSON": "application/json",
+    "GEOJSON": "application/geo+json",
+    "XML": "application/xml",
+    "ZIP": "application/zip",
     "XLS": "application/vnd.ms-excel",
     "XLSX": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "ODS": "application/vnd.oasis.opendocument.spreadsheet", "PDF": "application/pdf",
-    "HTML": "text/html", "TXT": "text/plain", "RDF_XML": "application/rdf+xml",
-    "KML": "application/vnd.google-earth.kml+xml", "KMZ": "application/vnd.google-earth.kmz",
-    "GML": "application/gml+xml", "SHP": "application/vnd.shp",
-    "GPKG": "application/geopackage+sqlite3", "PARQUET": "application/vnd.apache.parquet",
+    "ODS": "application/vnd.oasis.opendocument.spreadsheet",
+    "PDF": "application/pdf",
+    "HTML": "text/html",
+    "TXT": "text/plain",
+    "RDF_XML": "application/rdf+xml",
+    "KML": "application/vnd.google-earth.kml+xml",
+    "KMZ": "application/vnd.google-earth.kmz",
+    "GML": "application/gml+xml",
+    "SHP": "application/vnd.shp",
+    "GPKG": "application/geopackage+sqlite3",
+    "PARQUET": "application/vnd.apache.parquet",
 }
 SPREADSHEETS = {"XLS", "XLSX", "ODS"}
 SERVICES = {"WMS_SRVC", "WFS_SRVC", "WCS_SRVC", "WMTS_SRVC", "API", "REST", "SPARQLQ", "OAPIF"}
@@ -70,23 +89,33 @@ DOI = re.compile(r"(10\.\d{4,9}/\S+)$")
 DANE_GOV_PL = re.compile(r"^https-dane-gov-pl-(?:[a-z]{2}-)?dataset-(\d+)(?:-|$)")
 DANE_API = "https://api.dane.gov.pl/1.4/datasets/{n}"
 DANE_PAGE = "https://dane.gov.pl/pl/dataset/{n}"
-# conditions a publisher may add on dane.gov.pl; any of them makes the licence alone insufficient
 # National CKAN portals whose licences data.europa.eu drops: data.europa.eu catalog id ->
 # (package_show endpoint, dataset page). Probed 2026-10-11; si and hu publish no licence, hr and ro
 # did not answer, cy and bg have no usable API.
 CKAN_PORTALS = {
-    "data-gov-lv": ("https://data.gov.lv/dati/api/3/action/package_show",
-                    "https://data.gov.lv/dati/lv/dataset/{name}"),
+    "data-gov-lv": (
+        "https://data.gov.lv/dati/api/3/action/package_show",
+        "https://data.gov.lv/dati/lv/dataset/{name}",
+    ),
 }
 CKAN_SUFFIX = re.compile(r"~~\d+$")
-DANE_CONDITIONS = ("license_condition_custom_description", "license_condition_db_or_copyrighted",
-                   "license_condition_personal_data")
-RESEARCH = re.compile(r"univers|research|investigaci|forschung|recherche|ricerca|badawcz|csic|cnrs|"
-                      r"fraunhofer|helmholtz|academ", re.IGNORECASE)
-COMPANY = re.compile(r"\b(s\.?a\.?u?|s\.?l\.?|gmbh|ag|ltd|plc|inc|b\.?v\.?|s\.?p\.?a\.?|sp\. z o\.o\.)$",
-                     re.IGNORECASE)
-ASSOCIATION = re.compile(r"asociaci|association|verein|fundaci|foundation|stiftung|stowarzysz",
-                         re.IGNORECASE)
+# conditions a publisher may add on dane.gov.pl; any of them makes the licence alone insufficient
+DANE_CONDITIONS = (
+    "license_condition_custom_description",
+    "license_condition_db_or_copyrighted",
+    "license_condition_personal_data",
+)
+RESEARCH = re.compile(
+    r"univers|research|investigaci|forschung|recherche|ricerca|badawcz|csic|cnrs|"
+    r"fraunhofer|helmholtz|academ",
+    re.IGNORECASE,
+)
+COMPANY = re.compile(
+    r"\b(s\.?a\.?u?|s\.?l\.?|gmbh|ag|ltd|plc|inc|b\.?v\.?|s\.?p\.?a\.?|sp\. z o\.o\.)$", re.IGNORECASE
+)
+ASSOCIATION = re.compile(
+    r"asociaci|association|verein|fundaci|foundation|stiftung|stowarzysz", re.IGNORECASE
+)
 
 
 def _licence_id(lic: Any) -> str:
@@ -132,8 +161,9 @@ def _licence(dataset: dict[str, Any], landing: str) -> dict[str, Any]:
     return base.licence_block(lid, url, landing)
 
 
-def dane_gov_pl_licence(dataset_id: str, client: httpx.Client,
-                        say: Any = print) -> dict[str, Any] | None:
+def dane_gov_pl_licence(
+    dataset_id: str, client: httpx.Client, say: Any = print
+) -> dict[str, Any] | None:
     """Licence block from the dane.gov.pl API for a dataset that data.europa.eu harvested from it.
 
     None when the id is not a dane.gov.pl dataset or the API fails; `unknown` when the dataset has
@@ -158,8 +188,9 @@ def dane_gov_pl_licence(dataset_id: str, client: httpx.Client,
     return base.licence_block(lid, None, DANE_PAGE.format(n=n))
 
 
-def ckan_licence(catalog_id: str | None, dataset_id: str, client: httpx.Client,
-                 say: Any = print) -> dict[str, Any] | None:
+def ckan_licence(
+    catalog_id: str | None, dataset_id: str, client: httpx.Client, say: Any = print
+) -> dict[str, Any] | None:
     """Licence block from a national CKAN portal of `CKAN_PORTALS`; None if not one or it fails."""
     portal = CKAN_PORTALS.get(catalog_id or "")
     if portal is None:
@@ -179,8 +210,11 @@ def ckan_licence(catalog_id: str | None, dataset_id: str, client: httpx.Client,
     if lid == "unknown" or not result.get("name"):
         return base.licence_block("unknown", None, None)
     url = result.get("license_url")
-    return base.licence_block(lid, url if isinstance(url, str) and url.startswith("http") else None,
-                              page.format(name=result["name"]))
+    return base.licence_block(
+        lid,
+        url if isinstance(url, str) and url.startswith("http") else None,
+        page.format(name=result["name"]),
+    )
 
 
 def _first(value: Any) -> str | None:
@@ -219,8 +253,14 @@ def _route(dist: dict[str, Any]) -> dict[str, Any] | None:
         method = "direct_download"
     else:
         method = "page_by_page"
-    route: dict[str, Any] = {"method": method, "url": access, "download_url": download, "auth": "none",
-                             "cost": "free", "provider_hint": "url"}
+    route: dict[str, Any] = {
+        "method": method,
+        "url": access,
+        "download_url": download,
+        "auth": "none",
+        "cost": "free",
+        "provider_hint": "url",
+    }
     if media and method == "direct_download":
         route["formats"] = [media]
     size = dist.get("byte_size")
@@ -239,8 +279,16 @@ def _access(dataset: dict[str, Any], landing: str) -> list[dict[str, Any]]:
             seen.add(route["url"])
             routes.append(route)
     routes.sort(key=lambda r: order[r["method"]])
-    return routes[:MAX_ROUTES] or [{"method": "page_by_page", "url": landing, "download_url": None,
-                                    "auth": "none", "cost": "free", "provider_hint": "url"}]
+    return routes[:MAX_ROUTES] or [
+        {
+            "method": "page_by_page",
+            "url": landing,
+            "download_url": None,
+            "auth": "none",
+            "cost": "free",
+            "provider_hint": "url",
+        }
+    ]
 
 
 def _genre(dataset: dict[str, Any], title: str) -> str:
@@ -340,8 +388,10 @@ class DataEuropa:
     catalogue = "data.europa.eu"
     env_keys: tuple[str, ...] = ()
     modalities = ("structured_data",)
-    method = ("data.europa.eu search API (/api/hub/search/search, filters=dataset), subdomain terms per "
-              "language, language checked on the dataset; metadata only")
+    method = (
+        "data.europa.eu search API (/api/hub/search/search, filters=dataset), subdomain terms per "
+        "language, language checked on the dataset; metadata only"
+    )
 
     def iterate(self, scope: base.Scope, ctx: base.Context) -> Iterator[dict[str, Any]]:
         if scope.modalities and "structured_data" not in scope.modalities:
@@ -357,8 +407,9 @@ class DataEuropa:
                         if cand is not None:
                             yield cand
 
-    def _search(self, term: str, scope: base.Scope, ctx: base.Context,
-                pages: int) -> Iterator[dict[str, Any]]:
+    def _search(
+        self, term: str, scope: base.Scope, ctx: base.Context, pages: int
+    ) -> Iterator[dict[str, Any]]:
         params: dict[str, Any] = {"q": term, "filters": "dataset", "limit": PAGE_SIZE}
         countries = [a.lower() for a in scope.areas if len(a) == 2 and a.isalpha() and a != "EU"]
         if countries:
@@ -375,9 +426,15 @@ class DataEuropa:
             if len(results) < PAGE_SIZE:
                 return
 
-    def _candidate(self, dataset: dict[str, Any], subdomain: str, language: str | None,
-                   scope: base.Scope, seen: dict[str, dict[str, Any]],
-                   ctx: base.Context) -> dict[str, Any] | None:
+    def _candidate(
+        self,
+        dataset: dict[str, Any],
+        subdomain: str,
+        language: str | None,
+        scope: base.Scope,
+        seen: dict[str, dict[str, Any]],
+        ctx: base.Context,
+    ) -> dict[str, Any] | None:
         did = dataset.get("id")
         titles = dataset.get("title") or {}
         if not did or not isinstance(titles, dict) or not titles:
@@ -405,8 +462,11 @@ class DataEuropa:
         licence = _licence(dataset, landing)
         if licence["id"] == "unknown":
             catalog = (dataset.get("catalog") or {}).get("id")
-            licence = (dane_gov_pl_licence(str(did), ctx.client, ctx.say)
-                       or ckan_licence(catalog, str(did), ctx.client, ctx.say) or licence)
+            licence = (
+                dane_gov_pl_licence(str(did), ctx.client, ctx.say)
+                or ckan_licence(catalog, str(did), ctx.client, ctx.say)
+                or licence
+            )
         cand = base.candidate(
             self,
             title=str(title),
@@ -421,7 +481,8 @@ class DataEuropa:
             subdomains=subdomains,
             licence=licence,
             access=_access(dataset, landing),
-            evidence=[landing, licence["evidence_url"]] if licence["evidence_url"] not in (None, landing)
+            evidence=[landing, licence["evidence_url"]]
+            if licence["evidence_url"] not in (None, landing)
             else [landing],
             topics=_topics(subdomains),
             level="collection",

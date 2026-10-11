@@ -19,6 +19,9 @@ ROOT = Path(__file__).resolve().parents[4]
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--service", default="jtbd-perf")
+    parser.add_argument("--out", default=None,
+                        help="directory for the results (default: data/analysis/<version>/perf; "
+                             "for jtbd cluster perf: data/cluster/analysis/cluster-v1)")
     parser.add_argument("--lines", default="5000")
     parser.add_argument("--deployment-id", default=None,
                         help="read this deployment (default: Railway's latest successful one, "
@@ -28,15 +31,18 @@ def main() -> None:
     if args.deployment_id:
         cmd.insert(2, args.deployment_id)
     log = subprocess.run(cmd, capture_output=True, text=True, cwd="/tmp", check=True).stdout
-    version = (ROOT / "topics/productdev/benchmarks/current").read_text().strip()
-    out = ROOT / "data/analysis" / version / "perf"
+    if args.out:
+        out = Path(args.out)
+    else:
+        version = (ROOT / "topics/productdev/benchmarks/current").read_text().strip()
+        out = ROOT / "data/analysis" / version / "perf"
     out.mkdir(parents=True, exist_ok=True)
     found = re.findall(r"=== PERF_RESULT (\S+) ===\s*\n(\S+)\s*\n=== END \1 ===", log)
     for name, payload in found:
         data = json.loads(base64.b64decode(payload))
         (out / f"{name}.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-        print(name, {k: data.get(k) for k in ("chunks_per_min", "latency_p50_ms",
-                                              "peak_rss_mb", "peak_memory_mb")})
+        print(name, {k: data.get(k) for k in ("chunks_per_min", "latency_p50_ms", "wall_s",
+                                              "items", "peak_rss_mb", "peak_memory_mb")})
     for name in re.findall(r"=== PERF_ERROR (\S+) ===", log):
         print("error:", name)
     print("hardware:", re.search(r"=== HARDWARE ===\s*\n(.*)", log).group(1)

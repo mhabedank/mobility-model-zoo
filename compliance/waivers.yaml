@@ -1,1 +1,18 @@
-waivers: []
+# Time-boxed exceptions to a compliance check (checks.md, C-M3: at most 6 months). The record id in
+# `scope` is the one the check reports; route waivers of C-P4 name `<route id>@<scope of the run>`.
+waivers:
+- id: W-cluster-v1-claude-cli
+  check: C-P4
+  scope: claude-consumer-cli@benchmark:cluster-v1
+  rationale: Reference labels of benchmark cluster-v1 only, as for pilot-v2 (decision D-cluster-v1-references).
+  approved_by: Martin Habedank
+  approved_at: '2026-10-11'
+  expires_at: '2026-12-31'
+- id: W-cluster-v1-gpt-mini
+  check: C-P4
+  scope: gpt-mini-openrouter-openai@benchmark:cluster-v1
+  rationale: Reference labels of benchmark cluster-v1 only, as for pilot-v2 (decision D-cluster-v1-references);
+    OpenRouter stays pinned to OpenAI (C-P5, C-P6).
+  approved_by: Martin Habedank
+  approved_at: '2026-10-11'
+  expires_at: '2026-12-31'

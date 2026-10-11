@@ -22,6 +22,10 @@ card:
     Acoustic condition monitoring of auxiliary units such as fans and pumps (for example battery and power-electronics cooling in electric vehicles, climate blowers, charger cooling) as a research baseline; retraining on own normal recordings of a specific unit.
   out_of_scope: |
     Safety functions or decisions about whether a vehicle may operate; fault classification (which part fails); remaining-useful-life estimates; recording or analysing speech.
+  not_for:
+    - Safety functions or decisions whether a vehicle may operate
+    - Fault classification or remaining-useful-life estimates
+    - Recording or analysing speech
   input_output: |
     Input: windows of 5 x 40 log-mel frames (64 ms frames, 16 kHz, channel 0), normalised with the stored mean and standard deviation and quantized to int8. Output: the int8 reconstruction of the window; the anomaly score is the mean squared reconstruction error, averaged over the windows of a 10 s clip and compared with the stored threshold.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
@@ -45,6 +49,13 @@ card:
     - Trained on two fans of the MIMII dataset at 6 dB SNR; other machines, microphones and noise levels are untested.
     - The threshold is the 95th percentile of validation normals; it will need tuning per installation.
     - The weights are under CC BY-SA 4.0 because the training data is (share-alike).
+  limits_short:
+    - Recorded in a factory hall, not in a vehicle; retrain on your own normal recordings.
+    - Trained on two fans of one dataset; other machines, microphones and noise levels are untested.
+    - The alarm threshold will need tuning per installation.
+  unmet_criteria:
+    - criterion: Trained and measured on the frozen benchmark
+      note: not done yet; this is the draft of the first release
   citation: |
     @misc{mobility-model-zoo-hum-fan,
       title  = {Hum (fan): machine-sound anomaly detection on a microcontroller, mobility-model-zoo},

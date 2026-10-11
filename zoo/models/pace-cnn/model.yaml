@@ -22,6 +22,10 @@ card:
     A research baseline for classifying IMU windows on microcontrollers, as a first step towards pedestrian, micromobility and manoeuvre detection with the same pipeline.
   out_of_scope: |
     Transport-mode or vehicle classes (the training data has none); fall detection as a safety function; identifying or profiling persons.
+  not_for:
+    - Transport-mode or vehicle classes
+    - Fall detection as a safety function
+    - Identifying or profiling persons
   input_output: |
     Input: a window of 128 samples x 9 channels (body acceleration, gyroscope, total acceleration; 50 Hz) normalised per channel and quantized to int8. Output: six int8 class scores.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
@@ -44,6 +48,13 @@ card:
     - No vehicle or transport-mode classes; the sensor was worn on the belt. Manoeuvre or transport-mode recognition needs other data with the same pipeline.
     - Trained on 30 volunteers of UCI HAR; other placements, sensors and populations are untested.
     - Sitting and standing are the classes most often confused in this dataset.
+  limits_short:
+    - No vehicle or transport-mode classes; the sensor was worn on the belt.
+    - Trained on volunteers of one dataset; other placements, sensors and populations are untested.
+    - Sitting and standing are the classes most often confused.
+  unmet_criteria:
+    - criterion: Trained and measured on the frozen benchmark
+      note: not done yet; this is the draft of the first release
   citation: |
     @misc{mobility-model-zoo-pace-cnn,
       title  = {Pace (CNN): activity recognition from IMU windows on a microcontroller, mobility-model-zoo},

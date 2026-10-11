@@ -23,19 +23,31 @@ card:
     Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; a reproducible baseline for calibrated, microcontroller-sized CAN intrusion detection; a starting point for a security sensor that reports events to an IDS manager. Status: experimental, not ready for production use (see limitations).
   out_of_scope: |
     Deployment in vehicles on public roads: the model is not a validated or approved safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+  not_for:
+    - Vehicles on public roads; it is not a validated or approved security mechanism
+    - Active countermeasures such as blocking or injecting frames
+    - CAN FD or automotive Ethernet
   input_output: |
-    Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` (`security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
+    Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` for the device and `calibration_table.json` for the Python reference (`zoo-security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
-    import joblib
     from huggingface_hub import hf_hub_download
 
-    from mobility_model_zoo.security.can_ids import calibrated as cal
-    from mobility_model_zoo.security.can_ids.release_export_v2 import reference
+    from mobility_model_zoo.security.can_ids import picket_forest as pf
 
-    saved = joblib.load(hf_hub_download("{repo_id}", "model.joblib", revision="{revision}"))
-    table = cal.calibrate(benign_captures)  # dicts with ts (s), can_id, dlc, data (n x 8), y (zeros)
-    scores, alarms = reference(capture, table, saved["model"], saved["threshold"])
+    model = pf.load_model(hf_hub_download("{repo_id}", "model.joblib", revision="{revision}"))
+    table = pf.load_table(hf_hub_download("{repo_id}", "calibration_table.json", revision="{revision}"))
+    capture = pf.load_capture(hf_hub_download("{repo_id}", "examples/01-fabrication.json", revision="{revision}"))
+    scores, alarms = pf.score(capture, table, model)
+    print(pf.summary(capture, scores, alarms))
+  own_data: |
+    from mobility_model_zoo.security.can_ids import picket_forest as pf
+
+    # candump logs (candump -L) of benign traffic of your vehicle: driving, idle and parked, 60 minutes or more
+    benign = [pf.read_candump(path) for path in ["drive.log", "idle.log", "parked.log"]]
+    table = pf.calibrate(benign)
+    pf.save_table(table, "my_vehicle_table.json")  # use it in place of calibration_table.json above
+    # For the device, `zoo-security can-ids v2 table drive.log idle.log parked.log` also writes picket_forest_table.h
   device_usage: |
     /* Headers from {repo_id} at {revision}; replace picket_forest_table.h with your vehicle's table. */
     #include "picket_forest_v2.h"
@@ -54,6 +66,15 @@ card:
     - Masquerade (a silenced ECU replaced at its normal timing) is not detected. Classic CAN only; no CAN FD.
     - No adversarial evaluation: an attacker who knows the rules can stay below the calibrated counts. The code, features and thresholds are public; do not rely on it as the only line of defence.
     - Calibration is done on the host and compiled into the device; on-device calibration is not implemented.
+  limits_short:
+    - "False alarms depend on the calibration: it must cover driving, idle, parked and diagnostics."
+    - A legitimate identifier missing from the calibration floods alarms.
+    - Masquerade attacks are not detected, and there is no adversarial evaluation.
+  unmet_criteria:
+    - criterion: Shuffled-label control of the pre-registered evaluation
+      note: failed; the calibrated features are themselves anomaly signals
+    - criterion: Budgets measured on the reference board
+      note: the numbers of this release come from an emulator, not a board
   citation: |
     @misc{mobility-model-zoo-picket-forest,
       title  = {Picket (forest): CAN bus intrusion detection on a microcontroller, mobility-model-zoo},

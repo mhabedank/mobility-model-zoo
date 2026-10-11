@@ -1,0 +1,456 @@
+{
+ "scout-large": {
+  "1440x900": {
+   "sections": [
+    {
+     "id": "top",
+     "layer": null,
+     "screen": 0.1,
+     "words": 66
+    },
+    {
+     "id": "why",
+     "layer": null,
+     "screen": 0.6,
+     "words": 167
+    },
+    {
+     "id": "quickstart",
+     "layer": null,
+     "screen": 1.3,
+     "words": 211
+    },
+    {
+     "id": "interface",
+     "layer": null,
+     "screen": 3.3,
+     "words": 798
+    },
+    {
+     "id": "examples",
+     "layer": null,
+     "screen": 6.2,
+     "words": 354
+    },
+    {
+     "id": "quality",
+     "layer": null,
+     "screen": 8.6,
+     "words": 310
+    },
+    {
+     "id": "limits",
+     "layer": null,
+     "screen": 10.1,
+     "words": 373
+    },
+    {
+     "id": "provenance",
+     "layer": null,
+     "screen": 11.1,
+     "words": 99
+    },
+    {
+     "id": "versions",
+     "layer": null,
+     "screen": 11.9,
+     "words": 128
+    },
+    {
+     "id": "cite",
+     "layer": null,
+     "screen": 12.5,
+     "words": 31
+    },
+    {
+     "id": "notes",
+     "layer": null,
+     "screen": 13,
+     "words": 267
+    }
+   ],
+   "first_quality_screen": 9,
+   "limits_screen": 10.1,
+   "total_screens": 14,
+   "links": [
+    "#ex1-i0",
+    "#ex1-q0",
+    "#ex2-i0",
+    "#ex2-i1",
+    "#ex2-q0",
+    "#ex2-q1",
+    "#ex3-i0",
+    "#ex3-i1",
+    "#ex3-q0",
+    "#ex3-q1",
+    "#fn-1",
+    "#fn-2",
+    "#fn-3",
+    "#fn-4",
+    "#fn-5",
+    "#fn-6",
+    "#fn-7",
+    "#fn-8",
+    "#fn-9",
+    "#interface",
+    "#main",
+    "#quickstart",
+    "../../",
+    "../../#models",
+    "../../#principles",
+    "../../#topics",
+    "../../formats/jtbd-span-v1/",
+    "https://github.com/mhabedank/mobility-model-zoo",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/LICENSE",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/topics/productdev/recipes/scout-large.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v1.schema.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.ai-act.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.compliance.yaml",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.training-data-summary.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/results/0.1.2/performance.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/results/0.1.2/quality.json",
+    "https://huggingface.co/FacebookAI/xlm-roberta-large",
+    "https://huggingface.co/mobility-model-zoo",
+    "https://huggingface.co/mobility-model-zoo/scout-large",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/06291f32c1ede28e11a7c4892faf2d784d58b38d",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/16da988e372e83eeaf5a41861e3cc2d6624ee3bc",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/e79568a84e08282374539c1740fa3118dc4dbb45",
+    "https://miskatonic-analytics.com/imprint.html"
+   ]
+  },
+  "390x844": {
+   "sections": [
+    {
+     "id": "top",
+     "layer": null,
+     "screen": 0.2,
+     "words": 66
+    },
+    {
+     "id": "why",
+     "layer": null,
+     "screen": 1,
+     "words": 167
+    },
+    {
+     "id": "quickstart",
+     "layer": null,
+     "screen": 2.3,
+     "words": 211
+    },
+    {
+     "id": "interface",
+     "layer": null,
+     "screen": 4.9,
+     "words": 798
+    },
+    {
+     "id": "examples",
+     "layer": null,
+     "screen": 11.5,
+     "words": 354
+    },
+    {
+     "id": "quality",
+     "layer": null,
+     "screen": 15.1,
+     "words": 310
+    },
+    {
+     "id": "limits",
+     "layer": null,
+     "screen": 17.8,
+     "words": 373
+    },
+    {
+     "id": "provenance",
+     "layer": null,
+     "screen": 20,
+     "words": 99
+    },
+    {
+     "id": "versions",
+     "layer": null,
+     "screen": 21,
+     "words": 128
+    },
+    {
+     "id": "cite",
+     "layer": null,
+     "screen": 22.8,
+     "words": 31
+    },
+    {
+     "id": "notes",
+     "layer": null,
+     "screen": 23.3,
+     "words": 267
+    }
+   ],
+   "first_quality_screen": 15.6,
+   "limits_screen": 17.8,
+   "total_screens": 25.1,
+   "links": [
+    "#ex1-i0",
+    "#ex1-q0",
+    "#ex2-i0",
+    "#ex2-i1",
+    "#ex2-q0",
+    "#ex2-q1",
+    "#ex3-i0",
+    "#ex3-i1",
+    "#ex3-q0",
+    "#ex3-q1",
+    "#fn-1",
+    "#fn-2",
+    "#fn-3",
+    "#fn-4",
+    "#fn-5",
+    "#fn-6",
+    "#fn-7",
+    "#fn-8",
+    "#fn-9",
+    "#interface",
+    "#main",
+    "#quickstart",
+    "../../",
+    "../../#models",
+    "../../#principles",
+    "../../#topics",
+    "../../formats/jtbd-span-v1/",
+    "https://github.com/mhabedank/mobility-model-zoo",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/LICENSE",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/topics/productdev/recipes/scout-large.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v1.schema.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.ai-act.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.compliance.yaml",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/releases/0.1.2.training-data-summary.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/results/0.1.2/performance.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/zoo/models/scout-large/results/0.1.2/quality.json",
+    "https://huggingface.co/FacebookAI/xlm-roberta-large",
+    "https://huggingface.co/mobility-model-zoo",
+    "https://huggingface.co/mobility-model-zoo/scout-large",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/06291f32c1ede28e11a7c4892faf2d784d58b38d",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/16da988e372e83eeaf5a41861e3cc2d6624ee3bc",
+    "https://huggingface.co/mobility-model-zoo/scout-large/tree/e79568a84e08282374539c1740fa3118dc4dbb45",
+    "https://miskatonic-analytics.com/imprint.html"
+   ]
+  }
+ },
+ "picket-forest": {
+  "1440x900": {
+   "sections": [
+    {
+     "id": "top",
+     "layer": null,
+     "screen": 0.1,
+     "words": 59
+    },
+    {
+     "id": "why",
+     "layer": null,
+     "screen": 0.6,
+     "words": 128
+    },
+    {
+     "id": "quickstart",
+     "layer": null,
+     "screen": 1.2,
+     "words": 121
+    },
+    {
+     "id": "interface",
+     "layer": null,
+     "screen": 2.4,
+     "words": 627
+    },
+    {
+     "id": "examples",
+     "layer": null,
+     "screen": 4.4,
+     "words": 340
+    },
+    {
+     "id": "quality",
+     "layer": null,
+     "screen": 5.8,
+     "words": 77
+    },
+    {
+     "id": "limits",
+     "layer": null,
+     "screen": 6.5,
+     "words": 413
+    },
+    {
+     "id": "provenance",
+     "layer": null,
+     "screen": 7.6,
+     "words": 95
+    },
+    {
+     "id": "versions",
+     "layer": null,
+     "screen": 8.3,
+     "words": 141
+    },
+    {
+     "id": "cite",
+     "layer": null,
+     "screen": 8.9,
+     "words": 31
+    },
+    {
+     "id": "notes",
+     "layer": null,
+     "screen": 9.4,
+     "words": 95
+    }
+   ],
+   "first_quality_screen": 6.1,
+   "limits_screen": 6.5,
+   "total_screens": 10,
+   "links": [
+    "#fn-1",
+    "#fn-2",
+    "#fn-3",
+    "#fn-4",
+    "#interface",
+    "#main",
+    "#quickstart",
+    "../../",
+    "../../#models",
+    "../../#principles",
+    "../../#topics",
+    "../../formats/picket-forest-v2/",
+    "https://github.com/mhabedank/mobility-model-zoo",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/LICENSE",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/src/mobility_model_zoo/security/can_ids/picket-forest-v2.schema.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/topics/security/recipes/picket-forest.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/01-fabrication.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/02-dos.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/03-fuzzing.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.ai-act.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.compliance.yaml",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.training-data-summary.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0/performance.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0/quality.json",
+    "https://huggingface.co/mobility-model-zoo",
+    "https://huggingface.co/mobility-model-zoo/picket-forest",
+    "https://huggingface.co/mobility-model-zoo/picket-forest/tree/9d5beab03ad2cc57e4cdfca7bcf6a3dd3679144c",
+    "https://miskatonic-analytics.com/imprint.html"
+   ]
+  },
+  "390x844": {
+   "sections": [
+    {
+     "id": "top",
+     "layer": null,
+     "screen": 0.2,
+     "words": 59
+    },
+    {
+     "id": "why",
+     "layer": null,
+     "screen": 0.9,
+     "words": 128
+    },
+    {
+     "id": "quickstart",
+     "layer": null,
+     "screen": 1.9,
+     "words": 121
+    },
+    {
+     "id": "interface",
+     "layer": null,
+     "screen": 3.6,
+     "words": 627
+    },
+    {
+     "id": "examples",
+     "layer": null,
+     "screen": 8.6,
+     "words": 340
+    },
+    {
+     "id": "quality",
+     "layer": null,
+     "screen": 11.3,
+     "words": 77
+    },
+    {
+     "id": "limits",
+     "layer": null,
+     "screen": 12.5,
+     "words": 413
+    },
+    {
+     "id": "provenance",
+     "layer": null,
+     "screen": 15.1,
+     "words": 95
+    },
+    {
+     "id": "versions",
+     "layer": null,
+     "screen": 16.1,
+     "words": 141
+    },
+    {
+     "id": "cite",
+     "layer": null,
+     "screen": 18.3,
+     "words": 31
+    },
+    {
+     "id": "notes",
+     "layer": null,
+     "screen": 18.8,
+     "words": 95
+    }
+   ],
+   "first_quality_screen": 11.6,
+   "limits_screen": 12.5,
+   "total_screens": 19.9,
+   "links": [
+    "#fn-1",
+    "#fn-2",
+    "#fn-3",
+    "#fn-4",
+    "#interface",
+    "#main",
+    "#quickstart",
+    "../../",
+    "../../#models",
+    "../../#principles",
+    "../../#topics",
+    "../../formats/picket-forest-v2/",
+    "https://github.com/mhabedank/mobility-model-zoo",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/COPYRIGHT_POLICY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/LICENSE",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/PRIVACY.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/src/mobility_model_zoo/security/can_ids/picket-forest-v2.schema.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/main/topics/security/recipes/picket-forest.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/01-fabrication.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/02-dos.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/examples/03-fuzzing.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.ai-act.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.compliance.yaml",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/releases/0.2.0.training-data-summary.md",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0/performance.json",
+    "https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0/quality.json",
+    "https://huggingface.co/mobility-model-zoo",
+    "https://huggingface.co/mobility-model-zoo/picket-forest",
+    "https://huggingface.co/mobility-model-zoo/picket-forest/tree/9d5beab03ad2cc57e4cdfca7bcf6a3dd3679144c",
+    "https://miskatonic-analytics.com/imprint.html"
+   ]
+  }
+ }
+}

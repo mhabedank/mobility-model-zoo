@@ -15,11 +15,13 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from mobility_model_zoo.release.card import num
+from mobility_model_zoo.release.card import OPS, num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
 
 PLACEHOLDER = re.compile(r"\{metric:(quality|performance)\.([a-z0-9_]+)\}")
+# A free-standing number (check F2); digits inside names such as "M3 Pro" or "jtbd-span-v1" are not.
+NUMBER = re.compile(r"(?<![\w.,-])\d+(?:[.,]\d+)*(?![\w-]|[.,]\d)")
 UNITS = {"chunks/min": "texts/min"}
 
 
@@ -77,6 +79,11 @@ def placeholders(text: str) -> list[tuple[str, str]]:
     return PLACEHOLDER.findall(text or "")
 
 
+def literal_numbers(text: str) -> list[str]:
+    """Free-standing numbers in prose, placeholders excluded."""
+    return [m.group(0) for m in NUMBER.finditer(PLACEHOLDER.sub(" ", text))]
+
+
 @dataclass
 class Notes:
     """Footnotes of one page: every resolved number links to what it is measured against."""
@@ -122,3 +129,46 @@ def resolve(
         pos = match.end()
     out.append(escape(text[pos:]))
     return "".join(out)
+
+
+def target_key(i: int) -> str:
+    """The fact name of an unmet criterion's target in `model.yaml` (check F1 reads it back)."""
+    return f"unmet_criteria[{i}].target"
+
+
+def unmet_rows(
+    reg: Registry,
+    name: str,
+    version: str,
+    items: list[dict[str, Any]],
+    facts: Facts,
+    notes: Notes,
+    page: str,
+) -> list[dict[str, Any]]:
+    """The unmet criteria of an experimental release (feature 014), ready to print: the measured
+    value from the results with its note, the target from `model.yaml` with the task that sets it."""
+    rows = []
+    for i, item in enumerate(items):
+        row: dict[str, Any] = {
+            "criterion": item["criterion"],
+            "note": item.get("note"),
+            "measured": None,
+        }
+        for kind, metric_name in placeholders(item.get("measured", "")):
+            m = metric(reg, name, version, kind, metric_name)
+            facts.add(page, f"unmet{i}:{kind}.{metric_name}", m["value"], m["source"], m["name"])
+            row["measured"] = {**m, "note_ref": notes.ref(m)}
+        target = item.get("target")
+        if target:
+            value = num(target["value"])
+            facts.add(page, f"unmet{i}:target", value, f"zoo/models/{name}/model.yaml", target_key(i))
+            row["target"] = {
+                "op": OPS[target["op"]],
+                "value": value,
+                "unit": unit_label(target.get("unit")),
+                "source": target["source"],
+            }
+        else:
+            row["target"] = None
+        rows.append(row)
+    return rows

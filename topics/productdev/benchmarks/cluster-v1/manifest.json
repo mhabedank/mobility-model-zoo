@@ -1,0 +1,110 @@
+{
+  "version": "cluster-v1",
+  "state": "decided",
+  "built_at": "2026-10-11T09:53:31.937796+00:00",
+  "hashes": {
+    "guideline": "1df2f9c37ebcabc96993c707e9d50e3a4d88f0c3d9735862764f2783c34c7da7",
+    "examples": "00fe139c2868b07e0ec83b43cb05f65fd6d49864194311fc40e83ecfedc0f866",
+    "prompt": "072ecb0fd1d98329d0e909c5ebb01e230245fdf8957bde49edfa7b479aafb8c7",
+    "wire_schema": "ec108cce806b616482550129d0909ec2c4b59e6de2bec19099a382206345111d",
+    "criteria": "c3797974d377d1f882e2a0fd8b0d3edc8c04674a3684860ec3638a9bd77399c9",
+    "budget": "4cbdbd20b40fbebf50ee59527d5f141b934087ce1f11eed12e22012bd9f21f2a",
+    "pairs": "7126e3174796829f8ae6e5a1ec3bde51595b4e76752a2d69aecd7ec3a987257c",
+    "sets": "748d6249a068f367dfb69d94e2847465673595545831344a045063b8d4b22f81",
+    "pool": "117536e22711dac10ba2bb312198df6bb32531300fafdde953c8db00b679c2ce"
+  },
+  "counts": {
+    "items": {
+      "dev": 3395,
+      "test": 6967,
+      "holdout": 2133
+    },
+    "snapshots": {
+      "dev": 45,
+      "test": 83,
+      "holdout": 22
+    },
+    "pairs": {
+      "dev": {
+        "high": 136,
+        "middle": 132,
+        "random": 132
+      },
+      "test": {
+        "high": 408,
+        "middle": 396,
+        "random": 396
+      },
+      "holdout": {
+        "high": 102,
+        "middle": 99,
+        "random": 99
+      }
+    },
+    "sets": {
+      "dev": 4,
+      "test": 12,
+      "holdout": 4
+    }
+  },
+  "excluded": {
+    "opt_out_snapshots": 15,
+    "opt_out_items": 288
+  },
+  "events": [
+    {
+      "at": "2026-10-11T07:38:35.781920+00:00",
+      "state": "frozen",
+      "event": "re-frozen before any labeling: budget changed"
+    },
+    {
+      "at": "2026-10-11T09:52:57.519941+00:00",
+      "state": "draft",
+      "event": "rebuilt before any labeling"
+    },
+    {
+      "at": "2026-10-11T10:23:20.775598+00:00",
+      "state": "piloted",
+      "event": "agreement on test"
+    },
+    {
+      "at": "2026-10-11T10:23:55.157971+00:00",
+      "state": "revise",
+      "event": "a level is below its threshold"
+    },
+    {
+      "at": "2026-10-11T10:36:50.221527+00:00",
+      "state": "frozen",
+      "event": "revised guideline frozen for re-pilot"
+    },
+    {
+      "at": "2026-10-11T10:59:03.338551+00:00",
+      "state": "piloted",
+      "event": "agreement on holdout"
+    },
+    {
+      "at": "2026-10-11T10:59:17.698277+00:00",
+      "state": "decided",
+      "event": "every level decided"
+    }
+  ],
+  "frozen_at": "2026-10-11T09:53:37.459295+00:00",
+  "retention_review_by": "2028-10-11",
+  "reruns": 1,
+  "revisions": [
+    {
+      "at": "2026-10-11T10:36:50.221120+00:00",
+      "previous": {
+        "guideline": "ad0ec27f7a963ebcbeb1622664a1cd8e7af1755e4796e3c9fe60026000cd55fb",
+        "examples": "f74b6145a405f42278a8cb519bfd943809426eb30b3e9ceb083372afd612cdf8",
+        "prompt": "e27a6e8ad65e5c17846c56d88ea062bde975d418ad3e6888cec2a2cbac81d448",
+        "wire_schema": "ec108cce806b616482550129d0909ec2c4b59e6de2bec19099a382206345111d",
+        "criteria": "c3797974d377d1f882e2a0fd8b0d3edc8c04674a3684860ec3638a9bd77399c9",
+        "budget": "4cbdbd20b40fbebf50ee59527d5f141b934087ce1f11eed12e22012bd9f21f2a",
+        "pairs": "7126e3174796829f8ae6e5a1ec3bde51595b4e76752a2d69aecd7ec3a987257c",
+        "sets": "748d6249a068f367dfb69d94e2847465673595545831344a045063b8d4b22f81",
+        "pool": "117536e22711dac10ba2bb312198df6bb32531300fafdde953c8db00b679c2ce"
+      }
+    }
+  ]
+}

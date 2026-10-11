@@ -1,4 +1,4 @@
-"""The model page (contracts/site-tree.md): sections in order, facts from the release (US1)."""
+"""The model page (contracts/site-tree.md, feature 014 page-layers.md): sections in order, facts."""
 
 from __future__ import annotations
 
@@ -6,14 +6,17 @@ import re
 
 from site_fixture import MODEL, VERSION
 
+# Feature 014: the six layers (contracts/page-layers.md); old anchors stay inside them.
 SECTIONS = [
     "top",
     "why",
-    "quickstart",
-    "interface",
-    "examples",
     "quality",
     "limits",
+    "quickstart",
+    "reference",
+    "interface",
+    "examples",
+    "details",
     "provenance",
     "versions",
     "cite",
@@ -78,3 +81,18 @@ def test_unpublished_model_has_no_page(built):
     assert not (built.out / "models" / "picket-forest").exists()
     assert (built.out / "formats" / "jtbd-span-v1" / "index.html").exists()
     assert (built.out / "404.html").exists()
+
+
+def test_hero_shows_the_labels_of_the_preview_image(site_env):
+    """FR-003: the page states at its top what the preview image states."""
+    site_env.build()
+    hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
+    # feature 014: the release-status chip carries the preview label and the record's status
+    assert "label-experimental" in hero and 'data-status="experimental"' in hero
+    site_env.edit_yaml(
+        f"zoo/models/{MODEL}/releases/{VERSION}.yaml", lambda r: r.update(status="released")
+    )
+    site_env.build()
+    hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
+    assert "label-" not in hero
+    assert 'data-status="released"' in hero

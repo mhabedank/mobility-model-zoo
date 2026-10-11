@@ -42,6 +42,30 @@ A tiny deterministic int8 model. It exists only to test the release pipeline for
 
 `edge-fixture-tiny` belongs to the topic **Pipeline tests** (`sandbox`), task `pipeline`, variant `tiny`. Trained from scratch.
 
+## Quality
+
+Quality is measured against the labels of the datasets named below, on test data not used for training. Reference: synthetic labels (test numbers). Benchmark: `synthetic`. **Synthetic test numbers.**
+
+| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
+|--------|-------|------------------|-----------|-----------|-------|------|
+| `int8_accuracy` | 0.5 | Synthetic share of correct classes (test number) | synthetic labels | synthetic | 3 | 2026-10-08 |
+
+## Speed and memory
+
+Budget: 16 KB RAM, 64 KB flash on ESP32-S3. **Synthetic test numbers.**
+
+| Metric | Value | Unit | What it measures | Measured on | Items | Date |
+|--------|-------|------|------------------|-------------|-------|------|
+| `latency_us` | 12 | us | Synthetic median latency (test number) | ESP32 in QEMU, 240 MHz (emulator) | 3 | 2026-10-08 |
+| `flash_kb` | 1.5 | KiB | Synthetic flash (test number) | host simulator (simulator) | None | 2026-10-08 |
+| `ram_kb` | 0.2 | KiB | Synthetic RAM (test number) | host simulator (simulator) | None | 2026-10-08 |
+
+## Limitations and risks
+
+**Experimental: not ready for production use.**
+
+Random weights. The outputs are deterministic but meaningless.
+
 ## Intended use
 
 Testing the release pipeline of the mobility model zoo for microcontroller models.
@@ -50,11 +74,9 @@ Testing the release pipeline of the mobility model zoo for microcontroller model
 
 Any real use. The model has random weights and its outputs mean nothing.
 
-## Input and output
-
-Input: 8 int8 values. Output: 2 int8 scores.
-
 ## How to run it
+
+Requires Python 3.12 or newer.
 
 ```bash
 pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@edge-fixture-tiny/v0.1.0"
@@ -82,6 +104,10 @@ mi_invoke(&mi_model_edge_fixture_tiny, in, out, arena, sizeof arena);
 ```
 
 The tag `v0.1.0` always points to this version. For strict reproducibility, pin the commit hash of that tag instead (`revision="<commit>"`).
+
+## Input and output
+
+Input: 8 int8 values. Output: 2 int8 scores.
 
 ## Examples
 
@@ -126,28 +152,6 @@ Expected output (bit-exact on the host reference and on the device):
 ```json
 [62, 54]
 ```
-
-## Quality
-
-Quality is measured against the labels of the datasets named below, on test data not used for training. Reference: synthetic labels (test numbers). Benchmark: `synthetic`. **Synthetic test numbers.**
-
-| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
-|--------|-------|------------------|-----------|-----------|-------|------|
-| `int8_accuracy` | 0.5 | Synthetic share of correct classes (test number) | synthetic labels | synthetic | 3 | 2026-10-08 |
-
-## Speed and memory
-
-Budget: 16 KB RAM, 64 KB flash on ESP32-S3. **Synthetic test numbers.**
-
-| Metric | Value | Unit | What it measures | Measured on | Items | Date |
-|--------|-------|------|------------------|-------------|-------|------|
-| `latency_us` | 12 | us | Synthetic median latency (test number) | ESP32 in QEMU, 240 MHz (emulator) | 3 | 2026-10-08 |
-| `flash_kb` | 1.5 | KiB | Synthetic flash (test number) | host simulator (simulator) | None | 2026-10-08 |
-| `ram_kb` | 0.2 | KiB | Synthetic RAM (test number) | host simulator (simulator) | None | 2026-10-08 |
-
-## Limitations and risks
-
-Random weights. The outputs are deterministic but meaningless.
 
 ## Training data provenance
 

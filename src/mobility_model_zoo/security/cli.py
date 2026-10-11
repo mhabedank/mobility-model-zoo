@@ -1,10 +1,10 @@
-"""`security` command line: task tools of the security topic (specs/005-…/contracts/cli.md).
+"""`zoo-security` command line: task tools of the security topic (specs/005-…/contracts/cli.md).
 
-    security can-ids frames road|can-train-and-test [--out DIR]
-    security can-ids forest evaluate|alarms|export|convert|testvectors [...]
-    security can-ids mlp train [--epochs N] [--seed S] [--out DIR]
-    security can-ids evaluate MODEL --benchmark can-ids-v1
-    security can-ids freeze
+    zoo-security can-ids frames road|can-train-and-test [--out DIR]
+    zoo-security can-ids forest evaluate|alarms|export|convert|testvectors [...]
+    zoo-security can-ids mlp train [--epochs N] [--seed S] [--out DIR]
+    zoo-security can-ids evaluate MODEL --benchmark can-ids-v1
+    zoo-security can-ids freeze
 
 Data and outputs live in $MMZ_DATA (default ~/.cache/mobility-model-zoo/datasets), never in the
 repository. Training needs the `edge-train` extra.
@@ -67,7 +67,7 @@ def mlp(ctx: typer.Context) -> None:
     from mobility_model_zoo.security.can_ids import mlp as model
 
     if not ctx.args or ctx.args[0] != "train":
-        say("usage: security can-ids mlp train [--epochs N] [--seed S] [--out DIR] [--download]")
+        say("usage: zoo-security can-ids mlp train [--epochs N] [--seed S] [--out DIR] [--download]")
         raise typer.Exit(2)
     model.main(ctx.args[1:])
 
@@ -93,7 +93,7 @@ def evaluate(
 
     manifest_path = benchmark_dir(benchmark) / "manifest.json"
     if not manifest_path.exists():
-        say(f"benchmark {benchmark} is not frozen yet: run `security can-ids freeze` first")
+        say(f"benchmark {benchmark} is not frozen yet: run `zoo-security can-ids freeze` first")
         raise typer.Exit(NOT_FROZEN)
     names = list(registry()) if detector == "all" else [detector]
     unknown = [n for n in names if n not in registry()]
@@ -194,7 +194,7 @@ def measure(
 
     export = export or derived_dir("picket-forest") / "export"
     if not (export / "picket_forest_model.h").exists():
-        say(f"no exported model in {export}: run `security can-ids forest export` first")
+        say(f"no exported model in {export}: run `zoo-security can-ids forest export` first")
         raise typer.Exit(5)
     out = out or REPO_ROOT / "zoo/models/picket-forest/results/0.1.0/performance.json"
     if target == "host":
@@ -288,11 +288,17 @@ def v2_examples(
     out: Path = typer.Option(None, help="examples folder (default zoo/models/picket-forest/examples)"),
 ) -> None:
     """Write the synthetic release examples with expected scores and alarms from the staged C chain."""
+    import shutil
+
     from mobility_model_zoo.edge.paths import REPO_ROOT, derived_dir
     from mobility_model_zoo.security.can_ids import release_export_v2 as rx
 
     src = export or derived_dir("picket-forest") / "export-v2"
-    for p in rx.write_examples(src, out or REPO_ROOT / "zoo" / "models" / "picket-forest" / "examples"):
+    target = out or REPO_ROOT / "zoo" / "models" / "picket-forest" / "examples"
+    staged = src / "examples"  # published with the release, next to the model (feature 013)
+    staged.mkdir(exist_ok=True)
+    for p in rx.write_examples(src, target):
+        shutil.copy(p, staged / p.name)
         say(str(p))
 
 
@@ -302,27 +308,32 @@ def v2_table(
     out: Path = typer.Option(Path("picket_forest_table.h"), help="header to write"),
     minutes: float = typer.Option(None, help="use at most this many minutes"),
 ) -> None:
-    """Calibration table of your vehicle from benign candump logs (cover driving, idle and parked)."""
-    import numpy as np
+    """Calibration table of your vehicle from benign candump logs (cover driving, idle and parked).
 
-    from mobility_model_zoo.security.can_ids import calibrated as cal
+    Writes the C header for the device and, next to it, the same table as JSON for the Python
+    reference (`picket_forest.load_table`)."""
+    from mobility_model_zoo.security.can_ids import picket_forest as pf
     from mobility_model_zoo.security.can_ids import release_export_v2 as rx
-    from mobility_model_zoo.security.can_ids.frames import read_candump
 
-    caps = []
-    for p in log:
-        df = read_candump(p)
-        caps.append(
-            {
-                "ts": df["ts_us"].to_numpy(np.float64) / 1e6,
-                "can_id": df["can_id"].to_numpy(np.uint32),
-                "dlc": df["dlc"].to_numpy(np.uint8),
-                "data": df[[f"b{i}" for i in range(8)]].to_numpy(np.uint8),
-                "y": np.zeros(len(df), np.uint8),
-            }
-        )
-    table = cal.calibrate(caps, max_seconds=None if minutes is None else minutes * 60)
-    rx.table_header(table, out, ", ".join(p.name for p in log))
-    say(f"{out}: {len(table.known)} IDs, {table.seconds / 60:.1f} min")
+    caps = [pf.read_candump(p) for p in log]
+    table = pf.calibrate(caps, max_seconds=None if minutes is None else minutes * 60)
+    note = ", ".join(p.name for p in log)
+    rx.table_header(table, out, note)
+    json_out = out.with_suffix(".json")
+    pf.save_table(table, json_out, note)
+    say(f"{out} and {json_out}: {len(table.known)} IDs, {table.seconds / 60:.1f} min")
     if table.seconds < 3600:
         say("warning: less than 60 min of calibration; false alarms rise sharply with short calibration")
+
+
+@v2.command("table-json")
+def v2_table_json(
+    header: Path = typer.Option(..., "--from-header", help="a picket_forest_table.h of a release"),
+    out: Path = typer.Option(Path("calibration_table.json"), help="JSON file to write"),
+) -> None:
+    """The calibration table of an existing header as JSON (repacks a release without retraining)."""
+    from mobility_model_zoo.security.can_ids import picket_forest as pf
+
+    table = pf.table_from_header(header.read_text(encoding="utf-8"))
+    pf.save_table(table, out, f"from {header.name}")
+    say(f"{out}: {len(table.known)} IDs")

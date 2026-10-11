@@ -17,7 +17,7 @@ def test_check_build_preview_publish_never_print_the_token(zoo_env, monkeypatch)
     monkeypatch.chdir(zoo_env.root)
     monkeypatch.setenv("HF_RELEASE_TOKEN", SENTINEL)
     monkeypatch.setattr(cli, "_hub", lambda env_name: zoo_env.hub)
-    monkeypatch.setattr(cli, "_runner", lambda: FakeRunner())
+    monkeypatch.setattr(cli, "_runner", lambda model: FakeRunner())
     runner = CliRunner()
     outputs = []
     for args in (
