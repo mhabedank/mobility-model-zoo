@@ -114,7 +114,10 @@ def quality(catalogue: str, kind: str) -> dict[str, Any]:
     return {"score": int(q["score"]), "rationale": q["rationale"].format(catalogue=catalogue, kind=kind)}
 
 
-CC = re.compile(r"creativecommons\.org/(licenses|publicdomain)/([a-z-]+)/(\d\.\d)", re.IGNORECASE)
+CC = re.compile(
+    r"creativecommons\.org/(licenses|publicdomain)/([a-z-]+)/(\d\.\d)(?:/([a-z]{2})(?=/|$|[?#\s]))?",
+    re.IGNORECASE,
+)
 SPDX_ALIASES = {
     "cc-by": "CC-BY-4.0",
     "cc-by-4.0": "CC-BY-4.0",
@@ -157,10 +160,11 @@ def spdx(value: str | None) -> str:
     text = str(value).strip()
     m = CC.search(text)
     if m:
-        kind, code, version = m.group(1).lower(), m.group(2).lower(), m.group(3)
+        kind, code, version, port = m.group(1).lower(), m.group(2).lower(), m.group(3), m.group(4)
         if kind == "publicdomain":
             return "CC0-1.0" if code == "zero" else "unknown"
-        return f"CC-{code.upper()}-{version}"
+        # a jurisdiction port (by/2.1/jp) keeps its country: CC-BY-2.1-JP, decided by the owner (U6)
+        return f"CC-{code.upper()}-{version}" + (f"-{port.upper()}" if port else "")
     key = text.lower().replace("_", "-").rstrip("/")
     return SPDX_ALIASES.get(key, SPDX_ALIASES.get(key.replace(" ", "-"), "unknown"))
 

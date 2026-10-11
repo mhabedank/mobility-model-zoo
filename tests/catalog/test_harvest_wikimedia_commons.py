@@ -147,7 +147,7 @@ def test_licence_mapping(tmp_path):
         "Bicycle diagram-es": "CC-BY-SA-3.0",
         "Gráfico uso de la bicicleta en Madrid 2010-2020": "LicenseRef-US-PD",
         "Bicicletas en la plaza (2015)": "unknown",
-        "Ciclismo urbano en Buenos Aires": "CC-BY-2.5",
+        "Ciclismo urbano en Buenos Aires": "CC-BY-2.5-AR",  # jurisdiction port kept
         "Mapa ubicación Carril bici Castellana": "GFDL-1.2-or-later",
         "Bike lane network diagram": "CC0-1.0",
     }
