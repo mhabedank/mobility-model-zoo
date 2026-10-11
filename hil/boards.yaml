@@ -36,7 +36,7 @@ boards:
   # Replace the match with what `edge discover` prints for your board.
   - id: esp8266-1
     target: esp8266
-    match: {vid_pid: "1a86:7523"}
+    match: {vid_pid: "10c4:ea60"}  # owner's D1 mini (CP2102 variant)
     tags: [esp, xtensa]
 
   # Further boards - uncomment / adapt as you add hardware:
