@@ -26,8 +26,15 @@ card:
     Input: bundles of `jtbd-span-v1` outputs with their source ids (`jtbd-cluster-input-v1`). Output: one JSON document in the format `jtbd-cluster-v1` with items, duplicate groups (one kind each), clusters (kinds may mix), counts, attribute distributions, dates, checks and corrections, plus the views `tree.md` and `needs.csv`.
   install: pip install "mobility-model-zoo[jtbd,cluster] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
-    uv run jtbd cluster run --input items.jsonl --map map/ --settings cairn-base.yaml
-    uv run jtbd cluster report --map map/
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.productdev.jtbd.cluster.bundle import read_bundle
+    from mobility_model_zoo.productdev.jtbd.cluster.report import write_report
+    from mobility_model_zoo.productdev.jtbd.cluster.stage import ClusterStage
+
+    settings = hf_hub_download("{repo_id}", "cairn-base.yaml", revision="{revision}")
+    ClusterStage.from_settings(settings).run(read_bundle("items.jsonl"), map_dir="map")
+    write_report("map")  # map/tree.md and map/needs.csv
   limitations: |
     - In development: not released; numbers on the website and the card follow with the first release.
     - No specificity relation: more specific needs are not linked under more general ones in this commercially usable variant, because every multilingual NLI model checked so far was trained on non-commercial data.
