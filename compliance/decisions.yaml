@@ -241,7 +241,8 @@ decisions:
     Data Processing Addendum, which incorporates the standard contractual clauses of Commission Decision 2021/914.
     Only redacted benchmark texts go there (for feature 009 the cluster-v1 pool of redacted quotes); the service
     is deleted after the run. Recorded retrospectively for the scout-large 0.1.0 measurement of 2026-10-07, which
-    sent redacted benchmark chunks to a Railway service before the compliance harness existed.
+    sent redacted benchmark chunks to a Railway service in the US West region (`sfo`, service jtbd-perf) before
+    the compliance harness existed.
   rationale: 'Constitution III needs speed and memory on an 8 GB / 4 vCPU / no-GPU machine. Railway offers a DPA
     with standard contractual clauses (railway.com/legal/dpa, read 2026-10-11) and an EU region; it gives no
     contractual data residency (its control plane is operated in the US) and is not found on the Data Privacy
