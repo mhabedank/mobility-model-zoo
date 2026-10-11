@@ -221,3 +221,11 @@ ul.why { list-style: none; padding: 0; margin: 0; }
 .layers ol { counter-reset: layer 1; }
 .metric .bar { width: 100%; max-width: 240px; height: auto; margin-top: 6px; }
 ul.why li + li, .layers li + li { margin-top: 0; }
+.limits-short { display: flex; flex-direction: column; gap: 10px; max-width: 860px; }
+.limits-short ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.limits-short li + li { margin-top: 0; }
+.limits-short .h3 { font-size: 19px; margin-top: 6px; }
+.evidence a { white-space: nowrap; }
+#limits details { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; background: var(--surface); }
+#limits details summary { cursor: pointer; font-weight: 600; }
+#limits details[open] summary { margin-bottom: 10px; }

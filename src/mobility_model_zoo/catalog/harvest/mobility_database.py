@@ -25,8 +25,11 @@ MAX_PAGES = 25  # per endpoint and country: 2,500 feeds
 MAX_ROUTES = 5
 SKIP_STATUS = {"deprecated", "inactive"}
 FORMATS = {"gtfs": ["application/zip"], "gtfs_rt": ["application/x-protobuf"]}
-LABELS = {("gtfs",): "GTFS feeds", ("gtfs_rt",): "GTFS Realtime feeds",
-          ("gtfs", "gtfs_rt"): "GTFS and GTFS Realtime feeds"}
+LABELS = {
+    ("gtfs",): "GTFS feeds",
+    ("gtfs_rt",): "GTFS Realtime feeds",
+    ("gtfs", "gtfs_rt"): "GTFS and GTFS Realtime feeds",
+}
 SPDX_ID = re.compile(r"^([A-Za-z0-9.+-]+|LicenseRef-[A-Za-z0-9.-]+)$")
 COUNTRY = re.compile(r"^[A-Z]{2}$")
 # A public authority by its name (simple on purpose; the owner refines `publisher.kind` per entry).
@@ -44,17 +47,22 @@ class MobilityDatabase:
     catalogue = "Mobility Database"
     env_keys = ("MOBILITYDATABASE_REFRESH_TOKEN",)
     modalities = ("structured_data",)
-    method = ("Mobility Database catalogue API (/v1/gtfs_feeds, /v1/gtfs_rt_feeds by country_code); "
-              "one collection per provider; metadata only, no feed downloaded")
+    method = (
+        "Mobility Database catalogue API (/v1/gtfs_feeds, /v1/gtfs_rt_feeds by country_code); "
+        "one collection per provider; metadata only, no feed downloaded"
+    )
 
     def iterate(self, scope: Scope, ctx: Context) -> Iterator[dict[str, Any]]:
         if not scope.areas:
-            raise UsageError("mobility-database needs --area: one or more ISO 3166-1 alpha-2 country "
-                             "codes (for example --area ES PL JP)")
+            raise UsageError(
+                "mobility-database needs --area: one or more ISO 3166-1 alpha-2 country "
+                "codes (for example --area ES PL JP)"
+            )
         regions = [a for a in scope.areas if not COUNTRY.match(a) or a == "EU"]
         if regions:
-            raise UsageError(f"mobility-database lists feeds by country; {', '.join(regions)} is not a "
-                             "country code")
+            raise UsageError(
+                f"mobility-database lists feeds by country; {', '.join(regions)} is not a country code"
+            )
         if "structured_data" not in scope.modalities:
             ctx.say(f"{self.name}: feeds are structured data; nothing in scope")
             return
@@ -67,8 +75,10 @@ class MobilityDatabase:
             for feed in self.feeds(area, headers, ctx):
                 if feed_in_scope(feed, area):
                     providers.setdefault(provider_of(feed), []).append(feed)
-            ctx.say(f"{self.name}: {area}: {sum(map(len, providers.values()))} feeds, "
-                    f"{len(providers)} providers")
+            ctx.say(
+                f"{self.name}: {area}: {sum(map(len, providers.values()))} feeds, "
+                f"{len(providers)} providers"
+            )
             for provider, feeds in providers.items():
                 cand = self.collection(area, provider, feeds)
                 if cand:
@@ -80,8 +90,10 @@ class MobilityDatabase:
         refresh = ctx.env["MOBILITYDATABASE_REFRESH_TOKEN"]
         r = ctx.client.post(f"{API}/tokens", json={"refresh_token": refresh})
         if r.status_code in (400, 401, 403):
-            raise CredentialError(f"MOBILITYDATABASE_REFRESH_TOKEN was refused (HTTP {r.status_code}); "
-                                  "renew it at mobilitydatabase.org (see docs/credentials.md)")
+            raise CredentialError(
+                f"MOBILITYDATABASE_REFRESH_TOKEN was refused (HTTP {r.status_code}); "
+                "renew it at mobilitydatabase.org (see docs/credentials.md)"
+            )
         r.raise_for_status()
         token = (r.json() or {}).get("access_token")
         if not token:
@@ -143,8 +155,11 @@ def feed_in_scope(feed: dict[str, Any], area: str) -> bool:
     """Active (or development/future) feeds located mostly in `area`."""
     if str(feed.get("status") or "").lower() in SKIP_STATUS:
         return False
-    counts = Counter(str(loc.get("country_code") or "") for loc in feed.get("locations") or []
-                     if isinstance(loc, dict))
+    counts = Counter(
+        str(loc.get("country_code") or "")
+        for loc in feed.get("locations") or []
+        if isinstance(loc, dict)
+    )
     return not counts or counts[area] == max(counts.values())
 
 

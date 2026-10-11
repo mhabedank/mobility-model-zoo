@@ -74,6 +74,14 @@ VOID = {
 }  # fmt: skip
 
 
+# Elements whose boundaries separate words; inline elements join their text directly.
+BLOCK = {
+    "address", "article", "aside", "blockquote", "br", "dd", "details", "div", "dl", "dt",
+    "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "li",
+    "main", "nav", "ol", "p", "pre", "section", "summary", "table", "td", "th", "tr", "ul",
+}  # fmt: skip
+
+
 class Node:
     def __init__(self, tag: str, attrs: dict[str, str | None], parent: Node | None) -> None:
         self.tag = tag
@@ -107,23 +115,28 @@ class Node:
         """All text below this node; with `visible`, without skipped and collapsed text."""
         out: list[str] = []
         self._text(out, visible)
-        return " ".join(" ".join(out).split())
+        return " ".join("".join(out).split())
 
     def _text(self, out: list[str], visible: bool) -> None:
         if self.tag in ("script", "style"):
             return
         if visible and (self.tag == "sup" or self.get("data-budget") == "skip"):
             return
+        block = self.tag in BLOCK
+        if block:
+            out.append(" ")
         if visible and self.tag == "details" and "open" not in self.attrs:
             for c in self.children:  # a closed <details> shows its summary only
                 if isinstance(c, Node) and c.tag == "summary":
                     c._text(out, visible)
-            return
-        for c in self.children:
-            if isinstance(c, str):
-                out.append(c)
-            else:
-                c._text(out, visible)
+        else:
+            for c in self.children:
+                if isinstance(c, str):
+                    out.append(c)
+                else:
+                    c._text(out, visible)
+        if block:
+            out.append(" ")
 
 
 class _Builder(HTMLParser):

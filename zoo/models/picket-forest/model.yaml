@@ -58,6 +58,15 @@ card:
     - Masquerade (a silenced ECU replaced at its normal timing) is not detected. Classic CAN only; no CAN FD.
     - No adversarial evaluation: an attacker who knows the rules can stay below the calibrated counts. The code, features and thresholds are public; do not rely on it as the only line of defence.
     - Calibration is done on the host and compiled into the device; on-device calibration is not implemented.
+  limits_short:
+    - "False alarms depend on the calibration: it must cover driving, idle, parked and diagnostics."
+    - A legitimate identifier missing from the calibration floods alarms.
+    - Masquerade attacks are not detected, and there is no adversarial evaluation.
+  unmet_criteria:
+    - criterion: Shuffled-label control of the pre-registered evaluation
+      note: failed; the calibrated features are themselves anomaly signals
+    - criterion: Budgets measured on the reference board
+      note: the numbers of this release come from an emulator, not a board
   citation: |
     @misc{mobility-model-zoo-picket-forest,
       title  = {Picket (forest): CAN bus intrusion detection on a microcontroller, mobility-model-zoo},

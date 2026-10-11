@@ -187,6 +187,16 @@ def _prose(pitch: dict) -> Iterable[tuple[str, str]]:
         yield f"metric_cards[{i}]", " ".join([c["label"], c.get("compare_label", "")])
 
 
+def _card_prose(card: dict) -> Iterable[tuple[str, str]]:
+    for key in ("not_for", "limits_short"):
+        for i, text in enumerate(card.get(key) or []):
+            yield f"{key}[{i}]", text
+    for i, item in enumerate(card.get("unmet_criteria") or []):
+        for field in ("criterion", "note"):
+            if item.get(field):
+                yield f"unmet_criteria[{i}].{field}", item[field]
+
+
 class _TemplateText(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=False)
@@ -223,6 +233,11 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
         for key, text in _prose(load_yaml(path) or {}):
             for n in literal_numbers(text):
                 yield Finding("F2", f"zoo/models/{name}/site.yaml", f"{key}: literal number {n!r}")
+    for name in reg.model_names():  # feature 013: short forms of the card
+        card = reg.model_raw(name).get("card") or {}
+        for key, text in _card_prose(card):
+            for n in literal_numbers(text):
+                yield Finding("F2", f"zoo/models/{name}/model.yaml", f"card.{key}: literal number {n!r}")
     from importlib import resources
 
     base = resources.files("mobility_model_zoo.site").joinpath("templates")
@@ -605,6 +620,8 @@ def run_checks(
         ("O5", lambda: check_og_hash(reg, out)),
         ("D4", lambda: depth.check_overview(reg, out)),
         ("D3", lambda: depth.check_quality(reg, out)),
+        ("D1", lambda: depth.check_short_forms(reg)),
+        ("D3", lambda: depth.check_limits(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

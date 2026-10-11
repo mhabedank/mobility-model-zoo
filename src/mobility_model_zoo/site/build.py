@@ -19,7 +19,14 @@ from typing import Any
 import jinja2
 from markupsafe import Markup
 
-from mobility_model_zoo.release.card import fill, install_line, num, status_sentence, topic_url
+from mobility_model_zoo.release.card import (
+    REPO_URL,
+    fill,
+    install_line,
+    num,
+    status_sentence,
+    topic_url,
+)
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
 from mobility_model_zoo.site import charts, context, examples, facts, og, schema_doc
@@ -104,6 +111,23 @@ def _card(reg, name, version, spec, f: facts.Facts, notes: facts.Notes, page) ->
     return card
 
 
+def _evidence(reg: Registry, name: str, version: str, latest: dict[str, Any]) -> list[dict[str, str]]:
+    """Where the limits come from (feature 013, FR-013): method, results, release notes, compliance."""
+    tag = latest["tag"]
+    rec = reg.record_raw(name, version)
+    out = []
+    doc = (rec.get("recipe") or {}).get("doc")
+    if doc:
+        out.append({"label": "How it is built and measured", "url": context.gh_blob(doc, tag)})
+    results = f"zoo/models/{name}/results/{version}"
+    if (reg.root / results).is_dir():
+        out.append({"label": f"Results of v{version}", "url": f"{REPO_URL}/tree/{tag}/{results}"})
+    out.append({"label": "Release notes", "url": "#versions"})
+    if latest["links"].get("compliance"):
+        out.append({"label": f"Compliance record of v{version}", "url": latest["links"]["compliance"]})
+    return out
+
+
 def model_page(
     reg: Registry, sm: dict[str, Any], f: facts.Facts, offline: bool, refresh: bool
 ) -> dict[str, Any]:
@@ -171,6 +195,7 @@ def model_page(
         "not_for": [res(t, f"not_for{i}") for i, t in enumerate(sm["short"]["not_for"])],
         "limits_short": [res(t, f"limits_short{i}") for i, t in enumerate(sm["short"]["limits_short"])],
         "unmet": facts.unmet_rows(reg, name, version, sm["short"]["unmet_criteria"], f, notes, page),
+        "evidence": _evidence(reg, name, version, latest),
         "notes": notes.items,
         "recipe": context.gh_blob(recipe) if (reg.root / recipe).exists() else None,
         "hf": f"{context.HF}/{m['repos']['public']}",

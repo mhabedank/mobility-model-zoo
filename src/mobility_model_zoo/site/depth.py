@@ -176,3 +176,49 @@ def check_quality(reg: Registry, out: Path) -> Iterable[Finding]:
         rel, root = _page(out, sm["name"])
         if root is not None:
             yield from quality_findings(rel, root)
+
+
+# ---- D1 and the third layer of D2/D3 -------------------------------------------------------------
+def check_short_forms(reg: Registry) -> Iterable[Finding]:
+    """D1: the card short forms every published model needs, with the same rules as gate rule 18."""
+    from mobility_model_zoo.site import context
+
+    for sm in _published(reg):
+        page = f"zoo/models/{sm['name']}/model.yaml"
+        errors = context.short_form_errors(reg, sm["name"], sm["latest"], sm["release_status"], sm["m"])
+        for e in errors:
+            yield Finding("D1", page, e)
+
+
+def limits_findings(rel: str, root: b.Node) -> list[Finding]:
+    layer = _layer(root, "limits")
+    if layer is None:
+        return [Finding("D5", rel, "no limits layer")]
+    out: list[Finding] = []
+    short = layer.find(lambda n: n.get("data-short") == "limits")
+    if short is None:
+        return [Finding("D3", rel, "limits: no short form")]
+    first = next((c for c in layer.iter() if c.get("data-short") or c.tag == "details"), None)
+    if first is not short:
+        out.append(Finding("D3", rel, "limits: the short form is not the first content of the layer"))
+    items = short.find_all(lambda n: n.tag == "li")
+    if len(items) > b.LIMITS_SHORT_ITEMS:
+        out.append(
+            Finding("D2", rel, f"limits: {len(items)} short-form items, limit {b.LIMITS_SHORT_ITEMS}")
+        )
+    words = b.visible_words(short)
+    if words > b.LIMITS_SHORT_WORDS:
+        out.append(
+            Finding("D2", rel, f"limits: short form has {words} words, limit {b.LIMITS_SHORT_WORDS}")
+        )
+    for d in layer.find_all(lambda n: n.tag == "details"):
+        if "open" in d.attrs:
+            out.append(Finding("D3", rel, "limits: a full text is open by default"))
+    return out
+
+
+def check_limits(reg: Registry, out: Path) -> Iterable[Finding]:
+    for sm in _published(reg):
+        rel, root = _page(out, sm["name"])
+        if root is not None:
+            yield from limits_findings(rel, root)
