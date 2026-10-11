@@ -38,8 +38,14 @@ def build_system_prompt(settings: Settings) -> str:
         ]
         if example.get("note"):
             parts.append(f"Why: {example['note'].strip()}")
-    parts += ["", "## Output", INSTRUCTIONS, "", "Schema:",
-              json.dumps(wire_schema(), ensure_ascii=False, indent=2)]
+    parts += [
+        "",
+        "## Output",
+        INSTRUCTIONS,
+        "",
+        "Schema:",
+        json.dumps(wire_schema(), ensure_ascii=False, indent=2),
+    ]
     return "\n".join(parts) + "\n"
 
 

@@ -6,6 +6,7 @@ runtime: mcu
 title: 'Picket (forest): CAN bus intrusion detection on a microcontroller'
 summary: A random forest that scores every classic CAN frame from 13 streaming timing and payload features and raises an alarm when several frames in a short window look like an attack. It is exported to plain C with emlearn and runs on ESP32-class microcontrollers; the C scores are identical to the Python scores.
 license: Apache-2.0
+usage_class: commercial
 license_exception: null
 base_model: null
 base_model_license: null

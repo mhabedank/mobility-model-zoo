@@ -414,7 +414,7 @@
             "if": {
               "properties": {
                 "licence": {
-                  "pattern": "-N[CD]"
+                  "pattern": "-ND"
                 }
               },
               "required": [

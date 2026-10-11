@@ -78,13 +78,23 @@ def match_runs(settings: Settings, run_a: str, run_b: str) -> dict[str, Any]:
         if out_a[chunk_id].relevant is None or out_b[chunk_id].relevant is None:
             continue
         for m in match_items(out_a[chunk_id].items, out_b[chunk_id].items, min_iou):
-            rows.append({
-                "chunk_id": chunk_id, "run_a": run_a, "run_b": run_b,
-                "item_a": m.a.index if m.a else None, "item_b": m.b.index if m.b else None,
-                "iou": round(m.iou, 6), "same_kind": m.same_kind,
-            })
+            rows.append(
+                {
+                    "chunk_id": chunk_id,
+                    "run_a": run_a,
+                    "run_b": run_b,
+                    "item_a": m.a.index if m.a else None,
+                    "item_b": m.b.index if m.b else None,
+                    "iou": round(m.iou, 6),
+                    "same_kind": m.same_kind,
+                }
+            )
     write_jsonl(settings.analysis_dir / "matches" / f"{run_a}__{run_b}.jsonl", rows)
     matched = sum(1 for r in rows if r["item_a"] is not None and r["item_b"] is not None)
-    return {"run_a": run_a, "run_b": run_b, "matched": matched,
-            "unmatched_a": sum(1 for r in rows if r["item_b"] is None),
-            "unmatched_b": sum(1 for r in rows if r["item_a"] is None)}
+    return {
+        "run_a": run_a,
+        "run_b": run_b,
+        "matched": matched,
+        "unmatched_a": sum(1 for r in rows if r["item_b"] is None),
+        "unmatched_b": sum(1 for r in rows if r["item_a"] is None),
+    }

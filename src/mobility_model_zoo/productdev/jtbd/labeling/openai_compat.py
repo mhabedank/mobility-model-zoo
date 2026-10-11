@@ -22,8 +22,7 @@ class OpenAICompatBackend:
     def __init__(self, settings: Settings, entry: ModelEntry):
         from openai import OpenAI
 
-        base_url = entry.extra.get("base_url") or os.environ.get(
-            entry.extra.get("base_url_env", ""), "")
+        base_url = entry.extra.get("base_url") or os.environ.get(entry.extra.get("base_url_env", ""), "")
         if not base_url:
             raise UsageError(f"set base_url (or base_url_env) for {entry.model_id}")
         if not entry.api_model:
@@ -36,21 +35,23 @@ class OpenAICompatBackend:
             # e.g. mlx_lm.server ignores response_format: the schema is only in the prompt and the
             # output is validated afterwards.
             self.structured_output = "post_validation"
-            self.deviations.append(f"{entry.model_id}: server does not enforce the JSON schema; "
-                                   "outputs validated after generation")
+            self.deviations.append(
+                f"{entry.model_id}: server does not enforce the JSON schema; "
+                "outputs validated after generation"
+            )
 
     def call(self, system: str, user: str, schema: dict, chunk_id: str) -> CallResult:
         start = time.monotonic()
         try:
             response = self.client.chat.completions.create(
                 model=self.entry.api_model,
-                messages=[{"role": "system", "content": system},
-                          {"role": "user", "content": user}],
+                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                 temperature=0,
                 max_tokens=self.max_tokens,
-                response_format={"type": "json_schema",
-                                 "json_schema": {"name": "extraction_output", "strict": True,
-                                                 "schema": schema}},
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {"name": "extraction_output", "strict": True, "schema": schema},
+                },
                 # Server-specific fields, e.g. {"adapters": path} for mlx_lm.server, whose
                 # --adapter-path is ignored for "default_model" in 0.31.3.
                 extra_body=self.entry.extra.get("extra_body"),

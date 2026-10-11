@@ -118,6 +118,7 @@ def model_page(
         "topic": topic,
         "topic_url": topic_url(topic),
         "status": sm["status"],
+        "usage": sm["usage"],
         "latest": latest,
         "releases": sm["releases"],
         "pitch": pitch,

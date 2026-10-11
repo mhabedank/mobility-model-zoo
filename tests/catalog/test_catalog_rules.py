@@ -79,6 +79,13 @@ def test_u4_nc_nd(entry, lid):
     )
 
 
+def test_u3_skips_licences_that_never_train(entry):
+    assert any(item["id"] == "CC-BY-SA-3.0" and item.get("trains") is False for item in ALLOW)
+    entry["licence"]["id"] = "CC-BY-SA-3.0"
+    usage, _ = _apply(entry)
+    assert usage["rule"] != "U3" and usage["permitted_use"] != "training_allowed"
+
+
 def test_u5_proprietary_with_source_class(entry):
     entry["licence"]["id"] = "LicenseRef-proprietary"
     entry["publisher"]["kind"] = "parliament"

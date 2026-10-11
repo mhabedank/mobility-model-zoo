@@ -22,14 +22,69 @@ from mobility_model_zoo.productdev.jtbd.schema import (
 
 NUMBER_WORDS = {
     # English
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
-    "twelve", "twenty", "thirty", "forty", "fifty", "hundred", "thousand", "million", "billion",
-    "percent", "half", "quarter", "third", "dozen", "twice", "double", "triple", "once",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "twenty",
+    "thirty",
+    "forty",
+    "fifty",
+    "hundred",
+    "thousand",
+    "million",
+    "billion",
+    "percent",
+    "half",
+    "quarter",
+    "third",
+    "dozen",
+    "twice",
+    "double",
+    "triple",
+    "once",
     # German
-    "eins", "ein", "eine", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun",
-    "zehn", "elf", "zwölf", "zwanzig", "dreißig", "vierzig", "fünfzig", "hundert", "tausend",
-    "millionen", "milliarde", "milliarden", "prozent", "hälfte", "halb", "viertel",
-    "drittel", "dutzend", "doppelt", "zweimal", "dreimal", "einmal",
+    "eins",
+    "ein",
+    "eine",
+    "zwei",
+    "drei",
+    "vier",
+    "fünf",
+    "sechs",
+    "sieben",
+    "acht",
+    "neun",
+    "zehn",
+    "elf",
+    "zwölf",
+    "zwanzig",
+    "dreißig",
+    "vierzig",
+    "fünfzig",
+    "hundert",
+    "tausend",
+    "millionen",
+    "milliarde",
+    "milliarden",
+    "prozent",
+    "hälfte",
+    "halb",
+    "viertel",
+    "drittel",
+    "dutzend",
+    "doppelt",
+    "zweimal",
+    "dreimal",
+    "einmal",
 }
 ENUMS = {
     "kind": KINDS,
@@ -60,8 +115,9 @@ def check_output(chunk_id: str, candidate: Any, text: str, rules: list[str]) -> 
         output = ExtractionOutput.model_validate(candidate)
         rows.append({"chunk_id": chunk_id, "check": "schema_valid", "passed": True})
     except Exception as exc:  # noqa: BLE001 - any failure counts as schema failure
-        rows.append({"chunk_id": chunk_id, "check": "schema_valid", "passed": False,
-                     "detail": str(exc)[:300]})
+        rows.append(
+            {"chunk_id": chunk_id, "check": "schema_valid", "passed": False, "detail": str(exc)[:300]}
+        )
         output = None
     items = candidate.get("items", []) if isinstance(candidate, dict) else []
     items = items if isinstance(items, list) else []
@@ -70,8 +126,15 @@ def check_output(chunk_id: str, candidate: Any, text: str, rules: list[str]) -> 
             if not isinstance(item, dict):
                 continue
             bad = [k for k, allowed in ENUMS.items() if item.get(k) not in allowed]
-            rows.append({"chunk_id": chunk_id, "item_index": n, "check": "consistency.enum_values",
-                         "passed": not bad, "detail": ",".join(bad) or None})
+            rows.append(
+                {
+                    "chunk_id": chunk_id,
+                    "item_index": n,
+                    "check": "consistency.enum_values",
+                    "passed": not bad,
+                    "detail": ",".join(bad) or None,
+                }
+            )
     if output is None:
         return rows
     used: list[tuple[int, int]] = []
@@ -79,46 +142,92 @@ def check_output(chunk_id: str, candidate: Any, text: str, rules: list[str]) -> 
         span = locate(item.quote, text, used)
         if span:
             used.append(span)
-        rows.append({"chunk_id": chunk_id, "item_index": n, "check": "quote_verbatim",
-                     "passed": span is not None})
+        rows.append(
+            {
+                "chunk_id": chunk_id,
+                "item_index": n,
+                "check": "quote_verbatim",
+                "passed": span is not None,
+            }
+        )
         if "quantified_has_quantity" in rules and item.evidence_scope == "quantified":
-            rows.append({"chunk_id": chunk_id, "item_index": n,
-                         "check": "consistency.quantified_has_quantity",
-                         "passed": has_quantity(item.quote)})
+            rows.append(
+                {
+                    "chunk_id": chunk_id,
+                    "item_index": n,
+                    "check": "consistency.quantified_has_quantity",
+                    "passed": has_quantity(item.quote),
+                }
+            )
     if "irrelevant_no_items" in rules:
-        rows.append({"chunk_id": chunk_id, "check": "consistency.irrelevant_no_items",
-                     "passed": output.relevant or not output.items})
+        rows.append(
+            {
+                "chunk_id": chunk_id,
+                "check": "consistency.irrelevant_no_items",
+                "passed": output.relevant or not output.items,
+            }
+        )
     return rows
 
 
-def check_span_output(chunk_id: str, candidate: Any, text: str,
-                      dimensions: list[str]) -> list[dict]:
+def check_span_output(chunk_id: str, candidate: Any, text: str, dimensions: list[str]) -> list[dict]:
     """Checks of a jtbd-span-v1 output (feature 004): schema, verbatim spans, consistency."""
     import jsonschema
 
     from mobility_model_zoo.productdev.jtbd.span.extractor import SCHEMA_PATH
 
     rows: list[dict] = []
-    errors = sorted(jsonschema.Draft202012Validator(json.loads(SCHEMA_PATH.read_text()))
-                    .iter_errors(candidate), key=str)
-    rows.append({"chunk_id": chunk_id, "check": "schema_valid", "passed": not errors,
-                 "detail": str(errors[0].message)[:300] if errors else None})
+    errors = sorted(
+        jsonschema.Draft202012Validator(json.loads(SCHEMA_PATH.read_text())).iter_errors(candidate),
+        key=str,
+    )
+    rows.append(
+        {
+            "chunk_id": chunk_id,
+            "check": "schema_valid",
+            "passed": not errors,
+            "detail": str(errors[0].message)[:300] if errors else None,
+        }
+    )
     if errors or not isinstance(candidate, dict):
         return rows
     items = candidate["items"]
     for n, item in enumerate(items):
         start, end = item["start"], item["end"]
-        rows.append({"chunk_id": chunk_id, "item_index": n, "check": "quote_verbatim",
-                     "passed": start < end <= len(text) and text[start:end] == item["quote"]})
+        rows.append(
+            {
+                "chunk_id": chunk_id,
+                "item_index": n,
+                "check": "quote_verbatim",
+                "passed": start < end <= len(text) and text[start:end] == item["quote"],
+            }
+        )
         attrs = sorted(k for k in item if k in ENUMS and k != "kind")
-        rows.append({"chunk_id": chunk_id, "item_index": n, "check": "consistency.span_dimensions",
-                     "passed": attrs == sorted(dimensions), "detail": ",".join(attrs) or None})
+        rows.append(
+            {
+                "chunk_id": chunk_id,
+                "item_index": n,
+                "check": "consistency.span_dimensions",
+                "passed": attrs == sorted(dimensions),
+                "detail": ",".join(attrs) or None,
+            }
+        )
     ordered = all(a["end"] <= b["start"] for a, b in zip(items, items[1:], strict=False))
     rows.append({"chunk_id": chunk_id, "check": "consistency.span_order", "passed": ordered})
-    rows.append({"chunk_id": chunk_id, "check": "consistency.span_dimensions_declared",
-                 "passed": sorted(candidate["dimensions"]) == sorted(dimensions)})
-    rows.append({"chunk_id": chunk_id, "check": "consistency.irrelevant_no_items",
-                 "passed": candidate["relevant"] or not items})
+    rows.append(
+        {
+            "chunk_id": chunk_id,
+            "check": "consistency.span_dimensions_declared",
+            "passed": sorted(candidate["dimensions"]) == sorted(dimensions),
+        }
+    )
+    rows.append(
+        {
+            "chunk_id": chunk_id,
+            "check": "consistency.irrelevant_no_items",
+            "passed": candidate["relevant"] or not items,
+        }
+    )
     return rows
 
 

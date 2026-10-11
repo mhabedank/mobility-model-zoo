@@ -74,7 +74,9 @@ def apply(
         return old, []
     if lid in ("unknown", "mixed"):
         return _usage("undetermined", "unclear", "U2", f"licence is {lid}", today, evidence), []
-    allowed = {item["id"]: item for item in allowlist}
+    # the list also holds non-commercial licences (U4 decides them) and licences that never train
+    allowed = {item["id"]: item for item in allowlist
+               if item.get("trains", True) and not item.get("non_commercial")}
     if lid in allowed:
         sa = bool(allowed[lid].get("share_alike"))
         why = f"{lid} is on the licence allow-list" + (" (share-alike)" if sa else "")

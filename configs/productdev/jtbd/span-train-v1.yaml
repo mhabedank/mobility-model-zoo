@@ -22,6 +22,7 @@ paths:
 
 span_train:
   dataset: span-train-v1
+  model: scout-large   # its declared usage class decides which licences may train it (feature 011)
   # Training snapshots must not share a source with this benchmark's main or holdout chunks (R2).
   # If the pilot's final decision uses a rerun, point this at that version's config (T036).
   exclude_benchmark: configs/productdev/jtbd/pilot-v1.yaml

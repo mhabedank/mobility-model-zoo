@@ -42,7 +42,6 @@ def vehicle_of(set_name: str, split: str) -> str:
     return VEHICLES[set_name]["unknown" if "unknown_vehicle" in split else "known"]
 
 
-
 def parse_csv(raw: bytes) -> pd.DataFrame:
     df = pd.read_csv(io.BytesIO(raw), dtype={"arbitration_id": str, "data_field": str})
     data = df["data_field"].fillna("").str.strip()
@@ -61,7 +60,6 @@ def parse_csv(raw: bytes) -> pd.DataFrame:
         out[f"b{i}"] = payload[:, i]
     out["label"] = df["attack"].astype(np.uint8)
     return out
-
 
 
 def load(data_dir: Path, set_name: str, split: str) -> dict[str, pd.DataFrame]:

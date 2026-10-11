@@ -1,6 +1,7 @@
 <section class="sec" id="quickstart" aria-labelledby="qs-h"><div class="wrap">
 <div class="sec-head"><div class="eyebrow">Quickstart</div><h2 class="h2" id="qs-h">Install, load, extract.</h2>
-<p class="muted">{{ p.hardware_note }}</p></div>
+<p class="muted">{{ p.hardware_note }}</p>
+{% if p.usage["class"].startswith("non-commercial") %}<p class="notice" role="note"><strong>Non-commercial use only.</strong> {{ p.usage.text }}</p>{% endif %}</div>
 <ol class="steps" style="list-style:none;padding:0">
 <li class="step"><h3>Install version {{ p.latest.version }}</h3>
 <div class="code"><div class="code-top"><span>shell</span><button class="copy" type="button" data-copy="qs-install">Copy</button></div><pre id="qs-install"><code>{{ p.install }}</code></pre></div></li>

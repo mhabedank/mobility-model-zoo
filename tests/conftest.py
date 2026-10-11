@@ -70,3 +70,13 @@ def invalid_dir(tmp_path: Path, monkeypatch) -> Path:
     target = tmp_path / "catalog-invalid"
     shutil.copytree(CATALOG_FIXTURES / "catalog-invalid", target)
     return target
+
+
+@pytest.fixture(autouse=True)
+def _numpy_error_state():
+    """Some libraries (emlearn) change numpy's global error state at import; isolate tests."""
+    import numpy as np
+
+    state = np.geterr()
+    yield
+    np.seterr(**state)

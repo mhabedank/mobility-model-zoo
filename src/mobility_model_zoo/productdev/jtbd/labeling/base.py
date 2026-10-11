@@ -53,8 +53,9 @@ def make_backend(settings: Settings, entry: ModelEntry, backend: str, host: str 
     if backend != entry.backend:
         from mobility_model_zoo.productdev.jtbd.errors import UsageError
 
-        raise UsageError(f"model {entry.model_id} is configured for backend {entry.backend}, "
-                         f"not {backend}")
+        raise UsageError(
+            f"model {entry.model_id} is configured for backend {entry.backend}, not {backend}"
+        )
     if backend == "claude_cli":
         from mobility_model_zoo.productdev.jtbd.labeling.claude_cli import ClaudeCliBackend
 

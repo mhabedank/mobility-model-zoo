@@ -5,6 +5,7 @@ variant: large
 title: 'Scout (large): jobs, pains and gains in mobility texts'
 summary: Finds jobs-to-be-done, pains and gains in German and English mobility texts and quotes them verbatim, with actor type, evidence type and evidence scope. On the frozen benchmark pilot-v2 (guideline v2) it reaches a comparison composite of 0.72, against 0.67 for the best zero-shot small model, measured as agreement with two frontier reference models (Claude and the GPT mini tier). It reads a 9,240-character interview in 8.1 s on 4 CPU cores with 2.5 GB of memory, in 0.84 s on the GPU of a MacBook M3 Pro and in 0.12 s on a DGX Spark, where it processes 1,260 texts per minute; the generative models of the pilot manage between 0.4 and 10 per minute.
 license: Apache-2.0
+usage_class: commercial
 license_exception: null
 base_model: FacebookAI/xlm-roberta-large
 base_model_license: MIT

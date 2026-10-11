@@ -1,14 +1,25 @@
-# Licences a training or benchmark source may carry (check C-I2). share_alike entries force the model
-# licence (check C-T3). NC and ND licences are never on this list for training (constitution VI).
+# The project's licence list (constitution 2.1.0, Principle VI; feature 011, research R2).
+# Every licence an input of a model may carry: training and benchmark sources (check C-I2), datasets,
+# base models, third-party models and their training data, and release licences.
+#   non_commercial: an input under it makes a model non-commercial; as a release licence it is a
+#                   non-commercial licence. It may train non-commercial models only.
+#   share_alike:    an input under it makes a model share-alike; release_licences lists the release
+#                   licences that satisfy it.
+#   trains:         false = never training data of our models (for example licences that appear only
+#                   in the training data of third-party models). Default true.
+# No-derivatives licences are never listed: an input whose licence is not listed fails closed.
 licences:
 - {id: CC0-1.0}
 - {id: CC-BY-4.0}
 - {id: CC-BY-3.0}
-- {id: CC-BY-SA-4.0, share_alike: true}
+- {id: CC-BY-SA-4.0, share_alike: true, release_licences: [CC-BY-SA-4.0]}
+- {id: CC-BY-NC-4.0, non_commercial: true}
+- {id: CC-BY-NC-SA-4.0, non_commercial: true, share_alike: true, release_licences: [CC-BY-NC-SA-4.0]}
 - {id: PDDL-1.0}
 - {id: ODC-By-1.0}
 - {id: MIT}
 - {id: Apache-2.0}
+- {id: BSD-2-Clause}
 - {id: BSD-3-Clause}
 - {id: LicenseRef-official-work-UrhG-5, note: German official works, §5 UrhG}
 - {id: LicenseRef-OGL-UK-3.0, note: UK Open Government Licence v3.0}
@@ -20,3 +31,13 @@ licences:
 - {id: LicenseRef-Japan-Gov-Standard-Terms-2.0, note: "Japan Government Standard Terms of Use 2.0; declares CC BY 4.0 compatibility"}
 - {id: LicenseRef-Spain-MITRAMS-LDA, note: "Spain, Ministry of Transport open data licence (nap.transportes.gob.es/licencia-datos); operator licences prevail"}
 - {id: LicenseRef-official-work-PL-art4, note: "Polish official works, Art. 4 copyright act; legal acts only, not parliamentary transcripts"}
+# Reuse terms of parliaments and the EU: training_allowed in the register since the compliance harness
+- {id: LicenseRef-official-work-AT-7, note: Austrian official works, § 7 öUrhG}
+- {id: LicenseRef-EU-Reuse-Decision-2011-833, note: "Commission Decision 2011/833/EU: reuse with attribution, commercial use allowed"}
+- {id: LicenseRef-Scottish-Parliament-Licence, note: Scottish Parliament copyright, reuse terms}
+- {id: LicenseRef-Senedd-Commission-Copyright, note: Senedd Commission copyright, reuse terms}
+# Licences of third-party training data only (never our training data)
+- {id: LicenseRef-MSMARCO-terms, non_commercial: true, trains: false, note: "MS MARCO terms: non-commercial research purposes only"}
+- {id: LicenseRef-Quora-terms, non_commercial: true, trains: false, note: "Quora Question Pairs: non-commercial use under Quora's terms"}
+- {id: LicenseRef-CommonCrawl-ToU, trains: false, note: "Common Crawl terms of use, read 2026-10-10: limited access licence, no non-commercial or share-alike term; the user indemnifies Common Crawl for AI training (section 9)"}
+- {id: CC-BY-SA-3.0, share_alike: true, release_licences: [CC-BY-SA-3.0, CC-BY-SA-4.0], trains: false, note: Wikipedia and derived datasets}
