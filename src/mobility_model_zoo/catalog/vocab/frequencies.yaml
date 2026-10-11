@@ -1,0 +1,14 @@
+# Update frequency: codes of the EU Publications Office frequency table (research R3).
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial list, reason: feature 009 (FR-007)}
+frequencies:
+  CONT: continuous (live feed)
+  DAILY: daily
+  WEEKLY: weekly
+  MONTHLY: monthly
+  QUARTERLY: quarterly
+  ANNUAL: annual
+  IRREG: irregular
+  NEVER: never updated
+  UNKNOWN: unknown

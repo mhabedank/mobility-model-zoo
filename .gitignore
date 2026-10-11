@@ -34,3 +34,4 @@ Thumbs.db
 
 # Raw Claude Design export of feature 008 (embeds third-party runtime code); the extracted sources in design/source/ are kept
 /specs/008-zoo-website/design/*.html
+src/mobility_model_zoo/catalog/data/

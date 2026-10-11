@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from conftest import FakeRunner, git
+from release_env import FakeRunner, git
 from typer.testing import CliRunner
 
 from mobility_model_zoo.release import publish as ops

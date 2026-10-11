@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "picket-forest-v2",
+  "title": "Frame sequence with the expected per-frame scores and alarms of picket-forest 0.2.0 (picket-forest-v2)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "frames", "expected_scores", "expected_alarms"],
+  "properties": {
+    "source": {"type": "string", "minLength": 1},
+    "generator": {
+      "type": "object",
+      "required": ["name", "version", "seed", "attack"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "integer"},
+        "seed": {"type": "integer"},
+        "attack": {"type": "string"}
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {"type": "integer", "minimum": 0},
+          {"type": "integer", "minimum": 0, "maximum": 2047},
+          {"type": "integer", "minimum": 0, "maximum": 8},
+          {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "integer", "minimum": 0, "maximum": 255}}
+        ],
+        "minItems": 4,
+        "maxItems": 4
+      }
+    },
+    "expected_scores": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[0-9a-f]{8}$"}
+    },
+    "expected_alarms": {
+      "type": "array",
+      "items": {"type": "integer", "minimum": 0}
+    }
+  }
+}

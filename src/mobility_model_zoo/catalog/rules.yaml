@@ -1,0 +1,24 @@
+# Provisional usage decision of a catalog entry (research R5, FR-011). First matching rule wins.
+# The binding decision is made when the source record is created at fetch time (feature 006).
+version: 1
+changelog:
+- {date: "2026-10-11", change: rules U1-U6, reason: feature 009 research R5}
+- {date: "2026-10-11", change: "U3 skips list entries with non_commercial or trains: false", reason: licence list format of feature 011}
+rules:
+  U0: Owner decision for a flagged entry (zoo catalog decide); U1 still overrides it.
+  U1: Withdrawn, an opt-out signal, or platform terms that forbid machine learning -> not_usable.
+  U2: Licence unknown, or mixed at collection level -> undetermined.
+  U3: Licence on compliance/lists/licence-allowlist.yaml, neither non_commercial nor trains false
+    -> training_allowed, redistribution allowed.
+  U4: Non-commercial (NC) or no-derivatives (ND) licence -> benchmark_only (constitution VI).
+  U5: Proprietary licence from a kind of source whose source class records a legal basis -> the class decision.
+  U6: Anything else -> undetermined, flagged for an owner decision.
+proprietary_ids: [LicenseRef-proprietary, LicenseRef-all-rights-reserved]
+# U5: publisher kind -> source class of a topic register and the permitted use decided for it.
+source_class_map:
+  parliament:
+    topic: productdev
+    class: parliamentary-records
+    permitted_use: benchmark_only
+    note: Text and data mining of public parliamentary records under the class's legitimate-interest
+      assessment; training on proprietary records needs an owner decision (zoo catalog decide).

@@ -1,0 +1,19 @@
+# Offline checks of every entry (K1-K3, K8, K9) on each push and pull request (feature 009).
+name: check
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      # The zoo package without torch and transformers (the catalog needs neither).
+      - run: |
+          uv venv
+          uv pip install --no-deps "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo"
+          uv pip install pyyaml jsonschema typer httpx rapidfuzz python-dotenv jinja2 markdown-it-py
+      - run: .venv/bin/zoo catalog --catalog . validate

@@ -1,0 +1,384 @@
+[
+ {
+  "id": "jbda-ichinosekicity-Ichinosekibus",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "ichinosekicity-Ichinosekibus",
+    "source": "jbda"
+   }
+  ],
+  "provider": "一関市",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/ichinosekicity/feeds/Ichinosekibus/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "一関市市営バス",
+  "note": "not_set",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Iwate Prefecture",
+    "municipality": "Ichinoseki"
+   }
+  ]
+ },
+ {
+  "id": "jbda-sanjocity-guruttosan",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "sanjocity-guruttosan",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三条市",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/sanjocity/feeds/guruttosan/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/2.1/jp/",
+   "license_id": "CC-BY-2.0",
+   "license_is_spdx": true,
+   "license_notes": "Detected locale/jurisdiction port 'jp'. SPDX does not list ported CC licenses; using canonical ID. Normalized version 2.1 → 2.0 to match SPDX-supported versions.",
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required"
+   ]
+  },
+  "redirects": [],
+  "status": "inactive",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "三条市循環バスぐるっとさん",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Niigata Prefecture",
+    "municipality": "Sanjo"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancochusei",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancochusei",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancochusei/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "中勢営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Mie Prefecture",
+    "municipality": "Suzuka"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancoiga",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancoiga",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancoiga/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "伊賀営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Nara Prefecture",
+    "municipality": "Soni"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancoinanki",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancoinanki",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancoinanki/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "南紀営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Wakayama Prefecture",
+    "municipality": "Shingu"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancoise",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancoise",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancoise/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "伊勢営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Mie Prefecture",
+    "municipality": "Tamaki"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancokuwana",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancokuwana",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancokuwana/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "桑名営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Mie Prefecture",
+    "municipality": "Kuwana"
+   }
+  ]
+ },
+ {
+  "id": "jbda-mie-kotsu-sancomatsusaka",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "mie-kotsu-sancomatsusaka",
+    "source": "jbda"
+   }
+  ],
+  "provider": "三重交通",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://api.gtfs-data.jp/v2/organizations/mie-kotsu/feeds/sancomatsusaka/files/feed.zip?rid=current",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://creativecommons.org/licenses/by/4.0/deed.ja",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "松阪営業所",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "JP",
+    "country": "Japan",
+    "subdivision_name": "Mie Prefecture",
+    "municipality": "Taki"
+   }
+  ]
+ }
+]

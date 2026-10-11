@@ -1,0 +1,60 @@
+{
+  "status": "true",
+  "feeds": [
+    {
+      "id": 9000001, "podcastGuid": "00000000-0000-4000-8000-000000000001", "title": "Pedaleando la ciudad",
+      "url": "https://feeds.example.org/pedaleando.xml", "originalUrl": "https://feeds.example.org/pedaleando.xml",
+      "link": "https://pedaleando.example.org/", "description": "Feed description that must never be stored.",
+      "author": "Asociación Ciclista Ejemplo", "ownerName": "Asociación Ciclista Ejemplo",
+      "image": "https://pedaleando.example.org/cover.jpg", "artwork": "https://pedaleando.example.org/cover.jpg",
+      "lastUpdateTime": 1760000000, "lastCrawlTime": 1760000000, "lastParseTime": 1760000000,
+      "lastGoodHttpStatusTime": 1760000000, "lastHttpStatus": 200, "contentType": "application/rss+xml",
+      "itunesId": 1000000001, "generator": "Example Generator", "language": "es-ES", "explicit": false,
+      "type": 0, "medium": "podcast", "dead": 0, "episodeCount": 42, "crawlErrors": 0, "parseErrors": 0,
+      "categories": {"77": "Society", "78": "Culture"}, "locked": 0, "imageUrlHash": 1, "newestItemPubdate": 1759900000
+    },
+    {
+      "id": 9000002, "podcastGuid": "00000000-0000-4000-8000-000000000002", "title": "Bici y barrio",
+      "url": "https://feeds.example.org/bici-y-barrio.rss", "originalUrl": "https://feeds.example.org/bici-y-barrio.rss",
+      "link": "https://anchor.example.org/@persona-ejemplo", "description": "Feed description that must never be stored.",
+      "author": "Persona Ejemplo <persona.ejemplo@example.org>", "ownerName": "Persona Ejemplo",
+      "image": "", "artwork": "", "lastUpdateTime": 1750000000, "lastCrawlTime": 1750000000,
+      "lastParseTime": 1750000000, "lastGoodHttpStatusTime": 1750000000, "lastHttpStatus": 200,
+      "contentType": "application/rss+xml", "itunesId": null, "generator": "", "language": "es-mx",
+      "explicit": false, "type": 0, "medium": "podcast", "dead": 0, "episodeCount": 7, "crawlErrors": 0,
+      "parseErrors": 0, "categories": {"55": "News"}, "locked": 0, "imageUrlHash": 2, "newestItemPubdate": 1749000000
+    },
+    {
+      "id": 9000003, "podcastGuid": "00000000-0000-4000-8000-000000000003", "title": "Bicicleta no Brasil",
+      "url": "https://feeds.example.org/bicicleta-br.xml", "originalUrl": "https://feeds.example.org/bicicleta-br.xml",
+      "link": "https://bicicleta-br.example.org/", "description": "Feed description.",
+      "author": "Pessoa Exemplo", "ownerName": "Pessoa Exemplo", "language": "pt-br", "explicit": false,
+      "type": 0, "medium": "podcast", "dead": 0, "episodeCount": 12, "categories": null, "locked": 0
+    },
+    {
+      "id": 9000004, "podcastGuid": "00000000-0000-4000-8000-000000000004", "title": "Canciones de bicicleta",
+      "url": "https://feeds.example.org/canciones.xml", "originalUrl": "https://feeds.example.org/canciones.xml",
+      "link": "https://canciones.example.org/", "description": "Feed description.",
+      "author": "Banda Ejemplo", "ownerName": "Banda Ejemplo", "language": "es", "explicit": false,
+      "type": 0, "medium": "music", "dead": 0, "episodeCount": 10, "categories": null, "locked": 0
+    },
+    {
+      "id": 9000005, "podcastGuid": "00000000-0000-4000-8000-000000000005", "title": "Bicicleta antigua",
+      "url": "https://feeds.example.org/antigua.xml", "originalUrl": "https://feeds.example.org/antigua.xml",
+      "link": "https://antigua.example.org/", "description": "Feed description.",
+      "author": "Persona Ejemplo Dos", "ownerName": "Persona Ejemplo Dos", "language": "es", "explicit": false,
+      "type": 0, "medium": "podcast", "dead": 1, "episodeCount": 3, "categories": null, "locked": 0
+    },
+    {
+      "id": 9000006, "podcastGuid": "", "title": "Movilidad en dos ruedas",
+      "url": "https://feeds.example.org/dos-ruedas.atom", "originalUrl": "https://feeds.example.org/dos-ruedas.atom",
+      "link": "", "description": "Feed description that must never be stored.",
+      "author": "", "ownerName": "Radio Ejemplo FM", "language": "es", "explicit": false,
+      "type": 1, "medium": "", "dead": 0, "episodeCount": null, "categories": null, "locked": 0,
+      "newestItemPubdate": 0
+    }
+  ],
+  "count": 6,
+  "query": "bicicleta",
+  "description": "Found matching feeds"
+}

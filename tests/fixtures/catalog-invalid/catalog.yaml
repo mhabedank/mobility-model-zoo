@@ -1,0 +1,9 @@
+catalog_id: fixture-catalog-invalid
+schema_version: 1
+owner: tests
+models:
+  scout-large:
+    training_data: span-train-v1
+    language_shares:
+      de: 0.28
+      en: 0.72

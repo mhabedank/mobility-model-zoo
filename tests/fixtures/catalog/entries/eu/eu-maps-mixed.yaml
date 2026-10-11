@@ -1,0 +1,105 @@
+id: eu-maps-mixed
+schema_version: 1
+level: collection
+parent: null
+title:
+  original: Transport maps
+  en: Transport maps
+description: 'Synthetic fixture: Transport maps.'
+languages:
+- code: und
+  origin: unknown
+origin_area: EU
+publisher:
+  name: Example Union Agency
+  kind: international_org
+landing_url: https://example.org/eu-maps-mixed
+resource_type:
+  modality: image
+  genre: map
+topics:
+- productdev
+subdomains:
+- rail
+licence:
+  id: mixed
+  url: null
+  evidence_url: https://example.org/eu-maps-mixed/licence
+  attribution_required: unknown
+  attribution_text: null
+  commercial_use: unknown
+  share_alike: null
+  derivatives: unknown
+signals:
+  robots: allow
+  tdmrep: absent
+  x_robots: absent
+  meta_noai: allow
+  ai_txt: absent
+  content_signal: absent
+  content_usage: absent
+  checked_at: '2026-10-11'
+usage:
+  permitted_use: undetermined
+  redistribution: unclear
+  rule: U2
+  rules_version: 1
+  rationale: licence is mixed
+  evidence_url: https://example.org/eu-maps-mixed/licence
+  decided_at: '2026-10-11'
+personal_data:
+  expectation: none
+  categories: []
+access:
+- method: direct_download
+  url: https://example.org/eu-maps-mixed/data
+  download_url: https://example.org/eu-maps-mixed/data.zip
+  auth: none
+  cost: free
+  formats:
+  - application/zip
+  size_bytes_est: 1000
+content:
+  transcripts:
+    available: unknown
+quality:
+  score: 3
+  rationale: Synthetic fixture with a fixed score.
+provenance:
+  added_by: owner
+  added_at: '2026-10-11'
+  method: search
+  evidence:
+  - https://example.org/eu-maps-mixed
+  last_verified: '2026-10-11'
+status:
+  value: verified
+  since: '2026-10-11'
+checks:
+- check: K1
+  result: pass
+  at: '2026-10-11'
+- check: K2
+  result: pass
+  at: '2026-10-11'
+- check: K3
+  result: pass
+  at: '2026-10-11'
+- check: K4
+  result: pass
+  at: '2026-10-11'
+- check: K5
+  result: pass
+  at: '2026-10-11'
+- check: K6
+  result: pass
+  at: '2026-10-11'
+- check: K7
+  result: pass
+  at: '2026-10-11'
+- check: K8
+  result: pass
+  at: '2026-10-11'
+- check: K9
+  result: pass
+  at: '2026-10-11'

@@ -25,6 +25,12 @@ licences:
 - {id: LicenseRef-OGL-UK-3.0, note: UK Open Government Licence v3.0}
 - {id: LicenseRef-Open-Parliament-Licence, note: UK Open Parliament Licence}
 - {id: LicenseRef-US-PD, note: US federal government works, public domain}
+# Owner decision D-catalog-licences-2026-10 (feature 009 pilot): national open licences found by the
+# resource index. Attribution is required for all four.
+- {id: LicenseRef-Japan-PDL-1.0, note: "Japan Public Data License 1.0 (Digital Agency, 2024); declares CC BY 4.0 compatibility"}
+- {id: LicenseRef-Japan-Gov-Standard-Terms-2.0, note: "Japan Government Standard Terms of Use 2.0; declares CC BY 4.0 compatibility"}
+- {id: LicenseRef-Spain-MITRAMS-LDA, note: "Spain, Ministry of Transport open data licence (nap.transportes.gob.es/licencia-datos); operator licences prevail"}
+- {id: LicenseRef-official-work-PL-art4, note: "Polish official works, Art. 4 copyright act; legal acts only, not parliamentary transcripts"}
 # Reuse terms of parliaments and the EU: training_allowed in the register since the compliance harness
 - {id: LicenseRef-official-work-AT-7, note: Austrian official works, § 7 öUrhG}
 - {id: LicenseRef-EU-Reuse-Decision-2011-833, note: "Commission Decision 2011/833/EU: reuse with attribution, commercial use allowed"}

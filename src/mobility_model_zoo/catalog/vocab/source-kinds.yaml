@@ -1,0 +1,17 @@
+# Kind of source: who publishes the resource (FR-005 "kind of source").
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial list, reason: feature 009 (FR-005)}
+kinds:
+  parliament: A national, regional or supranational parliament or one of its committees.
+  government: A government, ministry, agency, regulator, statistics office or municipality.
+  research: A university, research institute or academic publisher.
+  open_data_portal: A portal that aggregates datasets of other publishers.
+  company: A company, operator or industry body.
+  association: An association, NGO, foundation or interest group.
+  standards_body: A standards organisation (for example ISO, CEN, ETSI, SAE).
+  media: A newspaper, broadcaster, magazine or news agency.
+  community: A forum, wiki, community platform or user collective.
+  education: A school, MOOC provider or other education provider.
+  individual: An individual creator (podcaster, blogger, video author); named only for attribution.
+  international_org: An international organisation (for example UN bodies, OECD/ITF, World Bank).

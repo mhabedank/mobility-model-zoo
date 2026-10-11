@@ -1,0 +1,10 @@
+# Mobility resource index (feature 009 of mobility-model-zoo). Metadata only.
+catalog_id: mobility-model-zoo-catalog
+schema_version: 1
+owner: Martin Habedank
+# Training-language shares of the current zoo models, for the language report (research R9).
+models:
+  scout-large:
+    training_data: span-train-v1
+    language_shares: {de: 0.28, en: 0.72}
+    source: topics/productdev/recipes/scout-large.md (mobility-model-zoo)

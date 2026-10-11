@@ -1,0 +1,270 @@
+[
+ {
+  "id": "mdb-2212",
+  "data_type": "gtfs",
+  "created_at": "2024-11-27T18:16:07.036558Z",
+  "external_ids": [
+   {
+    "external_id": "2212",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Empresa Malagueña de Transportes (EMT)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://gtfs.emtmalaga.es/GTFS/google_transit.zip",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Andalusia",
+    "municipality": "Málaga"
+   }
+  ]
+ },
+ {
+  "id": "mdb-2720",
+  "data_type": "gtfs",
+  "created_at": "2025-07-22T20:32:41.293935Z",
+  "external_ids": [
+   {
+    "external_id": "2720",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Consorcio Regional de Transportes de Madrid CRTM Commuter Network (Red de Cercanías)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://www.arcgis.com/sharing/rest/content/items/1a25440bf66f499bae2657ec7fb40144/data",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "https://www.crtm.es/licencia-de-uso",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "Powered by CRTM: http://www.crtm.es/",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Community of Madrid",
+    "municipality": "Madrid"
+   }
+  ]
+ },
+ {
+  "id": "mdb-1162",
+  "data_type": "gtfs",
+  "created_at": "2024-02-08T00:00:00Z",
+  "external_ids": [
+   {
+    "external_id": "1162",
+    "source": "mdb"
+   }
+  ],
+  "provider": "El Transbordador de Vizcaya",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://ctb-gtfs.s3.eu-south-2.amazonaws.com/puentebizkaia.zip",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": "",
+   "api_key_parameter_name": "",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "license_id": "CC-BY-4.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:none",
+    "domain:content",
+    "domain:data",
+    "family:CC",
+    "license:creative-commons",
+    "notes:attribution-required",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Autonomous Community of the Basque Country",
+    "municipality": "Getxo"
+   }
+  ]
+ },
+ {
+  "id": "mdb-2813",
+  "data_type": "gtfs",
+  "created_at": "2025-08-18T16:26:37.704548Z",
+  "external_ids": [
+   {
+    "external_id": "2813",
+    "source": "mdb"
+   }
+  ],
+  "provider": "AISA (Bus Madrid-Aranda de Duero-Burgo de Osma)",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://nap.transportes.gob.es/api/Fichero/download/1561",
+   "is_producer_url_unstable": null,
+   "authentication_type": 2,
+   "authentication_info_url": "https://nap.transportes.gob.es/",
+   "api_key_parameter_name": "ApiKey",
+   "license_url": "https://nap.transportes.gob.es/licencia-datos",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "inactive",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "Raw data from the Spanish National Access Point, powered by MIMTRANS (https://www.transportes.gob.es)",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Community of Madrid",
+    "municipality": "Madrid"
+   }
+  ]
+ },
+ {
+  "id": "tdg-82346",
+  "data_type": "gtfs",
+  "created_at": "2025-12-10T14:31:39.268706Z",
+  "external_ids": [
+   {
+    "external_id": "82346",
+    "source": "tdg"
+   }
+  ],
+  "provider": "Nouvelle-Aquitaine Mobilités",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://www.data.gouv.fr/api/1/datasets/r/44806d1e-0798-40e6-8e7e-21d0ddfe81d2",
+   "is_producer_url_unstable": null,
+   "authentication_type": 0,
+   "authentication_info_url": null,
+   "api_key_parameter_name": null,
+   "license_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+   "license_id": "ODbL-1.0",
+   "license_is_spdx": true,
+   "license_notes": null,
+   "license_tags": [
+    "copyleft:strong",
+    "domain:data",
+    "family:ODC",
+    "license:open-data-commons",
+    "notes:attribution-required",
+    "notes:share-alike",
+    "spdx:fsf-free"
+   ]
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "Réseau interurbain - Pyrénées-Atlantiques (64)",
+  "note": null,
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "FR",
+    "country": "France",
+    "subdivision_name": "New Aquitaine",
+    "municipality": "Saint-Laurent-Bretagne"
+   },
+   {
+    "country_code": "FR",
+    "country": "France",
+    "subdivision_name": "New Aquitaine",
+    "municipality": "Simacourbe"
+   },
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Aragon",
+    "municipality": "Canfranc"
+   }
+  ]
+ },
+ {
+  "id": "mdb-2824",
+  "data_type": "gtfs",
+  "created_at": "2025-08-18T16:26:39.160921Z",
+  "external_ids": [
+   {
+    "external_id": "2824",
+    "source": "mdb"
+   }
+  ],
+  "provider": "Alavabus",
+  "feed_contact_email": "",
+  "source_info": {
+   "producer_url": "https://nap.transportes.gob.es/api/Fichero/download/1362",
+   "is_producer_url_unstable": null,
+   "authentication_type": 2,
+   "authentication_info_url": "https://nap.transportes.gob.es/",
+   "api_key_parameter_name": "ApiKey",
+   "license_url": "https://nap.transportes.gob.es/licencia-datos",
+   "license_id": null,
+   "license_is_spdx": null,
+   "license_notes": null,
+   "license_tags": null
+  },
+  "redirects": [],
+  "status": "active",
+  "official": true,
+  "seasonal": false,
+  "feed_name": "Raw data from the Spanish National Access Point, powered by MIMTRANS (https://www.transportes.gob.es)",
+  "note": "",
+  "related_links": [],
+  "locations": [
+   {
+    "country_code": "ES",
+    "country": "Spain",
+    "subdivision_name": "Autonomous Community of the Basque Country",
+    "municipality": "Vitoria-Gasteiz"
+   }
+  ]
+ }
+]

@@ -21,9 +21,18 @@ def test_no_jtbd_folder_at_top_level():
 
 def test_missing_topic_folder_is_reported(tmp_path):
     (tmp_path / "zoo").mkdir()
-    (tmp_path / "zoo/topics.yaml").write_text(yaml.safe_dump({"topics": [
-        {"id": "security", "title": "S", "description": "d", "hf_collection": None},
-        {"id": "sandbox", "title": "P", "description": "d", "hf_collection": None}]}))
+    (tmp_path / "zoo/topics.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "topics": [
+                    {"id": "security", "title": "S", "description": "d", "hf_collection": None},
+                    {"id": "sandbox", "title": "P", "description": "d", "hf_collection": None},
+                ]
+            }
+        )
+    )
     failures = topic_folder_failures(Registry(tmp_path))
-    assert failures == ["topic security: topics/security/README.md is missing",
-                        "topic security: topics/security/compliance/datasets.yaml is missing"]
+    assert failures == [
+        "topic security: topics/security/README.md is missing",
+        "topic security: topics/security/compliance/datasets.yaml is missing",
+    ]

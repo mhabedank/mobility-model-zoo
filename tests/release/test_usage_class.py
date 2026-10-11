@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 import yaml
-from conftest import VERSION, ZooEnv, git, make_mcu_env
 from edge_fixture import NAME, npz_bytes
+from release_env import VERSION, ZooEnv, git, make_mcu_env
 from test_edge_rules import failures, run_gate, source
 
 from mobility_model_zoo.datasets.registry import declarations
@@ -26,8 +26,9 @@ NC_DATASET = "tue-can-v2"
 NC_USAGE = {
     "class": "non-commercial",
     "licence": "CC-BY-NC-4.0",
-    "restricting_inputs": [{"kind": "dataset", "id": NC_DATASET, "licence": "CC-BY-NC-4.0",
-                            "restriction": "non-commercial"}],
+    "restricting_inputs": [
+        {"kind": "dataset", "id": NC_DATASET, "licence": "CC-BY-NC-4.0", "restriction": "non-commercial"}
+    ],
 }
 
 
@@ -59,8 +60,10 @@ def make_nc_env(root: Path) -> ZooEnv:
         usage_class="non-commercial",
         license="CC-BY-NC-4.0",
         license_exception=f"trained on {NC_DATASET} (CC BY-NC 4.0); non-commercial use only",
-        repos={"public": f"mobility-model-zoo/{NC_NAME}",
-               "staging": f"mobility-model-zoo/{NC_NAME}-staging"},
+        repos={
+            "public": f"mobility-model-zoo/{NC_NAME}",
+            "staging": f"mobility-model-zoo/{NC_NAME}-staging",
+        },
     )
     write_model(env, NC_NAME, model)
     for path in (env.reg.model_dir(NC_NAME) / "results").rglob("*.json"):
@@ -71,10 +74,14 @@ def make_nc_env(root: Path) -> ZooEnv:
     staged = {"model.npz": npz_bytes(env.qmodel)}
     record = env.reg.record_raw(NC_NAME, VERSION)
     record["model"] = NC_NAME
-    record["staging"] = {"repo": model["repos"]["staging"],
-                         "revision": env.hub.seed(model["repos"]["staging"], staged, private=True)}
-    record["files"] = [{"path": p, "sha256": hashlib.sha256(b).hexdigest(), "size_bytes": len(b)}
-                       for p, b in sorted(staged.items())]
+    record["staging"] = {
+        "repo": model["repos"]["staging"],
+        "revision": env.hub.seed(model["repos"]["staging"], staged, private=True),
+    }
+    record["files"] = [
+        {"path": p, "sha256": hashlib.sha256(b).hexdigest(), "size_bytes": len(b)}
+        for p, b in sorted(staged.items())
+    ]
     record["provenance"]["sources"] = [source(NC_DATASET, "CC-BY-NC-4.0")]
     record["usage"] = copy.deepcopy(NC_USAGE)
     env.reg.write_record(NC_NAME, VERSION, record)
@@ -120,8 +127,10 @@ def test_nc_fixture_is_marked_on_card_hub_tag_and_record(nc_env):
     front, body = cards.split_card(card)
     assert front["license"] == "cc-by-nc-4.0"
     top = body.split("## Summary")[0]
-    assert "**Usage:** Non-commercial use only · licence CC-BY-NC-4.0 · because of dataset " \
-           f"{NC_DATASET} (CC-BY-NC-4.0)." in top
+    assert (
+        "**Usage:** Non-commercial use only · licence CC-BY-NC-4.0 · because of dataset "
+        f"{NC_DATASET} (CC-BY-NC-4.0)." in top
+    )
     license_section = cards.sections(body)["License"]
     assert "Non-commercial use only" in license_section and NC_DATASET in license_section
     assert nc_env.reg.record_raw(NC_NAME, VERSION)["usage"] == NC_USAGE
@@ -129,13 +138,26 @@ def test_nc_fixture_is_marked_on_card_hub_tag_and_record(nc_env):
 
 def test_nc_share_alike_needs_the_nc_sa_licence(nc_env):
     declare(nc_env.root, [nc_dataset(licence="CC-BY-NC-SA-4.0")])
-    usage = {"class": "non-commercial-share-alike", "licence": "CC-BY-NC-SA-4.0", "restricting_inputs": [
-        {"kind": "dataset", "id": NC_DATASET, "licence": "CC-BY-NC-SA-4.0",
-         "restriction": "non-commercial-share-alike"}]}
-    edit(nc_env,
-         model=lambda m: m.update(usage_class="non-commercial-share-alike", license="CC-BY-NC-SA-4.0"),
-         record=lambda r: (r["provenance"].update(sources=[source(NC_DATASET, "CC-BY-NC-SA-4.0")]),
-                           r.update(usage=usage)))
+    usage = {
+        "class": "non-commercial-share-alike",
+        "licence": "CC-BY-NC-SA-4.0",
+        "restricting_inputs": [
+            {
+                "kind": "dataset",
+                "id": NC_DATASET,
+                "licence": "CC-BY-NC-SA-4.0",
+                "restriction": "non-commercial-share-alike",
+            }
+        ],
+    }
+    edit(
+        nc_env,
+        model=lambda m: m.update(usage_class="non-commercial-share-alike", license="CC-BY-NC-SA-4.0"),
+        record=lambda r: (
+            r["provenance"].update(sources=[source(NC_DATASET, "CC-BY-NC-SA-4.0")]),
+            r.update(usage=usage),
+        ),
+    )
     assert failures(run_gate(nc_env), 6) == ""
     # CC-BY-NC-4.0 drops the share-alike term
     edit(nc_env, model=lambda m: m.update(usage_class="non-commercial", license="CC-BY-NC-4.0"))
@@ -147,14 +169,15 @@ def test_nc_share_alike_needs_the_nc_sa_licence(nc_env):
 
 def as_commercial(env: ZooEnv) -> None:
     """Declare the NC fixture commercial (name without -nc is checked separately)."""
-    edit(env, model=lambda m: m.update(usage_class="commercial", license="Apache-2.0",
-                                       license_exception=None))
+    edit(
+        env,
+        model=lambda m: m.update(usage_class="commercial", license="Apache-2.0", license_exception=None),
+    )
 
 
 def test_name_suffix_rules(nc_env):
     as_commercial(nc_env)
-    assert "C-K4: name ends in -nc but the model is declared commercial" in failures(
-        run_gate(nc_env), 2)
+    assert "C-K4: name ends in -nc but the model is declared commercial" in failures(run_gate(nc_env), 2)
 
 
 def test_refused_nc_dataset_on_commercial_model(nc_env):
@@ -165,31 +188,56 @@ def test_refused_nc_dataset_on_commercial_model(nc_env):
 
 def test_refused_nc_base_model(nc_env):
     as_commercial(nc_env)
-    edit(nc_env,
-         model=lambda m: m.update(base_model="org/nc-base", base_model_license="CC-BY-NC-4.0"),
-         record=lambda r: r["provenance"].update(sources=[]))
+    edit(
+        nc_env,
+        model=lambda m: m.update(base_model="org/nc-base", base_model_license="CC-BY-NC-4.0"),
+        record=lambda r: r["provenance"].update(sources=[]),
+    )
     assert "C-K2: base model org/nc-base (CC-BY-NC-4.0)" in failures(run_gate(nc_env), 6)
 
 
 def test_refused_teacher_with_nc_only_outputs(nc_env):
     as_commercial(nc_env)
-    teacher = {"model_id": "org/teacher", "license_basis": "terms: non-commercial training only",
-               "training_on_outputs_permitted": True, "outputs_non_commercial": True}
-    edit(nc_env, record=lambda r: (r["provenance"].update(sources=[], teachers=[teacher])))
+    teacher = {
+        "model_id": "org/teacher",
+        "license_basis": "terms: non-commercial training only",
+        "training_on_outputs_permitted": True,
+        "outputs_non_commercial": True,
+    }
+    edit(nc_env, record=lambda r: r["provenance"].update(sources=[], teachers=[teacher]))
     assert "C-K2: teacher org/teacher" in failures(run_gate(nc_env), 6)
 
 
 def test_refused_third_party_runtime_model(nc_env):
     as_commercial(nc_env)
-    register = {"models": [{
-        "id": "org/encoder", "revision": "a" * 40, "remote_code": None, "weights_licence": "MIT",
-        "training_data_named": True,
-        "training_data": [{"name": "MS MARCO", "url": "https://microsoft.github.io/msmarco/",
-                           "licence": "LicenseRef-MSMARCO-terms"}],
-        "used_by": [], "owner": "o", "last_reviewed": "2026-10-10", "next_review": "2027-04-10"}]}
+    register = {
+        "models": [
+            {
+                "id": "org/encoder",
+                "revision": "a" * 40,
+                "remote_code": None,
+                "weights_licence": "MIT",
+                "training_data_named": True,
+                "training_data": [
+                    {
+                        "name": "MS MARCO",
+                        "url": "https://microsoft.github.io/msmarco/",
+                        "licence": "LicenseRef-MSMARCO-terms",
+                    }
+                ],
+                "used_by": [],
+                "owner": "o",
+                "last_reviewed": "2026-10-10",
+                "next_review": "2027-04-10",
+            }
+        ]
+    }
     (nc_env.root / "compliance" / "third-party-models.yaml").write_text(yaml.safe_dump(register))
-    edit(nc_env, model=lambda m: m.update(runtime_models=["org/encoder"]),
-         record=lambda r: r["provenance"].update(sources=[]))
+    edit(
+        nc_env,
+        model=lambda m: m.update(runtime_models=["org/encoder"]),
+        record=lambda r: r["provenance"].update(sources=[]),
+    )
     reason = failures(run_gate(nc_env), 6)
     assert "C-K2: third-party model org/encoder" in reason and "MS MARCO" in reason
 
@@ -199,8 +247,14 @@ def test_refused_output_of_nc_zoo_model(nc_env):
     teacher_dir = nc_env.reg.model_dir("labeler-small-nc")
     teacher_dir.mkdir(parents=True)
     (teacher_dir / "model.yaml").write_text("usage_class: non-commercial\n")
-    declare(nc_env.root, [nc_dataset(id="labels-v1", licence="CC-BY-4.0", commercial_use=False,
-                                     produced_by="labeler-small-nc")])
+    declare(
+        nc_env.root,
+        [
+            nc_dataset(
+                id="labels-v1", licence="CC-BY-4.0", commercial_use=False, produced_by="labeler-small-nc"
+            )
+        ],
+    )
     edit(nc_env, record=lambda r: r["provenance"].update(sources=[source("labels-v1", "CC-BY-4.0")]))
     reason = failures(run_gate(nc_env), 6)
     assert "C-K2: data produced by labeler-small-nc" in reason
@@ -209,17 +263,31 @@ def test_refused_output_of_nc_zoo_model(nc_env):
 @pytest.mark.parametrize("licence", ["CC-BY-NC-ND-4.0", "unknown", "LicenseRef-all-rights-reserved"])
 @pytest.mark.parametrize("usage_class", ["commercial", "non-commercial"])
 def test_inputs_that_forbid_training_are_refused_for_every_class(nc_env, licence, usage_class):
-    edit(nc_env, record=lambda r: r["provenance"].update(sources=[
-        {"origin": "https://example.org/data", "license": licence, "permitted_use": "training_allowed",
-         "count": 3}]))
+    edit(
+        nc_env,
+        record=lambda r: r["provenance"].update(
+            sources=[
+                {
+                    "origin": "https://example.org/data",
+                    "license": licence,
+                    "permitted_use": "training_allowed",
+                    "count": 3,
+                }
+            ]
+        ),
+    )
     if usage_class == "commercial":
         as_commercial(nc_env)
     assert "C-K1" in failures(run_gate(nc_env), 6)
 
 
 def test_benchmark_only_source_is_refused(nc_env):
-    edit(nc_env, record=lambda r: r["provenance"].update(sources=[
-        source(NC_DATASET, "CC-BY-NC-4.0", use="benchmark_only")]))
+    edit(
+        nc_env,
+        record=lambda r: r["provenance"].update(
+            sources=[source(NC_DATASET, "CC-BY-NC-4.0", use="benchmark_only")]
+        ),
+    )
     assert "benchmark_only" in failures(run_gate(nc_env), 7)
 
 

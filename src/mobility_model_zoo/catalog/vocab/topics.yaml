@@ -1,0 +1,6 @@
+# Topics an entry can be relevant to (FR-004). Mirrors zoo/topics.yaml without `sandbox`;
+# tests/catalog/test_vocab.py fails when the two drift apart.
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial list, reason: feature 009 (FR-004)}
+topics: [productdev, security, condition-monitoring]

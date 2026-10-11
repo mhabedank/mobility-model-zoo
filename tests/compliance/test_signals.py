@@ -117,3 +117,46 @@ def test_access_barriers():
     assert check(site(page=(402, "pay", {})))[0] == {"C-F7"}
     login = PAGE.replace("<body>", '<body><form><input type="password"></form>')
     assert check(site(page=(200, login, {})))[0] == {"C-F7"}
+
+
+# ---- 2026 AI preference signals (feature 009, research R4) ------------------------------------
+
+
+def test_content_signal_ai_train_no_blocks():
+    robots = (200, "User-agent: *\nContent-Signal: ai-train=no, search=yes\nAllow: /\n")
+    ids, v = check(site(robots=robots))
+    assert "C-F1" in ids and v.content_signal == "deny"
+    assert any("Content-Signal" in r for _, r in v.reasons)
+
+
+def test_content_signal_ai_train_yes_allows():
+    robots = (200, "User-agent: *\nContent-Signal: ai-train=yes\nAllow: /\n")
+    ids, v = check(site(robots=robots))
+    assert ids == set() and v.content_signal == "allow"
+
+
+def test_content_usage_header_reservation_blocks():
+    ids, v = check(site(page=(200, PAGE, {"Content-Usage": "train-ai=n"})))
+    assert "C-F2" in ids and v.content_usage == "deny"
+
+
+def test_content_usage_robots_rule_respects_its_path():
+    robots = (200, "User-agent: *\nAllow: /\nContent-Usage: /private/ train-ai=n\n")
+    ids, v = check(site(robots=robots), url="https://news.example/a")
+    assert ids == set() and v.content_usage == "absent"
+    ids, v = check(site(robots=robots), url="https://news.example/private/x")
+    assert "C-F2" in ids and v.content_usage == "deny"
+
+
+def test_labels_come_from_the_list():
+    lists = signals.Lists(reservation_labels=["custom-label"])
+    v, _ = signals.check_url(
+        "https://news.example/a", lists, site(page=(200, PAGE, {"Content-Usage": "train-ai=n"}))
+    )
+    assert v.content_usage == "allow"
+    assert signals.reservation_labels(None) == list(signals.DEFAULT_RESERVATION_LABELS)
+
+
+def test_without_new_signals_both_are_absent():
+    _, v = check(site())
+    assert v.content_signal == "absent" and v.content_usage == "absent"

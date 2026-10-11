@@ -1,7 +1,9 @@
 """Opt-out signals at fetch time (research R4, checks C-F1 … C-F7). Fail closed.
 
-Order: domain lists, robots.txt (project agent, `*`, AI crawler agents), access barriers, TDMRep
-(well-known file, header, meta), X-Robots-Tag and meta robots (`noai`), ai.txt, terms of service.
+Order: domain lists, robots.txt (project agent, `*`, AI crawler agents, Cloudflare `Content-Signal`,
+IETF AIPREF `Content-Usage`), access barriers, TDMRep (well-known file, header, meta), the
+`Content-Usage` header, X-Robots-Tag and meta robots (`noai`), ai.txt, terms of service. The two
+2026 signals were added by feature 009 (research R4); both only add blocking reasons.
 Network errors and 5xx answers of robots.txt mean "do not fetch now"; RFC 9309 allows treating
 4xx (except 401/403) as "no robots.txt".
 """
@@ -44,6 +46,8 @@ class Verdict:
     x_robots: str = "absent"
     meta_noai: str = "absent"
     ai_txt: str = "absent"
+    content_signal: str = "absent"  # Cloudflare Content-Signal in robots.txt (ai-train=no)
+    content_usage: str = "absent"  # IETF AIPREF Content-Usage (robots.txt rule or HTTP header)
     denylist: bool = False
     robots_sha256: str | None = None
     tos_url: str | None = None
@@ -152,6 +156,54 @@ def robots_star_allows(groups, path: str) -> bool:
     return best is None or best[1] == "allow"
 
 
+# ---- 2026 AI preference signals (feature 009, research R4) -----------------------------------
+
+DEFAULT_RESERVATION_LABELS = ("train-ai", "train-genai", "ai-train")
+NO_VALUES = ("n", "no", "?0", "false", "0")
+
+
+def reservation_labels(listing: dict[str, Any] | None) -> list[str]:
+    """Labels from compliance/lists/ai-preferences.yaml, or the defaults when the list is missing."""
+    return list((listing or {}).get("reservation_labels") or DEFAULT_RESERVATION_LABELS)
+
+
+def parse_preferences(value: str) -> dict[str, str]:
+    """`ai-train=no, search=yes` or `train-ai=n` → {label: value} (lower-cased)."""
+    out: dict[str, str] = {}
+    for part in re.split(r"[,;]", value):
+        if "=" in part:
+            key, val = (x.strip().strip('"').lower() for x in part.split("=", 1))
+            if key:
+                out[key] = val
+    return out
+
+
+def reserved(prefs: dict[str, str], labels: Iterable[str]) -> list[str]:
+    return [label for label in labels if prefs.get(label.lower()) in NO_VALUES]
+
+
+def robots_preferences(text: str, key: str, path: str = "/") -> dict[str, str]:
+    """Merged `Content-Signal:` or `Content-Usage:` values of robots.txt that apply to `path`.
+
+    AIPREF allows an optional path before the preferences (`Content-Usage: /docs/ train-ai=n`).
+    """
+    merged: dict[str, str] = {}
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if ":" not in line:
+            continue
+        name, value = (x.strip() for x in line.split(":", 1))
+        if name.lower() != key.lower():
+            continue
+        scope = "/"
+        first = value.split(None, 1)
+        if first and first[0].startswith("/") and "=" not in first[0]:
+            scope, value = first[0], (first[1] if len(first) > 1 else "")
+        if path.startswith(scope):
+            merged.update(parse_preferences(value))
+    return merged
+
+
 def evaluate_robots(text: str, path: str, ai_agents: Iterable[str]) -> tuple[bool, list[str]]:
     """Allowed for the project agent and every AI agent? Returns (allowed, agents that are denied)."""
     groups = parse_robots(text)
@@ -175,6 +227,7 @@ class Lists:
     denylist: list[str] = field(default_factory=list)
     piracy: list[str] = field(default_factory=list)
     suppressed_url_hashes: set[str] = field(default_factory=set)
+    reservation_labels: list[str] = field(default_factory=lambda: list(DEFAULT_RESERVATION_LABELS))
 
 
 def _get(client: httpx.Client, url: str) -> httpx.Response | None:
@@ -228,6 +281,18 @@ def check_url(
             v.robots = "allow" if ok else "deny"
             if not ok:
                 v.block("C-F1", f"robots.txt disallows {', '.join(denied)}")
+            signal = robots_preferences(robots.text, "Content-Signal", path)
+            if signal:
+                no = reserved(signal, lists.reservation_labels)
+                v.content_signal = "deny" if no else "allow"
+                if no:
+                    v.block("C-F1", f"robots.txt Content-Signal reserves {', '.join(no)}")
+            usage = robots_preferences(robots.text, "Content-Usage", path)
+            if usage:
+                no = reserved(usage, lists.reservation_labels)
+                v.content_usage = "deny" if no else "allow"
+                if no:
+                    v.block("C-F2", f"robots.txt Content-Usage reserves {', '.join(no)}")
 
         tdm = _get(client, urljoin(base, "/.well-known/tdmrep.json"))
         if tdm is not None and tdm.status_code == 200:
@@ -283,6 +348,14 @@ def check_url(
             v.http_status = page.status_code
             if page.status_code in (401, 402, 403, 407):
                 v.block("C-F7", f"access barrier (HTTP {page.status_code})")
+            header_usage = page.headers.get("content-usage")
+            if header_usage is not None:
+                no = reserved(parse_preferences(header_usage), lists.reservation_labels)
+                if no:
+                    v.content_usage = "deny"
+                    v.block("C-F2", f"Content-Usage header reserves {', '.join(no)}")
+                elif v.content_usage != "deny":
+                    v.content_usage = "allow"
             reservation = page.headers.get("tdm-reservation")
             if reservation is not None and reservation.strip() == "1":
                 v.tdmrep = "deny"

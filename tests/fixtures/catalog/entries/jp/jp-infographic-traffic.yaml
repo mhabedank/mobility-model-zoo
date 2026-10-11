@@ -1,0 +1,60 @@
+id: jp-infographic-traffic
+schema_version: 1
+level: collection
+parent: null
+title:
+  original: 交通安全インフォグラフィック
+  en: Traffic safety infographic
+description: 'Synthetic fixture: Traffic safety infographic.'
+languages:
+- code: ja
+  origin: original
+origin_area: JP
+publisher:
+  name: Example News
+  kind: media
+landing_url: https://example.org/jp-infographic-traffic
+resource_type:
+  modality: graphic
+  genre: infographic
+topics:
+- productdev
+subdomains:
+- safety
+licence:
+  id: unknown
+  url: null
+  evidence_url: null
+  attribution_required: unknown
+  attribution_text: null
+  commercial_use: unknown
+  share_alike: null
+  derivatives: unknown
+personal_data:
+  expectation: none
+  categories: []
+access:
+- method: direct_download
+  url: https://example.org/jp-infographic-traffic/data
+  download_url: https://example.org/jp-infographic-traffic/data.zip
+  auth: none
+  cost: free
+  formats:
+  - application/zip
+  size_bytes_est: 1000
+content:
+  transcripts:
+    available: unknown
+quality:
+  score: 3
+  rationale: Synthetic fixture with a fixed score.
+provenance:
+  added_by: owner
+  added_at: '2026-10-11'
+  method: search
+  evidence:
+  - https://example.org/jp-infographic-traffic
+  last_verified: '2026-10-11'
+status:
+  value: candidate
+  since: '2026-10-11'

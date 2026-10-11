@@ -10,7 +10,7 @@ import os
 import re
 from pathlib import Path
 
-from conftest import FakeRunner
+from release_env import FakeRunner
 
 from mobility_model_zoo.release import card as cards
 from mobility_model_zoo.release.gate import Gate, card_structure
@@ -92,5 +92,4 @@ def test_figures_link_the_release_tag_and_must_exist(zoo_env):
     gate = Gate(zoo_env.reg, zoo_env.model, zoo_env.version, hub=zoo_env.hub, runner=FakeRunner())
     with pytest.raises(GateFailed) as exc:
         gate.run(lambda line: None)
-    assert any("figure docs/figures/speed.png is not in the repository" in f
-               for f in exc.value.failures)
+    assert any("figure docs/figures/speed.png is not in the repository" in f for f in exc.value.failures)
