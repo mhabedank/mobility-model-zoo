@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      UV_NO_SYNC: "1"  # uv run would otherwise install torch, a base dependency
+      UV_NO_SYNC: "1"  # uv run would otherwise re-sync the environment to the base install
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,6 +102,8 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --extra edge --no-install-package torch
+      # What an edge model's install line gives a user: no deep-learning framework, under 200 MB.
+      - run: ./scripts/check_install_size.sh
       - run: uv run edge build -t native
       - run: uv run pytest tests/edge/hil -m hil --hil-board sim -q
 

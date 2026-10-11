@@ -56,6 +56,8 @@ Input: 8 int8 values. Output: 2 int8 scores.
 
 ## How to run it
 
+Requires Python 3.12 or newer.
+
 ```bash
 pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@edge-fixture-tiny/v0.1.0"
 ```

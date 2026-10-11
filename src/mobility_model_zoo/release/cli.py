@@ -55,13 +55,15 @@ def _hub(token_env: str) -> Any:
     return Hub(token_from_env(token_env))
 
 
-def _runner() -> Any:
+def _runner(model: str) -> Any:
+    """The clean-environment runner of one model: it installs what the card's install line names."""
     import os
 
     from mobility_model_zoo.release.hub import RELEASE_TOKEN
     from mobility_model_zoo.release.usage import VenvRunner
 
-    return VenvRunner(Path.cwd(), os.environ.get(RELEASE_TOKEN))
+    install_line = _registry().model(model)["card"]["install"]
+    return VenvRunner(Path.cwd(), os.environ.get(RELEASE_TOKEN), install_line)
 
 
 def topic_folder_failures(reg: Registry) -> list[str]:
@@ -173,6 +175,18 @@ def stage_cmd(model: str, version: str, src: Path = typer.Option(..., "--from"))
     _run(lambda: ops.stage(_registry(), model, version, src, _hub("HF_STAGING_TOKEN"), say))
 
 
+@app.command("new-patch")
+def new_patch_cmd(
+    model: str,
+    from_version: str,
+    version: str,
+    commit: str = typer.Option(..., "--commit", help="git commit of the recipe (the packaging change)"),
+    changes: str = typer.Option(..., "--changes", help="what changed, for the version history"),
+) -> None:
+    """Start a patch release from a published version: record, results and compliance drafts."""
+    _run(lambda: ops.new_patch(_registry(), model, from_version, version, commit, changes, say))
+
+
 @app.command("check")
 def check_cmd(model: str, version: str, offline: bool = typer.Option(False, "--offline")) -> None:
     """Run the release gate (all 14 rules; --offline skips the rules that need the Hub)."""
@@ -180,7 +194,7 @@ def check_cmd(model: str, version: str, offline: bool = typer.Option(False, "--o
     def fn() -> None:
         parse_version(version)
         hub = None if offline else _hub("HF_RELEASE_TOKEN")
-        runner = None if offline else _runner()
+        runner = None if offline else _runner(model)
         ops.check(_registry(), model, version, hub, runner, say)
 
     _run(fn)
@@ -189,7 +203,11 @@ def check_cmd(model: str, version: str, offline: bool = typer.Option(False, "--o
 @app.command("build")
 def build_cmd(model: str, version: str, out: Path = typer.Option(..., "--out")) -> None:
     """Gate, download the staged files and render the model card into --out."""
-    _run(lambda: ops.build(_registry(), model, version, out, _hub("HF_RELEASE_TOKEN"), _runner(), say))
+    _run(
+        lambda: ops.build(
+            _registry(), model, version, out, _hub("HF_RELEASE_TOKEN"), _runner(model), say
+        )
+    )
 
 
 @app.command("preview")

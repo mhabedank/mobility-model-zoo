@@ -56,6 +56,8 @@ Input: CAN frames in bus order. Output: an attack score per frame and an alarm f
 
 ## How to run it
 
+Requires Python 3.12 or newer.
+
 ```bash
 pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@edge-fixture-forest/v0.1.0"
 ```

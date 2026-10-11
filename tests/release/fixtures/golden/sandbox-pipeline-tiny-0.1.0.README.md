@@ -55,8 +55,10 @@ Input: a text. Output: JSON with one item per sentence (`kind`, `quote`, `score`
 
 ## How to run it
 
+Requires Python 3.12 or newer.
+
 ```bash
-pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@sandbox-pipeline-tiny/v0.1.0"
+pip install "mobility-model-zoo[text] @ git+https://github.com/mhabedank/mobility-model-zoo@sandbox-pipeline-tiny/v0.1.0"
 ```
 
 ```python

@@ -6,9 +6,11 @@ changes the visibility of an existing repository.
 
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import hashlib
 import json
+import shutil
 import tempfile
 from collections.abc import Callable
 from pathlib import Path, PurePosixPath
@@ -102,6 +104,64 @@ def _record_template(reg: Registry, name: str, version: str, model: dict[str, An
     }
 
 
+def new_patch(
+    reg: Registry, name: str, from_version: str, version: str, commit: str, changes: str, say: Say
+) -> Path:
+    """Start a patch release of a published version (feature 013).
+
+    The new record is the old one with a new version, date, change text and recipe commit; files
+    and staging stay those of the old version until `zoo stage` replaces them. The results of the
+    old version are copied (a patch does not change what was measured), and the compliance drafts
+    (AI Act classification, training data summary, compliance record) are copied with the version
+    renamed and the owner's sign-off reset: `zoo compliance scan-publish` and `signoff` follow."""
+    if parse_version(version) <= parse_version(from_version):
+        raise UsageError(f"{version} must be newer than {from_version}")
+    path = reg.record_path(name, version)
+    if path.exists():
+        raise UsageError(f"{path.relative_to(reg.root)} exists already")
+    record = copy.deepcopy(reg.record_raw(name, from_version))
+    if not record.get("published"):
+        raise UsageError(
+            f"{name} {from_version} is not published; a patch starts from a published version"
+        )
+    record.update(
+        version=version,
+        date=_today(),
+        change_type="patch",
+        changes=changes,
+        published=None,
+        deprecated=None,
+    )
+    record["recipe"]["git_commit"] = commit
+    for key, kind in (("evaluation", "quality"), ("performance", "performance")):
+        record[key]["results"] = f"results/{version}/{kind}.json"
+    results = reg.model_dir(name) / "results"
+    shutil.copytree(results / from_version, results / version)
+    for kind in ("quality", "performance"):
+        file = results / version / f"{kind}.json"
+        data = json.loads(file.read_text(encoding="utf-8"))
+        if "version" in data:
+            data["version"] = version
+            file.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    reg.write_record(name, version, record)
+    releases = reg.model_dir(name) / "releases"
+    for suffix in ("ai-act.md", "training-data-summary.md", "compliance.yaml"):
+        old = releases / f"{from_version}.{suffix}"
+        if old.exists():
+            text = old.read_text(encoding="utf-8").replace(from_version, version)
+            (releases / f"{version}.{suffix}").write_text(text, encoding="utf-8")
+    compliance = releases / f"{version}.compliance.yaml"
+    if compliance.exists():
+        from mobility_model_zoo.release.registry import dump_yaml, load_yaml
+
+        data = load_yaml(compliance)
+        data.update(state="draft", signed_off_by=None, signed_off_at=None)
+        compliance.write_text(dump_yaml(data), encoding="utf-8")
+    say(f"{path.relative_to(reg.root)} created from {from_version}; results copied")
+    say("next: zoo stage (if files changed), zoo compliance scan-publish and signoff, zoo check")
+    return path
+
+
 def stage(reg: Registry, name: str, version: str, src: Path, hub: Any, say: Say) -> str:
     parse_version(version)
     model = reg.model(name)
@@ -162,6 +222,8 @@ def build(reg: Registry, name: str, version: str, out: Path, hub: Any, runner: A
         "tag_commit": gate.git.head(),
         "staging_revision": record["staging"]["revision"],
     }
+    if gate.how_to_run_output is not None:
+        info["how_to_run_output"] = gate.how_to_run_output
     (out / "build.json").write_text(json.dumps(info, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     say(f"built {name} {version} in {out} (card sha256 {info['card_sha256']})")
     return info
@@ -307,6 +369,7 @@ def deprecate(
             deprecated_banner=True,
             model=cards.model_at_tag(reg, name, latest),
             example_outputs=_examples_from_hub(hub, model["repos"]["public"], latest),
+            how_to_run_output=_run_output_from_hub(hub, model["repos"]["public"]),
         )
     )
     with tempfile.TemporaryDirectory(prefix="zoo-deprecate-") as tmp:
@@ -326,3 +389,11 @@ def _examples_from_hub(hub: Any, repo: str, version: str, revision: str = "main"
     with tempfile.TemporaryDirectory() as tmp:
         text = hub.download(repo, "README.md", revision, Path(tmp)).read_text(encoding="utf-8")
     return cards.parse_card_examples(text)
+
+
+def _run_output_from_hub(hub: Any, repo: str, revision: str = "main") -> str | None:
+    """What how_to_run printed, from the published card (microcontroller models), so a card-only
+    update keeps it."""
+    with tempfile.TemporaryDirectory() as tmp:
+        text = hub.download(repo, "README.md", revision, Path(tmp)).read_text(encoding="utf-8")
+    return cards.parse_card_run_output(text)

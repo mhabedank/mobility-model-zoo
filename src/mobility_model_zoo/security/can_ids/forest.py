@@ -41,6 +41,7 @@ from mobility_model_zoo.security.can_ids.metrics import (
     false_alarms_per_hour,
     frame_metrics,
 )
+from mobility_model_zoo.security.can_ids.picket_forest import vote_score  # noqa: F401  (re-export)
 
 MODEL = "picket-forest"
 
@@ -122,18 +123,6 @@ def cols(names: list[str]) -> list[int]:
 def fit(X: np.ndarray, y: np.ndarray, hp: dict) -> RandomForestClassifier:
     clf = RandomForestClassifier(min_samples_leaf=20, n_jobs=-1, random_state=SEED, **hp)
     return clf.fit(X, y)
-
-
-def vote_score(clf: RandomForestClassifier, X: np.ndarray) -> np.ndarray:
-    """Share of trees voting "attack".
-
-    This is what the emlearn C code computes on the device (hard voting per tree), which
-    differs from scikit-learn's averaged leaf probabilities.
-    """
-    votes = np.zeros(X.shape[0], dtype=np.float32)
-    for tree in clf.estimators_:
-        votes += tree.predict(X).astype(np.float32)
-    return votes / len(clf.estimators_)
 
 
 def predict(clf, caps: list[dict], idx: list[int]) -> list[np.ndarray]:
