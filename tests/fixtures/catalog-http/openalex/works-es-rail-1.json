@@ -1,0 +1,136 @@
+{
+ "meta": {
+  "count": 484,
+  "page": null,
+  "per_page": 3,
+  "next_cursor": "Ils2MS45MTQ4NTIsIDEyMzg1NDQwMDAwMDAsICdodHRwczovL29wZW5hbGV4Lm9yZy9XMjAyODUwOTE3MSddIg==",
+  "cost_usd": 0.001
+ },
+ "results": [
+  {
+   "id": "https://openalex.org/W41037268",
+   "doi": "https://doi.org/10.33349/2005.55.2061",
+   "display_name": "Urbanismo y ferrocarril",
+   "language": "es",
+   "publication_date": "2005-10-01",
+   "primary_location": {
+    "landing_page_url": "https://doi.org/10.33349/2005.55.2061",
+    "pdf_url": "http://www.iaph.es/revistaph/index.php/revistaph/article/view/2061/2061",
+    "license": null,
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210175318",
+     "display_name": "PH. Boletín del Instituto Andaluza del Patrimonio Histórico/PH/PH. Boletín del Instituto Andaluz del Patrimonio Histórico/Boletín informativo - Instituto Andaluz del Patrimonio Histórico",
+     "host_organization_name": "Instituto Andaluz del Patrimonio Histórico"
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "https://doi.org/10.33349/2005.55.2061",
+    "pdf_url": "http://www.iaph.es/revistaph/index.php/revistaph/article/view/2061/2061",
+    "license": null,
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210175318",
+     "display_name": "PH. Boletín del Instituto Andaluza del Patrimonio Histórico/PH/PH. Boletín del Instituto Andaluz del Patrimonio Histórico/Boletín informativo - Instituto Andaluz del Patrimonio Histórico",
+     "host_organization_name": "Instituto Andaluz del Patrimonio Histórico"
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": [
+      {
+       "country_code": "ES"
+      },
+      {
+       "country_code": "ES"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/W4230090886",
+   "doi": "https://doi.org/10.32855/cuadernavia.2017.013",
+   "display_name": "El ferrocarril",
+   "language": "es",
+   "publication_date": "2017-04-11",
+   "primary_location": {
+    "landing_page_url": "https://doi.org/10.32855/cuadernavia.2017.013",
+    "pdf_url": "https://cuadernavia.journal.library.uta.edu/index.php/cv/article/download/40/187",
+    "license": "cc-by",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210236831",
+     "display_name": "Cuaderna Vía",
+     "host_organization_name": null
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "https://doi.org/10.32855/cuadernavia.2017.013",
+    "pdf_url": "https://cuadernavia.journal.library.uta.edu/index.php/cv/article/download/40/187",
+    "license": "cc-by",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210236831",
+     "display_name": "Cuaderna Vía",
+     "host_organization_name": null
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": [
+      {
+       "country_code": "US"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/W2028509171",
+   "doi": "https://doi.org/10.4067/s0717-69962009000100009",
+   "display_name": "El ferrocarril transandino",
+   "language": "es",
+   "publication_date": "2009-04-01",
+   "primary_location": {
+    "landing_page_url": "https://doi.org/10.4067/s0717-69962009000100009",
+    "pdf_url": "http://www.scielo.cl/pdf/arq/n71/art09.pdf",
+    "license": "cc-by-nc",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S26331104",
+     "display_name": "ARQ",
+     "host_organization_name": "Pontifical Catholic University of Chile"
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "https://doi.org/10.4067/s0717-69962009000100009",
+    "pdf_url": "http://www.scielo.cl/pdf/arq/n71/art09.pdf",
+    "license": "cc-by-nc",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S26331104",
+     "display_name": "ARQ",
+     "host_organization_name": "Pontifical Catholic University of Chile"
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": []
+    }
+   ]
+  }
+ ]
+}

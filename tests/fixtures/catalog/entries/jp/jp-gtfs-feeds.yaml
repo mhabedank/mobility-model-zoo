@@ -1,0 +1,103 @@
+id: jp-gtfs-feeds
+schema_version: 1
+level: collection
+parent: null
+title:
+  original: 公共交通オープンデータ
+  en: Public transport open data
+description: 'Synthetic fixture: Public transport open data.'
+languages:
+- code: zxx
+  origin: original
+origin_area: JP
+publisher:
+  name: Example Transit Bureau
+  kind: government
+landing_url: https://example.org/jp-gtfs-feeds
+resource_type:
+  modality: structured_data
+  genre: gtfs
+topics:
+- productdev
+subdomains:
+- public_transport
+licence:
+  id: CC-BY-4.0
+  url: https://licences.test/CC-BY-4.0
+  evidence_url: https://example.org/jp-gtfs-feeds/licence
+  attribution_required: 'yes'
+  attribution_text: null
+  commercial_use: 'yes'
+  share_alike: null
+  derivatives: 'yes'
+signals:
+  robots: allow
+  tdmrep: absent
+  x_robots: absent
+  meta_noai: allow
+  ai_txt: absent
+  content_signal: absent
+  content_usage: absent
+  checked_at: '2026-10-11'
+usage:
+  permitted_use: training_allowed
+  redistribution: allowed
+  rule: U3
+  rules_version: 1
+  rationale: CC-BY-4.0 is on the licence allow-list
+  evidence_url: https://example.org/jp-gtfs-feeds/licence
+  decided_at: '2026-10-11'
+personal_data:
+  expectation: none
+  categories: []
+access:
+- method: api
+  url: https://api.example.org/gtfs
+  auth: account
+  cost: free
+  formats:
+  - application/zip
+  provider_hint: mobilitydatabase
+content:
+  frequency: WEEKLY
+quality:
+  score: 3
+  rationale: Synthetic fixture with a fixed score.
+provenance:
+  added_by: owner
+  added_at: '2026-10-11'
+  method: search
+  evidence:
+  - https://example.org/jp-gtfs-feeds
+  last_verified: '2026-10-11'
+status:
+  value: verified
+  since: '2026-10-11'
+checks:
+- check: K1
+  result: pass
+  at: '2026-10-11'
+- check: K2
+  result: pass
+  at: '2026-10-11'
+- check: K3
+  result: pass
+  at: '2026-10-11'
+- check: K4
+  result: pass
+  at: '2026-10-11'
+- check: K5
+  result: pass
+  at: '2026-10-11'
+- check: K6
+  result: pass
+  at: '2026-10-11'
+- check: K7
+  result: pass
+  at: '2026-10-11'
+- check: K8
+  result: pass
+  at: '2026-10-11'
+- check: K9
+  result: pass
+  at: '2026-10-11'

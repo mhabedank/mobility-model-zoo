@@ -1,0 +1,112 @@
+id: pt-lecture-cycling
+schema_version: 1
+level: collection
+parent: null
+title:
+  original: Aulas sobre ciclismo urbano
+  en: Lectures on urban cycling
+description: 'Synthetic fixture: Lectures on urban cycling.'
+languages:
+- code: pt
+  origin: original
+origin_area: PT
+publisher:
+  name: Universidade de Exemplo
+  kind: research
+landing_url: https://example.org/pt-lecture-cycling
+resource_type:
+  modality: video
+  genre: lecture
+topics:
+- productdev
+subdomains:
+- cycling
+licence:
+  id: CC-BY-4.0
+  url: https://licences.test/CC-BY-4.0
+  evidence_url: https://example.org/pt-lecture-cycling/licence
+  attribution_required: 'yes'
+  attribution_text: null
+  commercial_use: 'yes'
+  share_alike: null
+  derivatives: 'yes'
+signals:
+  robots: allow
+  tdmrep: absent
+  x_robots: absent
+  meta_noai: allow
+  ai_txt: absent
+  content_signal: absent
+  content_usage: absent
+  checked_at: '2026-10-11'
+usage:
+  permitted_use: training_allowed
+  redistribution: allowed
+  rule: U3
+  rules_version: 1
+  rationale: CC-BY-4.0 is on the licence allow-list
+  evidence_url: https://example.org/pt-lecture-cycling/licence
+  decided_at: '2026-10-11'
+personal_data:
+  expectation: present
+  categories:
+  - voices
+  - faces
+access:
+- method: direct_download
+  url: https://example.org/pt-lecture-cycling/data
+  download_url: https://example.org/pt-lecture-cycling/data.zip
+  auth: none
+  cost: free
+  formats:
+  - application/zip
+  size_bytes_est: 1000
+content:
+  transcripts:
+    available: 'yes'
+    languages:
+    - pt
+    - en
+  volume:
+    hours: 12
+quality:
+  score: 3
+  rationale: Synthetic fixture with a fixed score.
+provenance:
+  added_by: owner
+  added_at: '2026-10-11'
+  method: search
+  evidence:
+  - https://example.org/pt-lecture-cycling
+  last_verified: '2026-10-11'
+status:
+  value: cleared
+  since: '2026-10-11'
+checks:
+- check: K1
+  result: pass
+  at: '2026-10-11'
+- check: K2
+  result: pass
+  at: '2026-10-11'
+- check: K3
+  result: pass
+  at: '2026-10-11'
+- check: K4
+  result: pass
+  at: '2026-10-11'
+- check: K5
+  result: pass
+  at: '2026-10-11'
+- check: K6
+  result: pass
+  at: '2026-10-11'
+- check: K7
+  result: pass
+  at: '2026-10-11'
+- check: K8
+  result: pass
+  at: '2026-10-11'
+- check: K9
+  result: pass
+  at: '2026-10-11'

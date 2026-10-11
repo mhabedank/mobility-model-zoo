@@ -172,6 +172,7 @@ def bootstrap_sources_cmd(
             ai_agents=(reg.lists("ai-user-agents") or {}).get("agents", []),
             denylist=(reg.lists("denylist") or {}).get("domains", []),
             piracy=(reg.lists("piracy-domains") or {}).get("domains", []),
+            reservation_labels=signals.reservation_labels(reg.lists("ai-preferences")),
         )
         client = httpx.Client(timeout=30)
         check = None if offline else (lambda url: signals.check_url(url, lists, client)[0])

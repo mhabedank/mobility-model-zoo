@@ -1,0 +1,14 @@
+# Type of resource: modality (FR-003) and genre. Each genre belongs to exactly one modality.
+# DCMI Type mapping for a later DCAT-AP export (research R2).
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial list, reason: feature 009 (FR-003, FR-005)}
+modalities:
+  text: {dcmi: Text, genres: [paper, report, law, transcript, article, book, forum_thread, standard,
+    statistics_publication]}
+  audio: {dcmi: Sound, genres: [podcast, speech_recording, radio_programme]}
+  video: {dcmi: MovingImage, genres: [hearing, lecture, talk, documentary, news_video, explainer]}
+  image: {dcmi: StillImage, genres: [photo, map, satellite_image]}
+  graphic: {dcmi: StillImage, genres: [chart, infographic, diagram]}
+  structured_data: {dcmi: Dataset, genres: [table, spreadsheet, database, bucket, api, feed, gtfs,
+    gtfs_rt, geodata, time_series, sensor_data, json_xml_dump]}

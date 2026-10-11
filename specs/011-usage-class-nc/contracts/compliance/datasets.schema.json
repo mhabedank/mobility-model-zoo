@@ -179,6 +179,20 @@
               },
               "error": {
                 "type": "string"
+              },
+              "content_signal": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
+              },
+              "content_usage": {
+                "enum": [
+                  "allow",
+                  "deny",
+                  "absent"
+                ]
               }
             },
             "required": [
