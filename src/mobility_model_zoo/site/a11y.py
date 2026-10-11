@@ -156,7 +156,13 @@ def _no_js(browser, base: str, rels: list[str]) -> list[Finding]:
                 findings.append(Finding("A2", rel, f"without JavaScript: no {what} ({selector})"))
         examples = page.query_selector_all("#examples article.example")
         for ex in examples:
-            if not ex.query_selector("details pre"):
+            if "device" in (ex.get_attribute("class") or "").split():
+                # microcontroller examples hold thousands of frames: inline excerpt, full file linked
+                if not ex.query_selector("pre") or not ex.query_selector('a[href*="/examples/"]'):
+                    findings.append(
+                        Finding("A2", rel, f"example {ex.get_attribute('id')} has no excerpt or link")
+                    )
+            elif not ex.query_selector("details pre"):
                 findings.append(Finding("A2", rel, f"example {ex.get_attribute('id')} has no full JSON"))
     ctx.close()
     return findings
