@@ -92,7 +92,7 @@ public repository unless they start with `catalog:`, which means the private rep
   - a `topics` value of `sandbox` fails;
   - a `description` longer than 600 characters fails ("≤ 600 chars");
   - an empty `subdomains` fails as out of scope (FR-003);
-  - K9: an e-mail address or phone number in `title`, `description` or `publisher.name` fails; `@handle`, `/user/`, `/u/` or `?user=` in an address warns and adds the flag `personal_data_in_metadata`;
+  - K9: an e-mail address or phone number in `title`, `description` or `publisher.name` fails; an at-sign handle, `/user/`, `/u/` or `?user=` in an address warns and adds the flag `personal_data_in_metadata`;
   - `validate` passes on the fixture catalog when run from a temporary directory with no zoo checkout (the licence allow-list comes from package data), and `--zoo-root` makes the repository copy win.
 - [X] T017 [P] [US1] Write `tests/catalog/test_catalog_dedupe.py` for R7:
   - same canonical landing URL (with/without `www.`, trailing slash) → exact duplicate;
@@ -121,7 +121,7 @@ public repository unless they start with `catalog:`, which means the private rep
   - key (c): `rapidfuzz.fuzz.token_sort_ratio` of normalised `title.original + publisher.name` ≥ 92.
 
   (a) and (b) between two entries are `fail`, unless one has `relations.duplicate_of` set to the other. (c) is `warn` and adds the flag `possible_duplicate`. Make the helper reusable by `ingest.py`.
-- [X] T023 [US1] Implement K9 (FR-031) in `catalog/validate.py`: run `compliance.scan.pii()` over `title.original`, `title.en`, `description` and `publisher.name` (contact data → `fail`), and the patterns `@[A-Za-z0-9_]{2,}`, `/user/`, `/u/` and `[?&]user=` over `landing_url` and `access[].url` (→ `warn` plus the flag `personal_data_in_metadata`).
+- [X] T023 [US1] Implement K9 (FR-031) in `catalog/validate.py`: run `compliance.scan.pii()` over `title.original`, `title.en`, `description` and `publisher.name` (contact data → `fail`), and the handle pattern (an at sign followed by a name), `/user/`, `/u/` and `[?&]user=` over `landing_url` and `access[].url` (→ `warn` plus the flag `personal_data_in_metadata`).
 - [X] T024 [US1] Implement `zoo catalog validate [--zoo-root PATH]` in `catalog/cli.py`. It runs K1, K2, K3 and K9 (and K8 once T041 exists) offline over all entries and prints one line per finding. Exit 1 on any `fail`; with no findings it prints `ok: N entries, index <commit[:12]> <sha256[:12]>, vocab v<n>`.
 - [X] T025 [US1] Implement `zoo catalog new --from FILE.yaml` in `catalog/cli.py`. It sets `schema_version: 1`, `provenance.added_by: owner`, `provenance.added_at: today` and `status {value: candidate, since: today}`, runs K1–K3, writes the entry through `model.write_entry`, and refuses (exit 1) on a `fail`, printing the findings.
 - [X] T026 [US1] Create the scaffold templates in `src/mobility_model_zoo/catalog/templates/`:
@@ -257,7 +257,7 @@ public repository unless they start with `catalog:`, which means the private rep
   - harvesters never write `description` and never store abstracts or descriptions from the catalogue (FR-032);
   - `catalog/harvest/defaults.yaml` (version, changelog) sets the judgment fields per harvester and genre: `personal_data` (gtfs, gtfs_rt, table, statistics → `none`; paper, report → `possible: names`; podcast → `present: voices, names`; hearing, lecture, talk → `present: voices, faces, names`; photo → `possible: faces`) and `quality` (`score: 3`, rationale "harvested from <catalogue>; authority: <publisher kind>; relevance and density not assessed"), plus a default `subdomains` derived from the query terms of the run.
 - [X] T049 [P] [US3] Implement `catalog/harvest/data_europa.py`: query the data.europa.eu search API by language (`es`, `pl`, …) and transport-related themes and keywords. Map `dct:license`, `dct:language`, `dct:publisher` and distribution `accessURL`/`downloadURL`/`format`/`byteSize` to candidate fields; a missing licence becomes `unknown`.
-- [ ] T050 [P] [US3] Implement `catalog/harvest/mobility_database.py`:
+- [X] T050 [P] [US3] Implement `catalog/harvest/mobility_database.py`:
   - exchange `MOBILITYDATABASE_REFRESH_TOKEN` for an access token (POST `https://api.mobilitydatabase.org/v1/tokens`);
   - list `gtfs_feeds` and `gtfs_rt_feeds` per `--area` country code;
   - map each feed to modality `structured_data`, genre `gtfs` or `gtfs_rt`, language `zxx`, the publisher, and the feed licence URL (licence id `unknown` unless the URL maps to SPDX);
@@ -268,7 +268,7 @@ public repository unless they start with `catalog:`, which means the private rep
   - map `best_oa_location.license` to SPDX, the DOI to `identifiers.doi`, and the `primary_location` source as a collection;
   - add a budget counter that stops at 80% of the documented free daily allowance, read from the response headers or the configured value.
 - [X] T052 [P] [US3] Implement `catalog/harvest/zenodo.py`: search records by keywords, `language` (ISO 639-3, mapped to BCP 47) and resource type; map `metadata.license.id` and files (size, type) to candidates with `provider_hint: zenodo`.
-- [ ] T053 [P] [US3] Implement `catalog/harvest/huggingface.py`: list datasets from `https://huggingface.co/api/datasets` with `language:` and mobility search terms; map the card's `license` and `language` tags and set `provider_hint: huggingface`. Gated datasets get an access route with `auth: account`, so they are never cleared.
+- [X] T053 [P] [US3] Implement `catalog/harvest/huggingface.py`: list datasets from `https://huggingface.co/api/datasets` with `language:` and mobility search terms; map the card's `license` and `language` tags and set `provider_hint: huggingface`. Gated datasets get an access route with `auth: account`, so they are never cleared.
 - [X] T054 [US3] Implement `zoo catalog harvest NAME --lang … --area … --subdomain … --limit N --run-id ID` in `catalog/cli.py`, dispatching to the harvesters and then calling ingest.
 - [X] T055 [US3] Write `.claude/skills/catalog-discover/SKILL.md` following contracts/cli.md "Discovery skill":
   - input: a scope and the catalog path;

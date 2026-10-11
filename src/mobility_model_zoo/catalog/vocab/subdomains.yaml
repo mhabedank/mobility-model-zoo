@@ -21,6 +21,6 @@ subdomains:
   condition_monitoring: Monitoring of vehicle, infrastructure or machine condition.
   urban_planning: Urban and transport planning, land use and street space.
   rural_mobility: Mobility in rural and peripheral areas.
-  policy_regulation: Transport policy, law, regulation, pricing and funding.
+  policy_regulation: Transport policy, law, regulation, fares, road charges and funding.
   safety: Road, rail and transport safety and accidents.
   accessibility: Accessible and inclusive mobility.

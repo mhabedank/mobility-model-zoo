@@ -197,6 +197,24 @@ def language_code(code: str | None) -> str:
     return THREE_TO_TWO.get(primary, "und")
 
 
+SECRET_PARAMS = re.compile(
+    r"(?i)^(token|access_?token|api_?key|apikey|key|secret|signature|sig|auth|password)$"
+)
+
+
+def strip_secrets(url: str | None) -> str | None:
+    """Drop credential-like query parameters (`?token=…`) so no secret enters the catalog."""
+    if not url or "?" not in url:
+        return url
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+    parts = urlsplit(url)
+    kept = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if not SECRET_PARAMS.match(k)
+    ]
+    return urlunsplit(parts._replace(query=urlencode(kept)))
+
+
 def candidate(
     harvester: Harvester,
     *,
@@ -223,6 +241,19 @@ def candidate(
     langs = list(dict.fromkeys(langs))
     if len(langs) > 1 and ("und" in langs or "zxx" in langs):
         langs = [code for code in langs if code not in ("und", "zxx")] or ["und"]
+    access = [
+        {
+            **route,
+            "url": strip_secrets(route["url"]),
+            **(
+                {"download_url": strip_secrets(route["download_url"])}
+                if route.get("download_url")
+                else {}
+            ),
+        }
+        for route in access
+    ]
+    landing_url = strip_secrets(landing_url) or landing_url
     out: dict[str, Any] = {
         "level": level,
         "title": {"original": title.strip()[:300], "en": (title_en or title).strip()[:300]},
