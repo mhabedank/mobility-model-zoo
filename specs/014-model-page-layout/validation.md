@@ -228,4 +228,4 @@ Draft created with `zoo new-patch scout-large 0.1.2 0.1.3` (same staged files as
 
 Remaining, owner only: `zoo compliance signoff`, `zoo check` with the staging token, tag and `release-publish`.
 
-Side finding: on `main`, the notices section of picket-forest 0.2.1 has an empty source table for the same reason (its datasets do not name `picket-forest@0.2.1` in `used_by`).
+Side finding: in `THIRD_PARTY_NOTICES.md` the section of picket-forest has an empty source table. No picket-forest version is tagged in any `used_by` of the register; its datasets are credited on the model card (dataset table). Whether the notices should list them as well is open, not part of this patch.
