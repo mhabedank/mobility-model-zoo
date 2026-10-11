@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
@@ -69,6 +70,8 @@ def bench(tmp_path_factory):
     return root, sources, manifest
 
 
+# find_spec, not importorskip: importing emlearn changes numpy's error state for the whole session
+@pytest.mark.skipif(importlib.util.find_spec("emlearn") is None, reason="emlearn missing (C parity)")
 def test_full_run_report_and_quality(bench, tmp_path):
     root, sources, manifest = bench
     res = ev.run(FAST, manifest, sources, cache=tmp_path / "cache")
