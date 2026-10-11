@@ -174,6 +174,13 @@ int msml_cal_event(msml_cal_state_t *s, int64_t ts_us, const float x[MSML_CAL_N_
     return flagged;
 }
 
+int msml_cal_rules(const float x[MSML_CAL_N_FEATURES], double margin)
+{
+    const int over = (double)x[2] > log2(1.0 + margin);
+    const int fuzz = x[7] >= 3.0f || x[8] >= 8.0f;
+    return over || fuzz || x[4] == 1.0f;
+}
+
 #ifdef MSML_CAL_HOST
 #include <stdlib.h>
 

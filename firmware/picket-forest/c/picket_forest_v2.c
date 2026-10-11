@@ -22,8 +22,8 @@ int picket_forest_v2_process(picket_forest_v2_t *p, int64_t ts_us, uint32_t can_
 
     msml_cal_update(&p->cal, ts_us, can_id, dlc, data, x);
     picket_forest_model_predict_proba(x, MSML_CAL_N_FEATURES, proba, 2);
-    const int flag = msml_cal_event(&p->cal, ts_us, x, proba[1] >= PICKET_FOREST_THRESHOLD,
-                                    PICKET_FOREST_CONFIRM, PICKET_FOREST_MARGIN);
+    /* the rules on the calibrated features decide; the forest score is reported as information */
+    const int flag = msml_cal_rules(x, PICKET_FOREST_RULES_MARGIN);
     if (score_out != NULL) {
         *score_out = proba[1];
     }

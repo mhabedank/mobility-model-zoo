@@ -35,8 +35,9 @@ class OpenRouterBackend:
         budget = settings.budget()
         self.usd_to_eur = float(budget.get("usd_to_eur", 1.0))
         self.price = (budget.get("prices") or {}).get(entry.model_id) or {}
-        self.max_tokens = int(entry.extra.get("max_output_tokens")
-                              or settings.pilot.get("max_output_tokens", 4096))
+        self.max_tokens = int(
+            entry.extra.get("max_output_tokens") or settings.pilot.get("max_output_tokens", 4096)
+        )
         self.deviations: list[str] = []
         self.provider = {
             "allow_fallbacks": False,
@@ -46,8 +47,10 @@ class OpenRouterBackend:
         order = entry.extra.get("provider_order", ["openai"])
         if not order:
             # Compliance harness (C-P5, decision D-routing): texts only go to a pinned provider.
-            raise UsageError(f"{entry.model_id}: provider_order is not pinned; OpenRouter would pick "
-                             "a provider per request (not allowed since feature 006)")
+            raise UsageError(
+                f"{entry.model_id}: provider_order is not pinned; OpenRouter would pick "
+                "a provider per request (not allowed since feature 006)"
+            )
         self.provider["order"] = order
         if entry.extra.get("quantizations"):
             self.provider["quantizations"] = entry.extra["quantizations"]
@@ -55,8 +58,10 @@ class OpenRouterBackend:
             # Reasoning models such as the GPT-5 family take no temperature; with
             # require_parameters every endpoint would be filtered out.
             self.temperature = "not_settable"
-            self.deviations.append(f"{entry.model_id}: no temperature parameter (not supported "
-                                   "by the model); provider default sampling")
+            self.deviations.append(
+                f"{entry.model_id}: no temperature parameter (not supported "
+                "by the model); provider default sampling"
+            )
 
     def _cost_from_prices(self, usage) -> float:
         if not self.price or self.price.get("input") is None:
@@ -85,14 +90,12 @@ class OpenRouterBackend:
         try:
             response = self.client.chat.completions.create(
                 model=self.entry.api_model,
-                messages=[{"role": "system", "content": system},
-                          {"role": "user", "content": user}],
+                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                 **sampling,
                 max_tokens=self.max_tokens,
                 response_format={
                     "type": "json_schema",
-                    "json_schema": {"name": "extraction_output", "strict": True,
-                                    "schema": schema},
+                    "json_schema": {"name": "extraction_output", "strict": True, "schema": schema},
                 },
                 extra_body=extra_body,
             )
@@ -102,8 +105,13 @@ class OpenRouterBackend:
         text = response.choices[0].message.content if response.choices else None
         usage = response.usage
         reported_usd = getattr(usage, "cost", None) if usage else None
-        cost_eur = (float(reported_usd) * self.usd_to_eur if reported_usd is not None
-                    else self._cost_from_prices(usage) if usage else 0.0)
+        cost_eur = (
+            float(reported_usd) * self.usd_to_eur
+            if reported_usd is not None
+            else self._cost_from_prices(usage)
+            if usage
+            else 0.0
+        )
         return CallResult(
             raw_body=response.model_dump(),
             parsed_candidate=parse_json_text(text),

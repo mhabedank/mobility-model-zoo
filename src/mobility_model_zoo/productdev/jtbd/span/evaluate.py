@@ -58,11 +58,13 @@ def save_candidates(dataset: Settings, candidates: list[dict[str, Any]]) -> None
     write_json(candidates_path(dataset), {"candidates": candidates})
 
 
-def label_span(settings: Settings, model_dir: Path, split: str, change: str,
-               recipe_file: str | None = None) -> dict[str, Any]:
+def label_span(
+    settings: Settings, model_dir: Path, split: str, change: str, recipe_file: str | None = None
+) -> dict[str, Any]:
     if split != "main":
-        raise ValidationFailed("span label evaluates on the main split only; the holdout stays "
-                               "unused (spec Assumptions)")
+        raise ValidationFailed(
+            "span label evaluates on the main split only; the holdout stays unused (spec Assumptions)"
+        )
     if not (change and change.strip()):
         raise ValidationFailed("--candidate-change must say what this candidate changes and why")
     frozen = verify_benchmark_frozen(settings)
@@ -75,15 +77,17 @@ def label_span(settings: Settings, model_dir: Path, split: str, change: str,
         raise ValidationFailed(f"this model ({sha[:12]}) was already evaluated on the benchmark")
     cap = int(recipe["selection"]["benchmark_candidate_cap"])
     if len(candidates) >= cap:
-        raise ValidationFailed(f"the cap of {cap} benchmark-evaluated candidates is reached "
-                               "(research R8)")
+        raise ValidationFailed(
+            f"the cap of {cap} benchmark-evaluated candidates is reached (research R8)"
+        )
 
     from mobility_model_zoo.productdev.jtbd.span.extractor import SpanExtractor
 
     extractor = SpanExtractor.from_pretrained(model_dir)
     candidate_id = f"c{len(candidates) + 1}"
-    run_id = run_id_for("student", f"{MODEL_ID}-{candidate_id}-{sha[:12]}", split,
-                        frozen["hashes"]["guideline"])
+    run_id = run_id_for(
+        "student", f"{MODEL_ID}-{candidate_id}-{sha[:12]}", split, frozen["hashes"]["guideline"]
+    )
     run_path = settings.runs_dir / run_id
     if run_path.exists():
         raise ValidationFailed(f"{run_id} already exists")
@@ -92,25 +96,53 @@ def label_span(settings: Settings, model_dir: Path, split: str, change: str,
     for chunk_id, chunk in sorted(chunks.items()):
         write_json(run_path / "parsed" / f"{chunk_id}.json", extractor.extract(chunk.text))
     manifest = LabelRunManifest(
-        run_id=run_id, role="student", backend="span", model_id=MODEL_ID,
-        model_version=sha[:12], family="xlm-roberta", host=platform.node() or "local",
-        settings=RunSettings(temperature=0.0, structured_output="post_validation",
-                             max_retries=0, dimensions=extractor.dimensions, model_sha256=sha,
-                             thresholds=extractor.thresholds, git_commit=head_commit(settings),
-                             candidate_id=candidate_id),
-        guideline_sha256=frozen["hashes"]["guideline"], schema_sha256=schema_sha256(),
-        criteria_sha256=frozen["hashes"]["criteria"], split=split, started_at=started,
-        finished_at=datetime.now(UTC), status="complete",
-        deviations=["span model: no free-text actor or English statement (not scored)"])
+        run_id=run_id,
+        role="student",
+        backend="span",
+        model_id=MODEL_ID,
+        model_version=sha[:12],
+        family="xlm-roberta",
+        host=platform.node() or "local",
+        settings=RunSettings(
+            temperature=0.0,
+            structured_output="post_validation",
+            max_retries=0,
+            dimensions=extractor.dimensions,
+            model_sha256=sha,
+            thresholds=extractor.thresholds,
+            git_commit=head_commit(settings),
+            candidate_id=candidate_id,
+        ),
+        guideline_sha256=frozen["hashes"]["guideline"],
+        schema_sha256=schema_sha256(),
+        criteria_sha256=frozen["hashes"]["criteria"],
+        split=split,
+        started_at=started,
+        finished_at=datetime.now(UTC),
+        status="complete",
+        deviations=["span model: no free-text actor or English statement (not scored)"],
+    )
     data = manifest.model_dump(mode="json")
     data["settings"] = {k: v for k, v in data["settings"].items() if v is not None}
     write_json(run_path / "manifest.json", data)
-    candidates.append({
-        "candidate_id": candidate_id, "model_sha256": sha, "model_dir": str(model_dir),
-        "change": change.strip(), "run_id": run_id,
-        "scores": str(settings.analysis_dir / "scores" / f"{run_id}.json"),
-        "benchmark_version": frozen["version"], "evaluated_at": started.isoformat(),
-        "selected": False})
+    candidates.append(
+        {
+            "candidate_id": candidate_id,
+            "model_sha256": sha,
+            "model_dir": str(model_dir),
+            "change": change.strip(),
+            "run_id": run_id,
+            "scores": str(settings.analysis_dir / "scores" / f"{run_id}.json"),
+            "benchmark_version": frozen["version"],
+            "evaluated_at": started.isoformat(),
+            "selected": False,
+        }
+    )
     save_candidates(dataset, candidates)
-    return {"run_id": run_id, "candidate_id": candidate_id, "chunks": len(chunks),
-            "dimensions": extractor.dimensions, "model_sha256": sha}
+    return {
+        "run_id": run_id,
+        "candidate_id": candidate_id,
+        "chunks": len(chunks),
+        "dimensions": extractor.dimensions,
+        "model_sha256": sha,
+    }

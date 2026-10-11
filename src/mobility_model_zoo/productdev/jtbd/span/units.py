@@ -35,8 +35,9 @@ def units(text: str) -> list[tuple[int, int]]:
     return spans
 
 
-def windows(tokenizer: Any, text: str, max_length: int = MAX_LENGTH,
-            stride: int = STRIDE) -> dict[str, list[list]]:
+def windows(
+    tokenizer: Any, text: str, max_length: int = MAX_LENGTH, stride: int = STRIDE
+) -> dict[str, list[list]]:
     """Overlapping windows of `max_length` tokens (`stride` tokens overlap) covering all of `text`.
 
     Built by hand: `return_overflowing_tokens` in transformers 5 stops after two windows. Each
@@ -49,18 +50,20 @@ def windows(tokenizer: Any, text: str, max_length: int = MAX_LENGTH,
     starts = list(range(0, max(len(ids) - stride, 1), size - stride)) or [0]
     rows: dict[str, list[list]] = {"input_ids": [], "attention_mask": [], "offset_mapping": []}
     for start in starts:
-        part = ids[start:start + size]
-        span = [tuple(o) for o in offsets[start:start + size]]
+        part = ids[start : start + size]
+        span = [tuple(o) for o in offsets[start : start + size]]
         pad = max_length - len(part) - 2
-        rows["input_ids"].append([tokenizer.cls_token_id, *part, tokenizer.sep_token_id]
-                                 + [tokenizer.pad_token_id] * pad)
+        rows["input_ids"].append(
+            [tokenizer.cls_token_id, *part, tokenizer.sep_token_id] + [tokenizer.pad_token_id] * pad
+        )
         rows["attention_mask"].append([1] * (len(part) + 2) + [0] * pad)
         rows["offset_mapping"].append([(0, 0), *span, (0, 0)] + [(0, 0)] * pad)
     return rows
 
 
-def unit_token_index(spans: list[tuple[int, int]],
-                     tokens: list[tuple[int, int]]) -> list[tuple[tuple[int, int], list[int]]]:
+def unit_token_index(
+    spans: list[tuple[int, int]], tokens: list[tuple[int, int]]
+) -> list[tuple[tuple[int, int], list[int]]]:
     """For each unit, the indices of the (sorted, non-special) tokens that overlap it.
 
     Units without a token are left out.

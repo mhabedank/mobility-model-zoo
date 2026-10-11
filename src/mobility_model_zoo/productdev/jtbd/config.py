@@ -21,8 +21,15 @@ DEFAULT_CONFIG = Path("configs/productdev/jtbd/pilot-v1.yaml")
 # Each config spends from one named budget (its own budget file); the ledger is shared and
 # its rows carry the budget name. Rows without a name belong to the pilot budget.
 DEFAULT_BUDGET = "pilot-v1"
-TOP_LEVEL_KEYS = {"root", "benchmark_version", "test_fixture", "paths", "pilot", "budget_name",
-                  "span_train"}
+TOP_LEVEL_KEYS = {
+    "root",
+    "benchmark_version",
+    "test_fixture",
+    "paths",
+    "pilot",
+    "budget_name",
+    "span_train",
+}
 # Defaults of a training dataset config (feature 004, data-model.md "Training dataset").
 SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
     "redaction": {"version": "redact-v2", "review": "full"},
@@ -163,8 +170,18 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
         raise UsageError(f"config {path} has unknown keys: {sorted(unknown)}")
     base = (path.parent / raw.get("root", ".")).resolve()
     paths = {key: (base / value).resolve() for key, value in (raw.get("paths") or {}).items()}
-    required = {"guideline", "examples", "domain", "models", "criteria", "teacher_scoring",
-                "budget", "data", "benchmarks", "reports"}
+    required = {
+        "guideline",
+        "examples",
+        "domain",
+        "models",
+        "criteria",
+        "teacher_scoring",
+        "budget",
+        "data",
+        "benchmarks",
+        "reports",
+    }
     missing = required - paths.keys()
     if missing:
         raise UsageError(f"config {path} is missing paths: {sorted(missing)}")

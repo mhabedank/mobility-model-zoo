@@ -82,6 +82,11 @@ void msml_cal_update(msml_cal_state_t *s, int64_t ts_us, uint32_t can_id, uint8_
 int msml_cal_event(msml_cal_state_t *s, int64_t ts_us, const float x[MSML_CAL_N_FEATURES],
                    int model_flag, int confirm, double margin);
 
+/* Rules decision on the features of one frame (picket-forest 0.2.0): 1 if the ID's count exceeds
+ * the calibrated maximum by more than `margin` (0.25 = 25 %), several unknown IDs appear (fuzzing
+ * state) or the DLC differs from the calibrated one. */
+int msml_cal_rules(const float x[MSML_CAL_N_FEATURES], double margin);
+
 #ifdef __cplusplus
 }
 #endif

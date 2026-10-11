@@ -55,17 +55,18 @@ def check_roles(settings: Settings, role: str, entry: ModelEntry) -> None:
     if role in ("teacher_candidate", "teacher"):
         if entry.benchmark_labeler:
             raise ValidationFailed(
-                f"{entry.model_id} is a benchmark labeler and can never be a teacher (FR-019)")
+                f"{entry.model_id} is a benchmark labeler and can never be a teacher (FR-019)"
+            )
         reference_families = {m.family for m in models.values() if m.role == "reference"}
         if entry.family in reference_families:
-            raise ValidationFailed(
-                f"teacher family {entry.family} equals a reference family (FR-019a)")
+            raise ValidationFailed(f"teacher family {entry.family} equals a reference family (FR-019a)")
         if not entry.license_basis:
             raise ValidationFailed(f"record license_basis for teacher {entry.model_id} (T071)")
 
 
-def estimate_for(settings: Settings, entry: ModelEntry, n_chunks: int | None = None,
-                 split: str = "main") -> float:
+def estimate_for(
+    settings: Settings, entry: ModelEntry, n_chunks: int | None = None, split: str = "main"
+) -> float:
     chunks = load_chunks(settings, split)
     n = n_chunks if n_chunks is not None else len(chunks)
     if n == 0:
@@ -73,52 +74,73 @@ def estimate_for(settings: Settings, entry: ModelEntry, n_chunks: int | None = N
     prompt_tokens = approx_prompt_tokens(build_system_prompt(settings))
     avg_chunk = mean(c.token_count or len(c.text) // 4 for c in chunks) if chunks else 0
     avg_out = float(settings.pilot.get("assumed_output_tokens", 1500))
-    return budget.estimate_run(settings, entry, n, prompt_tokens + avg_chunk, prompt_tokens,
-                               avg_out)
+    return budget.estimate_run(settings, entry, n, prompt_tokens + avg_chunk, prompt_tokens, avg_out)
 
 
 def _next_attempt(raw_dir, chunk_id: str) -> int:
     return len(list(raw_dir.glob(f"{chunk_id}.a*.json"))) + 1
 
 
-
 def _answer_check(model, meta: dict) -> str:
     from mobility_model_zoo.compliance.presend import check_answer
 
-    finding = check_answer(getattr(model, "compliance_route", None),
-                           getattr(model, "compliance_backend", ""), meta)
+    finding = check_answer(
+        getattr(model, "compliance_route", None), getattr(model, "compliance_backend", ""), meta
+    )
     return finding.reason if finding else ""
 
 
-def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
-                 retries: int) -> tuple[str, float, list[str]]:
+def _label_chunk(
+    model, system: str, schema: dict, chunk, raw_dir, parsed_dir, retries: int
+) -> tuple[str, float, list[str]]:
     """All attempts for one chunk. Returns the last error ("" on success), cost, model versions."""
     last_error, spent, versions = "no attempt", 0.0, []
     for _ in range(retries + 1):
         attempt = _next_attempt(raw_dir, chunk.chunk_id)
-        record: dict[str, Any] = {"chunk_id": chunk.chunk_id, "attempt": attempt,
-                                  "request_ts": datetime.now(UTC).isoformat()}
+        record: dict[str, Any] = {
+            "chunk_id": chunk.chunk_id,
+            "attempt": attempt,
+            "request_ts": datetime.now(UTC).isoformat(),
+        }
         try:
             result = model.call(system, chunk.text, schema, chunk.chunk_id)
         except BackendFailure as exc:
             last_error = str(exc)
-            write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
-                       {**record, "error": last_error, "parsed_candidate": None}, exclusive=True)
+            write_json(
+                raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
+                {**record, "error": last_error, "parsed_candidate": None},
+                exclusive=True,
+            )
             continue
         spent += result.cost_eur
         mismatch = _answer_check(model, result.meta)
         if mismatch:
-            write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
-                       {**record, "error": "provider_mismatch: " + mismatch, "backend_meta": result.meta,
-                        "parsed_candidate": None}, exclusive=True)
+            write_json(
+                raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
+                {
+                    **record,
+                    "error": "provider_mismatch: " + mismatch,
+                    "backend_meta": result.meta,
+                    "parsed_candidate": None,
+                },
+                exclusive=True,
+            )
             raise ValidationFailed(f"compliance post-receive check failed (C-P6): {mismatch}")
         versions.append(result.model_version)
-        write_json(raw_dir / f"{chunk.chunk_id}.a{attempt}.json", {
-            **record, "latency_ms": round(result.latency_ms, 1),
-            "model_version": result.model_version, "usage": result.usage,
-            "backend_meta": result.meta, "cost_eur": result.cost_eur,
-            "raw_body": result.raw_body, "parsed_candidate": result.parsed_candidate,
-        }, exclusive=True)
+        write_json(
+            raw_dir / f"{chunk.chunk_id}.a{attempt}.json",
+            {
+                **record,
+                "latency_ms": round(result.latency_ms, 1),
+                "model_version": result.model_version,
+                "usage": result.usage,
+                "backend_meta": result.meta,
+                "cost_eur": result.cost_eur,
+                "raw_body": result.raw_body,
+                "parsed_candidate": result.parsed_candidate,
+            },
+            exclusive=True,
+        )
         try:
             output = ExtractionOutput.model_validate(result.parsed_candidate)
         except Exception as exc:  # noqa: BLE001 - schema failure of the model answer
@@ -127,6 +149,7 @@ def _label_chunk(model, system: str, schema: dict, chunk, raw_dir, parsed_dir,
         write_json(parsed_dir / f"{chunk.chunk_id}.json", output.model_dump(mode="json"))
         return "", spent, versions
     return last_error, spent, versions
+
 
 def _compliance_presend(settings: Settings, entry, backend: str, role: str, chunks) -> dict | None:
     """Fail-closed checks before any text is sent (feature 006, C-P1 … C-P5)."""
@@ -138,13 +161,19 @@ def _compliance_presend(settings: Settings, entry, backend: str, role: str, chun
     reg = Register.load(settings.base)
     route_id = entry.extra.get("route")
     findings = check_batch(
-        reg, model_id=entry.model_id, backend=backend, role=role, route_id=route_id,
+        reg,
+        model_id=entry.model_id,
+        backend=backend,
+        role=role,
+        route_id=route_id,
         provider_order=entry.extra.get("provider_order"),
         items=[(c.chunk_id, c.text, c.redaction.patterns_version) for c in chunks],
-        current_patterns=PATTERNS_VERSION)
+        current_patterns=PATTERNS_VERSION,
+    )
     if findings:
-        raise ValidationFailed("compliance pre-send check failed: "
-                               + "; ".join(StageFailed(findings).failures[:10]))
+        raise ValidationFailed(
+            "compliance pre-send check failed: " + "; ".join(StageFailed(findings).failures[:10])
+        )
     return reg.route(route_id) if route_id else None
 
 
@@ -180,23 +209,30 @@ def label(
     run_path = settings.runs_dir / run_id
     raw_dir, parsed_dir = run_path / "raw", run_path / "parsed"
     manifest_file = run_path / "manifest.json"
-    manifest = (LabelRunManifest.model_validate(read_json(manifest_file))
-                if manifest_file.exists() else None)
+    manifest = (
+        LabelRunManifest.model_validate(read_json(manifest_file)) if manifest_file.exists() else None
+    )
     if manifest and manifest.status == "invalid_version_change":
         raise ValidationFailed(
             f"{run_id} is invalid (model version changed mid-run); move {run_path} aside and "
-            "repeat the run")
+            "repeat the run"
+        )
     if manifest and retry_failed:
         # Backend failures (timeouts, connection errors) are retried; schema failures of the model
         # answer stay excluded so they keep counting against the model. Raw attempts are kept.
         kept = [e for e in manifest.excluded_chunks if e.reason.startswith("schema invalid")]
-        manifest.deviations = sorted(set(manifest.deviations) | {
-            f"retried {len(manifest.excluded_chunks) - len(kept)} chunks after backend failures"})
+        manifest.deviations = sorted(
+            set(manifest.deviations)
+            | {f"retried {len(manifest.excluded_chunks) - len(kept)} chunks after backend failures"}
+        )
         manifest.excluded_chunks = kept
         manifest.status = "running"
     excluded = {e.chunk_id for e in manifest.excluded_chunks} if manifest else set()
-    todo = [c for c in chunks
-            if c.chunk_id not in excluded and not (parsed_dir / f"{c.chunk_id}.json").exists()]
+    todo = [
+        c
+        for c in chunks
+        if c.chunk_id not in excluded and not (parsed_dir / f"{c.chunk_id}.json").exists()
+    ]
     if limit is not None:
         todo = todo[:limit]
     estimate = estimate_for(settings, entry, len(todo), split)
@@ -242,8 +278,12 @@ def label(
         # Model calls may run in parallel (slow reasoning models); manifest, budget and the
         # version check stay in this thread.
         with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-            futures = {pool.submit(_label_chunk, model, system, schema, chunk, raw_dir,
-                                   parsed_dir, retries): chunk for chunk in todo}
+            futures = {
+                pool.submit(
+                    _label_chunk, model, system, schema, chunk, raw_dir, parsed_dir, retries
+                ): chunk
+                for chunk in todo
+            }
             for future in as_completed(futures):
                 chunk = futures[future]
                 last_error, cost, versions = future.result()
@@ -257,18 +297,23 @@ def label(
                             other.cancel()
                         raise BackendFailure(
                             f"model version changed from {manifest.model_version} to "
-                            f"{version} during {run_id}; the run must be repeated")
+                            f"{version} during {run_id}; the run must be repeated"
+                        )
                 if last_error:
                     manifest.excluded_chunks.append(
-                        ExcludedChunk(chunk_id=chunk.chunk_id, reason=last_error))
+                        ExcludedChunk(chunk_id=chunk.chunk_id, reason=last_error)
+                    )
                 done += 1
                 manifest.deviations = sorted(set(manifest.deviations) | set(model.deviations))
                 write_json(manifest_file, manifest.model_dump(mode="json"))
     finally:
         manifest.cost_eur = round(manifest.cost_eur + spent, 6)
         excluded_now = {e.chunk_id for e in manifest.excluded_chunks}
-        remaining = [c for c in chunks if c.chunk_id not in excluded_now
-                     and not (parsed_dir / f"{c.chunk_id}.json").exists()]
+        remaining = [
+            c
+            for c in chunks
+            if c.chunk_id not in excluded_now and not (parsed_dir / f"{c.chunk_id}.json").exists()
+        ]
         if not remaining and manifest.status == "running":
             manifest.status = "complete"
             manifest.finished_at = datetime.now(UTC)

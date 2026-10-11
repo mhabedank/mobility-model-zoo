@@ -60,8 +60,9 @@ class OllamaBackend:
         self.num_ctx = int(entry.extra.get("num_ctx", 16384))
         # The output limit the manifest records (settings.max_output_tokens) is enforced here too,
         # so a model that loops stops at the same limit as the hosted ones (2026-10-06).
-        self.max_tokens = int(entry.extra.get("max_output_tokens")
-                              or settings.pilot.get("max_output_tokens", 4096))
+        self.max_tokens = int(
+            entry.extra.get("max_output_tokens") or settings.pilot.get("max_output_tokens", 4096)
+        )
         # Set by `jtbd perf` to the CPUs the process may use: in a container Ollama otherwise
         # starts one thread per host CPU and is throttled by the CPU quota.
         self.num_thread: int | None = None
@@ -74,12 +75,15 @@ class OllamaBackend:
     def call(self, system: str, user: str, schema: dict, chunk_id: str) -> CallResult:
         payload = {
             "model": self.entry.api_model,
-            "messages": [{"role": "system", "content": system},
-                         {"role": "user", "content": user}],
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "format": schema,
             "stream": False,
-            "options": {"temperature": 0, "num_ctx": self.num_ctx, "seed": 0,
-                        "num_predict": self.max_tokens},
+            "options": {
+                "temperature": 0,
+                "num_ctx": self.num_ctx,
+                "seed": 0,
+                "num_predict": self.max_tokens,
+            },
         }
         if self.num_thread:
             payload["options"]["num_thread"] = self.num_thread
@@ -98,10 +102,12 @@ class OllamaBackend:
             raw_body=body,
             parsed_candidate=parse_json_text(text),
             model_version=self.digest,
-            usage={"prompt_tokens": body.get("prompt_eval_count"),
-                   "completion_tokens": body.get("eval_count"),
-                   "eval_duration_ns": body.get("eval_duration"),
-                   "total_duration_ns": body.get("total_duration")},
+            usage={
+                "prompt_tokens": body.get("prompt_eval_count"),
+                "completion_tokens": body.get("eval_count"),
+                "eval_duration_ns": body.get("eval_duration"),
+                "total_duration_ns": body.get("total_duration"),
+            },
             meta={"host": self.host_name},
             cost_eur=0.0,
             latency_ms=latency,

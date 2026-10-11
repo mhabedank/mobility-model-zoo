@@ -263,7 +263,7 @@ def v2_export(
     config = rx.export(target, manifest, sources, cache, road_test, table)
     say(
         json.dumps(
-            {k: config[k] for k in ("frame_threshold", "event", "tree_nodes", "parity_c_vs_python")},
+            {k: config[k] for k in ("frame_threshold", "decision", "tree_nodes", "parity_c_vs_python")},
             default=float,
         )
     )

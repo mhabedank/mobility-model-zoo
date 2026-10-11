@@ -64,8 +64,9 @@ def build_from_selection(settings: Settings, selection_path: Path) -> dict[str, 
                     "license": snapshot.license,
                     "relevance_intent": spec["relevance_intent"],
                     "redaction": {
-                        "patterns_version": settings.pilot.get("redaction_patterns_version",
-                                                               "redact-v1"),
+                        "patterns_version": settings.pilot.get(
+                            "redaction_patterns_version", "redact-v1"
+                        ),
                         "manual_review_at": None,
                         "check_passed": False,
                     },

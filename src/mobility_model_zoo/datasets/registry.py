@@ -101,11 +101,14 @@ def _producer_problems(root: Path, rec: dict[str, Any]) -> list[str]:
         return []
     cls = zoo_model_class(root, producer)
     if cls is None:
-        return [f"datasets: {rec.get('id')}: produced_by {producer} is not a zoo model with a "
-                "usage class"]
+        return [
+            f"datasets: {rec.get('id')}: produced_by {producer} is not a zoo model with a usage class"
+        ]
     if not cls.commercial and rec.get("commercial_use"):
-        return [f"datasets: {rec.get('id')}: produced by non-commercial model {producer}, so "
-                "commercial_use must be false"]
+        return [
+            f"datasets: {rec.get('id')}: produced by non-commercial model {producer}, so "
+            "commercial_use must be false"
+        ]
     return []
 
 

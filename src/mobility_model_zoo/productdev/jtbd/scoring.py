@@ -41,8 +41,7 @@ from mobility_model_zoo.productdev.jtbd.runs import (
 from mobility_model_zoo.productdev.jtbd.schema import evidence_rank
 
 RELEVANCE_LABELS = ["false", "true", "invalid"]
-ALL_DIMENSIONS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type",
-                  "evidence_scope")
+ALL_DIMENSIONS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type", "evidence_scope")
 # Always scored; the attribute dimensions only when the model produces them (feature 004).
 CORE_DIMENSIONS = ("relevance", "item_matching", "kind")
 ATTRIBUTES = ("actor_type", "evidence_type", "evidence_scope")
@@ -53,8 +52,7 @@ def not_produced() -> dict[str, Any]:
     return {"status": "not_produced", "score": None, "n": 0}
 
 
-def comparison_composite(dimensions: dict[str, Any], names: list[str] | tuple[str, ...]
-                         ) -> float | None:
+def comparison_composite(dimensions: dict[str, Any], names: list[str] | tuple[str, ...]) -> float | None:
     """The composite over exactly `names` (spec FR-015), from a score file's `dimensions`.
 
     Every dimension in `names` must be scored; a missing or not-produced one makes the
@@ -83,13 +81,20 @@ def _relevance_label(value: bool | None) -> str:
     return "invalid" if value is None else ("true" if value else "false")
 
 
-def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[str],
-                outputs: dict, min_iou: float, attributes: tuple[str, ...] = ATTRIBUTES
-                ) -> tuple[dict[str, list], Counter]:
+def score_units(
+    consensus: list[dict],
+    contested: list[dict],
+    chunk_ids: list[str],
+    outputs: dict,
+    min_iou: float,
+    attributes: tuple[str, ...] = ATTRIBUTES,
+) -> tuple[dict[str, list], Counter]:
     """Scoring units per dimension. Attribute dimensions outside `attributes` (not produced by
     the model) get no units at all."""
-    units: dict[str, list] = {d: [] for d in ("relevance", "item_matching", "kind", "actor_type",
-                                              "evidence_type", "evidence_scope")}
+    units: dict[str, list] = {
+        d: []
+        for d in ("relevance", "item_matching", "kind", "actor_type", "evidence_type", "evidence_scope")
+    }
     neutral: Counter = Counter()
     rel = {c["chunk_id"]: c["value"] for c in consensus if c["level"] == "relevance"}
     contested_rel = {c["chunk_id"] for c in contested if c["level"] == "relevance"}
@@ -98,12 +103,16 @@ def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[st
         model_relevant = out.relevant if out else None
         if chunk_id in rel:
             units["relevance"].append(
-                (chunk_id, (_relevance_label(model_relevant), _relevance_label(rel[chunk_id]))))
+                (chunk_id, (_relevance_label(model_relevant), _relevance_label(rel[chunk_id])))
+            )
         elif chunk_id in contested_rel:
             neutral["relevance"] += 1
 
-        targets = [Target(tuple(c["span"]), c["values"].get("kind"), c["values"])
-                   for c in consensus if c["level"] == "item" and c["chunk_id"] == chunk_id]
+        targets = [
+            Target(tuple(c["span"]), c["values"].get("kind"), c["values"])
+            for c in consensus
+            if c["level"] == "item" and c["chunk_id"] == chunk_id
+        ]
         for c in contested:
             if c["chunk_id"] == chunk_id and c["dimensions"] == ["item_existence"]:
                 found = c["values"][c["found_by"]]
@@ -125,9 +134,15 @@ def score_units(consensus: list[dict], contested: list[dict], chunk_ids: list[st
                         neutral[dim] += 1
                 if "evidence_type" in attributes:
                     if "evidence_type" in m.b.values:
-                        units["evidence_type"].append((chunk_id, (
-                            evidence_rank(m.a.evidence_type),
-                            evidence_rank(m.b.values["evidence_type"]))))
+                        units["evidence_type"].append(
+                            (
+                                chunk_id,
+                                (
+                                    evidence_rank(m.a.evidence_type),
+                                    evidence_rank(m.b.values["evidence_type"]),
+                                ),
+                            )
+                        )
                     else:
                         neutral["evidence_type"] += 1
             elif m.a:
@@ -142,29 +157,43 @@ def _ratio(value: float | None, reference: float | None) -> float | None:
     return round(value / reference, 6) if value is not None and reference else None
 
 
-def _dimensions(settings: Settings, consensus: list[dict], contested: list[dict],
-                chunk_ids: list[str], outputs: dict, min_iou: float,
-                attributes: tuple[str, ...] = ATTRIBUTES) -> tuple[dict, Counter]:
+def _dimensions(
+    settings: Settings,
+    consensus: list[dict],
+    contested: list[dict],
+    chunk_ids: list[str],
+    outputs: dict,
+    min_iou: float,
+    attributes: tuple[str, ...] = ATTRIBUTES,
+) -> tuple[dict, Counter]:
     units, neutral = score_units(consensus, contested, chunk_ids, outputs, min_iou, attributes)
     dims = {
-        "relevance": summarize(units["relevance"], kappa_stat(RELEVANCE_LABELS), "kappa",
-                               settings),
+        "relevance": summarize(units["relevance"], kappa_stat(RELEVANCE_LABELS), "kappa", settings),
         "item_matching": summarize(
-            units["item_matching"], f1_stat, "f1", settings,
-            unit_count=sum(p[0] + p[1] + p[2] for _, p in units["item_matching"])),
+            units["item_matching"],
+            f1_stat,
+            "f1",
+            settings,
+            unit_count=sum(p[0] + p[1] + p[2] for _, p in units["item_matching"]),
+        ),
     }
     for dim, labels in CATEGORY_LABELS.items():
         dims[dim] = summarize(units[dim], kappa_stat(labels), "kappa", settings)
-    dims["evidence_type"] = summarize(units["evidence_type"],
-                                      kappa_stat(EVIDENCE_LABELS, "quadratic"),
-                                      "quadratic_weighted_kappa", settings)
-    dims = {d: dims[d] if d in CORE_DIMENSIONS or d in attributes else not_produced()
-            for d in ALL_DIMENSIONS}
+    dims["evidence_type"] = summarize(
+        units["evidence_type"],
+        kappa_stat(EVIDENCE_LABELS, "quadratic"),
+        "quadratic_weighted_kappa",
+        settings,
+    )
+    dims = {
+        d: dims[d] if d in CORE_DIMENSIONS or d in attributes else not_produced() for d in ALL_DIMENSIONS
+    }
     return dims, neutral
 
 
-def repaired_view(settings: Settings, outputs: dict[str, ChunkOutput]
-                  ) -> tuple[dict[str, ChunkOutput], Counter]:
+def repaired_view(
+    settings: Settings, outputs: dict[str, ChunkOutput]
+) -> tuple[dict[str, ChunkOutput], Counter]:
     """Outputs with near-miss quotes repaired by the frozen `quote_repair` rule (FR-026a)."""
     from mobility_model_zoo.productdev.jtbd.ensemble import with_repair
 
@@ -197,8 +226,9 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
     consensus, contested, meta = load_consensus(settings, "main")
     outputs = load_outputs(settings, run_id)
     min_iou = float(settings.pilot.get("min_iou", 0.3))
-    dims, neutral = _dimensions(settings, consensus, contested, meta["chunks"], outputs, min_iou,
-                                attributes)
+    dims, neutral = _dimensions(
+        settings, consensus, contested, meta["chunks"], outputs, min_iou, attributes
+    )
 
     agreement_path = settings.analysis_dir / "agreement.json"
     if meta.get("single_reference"):
@@ -207,15 +237,15 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
         agreement = read_json(agreement_path)
     else:
         agreement = compute_agreement(settings, "main")
-    model_composite = composite(d["score"] for d in dims.values()
-                                if d.get("status") != "not_produced")
+    model_composite = composite(d["score"] for d in dims.values() if d.get("status") != "not_produced")
     frontier_a = agreement["composite_consensus_units"] if agreement else None
     frontier_b = agreement["composite_all_units"] if agreement else None
     repaired = None
     if run.role == "teacher_candidate":
         repaired_outputs, stats = repaired_view(settings, outputs)
-        repaired_dims, _ = _dimensions(settings, consensus, contested, meta["chunks"],
-                                       repaired_outputs, min_iou)
+        repaired_dims, _ = _dimensions(
+            settings, consensus, contested, meta["chunks"], repaired_outputs, min_iou
+        )
         repaired_composite = composite(d["score"] for d in repaired_dims.values())
         repaired = {
             "dimensions": repaired_dims,
@@ -251,7 +281,9 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
     if run.role == "student":
         names = [*CORE_DIMENSIONS, *attributes]
         result["produced_dimensions"] = list(attributes)
-        result["comparison_composite"] = {"dimensions": names,
-                                          "value": comparison_composite(dims, names)}
+        result["comparison_composite"] = {
+            "dimensions": names,
+            "value": comparison_composite(dims, names),
+        }
     write_json(settings.analysis_dir / "scores" / f"{run_id}.json", result)
     return result

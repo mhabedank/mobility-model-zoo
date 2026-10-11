@@ -46,7 +46,7 @@ def test_examples_check_against_the_staged_chain(model, tmp_path):
     exp = tmp_path / "export"
     (exp / "c").mkdir(parents=True)
     rx.model_header(clf, exp / "picket_forest_model.h")
-    rx.config_header(exp / "picket_forest_config.h", 0.5, rx.DEFAULT_ALARM, cal.CONFIRM, cal.MARGIN)
+    rx.config_header(exp / "picket_forest_config.h", 0.5, rx.DEFAULT_ALARM)
     rx.table_header(table, exp / "picket_forest_table.h", "test")
     srcs, _, _, _ = scorer.layout(scorer.V2)
     for name, path in srcs.items():

@@ -116,8 +116,10 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
             for v in sorted(reg.published_versions(name), key=parse_version, reverse=True)
         ]
         rec = reg.record_raw(name, latest) if latest else {}
-        usage = rec.get("usage") or {"class": model.get("usage_class", "commercial"),
-                                     "licence": model["license"]}
+        usage = rec.get("usage") or {
+            "class": model.get("usage_class", "commercial"),
+            "licence": model["license"],
+        }
         out.append(
             {
                 "name": name,
@@ -125,8 +127,11 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
                 "status": state,
                 "latest": latest,
                 # constitution 2.1.0: every model states what users may do with it (feature 011)
-                "usage": {"class": usage["class"], "licence": usage["licence"],
-                          "text": usage_line(model, rec)},
+                "usage": {
+                    "class": usage["class"],
+                    "licence": usage["licence"],
+                    "text": usage_line(model, rec),
+                },
                 "releases": releases,
                 "pitch": load_pitch(reg, name) if latest else optional_pitch(reg, name),
             }
