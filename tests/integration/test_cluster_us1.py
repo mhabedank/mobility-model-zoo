@@ -49,7 +49,9 @@ def test_run_then_check(tmp_path):
                and {items[m]["source_id"] for m in g["members"]} == {"s03"})
     assert job["members"] == [i for i, it in items.items() if it["source_id"] == "s03"]
     assert len(result["groups"]) == 16
-    assert result["clusters"] == []
+    # Clusters come with user story 3 (tests/unit/cluster/test_hierarchy.py); here they only have
+    # to leave the duplicate groups untouched.
+    assert all(c["level"] == 1 for c in result["clusters"])
 
 
 def test_quotes_are_byte_identical_to_the_bundle(tmp_path):

@@ -90,6 +90,7 @@ The structure is a forest: every node has at most one parent, no cycles, every g
 - op: move             # pin a node (by one of its items) under a parent (by one of its items)
   item: it-…
   under: it-…          # or null for top level
+  into: group          # group (a specificity link, same kind) or cluster (the level-1 cluster above `under`)
 - op: representative
   item: it-…
 ```

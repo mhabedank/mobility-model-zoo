@@ -54,6 +54,9 @@ class HFNLI:
         import torch
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
+        self.threads = int(settings.get("threads", 4))
+        torch.set_num_threads(self.threads)
+        torch.use_deterministic_algorithms(True, warn_only=True)
         self._torch = torch
         self.model_id = settings["model_id"]
         self.revision = settings["revision"]

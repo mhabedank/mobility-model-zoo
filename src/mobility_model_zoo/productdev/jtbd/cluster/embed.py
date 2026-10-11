@@ -58,6 +58,10 @@ class HFEncoder:
         import torch
         from transformers import AutoModel, AutoTokenizer
 
+        # Deterministic CPU inference with a fixed thread count (FR-020); the count is recorded.
+        self.threads = int(settings.get("threads", 4))
+        torch.set_num_threads(self.threads)
+        torch.use_deterministic_algorithms(True, warn_only=True)
         self._torch = torch
         self.model_id = settings["model_id"]
         self.revision = settings["revision"]

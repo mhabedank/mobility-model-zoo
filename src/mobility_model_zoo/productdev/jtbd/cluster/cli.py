@@ -207,3 +207,85 @@ def score_cmd(ctx: typer.Context,
     from mobility_model_zoo.productdev.jtbd.cluster.score import score
 
     _run(ctx, lambda s: score(s, settings))
+
+
+# ---- corrections and annotations (user stories 4 and 5) ------------------------------------------
+
+correct_app = typer.Typer(no_args_is_help=True,
+                          help="Append one structure correction to <map>/corrections.yaml")
+app.add_typer(correct_app, name="correct")
+MAP = typer.Option(..., "--map", help="Map directory")
+NOTE = typer.Option(None, "--note", help="Why (kept in the file)")
+
+
+def _correct(map_dir: Path, op: dict[str, Any], note: str | None) -> None:
+    from mobility_model_zoo.productdev.jtbd.cluster import corrections
+
+    if note:
+        op["note"] = note
+    _plain(lambda: {"index": corrections.append(map_dir, op), "op": op["op"]})
+
+
+@correct_app.command("merge")
+def correct_merge(items: list[str] = typer.Argument(..., help="One item id per group to merge"),
+                  map_dir: Path = MAP, note: str = NOTE) -> None:
+    """The groups of these items become one group (refused across kinds)."""
+    _correct(map_dir, {"op": "merge", "items": items}, note)
+
+
+@correct_app.command("split")
+def correct_split(sets: list[str] = typer.Option(..., "--set",
+                                                 help="Comma-separated item ids (repeat per set)"),
+                  map_dir: Path = MAP, note: str = NOTE) -> None:
+    """These item sets never share a group; the other members go to the nearest set."""
+    _correct(map_dir, {"op": "split", "sets": [s.split(",") for s in sets]}, note)
+
+
+@correct_app.command("move")
+def correct_move(item: str = typer.Argument(..., help="An item of the group to move"),
+                 under: str = typer.Option(None, "--under", help="An item of the new parent"),
+                 top: bool = typer.Option(False, "--top", help="Make the group top-level"),
+                 into: str = typer.Option("group", "--into",
+                                          help="group (specificity link) or cluster"),
+                 map_dir: Path = MAP, note: str = NOTE) -> None:
+    """Pin a group under the group (or, with --into cluster, the cluster) of another item."""
+    if top == (under is not None):
+        raise typer.BadParameter("give exactly one of --under and --top")
+    op = {"op": "move", "item": item, "under": under}
+    if into != "group":
+        op["into"] = into
+    _correct(map_dir, op, note)
+
+
+@correct_app.command("representative")
+def correct_representative(item: str = typer.Argument(..., help="The new representative"),
+                           map_dir: Path = MAP, note: str = NOTE) -> None:
+    """The item becomes its group's representative."""
+    _correct(map_dir, {"op": "representative", "item": item}, note)
+
+
+@app.command("annotate")
+def annotate_cmd(map_dir: Path = MAP,
+                 node: str = typer.Option(..., "--node", help="dg- or cl- id"),
+                 statement: str = typer.Option(None, "--statement", help="Statement text"),
+                 assign: list[str] = typer.Option(None, "--assign", help="scheme=value (repeat)"),
+                 by: str = typer.Option(..., "--by", help="person or model:<id>")) -> None:
+    """Append a statement or assignments for a node to <map>/annotations.jsonl."""
+    from datetime import date
+
+    from mobility_model_zoo.productdev.jtbd.cluster import annotation
+
+    line: dict[str, Any] = {"node": node}
+    if statement:
+        line["statement"] = {"text": statement, "by": by, "at": date.today().isoformat()}
+    pairs = [a.split("=", 1) for a in assign or []]
+    if any(len(p) != 2 for p in pairs):
+        raise typer.BadParameter("--assign takes scheme=value")
+    if pairs:
+        line["assignments"] = [{"scheme": s, "value": v, "origin": by} for s, v in pairs]
+
+    def go() -> dict[str, Any]:
+        annotation.append(map_dir, line)
+        return {"node": node, "statement": bool(statement), "assignments": len(pairs)}
+
+    _plain(go)

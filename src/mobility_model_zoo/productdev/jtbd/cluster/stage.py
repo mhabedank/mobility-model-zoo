@@ -112,6 +112,10 @@ class ClusterStage:
 
     def run(self, sources: list[Source], map_dir: Path | str | None = None,
             bundle_paths: list[Path | str] | None = None) -> dict[str, Any]:
+        """Automatic structure, then the map's corrections, stable ids and annotations (user
+        stories 4 and 5; only with a map directory)."""
+        from mobility_model_zoo.productdev.jtbd.cluster import annotation, continuity, corrections
+
         items = items_from(sources)
         cache = EmbeddingCache(map_dir, self.encoder.model_id, self.encoder.revision,
                                getattr(self.encoder, "variant", ""))
@@ -123,6 +127,9 @@ class ClusterStage:
             k=int(neighbours["k"]), floor=float(neighbours["candidate_floor"]),
             t_dup=float(thresholds["t_dup"]),
         ) if items else []
+        ops = corrections.load(map_dir)
+        rows, status, touched = corrections.apply_to_rows(
+            ops, rows, [i.item_id for i in items], [i.kind for i in items], vectors)
 
         groups, group_of = [], {}
         for n, members in enumerate(rows, start=1):
@@ -131,6 +138,7 @@ class ClusterStage:
                 group_of[items[r].item_id] = gid
             groups.append(self._group(gid, [items[r] for r in members],
                                       items[representative(members, vectors)].item_id))
+            groups[-1]["corrected"] = bool(touched & set(members))
         serial = [i.as_dict(group_of[i.item_id]) for i in items]
 
         produced_spec = self._link_specific(groups, rows, items, vectors)
@@ -146,12 +154,62 @@ class ClusterStage:
             "clusters": clusters,
             "checks": {"passed": True, "corrections": []},
         }
+        if corrections.apply_to_result(ops, result, status):
+            self._refresh_clusters(result, items, vectors)
+        changes: dict[str, Any] = {}
+        if map_dir is not None:
+            state, changes = continuity.apply(result, continuity.load_state(map_dir))
+            changes["orphaned_annotations"] = annotation.merge(result, annotation.load(map_dir))
+        statuses = [status[n] for n in sorted(status)]
+        changes["stale_corrections"] = [s["index"] for s in statuses if s["status"] == "stale"]
+        changes["refused_corrections"] = [s["index"] for s in statuses if s["status"] == "refused"]
         bundle_quotes = {i.item_id: i.quote for i in items}
         checks = check_result(result, bundle_quotes)
-        result["checks"] = {"passed": passed(checks), "corrections": [], "results": checks}
+        result["checks"] = {"passed": passed(checks), "corrections": statuses, "results": checks}
         if map_dir is not None:
             write_result(Path(map_dir), result)
+            continuity.write(map_dir, state, changes)
         return result
+
+    def _refresh_clusters(self, result: dict[str, Any], items: list[Item],
+                          vectors: np.ndarray) -> None:
+        """After moves: drops clusters left without children and recomputes the aggregates,
+        kinds and representative of every cluster from the items below it."""
+        row_of = {i.item_id: r for r, i in enumerate(items)}
+        serial = {i["item_id"]: i for i in result["items"]}
+        groups = {g["group_id"]: g for g in result["groups"]}
+        while True:
+            clusters = {c["cluster_id"]: c for c in result["clusters"]}
+            empty = [cid for cid, c in clusters.items() if not c["children"]]
+            if not empty:
+                break
+            for cid in empty:
+                parent = clusters[cid]["parent"]
+                if parent in clusters:
+                    clusters[parent]["children"].remove(cid)
+            result["clusters"] = [c for c in result["clusters"] if c["cluster_id"] not in empty]
+        nodes = {**groups, **{c["cluster_id"]: c for c in result["clusters"]}}
+
+        def below(nid: str) -> tuple[list[str], list[str]]:
+            node = nodes[nid]
+            item_ids = list(node.get("members", []))
+            group_ids = [nid] if nid in groups else []
+            for child in node["children"]:
+                i, g = below(child)
+                item_ids += i
+                group_ids += g
+            return item_ids, group_ids
+
+        for c in result["clusters"]:
+            item_ids, group_ids = below(c["cluster_id"])
+            rows = sorted(row_of[i] for i in item_ids)
+            rule = independence_rule([items[r].origin_based for r in rows])
+            kinds: dict[str, int] = {}
+            for gid in group_ids:
+                kinds[groups[gid]["kind"]] = kinds.get(groups[gid]["kind"], 0) + 1
+            c.update(aggregate([serial[items[r].item_id] for r in rows], rule))
+            c["kinds"] = dict(sorted(kinds.items()))
+            c["representative"] = items[representative(rows, vectors)].item_id
 
     @staticmethod
     def _group(gid: str, members: list[Item], rep: str) -> dict[str, Any]:
@@ -258,7 +316,8 @@ class ClusterStage:
             "settings_sha256": self.settings_sha256,
             "name": self.settings.get("name"),
             "encoder": {"model_id": self.encoder.model_id, "revision": self.encoder.revision,
-                        "backend": enc.get("backend", "transformers")},
+                        "backend": enc.get("backend", "transformers"),
+                        "threads": getattr(self.encoder, "threads", None)},
             "nli": nli,
             "thresholds": self.settings["thresholds"],
             "neighbours": self.settings["neighbours"],
