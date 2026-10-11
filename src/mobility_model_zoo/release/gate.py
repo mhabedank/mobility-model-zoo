@@ -292,9 +292,11 @@ class Gate:
         if creg is not None and creg.release(self.name, self.version) is not None:
             for t in self.record["provenance"]["teachers"]:
                 if creg.output_training_terms(t["model_id"]) in ("no", "unclear"):
-                    failures.append(f"teacher {t['model_id']}: a provider route does not permit "
-                                    "training on outputs (compliance/providers.yaml) and no decision "
-                                    "covers it")
+                    failures.append(
+                        f"teacher {t['model_id']}: a provider route does not permit "
+                        "training on outputs (compliance/providers.yaml) and no decision "
+                        "covers it"
+                    )
         return failures + self._usage_failures(creg)
 
     def _usage_failures(self, creg) -> list[str]:
@@ -321,18 +323,24 @@ class Gate:
         expected = usage_block(declared, m["license"], derivation)
         usage = r.get("usage")
         if usage is None and not r.get("published"):
-            failures.append("C-K5: the release record lacks `usage`; expected "
-                            + json.dumps(expected, sort_keys=True))
+            failures.append(
+                "C-K5: the release record lacks `usage`; expected "
+                + json.dumps(expected, sort_keys=True)
+            )
         elif usage is not None and usage != expected:
-            failures.append("C-K5: `usage` of the release record differs from the derivation; "
-                            "expected " + json.dumps(expected, sort_keys=True))
+            failures.append(
+                "C-K5: `usage` of the release record differs from the derivation; "
+                "expected " + json.dumps(expected, sort_keys=True)
+            )
         for v in self.reg.versions(self.name):
             if parse_version(v) >= parse_version(self.version):
                 continue
             earlier = (self.reg.record_raw(self.name, v).get("usage") or {}).get("class")
             if earlier and earlier != str(declared):
-                failures.append(f"C-K5: version {v} is {earlier}; a model's usage class never "
-                                "changes, a new class needs a new model name")
+                failures.append(
+                    f"C-K5: version {v} is {earlier}; a model's usage class never "
+                    "changes, a new class needs a new model name"
+                )
         return failures
 
     def _name_suffix_failures(self, name: str, variant: str) -> list[str]:
@@ -388,11 +396,22 @@ class Gate:
             # Repositories without a register (test fixtures) skip; in the zoo repository a missing
             # register fails `zoo validate --all` (C-M1), so this cannot pass silently in CI.
             raise Skip("no compliance register (compliance/controller.yaml)")
-        names = (["meta", "licence", "repository"] if self.model["topic"] == "sandbox"
-                 else list(checks.RELEASE_STAGES))
-        ctx = checks.Context(creg, model=self.name, version=self.version, extra={
-            "card": self.publication_card(), "topic": self.model["topic"],
-            "hub": self.hub, "model_yaml": self.model})
+        names = (
+            ["meta", "licence", "repository"]
+            if self.model["topic"] == "sandbox"
+            else list(checks.RELEASE_STAGES)
+        )
+        ctx = checks.Context(
+            creg,
+            model=self.name,
+            version=self.version,
+            extra={
+                "card": self.publication_card(),
+                "topic": self.model["topic"],
+                "hub": self.hub,
+                "model_yaml": self.model,
+            },
+        )
         try:
             run_stages(checks.stages_named(names), ctx)
         except StageFailed as e:
@@ -536,10 +555,12 @@ class Gate:
         import tempfile
 
         from mobility_model_zoo.edge.paths import REPO_ROOT
-        from mobility_model_zoo.security.can_ids.scorer import HEADERS, SOURCES, build_scorer
+        from mobility_model_zoo.security.can_ids.scorer import build_scorer, layout
 
         if getattr(self, "_tree_scorer", None) is not None:
             return self._tree_scorer
+        fmt = self.record.get("output_format_version", "picket-forest-v1")
+        SOURCES, HEADERS, _, _ = layout(fmt)
         r, commit = self.record["staging"], self.record["recipe"]["git_commit"]
         self._tree_tmp = tempfile.TemporaryDirectory()
         work = Path(self._tree_tmp.name)
@@ -558,7 +579,7 @@ class Gate:
             ).stdout
             if (work / "c" / name).read_bytes() != at_commit:
                 raise ZooError(f"staged c/{name} differs from {rel} at the recipe commit")
-        self._tree_scorer = build_scorer(work, work / "build", sources_dir=work / "c")
+        self._tree_scorer = build_scorer(work, work / "build", sources_dir=work / "c", fmt=fmt)
         return self._tree_scorer
 
     def _tree_example(self, name: str, ex: dict[str, Any]) -> list[str]:
@@ -656,8 +677,11 @@ class Gate:
         if f"**Usage:** {usage}" not in card:
             failures.append(f"the card must state its usage below the version line: {usage}")
         root = self.reg.zoo.parent
-        failures += [f"figure {f['path']} is not in the repository"
-                     for f in self.model["card"].get("figures", []) if not (root / f["path"]).is_file()]
+        failures += [
+            f"figure {f['path']} is not in the repository"
+            for f in self.model["card"].get("figures", [])
+            if not (root / f["path"]).is_file()
+        ]
         if self.offline:
             return failures
         verdict = self.hub.validate_yaml(card)

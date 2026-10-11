@@ -33,26 +33,59 @@ SOURCES = {
     "msml_alarm.h": FEATURES_DIR / "include" / "msml_alarm.h",
 }
 HEADERS = ("picket_forest_model.h", "picket_forest_config.h")
+V1 = "picket-forest-v1"
+V2 = "picket-forest-v2"
+# picket-forest 0.2.0 (feature 010): calibrated features, event decision, calibration table header
+SOURCES_V2 = {
+    "picket_forest_v2.c": C_DIR / "picket_forest_v2.c",
+    "picket_forest_v2.h": C_DIR / "picket_forest_v2.h",
+    "msml_cal.c": FEATURES_DIR / "msml_cal.c",
+    "msml_cal.h": FEATURES_DIR / "include" / "msml_cal.h",
+    "msml_alarm.c": FEATURES_DIR / "msml_alarm.c",
+    "msml_alarm.h": FEATURES_DIR / "include" / "msml_alarm.h",
+}
+HEADERS_V2 = ("picket_forest_model.h", "picket_forest_config.h", "picket_forest_table.h")
+LAYOUTS = {
+    V1: (SOURCES, HEADERS, HARNESS, ("picket_forest.c", "msml_can_features.c", "msml_alarm.c")),
+    V2: (
+        SOURCES_V2,
+        HEADERS_V2,
+        C_DIR / "host_score_v2.c",
+        ("picket_forest_v2.c", "msml_cal.c", "msml_alarm.c"),
+    ),
+}
+
+
+def layout(fmt: str = V1) -> tuple[dict, tuple, Path, tuple]:
+    """(released sources, generated headers, host harness, compiled sources) of an output format."""
+    if fmt not in LAYOUTS:
+        raise ValueError(f"no C layout for output format {fmt}")
+    return LAYOUTS[fmt]
+
+
 FRAME_DTYPE = np.dtype([("ts", "<i8"), ("can_id", "<u2"), ("dlc", "u1"), ("data", "u1", (8,))])
 PAYLOAD = [f"b{i}" for i in range(8)]
 
 
-def build_scorer(headers_dir: Path, out_dir: Path, sources_dir: Path | None = None) -> Path:
-    """Compile the host scorer. `sources_dir` holds the released `SOURCES` (default: repository)."""
+def build_scorer(
+    headers_dir: Path, out_dir: Path, sources_dir: Path | None = None, fmt: str = V1
+) -> Path:
+    """Compile the host scorer. `sources_dir` holds the released sources (default: repository)."""
+    srcs, _, harness, compiled = layout(fmt)
     out_dir.mkdir(parents=True, exist_ok=True)
     exe = out_dir / "host_score"
     if sources_dir is None:
         include = [C_DIR, FEATURES_DIR / "include"]
-        sources = [SOURCES["picket_forest.c"], SOURCES["msml_can_features.c"], SOURCES["msml_alarm.c"]]
+        sources = [srcs[n] for n in compiled]
     else:
         include = [sources_dir]
-        sources = [sources_dir / n for n in ("picket_forest.c", "msml_can_features.c", "msml_alarm.c")]
+        sources = [sources_dir / n for n in compiled]
     flags = ["-std=c99", "-O2", "-ffp-contract=off", "-Wall", "-Wextra", "-Werror"]
     flags.append("-Wno-unused-parameter")  # emlearn-generated trees ignore features_length
     argv = [os.environ.get("CC", "cc"), *flags, "-I", str(headers_dir)]
     for d in include:
         argv += ["-I", str(d)]
-    subprocess.run([*argv, str(HARNESS), *map(str, sources), "-o", str(exe)], check=True)
+    subprocess.run([*argv, str(harness), *map(str, sources), "-lm", "-o", str(exe)], check=True)
     return exe
 
 

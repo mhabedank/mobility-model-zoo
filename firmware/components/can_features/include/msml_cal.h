@@ -27,7 +27,9 @@ extern "C" {
 #define MSML_CAL_UNKNOWN_RING 64
 #define MSML_CAL_MAX_SPAN_US 2000000
 #define MSML_CAL_LOG_CAP 8.0
-#define MSML_CAL_MAX_IDS 256
+#ifndef MSML_CAL_MAX_IDS
+#define MSML_CAL_MAX_IDS 128
+#endif
 
 typedef struct {
     uint32_t id;        /* CAN ID; the table is sorted by id */
