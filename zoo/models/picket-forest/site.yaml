@@ -1,6 +1,7 @@
 # Website text of picket-forest (feature 010). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
 # Numbers only as {metric:<kind>.<name>} placeholders (checks B2, F2; gate rule 17).
 tagline: Experimental CAN intrusion detector for microcontrollers, calibrated on your vehicle's normal traffic.
+share_line: CAN intrusion detector for microcontrollers, calibrated on your vehicle's normal traffic.
 audience: >-
   For researchers, students and embedded engineers who study in-vehicle network security on a test
   bench and want an open, measured detector whose code, features and limits are public.

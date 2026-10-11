@@ -178,6 +178,9 @@ def pitch_errors(reg: Registry, name: str, version: str) -> list[str]:
             except GateFailed as e:
                 errors += e.failures
     errors += og.share_line_errors(name, *og.share_line(pitch))
+    fmt = reg.record_raw(name, version).get("output_format_version")
+    if fmt and not (reg.zoo / "formats" / f"{fmt}.yaml").exists():
+        errors.append(f"B5 {name}: output format {fmt} has no zoo/formats/{fmt}.yaml")
     example = pitch.get("quickstart_example")
     if example and not (reg.model_dir(name) / "examples" / example).exists():
         errors.append(f"B1 {name}: quickstart_example {example} is not in examples/")

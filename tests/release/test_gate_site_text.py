@@ -74,3 +74,14 @@ def test_long_tagline_without_share_line_fails(reg):
     edit(reg, lambda p: p.pop("share_line"))
     found = [f for f in rule_17(reg) if f.startswith("B6 scout-large")]
     assert found and found[0].endswith("; add share_line to site.yaml")
+
+
+def test_output_format_without_documentation_fails(reg):
+    """A release whose output format is not documented would break the format page (B5)."""
+    path = reg.model_dir("scout-large") / "releases" / "0.1.2.yaml"
+    record = load_yaml(path)
+    record["output_format_version"] = "jtbd-span-v9"
+    path.write_text(dump_yaml(record), encoding="utf-8")
+    assert "B5 scout-large: output format jtbd-span-v9 has no zoo/formats/jtbd-span-v9.yaml" in rule_17(
+        reg
+    )
