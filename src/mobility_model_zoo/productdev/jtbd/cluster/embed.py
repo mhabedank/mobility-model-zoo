@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -75,7 +76,9 @@ class HFEncoder:
         code = {"trust_remote_code": True, "code_revision": settings["code_revision"]} if remote else {}
         self.variant = variant_of(settings)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, revision=self.revision, **code)
-        self.model = AutoModel.from_pretrained(self.model_id, revision=self.revision, **code).eval()
+        self.device = device_for(settings)
+        self.model = AutoModel.from_pretrained(self.model_id, revision=self.revision,
+                                               **code).eval().to(self.device)
 
     def embed(self, quotes: list[str]) -> np.ndarray:
         torch = self._torch
@@ -85,18 +88,26 @@ class HFEncoder:
                 batch = [self.prefix + q for q in quotes[i:i + self.batch_size]]
                 enc = self.tokenizer(batch, padding=True, truncation=True,
                                      max_length=self.max_length, return_tensors="pt")
+                enc = {k: v.to(self.device) for k, v in enc.items()}
                 output = self.model(**enc)
                 if self.pooling == "pooler":
-                    rows.append(output.pooler_output.float().numpy())
+                    rows.append(output.pooler_output.float().cpu().numpy())
                     continue
                 states = output.last_hidden_state
                 if self.pooling == "cls":
-                    rows.append(states[:, 0].float().numpy())
+                    rows.append(states[:, 0].float().cpu().numpy())
                     continue
                 mask = enc["attention_mask"].unsqueeze(-1).to(states.dtype)
-                rows.append(((states * mask).sum(1) / mask.sum(1).clamp(min=1)).float().numpy())
+                rows.append(((states * mask).sum(1) / mask.sum(1).clamp(min=1)).float().cpu().numpy())
         dim = self.model.config.hidden_size
         return normalise_rows(np.concatenate(rows) if rows else np.zeros((0, dim)))
+
+
+def device_for(settings: dict[str, Any]) -> str:
+    """`cpu` unless JTBD_CLUSTER_DEVICE (or `device` in the settings) names another torch device.
+    Reference runs and speed measurements use the CPU; a GPU (e.g. `mps`) only speeds up tuning and
+    scoring, and the device is recorded in the result."""
+    return os.environ.get("JTBD_CLUSTER_DEVICE") or settings.get("device") or "cpu"
 
 
 def variant_of(settings: dict[str, Any]) -> str:

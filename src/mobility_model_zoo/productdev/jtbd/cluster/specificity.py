@@ -18,7 +18,7 @@ import numpy as np
 
 from mobility_model_zoo.productdev.jtbd.cluster.bundle import sha256_hex
 from mobility_model_zoo.productdev.jtbd.cluster.dedup import knn_graph
-from mobility_model_zoo.productdev.jtbd.cluster.embed import require_pinned
+from mobility_model_zoo.productdev.jtbd.cluster.embed import device_for, require_pinned
 
 
 class NLI(Protocol):
@@ -63,8 +63,9 @@ class HFNLI:
         self.batch_size = int(settings.get("batch_size", 32))
         self.max_length = int(settings.get("max_length", 256))
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, revision=self.revision)
+        self.device = device_for(settings)
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            self.model_id, revision=self.revision).eval()
+            self.model_id, revision=self.revision).eval().to(self.device)
         labels = {v.lower(): int(k) for k, v in self.model.config.id2label.items()}
         if "entailment" not in labels:
             raise ValueError(f"{self.model_id} has no `entailment` label: {sorted(labels)}")
@@ -83,8 +84,9 @@ class HFNLI:
                                      hypotheses[i:i + self.batch_size], padding=True,
                                      truncation=True, max_length=self.max_length,
                                      return_tensors="pt")
+                enc = {k: v.to(self.device) for k, v in enc.items()}
                 probs = torch.softmax(self.model(**enc).logits.float(), dim=-1)
-                out.append(probs[:, self.entailment_index].numpy())
+                out.append(probs[:, self.entailment_index].cpu().numpy())
         return np.concatenate(out) if out else np.zeros(0, dtype=np.float32)
 
 
