@@ -14,7 +14,7 @@ import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -344,8 +344,9 @@ def run(
             ]
 
         with ThreadPoolExecutor(max_workers=MAX_HOSTS) as pool:
-            for done in pool.map(work, hosts.values()):
-                net.update(dict(done))
+            # report in completion order: one large host must not hide progress on the others
+            for future in as_completed([pool.submit(work, g) for g in hosts.values()]):
+                net.update(dict(future.result()))
                 say(f"network checks: {len(net)}/{len(selected)} entries")
         client.close()
         if not any(reachable for _, _, reachable in net.values()):
