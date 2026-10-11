@@ -45,11 +45,11 @@ Expected: the specific job group is a child of the general job group; job, pains
 ## S4. Continue a map (User Story 4, SC-004)
 
 ```bash
-uv run jtbd cluster correct --map data/cluster/maps/sample merge <it-a> <it-b>
-uv run jtbd cluster correct --map data/cluster/maps/sample split <it-c> -- <it-d>
-uv run jtbd cluster correct --map data/cluster/maps/sample move <it-e> --under <it-f>
-uv run jtbd cluster run --input data/cluster/bundles/sample.jsonl data/cluster/bundles/more.jsonl \
-    --map data/cluster/maps/sample
+uv run jtbd cluster correct merge <it-a> <it-b> --map data/cluster/maps/sample
+uv run jtbd cluster correct split --set <it-c> --set <it-d> --map data/cluster/maps/sample
+uv run jtbd cluster correct move <it-e> --under <it-f> --map data/cluster/maps/sample
+uv run jtbd cluster run --input data/cluster/bundles/sample.jsonl \
+    --input data/cluster/bundles/more.jsonl --map data/cluster/maps/sample
 ```
 
 Expected: groups with unchanged members keep their ids (at least 95% after adding 10% new sources); all three corrections show `applied`; a correction naming removed items shows `stale`; merging a pain with a job shows `refused`; `changes.json` lists new, grown, merged and split nodes; running the same command twice gives byte-identical `result.json`.
