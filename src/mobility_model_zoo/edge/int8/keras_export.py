@@ -270,7 +270,7 @@ def train(
     from mobility_model_zoo.datasets import require_training_allowed
 
     for ds in datasets:  # FR-017: only declared, training_allowed, active datasets
-        require_training_allowed(ds)
+        require_training_allowed(ds, model=name)
     if download:
         from mobility_model_zoo.datasets.download import download as fetch
 

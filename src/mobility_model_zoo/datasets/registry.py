@@ -51,6 +51,7 @@ class Source:
     approx_size_mb: float = 0
     notes: str = ""
     used_by: tuple[str, ...] = field(default_factory=tuple)
+    produced_by: str | None = None  # zoo model that generated or labeled the data (feature 011)
 
     @property
     def broken(self) -> str:
@@ -87,7 +88,25 @@ def validate(root: Path | None = None) -> list[str]:
         if rid in seen:
             problems.append(f"datasets: id {rid} declared in topics {seen[rid]} and {topic}")
         seen.setdefault(rid, topic)
+        problems += _producer_problems(_root(root), rec)
     return problems
+
+
+def _producer_problems(root: Path, rec: dict[str, Any]) -> list[str]:
+    """Data produced by a non-commercial zoo model is non-commercial data (constitution 2.1.0, VI)."""
+    from mobility_model_zoo.compliance.usage import zoo_model_class
+
+    producer = rec.get("produced_by")
+    if not producer:
+        return []
+    cls = zoo_model_class(root, producer)
+    if cls is None:
+        return [f"datasets: {rec.get('id')}: produced_by {producer} is not a zoo model with a "
+                "usage class"]
+    if not cls.commercial and rec.get("commercial_use"):
+        return [f"datasets: {rec.get('id')}: produced by non-commercial model {producer}, so "
+                "commercial_use must be false"]
+    return []
 
 
 def to_source(topic: str, rec: dict[str, Any]) -> Source:
@@ -119,6 +138,7 @@ def to_source(topic: str, rec: dict[str, Any]) -> Source:
         approx_size_mb=rec.get("approx_size_mb", 0),
         notes=rec.get("notes", ""),
         used_by=tuple(rec.get("used_by") or ()),
+        produced_by=rec.get("produced_by"),
     )
 
 

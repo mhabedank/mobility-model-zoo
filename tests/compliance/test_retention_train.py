@@ -71,6 +71,36 @@ def test_share_alike_needs_matching_licence(register_tree):
     assert ids(register_tree, model_licence="CC-BY-SA-4.0") == set()
 
 
+def test_nc_licence_trains_non_commercial_models_only(register_tree):
+    seed(register_tree, "topics/t/compliance/sources.yaml",
+         lambda d: d["sources"][0].update(licence="CC-BY-NC-4.0"))
+    assert ids(register_tree) == {"C-T2"}
+    assert ids(register_tree, usage_class="non-commercial") == set()
+
+
+def test_nc_sa_licence_needs_a_share_alike_class(register_tree):
+    seed(register_tree, "topics/t/compliance/sources.yaml",
+         lambda d: d["sources"][0].update(licence="CC-BY-NC-SA-4.0"))
+    assert ids(register_tree, usage_class="non-commercial") == {"C-T3"}
+    assert ids(register_tree, usage_class="non-commercial-share-alike") == set()
+
+
+def test_forbidden_licences_cannot_train_any_model(register_tree):
+    for licence in ("unknown", "CC-BY-NC-ND-4.0", "LicenseRef-all-rights-reserved"):
+        seed(register_tree, "topics/t/compliance/sources.yaml",
+             lambda d, lic=licence: d["sources"][0].update(licence=lic, permitted_use="benchmark_only"))
+        for cls in ("commercial", "non-commercial"):
+            assert "C-T2" in ids(register_tree, usage_class=cls), (licence, cls)
+
+
+def test_teacher_with_non_commercial_output_terms(register_tree):
+    write(register_tree, "compliance/providers.yaml", {"routes": [
+        route(id="t", log_matches=["teacher-x|openrouter|P"],
+              output_training_permitted="non_commercial")]})
+    assert ids(register_tree, teachers=["teacher-x"]) == {"C-T4"}
+    assert ids(register_tree, teachers=["teacher-x"], usage_class="non-commercial") == set()
+
+
 def test_teacher_without_output_rights(register_tree):
     write(
         register_tree,

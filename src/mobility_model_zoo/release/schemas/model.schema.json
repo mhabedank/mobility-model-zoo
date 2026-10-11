@@ -11,6 +11,7 @@
     "title",
     "summary",
     "license",
+    "usage_class",
     "license_exception",
     "base_model",
     "base_model_license",
@@ -52,6 +53,15 @@
     "license": {
       "type": "string",
       "description": "SPDX id"
+    },
+    "usage_class": {
+      "enum": [
+        "commercial",
+        "commercial-share-alike",
+        "non-commercial",
+        "non-commercial-share-alike"
+      ],
+      "description": "Declared usage class (constitution 2.1.0, Principle VI); non-commercial models are named <name>-<variant>-nc"
     },
     "license_exception": {
       "type": [
@@ -200,6 +210,14 @@
       ],
       "default": "python",
       "description": "python (default) or mcu (microcontroller model, int8 engine)"
+    },
+    "runtime_models": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[\\w.-]+/[\\w.-]+$"
+      },
+      "description": "Third-party models the model loads at run time (ids in compliance/third-party-models.yaml)"
     }
   },
   "allOf": [

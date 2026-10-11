@@ -1,44 +1,38 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.4.0 → 2.0.0
-Bump rationale: MAJOR. Owner directions of 2026-10-08, made while merging the automotive security
-work (feature 005) into the zoo. Three rules are removed or redefined in a way that is not backward
-compatible:
-- Principle VIII no longer makes Ludwig the primary training framework. Tools follow the task.
-- Principles VI and IX no longer forbid publishing datasets outright. The rule now keeps datasets
-  out of the git repository and allows publication only after a redistribution check.
-- Principle V no longer fixes one universal budget ("little RAM, no dedicated GPU"). Each task
-  defines its own budgets and reference hardware.
-The ban on calling results "accuracy" is replaced by an honesty rule on metric naming that applies
-to every task.
+Version change: 2.0.0 → 2.1.0
+Bump rationale: MINOR. Owner direction of 2026-10-10: the zoo may also build and publish
+non-commercial (NC) models, marked as such and under a fitting licence; compliance takes precedence
+over unrestricted use, so a user's rights to a model may be restricted. The amendment adds the
+usage class of a model and the rule that restrictions of every input carry over to it. It relaxes
+one prohibition (NC-licensed data may now train NC models) and adds obligations; nothing that
+complied with 2.0.0 stops complying, so the change is backward compatible.
 
 Modified principles:
-- Scope note (before I): split into model-labeled tasks and ground-truth tasks.
-- III. Measure Before Optimizing: reference per task; metric naming rule; frontier consensus only
-  for model-labeled tasks; quality-vs-cost reporting uses the task's budgets.
-- IV. Validate the Riskiest Assumption First: agreement pilot applies to model-labeled tasks.
-- V. Small and Local by Default → V. Small and Local by Default, Budgets per Task.
-- VI. Clean Provenance, Quality First: dataset declarations, redistribution check, share-alike and
-  non-commercial rules; datasets stored outside the git repository.
-- VIII. Fair Architecture Comparison: Ludwig rule removed; tool choice per task.
-- IX. Reproducible, Dated Releases: raw-label retention for model-labeled tasks; dataset
-  publication only after the redistribution check.
+- VI. Clean Provenance, Quality First → VI. Clean Provenance, Restrictions Carry Over: usage
+  class per model; NC data allowed for training of NC models only; data whose licence or terms
+  forbid training stays `benchmark_only`; teacher terms and outputs of NC models carry over;
+  third-party models loaded at run time are pinned and their licence basis includes their
+  documented training data, followed conservatively.
+- IX. Reproducible, Dated Releases: usage class and licence marking of every release; NC models
+  under a non-commercial licence and with the name suffix `-nc`; never less restrictive than the
+  inputs; compliance before unrestricted use.
 
 Modified sections:
-- Preamble: topics security and condition monitoring named.
-- Project Scope & Iterative Delivery: repository layout by topic.
-- Resources & Cost Discipline: CI runners and hardware-in-the-loop bench boards added; "target
-  hardware" generalised.
-- Development Workflow & Quality Gates: "gate before reporting a result" per reference kind;
-  "gate before a release" mentions dataset declarations.
+- Preamble: "open-source collection" → "open collection"; models under open or, where their
+  inputs require it, restricted licences.
+- Project Scope & Iterative Delivery: naming rule `<name>-<variant>-nc` for NC models; a change
+  of usage class means a new model name.
+- Development Workflow & Quality Gates: gate before a release checks the usage class against the
+  released licence and covers third-party models.
 
-Added sections: none (layout rule added to Project Scope).
-Removed sections: none.
+Added sections: none. Removed sections: none.
 
-Previous reports: 1.3.0 → 1.4.0 changed model naming to `<name>-<variant>` with one Hugging Face
-collection per topic; 1.2.0 → 1.3.0 made the project the multi-topic `mobility-model-zoo`, added
-release rules to IX and the section "Tasks and Releases".
+Previous reports: 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy" ban by a
+metric naming rule and allowed dataset publication after a redistribution check; 1.3.0 → 1.4.0
+changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the multi-topic
+`mobility-model-zoo`.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -46,16 +40,23 @@ changed rules):
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
-Follow-up (code that encodes rules changed here; handled by feature 005):
-- release gate rule 10 and results.schema.json ban the word "accuracy";
-- release-record.schema.json fixes `budget{ram_gb, gpu: false}`;
-- the model card template has fixed "no GPU" and "source texts" wording.
+Follow-up (code and documents that encode the 2.0.0 rule; not changed by this amendment):
+- release gate rule 6 (src/mobility_model_zoo/release/gate.py) fails any NC training source;
+  compliance check C-T2 (src/mobility_model_zoo/compliance/train.py) forces NC licences to
+  `benchmark_only`. Both must allow NC data for models whose usage class is NC.
+- release-record.schema.json, the model card template, the Hugging Face card and the website need
+  a usage class field and the NC marking.
+- No register of third-party models exists yet (encoders, NLI model, base models).
+- Feature 009 T008: the NLI model (training data XNLI and ANLI, CC BY-NC 4.0) is now allowed in
+  principle, but makes the stage output NC; the owner decides whether the baseline uses it.
 -->
 
 # mobility-model-zoo Constitution
 
-An open-source collection of small, fast machine learning models for mobility, grouped by topic.
-Each model solves one task, runs locally and is released with a versioned, honest model card.
+An open collection of small, fast machine learning models for mobility, grouped by topic. Each
+model solves one task, runs locally and is released with a versioned, honest model card that states
+what users may do with it: under an open licence, or under a restricted one (for example
+non-commercial) where its inputs require it.
 
 The first topic is product development (`productdev`). Its first task is an extraction engine for
 a problem discovery framework: it extracts jobs-to-be-done, pains and gains with graded evidence
@@ -158,7 +159,7 @@ Rationale: The models are meant to run where the problem is, cheaply, on private
 a network dependency or per-call cost. What "small" means depends on the target: a laptop CPU for
 text extraction, a microcontroller for a CAN bus monitor.
 
-### VI. Clean Provenance, Quality First
+### VI. Clean Provenance, Restrictions Carry Over
 
 - Source selection is driven by data quality, not volume.
 - Only sources that may lawfully be used for text and data mining or training MAY be included.
@@ -166,8 +167,16 @@ text extraction, a microcontroller for a CAN bus monitor.
 - Every source and every dataset MUST record its origin and license. Datasets are declared per
   topic with license, permitted use (`training_allowed` or `benchmark_only`), redistribution
   (`allowed`, `not_allowed` or `unclear`), commercial use and retention period.
-- A source or dataset under a non-commercial license MUST be `benchmark_only`. A `benchmark_only`
-  source MUST NOT enter training data.
+- Every model has a usage class, derived from the most restrictive of its inputs: training and
+  fine-tuning data, base model, teacher outputs, and third-party models it loads at run time.
+  An input that permits non-commercial use only makes the model non-commercial (NC); an input
+  under share-alike terms makes it share-alike. Restrictions carry over; they are never dropped.
+- A source or dataset under a non-commercial license MAY enter training data only of NC models.
+  Its declaration records `commercial_use: false`. Data whose license, platform terms or
+  machine-readable opt-out forbid training altogether is `benchmark_only`, and a `benchmark_only`
+  source MUST NOT enter training data of any model.
+- Using data or models only to measure (benchmarks, agreement pilots, comparison baselines) does
+  not change the usage class of the model being measured, provided their license permits that use.
 - Share-alike terms of training data carry over: a model trained on share-alike data MUST be
   released under a compatible license.
 - Personal data MUST be minimized: usernames and direct identifiers MUST be removed before
@@ -175,7 +184,15 @@ text extraction, a microcontroller for a CAN bus monitor.
   MUST be stated for each dataset and each snapshot store. "Needed" includes reuse of raw
   snapshots in later iterations (see Resources & Cost Discipline).
 - A teacher model MAY be used only if its license and provider terms permit training other
-  models on its outputs.
+  models on its outputs. Terms that permit this for non-commercial use only make the student NC.
+  Outputs of an NC model (labels, generated data, stored embeddings) are NC data and MUST NOT
+  enter training data of a model that is not NC.
+- Third-party models (base models, encoders, classifiers loaded by a pipeline stage) MUST be
+  pinned to a revision, and remote code they load to its own commit. Their license basis MUST be
+  recorded and MUST include the licenses of the training data their model card names. Where the
+  weights carry a more permissive license than their documented training data, the training data
+  governs. A stage that loads a restricted third-party model MUST state the restriction in its
+  documentation and in the metadata of its output.
 - Datasets MUST NOT be stored in the git repository. They live in separate storage: a local
   cache, an object store or Hugging Face dataset repositories.
 - A dataset MAY be published (including third-party data, for example as a curated data
@@ -184,9 +201,11 @@ text extraction, a microcontroller for a CAN bus monitor.
   data beyond what was already lawfully public and redacted. Texts collected under text and data
   mining rules (the JTBD sources) are `not_allowed`.
 
-Rationale: An open-source model is only usable by others if its training inputs were
-lawfully obtained and handled with respect for the people who wrote them. Keeping data out of git
-keeps the repository small; checking redistribution first keeps publication lawful.
+Rationale: A model is only usable by others if its inputs were lawfully obtained and handled
+with respect for the people who wrote them, and if its users learn every restriction those inputs
+impose. Carrying restrictions over lets the zoo use good non-commercial material without passing a
+hidden risk to users. Keeping data out of git keeps the repository small; checking redistribution
+first keeps publication lawful.
 
 ### VII. Metadata over Inference
 
@@ -223,9 +242,23 @@ same way. A fixed framework would force the wrong tool onto some tasks.
   after the project owner approves the reviewed model card.
 - Training data, raw source text and labeling outputs MUST NOT be published. Datasets follow
   Principle VI: published only with `redistribution: allowed`, versioned and with attribution.
+- Every release record and model card MUST state the model's usage class (Principle VI) and its
+  license. A model MUST NOT be released under a license less restrictive than its usage class; it
+  MAY be released more restrictively than its inputs require.
+- An NC model MUST be released under a license that forbids commercial use and carries every
+  other restriction of its inputs (for example CC BY-NC 4.0, or CC BY-NC-SA 4.0 with share-alike
+  inputs). It carries the name suffix `-nc` (see "Project Scope & Iterative Delivery").
+  "Non-commercial" MUST appear in the Hugging Face license tag, at the top of the model card, in
+  the release record and on the zoo website, and the card MUST name the inputs that make the
+  model NC. Code in the repository keeps the repository license; the restriction applies to
+  the released weights and data.
+- Compliance takes precedence over unrestricted use: where the two conflict, the zoo releases a
+  model with restrictions (non-commercial, share-alike, attribution, use limits from provider
+  terms) rather than leave a restriction out, and users learn the restrictions before download.
 
-Rationale: Frontier models and base models change quickly. Frozen, dated artifacts keep
-results comparable and let the benchmark itself be audited later.
+Rationale: Frozen, dated artifacts keep results comparable and let the benchmark itself be
+audited later, because frontier models and base models change quickly. Marking the usage class
+where users look first keeps a restricted model from being used beyond its license.
 
 ### X. Scope Discipline
 
@@ -240,7 +273,9 @@ Rationale: A narrow task is what makes a small, fast model feasible and measurab
 
 - The zoo is organized in topics. Each model belongs to exactly one topic. A model is named
   `<name>-<variant>`: a short, memorable English name for the model family and a size or
-  variant (for example `scout-large`). Topic and task are recorded in the model description,
+  variant (for example `scout-large`). A non-commercial model (Principle VI) carries the suffix
+  `-nc` (`<name>-<variant>-nc`, for example `scout-large-nc`); a model whose usage class changes
+  is a new model with a new name. Topic and task are recorded in the model description,
   published as Hugging Face tags, and every topic has one Hugging Face collection that lists its
   models. Names never change after the first publication. A new topic MUST NOT require changes
   to existing models.
@@ -347,8 +382,9 @@ labeled and walled off from gates and releases stops them from turning into unme
   report the result of the deployed numeric format (for example int8 on the bit-exact host
   reference), not only the training-time format.
 - Gate before a release: model, configuration, prompts and evaluation results MUST be
-  reproducible from the versioned configuration, and every included source and dataset MUST have
-  recorded origin, license and permitted use.
+  reproducible from the versioned configuration; every included source, dataset and third-party
+  model MUST have recorded origin, license and permitted use; and the usage class derived from all
+  inputs MUST NOT be less restrictive than the released license and its marking.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
   section with a rationale and the simpler alternative that was rejected.
 
@@ -366,4 +402,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-08
+**Version**: 2.1.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-10

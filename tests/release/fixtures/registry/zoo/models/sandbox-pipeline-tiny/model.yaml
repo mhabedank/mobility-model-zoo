@@ -5,6 +5,7 @@ variant: tiny
 title: Pipeline test model (tiny)
 summary: A tiny deterministic test model. It exists only to test the release pipeline and is never public.
 license: Apache-2.0
+usage_class: commercial
 license_exception: null
 base_model: null
 base_model_license: null

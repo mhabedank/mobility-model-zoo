@@ -5,6 +5,8 @@
 
 **Version {{ r.version }}** · {{ r.date }} · status: **{{ r.status }}** · topic: [{{ topic.title }}]({{ topic_url }}) · task: `{{ m.task }}`
 
+**Usage:** {{ usage }}
+
 > **{{ banner.title }}** {{ banner.text }}
 
 ## Summary
@@ -200,6 +202,8 @@ The training data itself is not published. Datasets stay internal so that the pe
 ## License
 
 {{ m.license }}{% if m.license_exception %} ({{ m.license_exception }}){% endif %}
+
+{{ usage }}
 
 ## Citation
 
