@@ -5,7 +5,7 @@ variant: forest
 runtime: mcu
 engine: emlearn
 title: 'Picket (forest): CAN bus intrusion detection on a microcontroller'
-summary: 'Experimental, not production ready. A CAN intrusion detector that is first calibrated on benign traffic of the target vehicle, then flags classic CAN frames whose identifier is sent more often than calibrated, bursts of unknown identifiers and DLC changes, and raises alarms; a random forest score on the same features is reported as additional information. It runs as plain C on ESP32-class microcontrollers (16.5 KiB flash, 11.9 KiB RAM on an ESP32 in QEMU); C and Python give identical results.'
+summary: 'Experimental, not ready for production use. A CAN intrusion detector that is first calibrated on benign traffic of the target vehicle, then flags classic CAN frames whose identifier is sent more often than calibrated, bursts of unknown identifiers and DLC changes, and raises alarms; a random forest score on the same features is reported as additional information. It runs as plain C on ESP32-class microcontrollers (16.5 KiB flash, 11.9 KiB RAM on an ESP32 in QEMU); C and Python give identical results.'
 license: Apache-2.0
 usage_class: commercial
 license_exception: null
@@ -20,9 +20,9 @@ repos:
   staging: mobility-model-zoo/picket-forest-staging
 card:
   intended_use: |
-    Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; a reproducible baseline for calibrated, microcontroller-sized CAN intrusion detection; a starting point for a security sensor that reports events to an IDS manager. Status: experimental, not production ready (see limitations).
+    Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; a reproducible baseline for calibrated, microcontroller-sized CAN intrusion detection; a starting point for a security sensor that reports events to an IDS manager. Status: experimental, not ready for production use (see limitations).
   out_of_scope: |
-    Deployment in vehicles on public roads: the model is not a validated or certified safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+    Deployment in vehicles on public roads: the model is not a validated or approved safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
   input_output: |
     Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` (`security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
@@ -45,7 +45,7 @@ card:
     float score;
     int alarm = picket_forest_v2_process(&ids, ts_us, can_id, dlc, data, &score, NULL);
   limitations: |
-    - Experimental, not production ready (constitution 2.2.0).
+    - Not ready for production use: release status experimental (constitution 2.2.0).
     - False alarms depend on the calibration: on ROAD's test drives 0 per hour with 142 min of calibration, about 15 per hour with 60 min, 87 with 15 min and 140 with 5 min. A calibration must cover the vehicle's operating modes (driving, idle, parked, diagnostics).
     - One new legitimate identifier after calibration floods alarms: on the AutoHack C-CAN bus one identifier missing from the calibration caused several hundred false alarms per hour; a diagnostic dongle plugged in after calibration causes about 1,100 per hour. After a fuzzing burst the unknown-identifier state can keep alarming for up to 2 s (see example 03).
     - The rules decide. The trained forest is reported as information only: on unseen vehicles it raised up to 19.6 false alarms per hour and missed injected fabrication attacks that the rules catch.

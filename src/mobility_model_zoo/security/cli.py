@@ -214,7 +214,7 @@ def measure(
     except ValueError as e:
         say(str(e))
         raise typer.Exit(1) from None
-    m.merge(out, new, "picket-forest", "0.1.0")
+    m.merge(out, new, "picket-forest", out.parent.name)  # results/<version>/performance.json
     for metric in new:
         where = f"{metric['origin']}, {metric['hardware']}"
         say(f"{metric['name']}: {metric['value']} {metric['unit']} ({where})")

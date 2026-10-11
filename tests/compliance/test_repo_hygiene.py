@@ -86,3 +86,21 @@ def test_release_compliance_schema_requires_sbom_for_mcu():
         e.message for e in Draft202012Validator(schema).iter_errors({"runtime": "mcu", "sbom": "s"})
     ]
     assert not any("sbom" in e for e in errors)
+
+
+def test_tree_example_numbers_are_not_scanned_as_text(tmp_path):
+    import json
+
+    from mobility_model_zoo.compliance.release_checks import scan_text
+
+    ex = {
+        "source": "synthetic",
+        "frames": [[0, 291, 8, [0] * 8]],
+        "expected_scores": ["00000000"],
+        "expected_alarms": [3],
+    }
+    p = tmp_path / "01.json"
+    text = scan_text(p, json.dumps(ex))
+    assert "expected_scores" not in text and "synthetic" in text
+    ex["expected_scores"] = ["+49 170 1234567"]  # not a bit pattern: the whole file is scanned
+    assert "+49 170" in scan_text(p, json.dumps(ex))

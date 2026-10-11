@@ -22,7 +22,7 @@ monetisation: none
 intended_purpose: 'Research, teaching and bench testing of intrusion detection on classic CAN buses:
   after a calibration on benign traffic of one vehicle, the detector flags frames that exceed the
   calibrated frame counts, unknown-identifier bursts (fuzzing) and DLC changes, and raises alarms for
-  an IDS manager or a log. Status: experimental, not production ready.'
+  an IDS manager or a log. Status: experimental, not ready for production use.'
 out_of_scope:
 - Deployment in vehicles on public roads as a safety or security mechanism; any ISO/SAE 21434 or UNECE
   R155 claim; active countermeasures (blocking or injecting frames) based on its output; identifying
