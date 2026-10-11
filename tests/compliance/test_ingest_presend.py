@@ -124,6 +124,29 @@ def test_presend_routes(register_tree):
     assert batch(register_tree, item, backend="mock", route_id=None) == set()
 
 
+def test_route_waiver_is_scoped_to_route_and_work(register_tree):
+    write(register_tree, "compliance/providers.yaml",
+          {"routes": [route(), route(id="cli", access_path="consumer_cli", allowed_for=[])]})
+
+    def waiver(scope, expires="2099-01-01"):
+        return {"id": f"W-{scope}", "check": "C-P4", "scope": scope, "rationale": "r",
+                "approved_by": "o", "approved_at": "2026-10-11", "expires_at": expires}
+
+    write(register_tree, "compliance/waivers.yaml",
+          {"waivers": [waiver("cli@benchmark:b1"), waiver("cli@benchmark:old", "2000-01-01")]})
+
+    def ids(scope):
+        return {f.check_id for f in check_batch(
+            load(register_tree), model_id="m", backend="claude_cli", role="reference",
+            route_id="cli", provider_order=None, items=[("ch-1", "text", "redact-v2")],
+            current_patterns="redact-v2", scope=scope)}
+
+    assert ids("benchmark:b1") == set()
+    assert ids("benchmark:b2") == {"C-P4"}  # another benchmark
+    assert ids("benchmark:old") == {"C-P4"}  # expired
+    assert ids(None) == {"C-P4"}  # a waiver never covers the route in general
+
+
 def test_route_allow_rule():
     hosted = route(
         id="h",

@@ -8,8 +8,10 @@ working directory. Temperature cannot be set on this path (documented deviation)
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -19,6 +21,19 @@ from mobility_model_zoo.productdev.jtbd.errors import BackendFailure, UsageError
 from mobility_model_zoo.productdev.jtbd.labeling.base import CallResult, parse_json_text
 
 MIN_INTERVAL_S = 1.5
+
+
+def child_env(environ: dict[str, str] | None = None) -> dict[str, str]:
+    """The environment for the CLI, with the virtual environment's bin directory left out of PATH:
+    this package's `security` script lives there and shadows macOS /usr/bin/security, which the CLI
+    uses to read the subscription login from the keychain ("Not logged in", found 2026-10-11)."""
+    env = dict(os.environ if environ is None else environ)
+    venv_bins = {str(Path(sys.prefix) / "bin")}
+    if env.get("VIRTUAL_ENV"):
+        venv_bins.add(str(Path(env["VIRTUAL_ENV"]) / "bin"))
+    env["PATH"] = os.pathsep.join(d for d in env.get("PATH", "").split(os.pathsep)
+                                  if d and d.rstrip("/") not in venv_bins)
+    return env
 
 
 def result_event(events: object) -> dict:
@@ -75,13 +90,19 @@ class ClaudeCliBackend:
             start = time.monotonic()
             try:
                 proc = subprocess.run(cmd, input=user, capture_output=True, text=True,
-                                      cwd=workdir, timeout=900)
+                                      cwd=workdir, timeout=900, env=child_env())
             except subprocess.TimeoutExpired as exc:
                 raise BackendFailure(f"claude CLI timed out on {chunk_id}") from exc
             latency = (time.monotonic() - start) * 1000
             self._last = time.monotonic()
         if proc.returncode != 0:
-            raise BackendFailure(f"claude CLI failed on {chunk_id}: {proc.stderr.strip()[:300]}")
+            # The CLI reports most failures ("Not logged in") in the JSON result, not on stderr.
+            detail = proc.stderr.strip()
+            try:
+                detail = detail or str(result_event(json.loads(proc.stdout)).get("result"))
+            except (json.JSONDecodeError, BackendFailure):
+                pass
+            raise BackendFailure(f"claude CLI failed on {chunk_id}: {detail[:300]}")
         try:
             events = json.loads(proc.stdout)
         except json.JSONDecodeError as exc:

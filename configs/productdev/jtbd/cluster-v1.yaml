@@ -52,8 +52,8 @@ cluster:
       # subset of the other's, so short generic quotes filled the high stratum (checked 2026-10-10).
       - {name: lexical, method: token_sort_ratio}
   sets: {test: 12, dev: 4, holdout: 4, size: 40, neighbourhood_k: 39, coarse_partition: optional}
-  # Owner decision 2026-10-11: Claude through the API route, OpenAI family as local open weights.
-  reference_models: [claude-cluster-reference, gpt-oss-cluster-reference]
+  # Owner decision 2026-10-11 (D-cluster-v1-references): the pilot's two reference labelers.
+  reference_models: [claude-reference, gpt-mini-reference]
   batch_size: 20
   guideline: topics/productdev/guideline/cluster-v1/guideline-cluster-v1.md
   examples: topics/productdev/guideline/cluster-v1/examples.yaml

@@ -2,7 +2,8 @@
 freezing (research R10, tasks T026 and T027).
 
 The pool is built from a span run of the released scout-large over stored chunks of the configured
-corpora; the extraction pilot's holdout chunks never enter it. Sources are split by snapshot into
+corpora; the extraction pilot's holdout chunks and sources with a recorded opt-out never enter
+it. Sources are split by snapshot into
 `holdout` (re-pilot reserve), `dev` (tuning) and `test`, so near-duplicates cannot leak between
 splits. Pairs are same-kind and stratified by two samplers that are not candidate encoders (LaBSE
 cosine, lexical token-set ratio); sets are a seed item and its nearest neighbours of any kind.
@@ -94,6 +95,21 @@ def pool_from_config(config_path: Path, run_id: str) -> tuple[list[dict[str, Any
         chunk = chunks[line["source_id"].split(":", 1)[1]]
         meta[line["source_id"]] = (chunk.snapshot_id, chunk.redaction.patterns_version)
     return lines, pool_items(lines, meta)
+
+
+def opted_out_snapshots(settings: Settings, snapshots: set[str]) -> set[str]:
+    """Snapshots whose source record carries an opt-out (rule of C-T1). Their texts are not
+    processed again, so they never enter the pool (decision D-benchmark-optouts)."""
+    from mobility_model_zoo.compliance.register import Register
+    from mobility_model_zoo.compliance.train import opted_out
+    from mobility_model_zoo.productdev.jtbd.sources.registry import canonicalize_url, entries
+
+    reg = Register.load(settings.base)
+    denied = {canonicalize_url(r["origin_url"])
+              for r in reg.records("sources") + reg.records("datasets")
+              if r.get("origin_url") and opted_out(r)}
+    urls = {e["snapshot_id"]: canonicalize_url(e["canonical_url"]) for e in entries(settings)}
+    return {s for s in snapshots if urls.get(s) in denied}
 
 
 def without_holdout(lines: list[dict[str, Any]], holdout_chunks: set[str]) -> list[dict[str, Any]]:
@@ -275,9 +291,13 @@ def build(settings: Settings, encoder: Encoder | None = None,
     cluster = cfg(settings)
     check_samplers(cluster, settings.config_path.parent)
     state = load_manifest(settings)
+    events = list((state or {}).get("events", []))
     if state and state["state"] != "draft":
-        raise FrozenHashMismatch(f"benchmark {settings.benchmark_version} is {state['state']}; "
-                                 "a frozen benchmark is never rebuilt")
+        # Before any labeling no label depends on the benchmark, so a rebuild is recorded instead.
+        if state["state"] != "frozen" or label_runs(settings):
+            raise FrozenHashMismatch(f"benchmark {settings.benchmark_version} is {state['state']}; "
+                                     "a labeled benchmark is never rebuilt")
+        events.append({"at": _now(), "state": "draft", "event": "rebuilt before any labeling"})
     if corpora is None:
         run = cluster["pool"].get("span_run")
         if not run:
@@ -288,6 +308,12 @@ def build(settings: Settings, encoder: Encoder | None = None,
     pool = [item for _, items in corpora for item in items]
     if len({i.item_id for i in pool}) != len(pool):
         raise ValidationFailed("item ids repeat across corpora")
+    opted = opted_out_snapshots(settings, {i.snapshot_id for i in pool})
+    dropped = {i.source_id for i in pool if i.snapshot_id in opted}
+    excluded = {"opt_out_snapshots": len(opted),
+                "opt_out_items": sum(1 for i in pool if i.snapshot_id in opted)}
+    pool = [i for i in pool if i.snapshot_id not in opted]
+    lines = [line for line in lines if line["source_id"] not in dropped]
     seed = int(cluster["seed"])
     splits = split_snapshots([i.snapshot_id for i in pool], float(cluster["dev_fraction"]),
                              float(cluster.get("holdout_fraction", 0.15)), seed)
@@ -316,11 +342,13 @@ def build(settings: Settings, encoder: Encoder | None = None,
     write_jsonl(out / "pairs.jsonl", pairs)
     write_jsonl(out / "sets.jsonl", sets)
     save_manifest(settings, {"version": settings.benchmark_version, "state": "draft",
-                             "built_at": _now(), "hashes": {}, "counts": counts(pool, pairs, sets)})
+                             "built_at": _now(), "hashes": {}, "counts": counts(pool, pairs, sets),
+                             "excluded": excluded, "events": events})
     spread = {split: {st: {"min": round(min(v), 3), "median": round(float(np.median(v)), 3),
                            "max": round(max(v), 3)} for st, v in sorted(by.items())}
               for split, by in similarity.items()}
-    return {"bench": str(out), **counts(pool, pairs, sets), "sampler_similarity": spread,
+    return {"bench": str(out), **counts(pool, pairs, sets), "excluded": excluded,
+            "sampler_similarity": spread,
             "not_sampled_fragments": sum(1 for i in pool if not labelable(i.quote))}
 
 
@@ -433,7 +461,8 @@ def freeze(settings: Settings) -> dict[str, Any]:
         verify(settings, manifest)
         return {"manifest": str(manifest_path(settings)), "state": manifest["state"], "verified": True}
     manifest.update(state="frozen", frozen_at=_now(), hashes=hashes,
-                    retention_review_by=_review_date(cfg(settings)), reruns=0, events=[])
+                    retention_review_by=_review_date(cfg(settings)), reruns=0,
+                    events=manifest.get("events", []))
     save_manifest(settings, manifest)
     return {"manifest": str(manifest_path(settings)), "state": "frozen", "hashes": hashes}
 

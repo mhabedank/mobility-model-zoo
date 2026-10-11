@@ -197,3 +197,23 @@ decisions:
   - check C-T1
   review_by: '2027-04-08'
   supersedes: null
+- id: D-cluster-v1-references
+  date: '2026-10-11'
+  decided_by: Martin Habedank
+  decision: The reference labels of benchmark cluster-v1 (feature 009) are produced as for pilot-v2, through the
+    Claude Code CLI on the consumer subscription ("Help improve Claude" off) and through GPT mini via OpenRouter
+    pinned to OpenAI. Both routes fail the route rule (D-claude-api, D-routing-scc); C-P4 is waived for these two
+    routes and this benchmark only (waivers W-cluster-v1-claude-cli, W-cluster-v1-gpt-mini). Redaction, quarantine,
+    opt-out exclusion and provider pinning stay enforced. The next benchmark version uses a route that meets
+    D-routing-scc.
+  rationale: 'Low friction for a one-off benchmark while the provider question (Anthropic API with zero data retention
+    or an EU router such as Cortecs, reviewed 2026-10-11) is open. Data: about 2,900 short quotes from public sources
+    (parliamentary records, published research interviews, papers, forums), redacted and re-scanned before sending;
+    the GDPR transfer risk is judged low. Accepted risks: the consumer terms restrict model development, and the dev
+    labels tune the threshold t_dup; the OpenRouter route has no zero data retention and no recorded DPA.'
+  scope:
+  - benchmark:cluster-v1
+  - compliance/waivers.yaml#W-cluster-v1-claude-cli
+  - compliance/waivers.yaml#W-cluster-v1-gpt-mini
+  review_by: '2026-12-31'
+  supersedes: null

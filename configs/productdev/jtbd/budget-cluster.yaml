@@ -2,17 +2,17 @@
 # Used by configs/productdev/jtbd/cluster-v1.yaml (budget_name cluster-v1). Its own file because
 # budget.yaml is part of the pilot's frozen hashes. The ledger is shared; rows carry the budget name.
 budget_eur: 20
-# Owner decision 2026-10-11: the references are claude-cluster-reference (Anthropic API, paid) and
-# gpt-oss-cluster-reference (local, no cash). The guard cap applies to the Anthropic API spend; the
-# owner sets a workspace spend limit at or below it. No OpenRouter key is used by this budget.
-key_cap_eur: 18.4
-api_key_env: ANTHROPIC_API_KEY
+# Owner decision 2026-10-11 (D-cluster-v1-references): the references are the pilot's labelers.
+# claude-reference runs through the consumer CLI subscription (no per-token cash cost);
+# gpt-mini-reference runs on the pilot's OpenRouter key (USD 20 hard limit, no reset). The key cap
+# here is what was left on that key: EUR 18.40 minus EUR 12.16 spent by the pilot and span budgets
+# (ledger, 2026-10-11).
+key_cap_eur: 6.2
+api_key_env: OPENROUTER_API_KEY
 openrouter_fee: 0.055
 usd_to_eur: 0.92
 # EUR per million tokens; list prices as upper bound (the ledger uses OpenRouter's reported cost).
-# claude-reference runs through the consumer CLI subscription and has no per-token cash cost.
 prices:
-  # claude-sonnet-5-5 list price USD 2 / 0.20 cached / 10 per million tokens (2026-10-11) at 0.92
-  claude-cluster-reference: {input: 1.84, cached_input: 0.184, output: 9.2}
+  gpt-mini-reference: {input: 0.69, cached_input: null, output: 4.14}  # openai/gpt-5.4-mini USD 0.75 / 4.50 (2026-10-06)
 # Reference VM for the speed and memory measurement (T057), EUR per hour, upper bound.
 reference_vm_eur_per_hour: 0.10

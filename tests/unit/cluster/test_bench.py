@@ -96,8 +96,11 @@ def test_freeze_hashes_and_verify(built):
     assert set(result["hashes"]) == {"guideline", "examples", "prompt", "wire_schema", "criteria",
                                      "budget", "pairs", "sets", "pool"}
     assert bench.freeze(s)["verified"] is True
+    run = s.runs_dir / "cluster-reference-mock-a-dev-00000000"
+    run.mkdir(parents=True)
+    (run / "manifest.json").write_text("{}")
     with pytest.raises(FrozenHashMismatch):
-        built.build()  # a frozen benchmark is never rebuilt
+        built.build()  # a labeled benchmark is never rebuilt
     (built.root / "criteria.yaml").write_text("duplicate_kappa_min: 0.1\n")
     with pytest.raises(FrozenHashMismatch, match="criteria"):
         bench.verify(s)
@@ -136,3 +139,25 @@ def test_refreeze_only_before_any_labeling(built):
     (built.root / "budget.yaml").write_text("budget_eur: 20\nkey_cap_eur: 9\nprices: {}\n")
     with pytest.raises(FrozenHashMismatch):
         bench.freeze(s)
+
+
+def test_rebuild_before_labeling_is_recorded(built):
+    s = built.settings()
+    bench.freeze(s)
+    built.build()
+    manifest = bench.load_manifest(s)
+    assert manifest["state"] == "draft"
+    assert [e["event"] for e in manifest["events"]] == ["rebuilt before any labeling"]
+    bench.freeze(s)
+    assert bench.load_manifest(s)["events"][0]["event"] == "rebuilt before any labeling"
+
+
+def test_opted_out_sources_never_enter_the_pool(tmp_path):
+    from bench_helpers import write_optout
+
+    env = make_env(tmp_path / "a")
+    denied = write_optout(env, "snap-000", "snap-001")
+    result = env.build()
+    pool = bench.load_pool(env.settings())
+    assert not {r["snapshot_id"] for r in pool.values()} & denied
+    assert result["excluded"] == {"opt_out_snapshots": 2, "opt_out_items": 12}

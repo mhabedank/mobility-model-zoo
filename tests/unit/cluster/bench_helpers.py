@@ -119,3 +119,22 @@ def answer_units(env: BenchEnv, model: str, split: str, pair_label=None, set_ans
         else:
             answer = set_answer(list(unit["items"]))
         (directory / f"{unit['unit']}.json").write_text(json.dumps(answer))
+
+
+def write_optout(env: BenchEnv, *snapshots: str) -> set[str]:
+    """Snapshot index entries for every fixture snapshot and source records whose robots signal
+    denies the given ones (the C-T1 opt-out rule)."""
+    s = env.settings()
+    s.snapshots_dir.mkdir(parents=True, exist_ok=True)
+    url = "https://forum.example/t/{}"
+    rows = [{"snapshot_id": f"snap-{n:03d}", "canonical_url": url.format(n),
+             "retrieved_at": "2026-10-01T00:00:00Z", "supersedes": None} for n in range(24)]
+    (s.snapshots_dir / "index.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    sources = [{"id": f"forum-{n}", "origin_url": url.format(n),
+                "licence": "LicenseRef-all-rights-reserved",
+                "signals": {"robots": "deny" if f"snap-{n:03d}" in snapshots else "allow"}}
+               for n in range(24)]
+    directory = env.root / "topics" / "t" / "compliance"
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "sources.yaml").write_text(yaml.safe_dump({"sources": sources}))
+    return set(snapshots)

@@ -63,25 +63,30 @@ def unit_items(unit: dict[str, Any]) -> list[str]:
 
 
 def _presend(settings: Settings, entry, units: list[dict[str, Any]], pool: dict[str, dict]
-             ) -> dict | None:
-    """Fail-closed pre-send checks of every quote that will be sent (feature 006)."""
+             ) -> tuple[dict | None, str | None]:
+    """Fail-closed pre-send checks of every quote that will be sent (feature 006): the route and
+    the id of the waiver the run relies on, if any."""
     from mobility_model_zoo.compliance.findings import StageFailed
-    from mobility_model_zoo.compliance.presend import check_batch
+    from mobility_model_zoo.compliance.presend import check_batch, route_waiver
     from mobility_model_zoo.compliance.register import Register
     from mobility_model_zoo.productdev.jtbd.corpus.redact import PATTERNS_VERSION
 
     reg = Register.load(settings.base)
     route_id = entry.extra.get("route")
+    scope = f"benchmark:{settings.benchmark_version}"
     items = sorted({i for u in units for i in unit_items(u)})
     findings = check_batch(
         reg, model_id=entry.model_id, backend=entry.backend, role="reference", route_id=route_id,
         provider_order=entry.extra.get("provider_order"),
         items=[(i, pool[i]["quote"], pool[i].get("patterns_version")) for i in items],
-        current_patterns=PATTERNS_VERSION)
+        current_patterns=PATTERNS_VERSION, scope=scope)
     if findings:
         raise ValidationFailed("compliance pre-send check failed: "
                                + "; ".join(StageFailed(findings).failures[:10]))
-    return reg.route(route_id) if route_id else None
+    if not route_id:
+        return None, None
+    waiver = route_waiver(reg, route_id, scope)
+    return reg.route(route_id), waiver["id"] if waiver else None
 
 
 def _estimate(settings: Settings, entry, units: list[dict[str, Any]], system: str,
@@ -164,7 +169,7 @@ def label(settings: Settings, model_id: str, split: str, limit: int | None = Non
     units = units_for(settings, split)
     if not units:
         raise ValidationFailed(f"no {split} units in the benchmark")
-    route = _presend(settings, entry, units, pool)
+    route, waiver = _presend(settings, entry, units, pool)
     system = system_prompt(settings)
     run_id = run_id_for(model_id, split, manifest_b["hashes"]["guideline"])
     run_path = runs_dir(settings) / run_id
@@ -195,7 +200,8 @@ def label(settings: Settings, model_id: str, split: str, limit: int | None = Non
             "hashes": manifest_b["hashes"], "prompt_sha256": prompt_sha256(settings),
             "started_at": datetime.now(UTC).isoformat(), "finished_at": None, "cost_eur": 0.0,
             "excluded_units": [], "status": "running", "deviations": list(model.deviations),
-            "license_basis": entry.license_basis,
+            "license_basis": entry.license_basis, "route": entry.extra.get("route"),
+            "compliance_waiver": waiver,
         }
         write_json(manifest_file, manifest)
     spent, done = 0.0, 0

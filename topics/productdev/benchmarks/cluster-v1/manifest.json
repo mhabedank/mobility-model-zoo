@@ -1,28 +1,28 @@
 {
   "version": "cluster-v1",
   "state": "frozen",
-  "built_at": "2026-10-10T09:47:11.467559+00:00",
+  "built_at": "2026-10-11T09:53:31.937796+00:00",
   "hashes": {
     "guideline": "ad0ec27f7a963ebcbeb1622664a1cd8e7af1755e4796e3c9fe60026000cd55fb",
     "examples": "f74b6145a405f42278a8cb519bfd943809426eb30b3e9ceb083372afd612cdf8",
     "prompt": "e27a6e8ad65e5c17846c56d88ea062bde975d418ad3e6888cec2a2cbac81d448",
     "wire_schema": "ec108cce806b616482550129d0909ec2c4b59e6de2bec19099a382206345111d",
     "criteria": "c3797974d377d1f882e2a0fd8b0d3edc8c04674a3684860ec3638a9bd77399c9",
-    "budget": "1488f3b8f65362f8785271e600ce63ec52ec3cc283ae62399d2a71cda281c6a4",
-    "pairs": "fd65132cd77db893b30ecce352eb1e1aef96d3e6c289398bcea9e3bdce7a133a",
-    "sets": "c17285773520431553b51b3e6f7dc518ce7a216567c563beab2881b3fa496596",
-    "pool": "725208bdbbef6fcb921646bf83d492d7c092f1cac7266c3efaae1b4b59db9b92"
+    "budget": "4cbdbd20b40fbebf50ee59527d5f141b934087ce1f11eed12e22012bd9f21f2a",
+    "pairs": "7126e3174796829f8ae6e5a1ec3bde51595b4e76752a2d69aecd7ec3a987257c",
+    "sets": "748d6249a068f367dfb69d94e2847465673595545831344a045063b8d4b22f81",
+    "pool": "117536e22711dac10ba2bb312198df6bb32531300fafdde953c8db00b679c2ce"
   },
   "counts": {
     "items": {
-      "dev": 3823,
-      "test": 7146,
-      "holdout": 1814
+      "dev": 3395,
+      "test": 6967,
+      "holdout": 2133
     },
     "snapshots": {
-      "dev": 50,
-      "test": 90,
-      "holdout": 25
+      "dev": 45,
+      "test": 83,
+      "holdout": 22
     },
     "pairs": {
       "dev": {
@@ -47,14 +47,23 @@
       "holdout": 4
     }
   },
-  "frozen_at": "2026-10-10T09:47:17.568314+00:00",
-  "retention_review_by": "2028-10-10",
-  "reruns": 0,
+  "excluded": {
+    "opt_out_snapshots": 15,
+    "opt_out_items": 288
+  },
   "events": [
     {
       "at": "2026-10-11T07:38:35.781920+00:00",
       "state": "frozen",
       "event": "re-frozen before any labeling: budget changed"
+    },
+    {
+      "at": "2026-10-11T09:52:57.519941+00:00",
+      "state": "draft",
+      "event": "rebuilt before any labeling"
     }
-  ]
+  ],
+  "frozen_at": "2026-10-11T09:53:37.459295+00:00",
+  "retention_review_by": "2028-10-11",
+  "reruns": 0
 }
