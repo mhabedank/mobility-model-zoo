@@ -133,3 +133,13 @@ def test_offline_check_keeps_earlier_network_results(catalog_dir):
     checks.run(cat, ids=["pl-stat-transport-tables"], network=False, say=lambda m: None)
     e = load(catalog_dir).entries["pl-stat-transport-tables"]
     assert e["status"]["value"] == "cleared" and len(e["checks"]) == 9
+
+
+def test_429_is_retried_after_retry_after():
+    answers = [httpx.Response(429, headers={"retry-after": "2"}), httpx.Response(200, text="ok")]
+    slept = []
+    client = checks.make_client(
+        httpx.MockTransport(lambda req: answers.pop(0)), checks.Throttle(sleep=slept.append)
+    )
+    assert client.get("https://api.example.org/x").status_code == 200
+    assert 2.0 in slept

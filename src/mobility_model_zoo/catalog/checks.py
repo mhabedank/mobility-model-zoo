@@ -60,8 +60,20 @@ class Throttle:
             self.last[host] = self.clock()
 
 
+RETRIES_429 = 3
+MAX_RETRY_AFTER = 60.0
+
+
+def _retry_after(value: str | None) -> float:
+    try:
+        return min(max(float(value), 1.0), MAX_RETRY_AFTER) if value else 10.0
+    except ValueError:
+        return 10.0
+
+
 class CachingTransport(httpx.BaseTransport):
-    """Throttles every request per host and caches robots.txt, tdmrep.json and ai.txt per run."""
+    """Throttles every request per host, retries 429 answers after Retry-After (at most 3 times,
+    60 s each) and caches robots.txt, tdmrep.json and ai.txt per run."""
 
     def __init__(self, inner: httpx.BaseTransport, throttle: Throttle):
         self.inner, self.throttle = inner, throttle
@@ -78,6 +90,13 @@ class CachingTransport(httpx.BaseTransport):
                 return httpx.Response(hit[0], headers=hit[1], content=hit[2], request=request)
         self.throttle.wait(request.url.host)
         response = self.inner.handle_request(request)
+        for _ in range(RETRIES_429):  # back off politely when a host says "too many requests"
+            if response.status_code != 429:
+                break
+            response.close()
+            self.throttle.sleep(_retry_after(response.headers.get("retry-after")))
+            self.throttle.wait(request.url.host)
+            response = self.inner.handle_request(request)
         if cacheable:
             body = response.read()
             with self.lock:
