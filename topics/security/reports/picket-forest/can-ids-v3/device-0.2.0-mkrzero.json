@@ -1,0 +1,57 @@
+{
+ "kind": "performance",
+ "model": "picket-forest",
+ "version": "0.2.0",
+ "synthetic": false,
+ "source_run": "security can-ids measure",
+ "metrics": [
+  {
+   "name": "latency_us_samd21",
+   "value": 1328.0,
+   "unit": "us",
+   "description": "whole chain per frame, median",
+   "reference": null,
+   "benchmark": null,
+   "n_items": 2000,
+   "hardware": "SAMD21 Cortex-M0+ (board mkrzero-1), 48 MHz, no FPU",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "latency_p99_us_samd21",
+   "value": 1402.0,
+   "unit": "us",
+   "description": "whole chain per frame, 99th percentile",
+   "reference": null,
+   "benchmark": null,
+   "n_items": 2000,
+   "hardware": "SAMD21 Cortex-M0+ (board mkrzero-1), 48 MHz, no FPU",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "flash_kb_samd21",
+   "value": 14.277,
+   "unit": "KiB",
+   "description": "detector code and constants (features, forest, alarm stage), from the object files",
+   "reference": null,
+   "benchmark": null,
+   "n_items": null,
+   "hardware": "SAMD21 Cortex-M0+ (board mkrzero-1), 48 MHz, no FPU",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "ram_kb_samd21",
+   "value": 11.938,
+   "unit": "KiB",
+   "description": "detector static data plus the detector state",
+   "reference": null,
+   "benchmark": null,
+   "n_items": null,
+   "hardware": "SAMD21 Cortex-M0+ (board mkrzero-1), 48 MHz, no FPU",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  }
+ ]
+}

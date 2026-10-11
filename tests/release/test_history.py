@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from conftest import git
+from release_env import git
 
 from mobility_model_zoo.release.history import forbidden, path_findings
 

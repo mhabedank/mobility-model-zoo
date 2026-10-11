@@ -1,0 +1,10 @@
+{
+  "error": {
+    "code": "maxlag",
+    "info": "Waiting for 10.0.0.1: 6 seconds lagged.",
+    "host": "10.0.0.1",
+    "lag": 6,
+    "type": "db"
+  },
+  "servedby": "mw-api-ext.placeholder"
+}

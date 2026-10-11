@@ -1,0 +1,107 @@
+# Search terms per mobility subdomain and language for the harvesters (research R6). A candidate
+# found with a subdomain's terms gets that subdomain (FR-003). Languages without terms use English.
+# Extend through the changelog when a new target language is harvested.
+version: 1
+changelog:
+- {date: "2026-10-11", change: "terms in en, es, pl, ja (pilot languages)", reason: feature 009 pilot}
+subdomains:
+  public_transport:
+    en: [public transport, bus network, tram, metro ridership]
+    es: [transporte público, autobús urbano, metro, tranvía]
+    pl: [transport publiczny, komunikacja miejska, tramwaj, autobus]
+    ja: [公共交通, 路線バス, 鉄道 乗客数]
+  rail:
+    en: [railway, rail passenger, rail freight]
+    es: [ferrocarril, tren de cercanías, transporte ferroviario]
+    pl: [kolej, transport kolejowy, pociąg]
+    ja: [鉄道, 列車, 新幹線]
+  road:
+    en: [road traffic, traffic volume, road network]
+    es: [tráfico rodado, red de carreteras, aforos de tráfico]
+    pl: [ruch drogowy, natężenie ruchu, sieć drogowa]
+    ja: [道路交通, 交通量, 道路網]
+  cycling:
+    en: [cycling, bicycle infrastructure, bike lanes]
+    es: [bicicleta, ciclismo urbano, carril bici]
+    pl: [rower, infrastruktura rowerowa, drogi rowerowe]
+    ja: [自転車, 自転車道, サイクリング]
+  walking:
+    en: [pedestrian, walkability, walking]
+    es: [peatones, movilidad peatonal]
+    pl: [piesi, ruch pieszy]
+    ja: [歩行者, 歩行空間]
+  micromobility:
+    en: [e-scooter, micromobility]
+    es: [patinete eléctrico, micromovilidad]
+    pl: [hulajnoga elektryczna, mikromobilność]
+    ja: [電動キックボード, マイクロモビリティ]
+  shared_mobility:
+    en: [car sharing, bike sharing, ride hailing, on-demand transport]
+    es: [coche compartido, bicicleta compartida, transporte a demanda]
+    pl: [carsharing, rower miejski, transport na żądanie]
+    ja: [カーシェアリング, シェアサイクル, オンデマンド交通]
+  aviation:
+    en: [air transport, airport passengers, aviation]
+    es: [transporte aéreo, aeropuerto, aviación]
+    pl: [transport lotniczy, lotnisko, lotnictwo]
+    ja: [航空輸送, 空港, 航空]
+  maritime:
+    en: [maritime transport, port traffic, inland waterways]
+    es: [transporte marítimo, puerto, navegación interior]
+    pl: [transport morski, port, żegluga śródlądowa]
+    ja: [海上輸送, 港湾, 内航海運]
+  freight_logistics:
+    en: [freight transport, logistics, last mile delivery]
+    es: [transporte de mercancías, logística, última milla]
+    pl: [transport towarowy, logistyka, dostawy ostatniej mili]
+    ja: [貨物輸送, 物流, ラストワンマイル]
+  ev_charging:
+    en: [electric vehicles, charging stations, EV charging]
+    es: [vehículo eléctrico, puntos de recarga, electromovilidad]
+    pl: [samochody elektryczne, stacje ładowania, elektromobilność]
+    ja: [電気自動車, 充電スタンド, EV 充電]
+  automated_driving:
+    en: [automated driving, autonomous vehicles, connected vehicles]
+    es: [conducción autónoma, vehículo autónomo, vehículo conectado]
+    pl: [jazda autonomiczna, pojazdy autonomiczne]
+    ja: [自動運転, 自律走行車, コネクテッドカー]
+  vehicle_technology:
+    en: [vehicle technology, automotive engineering, powertrain]
+    es: [tecnología del automóvil, industria automotriz]
+    pl: [technika samochodowa, przemysł motoryzacyjny]
+    ja: [自動車技術, 自動車産業]
+  vehicle_security:
+    en: [vehicle cybersecurity, CAN bus intrusion detection]
+    es: [ciberseguridad del vehículo]
+    pl: [cyberbezpieczeństwo pojazdów]
+    ja: [車両サイバーセキュリティ]
+  condition_monitoring:
+    en: [condition monitoring, predictive maintenance, infrastructure inspection]
+    es: [mantenimiento predictivo, monitorización del estado]
+    pl: [monitorowanie stanu, konserwacja predykcyjna]
+    ja: [状態監視, 予知保全]
+  urban_planning:
+    en: [urban mobility planning, sustainable urban mobility plan, transport planning]
+    es: [plan de movilidad urbana sostenible, planificación del transporte]
+    pl: [plan zrównoważonej mobilności miejskiej, planowanie transportu]
+    ja: [都市交通計画, 交通計画]
+  rural_mobility:
+    en: [rural mobility, rural transport]
+    es: [movilidad rural, transporte rural]
+    pl: [mobilność na obszarach wiejskich, transport wiejski]
+    ja: [地方交通, 過疎地 交通]
+  policy_regulation:
+    en: [transport policy, mobility law, transport regulation]
+    es: [política de transporte, ley de movilidad sostenible]
+    pl: [polityka transportowa, ustawa o transporcie]
+    ja: [交通政策, 交通法規]
+  safety:
+    en: [road safety, traffic accidents, road casualties]
+    es: [seguridad vial, accidentes de tráfico, siniestralidad vial]
+    pl: [bezpieczeństwo ruchu drogowego, wypadki drogowe]
+    ja: [交通安全, 交通事故]
+  accessibility:
+    en: [accessible transport, mobility impairment, barrier-free transport]
+    es: [accesibilidad del transporte, movilidad reducida]
+    pl: [dostępność transportu, osoby o ograniczonej mobilności]
+    ja: [バリアフリー 交通, 移動制約者]

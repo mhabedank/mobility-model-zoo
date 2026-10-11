@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 
-from conftest import FakeRunner
+from release_env import FakeRunner
 
 from mobility_model_zoo.release import index
 from mobility_model_zoo.release import publish as ops

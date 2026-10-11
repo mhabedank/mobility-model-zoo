@@ -1,0 +1,373 @@
+{
+ "success": true,
+ "result": {
+  "count": 4,
+  "results": [
+   {
+    "id": "-91ff7a79-ceb3-45a7-9686-c992634343ce-_100358_es",
+    "title": {
+     "en": "Railway (g09_21_Ferrocarril)",
+     "es": "Ferrocarril (g09_21_Ferrocarril)"
+    },
+    "language": [
+     {
+      "id": "es",
+      "label": "Spanish",
+      "resource": "http://publications.europa.eu/resource/authority/language/SPA"
+     }
+    ],
+    "publisher": {
+     "type": "Organization",
+     "name": "Instituto de Estadística y Cartografía de Andalucía. Junta de Andalucía"
+    },
+    "country": {
+     "label": "Spain",
+     "id": "es",
+     "resource": "http://publications.europa.eu/resource/authority/country/ESP"
+    },
+    "corporate-body-classification": {
+     "id": "_NATIONAL"
+    },
+    "catalog": {
+     "id": "codsi",
+     "title": {
+      "en": "Official INSPIRE Data and Services Catalogue"
+     }
+    },
+    "translation_meta": {
+     "details": {
+      "lt": {
+       "machine_translated": true,
+       "original_language": "es"
+      }
+     }
+    },
+    "distributions": [
+     {
+      "access_url": [
+       "https://www.juntadeandalucia.es/institutodeestadisticaycartografia/DERA/datos_espaciales.htm"
+      ],
+      "license": {
+       "resource": "https://creativecommons.org/licenses/by/4.0/",
+       "id": "https://creativecommons.org/licenses/by/4.0/",
+       "label": "https://creativecommons.org/licenses/by/4.0/"
+      }
+     },
+     {
+      "access_url": [
+       "https://www.ideandalucia.es/services/DERA_g9_transport_com/wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.3.0"
+      ],
+      "format": {
+       "id": "WMS_SRVC",
+       "format_types": [
+        {
+         "id": "structured"
+        },
+        {
+         "id": "geographical"
+        },
+        {
+         "id": "textual"
+        }
+       ]
+      },
+      "license": {
+       "resource": "https://creativecommons.org/licenses/by/4.0/",
+       "id": "https://creativecommons.org/licenses/by/4.0/",
+       "label": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "access_service": [
+       {
+        "endpoint_url": [
+         "https://www.ideandalucia.es/services/DERA_g9_transport_com/wms"
+        ]
+       }
+      ]
+     },
+     {
+      "license": {
+       "resource": "https://creativecommons.org/licenses/by/4.0/",
+       "id": "https://creativecommons.org/licenses/by/4.0/",
+       "label": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "access_url": [
+       "https://www.ideandalucia.es/services/DERA_g9_transport_com/wfs?REQUEST=GetCapabilities&SERVICE=WFS&VERSION=2.0.0"
+      ],
+      "access_service": [
+       {
+        "endpoint_url": [
+         "https://www.ideandalucia.es/services/DERA_g9_transport_com/wfs"
+        ]
+       }
+      ],
+      "format": {
+       "id": "WFS_SRVC",
+       "format_types": [
+        {
+         "id": "structured"
+        },
+        {
+         "id": "geographical"
+        },
+        {
+         "id": "textual"
+        }
+       ]
+      }
+     }
+    ],
+    "description": {
+     "es": "Descripcion registrada, recortada (no debe aparecer en el candidato)."
+    }
+   },
+   {
+    "id": "https-intranet-caib-es-opendatacataleg-dataset-cc8dff66-fcad-45a9-b51f-424979f91980",
+    "title": {
+     "en": "Railway stations",
+     "es": "Estaciones de ferrocarril"
+    },
+    "language": [
+     {
+      "id": "es",
+      "label": "Spanish",
+      "resource": "http://publications.europa.eu/resource/authority/language/SPA"
+     },
+     {
+      "id": "en",
+      "label": "English",
+      "resource": "http://publications.europa.eu/resource/authority/language/ENG"
+     }
+    ],
+    "publisher": {
+     "type": "Agent",
+     "name": "Gobierno de las Illes Balears",
+     "resource": "http://datos.gob.es/recurso/sector-publico/org/Organismo/A04003003"
+    },
+    "country": {
+     "label": "Spain",
+     "id": "es",
+     "resource": "http://publications.europa.eu/resource/authority/country/ESP"
+    },
+    "corporate-body-classification": {
+     "id": "_NATIONAL"
+    },
+    "catalog": {
+     "id": "datos-gob-es",
+     "title": {
+      "en": "datos.gob.es"
+     }
+    },
+    "translation_meta": {
+     "details": {
+      "lt": {
+       "machine_translated": true,
+       "original_language": "es"
+      }
+     }
+    },
+    "distributions": [
+     {
+      "license": {
+       "resource": "http://www.opendefinition.org/licenses/cc-by",
+       "id": "http://www.opendefinition.org/licenses/cc-by",
+       "label": "http://www.opendefinition.org/licenses/cc-by"
+      },
+      "media_type": "text/csv",
+      "access_url": [
+       "https://intranet.caib.es/opendatacataleg/files/dataset/estacio/estacio.csv"
+      ],
+      "download_url": [
+       "https://intranet.caib.es/opendatacataleg/files/dataset/estacio/estacio.csv"
+      ],
+      "byte_size": 20480
+     },
+     {
+      "media_type": "application/json",
+      "access_url": [
+       "https://intranet.caib.es/opendatacataleg/files/dataset/estacio/estacio.geojson"
+      ],
+      "license": {
+       "resource": "http://www.opendefinition.org/licenses/cc-by",
+       "id": "http://www.opendefinition.org/licenses/cc-by",
+       "label": "http://www.opendefinition.org/licenses/cc-by"
+      }
+     }
+    ],
+    "description": {
+     "es": "Descripcion registrada, recortada (no debe aparecer en el candidato)."
+    }
+   },
+   {
+    "id": "https-www-zaragoza-es-web-espacio-de-datos-servicio-catalogo-6308",
+    "title": {
+     "en": "Railways",
+     "es": "Ferrocarriles"
+    },
+    "publisher": {
+     "type": "Agent",
+     "name": "Ayuntamiento de Zaragoza",
+     "resource": "http://datos.gob.es/recurso/sector-publico/org/Organismo/L01502973"
+    },
+    "country": {
+     "label": "Spain",
+     "id": "es",
+     "resource": "http://publications.europa.eu/resource/authority/country/ESP"
+    },
+    "corporate-body-classification": {
+     "id": "_NATIONAL"
+    },
+    "catalog": {
+     "id": "datos-gob-es",
+     "title": {
+      "en": "datos.gob.es"
+     }
+    },
+    "translation_meta": {
+     "details": {
+      "nl": {
+       "machine_translated": true,
+       "original_language": "es"
+      }
+     }
+    },
+    "distributions": [
+     {
+      "media_type": "https://www.iana.org/assignments/media-types/text/wms",
+      "access_url": [
+       "https://idezar-sig.zaragoza.es/servicios/geoserver/idezar_base/wms"
+      ]
+     },
+     {
+      "media_type": "https://www.iana.org/assignments/media-types/text/wfs",
+      "access_url": [
+       "https://idezar-sig.zaragoza.es/servicios/geoserver/idezar_base/wfs?version=1.1.1&&Request=GetCapabilities"
+      ]
+     }
+    ],
+    "description": {
+     "es": "Descripcion registrada, recortada (no debe aparecer en el candidato)."
+    }
+   },
+   {
+    "id": "2qzlgd8k6yhtlptfq7g9tg",
+    "title": {
+     "en": "Rail passenger traffic - ENP-South countries"
+    },
+    "publisher": {
+     "resource": "http://publications.europa.eu/resource/authority/corporate-body/ESTAT",
+     "name": "Eurostat",
+     "type": "http://publications.europa.eu/resource/authority/corporate-body-classification/DIR_GEN"
+    },
+    "country": {
+     "resource": "http://publications.europa.eu/resource/authority/continent/EUROPE",
+     "label": "Europe",
+     "id": "EUROPE"
+    },
+    "corporate-body-classification": {
+     "id": "DIR_GEN"
+    },
+    "catalog": {
+     "id": "estat",
+     "title": {
+      "en": "Eurostat"
+     }
+    },
+    "translation_meta": {
+     "details": {}
+    },
+    "distributions": [
+     {
+      "license": {
+       "resource": "http://spdx.org/licenses/CC-BY-4.0",
+       "description": "Creative Commons Attribution 4.0 International",
+       "id": "CC_BY_4_0",
+       "label": "Creative Commons Attribution 4.0 International"
+      },
+      "byte_size": 2112,
+      "media_type": "application/xml",
+      "access_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/enps_rail_pa?format=sdmx_2.1_structured&compressed=true"
+      ],
+      "format": {
+       "id": "XML",
+       "format_types": [
+        {
+         "id": "structured"
+        },
+        {
+         "id": "textual"
+        }
+       ]
+      },
+      "download_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/enps_rail_pa?format=sdmx_2.1_structured&compressed=true"
+      ]
+     },
+     {
+      "license": {
+       "resource": "http://spdx.org/licenses/CC-BY-4.0",
+       "description": "Creative Commons Attribution 4.0 International",
+       "id": "CC_BY_4_0",
+       "label": "Creative Commons Attribution 4.0 International"
+      },
+      "byte_size": 5445,
+      "media_type": "application/xml",
+      "access_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/enps_rail_pa?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true"
+      ],
+      "download_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/enps_rail_pa?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true"
+      ],
+      "format": {
+       "id": "XML",
+       "format_types": [
+        {
+         "id": "structured"
+        },
+        {
+         "id": "textual"
+        }
+       ]
+      }
+     },
+     {
+      "license": {
+       "resource": "http://spdx.org/licenses/CC-BY-4.0",
+       "description": "Creative Commons Attribution 4.0 International",
+       "id": "CC_BY_4_0",
+       "label": "Creative Commons Attribution 4.0 International"
+      },
+      "media_type": "text/tab-separated-values",
+      "byte_size": 959,
+      "access_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/enps_rail_pa?format=tsv&compressed=true"
+      ],
+      "download_url": [
+       "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/enps_rail_pa?format=tsv&compressed=true"
+      ],
+      "format": {
+       "id": "TSV",
+       "format_types": [
+        {
+         "id": "tabular"
+        },
+        {
+         "id": "textual"
+        }
+       ]
+      }
+     }
+    ],
+    "description": {
+     "es": "Descripcion registrada, recortada (no debe aparecer en el candidato)."
+    },
+    "language": [
+     {
+      "id": "en",
+      "resource": "http://publications.europa.eu/resource/authority/language/ENG"
+     }
+    ]
+   }
+  ]
+ }
+}

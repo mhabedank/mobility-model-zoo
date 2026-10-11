@@ -1,0 +1,40 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "pages": [
+      {
+        "pageid": 1000004, "ns": 6, "title": "File:Bicicletas en la plaza (2015).jpg", "index": 4,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 251000, "width": 1080, "height": 810,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Bicicletas_en_la_plaza_%282015%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Bicicletas_en_la_plaza_(2015).jpg",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000004",
+          "extmetadata": {
+            "Categories": {"value": "Patrimonio gráfico de Ciudad X|Bicycles in Spain", "source": "commons-categories", "hidden": ""},
+            "Artist": {"value": "Uploader A", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "Some custom permission", "source": "commons-desc-page", "hidden": ""}
+          },
+          "mime": "image/jpeg"
+        }]
+      },
+      {
+        "pageid": 1000005, "ns": 6, "title": "File:Ciclismo urbano en Buenos Aires.jpg", "index": 5,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 402311, "width": 2048, "height": 1365,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Ciclismo_urbano_en_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Ciclismo_urbano_en_Buenos_Aires.jpg",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000005",
+          "extmetadata": {
+            "Categories": {"value": "EcoBici (Buenos Aires)|Urban cycling", "source": "commons-categories", "hidden": ""},
+            "Artist": {"value": "Uploader A", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "CC BY 2.5 ar", "source": "commons-desc-page", "hidden": ""},
+            "LicenseUrl": {"value": "https://creativecommons.org/licenses/by/2.5/ar/deed.en", "source": "commons-desc-page"}
+          },
+          "mime": "image/jpeg"
+        }]
+      }
+    ]
+  }
+}

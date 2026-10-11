@@ -69,6 +69,15 @@ edge-train = [
     "pandas>=2.2",
     "pyarrow>=17",
 ]
+# Mobility resource index (`zoo catalog`, feature 009): entries live in a private repository
+catalog = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+    "typer>=0.12",
+    "httpx>=0.27",
+    "rapidfuzz>=3.14.6",
+    "python-dotenv>=1.0",
+]
 # Hosted reference labeling through the Anthropic API (feature 006; not used without a DPA)
 labeling-api = [
     "anthropic>=0.69",
@@ -92,6 +101,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mobility_model_zoo"]
+
+# The catalog's checks need the compliance lists (licence allow-list, AI agents, deny lists, AI
+# preference labels) without a checkout of this repository (catalog repository CI, feature 009).
+[tool.hatch.build.targets.wheel.force-include]
+"compliance/lists" = "mobility_model_zoo/catalog/data/lists"
 
 # CPU-only torch on Linux (CI runners, the reference VM); macOS wheels are CPU/MPS anyway.
 [[tool.uv.index]]

@@ -1,0 +1,44 @@
+# Judgment fields that harvesters cannot assess, set by documented defaults (analysis U2,
+# research R6). The discovery agent and the owner may refine them per entry.
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial defaults, reason: feature 009 analysis U2}
+personal_data:  # by genre; a genre not listed gets `possible` with no categories
+  gtfs: {expectation: none, categories: []}
+  gtfs_rt: {expectation: none, categories: []}
+  table: {expectation: none, categories: []}
+  spreadsheet: {expectation: none, categories: []}
+  database: {expectation: possible, categories: []}
+  api: {expectation: possible, categories: []}
+  feed: {expectation: none, categories: []}
+  geodata: {expectation: none, categories: []}
+  time_series: {expectation: none, categories: []}
+  sensor_data: {expectation: none, categories: []}
+  json_xml_dump: {expectation: possible, categories: []}
+  statistics_publication: {expectation: none, categories: []}
+  standard: {expectation: none, categories: []}
+  law: {expectation: none, categories: []}
+  paper: {expectation: possible, categories: [names]}
+  report: {expectation: possible, categories: [names]}
+  article: {expectation: possible, categories: [names]}
+  book: {expectation: possible, categories: [names]}
+  transcript: {expectation: present, categories: [names]}
+  forum_thread: {expectation: present, categories: [names, user handles]}
+  podcast: {expectation: present, categories: [voices, names]}
+  speech_recording: {expectation: present, categories: [voices, names]}
+  radio_programme: {expectation: present, categories: [voices, names]}
+  hearing: {expectation: present, categories: [voices, faces, names]}
+  lecture: {expectation: present, categories: [voices, faces, names]}
+  talk: {expectation: present, categories: [voices, faces, names]}
+  documentary: {expectation: present, categories: [voices, faces]}
+  news_video: {expectation: present, categories: [voices, faces]}
+  explainer: {expectation: possible, categories: [voices]}
+  photo: {expectation: possible, categories: [faces]}
+  map: {expectation: none, categories: []}
+  satellite_image: {expectation: none, categories: []}
+  chart: {expectation: none, categories: []}
+  infographic: {expectation: none, categories: []}
+  diagram: {expectation: none, categories: []}
+quality:
+  score: 3
+  rationale: "harvested from {catalogue}; authority: {kind}; relevance and density not assessed"
