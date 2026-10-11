@@ -182,3 +182,7 @@ Compared with "Link inventory before" (SC-006):
 - **picket-forest**: removed `#interface`; added `#details`, `#limits`, `#metrics`, `#quality`, `#reference`, `#versions`, `https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/topics/security/tasks/can-ids.md`, `https://github.com/mhabedank/mobility-model-zoo/tree/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0`.
 
 Assessment: no document or external target was removed. `#interface` is no longer a hero button (replaced by Limits and Details), and the anchor still resolves (check D5). The scout-large footnotes `#fn-8` and `#fn-9` belonged to numbers that the shortened differentiators no longer quote; those numbers remain in the charts and the metric tables.
+
+## Golden cards (T061)
+
+Regenerated on 2026-10-11 with `ZOO_UPDATE_GOLDEN=1` (`sandbox-pipeline-tiny`, `edge-fixture-tiny`, and `edge-fixture-forest` with `uv run --with scikit-learn --with emlearn`). Automated review of each diff against `HEAD`: the head of the card and the set of sections are unchanged, every number is unchanged, and the sections follow `card.SECTIONS` of [contracts/card-order.md](contracts/card-order.md). The only content change is the status sentence "Experimental: not ready for production use." at the top of "Limitations and risks", generated from the release status. The fixtures have no short forms, so no "Not for" list or short limits appear; that path is covered by `test_card_short_forms_under_summary_and_on_top_of_the_limits`.

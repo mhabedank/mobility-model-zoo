@@ -246,6 +246,36 @@ def load_pitch(reg: Registry, name: str) -> dict[str, Any]:
     return data
 
 
+def budget_errors(name: str, pitch: dict[str, Any]) -> list[str]:
+    """Depth budgets of the hand-written website text (feature 013, gate rule 17, site check D2)."""
+    b = budgets
+    errors = []
+    diffs = pitch.get("differentiators", [])
+    lo, hi = b.DIFFERENTIATORS
+    if not lo <= len(diffs) <= hi:
+        errors.append(f"D2 {name}: {len(diffs)} differentiators, needs {lo} to {hi}")
+    for i, d in enumerate(diffs):
+        if b.words(d["title"]) > b.DIFFERENTIATOR_TITLE_WORDS:
+            errors.append(
+                f"D2 {name}: differentiators[{i}].title has {b.words(d['title'])} words, "
+                f"limit {b.DIFFERENTIATOR_TITLE_WORDS}"
+            )
+        if b.words(d["text"]) > b.DIFFERENTIATOR_TEXT_WORDS:
+            errors.append(
+                f"D2 {name}: differentiators[{i}].text has {b.words(d['text'])} words, "
+                f"limit {b.DIFFERENTIATOR_TEXT_WORDS}"
+            )
+    audience = pitch.get("audience", "")
+    if b.words(audience) > b.AUDIENCE_WORDS:
+        errors.append(f"D2 {name}: audience has {b.words(audience)} words, limit {b.AUDIENCE_WORDS}")
+    texts = [("tagline", pitch.get("tagline", "")), ("audience", audience)]
+    texts += [(f"differentiators[{i}]", f"{d['title']} {d['text']}") for i, d in enumerate(diffs)]
+    for key, text in texts:
+        if m := b.STATUS_WORDS.search(text or ""):
+            errors.append(f"D4 {name}: site.yaml {key} states a release status ({m.group(0)!r})")
+    return errors
+
+
 def pitch_errors(reg: Registry, name: str, version: str) -> list[str]:
     """Everything that would stop the site build for this model at this version. The release gate
     (rule 17) runs it before a publish, so a published release always builds (FR-005)."""
@@ -263,6 +293,7 @@ def pitch_errors(reg: Registry, name: str, version: str) -> list[str]:
             except GateFailed as e:
                 errors += e.failures
     errors += og.share_line_errors(name, *og.share_line(pitch))
+    errors += budget_errors(name, pitch)
     fmt = reg.record_raw(name, version).get("output_format_version")
     if fmt and not (reg.zoo / "formats" / f"{fmt}.yaml").exists():
         errors.append(f"B5 {name}: output format {fmt} has no zoo/formats/{fmt}.yaml")

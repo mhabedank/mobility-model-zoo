@@ -93,3 +93,44 @@ def test_figures_link_the_release_tag_and_must_exist(zoo_env):
     with pytest.raises(GateFailed) as exc:
         gate.run(lambda line: None)
     assert any("figure docs/figures/speed.png is not in the repository" in f for f in exc.value.failures)
+
+
+# ---- feature 013: short forms on the card ------------------------------------------------------
+def _section(card: str, title: str) -> str:
+    return card.split(f"## {title}\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_card_without_short_forms_renders_the_status_sentence_only(zoo_env):
+    """model.yaml of an older tag has no short forms: no 'Not for', no short limits, no error."""
+    card = cards.render(cards.CardInput(zoo_env.reg, zoo_env.model, zoo_env.version))
+    assert "**Not for:**" not in card
+    limits = _section(card, "Limitations and risks")
+    assert limits.lstrip().startswith("**Experimental: not ready for production use.**")
+    assert "Not met yet" not in limits and "Known limits in short" not in limits
+
+
+def test_card_short_forms_under_summary_and_on_top_of_the_limits(zoo_env):
+    model = zoo_env.reg.model_raw(zoo_env.model)
+    model["card"].update(
+        not_for=["Production use", "Texts outside mobility"],
+        limits_short=["Seed {metric:quality.schema_valid_rate} only."],
+        unmet_criteria=[
+            {
+                "criterion": "Schema validity",
+                "measured": "{metric:quality.schema_valid_rate}",
+                "target": {"op": ">=", "value": 2, "unit": "", "source": "docs/adding-a-model.md"},
+            },
+            {"criterion": "Real weights", "note": "random weights"},
+        ],
+    )
+    card = cards.render(cards.CardInput(zoo_env.reg, zoo_env.model, zoo_env.version, model=model))
+    summary = _section(card, "Summary")
+    assert "**Not for:**" in summary and "- Texts outside mobility" in summary
+    limits = _section(card, "Limitations and risks")
+    assert (
+        limits.index("Not met yet")
+        < limits.index("Known limits in short")
+        < limits.index("All limitations")
+    )
+    assert "- **Real weights**: random weights" in limits
+    assert "(target ≥ 2)" in limits and "{metric:" not in card

@@ -45,3 +45,25 @@ def test_status_words():
     assert budgets.STATUS_WORDS.search("An Experimental detector")
     assert budgets.STATUS_WORDS.search("not production ready")
     assert not budgets.STATUS_WORDS.search("A detector for experiments")
+
+
+def test_words_before_quality_on_the_fixture_page(built):
+    from site_fixture import MODEL
+
+    from mobility_model_zoo.site import depth
+
+    root = budgets.tree(built.html(f"models/{MODEL}/index.html"))
+    assert 0 < depth.words_before_quality(root) <= budgets.WORDS_BEFORE_QUALITY
+    assert list(depth.check_words_before_quality(built.reg, built.out)) == []
+
+
+def test_long_tagline_and_audience_break_the_page_budget(site_env):
+    from site_fixture import MODEL
+
+    from mobility_model_zoo.site import depth
+
+    filler = " ".join(["word"] * 100)
+    site_env.edit_yaml(f"zoo/models/{MODEL}/site.yaml", lambda s: s.update(audience=filler))
+    site_env.build()
+    found = list(depth.check_words_before_quality(site_env.reg, site_env.out))
+    assert any("before the quality layer" in f[2] for f in found)

@@ -85,3 +85,19 @@ def test_output_format_without_documentation_fails(reg):
     assert "B5 scout-large: output format jtbd-span-v9 has no zoo/formats/jtbd-span-v9.yaml" in rule_17(
         reg
     )
+
+
+# ---- feature 013: depth budgets of the website text ---------------------------------------------
+@pytest.mark.parametrize(
+    "mutate, needle",
+    [
+        (lambda p: p["differentiators"][0].update(text=" ".join(["w"] * 21)), "differentiators[0].text"),
+        (lambda p: p["differentiators"][0].update(title="one two three four five six"), "title"),
+        (lambda p: p.update(audience=" ".join(["w"] * 26)), "audience"),
+        (lambda p: p["differentiators"].append({"title": "Five", "text": "five"}), "differentiators"),
+        (lambda p: p.update(tagline="An experimental extractor."), "release status"),
+    ],
+)
+def test_depth_budgets_of_the_site_text(reg, mutate, needle):
+    edit(reg, mutate)
+    assert any(needle in f for f in rule_17(reg))

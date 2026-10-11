@@ -286,3 +286,25 @@ def check_order(reg: Registry, out: Path) -> Iterable[Finding]:
         rel, root = _page(out, sm["name"])
         if root is not None:
             yield from order_findings(rel, root)
+
+
+# ---- D2 over the page: words before the quality layer (SC-004) ----------------------------------
+def words_before_quality(root: b.Node) -> int:
+    total = 0
+    for layer in b.layers(root):
+        if layer.get("data-layer") == "quality":
+            break
+        total += b.visible_words(layer)
+    return total
+
+
+def check_words_before_quality(reg: Registry, out: Path) -> Iterable[Finding]:
+    for sm in _published(reg):
+        rel, root = _page(out, sm["name"])
+        if root is None:
+            continue
+        n = words_before_quality(root)
+        if n > b.WORDS_BEFORE_QUALITY:
+            yield Finding(
+                "D2", rel, f"{n} words before the quality layer, limit {b.WORDS_BEFORE_QUALITY}"
+            )

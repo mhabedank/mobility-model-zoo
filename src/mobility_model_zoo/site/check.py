@@ -624,6 +624,7 @@ def run_checks(
         ("D3", lambda: depth.check_limits(reg, out)),
         ("D3", lambda: depth.check_code_order(reg, out)),
         ("D5", lambda: depth.check_order(reg, out)),
+        ("D2", lambda: depth.check_words_before_quality(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))
