@@ -29,14 +29,17 @@ def build_cmd(
     out: Path = OUT,
     offline: bool = typer.Option(False, "--offline", help="Use cached example outputs only."),
     refresh: bool = typer.Option(False, "--refresh-examples", help="Ignore the example cache."),
+    images: bool = typer.Option(
+        True, "--images/--no-images", help="Draw the preview images (needs Playwright)."
+    ),
 ) -> None:
-    """Render every page from the registry into the output directory."""
+    """Render every page and its preview image from the registry into the output directory."""
 
     def fn() -> None:
         from mobility_model_zoo.release.cli import _registry
         from mobility_model_zoo.site.build import build
 
-        build(_registry(), out, offline=offline, refresh=refresh, say=say)
+        build(_registry(), out, offline=offline, refresh=refresh, say=say, images=images)
 
     _run(fn)
 

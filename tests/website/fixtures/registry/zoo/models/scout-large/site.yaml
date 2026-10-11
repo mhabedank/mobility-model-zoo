@@ -2,6 +2,7 @@
 # Numbers only as {metric:<kind>.<name>} placeholders: they resolve against the results of the
 # latest release, so this text stays true after the next release (checks B2, F2; gate rule 17).
 tagline: Finds jobs, pains and gains in mobility texts and quotes each one verbatim, on your own machine.
+share_line: Finds jobs, pains and gains in mobility texts, each with a verbatim quote.
 audience: >-
   For product managers, UX researchers and ML engineers in mobility who read interviews, forum
   posts, reviews and studies and want the evidence in them as structured, checkable data.

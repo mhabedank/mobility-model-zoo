@@ -9,6 +9,12 @@
     "title": {"type": "string", "minLength": 1},
     "canonical_url": {"type": "string", "format": "uri", "pattern": "^https://.+/$"},
     "tagline": {"type": "string", "minLength": 1},
+    "share_line": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 90,
+      "description": "The line on the start page's preview image; no numbers. If absent, the tagline is used and must meet the same rules (check B6)."
+    },
     "lead": {"type": "string", "minLength": 1},
     "values": {
       "type": "array",
