@@ -155,4 +155,5 @@ def test_cached_gzip_robots_is_decoded_once():
 
     client = checks.make_client(httpx.MockTransport(handler), checks.Throttle(sleep=lambda s: None))
     assert client.get("https://gz.example.org/robots.txt").text.startswith("User-agent")
-    assert client.get("https://gz.example.org/robots.txt").text.startswith("User-agent")  # from the cache
+    cached = client.get("https://gz.example.org/robots.txt")
+    assert cached.text.startswith("User-agent")

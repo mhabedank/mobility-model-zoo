@@ -99,8 +99,11 @@ class CachingTransport(httpx.BaseTransport):
             response = self.inner.handle_request(request)
         if cacheable:
             body = response.read()  # decoded: drop the encoding headers so it is not decoded twice
-            headers = {k: v for k, v in response.headers.items()
-                       if k.lower() not in ("content-encoding", "content-length", "transfer-encoding")}
+            headers = {
+                k: v
+                for k, v in response.headers.items()
+                if k.lower() not in ("content-encoding", "content-length", "transfer-encoding")
+            }
             response.close()
             with self.lock:
                 self.cache[key] = (response.status_code, headers, body)
