@@ -40,3 +40,16 @@ def test_injected_faults_are_found(built):
     ids = {f[0] for f in run(built)}
     assert {"P2", "A3", "A4"} <= ids
     assert "A1" in ids  # the muted-on-highlight pair fails contrast in dark mode (research R9)
+
+
+def test_a2_field_table_on_the_format_page_and_link_on_the_model_page(built):
+    """Feature 013: the field table moved to the format page; the model page links it."""
+    from site_fixture import MODEL
+
+    fmt = built.out / "formats" / "jtbd-span-v1" / "index.html"
+    fmt.write_text(fmt.read_text().replace('class="tbl"', 'class="x"'))
+    model = built.out / "models" / MODEL / "index.html"
+    model.write_text(model.read_text().replace('/formats/jtbd-span-v1/"', '/elsewhere/"'))
+    found = [f for f in run(built) if f[0] == "A2"]
+    assert any(f[1].startswith("formats/") and "field table" in f[2] for f in found)
+    assert any(f[1].startswith("models/") and "output format" in f[2] for f in found)

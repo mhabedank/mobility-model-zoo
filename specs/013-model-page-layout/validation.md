@@ -160,3 +160,25 @@ Every distinct `href` on the page (input for SC-006).
 - `https://huggingface.co/mobility-model-zoo/picket-forest`
 - `https://huggingface.co/mobility-model-zoo/picket-forest/tree/9d5beab03ad2cc57e4cdfca7bcf6a3dd3679144c`
 - `https://miskatonic-analytics.com/imprint.html`
+
+## After the change
+
+Measured on 2026-10-11 on a local build of this branch after US1–US5, same method as the baseline. Raw data: [measure-after.json](measure-after.json).
+
+| Model | Viewport | First quality figure (screen) before → after | Limits (screen) before → after | Page (screens) before → after |
+|---|---|---|---|---|
+| scout-large | 1440x900 | 9 → 1.6 | 10.1 → 2.7 | 14 → 16.7 |
+| scout-large | 390x844 | 15.6 → 2.8 | 17.8 → 5.1 | 25.1 → 32 |
+| picket-forest | 1440x900 | 6.1 → 1.5 | 6.5 → 1.9 | 10 → 12.1 |
+| picket-forest | 390x844 | 11.6 → 2.5 | 12.5 → 3.4 | 19.9 → 23.8 |
+
+SC-001 (first quality figure ≤ 2 desktop screens) and SC-003 (limits ≤ 4 desktop screens) are met for both models. The page is longer than before because the full metric tables are open in the details layer.
+
+## Link inventory after
+
+Compared with "Link inventory before" (SC-006):
+
+- **scout-large**: removed `#fn-8`, `#fn-9`, `#interface`; added `#details`, `#limits`, `#metrics`, `#quality`, `#reference`, `#versions`, `https://github.com/mhabedank/mobility-model-zoo/blob/scout-large/v0.1.2/docs/recipes/productdev-jtbd-span-xlmr.md`, `https://github.com/mhabedank/mobility-model-zoo/tree/scout-large/v0.1.2/zoo/models/scout-large/results/0.1.2`.
+- **picket-forest**: removed `#interface`; added `#details`, `#limits`, `#metrics`, `#quality`, `#reference`, `#versions`, `https://github.com/mhabedank/mobility-model-zoo/blob/picket-forest/v0.2.0/topics/security/tasks/can-ids.md`, `https://github.com/mhabedank/mobility-model-zoo/tree/picket-forest/v0.2.0/zoo/models/picket-forest/results/0.2.0`.
+
+Assessment: no document or external target was removed. `#interface` is no longer a hero button (replaced by Limits and Details), and the anchor still resolves (check D5). The scout-large footnotes `#fn-8` and `#fn-9` belonged to numbers that the shortened differentiators no longer quote; those numbers remain in the charts and the metric tables.

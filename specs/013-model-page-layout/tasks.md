@@ -127,9 +127,9 @@
 
 **Independent Test**: from the top, the "Quickstart" jump link lands on `#quickstart`; the quickstart shows install, run and expected output; no `pre` or `code` block occurs before `#limits`.
 
-- [ ] T041 [P] [US4] Tests in `tests/website/test_layers_quickstart.py`: `#quickstart` is layer 4 and contains the install and run code and the expected output; the NC notice is present for an NC fixture model; no `pre` element and no `code` element outside inline text appears in a section before `#limits` (FR-023)
-- [ ] T042 [US4] Trim `src/mobility_model_zoo/site/templates/partials/quickstart.html.j2` to layer 4 content only (hardware note, NC notice, install, run, expected output); keep ids `qs-install`, `qs-run`, `qs-out` and the copy buttons
-- [ ] T043 [US4] Add the "no code before limits" rule to `check_overview` / `check_quality_layer` in `src/mobility_model_zoo/site/check.py` (finding "code before #limits")
+- [X] T041 [P] [US4] Tests in `tests/website/test_layers_quickstart.py`: `#quickstart` is layer 4 and contains the install and run code and the expected output; the NC notice is present for an NC fixture model; no `pre` element and no `code` element outside inline text appears in a section before `#limits` (FR-023)
+- [X] T042 [US4] Trim `src/mobility_model_zoo/site/templates/partials/quickstart.html.j2` to layer 4 content only (hardware note, NC notice, install, run, expected output); keep ids `qs-install`, `qs-run`, `qs-out` and the copy buttons
+- [X] T043 [US4] Add the "no code before limits" rule to `check_overview` / `check_quality_layer` in `src/mobility_model_zoo/site/check.py` (finding "code before #limits")
 
 **Checkpoint**: layers 1–4 follow the owner's order.
 
@@ -143,17 +143,17 @@
 
 ### Tests for User Story 5
 
-- [ ] T044 [P] [US5] Tests for D5 and the layer-5 part of D3 in `tests/website/test_layers_reference.py`: the six `data-layer` sections exist once each in contract order; the anchors `#top`, `#why`, `#quickstart`, `#interface`, `#examples`, `#ex1`, `#quality`, `#limits`, `#metrics`, `#provenance`, `#versions`, `#cite`, `#notes`, `#fn-1` resolve; layer 5 has no field table and links `/formats/<id>/` and the JSON schema; a fixture model without examples renders no empty "Worked examples" heading; the deprecation banner of a deprecated fixture release is above `<main>` (analysis G2, G3)
-- [ ] T045 [P] [US5] Update the A2 test in `tests/website/test_browser.py` (slow): without JavaScript a model page contains the quickstart code, every example's JSON, the limitations text inside layer 3 and a link to its format page; the format page contains its field table
+- [X] T044 [P] [US5] Tests for D5 and the layer-5 part of D3 in `tests/website/test_layers_reference.py`: the six `data-layer` sections exist once each in contract order; the anchors `#top`, `#why`, `#quickstart`, `#interface`, `#examples`, `#ex1`, `#quality`, `#limits`, `#metrics`, `#provenance`, `#versions`, `#cite`, `#notes`, `#fn-1` resolve; layer 5 has no field table and links `/formats/<id>/` and the JSON schema; a fixture model without examples renders no empty "Worked examples" heading; the deprecation banner of a deprecated fixture release is above `<main>` (analysis G2, G3)
+- [X] T045 [P] [US5] Update the A2 test in `tests/website/test_browser.py` (slow): without JavaScript a model page contains the quickstart code, every example's JSON, the limitations text inside layer 3 and a link to its format page; the format page contains its field table
 
 ### Implementation for User Story 5
 
-- [ ] T046 [US5] In `src/mobility_model_zoo/site/templates/partials/metrics.html.j2` (created by T027 with the full tables) move the notes block from `model.html.j2` into it below the tables (`id="notes"`, items `fn-<N>`)
-- [ ] T047 [US5] Rewrite `src/mobility_model_zoo/site/templates/partials/interface.html.j2` to the short form: `card.input_output`, the input and guarantee lists of the format, a prominent link to `/formats/<id>/` and to the JSON schema; remove the field table include, the edge-case table and the versioning text from the model page (they stay on `format.html.j2`)
-- [ ] T048 [US5] Assemble layer 6 in `src/mobility_model_zoo/site/templates/model.html.j2`: `metrics.html.j2`, `provenance.html.j2`, `versions.html.j2`, `cite.html.j2` inside `<section id="details" data-layer="details">` with a short heading "Details and documents"
-- [ ] T049 [US5] Change check A2 in `src/mobility_model_zoo/site/a11y.py`: drop `"#interface table.tbl": "field table"` for model pages; require a link to the model's format page; add the field-table requirement for each `formats/<id>/` page; update the module docstring
-- [ ] T050 [US5] Implement D5 and the layer-5 part of D3 as `check_layer_order(out)` in `src/mobility_model_zoo/site/check.py`; register it in `run_checks`; L3 keeps its limitations link target `#limits`
-- [ ] T051 [US5] Rebuild the site, write the link inventory after the change to `specs/013-model-page-layout/validation.md` under "Link inventory after" and confirm no target from T003 is missing (SC-006); any missing target is a failing result to fix, not to accept
+- [X] T046 [US5] In `src/mobility_model_zoo/site/templates/partials/metrics.html.j2` (created by T027 with the full tables) move the notes block from `model.html.j2` into it below the tables (`id="notes"`, items `fn-<N>`)
+- [X] T047 [US5] Rewrite `src/mobility_model_zoo/site/templates/partials/interface.html.j2` to the short form: `card.input_output`, the input and guarantee lists of the format, a prominent link to `/formats/<id>/` and to the JSON schema; remove the field table include, the edge-case table and the versioning text from the model page (they stay on `format.html.j2`)
+- [X] T048 [US5] Assemble layer 6 in `src/mobility_model_zoo/site/templates/model.html.j2`: `metrics.html.j2`, `provenance.html.j2`, `versions.html.j2`, `cite.html.j2` inside `<section id="details" data-layer="details">` with a short heading "Details and documents"
+- [X] T049 [US5] Change check A2 in `src/mobility_model_zoo/site/a11y.py`: drop `"#interface table.tbl": "field table"` for model pages; require a link to the model's format page; add the field-table requirement for each `formats/<id>/` page; update the module docstring
+- [X] T050 [US5] Implement D5 and the layer-5 part of D3 as `check_layer_order(out)` in `src/mobility_model_zoo/site/check.py`; register it in `run_checks`; L3 keeps its limitations link target `#limits`
+- [X] T051 [US5] Rebuild the site, write the link inventory after the change to `specs/013-model-page-layout/validation.md` under "Link inventory after" and confirm no target from T003 is missing (SC-006); any missing target is a failing result to fix, not to accept
 
 **Checkpoint**: all six layers in place; nothing required lost.
 

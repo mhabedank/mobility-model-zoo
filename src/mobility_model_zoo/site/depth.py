@@ -222,3 +222,67 @@ def check_limits(reg: Registry, out: Path) -> Iterable[Finding]:
         rel, root = _page(out, sm["name"])
         if root is not None:
             yield from limits_findings(rel, root)
+
+
+# ---- FR-023: no code before the limits ---------------------------------------------------------
+def code_findings(rel: str, root: b.Node) -> list[Finding]:
+    out = []
+    for layer in b.layers(root):
+        if layer.get("data-layer") == "limits":
+            break
+        for n in layer.find_all(lambda n: n.tag in ("pre", "code")):
+            out.append(
+                Finding(
+                    "D3", rel, f"code before #limits: <{n.tag}> in the {layer.get('data-layer')} layer"
+                )
+            )
+    return out
+
+
+def check_code_order(reg: Registry, out: Path) -> Iterable[Finding]:
+    for sm in _published(reg):
+        rel, root = _page(out, sm["name"])
+        if root is not None:
+            yield from code_findings(rel, root)
+
+
+# ---- D5 and the fifth layer of D3 ----------------------------------------------------------------
+def order_findings(rel: str, root: b.Node) -> list[Finding]:
+    out: list[Finding] = []
+    found = [n.get("data-layer") for n in b.layers(root)]
+    if found != list(b.LAYERS):
+        out.append(Finding("D5", rel, f"layers {found}, expected {list(b.LAYERS)}"))
+    for layer, ident in b.LAYER_IDS.items():
+        node = _layer(root, layer)
+        if node is not None and node.get("id") != ident:
+            out.append(
+                Finding("D5", rel, f"layer {layer} has id {node.get('id')!r}, expected {ident!r}")
+            )
+    ids = {n.get("id") for n in root.iter() if n.get("id")}
+    anchors = list(b.ANCHORS)
+    if root.find(lambda n: (n.get("href") or "").startswith("#fn-")):
+        anchors.append("fn-1")
+    if root.find(lambda n: n.tag == "article" and "example" in n.classes):
+        anchors.append("ex1")
+    for a in anchors:
+        if a not in ids:
+            out.append(Finding("D5", rel, f"anchor #{a} does not resolve"))
+    ref = _layer(root, "reference")
+    if ref is not None:
+        interface = ref.by_id("interface")
+        if interface is not None and interface.find(lambda n: n.tag == "table"):
+            out.append(Finding("D3", rel, "reference: the interface repeats a field table"))
+        if not ref.find(lambda n: n.tag == "a" and "/formats/" in (n.get("href") or "")):
+            out.append(Finding("D3", rel, "reference: no link to the output format page"))
+        examples = ref.by_id("examples")
+        if examples is not None and not examples.find(lambda n: n.tag == "article"):
+            if "Worked examples" in examples.text():
+                out.append(Finding("D3", rel, "reference: empty 'Worked examples' heading"))
+    return out
+
+
+def check_order(reg: Registry, out: Path) -> Iterable[Finding]:
+    for sm in _published(reg):
+        rel, root = _page(out, sm["name"])
+        if root is not None:
+            yield from order_findings(rel, root)

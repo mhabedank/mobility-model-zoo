@@ -10,4 +10,14 @@
 <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">What it is</th><th scope="col">Measured on</th></tr></thead>
 <tbody>{% for r in p.performance_rows %}<tr><td class="mono"><code>{{ r.name }}</code></td><td>{{ r.value }}{% if r.unit %} {{ r.unit }}{% endif %}</td><td>{{ r.description }}</td><td>{{ r.against }}</td></tr>{% endfor %}</tbody>
 </table></div>
+{% if p.notes %}
+<div id="notes" class="stack" style="margin-top:32px">
+<h2 class="h3" id="notes-h">What the numbers are measured against</h2>
+<ol class="notes">
+{% for n in p.notes %}
+<li id="fn-{{ loop.index }}">{{ n.text }} <span class="mono">{{ n.metric }}</span> in <a href="{{ site.repo }}/blob/{{ p.latest.tag }}/{{ n.source }}">{{ n.source }}</a>.</li>
+{% endfor %}
+</ol>
+</div>
+{% endif %}
 </div></div>

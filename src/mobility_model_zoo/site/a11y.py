@@ -1,7 +1,8 @@
 """Browser checks of the website with Playwright and the vendored axe-core (contracts/checks.md):
 
 - A1: axe-core, WCAG 2.0/2.1 A and AA, every page in the light and the dark colour scheme.
-- A2: with JavaScript disabled, model pages still hold quickstart, field table, examples, limits.
+- A2: with JavaScript disabled, model pages still hold quickstart, examples, limits and a link to
+  their output format; format pages hold the field table (feature 013 moved it there).
 - A3: every image has a text alternative; every chart has a table of its values.
 - A4: keyboard: the skip link comes first, every control is reachable and shows a focus ring.
 - P2: every request goes to the local server; no page sets a cookie.
@@ -143,12 +144,17 @@ def _no_js(browser, base: str, rels: list[str]) -> list[Finding]:
     ctx = browser.new_context(java_script_enabled=False)
     page = ctx.new_page()
     for rel in rels:
+        if rel.startswith("formats/"):
+            page.goto(base + rel)
+            if not page.query_selector("table.tbl"):
+                findings.append(Finding("A2", rel, "without JavaScript: no field table (table.tbl)"))
+            continue
         if not rel.startswith("models/"):
             continue
         page.goto(base + rel)
         required = {
             "#quickstart pre": "quickstart code",
-            "#interface table.tbl": "field table",
+            '#interface a[href*="/formats/"]': "link to the output format",
             "#examples pre": "example JSON",
             "#limits .callout": "limitations",
         }
