@@ -178,7 +178,7 @@ def run_qemu(export_dir: Path, port: int = 5565, timeout: float = 180.0) -> dict
     return {"result": result, "sizes": object_sizes("esp32", _objects(export_dir)), "vectors": meta}
 
 
-def run_board(export_dir: Path, board_id: str, timeout: float = 120.0) -> dict:
+def run_board(export_dir: Path, board_id: str, timeout: float = 120.0, env: str = "esp8266") -> dict:
     import serial
 
     from mobility_model_zoo.edge.bench.config import load_lab
@@ -187,12 +187,12 @@ def run_board(export_dir: Path, board_id: str, timeout: float = 120.0) -> dict:
     board = load_lab().board(board_id)
     port = resolve_port(board)
     meta = prepare_sketch(export_dir)
-    pio("run", "-d", str(PIO_DIR), "-e", "esp8266", "-t", "upload", "--upload-port", port)
+    pio("run", "-d", str(PIO_DIR), "-e", env, "-t", "upload", "--upload-port", port)
     with serial.Serial(port, 115200, timeout=2) as ser:
         result = _read_result(lambda: ser.readline().decode(errors="replace"), timeout)
     return {
         "result": result,
-        "sizes": object_sizes("esp8266", _objects(export_dir)),
+        "sizes": object_sizes(env, _objects(export_dir)),
         "vectors": meta,
         "board": board_id,
     }
@@ -281,6 +281,9 @@ def metrics(target: str, run: dict) -> list[dict]:
             "_esp32_qemu",
         )
         note = " (emulator: not representative)"
+    elif target == "esp32":
+        hw = f"ESP32 (board {run.get('board')}), {r['cpu_mhz']} MHz, single-precision FPU"
+        origin, sfx, note = "real_board", "_esp32", ""
     elif target == "mkrzero":
         hw = f"SAMD21 Cortex-M0+ (board {run.get('board')}), {r['cpu_mhz']} MHz, no FPU"
         origin, sfx, note = "real_board", "_samd21", ""

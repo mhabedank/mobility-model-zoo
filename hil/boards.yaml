@@ -51,6 +51,12 @@ boards:
     match: {vid_pid: "2341:804f"}
     tags: [arm, cortex-m0plus]
 
+  # LilyGO LoRa32 (ESP32-D0WDQ6-V3, 240 MHz, CH9102, AXP power chip: press PWR if it stops answering).
+  - id: esp32-1
+    target: esp32
+    match: {vid_pid: "1a86:55d4"}
+    tags: [esp, xtensa, fpu]
+
   # Further boards - uncomment / adapt as you add hardware:
   # - id: esp32-1
   #   target: esp32
