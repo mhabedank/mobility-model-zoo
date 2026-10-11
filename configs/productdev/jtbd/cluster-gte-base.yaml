@@ -2,6 +2,7 @@
 # Thresholds are starting values; `jtbd cluster tune --split dev` replaces them (T032, T043, T044).
 # A real encoder or NLI model is loaded only with a pinned revision and a recorded licence basis
 # (T008); until then the stage refuses to load it.
+# Usage class: commercial (gte weights Apache-2.0, training data not named on the model card).
 name: cluster-gte-base
 encoder:
   model_id: Alibaba-NLP/gte-multilingual-base
@@ -14,13 +15,9 @@ encoder:
   normalize: true
   batch_size: 64
   max_length: 128
-nli:
-  model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
-  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
-  # Open (T008): the model itself is MIT, but its training data multilingual-NLI-26lang-2mil7
-  # includes ANLI subsets, whose licence must be checked for commercial use before this model is
-  # used. Owner decision; until then the stage refuses to load it.
-  licence_basis: null
+# Commercial line: no NLI model, so no specificity relation (every multilingual NLI model checked
+# so far was trained on XNLI or ANLI, CC BY-NC 4.0). cluster-gte-base-nli adds the relation.
+nli: null
 neighbours:
   k: 30
   candidate_floor: 0.50

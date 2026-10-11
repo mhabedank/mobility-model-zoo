@@ -180,3 +180,17 @@ def test_stage_reads_the_decision(tmp_path):
     (tmp_path / "decision.json").write_text(json.dumps({**decision, "task_stopped": True}))
     with pytest.raises(UsageError, match="task is stopped"):
         ClusterStage.from_settings(path)
+
+
+def test_tune_records_specificity_and_cluster_grids(labelled, tmp_path):
+    from mobility_model_zoo.productdev.jtbd.cluster.specificity import TableNLI
+
+    s = labelled.settings()
+    metrics.run_agreement(s, "dev")
+    out = tune.tune(s, SETTINGS, "dev", out=tmp_path / "tuned.yaml", nli=TableNLI({}))
+    tuned = yaml.safe_load((tmp_path / "tuned.yaml").read_text())
+    grid = tuned["tuning"]["specificity_grid"]
+    assert [(r["t_spec"], r["t_nli"]) for r in grid] == list(tune.SPEC_GRID)
+    assert all(r["links"] == 0 for r in grid)  # the stub NLI never entails
+    assert [r["level_1"] for r in tuned["tuning"]["cluster_grid"]] == list(tune.CLUSTER_GRID)
+    assert tuned["levels"] == [out["level_1"]]

@@ -18,7 +18,9 @@ def test_valid_result_passes(basic_result):
     assert passed(checks), [c for c in checks if not c["passed"]]
     assert names(checks, failed_only=False) == {
         "schema", "every_item_in_exactly_one_group", "quotes_identical_to_input",
-        "group_single_kind", "representative_is_member", "group_aggregates"}
+        "group_single_kind", "representative_is_member", "group_aggregates",
+        "specificity_within_kind", "parent_children_agree", "at_most_one_parent", "no_cycles",
+        "cluster_aggregates", "representative_below_node"}
 
 
 def test_changed_quote_fails(basic_result):

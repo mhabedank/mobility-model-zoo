@@ -1,0 +1,34 @@
+{
+  "benchmark_version": "cluster-v1",
+  "split": "holdout",
+  "decided_at": "2026-10-11T10:59:17.695567+00:00",
+  "criteria_sha256": "c3797974d377d1f882e2a0fd8b0d3edc8c04674a3684860ec3638a9bd77399c9",
+  "reruns_used": 1,
+  "levels": {
+    "duplicate": {
+      "value": 0.6416,
+      "threshold": 0.6,
+      "decision": "go"
+    },
+    "specificity": {
+      "value": 0.6503,
+      "threshold": 0.4,
+      "decision": "go"
+    },
+    "cluster_level_1": {
+      "value": 0.6884,
+      "threshold": 0.6,
+      "decision": "go"
+    },
+    "cluster_level_2": {
+      "value": null,
+      "threshold": 0.6,
+      "decision": "not_measured"
+    }
+  },
+  "final": true,
+  "duplicates_produced": true,
+  "specificity_produced": true,
+  "cluster_levels_produced": 1,
+  "task_stopped": false
+}

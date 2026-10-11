@@ -76,4 +76,6 @@ def decide(settings: Settings) -> dict[str, Any]:
         bench.save_manifest(settings, manifest)
     else:
         bench.set_state(settings, "decided", "every level decided")
+        # A tracked copy next to the manifest: stage settings name it with `decision:` (FR-024).
+        write_json(bench.manifest_path(settings).parent / "decision.json", result)
     return result

@@ -19,6 +19,7 @@ from mobility_model_zoo.productdev.jtbd.cluster.label import reference_runs
 from mobility_model_zoo.productdev.jtbd.cluster.metrics import (
     analysis_dir,
     candidate_pair_labels,
+    level1_partition,
     score_candidate,
 )
 from mobility_model_zoo.productdev.jtbd.cluster.stage import ClusterStage
@@ -58,14 +59,7 @@ def score(settings: Settings, settings_path: Path, encoder: Encoder | None = Non
     result = stage.run(bench.pool_sources(settings, split))
     group_of = {i["item_id"]: i["group_id"] for i in result["items"]}
     parent_of = {g["group_id"]: g.get("parent") for g in result["groups"]}
-    cluster_of = None
-    if result["clusters"]:
-        top = {}
-        for c in result["clusters"]:
-            if c["level"] == 1:
-                for child in c["children"]:
-                    top[child] = c["cluster_id"]
-        cluster_of = {i: top[g] for i, g in group_of.items() if g in top}
+    cluster_of = level1_partition(result) if result["clusters"] else None
     pairs = {p["pair_id"]: p for p in bench.load_pairs(settings, split)}
     predicted = candidate_pair_labels(pairs.values(), group_of, parent_of)
     consensus = list(read_jsonl(out / f"consensus-{split}.jsonl"))
@@ -86,8 +80,8 @@ def score(settings: Settings, settings_path: Path, encoder: Encoder | None = Non
         "statement": f"agreement with the consensus of {refs} on {settings.benchmark_version} "
                      f"({split}); not measured against human labels",
         "levels_produced": {"duplicate": True,
-                            "specificity": any(g.get("parent") for g in result["groups"]),
-                            "clusters": bool(result["clusters"])},
+                            "specificity": result["settings"]["specificity_produced"],
+                            "clusters": result["settings"]["cluster_levels_produced"]},
         **scores,
         "reference_vs_reference": {k: v.get("value") for k, v in agreement["levels"].items()},
         "deterministic_checks": result["checks"]["results"],

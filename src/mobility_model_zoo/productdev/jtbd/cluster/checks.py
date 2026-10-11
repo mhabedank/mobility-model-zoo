@@ -102,7 +102,77 @@ def check_result(result: dict[str, Any], bundle_quotes: dict[str, str] | None = 
         if got != expected:
             wrong_counts.append(gid)
     checks.append(_check("group_aggregates", wrong_counts))
+    checks += hierarchy_checks(result)
     return checks
+
+
+def hierarchy_checks(result: dict[str, Any]) -> list[dict[str, Any]]:
+    """Specificity and cluster structure (FR-009, FR-010, FR-026): a `dg-` parent has the group's
+    kind; parent and children lists agree; every node has at most one parent; no cycles; cluster
+    aggregates equal the items below; a cluster's representative is an item below it."""
+    items = {i["item_id"]: i for i in result.get("items", [])}
+    groups = {g["group_id"]: g for g in result.get("groups", [])}
+    clusters = {c["cluster_id"]: c for c in result.get("clusters", [])}
+    nodes = {**groups, **clusters}
+
+    cross_kind = [gid for gid, g in groups.items()
+                  if (g.get("parent") or "").startswith("dg-")
+                  and (g["parent"] not in groups or groups[g["parent"]]["kind"] != g["kind"])]
+
+    listed: Counter[str] = Counter(c for n in nodes.values() for c in n.get("children", []))
+    several = [nid for nid, count in listed.items() if count > 1]
+
+    disagree = []
+    for nid, node in nodes.items():
+        parent = node.get("parent")
+        if parent and (parent not in nodes or nid not in nodes[parent].get("children", [])):
+            disagree.append(nid)
+        for child in node.get("children", []):
+            if child not in nodes or nodes[child].get("parent") != nid:
+                disagree.append(nid)
+
+    cyclic = []
+    for nid in nodes:
+        seen, current = {nid}, nodes[nid].get("parent")
+        while current in nodes:
+            if current in seen:
+                cyclic.append(nid)
+                break
+            seen.add(current)
+            current = nodes[current].get("parent")
+
+    def below(nid: str, path: frozenset = frozenset()) -> tuple[list[str], list[str]]:
+        """(item ids, group ids) below a node; stops at a cycle (reported above)."""
+        if nid in path or nid not in nodes:
+            return [], []
+        node, path = nodes[nid], path | {nid}
+        item_ids = list(node.get("members", [])) if nid in groups else []
+        group_ids = [nid] if nid in groups else []
+        for child in node.get("children", []):
+            i, g = below(child, path)
+            item_ids += i
+            group_ids += g
+        return item_ids, group_ids
+
+    wrong_aggregates, bad_rep = [], []
+    for cid, cluster in clusters.items():
+        item_ids, group_ids = below(cid)
+        rule = (cluster.get("counts") or {}).get("independence_rule", "mixed")
+        expected = aggregate([items[i] for i in item_ids if i in items], rule)
+        expected["kinds"] = dict(sorted(Counter(groups[g]["kind"] for g in group_ids).items()))
+        if {k: cluster.get(k) for k in expected} != expected:
+            wrong_aggregates.append(cid)
+        if cluster.get("representative") not in item_ids:
+            bad_rep.append(cid)
+
+    return [
+        _check("specificity_within_kind", cross_kind),
+        _check("parent_children_agree", disagree),
+        _check("at_most_one_parent", several),
+        _check("no_cycles", cyclic),
+        _check("cluster_aggregates", wrong_aggregates),
+        _check("representative_below_node", bad_rep),
+    ]
 
 
 def passed(checks: list[dict[str, Any]]) -> bool:

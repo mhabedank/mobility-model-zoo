@@ -206,6 +206,33 @@ def candidate_pair_labels(pairs: Iterable[dict], group_of: dict[str, str],
     return out
 
 
+def level1_partition(result: dict[str, Any]) -> dict[str, str]:
+    """Item -> its level-1 cluster in a stage result, reached through `dg-` parents; an item whose
+    top-level group is in no level-1 cluster forms a cluster with that group alone."""
+    parent = {g["group_id"]: g["parent"] for g in result["groups"]}
+    level = {c["cluster_id"]: c["level"] for c in result["clusters"]}
+
+    def top(gid: str) -> str:
+        node = gid
+        while (parent.get(node) or "").startswith("dg-"):
+            node = parent[node]
+        above = parent.get(node)
+        return above if above and level.get(above) == 1 else node
+
+    return {i["item_id"]: top(i["group_id"]) for i in result["items"]}
+
+
+def set_bcubed(cluster_of: dict[str, str], sets: dict[str, list[str]],
+               reference_sets: dict[str, dict[str, dict]]) -> tuple[float, int]:
+    """Mean B-cubed F1 of a candidate partition against each reference's partition of each set."""
+    values = []
+    for set_id, items in sorted(sets.items()):
+        pred = {i: cluster_of[i] for i in items if i in cluster_of}
+        refs = [partition(r[set_id]["clusters"]) for r in reference_sets.values() if set_id in r]
+        values += [bcubed(pred, ref)[2] for ref in refs]
+    return (_mean_stat(values) if values else math.nan), len(values)
+
+
 def score_candidate(predicted: dict[str, str], consensus_pairs: list[dict], contested: list[dict],
                     pairs: dict[str, dict], group_of: dict[str, str],
                     sets: dict[str, list[str]], cluster_of: dict[str, str] | None,
@@ -229,13 +256,8 @@ def score_candidate(predicted: dict[str, str], consensus_pairs: list[dict], cont
                        [DIRECTION[spec_gold[p]] for p in spec_pairs]) if spec_pairs else math.nan
     levels["specificity"] = {**specificity_prf(predicted, spec_gold), "kappa": _r(spec_kappa)}
     if cluster_of is not None:
-        values = []
-        for set_id, items in sorted(sets.items()):
-            pred = {i: cluster_of[i] for i in items if i in cluster_of}
-            refs = [partition(r[set_id]["clusters"]) for r in reference_sets.values() if set_id in r]
-            values += [bcubed(pred, ref)[2] for ref in refs]
-        levels["cluster_level_1"] = {"bcubed_f1": _r(_mean_stat(values) if values else math.nan),
-                                     "n": len(values)}
+        value, n = set_bcubed(cluster_of, sets, reference_sets)
+        levels["cluster_level_1"] = {"bcubed_f1": _r(value), "n": n}
     for level, value_key in (("duplicate", "kappa"), ("specificity", "kappa"),
                              ("cluster_level_1", "bcubed_f1")):
         if level not in levels:

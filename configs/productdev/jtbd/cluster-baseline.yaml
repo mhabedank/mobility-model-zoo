@@ -2,6 +2,8 @@
 # Thresholds are starting values; `jtbd cluster tune --split dev` replaces them (T032, T043, T044).
 # A real encoder or NLI model is loaded only with a pinned revision and a recorded licence basis
 # (T008); until then the stage refuses to load it.
+# Usage class: non-commercial. e5 was fine-tuned on MS MARCO and Quora (non-commercial terms), and
+# the NLI model is non-commercial too (compliance/third-party-models.yaml).
 name: cluster-baseline
 encoder:
   model_id: intfloat/multilingual-e5-base
@@ -16,10 +18,11 @@ encoder:
 nli:
   model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
   revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
-  # Open (T008): the model itself is MIT, but its training data multilingual-NLI-26lang-2mil7
-  # includes ANLI subsets, whose licence must be checked for commercial use before this model is
-  # used. Owner decision; until then the stage refuses to load it.
-  licence_basis: null
+  # Non-commercial (constitution 2.1.0, principle VI): the weights are MIT, but the training data
+  # includes XNLI and ANLI (CC BY-NC 4.0); see compliance/third-party-models.yaml. A result with
+  # specificity links from this model is non-commercial. Owner decision 2026-10-11: measure the
+  # non-commercial line next to the commercial one.
+  licence_basis: "MIT weights; training data XNLI and ANLI CC BY-NC 4.0, so non-commercial (checked 2026-10-10)"
 neighbours:
   k: 30
   candidate_floor: 0.50

@@ -120,6 +120,17 @@ def check_cmd(map_dir: Path = typer.Option(..., "--map", help="Map directory"),
     _plain(go)
 
 
+@app.command("report")
+def report_cmd(map_dir: Path = typer.Option(..., "--map", help="Map directory with result.json"),
+               out: Path = typer.Option(None, "--out", help="Directory for the views "
+                                                            "(default: the map directory)")
+               ) -> None:
+    """tree.md (opportunity tree) and needs.csv (groups by kind), rendered from result.json."""
+    from mobility_model_zoo.productdev.jtbd.cluster.report import write_report
+
+    _plain(lambda: write_report(map_dir, out))
+
+
 # ---- building and measuring (user story 2; global --config cluster-v1.yaml) ----------------------
 
 bench_app = typer.Typer(no_args_is_help=True, help="Benchmark cluster-v1: pool, pairs and sets")
