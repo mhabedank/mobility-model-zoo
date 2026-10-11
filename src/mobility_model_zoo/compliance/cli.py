@@ -89,8 +89,10 @@ def usage_cmd(
         else:
             for row in rows:
                 state = "BLOCKED" if row["findings"] else "ok"
-                print(f"{row['model']}  declared {row['declared']}  derived {row['derived']}  "
-                      f"licence {row['licence']}  {state}")
+                print(
+                    f"{row['model']}  declared {row['declared']}  derived {row['derived']}  "
+                    f"licence {row['licence']}  {state}"
+                )
                 for i in row["restricting_inputs"]:
                     print(f"  {i['restriction']}: {i['kind']} {i['id']} ({i['licence']})")
                 for f in row["findings"]:

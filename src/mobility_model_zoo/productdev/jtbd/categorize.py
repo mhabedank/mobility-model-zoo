@@ -34,8 +34,7 @@ SEED_CATEGORIES = {
     "reference_a_clearly_wrong": "The Claude reference is clearly wrong",
 }
 CONTEXT_CHARS = 200
-FIELDS = ["id", "chunk_id", "dimensions", "quote", "context", "value_a", "value_b", "category",
-          "note"]
+FIELDS = ["id", "chunk_id", "dimensions", "quote", "context", "value_a", "value_b", "category", "note"]
 
 
 def _paths(settings: Settings) -> dict[str, Path]:
@@ -78,17 +77,19 @@ def export_review(settings: Settings) -> dict[str, Any]:
         writer.writeheader()
         for entry in contested:
             prior = done.get(entry["id"], {})
-            writer.writerow({
-                "id": entry["id"],
-                "chunk_id": entry["chunk_id"],
-                "dimensions": ",".join(entry["dimensions"]),
-                "quote": entry.get("quote", ""),
-                "context": _context(chunks[entry["chunk_id"]].text, entry.get("span")),
-                "value_a": entry["values"].get("a"),
-                "value_b": entry["values"].get("b"),
-                "category": prior.get("category", ""),
-                "note": prior.get("note", ""),
-            })
+            writer.writerow(
+                {
+                    "id": entry["id"],
+                    "chunk_id": entry["chunk_id"],
+                    "dimensions": ",".join(entry["dimensions"]),
+                    "quote": entry.get("quote", ""),
+                    "context": _context(chunks[entry["chunk_id"]].text, entry.get("span")),
+                    "value_a": entry["values"].get("a"),
+                    "value_b": entry["values"].get("b"),
+                    "category": prior.get("category", ""),
+                    "note": prior.get("note", ""),
+                }
+            )
     return {"exported": len(contested), "path": str(path)}
 
 
@@ -106,11 +107,15 @@ def import_review(settings: Settings, csv_path: Path) -> dict[str, Any]:
             if row["id"] not in known:
                 errors.append(f"unknown contested id {row['id']}")
             elif category not in allowed:
-                errors.append(f"{row['id']}: unknown category {category!r} (add it to "
-                              f"categories.yaml first)")
+                errors.append(
+                    f"{row['id']}: unknown category {category!r} (add it to categories.yaml first)"
+                )
             else:
-                current[row["id"]] = {"id": row["id"], "category": category,
-                                      "note": (row.get("note") or "").strip()}
+                current[row["id"]] = {
+                    "id": row["id"],
+                    "category": category,
+                    "note": (row.get("note") or "").strip(),
+                }
     if errors:
         raise ValidationFailed(f"{len(errors)} problem(s): {errors[:10]}")
     write_jsonl(_paths(settings)["assignments"], [current[k] for k in sorted(current)])
@@ -138,13 +143,14 @@ def summarize(settings: Settings) -> dict[str, Any]:
 def check_categories(settings: Settings) -> dict[str, Any]:
     result = summarize(settings)
     if result["uncategorized"]:
-        raise ValidationFailed(f"{len(result['uncategorized'])} contested entries without a "
-                               f"category, e.g. {result['uncategorized'][:5]}")
+        raise ValidationFailed(
+            f"{len(result['uncategorized'])} contested entries without a "
+            f"category, e.g. {result['uncategorized'][:5]}"
+        )
     return result
 
 
-def export_freetext_sample(settings: Settings, size: int = 30, seed: int = 20260925
-                           ) -> dict[str, Any]:
+def export_freetext_sample(settings: Settings, size: int = 30, seed: int = 20260925) -> dict[str, Any]:
     """Stratified sample of matched pairs showing actor and statement from both references."""
     consensus, _, meta = load_consensus(settings, "main")
     run_a, run_b = meta["reference_runs"]
@@ -167,11 +173,31 @@ def export_freetext_sample(settings: Settings, size: int = 30, seed: int = 20260
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
-        writer.writerow(["item_key", "chunk_id", "quote", "actor_a", "actor_b", "statement_a",
-                         "statement_b", "systematic_divergence_note"])
+        writer.writerow(
+            [
+                "item_key",
+                "chunk_id",
+                "quote",
+                "actor_a",
+                "actor_b",
+                "statement_a",
+                "statement_b",
+                "systematic_divergence_note",
+            ]
+        )
         for c in picked:
             a = out_a[c["chunk_id"]].items[c["refs"]["a"]]
             b = out_b[c["chunk_id"]].items[c["refs"]["b"]]
-            writer.writerow([c["item_key"], c["chunk_id"], c["quote"], a.actor, b.actor,
-                             a.statement, b.statement, ""])
+            writer.writerow(
+                [
+                    c["item_key"],
+                    c["chunk_id"],
+                    c["quote"],
+                    a.actor,
+                    b.actor,
+                    a.statement,
+                    b.statement,
+                    "",
+                ]
+            )
     return {"sampled": len(picked), "path": str(path)}

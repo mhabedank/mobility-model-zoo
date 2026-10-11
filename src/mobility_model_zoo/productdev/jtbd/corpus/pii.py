@@ -80,11 +80,18 @@ Text:
 
 
 def ask(base_url: str, model: str, text: str, timeout: float = 600) -> dict[str, Any]:
-    response = httpx.post(f"{base_url}/api/chat", timeout=timeout, json={
-        "model": model, "stream": False, "think": False, "format": SCHEMA,
-        "options": {"temperature": 0, "num_ctx": 16384},
-        "messages": [{"role": "user", "content": PROMPT + text}],
-    })
+    response = httpx.post(
+        f"{base_url}/api/chat",
+        timeout=timeout,
+        json={
+            "model": model,
+            "stream": False,
+            "think": False,
+            "format": SCHEMA,
+            "options": {"temperature": 0, "num_ctx": 16384},
+            "messages": [{"role": "user", "content": PROMPT + text}],
+        },
+    )
     if response.status_code >= 400:
         raise BackendFailure(f"Ollama answered {response.status_code}: {response.text[:200]}")
     content = response.json().get("message", {}).get("content", "")
@@ -92,9 +99,16 @@ def ask(base_url: str, model: str, text: str, timeout: float = 600) -> dict[str,
         data = json.loads(content)
     except ValueError as exc:
         raise BackendFailure(f"model answer is not JSON: {content[:200]}") from exc
-    return {"findings": [f for f in data.get("findings", [])
-                         if isinstance(f, dict) and f.get("category") in PLACEHOLDERS
-                         and isinstance(f.get("text"), str) and f["text"].strip()]}
+    return {
+        "findings": [
+            f
+            for f in data.get("findings", [])
+            if isinstance(f, dict)
+            and f.get("category") in PLACEHOLDERS
+            and isinstance(f.get("text"), str)
+            and f["text"].strip()
+        ]
+    }
 
 
 def _is_placeholder(needle: str) -> bool:
@@ -108,9 +122,13 @@ def _pattern(needle: str) -> re.Pattern[str]:
 
 def present_findings(text: str, findings: list[dict[str, str]]) -> list[dict[str, str]]:
     """Findings that occur in the text as whole words and are not placeholders already."""
-    return [f for f in findings
-            if len(needle := f["text"].strip()) >= 2 and not _is_placeholder(needle)
-            and _pattern(needle).search(text)]
+    return [
+        f
+        for f in findings
+        if len(needle := f["text"].strip()) >= 2
+        and not _is_placeholder(needle)
+        and _pattern(needle).search(text)
+    ]
 
 
 def apply(text: str, findings: list[dict[str, str]]) -> tuple[str, int]:
@@ -125,8 +143,9 @@ def apply(text: str, findings: list[dict[str, str]]) -> tuple[str, int]:
     return text, count
 
 
-def pii_review(settings: Settings, model_id: str, host: str | None = None,
-               only_unreviewed: bool = True, asker=None) -> dict[str, Any]:
+def pii_review(
+    settings: Settings, model_id: str, host: str | None = None, only_unreviewed: bool = True, asker=None
+) -> dict[str, Any]:
     """Review every chunk (or only the unreviewed ones) with the local model and redact."""
     from mobility_model_zoo.productdev.jtbd.labeling.ollama import resolve_host
 
@@ -148,16 +167,22 @@ def pii_review(settings: Settings, model_id: str, host: str | None = None,
             # Strings the model lists but that are not in the text are not personal data in it.
             present = present_findings(text, answer["findings"])
             new_text, count = apply(text, present)
-            passes.append({"findings": answer["findings"], "present": len(present),
-                           "replaced": count})
+            passes.append({"findings": answer["findings"], "present": len(present), "replaced": count})
             text = new_text
             if not present:
                 final_clean = True
                 break
-        write_json(out_dir / f"{chunk.chunk_id}.json", {
-            "chunk_id": chunk.chunk_id, "model": entry.model_id, "api_model": entry.api_model,
-            "reviewed_at": datetime.now(UTC).isoformat(), "passes": passes,
-            "final_clean": final_clean})
+        write_json(
+            out_dir / f"{chunk.chunk_id}.json",
+            {
+                "chunk_id": chunk.chunk_id,
+                "model": entry.model_id,
+                "api_model": entry.api_model,
+                "reviewed_at": datetime.now(UTC).isoformat(),
+                "passes": passes,
+                "final_clean": final_clean,
+            },
+        )
         totals["chunks"] += 1
         replaced = sum(p["replaced"] for p in passes)
         if replaced:

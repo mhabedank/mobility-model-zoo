@@ -190,9 +190,10 @@ def freeze_benchmark(
         "frozen_at": _now(),
     }
     if manifest.get("state") == "frozen":
-        if manifest["benchmark"]["consensus_sha256"] != block["consensus_sha256"] or manifest[
-            "benchmark"
-        ]["contested_sha256"] != block["contested_sha256"]:
+        if (
+            manifest["benchmark"]["consensus_sha256"] != block["consensus_sha256"]
+            or manifest["benchmark"]["contested_sha256"] != block["contested_sha256"]
+        ):
             raise FrozenHashMismatch(
                 f"benchmark {manifest['version']} is already frozen with a different consensus; "
                 "use `jtbd freeze --new-version`"
@@ -215,12 +216,10 @@ def verify_benchmark_frozen(settings: Settings) -> dict[str, Any]:
             "benchmark is not frozen: run `jtbd freeze --benchmark` after `jtbd consensus`"
         )
     analysis = settings.analysis_dir
-    for key, name in (("consensus_sha256", "consensus.jsonl"),
-                      ("contested_sha256", "contested.jsonl")):
+    for key, name in (("consensus_sha256", "consensus.jsonl"), ("contested_sha256", "contested.jsonl")):
         path = analysis / name
         if not path.exists() or sha256_canonical(path) != manifest["benchmark"][key]:
-            raise FrozenHashMismatch(
-                f"{name} differs from the frozen benchmark {manifest['version']}")
+            raise FrozenHashMismatch(f"{name} differs from the frozen benchmark {manifest['version']}")
     return manifest
 
 

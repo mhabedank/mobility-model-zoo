@@ -125,3 +125,46 @@ def runner() -> FakeRunner:
 def lines() -> tuple[list[str], callable]:
     out: list[str] = []
     return out, out.append
+
+
+def make_mcu_forest_env(root: Path) -> ZooEnv:
+    """The sandbox registry with the emlearn fixture `edge-fixture-forest` staged (feature 007)."""
+    import shutil
+
+    from edge_fixture_forest import NAME, staged_files, write_examples
+
+    from mobility_model_zoo.edge.paths import REPO_ROOT
+    from mobility_model_zoo.security.can_ids.scorer import SOURCES
+
+    env = make_env(root)
+    for path in SOURCES.values():  # the gate compares staged sources with the recipe commit
+        dest = root / path.relative_to(REPO_ROOT)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(path, dest)
+    files = staged_files()
+    write_examples(env.reg.model_dir(NAME), files)
+    git(root, "-c", "user.email=t@example.org", "-c", "user.name=t", "add", "-A")
+    git(root, "-c", "user.email=t@example.org", "-c", "user.name=t", "commit", "-qm", "forest sources")
+    revision = env.hub.seed(env.reg.model_raw(NAME)["repos"]["staging"], files, private=True)
+    record = env.reg.record_raw(NAME, VERSION)
+    record["files"] = [
+        {"path": p, "sha256": hashlib.sha256(b).hexdigest(), "size_bytes": len(b)}
+        for p, b in sorted(files.items())
+    ]
+    record["staging"]["revision"] = revision
+    record["recipe"]["git_commit"] = git(root, "rev-parse", "HEAD")
+    env.reg.write_record(NAME, VERSION, record)
+    env.model = NAME
+    env.files = files
+    return env
+
+
+@pytest.fixture
+def mcu_forest_env(tmp_path: Path) -> ZooEnv:
+    import shutil
+
+    pytest.importorskip("emlearn")
+    pytest.importorskip("sklearn")
+    if not (shutil.which("cc") or shutil.which("gcc")):
+        pytest.skip("needs a C compiler")
+    return make_mcu_forest_env(tmp_path)

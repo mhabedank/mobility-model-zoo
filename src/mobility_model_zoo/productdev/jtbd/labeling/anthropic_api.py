@@ -32,8 +32,9 @@ class AnthropicApiBackend:
         self.client = client or anthropic.Anthropic(timeout=float(entry.extra.get("timeout_s", 600)))
         self.model = entry.api_model or DEFAULT_MODEL
         self.effort = entry.extra.get("effort", "medium")
-        self.max_tokens = int(entry.extra.get("max_output_tokens")
-                              or settings.pilot.get("max_output_tokens", 16000))
+        self.max_tokens = int(
+            entry.extra.get("max_output_tokens") or settings.pilot.get("max_output_tokens", 16000)
+        )
         budget = settings.budget()
         self.usd_to_eur = float(budget.get("usd_to_eur", 1.0))
         self.price = (budget.get("prices") or {}).get(entry.model_id) or {}
@@ -43,8 +44,14 @@ class AnthropicApiBackend:
     def _cost(self, usage) -> float:
         if not self.price or self.price.get("input") is None or usage is None:
             return 0.0
-        return ((usage.input_tokens or 0) * self.price["input"]
-                + (usage.output_tokens or 0) * self.price["output"]) / 1_000_000 * self.usd_to_eur
+        return (
+            (
+                (usage.input_tokens or 0) * self.price["input"]
+                + (usage.output_tokens or 0) * self.price["output"]
+            )
+            / 1_000_000
+            * self.usd_to_eur
+        )
 
     def call(self, system: str, user: str, schema: dict, chunk_id: str) -> CallResult:
         import anthropic
@@ -56,8 +63,10 @@ class AnthropicApiBackend:
                 max_tokens=self.max_tokens,
                 system=system,
                 messages=[{"role": "user", "content": user}],
-                output_config={"effort": self.effort,
-                               "format": {"type": "json_schema", "schema": schema}},
+                output_config={
+                    "effort": self.effort,
+                    "format": {"type": "json_schema", "schema": schema},
+                },
             )
         except anthropic.APIError as exc:
             raise BackendFailure(f"Anthropic API call failed on {chunk_id}: {exc}") from exc

@@ -61,21 +61,29 @@ class ClaudeCliBackend:
             workdir = Path(tmp) / "work"
             workdir.mkdir()
             cmd = [
-                "claude", "-p",
-                "--output-format", "json",
-                "--json-schema", json.dumps(schema),
-                "--system-prompt-file", str(prompt_file),
-                "--tools", "",
-                "--model", self.entry.api_model,
-                "--setting-sources", "",
+                "claude",
+                "-p",
+                "--output-format",
+                "json",
+                "--json-schema",
+                json.dumps(schema),
+                "--system-prompt-file",
+                str(prompt_file),
+                "--tools",
+                "",
+                "--model",
+                self.entry.api_model,
+                "--setting-sources",
+                "",
                 "--strict-mcp-config",
                 "--disable-slash-commands",
                 "--no-session-persistence",
             ]
             start = time.monotonic()
             try:
-                proc = subprocess.run(cmd, input=user, capture_output=True, text=True,
-                                      cwd=workdir, timeout=900)
+                proc = subprocess.run(
+                    cmd, input=user, capture_output=True, text=True, cwd=workdir, timeout=900
+                )
             except subprocess.TimeoutExpired as exc:
                 raise BackendFailure(f"claude CLI timed out on {chunk_id}") from exc
             latency = (time.monotonic() - start) * 1000
@@ -88,16 +96,16 @@ class ClaudeCliBackend:
             raise BackendFailure(f"claude CLI returned non-JSON on {chunk_id}") from exc
         body = result_event(events)
         if body.get("is_error"):
-            raise BackendFailure(f"claude CLI reported an error on {chunk_id}: "
-                                 f"{str(body.get('result'))[:200]}")
+            raise BackendFailure(
+                f"claude CLI reported an error on {chunk_id}: {str(body.get('result'))[:200]}"
+            )
         candidate = body.get("structured_output")
         if candidate is None:
             candidate = parse_json_text(body.get("result"))
         model_usage = body.get("modelUsage") or {}
         if model_usage:
             # The CLI may call a small helper model too; the labeler is the one that wrote the answer.
-            model_version = max(model_usage,
-                                key=lambda m: (model_usage[m] or {}).get("outputTokens", 0))
+            model_version = max(model_usage, key=lambda m: (model_usage[m] or {}).get("outputTokens", 0))
             version_note = None
         else:
             model_version = self.entry.api_model
@@ -109,8 +117,10 @@ class ClaudeCliBackend:
             parsed_candidate=candidate,
             model_version=model_version,
             usage=body.get("usage") or {},
-            meta={"session_id": body.get("session_id"),
-                  "total_cost_usd_info_only": body.get("total_cost_usd")},
+            meta={
+                "session_id": body.get("session_id"),
+                "total_cost_usd_info_only": body.get("total_cost_usd"),
+            },
             cost_eur=0.0,
             latency_ms=latency,
         )

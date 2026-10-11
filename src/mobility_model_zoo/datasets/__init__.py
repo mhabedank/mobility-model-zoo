@@ -29,5 +29,7 @@ def require_training_allowed(ds_id: str, root: Path | None = None, model: str | 
         raise UsageRefused(f"{ds_id}: status is {src.status} ({src.reason})")
     target = declared_class(_root(root), model)
     if not src.commercial_use and target.startswith("commercial"):
-        raise UsageRefused(f"{ds_id}: non-commercial data cannot train {model or 'a model'} declared "
-                           f"{target}; declare the model non-commercial and name it <name>-<variant>-nc")
+        raise UsageRefused(
+            f"{ds_id}: non-commercial data cannot train {model or 'a model'} declared "
+            f"{target}; declare the model non-commercial and name it <name>-<variant>-nc"
+        )

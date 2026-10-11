@@ -1,7 +1,8 @@
 /*
- * Host harness: reads frames from a binary file and writes one float score per frame.
+ * Host harness: reads frames from a binary file and writes one float score per frame and, if a
+ * third path is given, one byte per frame that is 1 where the alarm stage raises an alarm.
  * Record layout (little endian, packed): int64 ts_us, uint16 can_id, uint8 dlc, uint8 data[8].
- * Used by the parity test that compares C scores with the Python pipeline.
+ * Used by the parity test and by the release gate (rules 12/13 for emlearn models).
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,13 +11,14 @@
 
 int main(int argc, char **argv)
 {
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s frames.bin scores.bin\n", argv[0]);
+    if (argc != 3 && argc != 4) {
+        fprintf(stderr, "usage: %s frames.bin scores.bin [alarms.bin]\n", argv[0]);
         return 2;
     }
     FILE *in = fopen(argv[1], "rb");
     FILE *out = fopen(argv[2], "wb");
-    if (in == NULL || out == NULL) {
+    FILE *alarms = argc == 4 ? fopen(argv[3], "wb") : NULL;
+    if (in == NULL || out == NULL || (argc == 4 && alarms == NULL)) {
         perror("fopen");
         return 1;
     }
@@ -29,10 +31,19 @@ int main(int argc, char **argv)
             ts = (ts << 8) | rec[i];
         }
         uint16_t id = (uint16_t)(rec[8] | (rec[9] << 8));
-        float s = picket_forest_score(&ids, ts, id, rec[10], &rec[11]);
+        float s;
+        if (alarms != NULL) {
+            unsigned char a = (unsigned char)picket_forest_process(&ids, ts, id, rec[10], &rec[11], &s);
+            fwrite(&a, 1, 1, alarms);
+        } else {
+            s = picket_forest_score(&ids, ts, id, rec[10], &rec[11]);
+        }
         fwrite(&s, sizeof(s), 1, out);
     }
     fclose(in);
     fclose(out);
+    if (alarms != NULL) {
+        fclose(alarms);
+    }
     return 0;
 }

@@ -25,7 +25,7 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 | Topic | Title | Collection | Tasks and models |
 |-------|-------|------------|------------------|
 | `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) |
-| `security` | Automotive security | not yet published | `can-ids`: `picket-forest`, `picket-mlp` (registered, not released) |
+| `security` | Automotive security | not yet published | `can-ids`: `picket-forest` (evaluated, not released), `picket-mlp` (registered, not released) |
 | `condition-monitoring` | Condition monitoring | not yet published | `sound-anomaly`: `hum-fan`; `activity`: `pace-cnn` (registered, not released) |
 
 Topics are listed in [zoo/topics.yaml](zoo/topics.yaml); one topic is one Hugging Face collection and one folder `topics/<topic>/` (research, reports, recipes, task documents, compliance records). A test topic `sandbox` holds pipeline test models, which are never public.

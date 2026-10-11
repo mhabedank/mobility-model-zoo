@@ -26,16 +26,24 @@ SERIES_2 = "#eb6834"  # categorical slot 2, validated with slot 1 on SURFACE
 def pareto_front(points: list[tuple[str, float, float]]) -> list[tuple[str, float, float]]:
     """Points (name, throughput, quality) not dominated on both axes, sorted by throughput."""
     front = [
-        p for p in points
+        p
+        for p in points
         if not any(q[1] >= p[1] and q[2] >= p[2] and (q[1] > p[1] or q[2] > p[2]) for q in points)
     ]
     return sorted(front, key=lambda p: p[1])
 
 
-def draw(points: list[tuple[str, float, float]], out: Path, *, version: str,
-         quality_bar: float | None, throughput_bar: float | None,
-         students: list[tuple[str, float, float]] | None = None, title: str | None = None,
-         ylabel: str | None = None) -> Path | None:
+def draw(
+    points: list[tuple[str, float, float]],
+    out: Path,
+    *,
+    version: str,
+    quality_bar: float | None,
+    throughput_bar: float | None,
+    students: list[tuple[str, float, float]] | None = None,
+    title: str | None = None,
+    ylabel: str | None = None,
+) -> Path | None:
     """`points`: zero-shot small models (series 1). `students`: trained models of the task
     (series 2, diamond markers, feature 004); with them a legend names both series."""
     if not points and not students:
@@ -60,35 +68,68 @@ def draw(points: list[tuple[str, float, float]], out: Path, *, version: str,
 
     if quality_bar is not None:
         ax.axhline(quality_bar, color=TEXT_SECONDARY, linewidth=1, linestyle=(0, (4, 3)))
-        ax.annotate("85% of frontier quality", (0.99, quality_bar), xycoords=("axes fraction",
-                    "data"), ha="right", va="bottom", fontsize=8, color=TEXT_SECONDARY)
+        ax.annotate(
+            "85% of frontier quality",
+            (0.99, quality_bar),
+            xycoords=("axes fraction", "data"),
+            ha="right",
+            va="bottom",
+            fontsize=8,
+            color=TEXT_SECONDARY,
+        )
     if throughput_bar is not None:
         ax.axvline(throughput_bar, color=TEXT_SECONDARY, linewidth=1, linestyle=(0, (4, 3)))
-        ax.annotate("10x reference throughput", (throughput_bar, 0.02),
-                    xycoords=("data", "axes fraction"), xytext=(-4, 0),
-                    textcoords="offset points", rotation=90, ha="right", va="bottom",
-                    fontsize=8, color=TEXT_SECONDARY)
+        ax.annotate(
+            "10x reference throughput",
+            (throughput_bar, 0.02),
+            xycoords=("data", "axes fraction"),
+            xytext=(-4, 0),
+            textcoords="offset points",
+            rotation=90,
+            ha="right",
+            va="bottom",
+            fontsize=8,
+            color=TEXT_SECONDARY,
+        )
 
     front = pareto_front(points + students)
     if len(front) > 1:
-        ax.plot([p[1] for p in front], [p[2] for p in front], color=SERIES_1, linewidth=2,
-                zorder=2)
-    ax.scatter([p[1] for p in points], [p[2] for p in points], s=64, color=SERIES_1,
-               edgecolors=SURFACE, linewidths=2, zorder=3,
-               label="Zero-shot small models" if students else None)
+        ax.plot([p[1] for p in front], [p[2] for p in front], color=SERIES_1, linewidth=2, zorder=2)
+    ax.scatter(
+        [p[1] for p in points],
+        [p[2] for p in points],
+        s=64,
+        color=SERIES_1,
+        edgecolors=SURFACE,
+        linewidths=2,
+        zorder=3,
+        label="Zero-shot small models" if students else None,
+    )
     if students:
-        ax.scatter([p[1] for p in students], [p[2] for p in students], s=80, marker="D",
-                   color=SERIES_2, edgecolors=SURFACE, linewidths=2, zorder=4,
-                   label="Span model candidates")
+        ax.scatter(
+            [p[1] for p in students],
+            [p[2] for p in students],
+            s=80,
+            marker="D",
+            color=SERIES_2,
+            edgecolors=SURFACE,
+            linewidths=2,
+            zorder=4,
+            label="Span model candidates",
+        )
         legend = ax.legend(loc="lower right", fontsize=8, frameon=False)
         for text in legend.get_texts():
             text.set_color(TEXT_SECONDARY)
-    ax.set_xlabel("Throughput on reference VM (chunks per minute, log scale)",
-                  color=TEXT_SECONDARY, fontsize=9)
-    ax.set_ylabel(ylabel or "Composite agreement with consensus", color=TEXT_SECONDARY,
-                  fontsize=9)
-    ax.set_title(title or f"Quality vs throughput, zero-shot small models ({version})",
-                 loc="left", color=TEXT_PRIMARY, fontsize=11)
+    ax.set_xlabel(
+        "Throughput on reference VM (chunks per minute, log scale)", color=TEXT_SECONDARY, fontsize=9
+    )
+    ax.set_ylabel(ylabel or "Composite agreement with consensus", color=TEXT_SECONDARY, fontsize=9)
+    ax.set_title(
+        title or f"Quality vs throughput, zero-shot small models ({version})",
+        loc="left",
+        color=TEXT_PRIMARY,
+        fontsize=11,
+    )
     ys = [p[2] for p in points + students] + ([quality_bar] if quality_bar is not None else [])
     ax.set_ylim(min(0.0, min(ys) - 0.05), max(1.0, max(ys) + 0.05))
     # Each label takes the first of four positions around its point that overlaps no label or
@@ -99,20 +140,34 @@ def draw(points: list[tuple[str, float, float]], out: Path, *, version: str,
     taken = [ax.transData.transform((x, y)) for _, x, y in points + students]
     boxes: list = []
     offsets = [((10, 12), "left"), ((10, -20), "left"), ((-10, 12), "right"), ((-10, -20), "right")]
-    leader = {"arrowstyle": "-", "color": TEXT_SECONDARY, "linewidth": 0.6, "shrinkA": 0,
-              "shrinkB": 4}
+    leader = {"arrowstyle": "-", "color": TEXT_SECONDARY, "linewidth": 0.6, "shrinkA": 0, "shrinkB": 4}
     for name, x, y in sorted(points + students, key=lambda p: (p[1], p[2])):
         for (dx, dy), ha in offsets:
-            label = ax.annotate(name, (x, y), xytext=(dx, dy), textcoords="offset points",
-                                fontsize=9, color=TEXT_PRIMARY, ha=ha, arrowprops=leader)
+            label = ax.annotate(
+                name,
+                (x, y),
+                xytext=(dx, dy),
+                textcoords="offset points",
+                fontsize=9,
+                color=TEXT_PRIMARY,
+                ha=ha,
+                arrowprops=leader,
+            )
             box = label.get_window_extent(renderer).expanded(1.02, 1.1)
             hits_point = any(box.contains(px, py) for px, py in taken)
             if not hits_point and not any(box.overlaps(b) for b in boxes):
                 break
             label.remove()
         else:
-            label = ax.annotate(name, (x, y), xytext=(10, 12), textcoords="offset points",
-                                fontsize=9, color=TEXT_PRIMARY, arrowprops=leader)
+            label = ax.annotate(
+                name,
+                (x, y),
+                xytext=(10, 12),
+                textcoords="offset points",
+                fontsize=9,
+                color=TEXT_PRIMARY,
+                arrowprops=leader,
+            )
             box = label.get_window_extent(renderer)
         boxes.append(box)
 

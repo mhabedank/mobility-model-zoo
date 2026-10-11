@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import time
 from collections.abc import Sequence
@@ -329,35 +328,10 @@ def write_config_header(path: Path, idx: list[int], threshold: float, alarm: dic
 
 
 def build_host_scorer(export_dir: Path) -> Path:
-    import subprocess
+    """Host build of the C detector from the repository sources and the exported headers."""
+    from mobility_model_zoo.security.can_ids.scorer import build_scorer
 
-    exe = export_dir / "host_score"
-    subprocess.run(
-        [
-            os.environ.get("CC", "cc"),
-            "-std=c99",
-            "-O2",
-            "-ffp-contract=off",
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-Wno-unused-parameter",  # emlearn-generated trees ignore features_length
-            "-I",
-            str(export_dir),
-            "-I",
-            str(C_DIR),
-            "-I",
-            str(FEATURES_DIR / "include"),
-            str(C_DIR / "host_score.c"),
-            str(C_DIR / "picket_forest.c"),
-            str(FEATURES_DIR / "msml_can_features.c"),
-            str(FEATURES_DIR / "msml_alarm.c"),
-            "-o",
-            str(exe),
-        ],
-        check=True,
-    )
-    return exe
+    return build_scorer(export_dir, export_dir)
 
 
 def host_scores(exe: Path, df, work_dir: Path, stem: str = "parity") -> np.ndarray:
@@ -415,9 +389,20 @@ def float32_split_literal(threshold: float) -> str:
     return np.format_float_scientific(t, unique=True) + "f"
 
 
+def _import_emlearn():
+    """emlearn sets numpy.seterr(all='raise') globally at import (emlearn/bayes.py); restore the
+    caller's error state so underflows elsewhere in the pipeline keep their normal behaviour."""
+    state = np.geterr()
+    try:
+        import emlearn
+        import emlearn.cgen
+    finally:
+        np.seterr(**state)
+    return emlearn
+
+
 def to_c(clf, idx: list[int], thr: float, alarm: dict, export_dir: Path) -> None:
-    import emlearn
-    import emlearn.cgen
+    emlearn = _import_emlearn()
 
     original = emlearn.cgen.constant
 
@@ -425,11 +410,13 @@ def to_c(clf, idx: list[int], thr: float, alarm: dict, export_dir: Path) -> None
         return float32_split_literal(float(val)) if dtype == "float" else original(val, dtype)
 
     emlearn.cgen.constant = exact_constant
+    state = np.geterr()  # convert imports further emlearn modules (seterr at import)
     try:
         cmodel = emlearn.convert(clf, method="inline", dtype="float")
         cmodel.save(file=str(export_dir / f"{MODEL_NAME}.h"), name=MODEL_NAME)
     finally:
         emlearn.cgen.constant = original
+        np.seterr(**state)
     write_config_header(export_dir / CONFIG_HEADER, idx, thr, alarm)
 
 
@@ -479,48 +466,33 @@ def convert_and_check(export_dir: Path, data: Path) -> None:
 
 
 def cmd_export(args) -> None:
+    """Release export from the frozen benchmark (feature 007): see release_export.py."""
+    from mobility_model_zoo.security.can_ids.release_export import export
+    from mobility_model_zoo.security.cli import benchmark_dir, benchmark_sources
+
     require_training_allowed(DATASET, model=MODEL)
-    export_dir = args.out / "export"
-    export_dir.mkdir(parents=True, exist_ok=True)
-    idx = cols(FEATURE_SETS[EXPORT_FEATURES])
-    tr, val = [], []
-    for set_name in SETS:
-        t, v = split_train_val(featurize(args.data, set_name, "train_01"))
-        tr += t
-        val += v
-    rng = np.random.default_rng(SEED)
-    Xtr, ytr = subsample(tr, rng)
-    yv = np.concatenate([c["y"] for c in val])
-    selection, best = [], None
-    for hp in GRID:
-        val_scores = predict(fit(Xtr[:, idx], ytr, hp), val, idx)
-        sv = np.concatenate(val_scores)
-        thr = best_threshold(yv, sv)
-        m = frame_metrics(yv, sv, thr)
-        selection.append({**hp, "threshold": thr, "val_f1": m["f1"], "val_auc_pr": m["auc_pr"]})
-        print(selection[-1], flush=True)
-        if best is None or m["f1"] > best[2]:
-            best = (hp, thr, m["f1"], val_scores)
-    hp, thr, _, best_val_scores = best
-    grid = alarm_grid(val, best_val_scores, thr)
-    key = pick_alarm(grid)
-    k, w = (int(v[1:]) for v in key.split("_"))
-    alarm = {
-        "k": k,
-        "window_ms": w,
-        "holdoff_ms": ALARM_HOLDOFF_MS,
-        "selected_on": "validation captures",
-        "validation": grid[key],
-        "validation_grid": grid,
-    }
-    print("alarm", key, grid[key], flush=True)
-    X, y = subsample(tr + val, rng)
-    clf = fit(X[:, idx], y, hp)
-    joblib.dump(
-        {"model": clf, "threshold": thr, "input_index": idx, "selection": selection, "alarm": alarm},
-        export_dir / "model.joblib",
+    path = benchmark_dir() / "manifest.json"
+    if not path.exists():
+        raise SystemExit(f"benchmark not frozen ({path}); run `security can-ids freeze` first")
+    manifest = json.loads(path.read_text())
+    config = export(args.out / "export", manifest, benchmark_sources(), args.out / "features")
+    print(
+        json.dumps(
+            {
+                k: config[k]
+                for k in ("hyperparameters", "threshold", "alarm", "tree_nodes", "parity_c_vs_python")
+            },
+            indent=2,
+            default=float,
+        )
     )
-    convert_and_check(export_dir, args.data)
+
+
+def cmd_examples(args) -> None:
+    from mobility_model_zoo.security.can_ids.release_export import write_examples
+
+    for path in write_examples(args.out / "export", args.examples_out):
+        print(path)
 
 
 def cmd_convert(args) -> None:
@@ -622,6 +594,11 @@ def build_parser() -> argparse.ArgumentParser:
     ex.set_defaults(func=cmd_export)
     al = sub.add_parser("alarms", parents=[common], help="recompute alarm metrics from scores")
     al.set_defaults(func=cmd_alarms)
+    eg = sub.add_parser("examples", parents=[common], help="write synthetic release examples")
+    eg.add_argument(
+        "--examples-out", type=Path, default=REPO_ROOT / "zoo" / "models" / "picket-forest" / "examples"
+    )
+    eg.set_defaults(func=cmd_examples)
     cv = sub.add_parser("convert", parents=[common], help="re-run C conversion and parity check")
     cv.set_defaults(func=cmd_convert)
     tv = sub.add_parser("testvectors", parents=[common], help="write on-device test vectors")

@@ -43,3 +43,13 @@ def register_tree(tmp_path):
     from compliance_helpers import make_register_tree
 
     return make_register_tree(tmp_path)
+
+
+@pytest.fixture(autouse=True)
+def _numpy_error_state():
+    """Some libraries (emlearn) change numpy's global error state at import; isolate tests."""
+    import numpy as np
+
+    state = np.geterr()
+    yield
+    np.seterr(**state)

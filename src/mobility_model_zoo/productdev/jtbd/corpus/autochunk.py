@@ -66,8 +66,9 @@ def keyword_hits(window: str, keywords: list[str]) -> int:
     return sum(1 for w in words if any(w.startswith(k) for k in keywords))
 
 
-def _pick(pools: dict[str, list[tuple[int, int]]], quota: int, rng: random.Random
-          ) -> list[tuple[str, tuple[int, int]]]:
+def _pick(
+    pools: dict[str, list[tuple[int, int]]], quota: int, rng: random.Random
+) -> list[tuple[str, tuple[int, int]]]:
     for windows in pools.values():
         rng.shuffle(windows)
     picked: list[tuple[str, tuple[int, int]]] = []
@@ -79,8 +80,9 @@ def _pick(pools: dict[str, list[tuple[int, int]]], quota: int, rng: random.Rando
     return picked
 
 
-def check_separation(settings: Settings, mapping: dict[str, Any],
-                     exclude_benchmark: Path | None) -> dict[str, list[str]]:
+def check_separation(
+    settings: Settings, mapping: dict[str, Any], exclude_benchmark: Path | None
+) -> dict[str, list[str]]:
     """Refuse training snapshots that share a source with the benchmark or spike data (R2).
 
     Runs when `--exclude-benchmark` is given or the config names `span_train.exclude_benchmark`.
@@ -99,8 +101,9 @@ def check_separation(settings: Settings, mapping: dict[str, Any],
                 found[snapshot_id] = rules
     if found:
         listed = "; ".join(f"{k} ({', '.join(v)})" for k, v in found.items())
-        raise ValidationFailed(f"training snapshots share a source with the benchmark or spike "
-                               f"data: {listed}")
+        raise ValidationFailed(
+            f"training snapshots share a source with the benchmark or spike data: {listed}"
+        )
     return found
 
 
@@ -119,44 +122,64 @@ def _compliance_ingest(settings: Settings, mapping: dict[str, Any]):
     snaps = []
     for snapshot_id, meta in sorted(mapping.items()):
         snap = load_snapshot(settings, snapshot_id)
-        snaps.append({"snapshot_id": snapshot_id, "origin_url": snap.origin_url,
-                      "source_type": snap.source_type, "use": meta["use"]})
+        snaps.append(
+            {
+                "snapshot_id": snapshot_id,
+                "origin_url": snap.origin_url,
+                "source_type": snap.source_type,
+                "use": meta["use"],
+            }
+        )
     from mobility_model_zoo.compliance.usage import declared_class
 
     target = declared_class(settings.base, (settings.span_train or {}).get("model"))
     findings = check_snapshots(reg, snaps, usage_class=target)
     if findings:
-        raise ValidationFailed("compliance ingest check failed: "
-                               + "; ".join(StageFailed(findings).failures[:10]))
+        raise ValidationFailed(
+            "compliance ingest check failed: " + "; ".join(StageFailed(findings).failures[:10])
+        )
     return reg
 
 
-def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, seed: int,
-              exclude_benchmark: Path | None = None) -> dict[str, Any]:
+def autochunk(
+    settings: Settings,
+    map_path: Path,
+    train: int,
+    evaluation: int,
+    seed: int,
+    exclude_benchmark: Path | None = None,
+) -> dict[str, Any]:
     if load_chunks(settings):
         raise ValidationFailed(f"{settings.chunks_dir} already has chunks; autochunk starts empty")
     mapping = read_yaml(map_path)["snapshots"]
     check_separation(settings, mapping, exclude_benchmark)
     creg = _compliance_ingest(settings, mapping)
     pools: dict[str, dict[str, list[tuple[int, int]]]] = {
-        "train": {}, "eval": {}, "train_off": {}, "eval_off": {}}
+        "train": {},
+        "eval": {},
+        "train_off": {},
+        "eval_off": {},
+    }
     keywords = [k.lower() for k in settings.domain().get("topic_keywords", [])]
     texts: dict[str, str] = {}
     for snapshot_id, meta in sorted(mapping.items()):
         snapshot = load_snapshot(settings, snapshot_id)
         use = meta["use"]
         if use == "train" and snapshot.permitted_uses != "training_allowed":
-            raise ValidationFailed(f"{snapshot_id} ({meta.get('plan_id')}) is "
-                                   f"{snapshot.permitted_uses} and cannot supply training chunks")
+            raise ValidationFailed(
+                f"{snapshot_id} ({meta.get('plan_id')}) is "
+                f"{snapshot.permitted_uses} and cannot supply training chunks"
+            )
         text = snapshot_text(settings, snapshot_id)
         texts[snapshot_id] = text
-        windows = [r for r in cut_ranges(text) if usable(text[r[0]:r[1]])]
+        windows = [r for r in cut_ranges(text) if usable(text[r[0] : r[1]])]
         if creg is not None:  # special categories are excluded for quarantining classes (C-I6)
             from mobility_model_zoo.compliance.ingest import window_allowed
 
-            windows = [r for r in windows
-                       if window_allowed(creg, snapshot.origin_url, text[r[0]:r[1]])]
-        on = [r for r in windows if keyword_hits(text[r[0]:r[1]], keywords) >= MIN_KEYWORD_HITS]
+            windows = [
+                r for r in windows if window_allowed(creg, snapshot.origin_url, text[r[0] : r[1]])
+            ]
+        on = [r for r in windows if keyword_hits(text[r[0] : r[1]], keywords) >= MIN_KEYWORD_HITS]
         pools[use][snapshot_id] = on
         pools[f"{use}_off"][snapshot_id] = [r for r in windows if r not in on]
     rng = random.Random(seed)
@@ -164,8 +187,7 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
     for split, use, quota in (("main", "eval", evaluation), ("train", "train", train)):
         n_on = round(quota * ON_TOPIC_SHARE)
         picked = [(s, r, "relevant") for s, r in _pick(pools[use], n_on, rng)]
-        picked += [(s, r, "irrelevant")
-                   for s, r in _pick(pools[f"{use}_off"], quota - len(picked), rng)]
+        picked += [(s, r, "irrelevant") for s, r in _pick(pools[f"{use}_off"], quota - len(picked), rng)]
         selected += [(split, s, r, intent) for s, r, intent in picked]
     # Training datasets (feature 004) mark off-topic windows, so their share can be reported;
     # spike chunks keep the uncurated `relevant`.
@@ -175,26 +197,38 @@ def autochunk(settings: Settings, map_path: Path, train: int, evaluation: int, s
         meta = mapping[snapshot_id]
         snapshot = load_snapshot(settings, snapshot_id)
         text = texts[snapshot_id][start:end].strip()
-        save_chunk(settings, ChunkRecord.model_validate({
-            "chunk_id": f"ch-{n:03d}",
-            "snapshot_id": snapshot_id,
-            "ranges": [(start, end)],
-            "text": text,
-            "token_count": approx_tokens(text),
-            "split": split,
-            "sub_area": meta["sub_area"],
-            "source_type": snapshot.source_type,
-            "region": meta["region"],
-            "country": meta["country"],
-            "language": meta["language"],
-            "date": meta["date"],
-            "license": snapshot.license,
-            "relevance_intent": intent if mark_offtopic else "relevant",
-            "redaction": {"patterns_version": settings.pilot.get("redaction_patterns_version",
-                                                                 "redact-v1"),
-                          "manual_review_at": None, "check_passed": False},
-        }))
+        save_chunk(
+            settings,
+            ChunkRecord.model_validate(
+                {
+                    "chunk_id": f"ch-{n:03d}",
+                    "snapshot_id": snapshot_id,
+                    "ranges": [(start, end)],
+                    "text": text,
+                    "token_count": approx_tokens(text),
+                    "split": split,
+                    "sub_area": meta["sub_area"],
+                    "source_type": snapshot.source_type,
+                    "region": meta["region"],
+                    "country": meta["country"],
+                    "language": meta["language"],
+                    "date": meta["date"],
+                    "license": snapshot.license,
+                    "relevance_intent": intent if mark_offtopic else "relevant",
+                    "redaction": {
+                        "patterns_version": settings.pilot.get(
+                            "redaction_patterns_version", "redact-v1"
+                        ),
+                        "manual_review_at": None,
+                        "check_passed": False,
+                    },
+                }
+            ),
+        )
         counts[split] += 1
-    return {"train": counts["train"], "main": counts["main"],
-            "unused_windows": {k: sum(len(v) for v in p.values()) for k, p in pools.items()},
-            "note": "relevance_intent is not curated for auto chunks (spike)"}
+    return {
+        "train": counts["train"],
+        "main": counts["main"],
+        "unused_windows": {k: sum(len(v) for v in p.values()) for k, p in pools.items()},
+        "note": "relevance_intent is not curated for auto chunks (spike)",
+    }

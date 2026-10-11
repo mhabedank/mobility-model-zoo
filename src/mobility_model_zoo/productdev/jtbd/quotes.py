@@ -8,8 +8,18 @@ else, including a translation or paraphrase, fails.
 from __future__ import annotations
 
 QUOTE_MAP = {
-    "„": '"', "“": '"', "”": '"', "‟": '"', "«": '"', "»": '"',
-    "‚": "'", "‘": "'", "’": "'", "‛": "'", "‹": "'", "›": "'",
+    "„": '"',
+    "“": '"',
+    "”": '"',
+    "‟": '"',
+    "«": '"',
+    "»": '"',
+    "‚": "'",
+    "‘": "'",
+    "’": "'",
+    "‛": "'",
+    "‹": "'",
+    "›": "'",
 }
 
 
@@ -38,9 +48,7 @@ def normalize(text: str) -> str:
     return normalize_with_map(text)[0]
 
 
-def locate(
-    quote: str, text: str, used: list[tuple[int, int]] | None = None
-) -> tuple[int, int] | None:
+def locate(quote: str, text: str, used: list[tuple[int, int]] | None = None) -> tuple[int, int] | None:
     """Return the (start, end) span of `quote` in `text`, preferring an occurrence not in `used`."""
     needle = normalize(quote)
     if not needle:
@@ -65,9 +73,13 @@ REPAIR_MIN_LENGTH_RATIO = 0.8
 REPAIR_MAX_LENGTH_RATIO = 1.25
 
 
-def repair(quote: str, text: str, min_score: float = REPAIR_MIN_SCORE,
-           min_length_ratio: float = REPAIR_MIN_LENGTH_RATIO,
-           max_length_ratio: float = REPAIR_MAX_LENGTH_RATIO) -> tuple[int, int] | None:
+def repair(
+    quote: str,
+    text: str,
+    min_score: float = REPAIR_MIN_SCORE,
+    min_length_ratio: float = REPAIR_MIN_LENGTH_RATIO,
+    max_length_ratio: float = REPAIR_MAX_LENGTH_RATIO,
+) -> tuple[int, int] | None:
     """Span of the passage in `text` that `quote` most likely means, for training data only.
 
     Teacher quotes often differ from the source by PDF hyphenation, an ellipsis or a changed word.

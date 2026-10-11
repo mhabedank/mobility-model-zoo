@@ -46,25 +46,33 @@ def check_extracted(text: str) -> None:
         reason = f"block-page marker {marker!r}" if marker else f"only {len(text.strip())} chars"
         raise ValidationFailed(
             f"extracted text looks unusable ({reason}); nothing was stored. Download the document "
-            "manually and use `jtbd source register`, or use an official API URL")
+            "manually and use `jtbd source register`, or use an official API URL"
+        )
 
 
 # Post bodies of forum software, by XPath. Quoted earlier posts are removed (their text is
 # already in the thread), and author names stay out of the text.
 FORUM_POSTS = (
-    ("phpbb", "//div[@class='content'][ancestor::div[starts-with(@id, 'post_content') or "
-              "starts-with(@id, 'p')]]"),
+    (
+        "phpbb",
+        "//div[@class='content'][ancestor::div[starts-with(@id, 'post_content') or "
+        "starts-with(@id, 'p')]]",
+    ),
     ("mylittleforum", "//div[@class='thread-posting']//div[@class='body']"),
-    ("phpbb-postbody", "//div[contains(concat(' ', normalize-space(@class), ' '), ' postbody ')]"
-                       "//div[@class='content']"),
+    (
+        "phpbb-postbody",
+        "//div[contains(concat(' ', normalize-space(@class), ' '), ' postbody ')]"
+        "//div[@class='content']",
+    ),
     ("woltlab", "//div[contains(concat(' ', normalize-space(@class), ' '), ' messageText ')]"),
-    ("vbulletin5", "//div[contains(concat(' ', normalize-space(@class), ' '), "
-                   "' js-post__content-text ')]"),
+    (
+        "vbulletin5",
+        "//div[contains(concat(' ', normalize-space(@class), ' '), ' js-post__content-text ')]",
+    ),
     # Consultation portals (Baden-Württemberg Beteiligungsportal): comments only, not the bill.
     ("comment-list", "//*[contains(concat(' ', normalize-space(@class), ' '), ' comment__text ')]"),
 )
-QUOTE_XPATH = (".//blockquote | .//div[contains(@class, 'quote')] | .//cite"
-               " | .//span[@class='citation']")
+QUOTE_XPATH = ".//blockquote | .//div[contains(@class, 'quote')] | .//cite | .//span[@class='citation']"
 # Never part of a post's text: signatures can carry names and links.
 DROP_XPATH = ".//div[contains(@class, 'signature')]"
 MIN_FORUM_POSTS = 2
@@ -132,8 +140,11 @@ def forum_posts(html_text: str) -> str | None:
 _PREVIEW_END = re.compile(r"\s*(?:\[…\]|\[\.\.\.\]|…)?\s*(?:Weiterlesen|Read more|Mehr anzeigen)\s*$")
 
 
-_TOGGLE = re.compile(r"^.*?(?:\[…\]|…)\s*\n(?:Weiterlesen|Read more)\n(.*?)\n?"
-                     r"(?:Einklappen|Show less)?$", re.S)
+_TOGGLE = re.compile(
+    r"^.*?(?:\[…\]|…)\s*\n(?:Weiterlesen|Read more)\n(.*?)\n?"
+    r"(?:Einklappen|Show less)?$",
+    re.S,
+)
 
 
 def _drop_previews(texts: list[str]) -> list[str]:
@@ -162,8 +173,7 @@ def docx_text(raw: bytes) -> str:
     ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
         root = ElementTree.fromstring(archive.read("word/document.xml"))
-    paragraphs = ("".join(t.text or "" for t in p.iter(f"{ns}t")).strip()
-                  for p in root.iter(f"{ns}p"))
+    paragraphs = ("".join(t.text or "" for t in p.iter(f"{ns}t")).strip() for p in root.iter(f"{ns}p"))
     return "\n\n".join(p for p in paragraphs if p).strip()
 
 
@@ -362,8 +372,14 @@ def _log_verdict(settings: Settings, verdict) -> None:
 
 
 def fetch_url(
-    settings: Settings, url: str, meta: dict[str, Any], *, update: bool = False,
-    reason: str | None = None, tos_url: str | None = None, tos_confirmed: bool = False,
+    settings: Settings,
+    url: str,
+    meta: dict[str, Any],
+    *,
+    update: bool = False,
+    reason: str | None = None,
+    tos_url: str | None = None,
+    tos_confirmed: bool = False,
     client: httpx.Client | None = None,
 ) -> dict[str, Any]:
     """Fetch one document after the opt-out checks of the compliance harness (C-F1 … C-F7)."""
@@ -375,8 +391,11 @@ def fetch_url(
     lists, hasher = _compliance_lists(settings)
     verdict, response = check_url(url, lists, client, tos_url=tos_url, url_hash=hasher)
     if verdict.tos_flag and not tos_confirmed:
-        verdict.block("C-F6", "the terms of service mention mining or crawling; read them and pass "
-                              "--tos-confirmed if they allow it (decision D6)")
+        verdict.block(
+            "C-F6",
+            "the terms of service mention mining or crawling; read them and pass "
+            "--tos-confirmed if they allow it (decision D6)",
+        )
         verdict.decision = "skipped"
     _log_verdict(settings, verdict)
     if not verdict.allowed:
@@ -393,16 +412,24 @@ SIGNAL_KEYS = ("robots", "tdmrep", "x_robots", "meta_noai", "ai_txt")
 
 
 def register_file(
-    settings: Settings, path: Path, url: str, meta: dict[str, Any], *, update: bool = False,
-    reason: str | None = None, signals: Path | None = None
+    settings: Settings,
+    path: Path,
+    url: str,
+    meta: dict[str, Any],
+    *,
+    update: bool = False,
+    reason: str | None = None,
+    signals: Path | None = None,
 ) -> dict[str, Any]:
     """Register a file obtained by hand. Needs a signals record: the manual opt-out check (C-F8)."""
     if not path.exists():
         raise UsageError(f"file not found: {path}")
     if signals is None or not signals.exists():
-        raise UsageError("a manually obtained file needs --signals FILE: a YAML record with url, "
-                         "checked_at and the verdicts robots, tdmrep, x_robots, meta_noai, ai_txt "
-                         "(allow|deny|absent) of the source (check C-F8)")
+        raise UsageError(
+            "a manually obtained file needs --signals FILE: a YAML record with url, "
+            "checked_at and the verdicts robots, tdmrep, x_robots, meta_noai, ai_txt "
+            "(allow|deny|absent) of the source (check C-F8)"
+        )
     record = read_yaml(signals)
     missing = [k for k in ("url", "checked_at", *SIGNAL_KEYS) if k not in record]
     if missing:
@@ -410,10 +437,10 @@ def register_file(
     denied = [k for k in SIGNAL_KEYS if record[k] == "deny"]
     if denied:
         raise ValidationFailed(
-            f"the signals record shows an opt-out ({', '.join(denied)}); not registered")
+            f"the signals record shows an opt-out ({', '.join(denied)}); not registered"
+        )
     ext = path.suffix.lstrip(".").lower() or "txt"
-    return create_snapshot(settings, path.read_bytes(), ext, url, meta, update=update,
-                           reason=reason)
+    return create_snapshot(settings, path.read_bytes(), ext, url, meta, update=update, reason=reason)
 
 
 def load_snapshot(settings: Settings, snapshot_id: str) -> SourceSnapshot:
@@ -467,8 +494,11 @@ def lemmy_comments(raw: bytes) -> str | None:
         comment = view["comment"]
         if comment.get("deleted") or comment.get("removed"):
             continue
-        lines = [line for line in (comment.get("content") or "").splitlines()
-                 if not line.lstrip().startswith(">")]
+        lines = [
+            line
+            for line in (comment.get("content") or "").splitlines()
+            if not line.lstrip().startswith(">")
+        ]
         parts.append("\n".join(" ".join(line.split()) for line in lines if line.strip()))
     return "\n\n".join(part.strip() for part in parts if part.strip())
 

@@ -33,8 +33,9 @@ from mobility_model_zoo.productdev.jtbd.span.units import windows
 MIN_IOU = 0.3
 
 
-def encode(tokenizer: Any, row: dict[str, Any], dimensions: dict[str, list[str]],
-           max_length: int, stride: int) -> list[dict[str, Any]]:
+def encode(
+    tokenizer: Any, row: dict[str, Any], dimensions: dict[str, list[str]], max_length: int, stride: int
+) -> list[dict[str, Any]]:
     """Training windows of one row: BIO labels per token, and the units fully inside the window
     with their token indices, unit label and (for item units) attribute labels."""
     enc = windows(tokenizer, row["text"], max_length, stride)
@@ -52,22 +53,34 @@ def encode(tokenizer: Any, row: dict[str, Any], dimensions: dict[str, list[str]]
                 continue  # cut by the window edge; another window covers the unit
             idx = [t for t, (s, e) in enumerate(offsets) if e > s and s < b and e > a]
             if idx:
-                window_units.append({
-                    "tokens": idx,
-                    "label": UNIT_LABELS.index(item["kind"]) if item else 0,
-                    **({d: labels.index(item[d]) for d, labels in dimensions.items()}
-                       if item else {})})
+                window_units.append(
+                    {
+                        "tokens": idx,
+                        "label": UNIT_LABELS.index(item["kind"]) if item else 0,
+                        **(
+                            {d: labels.index(item[d]) for d, labels in dimensions.items()}
+                            if item
+                            else {}
+                        ),
+                    }
+                )
         bio = [-100 if e <= s else 0 for s, e in offsets]
         for item in sorted(row["items"], key=lambda i: i["span"][0]):
             a, b = item["span"]
-            idx = [t for t, (s, e) in enumerate(offsets)
-                   if e > s and s < b and e > a and bio[t] == 0]  # first item wins on overlaps
+            idx = [
+                t for t, (s, e) in enumerate(offsets) if e > s and s < b and e > a and bio[t] == 0
+            ]  # first item wins on overlaps
             for n, t in enumerate(idx):
                 bio[t] = BIO_LABELS.index(f"{'B' if n == 0 else 'I'}-{item['kind']}")
-        out.append({"input_ids": torch.tensor(enc["input_ids"][w]),
-                    "attention_mask": torch.tensor(enc["attention_mask"][w]),
-                    "bio": torch.tensor(bio), "units": window_units,
-                    "relevant": float(row["relevant"])})
+        out.append(
+            {
+                "input_ids": torch.tensor(enc["input_ids"][w]),
+                "attention_mask": torch.tensor(enc["attention_mask"][w]),
+                "bio": torch.tensor(bio),
+                "units": window_units,
+                "relevant": float(row["relevant"]),
+            }
+        )
     return out
 
 
@@ -77,17 +90,22 @@ def iou(a: tuple[int, int], b: tuple[int, int]) -> float:
     return inter / union if union else 0.0
 
 
-def decide(scored: list[dict[str, Any]], unit_threshold: float, relevance_threshold: float
-           ) -> tuple[bool, list[dict[str, Any]]]:
+def decide(
+    scored: list[dict[str, Any]], unit_threshold: float, relevance_threshold: float
+) -> tuple[bool, list[dict[str, Any]]]:
     """The extractor's decision rule (extractor.extract) on precomputed unit scores."""
     kept = [u for u in scored if u["score"] >= unit_threshold]
     relevant = max((u["score"] for u in kept), default=0.0) >= relevance_threshold
     return relevant, kept if relevant else []
 
 
-def validation_metrics(rows: list[dict[str, Any]], scored: dict[str, list[dict[str, Any]]],
-                       dimensions: list[str], unit_threshold: float,
-                       relevance_threshold: float) -> dict[str, Any]:
+def validation_metrics(
+    rows: list[dict[str, Any]],
+    scored: dict[str, list[dict[str, Any]]],
+    dimensions: list[str],
+    unit_threshold: float,
+    relevance_threshold: float,
+) -> dict[str, Any]:
     """Item F1 (IoU >= 0.3, greedy), agreement on kind and produced attributes for matched items,
     relevance agreement; score = (item F1 + mean attribute agreement) / 2."""
     tp = fp = fn = matched = relevance_ok = 0
@@ -111,13 +129,15 @@ def validation_metrics(rows: list[dict[str, Any]], scored: dict[str, list[dict[s
     f1 = 2 * tp / (2 * tp + fp + fn) if tp else 0.0
     agreement = {k: round(v / matched, 4) if matched else 0.0 for k, v in correct.items()}
     mean_attr = sum(agreement.values()) / len(agreement)
-    return {"item_f1": round(f1, 4), "relevance_agreement": round(relevance_ok / len(rows), 4)
-            if rows else 0.0, **{f"{k}_agreement": v for k, v in agreement.items()},
-            "score": round((f1 + mean_attr) / 2, 4)}
+    return {
+        "item_f1": round(f1, 4),
+        "relevance_agreement": round(relevance_ok / len(rows), 4) if rows else 0.0,
+        **{f"{k}_agreement": v for k, v in agreement.items()},
+        "score": round((f1 + mean_attr) / 2, 4),
+    }
 
 
-def score_rows(extractor: SpanExtractor, rows: list[dict[str, Any]]
-               ) -> dict[str, list[dict[str, Any]]]:
+def score_rows(extractor: SpanExtractor, rows: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     extractor.model.eval()
     return {row["chunk_id"]: extractor.score_units(row["text"])[0] for row in rows}
 
@@ -129,10 +149,17 @@ def load_encoder(name: str, revision: str | None):
     return AutoModel.from_pretrained(name, **kwargs), AutoTokenizer.from_pretrained(name, **kwargs)
 
 
-def train_candidate(recipe: dict[str, Any], dimensions: list[str], train_rows: list[dict],
-                    val_rows: list[dict], out: Path, device: str = "cpu",
-                    meta: dict[str, Any] | None = None, max_epochs: int | None = None,
-                    log=print) -> dict[str, Any]:
+def train_candidate(
+    recipe: dict[str, Any],
+    dimensions: list[str],
+    train_rows: list[dict],
+    val_rows: list[dict],
+    out: Path,
+    device: str = "cpu",
+    meta: dict[str, Any] | None = None,
+    max_epochs: int | None = None,
+    log=print,
+) -> dict[str, Any]:
     from transformers import get_linear_schedule_with_warmup
 
     hp = recipe["training"]
@@ -144,22 +171,28 @@ def train_candidate(recipe: dict[str, Any], dimensions: list[str], train_rows: l
     max_length, stride = int(recipe["windows"]["max_length"]), int(recipe["windows"]["stride"])
     labels = {d: ATTRIBUTE_LABELS[d] for d in dimensions}
 
-    encoder, tokenizer = load_encoder(recipe["base_encoder"]["name"],
-                                      recipe["base_encoder"].get("revision"))
+    encoder, tokenizer = load_encoder(
+        recipe["base_encoder"]["name"], recipe["base_encoder"].get("revision")
+    )
     model = SpanTagger(encoder, labels).to(device)
     config = default_config(
-        model=recipe.get("model"), base_encoder=recipe["base_encoder"],
+        model=recipe.get("model"),
+        base_encoder=recipe["base_encoder"],
         windows={"max_length": max_length, "stride": stride},
-        training={**hp, "max_epochs": epochs}, **(meta or {}))
+        training={**hp, "max_epochs": epochs},
+        **(meta or {}),
+    )
     extractor = SpanExtractor(model, tokenizer, config, device)
 
-    windows_train = [w for r in train_rows for w in encode(tokenizer, r, labels, max_length,
-                                                           stride)]
-    log(f"{len(train_rows)} train rows -> {len(windows_train)} windows, {len(val_rows)} val rows, "
-        f"device {device}")
+    windows_train = [w for r in train_rows for w in encode(tokenizer, r, labels, max_length, stride)]
+    log(
+        f"{len(train_rows)} train rows -> {len(windows_train)} windows, {len(val_rows)} val rows, "
+        f"device {device}"
+    )
     batch_size = int(hp["batch_size"])
-    optim = torch.optim.AdamW(model.parameters(), lr=float(hp["lr"]),
-                              weight_decay=float(hp["weight_decay"]))
+    optim = torch.optim.AdamW(
+        model.parameters(), lr=float(hp["lr"]), weight_decay=float(hp["weight_decay"])
+    )
     steps = epochs * max(1, (len(windows_train) + batch_size - 1) // batch_size)
     sched = get_linear_schedule_with_warmup(optim, int(float(hp["warmup"]) * steps), steps)
     ce, bce = nn.CrossEntropyLoss(ignore_index=-100), nn.BCEWithLogitsLoss()
@@ -171,14 +204,15 @@ def train_candidate(recipe: dict[str, Any], dimensions: list[str], train_rows: l
         rng.shuffle(windows_train)
         start, total = time.time(), 0.0
         for b in range(0, len(windows_train), batch_size):
-            batch = windows_train[b:b + batch_size]
+            batch = windows_train[b : b + batch_size]
             ids = torch.stack([w["input_ids"] for w in batch]).to(device)
             mask = torch.stack([w["attention_mask"] for w in batch]).to(device)
             bio_targets = torch.stack([w["bio"] for w in batch]).to(device)
             states, bio, rel = model(ids, mask)
             loss = bio_weight * ce(bio.reshape(-1, len(BIO_LABELS)), bio_targets.reshape(-1))
-            loss = loss + rel_weight * bce(rel, torch.tensor([w["relevant"] for w in batch],
-                                                             device=device))
+            loss = loss + rel_weight * bce(
+                rel, torch.tensor([w["relevant"] for w in batch], device=device)
+            )
             unit_vectors, unit_targets, item_vectors = [], [], []
             attr_targets: dict[str, list[int]] = {d: [] for d in labels}
             for w, window in enumerate(batch):
@@ -191,8 +225,10 @@ def train_candidate(recipe: dict[str, Any], dimensions: list[str], train_rows: l
                         for d in labels:
                             attr_targets[d].append(unit[d])
             if unit_vectors:
-                loss = loss + ce(model.unit_logits(torch.stack(unit_vectors)),
-                                 torch.tensor(unit_targets, device=device))
+                loss = loss + ce(
+                    model.unit_logits(torch.stack(unit_vectors)),
+                    torch.tensor(unit_targets, device=device),
+                )
             if item_vectors and labels:
                 logits = model.attribute_logits(torch.stack(item_vectors))
                 for d in labels:
@@ -204,13 +240,22 @@ def train_candidate(recipe: dict[str, Any], dimensions: list[str], train_rows: l
             optim.zero_grad()
             total += loss.item()
         thresholds = extractor.thresholds
-        metrics = validation_metrics(val_rows, score_rows(extractor, val_rows), dimensions,
-                                     thresholds["unit"], thresholds["relevance"])
+        metrics = validation_metrics(
+            val_rows,
+            score_rows(extractor, val_rows),
+            dimensions,
+            thresholds["unit"],
+            thresholds["relevance"],
+        )
         history.append({"epoch": epoch, "loss": round(total, 4), **metrics})
         log(f"epoch {epoch}: loss {total:.3f}, {time.time() - start:.0f}s, val {metrics}")
         if best is None or metrics["score"] > best["score"]:
             best = {**metrics, "epoch": epoch}
-            extractor.config = {**config, "training": {**config["training"], "best_epoch": epoch},
-                                "validation": metrics, "epochs": history}
+            extractor.config = {
+                **config,
+                "training": {**config["training"], "best_epoch": epoch},
+                "validation": metrics,
+                "epochs": history,
+            }
             extractor.save_pretrained(out)
     return {"out": str(out), "best": best, "epochs": history}
