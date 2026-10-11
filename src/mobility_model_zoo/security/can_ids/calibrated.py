@@ -1,33 +1,43 @@
 """Per-vehicle calibration and vehicle-relative frame features for picket-forest 0.2.0.
 
-A device first learns a fixed table from benign traffic of its vehicle (research R1 of feature
-010): per CAN ID the median interval, the usual DLC and the largest number of frames seen in a
-time window, plus the set of known IDs and the bus frame rate. Frame features are then expressed
-relative to this table, so a model trained on some vehicles applies to another vehicle once that
-vehicle is calibrated.
+A device first gets a fixed table learned from benign traffic of its vehicle (research R1 of
+feature 010): per CAN ID the median interval, a count window of max(0.25 s, 4 periods), the largest
+frame count seen in that window and the usual DLC, plus the set of known IDs and the bus frame rate.
+Frame features are expressed relative to this table, so a model trained on some vehicles applies to
+another vehicle once that vehicle is calibrated.
 
-Rates are measured as frame counts in time windows of at least `MIN_WINDOW_S`, not as single
-inter-frame gaps: counts are robust to logger timestamp jitter and batching (can-train-and-test
-attack captures carry compressed timestamps; commaCarSegments logs in 10 ms batches).
-
-Every feature is computable in a streaming way with bounded state (a ring of recent timestamps per
-ID, counters of unknown IDs over the last bus frames); no raw CAN ID, no absolute time and no
-bus-level inter-frame gap is a feature.
+The features and the event decision are computed by the C library `msml_cal`
+(firmware/components/can_features/msml_cal.c), the same code that runs on the device; Python calls
+it through ctypes, so host and device values are identical. Counts use 8 time buckets per ID;
+times are integer microseconds; ratios are rounded to 1/256. The table is learned here (host).
 """
 
 from __future__ import annotations
 
+import ctypes
+import hashlib
+import os
+import subprocess
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 
-MIN_WINDOW_S = 0.25  # count window per ID: max(MIN_WINDOW_S, WINDOW_PERIODS x median interval)
+from mobility_model_zoo.edge.paths import BUILD_DIR, REPO_ROOT
+
+FEATURES_DIR = REPO_ROOT / "firmware" / "components" / "can_features"
+C_FILE = FEATURES_DIR / "msml_cal.c"
+H_FILE = FEATURES_DIR / "include" / "msml_cal.h"
+
+MIN_WINDOW_US = 250_000
 WINDOW_PERIODS = 4
-W_BUS = 256  # bus frames for the short unknown-ID count and the bus rate
-W_BUS_LONG = 2048  # bus frames for the long unknown-ID count
-MAX_SPAN_S = 2.0  # bus-frame windows never reach further back than this (recording gaps, bus sleep)
+BUCKETS = 8
 MIN_FRAMES = 5  # an ID needs this many benign frames to get a period
-LOG_CAP = 8.0  # log2 ratios are clipped to +-LOG_CAP
+MAX_IDS = 256
+CONFIRM = 2  # event decision: model flags of an ID before its episode spreads
+MARGIN = 0.5  # event decision: count above the calibrated maximum by 50 %
+RULES_MARGIN = 0.25  # rules-only baseline: 25 % (fixed when the baseline was defined)
 
 FEATURE_NAMES = [
     "known_id",
@@ -35,37 +45,62 @@ FEATURE_NAMES = [
     "log_count_ratio",  # log2((frames of this ID in its window + 1) / (calibrated max + 1))
     "count_excess",  # frames of this ID in its window minus the calibrated maximum
     "dlc_changed_cal",  # DLC differs from the calibrated DLC of this ID
-    "hamming",  # bits changed against the previous frame of this ID
+    "hamming",  # bits changed against the previous frame of this ID (known IDs)
     "bytes_changed",
-    "unknown_count",  # unknown-ID frames among the last W_BUS bus frames (within MAX_SPAN_S)
-    "unknown_count_long",  # unknown-ID frames among the last W_BUS_LONG bus frames (within MAX_SPAN_S)
-    "log_bus_rate",  # log2(bus rate over the last W_BUS frames / calibrated bus rate)
+    "unknown_count",  # unknown-ID frames among the last 256 bus frames within 2 s (max 64)
+    "unknown_count_long",  # unknown-ID frames among the last 2048 bus frames within 2 s (max 64)
+    "log_bus_rate",  # log2(bus rate over the last 256 frames / calibrated bus rate)
 ]
+
+ENTRY = np.dtype(
+    [("id", "<u4"), ("period_us", "<u4"), ("window_us", "<u4"), ("max_count", "<u2"), ("dlc", "u1")],
+    align=True,
+)
 
 
 @dataclass
 class Table:
     """Calibration table of one vehicle."""
 
-    period: dict[int, float] = field(default_factory=dict)  # median interval, s
-    window: dict[int, float] = field(default_factory=dict)  # count window, s
-    max_count: dict[int, int] = field(default_factory=dict)  # most frames seen in the window
+    period: dict[int, int] = field(default_factory=dict)  # median interval, us
+    window: dict[int, int] = field(default_factory=dict)  # count window, us
+    max_count: dict[int, int] = field(default_factory=dict)
     dlc: dict[int, int] = field(default_factory=dict)
-    bus_rate: float = 0.0  # frames per second
+    bus_rate: float = 0.0  # frames per second (float32 value)
     seconds: float = 0.0  # benign time used
 
     @property
     def known(self) -> set[int]:
         return set(self.dlc)
 
+    def entries(self) -> np.ndarray:
+        ids = sorted(self.dlc)
+        e = np.zeros(len(ids), dtype=ENTRY)
+        for k, i in enumerate(ids):
+            e[k] = (
+                i,
+                self.period.get(i, 0),
+                self.window[i],
+                min(self.max_count[i], 0xFFFF),
+                self.dlc[i],
+            )
+        return e
 
-def _window(period: float | None) -> float:
-    return MIN_WINDOW_S if period is None else max(MIN_WINDOW_S, WINDOW_PERIODS * period)
+
+def to_us(ts: np.ndarray) -> np.ndarray:
+    """Seconds (absolute) -> integer microseconds relative to the first frame."""
+    ts = np.asarray(ts, dtype=np.float64)
+    return np.rint((ts - ts[0]) * 1e6).astype(np.int64)
 
 
-def _counts(ts: np.ndarray, window: float) -> np.ndarray:
-    """Frames in (t - window, t] for every frame of one ID (ts sorted)."""
-    return np.arange(ts.size) - np.searchsorted(ts, ts - window, side="right") + 1
+def _window(period_us: int) -> int:
+    return max(MIN_WINDOW_US, WINDOW_PERIODS * period_us)
+
+
+def bucket_counts(ts_us: np.ndarray, window_us: int) -> np.ndarray:
+    """Frames of one ID in the current and the 7 previous buckets (ts sorted), as in msml_cal.c."""
+    b = np.floor_divide(ts_us, window_us // BUCKETS)
+    return np.arange(b.size) - np.searchsorted(b, b - (BUCKETS - 1), side="left") + 1
 
 
 def _trim(caps: list[dict], max_seconds: float | None):
@@ -83,7 +118,7 @@ def _trim(caps: list[dict], max_seconds: float | None):
         if np.any(y != 0):
             raise ValueError(f"calibration capture {c.get('id')} contains attack frames")
         used += float(ts[-1] - ts[0])
-        yield ts, ids, dlc
+        yield to_us(ts), ids, dlc
 
 
 def calibrate(caps: list[dict], max_seconds: float | None = None) -> Table:
@@ -92,91 +127,97 @@ def calibrate(caps: list[dict], max_seconds: float | None = None) -> Table:
     parts = list(_trim(caps, max_seconds))
     intervals: dict[int, list[np.ndarray]] = {}
     dlcs: dict[int, list[np.ndarray]] = {}
+    counts: dict[int, int] = {}
     frames = 0
     for ts, ids, dlc in parts:
-        t.seconds += float(ts[-1] - ts[0])
+        t.seconds += float(ts[-1] - ts[0]) / 1e6
         frames += ts.size
         for i in np.unique(ids):
             sel = ids == i
             intervals.setdefault(int(i), []).append(np.diff(ts[sel]))
             dlcs.setdefault(int(i), []).append(dlc[sel])
-    for i, d in intervals.items():
-        d = np.concatenate(d)
+            counts[int(i)] = counts.get(int(i), 0) + int(sel.sum())
+    keep = sorted(counts, key=lambda i: -counts[i])[:MAX_IDS]  # the table holds at most MAX_IDS IDs
+    for i in keep:
+        d = np.concatenate(intervals[i])
         t.dlc[i] = int(np.bincount(np.concatenate(dlcs[i])).argmax())
         if d.size >= MIN_FRAMES:
-            t.period[i] = float(np.median(d))
-        t.window[i] = _window(t.period.get(i))
+            t.period[i] = int(np.floor(np.median(d) + 0.5))
+        t.window[i] = _window(t.period.get(i, 0))
     for ts, ids, _ in parts:
         for i in np.unique(ids):
-            c = int(_counts(ts[ids == i], t.window[int(i)]).max())
-            t.max_count[int(i)] = max(t.max_count.get(int(i), 0), c)
-    t.bus_rate = frames / t.seconds if t.seconds > 0 else 0.0
+            if int(i) in t.window:
+                c = int(bucket_counts(ts[ids == i], t.window[int(i)]).max())
+                t.max_count[int(i)] = max(t.max_count.get(int(i), 0), c)
+    t.bus_rate = float(np.float32(frames / t.seconds)) if t.seconds > 0 else 0.0
     return t
 
 
-def _log_ratio(num: np.ndarray, den: np.ndarray) -> np.ndarray:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        r = np.log2(num / den)
-    r[~np.isfinite(r)] = LOG_CAP
-    return np.clip(r, -LOG_CAP, LOG_CAP)
+@lru_cache(maxsize=1)
+def _lib() -> ctypes.CDLL:
+    digest = hashlib.sha256(C_FILE.read_bytes() + H_FILE.read_bytes()).hexdigest()[:12]
+    cache = Path(os.environ.get("MMZ_CTYPES_CACHE", BUILD_DIR / "ctypes"))
+    cache.mkdir(parents=True, exist_ok=True)
+    so = cache / f"libmsml_cal_{digest}.so"
+    if not so.exists():
+        cc = os.environ.get("CC", "cc")
+        flags = ["-O2", "-ffp-contract=off", "-shared", "-fPIC", "-DMSML_CAL_HOST"]
+        subprocess.run([cc, *flags, "-I", str(H_FILE.parent), str(C_FILE), "-o", str(so)], check=True)
+    lib = ctypes.CDLL(str(so))
+    lib.msml_cal_batch.restype = ctypes.c_int
+    lib.msml_cal_batch.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_uint16,
+        ctypes.c_float,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_double,
+        ctypes.c_void_p,
+    ]
+    return lib
 
 
-def _window_sum(flags: np.ndarray, w: int, ts: np.ndarray | None = None) -> np.ndarray:
-    """Sum of flags over the last w frames, limited to frames within MAX_SPAN_S if ts is given."""
-    csum = np.r_[0.0, np.cumsum(flags)]
-    idx = np.arange(flags.size)
-    lo = np.maximum(idx + 1 - w, 0)
-    if ts is not None:
-        lo = np.maximum(lo, np.searchsorted(ts, ts - MAX_SPAN_S, side="right"))
-    return csum[idx + 1] - csum[lo]
+def _batch(cap: dict, table: Table, model_flags: np.ndarray | None, confirm: int, margin: float):
+    n = cap["ts"].size
+    x = np.zeros((n, len(FEATURE_NAMES)), dtype=np.float32)
+    ev = np.zeros(n, dtype=np.uint8) if model_flags is not None else None
+    if n == 0:
+        return x, ev
+    entries = np.ascontiguousarray(table.entries())
+    ts = np.ascontiguousarray(to_us(cap["ts"]))
+    ids = np.ascontiguousarray(cap["can_id"], dtype=np.uint32)
+    dlc = np.ascontiguousarray(cap["dlc"], dtype=np.uint8)
+    data = np.ascontiguousarray(cap["data"], dtype=np.uint8)
+    mf = None if model_flags is None else np.ascontiguousarray(model_flags, dtype=np.uint8)
+    rc = _lib().msml_cal_batch(
+        entries.ctypes.data,
+        len(entries),
+        float(np.float32(table.bus_rate)),
+        ts.ctypes.data,
+        ids.ctypes.data,
+        dlc.ctypes.data,
+        data.ctypes.data,
+        n,
+        x.ctypes.data,
+        None if mf is None else mf.ctypes.data,
+        confirm,
+        margin,
+        None if ev is None else ev.ctypes.data,
+    )
+    if rc != 0:
+        raise MemoryError("msml_cal_batch failed")
+    return x, ev
 
 
 def features(cap: dict, table: Table) -> np.ndarray:
     """Vehicle-relative features of every frame of a capture (float32, n x len(FEATURE_NAMES))."""
-    ts = cap["ts"]
-    ids = cap["can_id"].astype(np.int64)
-    dlc = cap["dlc"].astype(np.int64)
-    data = cap["data"]
-    n = ts.size
-    known = np.fromiter((i in table.dlc for i in ids), bool, n)
-    period = np.fromiter((table.period.get(int(i), np.nan) for i in ids), float, n)
-    cal_dlc = np.fromiter((table.dlc.get(int(i), -1) for i in ids), int, n)
-    max_count = np.fromiter((table.max_count.get(int(i), 0) for i in ids), float, n)
-
-    prev = np.full(n, -1)
-    count = np.zeros(n)
-    for i in np.unique(ids):
-        idx = np.flatnonzero(ids == i)
-        prev[idx[1:]] = idx[:-1]
-        count[idx] = _counts(ts[idx], table.window.get(int(i), MIN_WINDOW_S))
-    has_prev = prev >= 0
-    dt = np.where(has_prev, ts - ts[np.maximum(prev, 0)], np.nan)
-
-    x = np.zeros((n, len(FEATURE_NAMES)), np.float32)
-    x[:, 0] = known
-    x[:, 1] = np.where(has_prev & np.isfinite(period), _log_ratio(dt, period), LOG_CAP)
-    x[:, 2] = np.where(known, _log_ratio(count + 1, max_count + 1), 0.0)
-    x[:, 3] = np.where(known, count - max_count, 0.0)
-    x[:, 4] = (cal_dlc >= 0) & (cal_dlc != dlc)
-    diff = np.where(has_prev[:, None], data ^ data[np.maximum(prev, 0)], 0).astype(np.uint8)
-    x[:, 5] = np.unpackbits(diff, axis=1).sum(axis=1)
-    x[:, 6] = (diff != 0).sum(axis=1)
-    unk = (~known).astype(np.float64)
-    x[:, 7] = _window_sum(unk, W_BUS, ts)
-    x[:, 8] = _window_sum(unk, W_BUS_LONG, ts)
-    back = np.arange(n) - W_BUS
-    bspan = np.where(back >= 0, ts - ts[np.maximum(back, 0)], np.nan)
-    rate = np.full(n, table.bus_rate or np.nan)
-    x[:, 9] = np.where(back >= 0, _log_ratio(W_BUS / bspan, rate), 0.0)
-    return x
-
-
-def rules(x: np.ndarray, margin: float = 0.25) -> np.ndarray:
-    """Rules-only baseline on the same table: rate above the calibrated maximum (with a margin),
-    several unknown IDs in a short span (fuzzing state) or a DLC change."""
-    over = x[:, 2] > np.log2(1 + margin)
-    fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
-    return (over | fuzz | (x[:, 4] == 1)).astype(np.float32)
+    return _batch(cap, table, None, CONFIRM, MARGIN)[0]
 
 
 def event_flags(
@@ -184,29 +225,20 @@ def event_flags(
     x: np.ndarray,
     table: Table,
     model_flags: np.ndarray,
-    confirm: int = 1,
-    margin: float = 0.0,
+    confirm: int = CONFIRM,
+    margin: float = MARGIN,
 ) -> np.ndarray:
-    """Event-level decision on top of the model's frame flags (feature 010):
+    """Event-level decision on top of the model's frame flags (msml_cal_event): spread over an
+    ID's injection episode once the model flagged `confirm` frames of it within its window and its
+    count stays `margin` above the calibrated maximum; fuzzing state (several unknown IDs)."""
+    return _batch(cap, table, np.asarray(model_flags).astype(np.uint8), confirm, margin)[1].astype(
+        np.float32
+    )
 
-    - spread: once the model flags a frame of an ID, every following frame of that ID is flagged
-      while the ID's count stays above the calibrated maximum (the injection episode of that ID);
-    - fuzzing state: several unknown IDs among the last bus frames flag the frame.
 
-    Streaming: per ID the time of the last model flag; the spread ends as soon as the count falls
-    back to the calibrated maximum or no model flag was seen for one count window."""
-    ts = cap["ts"]
-    ids = cap["can_id"].astype(np.int64)
-    out = model_flags.astype(bool).copy()
-    over = (x[:, 3] > 0) & (x[:, 2] > np.log2(1 + margin))
-    for i in np.unique(ids):
-        idx = np.flatnonzero(ids == i)
-        win = table.window.get(int(i), MIN_WINDOW_S)
-        recent: list[float] = []
-        for k in idx:
-            if model_flags[k]:
-                recent = [t for t in recent if ts[k] - t <= win] + [ts[k]]
-            elif over[k] and len(recent) >= confirm and ts[k] - recent[-1] <= win:
-                out[k] = True
+def rules(x: np.ndarray, margin: float = RULES_MARGIN) -> np.ndarray:
+    """Rules-only baseline on the same table: rate above the calibrated maximum (with a margin),
+    several unknown IDs (fuzzing state) or a DLC change."""
+    over = x[:, 2] > np.log2(1 + margin)
     fuzz = (x[:, 7] >= 3) | (x[:, 8] >= 8)
-    return (out | fuzz).astype(np.float32)
+    return (over | fuzz | (x[:, 4] == 1)).astype(np.float32)

@@ -168,8 +168,8 @@ class EventForest(CalForest):
     threshold is chosen on validation captures from the forest scores; the output is the final
     0/1 decision (forest flags, spread and fuzzing state)."""
 
-    CONFIRM = 2
-    MARGIN = 0.25
+    CONFIRM = cal.CONFIRM
+    MARGIN = cal.MARGIN
     binary = True
 
     def fit(self, train, val):

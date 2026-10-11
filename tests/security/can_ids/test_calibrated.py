@@ -116,3 +116,15 @@ def test_unknown_id_state_does_not_survive_a_recording_gap():
     x = cal.features(gap, table)
     after = np.arange(y.size) >= cut
     assert x[after & (gap["ts"] > gap["ts"][cut] + 0.01), 8].max() < 8
+
+
+def test_c_counts_match_the_numpy_bucket_count():
+    table = cal.calibrate([_benign(6)])
+    c = _cap("fabrication", 6)
+    x = cal.features(c, table)
+    ts = cal.to_us(c["ts"])
+    ids = c["can_id"].astype(np.int64)
+    for i in table.known:
+        sel = ids == i
+        want = cal.bucket_counts(ts[sel], table.window[i]) - table.max_count[i]
+        assert np.array_equal(x[sel, 3], want.astype(np.float32))
