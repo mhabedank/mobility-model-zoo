@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urlparse
 
 import jsonschema
 from rapidfuzz import fuzz
@@ -152,9 +153,29 @@ def _norm(text: str) -> str:
     return " ".join(re.sub(r"[^\w]+", " ", text.lower()).split())
 
 
+# An access address identifies a resource only if it is a feed or a file. Service endpoints, catalogue
+# search pages and publisher home pages are shared by many datasets (batch 1, 2026-10-11).
+IDENTITY_METHODS = {"direct_download", "bulk_dump"}
+FILE_PATH = re.compile(
+    r"\.(zip|csv|tsv|json|geojson|jsonl|xml|xlsx?|ods|parquet|gpkg|kmz|kml|gtfs|txt|pdf|gz|7z|shp|"
+    r"mp3|mp4|wav|ogg|webm|png|jpe?g|svg|tiff?)$",
+    re.IGNORECASE,
+)
+
+
+def identifies(route: dict[str, Any]) -> bool:
+    """True if the access route's address names this one resource (a feed or a file)."""
+    url = str(route.get("url") or "")
+    if not url:
+        return False
+    if route.get("method") == "feed":
+        return True
+    return route.get("method") in IDENTITY_METHODS and bool(FILE_PATH.search(urlparse(url).path))
+
+
 def keys(entry: dict[str, Any]) -> dict[str, set[str]]:
     urls = {canonical(entry["landing_url"])} if entry.get("landing_url") else set()
-    urls |= {canonical(a["url"]) for a in entry.get("access") or [] if a.get("url")}
+    urls |= {canonical(a["url"]) for a in entry.get("access") or [] if identifies(a)}
     ids = set()
     ident = entry.get("identifiers") or {}
     if ident.get("doi"):
