@@ -197,6 +197,28 @@ def device_examples(reg: Registry, name: str) -> list[dict[str, Any]]:
     """Examples of an mcu model for the card: compact JSON of input and expected output."""
     out = []
     for n, ex in reg.device_examples(name):
+        if "frames" in ex:  # emlearn tree model: a frame sequence (feature 007)
+            alarms = list(ex.get("expected_alarms", []))
+            out.append(
+                {
+                    "name": n,
+                    "source": ex.get("source", ""),
+                    "attack": (ex.get("generator") or {}).get("attack", ""),
+                    "n_frames": len(ex["frames"]),
+                    "n_alarms": len(alarms),
+                    "alarms": ", ".join(str(a) for a in alarms) if alarms else "none",
+                    "head": [
+                        {
+                            "ts": f[0],
+                            "id": f"0x{f[1]:03X}",
+                            "dlc": f[2],
+                            "data": " ".join(f"{b:02X}" for b in f[3][: f[2]]),
+                        }
+                        for f in ex["frames"][:5]
+                    ],
+                }
+            )
+            continue
         out.append(
             {
                 "name": n,
@@ -277,6 +299,39 @@ def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any]
     }
 
 
+USAGE_KINDS = {
+    "source": "source",
+    "dataset": "dataset",
+    "base_model": "base model",
+    "teacher": "teacher",
+    "third_party": "third-party model",
+    "zoo_model_output": "data produced by",
+}
+
+
+def usage_line(model: dict[str, Any], record: dict[str, Any]) -> str:
+    """What users may do with the model, from the release record's `usage` (feature 011, FR-014).
+    Published records from before constitution 2.1.0 have no `usage`: the declared class and the
+    licence of model.yaml stand in, without inputs."""
+    usage = record.get("usage") or {
+        "class": model.get("usage_class", "commercial"),
+        "licence": model["license"],
+        "restricting_inputs": [],
+    }
+    cls, licence = usage["class"], usage["licence"]
+    inputs = "; ".join(
+        f"{USAGE_KINDS[i['kind']]} {i['id']} ({i['licence']})" for i in usage["restricting_inputs"]
+    )
+    if cls.startswith("non-commercial"):
+        why = f"because of {inputs}" if inputs else "the owner chose this restriction"
+        text = f"Non-commercial use only · licence {licence} · {why}."
+    else:
+        text = f"Commercial use permitted · licence {licence}."
+    if cls.endswith("share-alike"):
+        text += f" Derivatives must keep {licence}."
+    return text
+
+
 @dataclass
 class CardInput:
     """Everything a card is rendered from. `examples` maps file name -> model output (or None)."""
@@ -326,6 +381,7 @@ def render(inp: CardInput) -> str:
         topic=topic,
         topic_url=topic_url(topic),
         banner=_banner(model, record, inp.deprecated_banner),
+        usage=usage_line(model, record),
         front_matter=front_matter(model, record, quality),
         install=install_line(model, version),
         figures=figure_urls(model, version),
@@ -343,6 +399,7 @@ def render(inp: CardInput) -> str:
             model["card"].get("device_usage", ""), model["repos"]["public"], f"v{version}", ""
         ).strip(),
         device_examples=device_examples(reg, name) if mcu else [],
+        tree=mcu and model.get("engine") == "emlearn",
         datasets=dataset_rows(reg, record),
         ground_truth=GROUND_TRUTH
         if record["evaluation"].get("reference_kind") == "ground_truth"

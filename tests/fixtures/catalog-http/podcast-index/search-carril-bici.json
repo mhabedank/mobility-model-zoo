@@ -1,0 +1,16 @@
+{
+  "status": "true",
+  "feeds": [
+    {
+      "id": 9000001, "podcastGuid": "00000000-0000-4000-8000-000000000001", "title": "Pedaleando la ciudad",
+      "url": "https://feeds.example.org/pedaleando.xml", "originalUrl": "https://feeds.example.org/pedaleando.xml",
+      "link": "https://pedaleando.example.org/", "description": "Feed description that must never be stored.",
+      "author": "Asociación Ciclista Ejemplo", "ownerName": "Asociación Ciclista Ejemplo",
+      "language": "es-ES", "explicit": false, "type": 0, "medium": "podcast", "dead": 0, "episodeCount": 42,
+      "categories": {"77": "Society"}, "locked": 0, "newestItemPubdate": 1759900000
+    }
+  ],
+  "count": 1,
+  "query": "carril bici",
+  "description": "Found matching feeds"
+}

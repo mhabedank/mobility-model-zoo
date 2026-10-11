@@ -31,6 +31,8 @@ model-index:
 
 **Version 0.1.0** · 2026-10-01 · status: **experimental** · topic: [Pipeline tests](https://huggingface.co/mobility-model-zoo) · task: `pipeline`
 
+**Usage:** Commercial use permitted · licence Apache-2.0.
+
 > **Pipeline test model.** Not for use. Never public.
 
 ## Summary
@@ -154,6 +156,7 @@ The training data itself is not published. Datasets stay internal so that the pe
 ## License
 
 Apache-2.0
+Commercial use permitted · licence Apache-2.0.
 
 ## Citation
 

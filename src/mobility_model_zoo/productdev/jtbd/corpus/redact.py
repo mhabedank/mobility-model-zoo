@@ -37,17 +37,17 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     # PDF extraction can insert spaces around dots ("name@dlr .de"), so they are tolerated.
     (
         "email",
-        re.compile(r"[A-Za-z0-9._%+-]+\s?@\s?[A-Za-z0-9-]+"
-                   r"(?:\s?\.\s?[A-Za-z0-9-]+)*\s?\.\s?[A-Za-z]{2,}\b"),
+        re.compile(
+            r"[A-Za-z0-9._%+-]+\s?@\s?[A-Za-z0-9-]+"
+            r"(?:\s?\.\s?[A-Za-z0-9-]+)*\s?\.\s?[A-Za-z]{2,}\b"
+        ),
         "[EMAIL]",
     ),
     ("reddit_user", re.compile(r"(?<![\w/])/?u/[A-Za-z0-9_-]{3,20}\b"), "[USER]"),
     ("at_handle", re.compile(r"(?<![\w.@\[])@[A-Za-z0-9_.]{2,30}\b"), "[USER]"),
     (
         "phone_labeled",
-        re.compile(
-            r"(?i)\b(?:tel|telefon|phone|fon|mobil|handy)\.?:?\s*[+\d][\d\s/().-]{6,}\d"
-        ),
+        re.compile(r"(?i)\b(?:tel|telefon|phone|fon|mobil|handy)\.?:?\s*[+\d][\d\s/().-]{6,}\d"),
         "[PHONE]",
     ),
     (
@@ -74,16 +74,20 @@ def residual_patterns(text: str) -> list[str]:
 # Scan only (sampled review): identifiers the redaction patterns do not replace, such as links to
 # user pages. A hit fails `redact-check` and must be fixed by hand.
 SCAN_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("user_path_url", re.compile(
-        r"https?://\S+?/(?:u|user|users|profile|profiles|member|members|people|author)/[^\s/)\]>]+"
-        r"|https?://\S+?/~[A-Za-z0-9_.-]+", re.IGNORECASE)),
+    (
+        "user_path_url",
+        re.compile(
+            r"https?://\S+?/(?:u|user|users|profile|profiles|member|members|people|author)/[^\s/)\]>]+"
+            r"|https?://\S+?/~[A-Za-z0-9_.-]+",
+            re.IGNORECASE,
+        ),
+    ),
 ]
 
 
 def identifier_scan(text: str) -> list[str]:
     """Every pattern hit: residual redaction patterns plus the scan-only patterns."""
-    return residual_patterns(text) + [name for name, pattern in SCAN_PATTERNS
-                                      if pattern.search(text)]
+    return residual_patterns(text) + [name for name, pattern in SCAN_PATTERNS if pattern.search(text)]
 
 
 def sample_path(settings: Settings):
@@ -118,13 +122,24 @@ def review_sample(settings: Settings, seed: int) -> dict[str, Any]:
         for key in order:
             if strata[key] and len(sampled) < wanted:
                 sampled.append(strata[key].pop())
-    record = {"seed": seed, "drawn_at": datetime.now(UTC).isoformat(), "fraction": fraction,
-              "min": minimum, "always_review_source_types": sorted(always),
-              "sampled": sorted(sampled), "always_review": forced,
-              "chunk_ids": sorted(set(sampled) | set(forced))}
+    record = {
+        "seed": seed,
+        "drawn_at": datetime.now(UTC).isoformat(),
+        "fraction": fraction,
+        "min": minimum,
+        "always_review_source_types": sorted(always),
+        "sampled": sorted(sampled),
+        "always_review": forced,
+        "chunk_ids": sorted(set(sampled) | set(forced)),
+    }
     write_json(path, record)
-    return {"chunks": len(chunks), "sampled": len(sampled), "always_review": len(forced),
-            "to_review": len(record["chunk_ids"]), "path": str(path)}
+    return {
+        "chunks": len(chunks),
+        "sampled": len(sampled),
+        "always_review": len(forced),
+        "to_review": len(record["chunk_ids"]),
+        "path": str(path),
+    }
 
 
 def redact_all(settings: Settings) -> dict[str, Any]:
@@ -167,12 +182,12 @@ def redact_check(settings: Settings) -> dict[str, Any]:
     to_review: set[str] | None = None
     if sampled:
         if not sample_path(settings).exists():
-            raise ValidationFailed("draw the manual-review sample first: `jtbd corpus "
-                                   "review-sample --seed <n>`")
+            raise ValidationFailed(
+                "draw the manual-review sample first: `jtbd corpus review-sample --seed <n>`"
+            )
         to_review = set(read_json(sample_path(settings))["chunk_ids"])
     for chunk in chunks:
-        problems = (residual_patterns(chunk.text) if mode == "full"
-                    else identifier_scan(chunk.text))
+        problems = residual_patterns(chunk.text) if mode == "full" else identifier_scan(chunk.text)
         if mode == "model":
             if chunk.redaction.model_review_at is None:
                 problems.append("no_model_review")

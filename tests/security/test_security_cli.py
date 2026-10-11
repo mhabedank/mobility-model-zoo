@@ -33,9 +33,17 @@ def test_unknown_dataset_is_a_usage_error():
     assert runner.invoke(app, ["can-ids", "frames", "nope"]).exit_code == 2
 
 
-@pytest.mark.parametrize("argv", [["can-ids", "evaluate", "picket-mlp"], ["can-ids", "freeze"]])
-def test_benchmark_not_frozen_yet(argv):
+@pytest.mark.parametrize("argv", [["can-ids", "evaluate", "picket-forest"], ["can-ids", "freeze"]])
+def test_benchmark_not_frozen_yet_or_no_data(argv, tmp_path, monkeypatch):
+    from mobility_model_zoo.security import cli
+
+    monkeypatch.setenv("MMZ_DATA", str(tmp_path))  # never touch the real data cache or benchmark
+    monkeypatch.setattr(cli, "benchmark_dir", lambda benchmark=cli.BENCHMARK: tmp_path / benchmark)
     assert runner.invoke(app, argv).exit_code == 5
+
+
+def test_unknown_detector_is_a_usage_error():
+    assert runner.invoke(app, ["can-ids", "evaluate", "picket-mlp"]).exit_code == 2
 
 
 def test_mlp_needs_train_subcommand():

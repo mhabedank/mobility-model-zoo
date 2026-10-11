@@ -324,6 +324,17 @@
     "card_privacy_note": {
       "type": "string",
       "minLength": 40
+    },
+    "runtime": {
+      "enum": [
+        "python",
+        "mcu"
+      ]
+    },
+    "sbom": {
+      "type": "string",
+      "minLength": 1,
+      "description": "staged CycloneDX SBOM of the device code (check C-G4)"
     }
   },
   "required": [
@@ -346,5 +357,24 @@
     "scans",
     "signed_off_by",
     "signed_off_at"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime": {
+            "const": "mcu"
+          }
+        },
+        "required": [
+          "runtime"
+        ]
+      },
+      "then": {
+        "required": [
+          "sbom"
+        ]
+      }
+    }
   ]
 }

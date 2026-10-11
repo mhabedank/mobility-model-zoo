@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from conftest import FakeRunner, ZooEnv
+from release_env import FakeRunner, ZooEnv
 
 from mobility_model_zoo.release.errors import GateFailed, ImmutabilityRefused
 from mobility_model_zoo.release.gate import Gate

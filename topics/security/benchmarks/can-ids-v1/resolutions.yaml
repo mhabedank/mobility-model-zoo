@@ -1,0 +1,159 @@
+# Resolutions of duplicate-capture conflicts in can-ids-v1 (feature 007, research R1).
+# Checked 2026-10-09 by attack-free CAN-ID overlap with each set's train_01 captures.
+resolutions:
+- sha256: 0746f31a7411389e2922053690195a3e871168c78fe314267e7fcf33979c69e0
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/speed-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/speed-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/speed-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 19ca1239427f7870e42f3cc78de4647401aace710ffa0aa25697849be307f5d9
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/fuzzing-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/fuzzing-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/fuzzing-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 23acdc8992b4f2afee91aa2d8e97162e6f3024e3ed14a20477072c2c7aacb193
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/interval-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/interval-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/interval-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 36f8c090275a18be499aa4bbb7c59e00336a08a9e9c5976550f587aa6c8aade1
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/systematic-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/systematic-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/systematic-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 4a3b52ec48430fe12db10ba69604331b0eb7216e2fc6c648d196d6e2a0e8562c
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/interval-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/interval-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/interval-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 6bae5b7b7d2ca6f2dfd0ab219852f458806b8aa1918e4f9e2f92c76693d1191d
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/triple-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/triple-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/triple-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 6cbe64e5b39f75f63ff73bf7e5b0078d420d43bcdb9609fe2a49e3435897a9ef
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/triple-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/triple-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/triple-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 6fe43ab2aeaa445ff6f04a97c8aad55a2df8e030065335419afba2cc8e475192
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/systematic-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/systematic-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/systematic-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 7da6baba069e0f57530502030f6ba6cc62e7c83674ed7e9d1d3dbfcbcb57ee00
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/double-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/double-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/double-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: 7defb438d996acb04e7ccdd69af6b286938e1fa4e5d8f299740abb5143f16d2f
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/fuzzing-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/fuzzing-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/fuzzing-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: be692a847a5dc84dc43aedba45ad83f1008b1b130abeb05aa2c03608a4e06ddd
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/speed-4
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/speed-4
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/speed-4: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'
+- sha256: f9970409eaf50a9a458b1ffd641ff6aa14277d101b78c934f85f3780851af0e1
+  captures:
+  - can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/double-3
+  - can-train-and-test/set_02/test_01_known_vehicle_known_attack/double-3
+  action: relabel
+  relabel:
+    can-train-and-test/set_01/test_04_unknown_vehicle_unknown_attack/double-3: chevrolet_traverse
+  reason: 'Byte-identical to the set_02 known-vehicle (Traverse) capture of the same name. The upstream
+    README names the set_01 unknown vehicle Silverado, but the attack-free CAN IDs of every set_01/test_04
+    capture match the Traverse training captures (set_02/train_01) 100 % and the Silverado ones (set_03/train_01)
+    74 %, while set_01/test_02 matches Silverado 100 %. The capture stays in set_01/test_04: Traverse
+    is not in set_01 training (Impala), so the split stays unknown vehicle, unknown attack. Owner decision
+    2026-10-09.'

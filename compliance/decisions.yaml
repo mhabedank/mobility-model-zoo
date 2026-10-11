@@ -216,6 +216,22 @@ decisions:
   - compliance/waivers.yaml#W-cluster-v1-claude-cli
   - compliance/waivers.yaml#W-cluster-v1-gpt-mini
   review_by: '2026-12-31'
+- id: D-catalog-licences-2026-10
+  date: '2026-10-11'
+  decision: Four national licences found by the resource index are training_allowed with attribution and go on
+    compliance/lists/licence-allowlist.yaml. (1) Japan Public Data License 1.0 and (2) Japan Government Standard Terms
+    of Use 2.0, which both declare CC BY 4.0 compatibility. (3) The Spanish Ministry of Transport open data licence
+    (LDA, nap.transportes.gob.es/licencia-datos); it binds only the redistribution of the raw data, not derived
+    products, so it is not share-alike for models, and an operator's own licence prevails. (4) Polish official works
+    under Art. 4 of the copyright act, for legal acts only; parliamentary transcripts are treated as parliamentary
+    records (proprietary, benchmark_only through the parliamentary-records class).
+  rationale: The licences allow commercial use and adaptation with attribution and do not forbid machine learning;
+    the pilot of feature 009 showed them as the main open licences of public mobility data in Japan, Spain and Poland.
+  scope:
+  - compliance/lists/licence-allowlist.yaml
+  - catalog:entries (feature 009)
+  review_by: '2027-04-11'
+  decided_by: Martin Habedank
   supersedes: null
 - id: D-railway-perf
   date: '2026-10-11'

@@ -120,7 +120,8 @@
             "enum": [
               "yes",
               "no",
-              "unclear"
+              "unclear",
+              "non_commercial"
             ]
           },
           "clause": {

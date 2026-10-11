@@ -1,0 +1,41 @@
+model: edge-fixture-forest
+version: 0.1.0
+date: 2026-10-08
+status: experimental
+change_type: initial
+changes: First test release.
+output_format_version: forest-v1
+sandbox: true
+files:
+- path: model.joblib
+  sha256: 0000000000000000000000000000000000000000000000000000000000000000
+  size_bytes: 1
+staging:
+  repo: mobility-model-zoo/edge-fixture-forest-staging
+  revision: 0000000000000000000000000000000000000000
+recipe:
+  git_commit: 0000000000000000000000000000000000000000
+  config: src/mobility_model_zoo/sandbox/build_test_model.py
+  doc: docs/adding-a-model.md
+provenance:
+  sources: []
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: synthetic
+  reference: synthetic labels (test numbers)
+  reference_kind: ground_truth
+  results: results/0.1.0/quality.json
+performance:
+  hardware: host simulator and QEMU (test numbers)
+  budget:
+    ram_kb: 16
+    flash_kb: 64
+    target: ESP32-S3
+  results: results/0.1.0/performance.json
+usage:
+  class: commercial
+  licence: Apache-2.0
+  restricting_inputs: []
+published: null
+deprecated: null

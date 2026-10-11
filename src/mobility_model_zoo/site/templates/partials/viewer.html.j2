@@ -1,8 +1,13 @@
 <section class="sec" id="examples" aria-labelledby="ex-h"><div class="wrap">
+{% if p.examples and p.examples[0].device %}
+<div class="sec-head"><div class="eyebrow">Worked examples</div><h2 class="h2" id="ex-h">The released C code reproduces every result exactly.</h2>
+<p class="muted">Inputs and expected results of version {{ p.latest.version }}, as published with the release. The release gate reproduces every result bit-exactly with the C code of this version. The inputs are synthetic.</p></div>
+{% else %}
 <div class="sec-head"><div class="eyebrow">Worked examples</div><h2 class="h2" id="ex-h">Every quote can be found again in the text.</h2>
 <p class="muted">Outputs of version {{ p.latest.version }} for the example texts published with the model, taken from its model card. The texts are fictional.{% if p.examples and p.examples[0].span_format %} Select a marked quote or a JSON item to see its partner.{% endif %}</p></div>
+{% endif %}
 {% for ex in p.examples %}
-<article class="example" id="ex{{ ex.n }}" aria-labelledby="ex{{ ex.n }}-h">
+<article class="example{% if ex.device %} device{% endif %}" id="ex{{ ex.n }}" aria-labelledby="ex{{ ex.n }}-h">
 <h3 class="h3" id="ex{{ ex.n }}-h">Example {{ ex.n }}: <code>{{ ex.file }}</code></h3>
 {% if ex.span_format %}
 <div class="kinds" aria-label="Kinds"><span>job</span><span class="pain">pain</span><span class="gain">gain</span></div>
@@ -19,15 +24,24 @@
 {% endif %}
 </div>
 </div>
+{% elif ex.device %}
+{% if ex.attack %}<p class="small muted">Synthetic traffic with an injected {{ ex.attack }} attack.</p>{% endif %}
+<div class="grid2">
+<div class="code"><div class="code-top"><span>input · {% if ex.what.kind == "frames" %}first {{ ex.what.shown }} of {{ ex.what.total }} frames: [time in µs, ID, DLC, data]{% else %}{{ ex.what.total }} int8 values{% endif %}</span></div><pre class="wrap-pre"><code>{{ ex.head }}</code></pre></div>
+<div class="code"><div class="code-top"><span>{% if ex.what.kind == "frames" %}frames that raise an alarm{% else %}expected output{% endif %}</span></div><pre class="wrap-pre"><code>{{ ex.json }}</code></pre></div>
+</div>
+<p class="small"><a href="{{ ex.url }}">Full example <code>{{ ex.file }}</code></a>, with the expected score of every frame.</p>
 {% else %}
 <div class="grid2">
 <div class="code"><div class="code-top"><span>input</span></div><pre class="wrap-pre"><code>{{ ex.text }}</code></pre></div>
 <div class="code"><div class="code-top"><span>output</span></div><pre class="wrap-pre"><code>{{ ex.json }}</code></pre></div>
 </div>
 {% endif %}
+{% if not ex.device %}
 <details><summary>Full output of example {{ ex.n }}</summary>
 <div class="code"><div class="code-top"><span>json</span><button class="copy" type="button" data-copy="ex{{ ex.n }}-json">Copy</button></div><pre id="ex{{ ex.n }}-json" class="wrap-pre"><code>{{ ex.json }}</code></pre></div>
 </details>
+{% endif %}
 </article>
 {% endfor %}
 </div></section>

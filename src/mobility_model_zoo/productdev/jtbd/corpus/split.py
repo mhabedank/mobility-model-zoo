@@ -38,8 +38,9 @@ def stratified_holdout(chunk_keys: dict[str, tuple], holdout: int, seed: int) ->
     return picked
 
 
-def balance_flag(picked: set[str], chunk_keys: dict[str, tuple], flagged: set[str],
-                 holdout: int) -> set[str]:
+def balance_flag(
+    picked: set[str], chunk_keys: dict[str, tuple], flagged: set[str], holdout: int
+) -> set[str]:
     """Swap chunks within a stratum until the holdout holds its proportional share of `flagged`
     chunks (rounded). Deterministic: candidates are taken in sorted order."""
     total = len(chunk_keys)
@@ -51,8 +52,10 @@ def balance_flag(picked: set[str], chunk_keys: dict[str, tuple], flagged: set[st
             if (out_id in flagged) == into_holdout_flagged:
                 continue
             for in_id in sorted(set(chunk_keys) - picked):
-                if chunk_keys[in_id] == chunk_keys[out_id] and \
-                        (in_id in flagged) == into_holdout_flagged:
+                if (
+                    chunk_keys[in_id] == chunk_keys[out_id]
+                    and (in_id in flagged) == into_holdout_flagged
+                ):
                     picked.remove(out_id)
                     picked.add(in_id)
                     return True

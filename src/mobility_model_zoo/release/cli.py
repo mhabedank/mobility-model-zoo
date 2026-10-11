@@ -89,6 +89,12 @@ def _mount_data() -> None:
     app.add_typer(data_app, name="data")
 
 
+def _mount_catalog() -> None:
+    from mobility_model_zoo.catalog.cli import app as catalog_app
+
+    app.add_typer(catalog_app, name="catalog")
+
+
 def _mount_site() -> None:
     from mobility_model_zoo.site.cli import app as site_app
 
@@ -97,6 +103,7 @@ def _mount_site() -> None:
 
 _mount_compliance()
 _mount_data()
+_mount_catalog()
 _mount_site()
 
 

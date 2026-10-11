@@ -36,8 +36,11 @@ def route_allows(route: dict[str, Any], role: str) -> tuple[bool, str]:
     if route.get("access_path") == "local":
         return True, ""
     region_ok = str(route.get("region", "")).upper().startswith(("DE", "EU", "IE", "FR", "NL", "AT"))
-    transfer_ok = region_ok or route.get("dpf_listed") is True or (
-        route.get("dpa") is True and route.get("scc") is True)
+    transfer_ok = (
+        region_ok
+        or route.get("dpf_listed") is True
+        or (route.get("dpa") is True and route.get("scc") is True)
+    )
     if not transfer_ok:
         return False, f"route {route['id']}: no EU region, DPF listing or DPA with SCCs"
     if route.get("zero_data_retention") is not True or route.get("training_on_inputs") is not False:
@@ -53,9 +56,18 @@ def route_waiver(reg: Register, route_id: str, scope: str | None) -> dict[str, A
     return reg.waiver_for("C-P4", f"{route_id}@{scope}") if scope else None
 
 
-def check_batch(reg: Register, *, model_id: str, backend: str, role: str, route_id: str | None,
-                provider_order: list[str] | None, items: Iterable[tuple[str, str, str | None]],
-                current_patterns: str, scope: str | None = None) -> list[Finding]:
+def check_batch(
+    reg: Register,
+    *,
+    model_id: str,
+    backend: str,
+    role: str,
+    route_id: str | None,
+    provider_order: list[str] | None,
+    items: Iterable[tuple[str, str, str | None]],
+    current_patterns: str,
+    scope: str | None = None,
+) -> list[Finding]:
     """items: (chunk id, text to be sent, redaction patterns version of the chunk). `scope` names
     the work the texts are sent for; only a waiver for that route and scope lifts the route rule
     (C-P4). Redaction, quarantine and provider pinning (C-P1, C-P2, C-P3, C-P5) are never waived."""
@@ -70,14 +82,22 @@ def check_batch(reg: Register, *, model_id: str, backend: str, role: str, route_
         if hits:
             kinds = ",".join(sorted({h.kind for h in hits}))
             findings.append(
-                Finding("C-P2", "pre-send", chunk_id, kinds, f"{len(hits)} identifier(s) left"))
+                Finding("C-P2", "pre-send", chunk_id, kinds, f"{len(hits)} identifier(s) left")
+            )
         if chunk_id in blocked:
             findings.append(Finding("C-P3", "pre-send", chunk_id, "-", "quarantined (special category)"))
     if backend in TEST_BACKENDS:
         return findings
     if not route_id:
-        findings.append(Finding("C-P4", "pre-send", model_id, "route",
-                                "no route in models.yaml; every labeling model needs one"))
+        findings.append(
+            Finding(
+                "C-P4",
+                "pre-send",
+                model_id,
+                "route",
+                "no route in models.yaml; every labeling model needs one",
+            )
+        )
         return findings
     route = reg.route(route_id)
     if route is None:
@@ -90,8 +110,15 @@ def check_batch(reg: Register, *, model_id: str, backend: str, role: str, route_
         pinned = route.get("openrouter_provider")
         norm = lambda v: str(v).lower().replace(" ", "")  # noqa: E731 - slug vs display name
         if not provider_order or not pinned or [norm(v) for v in provider_order] != [norm(pinned)]:
-            findings.append(Finding("C-P5", "pre-send", route_id, "provider_order",
-                                    f"OpenRouter must be pinned to exactly [{pinned}]"))
+            findings.append(
+                Finding(
+                    "C-P5",
+                    "pre-send",
+                    route_id,
+                    "provider_order",
+                    f"OpenRouter must be pinned to exactly [{pinned}]",
+                )
+            )
     return findings
 
 
@@ -101,6 +128,11 @@ def check_answer(route: dict[str, Any] | None, backend: str, meta: dict[str, Any
         return None
     answered = (meta or {}).get("provider")
     if str(answered).lower() != str(route.get("openrouter_provider")).lower():
-        return Finding("C-P6", "post-receive", route["id"], "provider",
-                       f"answered by {answered!r}, route pins {route.get('openrouter_provider')!r}")
+        return Finding(
+            "C-P6",
+            "post-receive",
+            route["id"],
+            "provider",
+            f"answered by {answered!r}, route pins {route.get('openrouter_provider')!r}",
+        )
     return None

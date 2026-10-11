@@ -30,9 +30,7 @@ from mobility_model_zoo.productdev.jtbd.schema import (
     evidence_rank,
 )
 
-DIMENSIONS = (
-    "relevance", "item_matching", "kind", "actor_type", "evidence_type", "evidence_scope"
-)
+DIMENSIONS = ("relevance", "item_matching", "kind", "actor_type", "evidence_type", "evidence_scope")
 CATEGORY_LABELS = {
     "kind": list(KINDS),
     "actor_type": list(ACTOR_TYPES),
@@ -63,6 +61,7 @@ Units = list[tuple[str, Any]]
 def kappa_stat(labels: list | None = None, weights: str | None = None) -> Callable[[list], float]:
     def stat(payloads: list) -> float:
         return kappa([p[0] for p in payloads], [p[1] for p in payloads], labels, weights)
+
     return stat
 
 
@@ -71,8 +70,9 @@ def f1_stat(payloads: list) -> float:
     return f1(tp, sum(p[1] for p in payloads), sum(p[2] for p in payloads))
 
 
-def bootstrap_ci(units: Units, stat: Callable[[list], float], resamples: int, seed: int
-                 ) -> tuple[float, float]:
+def bootstrap_ci(
+    units: Units, stat: Callable[[list], float], resamples: int, seed: int
+) -> tuple[float, float]:
     by_chunk: dict[str, list] = defaultdict(list)
     for chunk_id, payload in units:
         by_chunk[chunk_id].append(payload)
@@ -92,11 +92,20 @@ def bootstrap_ci(units: Units, stat: Callable[[list], float], resamples: int, se
     return (float(np.percentile(values, 2.5)), float(np.percentile(values, 97.5)))
 
 
-def summarize(units: Units, stat: Callable[[list], float], metric: str, settings: Settings,
-              unit_count: int | None = None) -> dict[str, Any]:
+def summarize(
+    units: Units,
+    stat: Callable[[list], float],
+    metric: str,
+    settings: Settings,
+    unit_count: int | None = None,
+) -> dict[str, Any]:
     score = stat([p for _, p in units])
-    low, high = bootstrap_ci(units, stat, int(settings.pilot.get("bootstrap_resamples", 1000)),
-                             int(settings.pilot.get("bootstrap_seed", 0)))
+    low, high = bootstrap_ci(
+        units,
+        stat,
+        int(settings.pilot.get("bootstrap_resamples", 1000)),
+        int(settings.pilot.get("bootstrap_seed", 0)),
+    )
     n = unit_count if unit_count is not None else len(units)
     return {
         "metric": metric,
@@ -118,8 +127,9 @@ def composite(scores: Iterable[float | None]) -> float | None:
 
 
 # ---- reference agreement ----------------------------------------------------------------------
-def reference_units(settings: Settings, run_a: str, run_b: str, chunk_ids: list[str]
-                    ) -> dict[str, Units]:
+def reference_units(
+    settings: Settings, run_a: str, run_b: str, chunk_ids: list[str]
+) -> dict[str, Units]:
     out_a, out_b = load_outputs(settings, run_a), load_outputs(settings, run_b)
     min_iou = float(settings.pilot.get("min_iou", 0.3))
     units: dict[str, Units] = {d: [] for d in DIMENSIONS}
@@ -150,18 +160,25 @@ def dimension_stats(units: dict[str, Units], settings: Settings) -> dict[str, An
     out = {
         "relevance": summarize(units["relevance"], kappa_stat([False, True]), "kappa", settings),
         "item_matching": summarize(
-            units["item_matching"], f1_stat, "f1", settings,
+            units["item_matching"],
+            f1_stat,
+            "f1",
+            settings,
             unit_count=sum(p[0] + p[1] + p[2] for _, p in units["item_matching"]),
         ),
     }
     for dim, labels in CATEGORY_LABELS.items():
         out[dim] = summarize(units[dim], kappa_stat(labels), "kappa", settings)
     out["evidence_type"] = summarize(
-        units["evidence_type"], kappa_stat(EVIDENCE_LABELS, "quadratic"),
-        "quadratic_weighted_kappa", settings,
+        units["evidence_type"],
+        kappa_stat(EVIDENCE_LABELS, "quadratic"),
+        "quadratic_weighted_kappa",
+        settings,
     )
     out["evidence_type"]["linear"] = summarize(
-        units["evidence_type"], kappa_stat(EVIDENCE_LABELS, "linear"), "linear_weighted_kappa",
+        units["evidence_type"],
+        kappa_stat(EVIDENCE_LABELS, "linear"),
+        "linear_weighted_kappa",
         settings,
     )
     return {d: out[d] for d in DIMENSIONS}
@@ -222,8 +239,7 @@ def compute_agreement(settings: Settings, split: str = "main") -> dict[str, Any]
             idset = set(ids)
             sub = {d: [u for u in us if u[0] in idset] for d, us in units.items()}
             stats = dimension_stats(sub, settings)
-            breakdowns[name][group] = {d: {"score": s["score"], "n": s["n"]}
-                                       for d, s in stats.items()}
+            breakdowns[name][group] = {d: {"score": s["score"], "n": s["n"]} for d, s in stats.items()}
 
     min_units = int(settings.pilot.get("underpowered_min_units", 30))
     consensus_units = consensus_unit_stats(consensus, contested)
@@ -242,8 +258,7 @@ def compute_agreement(settings: Settings, split: str = "main") -> dict[str, Any]
         "evidence_levels": evidence_levels(consensus, min_units),
         "contested_count": len(contested),
         "wording": "agreement between frontier reference models; not a comparison against "
-                   "human ground truth",
+        "human ground truth",
     }
-    write_json(settings.analysis_dir / f"agreement{'' if split == 'main' else '-' + split}.json",
-               result)
+    write_json(settings.analysis_dir / f"agreement{'' if split == 'main' else '-' + split}.json", result)
     return result

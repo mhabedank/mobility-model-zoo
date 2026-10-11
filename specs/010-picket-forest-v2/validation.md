@@ -1,0 +1,116 @@
+# Validation log: picket-forest 0.2.0
+
+## Development decisions (2026-10-10, before any test capture was scored)
+
+Data used: can-train-and-test `train_01` captures (training, validation, and non-calibration captures as development set), ROAD ambient `train` captures (calibration; `ambient_highway_street_driving_long` held out as development false-alarm capture), ROAD attack captures `_1` and `_3` (development only, never training). No ROAD `_2` capture and no ROAD test ambient capture was scored.
+
+1. Interval features against a running mean (0.1.0) absorb a sustained rate doubling; ROAD fabrication attacks double the rate of one ID (100 → 200 frames/s) and label every frame of that ID in the window. First calibrated features (interval / calibrated median): ROAD dev F1 0.52, AUROC 0.95.
+2. Interval percentiles flagged bursty event-triggered IDs; replaced by frame counts per ID in a window of max(0.25 s, 4 periods) against the calibrated maximum. Counts are also robust to the compressed timestamps of can-train-and-test attack captures.
+3. ROAD fuzzing labels every frame in the injection window; about 6.5 % of them carry unknown IDs, against one unknown frame per hour outside. Added unknown-ID counts over the last 256 and 2048 bus frames (fuzzing state). Single unknown IDs alone do not flag (sporadic wake-up IDs missing from a short calibration caused most false alarms).
+4. Warm-up after capture start (0, 2, 5 s) compared: 0 s keeps episode recall and stays below 3 false alarms per hour; chosen 0 s.
+5. Development results (no warm-up):
+
+| Variant | ROAD dev F1 | ROAD held-out ambient FA/h | ctt dev F1 (set_01..04) | ctt dev FA/h (set_01..04) |
+|---|---|---|---|---|
+| forest (calibrated features) | 0.829 | 0.00 | 0.91 / 0.98 / 0.97 / 0.95 | 1.87 / 1.60 / 0.00 / 0.68 |
+| rules only (same table) | 0.972 | 0.00 | 0.84 / 0.57 / 0.87 / 0.60 | 4.36 / 3.73 / 1.86 / 1.36 |
+| forest OR rules | 0.972 | 0.00 | 0.84 / 0.57 / 0.87 / 0.60 | 4.36 / 3.73 / 1.86 / 1.36 |
+
+6. **Release candidate: the forest on the calibrated features, no warm-up**, threshold chosen on can-train-and-test validation captures.
+7. **Reading of R4 "forest vs. rules", fixed before the test run**: the forest is kept if it beats the rules-only baseline on at least one of (ROAD F1, false alarms per hour on unknown vehicles); otherwise the rules are released. The rules-only baseline is reported with the same metrics. Reason for writing this down: the sentence in research R4 is ambiguous; on development data the rules miss the false-alarm goal (up to 4.36 per hour) and the forest misses nothing.
+
+## Test run on can-ids-v2 (2026-10-10, first and primary result)
+
+Seven detectors, four sets plus ROAD, threshold from can-train-and-test validation captures only. Calibration: 11.8–24.9 min per can-train-and-test vehicle, 141.6 min for ROAD.
+
+| Detector | ROAD F1 (in scope) | ROAD test ambient FA/h | Unknown-vehicle FA/h, worst cell (median) | Unknown-vehicle episode recall (median) | F1 median, unknown vehicle × known / unknown attack |
+|---|---|---|---|---|---|
+| picket-forest-v2 | **0.755** (P 0.999, R 0.606; fabrication 0.84, fuzzing 0.12) | 0.00 | 8.76 (0.00); 7 of 8 cells 0.00 | 0.74 | 0.93 / 0.91 |
+| rules-v2 | 0.997 | 0.00 | 9.85 (0.34) | 0.80 | 0.55 / 0.76 |
+| ctrl-forest-v2-with-id | 0.650 | 0.00 | 8.76 (0.00) | 0.83 | 0.91 / 0.92 |
+| ctrl-shuffled-v2 | 0.040 | 3,590 | 3,383 (2,064) | 0.95 | 0.22 / 0.19 |
+| picket-forest 0.1.0 | 0.398 | 3,569 | 17.2 (0.00) | 0.81 | – |
+
+- Goals: ROAD F1 met; unknown-vehicle false alarms missed in one cell (`set_04`, Traverse, unknown attacks: 8.76 per hour); episode recall met. Verdict of the harness: goal missed.
+- Controls: raw CAN ID adds nothing (passed); `ctrl-id-lookup` far below (passed); forest beats rules on unknown-vehicle false alarms (passed, rules reach higher ROAD F1); shuffled-label control **failed** under the amended rule of feature 007 (F1 at the validation point up to 0.60, AUROC above the isolation-forest reference). The shuffled forest produces 2,000–3,400 false alarms per hour; its frame F1 comes from the calibrated features themselves being label-free anomaly signals (the untrained rules on the same table reach F1 0.49–0.76). The labels are permuted before any other step, so no label information can reach it; the pre-registered rule nevertheless counts as failed and is reported as such.
+
+## Data finding after the v2 test run (2026-10-10)
+
+- All alarms of the failing cell fall into two 4–5 s captures (`set_04/test_04/fuzzing-1`, `-2`, byte-identical to `set_02/train_01/fuzzing-1`, `-2`). Their benign frames use 12 IDs that occur in none of the four vehicles' calibration captures (ID overlap 0–8 %).
+- Audit of all 174 unique can-train-and-test captures with the same test (share of benign frames whose ID is known to the labelled vehicle below 0.9, or a better-matching vehicle): exactly four captures flagged, all with the same 12 foreign IDs: `set_01/train_01/DoS-1`, `DoS-2` and `set_02/train_01/fuzzing-1`, `fuzzing-2`. They were also the source of the start-of-capture false alarms seen during development.
+- New benchmark version `can-ids-v3` = `can-ids-v2` without these captures (role `excluded`, reason recorded). Because the audit followed the first test run, v2 stays the primary result and v3 is reported as the corrected result next to it.
+
+## Test run on can-ids-v3 (2026-10-10, corrected benchmark, same configuration as the v2 run)
+
+- picket-forest-v2 (forest only): ROAD F1 0.679 (goal missed), ROAD ambient 0.00 FA/h, unknown-vehicle false alarms worst 0.51 per hour (goal met), episode recall 0.80. rules-v2: ROAD 0.997, worst 9.85 FA/h. Shuffled-label control failed again under the amended rule.
+- Without the four excluded captures the forest's ROAD F1 also drops on development data (0.82 → 0.52): those mislabelled captures had taught it patterns that happened to fit ROAD. The forest's ROAD result is fragile.
+- Independent check on AutoHack (one further vehicle, three buses, release model trained on can-train-and-test only, calibration = attack-free head of the AutoHack train file: 16 s B-CAN, 72 s P-CAN, 340 s C-CAN): F1 0.83 / 0.68 / 0.71, but 105 / 371 / 741 false alarms per hour. Calibration that short is not enough; reported as a limitation.
+
+## Development decisions after the v3 run (2026-10-10, development data only)
+
+- Cause of the ROAD gap: label convention. can-train-and-test labels only injected frames; ROAD labels every frame of the attacked ID during the injection, and every frame during fuzzing. A frame classifier trained on the first convention finds about half on ROAD.
+- Added an event-level decision on top of the forest (`calibrated.event_flags`): once the forest flags at least two frames of an ID within its count window and the ID's count is at least 25 % above the calibrated maximum, the following frames of that ID are flagged while this holds; plus the fuzzing state (unknown-ID counts). Variants compared on development data only:
+
+| Variant | ROAD dev F1 | ROAD held-out ambient FA/h | ctt dev FA/h (set_01..04) |
+|---|---|---|---|
+| forest only (v3 training) | 0.520 | 0.00 | 0.00 / 0.00 / 0.00 / 0.00 |
+| forest + event, confirm 1, margin 0 | 0.899 | 0.00 | 0.00 / 1.07 / 2.80 / 1.36 |
+| confirm 2 | 0.897 | 0.00 | 0.00 / 0.00 / 2.80 / 0.68 |
+| margin 0.25 | 0.899 | 0.00 | 0.00 / 0.00 / 1.86 / 0.68 |
+| **confirm 2, margin 0.25 (chosen)** | 0.898 | 0.00 | 0.00 / 0.00 / 1.86 / 0.68 |
+
+- Release candidate `picket-forest-v2` = calibrated forest + event decision (confirm 2, margin 0.25). The forest alone is reported as `ctrl-forest-v2-frames`. Frame-level controls (raw CAN ID, shuffled labels) are compared with `ctrl-forest-v2-frames`, the same decision level; this is fixed before the next test run.
+- Test use: this is the third time the ROAD test captures are scored (v2, v3, now). The configuration was chosen on development data only; the repeated use is stated in the report.
+- Harness runs (detector, set) jobs and release models in 4 parallel processes (identical results to a serial run).
+
+## Harness bug found (2026-10-10)
+
+- The first test run of the event candidate (`event.json`: ROAD F1 0.997, ROAD ambient 16.1 FA/h, unknown-vehicle worst 9.85 FA/h) did not execute the logged design: the harness searched a second threshold on the mixed output (event frames 1.0, other frames forest score) and landed below the forest threshold, flagging extra frames. The development logic on the same release training gives 0 alarms on all four ROAD test ambient captures.
+- Fix: the event candidate (and the rules) output the final 0/1 decision; the harness keeps threshold 0.5 for binary detectors (`_calibrate`). Regression test added. The run is repeated with the fixed harness; the faulty run stays recorded here.
+- Leave-one-out over the eight ROAD train ambient captures (development data, 2.36 h): 0 false alarms for every event variant (confirm 2/3, margin 0.25/0.5/1.0) and for the forest alone; development ambient data cannot separate the variants. Independent false-alarm data are added: KCID (DTU, CC BY 4.0), Ford Focus and Honda CR-V (vehicles in no other dataset used here) and the OBD request/response experiment (diagnostic traffic), fetched by ranged reads (disk space).
+
+## Corrected event run and second design flaw (2026-10-10)
+
+- Event candidate with the fixed harness (`event.json`, second run): ROAD F1 0.997, ROAD test ambient 0.00 FA/h, unknown-vehicle worst cell 9.85 FA/h (`set_03`, Forester, known attacks; all other cells ≤ 0.86). The forest alone: ROAD 0.679, worst 0.51.
+- Independent false-alarm test on KCID (never used before; release forest, event decision confirm 2 / margin 0.25, calibration on the first 15 or 30 min of the first trace): Ford Focus 4.89 h of other drivers and days, **0 alarms**; Honda CR-V, 47.99 h, **0 alarms** (both calibration lengths, both variants). 52.9 h without an alarm bound the rate below 0.06 per hour (95 %). The OBD part failed on a file pattern (no files found) and is repeated.
+- Diagnosis of the 9.85 cell (`set_03/test_02/fuzzing-2`): 13 alarms right after a 50 s recording gap between the two labelled episodes. The unknown-ID counts over the last 256/2048 bus frames reached back across the gap into the fuzzing episode. Design flaw of the bus-frame windows (a real device sees the same after bus sleep). Fix: bus-frame windows never reach further back than 2 s (`MAX_SPAN_S`). Development results are identical after the fix (table above). Found through test diagnosis; the following test run is the fifth use of the ROAD and can-train-and-test test captures and is reported as such; KCID is the independent confirmation.
+
+## Final run (2026-10-10, fifth use of the test captures)
+
+- `event-final.json` on can-ids-v3 with the recording-gap fix: picket-forest-v2 ROAD F1 0.997 (P 0.996, R 0.998), ROAD test ambient 0.00 FA/h, unknown-vehicle false alarms ≤ 0.86 per hour in every cell, episode recall median 0.83. rules-v2: ROAD 0.997, worst 0.86, recall 0.80. Controls: raw ID and ID lookup passed, forest-beats-rules passed by 0.0004 ROAD F1 only, shuffled-label control failed (see report).
+- KCID with the final logic: Ford Focus 4.89 h and Honda CR-V, 47.99 h, 0 alarms; Traverse OBD traces calibrated on 60 min of the same setup with diagnostic IDs: 0 alarms in 22.0 h; diagnostic IDs removed from the calibration (dongle plugged in later): 850–1,100 alarms per hour; calibrated from can-train-and-test's Traverse (other recording, no parked mode): about 3,000 per hour.
+- Report: `topics/security/reports/picket-forest/can-ids-v3/report-0.2.0.md`. Results: `zoo/models/picket-forest/results/0.2.0/quality.json`. Release draft `zoo/models/picket-forest/releases/0.2.0.yaml` (experimental, no files yet).
+
+## Verification: memorisation or not? (2026-10-10, owner question)
+
+Checks run after the final result; none of them changed the model.
+
+1. **No memorisation of training data**: the untrained rules on the same calibration table reach the same goal numbers (ROAD F1 0.997, worst unknown-vehicle cell 0.86 FA/h); the forest never saw ROAD, KCID or AutoHack.
+2. **Positive control on KCID** (synthetic fabrication, fuzzing and DoS injected at random times into traces of vehicles in no training data; calibration 15 min of another trace): rules detect 18/18 (Ford Focus) and 12/12 (Honda CR-V) injected episodes with 0 and 8 false alarms (2.3 h and 48 h). Forest and event candidate detect fuzzing and DoS always but only 2/6 and 1/4 fabrications. The detector is not blind on KCID; the forest is the weak part for fabrication on unseen vehicles, the event decision inherits that because the spread starts from forest flags.
+3. **KCID Honda CR-V is weak evidence**: its logger saw only 6 IDs at 198 ms (gateway-filtered OBD port). The meaningful KCID false-alarm evidence is the Ford Focus (64 IDs, about 2,500 frames/s, 4.89 h) and the Traverse OBD traces (72 IDs, 22.0 h).
+4. **Calibration length decides false alarms** (ROAD test ambient, release forest): rules 147 / 81 / 13 / 0 FA/h and event 44 / 44 / 6 / 0 FA/h with 5 / 15 / 60 / 142 min of calibration; ROAD F1 stays 0.95–0.997. The "0 FA/h on ROAD" needs the full 2.4 h of varied ambient driving.
+5. **AutoHack with the full benign train recording as calibration** (15–23 min per bus; vehicle in no training data, physical attacks): episode recall 0.67–0.86; false alarms B-CAN 37 (event, rules) / 0 (forest), P-CAN 0, **C-CAN 444–531 per hour**. 71 of 72 C-CAN alarms come from one legitimate ID (0x224) that appears in the test file but not in the calibration: the fuzzing state counts unknown frames, not distinct unknown IDs, so one new ID reads as fuzzing (the same mechanism as the diagnostic dongle).
+6. **ROAD test repeats the development scenarios**: the `_2` attacks target the same IDs (0xd0, 0x6e0) as the `_1`/`_3` development captures used to design the event decision.
+
+Conclusion: no memorisation and no label leakage found; the high ROAD F1 is consistent with the literature for frequency detectors (Blevins et al. 2021, about 0.99). But the false-alarm goal holds only with a calibration that covers the vehicle's modes and IDs; one new legitimate ID breaks it (AutoHack C-CAN), and the forest adds little or harms fabrication detection on unseen vehicles. Proposed next design steps (not done): fuzzing state on distinct unknown IDs and one event per new ID; spread started by the rate rule instead of forest flags; a calibration-completeness check (minimum duration, modes seen). They need fresh data for validation (CrySyS, further KCID vehicles).
+
+## Device-exact implementation (2026-10-11, development data only)
+
+- Owner decision: publish 0.2.0 as `experimental`, with a C port. The features and the event decision move into the C library `msml_cal` (firmware/components/can_features/msml_cal.c); Python calls it through ctypes, so training, evaluation and device run the same code. For the microcontroller budget, frame counts use 8 time buckets per ID (about 40 bytes per ID instead of a timestamp ring); unknown-ID counts are capped at 64; times are integer microseconds; ratios are rounded to 1/256; payload features are computed for known IDs only (no state for unknown IDs). The table (calibration) is learned on the host and compiled into the device.
+- Development results with these features (forest retrained): ROAD dev F1 0.972 for the event decision (was 0.898), held-out ambient 0 FA/h; ctt dev false alarms with confirm 2 / margin 0.25: 3.75 / 0 / 1.86 / 1.36 (set_01 from one Impala ID exceeding its maximum by 1–3 frames); with margin 0.5: 1.87 / 0 / 0 / 1.36 at the same ROAD dev F1. **Chosen: confirm 2, margin 0.5.** The rules-only baseline keeps its margin 0.25.
+
+## Device-exact verification and owner decision (2026-10-11)
+
+- Harness on can-ids-v3 with the device-exact features (`device.json`; verification, no design change): forest + event decision ROAD F1 0.99725, unknown-vehicle false alarms up to **19.57 per hour** (`set_01`, Traverse; 5.89 Silverado), both caused by the forest's own flags (the forest alone: same cells). Rules on the same table: ROAD F1 0.99676, worst cell **0.86 per hour**, episode recall 0.80. KCID Ford Focus 4.89 h and Honda CR-V, 48 h: 0 alarms; AutoHack unchanged (C-CAN 444–519 FA/h from one new ID).
+- Third independent sign that the forest harms on unseen vehicles (missed injected fabrications, AutoHack no better, false alarms here). Owner decision (AskUserQuestion): **in 0.2.0 the calibrated rules decide**; the forest keeps running on the device and its score is published as additional information (bit-exact in the gate examples). The pre-registered check "forest beats rules" passed formally by 0.0005 ROAD F1 only; the decision follows the goals instead and is stated on the card.
+- The released chain: msml_cal features → `msml_cal_rules` (count above the calibrated maximum by 25 %, unknown-ID state, DLC change) → alarm stage (3 frames in 200 ms, 1 s hold-off); forest score alongside. Its benchmark numbers are the `rules-v2` row of `device.json`.
+
+## Real-board measurement after publication (2026-10-11)
+
+- picket-forest 0.2.0 (published, unchanged) on the owner's Wemos D1 mini (ESP8266 at 160 MHz, CP2102 USB bridge; `hil/boards.yaml` entry `esp8266-1` updated to 10c4:ea60), replay of 4,000 synthetic frames of the example vehicle: **0 score mismatches** against the host build; whole chain per frame median 185.8 µs, p99 210.2 µs; detector flash 18.7 KiB, RAM 11.9 KiB (code and static data from the object files plus the detector state).
+- Against the budgets: flash and RAM within (128 KB, 16 KB); latency misses the 100 µs target on this substitute board (no FPU; the float forest dominates), but stays below the 250 µs per frame of a fully loaded 500 kbit/s bus.
+- Stored in `topics/security/reports/picket-forest/can-ids-v3/device-0.2.0-d1mini.json`, not in the published 0.2.0 results (published versions are immutable). Next version: carry these real-board numbers into its performance results; consider skipping the forest on the device (the rules decide) to cut latency.
+- Second board (`esp8266-2`, ESP8266EX with CH340 adapter, 26 MHz crystal, identified with esptool): identical result - 0 score mismatches, median 185.8 µs, p99 210.2 µs, flash 18.7 KiB, RAM 11.9 KiB. Same chip, clock and firmware give the same cycle counts; the result reproduces across boards. Stored in `device-0.2.0-esp8266-2.json`. The measurement now names the board id in the hardware field (it was fixed to "Wemos D1 mini").
+- Arduino MKR Zero (`mkrzero-1`, SAMD21 Cortex-M0+ at 48 MHz, no FPU; new PlatformIO env `mkrzero`, target `samd21`, timing with `micros()`, 2,000 replayed frames because of the 32 KB RAM): **0 score mismatches** (bit-exact even with software floating point); median 1,328 µs, p99 1,402 µs per frame; flash 14.3 KiB, RAM 11.9 KiB. About 750 frames per second, i.e. roughly 19 % of a 500 kbit/s bus. Stored in `device-0.2.0-mkrzero.json`.
+- Unrelated flaky test noticed: `tests/edge/int8/test_keras_export.py::test_export_writes_bit_exact_model_outside_the_repo[False]` asserts training accuracy > 0.8 and measured 0.77–0.80 on reruns (random training; not touched by this work).
+- Real ESP32 (`esp32-1`, LilyGO LoRa32 with ESP32-D0WDQ6-V3 at 240 MHz, single-precision FPU, CH9102 adapter, AXP power chip): **0 score mismatches**; median **80.3 µs**, p99 **98.5 µs** per frame (within the 100 µs budget), flash 16.5 KiB, RAM 11.9 KiB. About 12,000 frames per second, three times a fully loaded 500 kbit/s bus. The board stopped answering after a failed first upload until its PWR button was pressed (the power chip had switched it off). Stored in `device-0.2.0-esp32.json`. The reference board ESP32-S3 is still unmeasured.

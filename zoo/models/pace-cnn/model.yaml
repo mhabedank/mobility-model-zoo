@@ -6,6 +6,7 @@ runtime: mcu
 title: 'Pace (CNN): activity recognition from IMU windows on a microcontroller'
 summary: A small int8 convolutional network that classifies 2.56-second windows of accelerometer and gyroscope signals into six activities (walking, walking upstairs, walking downstairs, sitting, standing, lying). It runs on the zoo's int8 engine on microcontrollers.
 license: Apache-2.0
+usage_class: commercial
 license_exception: null
 base_model: null
 base_model_license: null

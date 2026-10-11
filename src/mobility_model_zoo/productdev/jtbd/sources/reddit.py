@@ -82,13 +82,14 @@ def _platform_terms_recorded(settings: Settings) -> None:
     from mobility_model_zoo.compliance.register import Register
 
     reg = Register.load(settings.base)
-    terms = [c.get("platform_terms") for c in reg.records("source-classes")
-             if c["id"] == "forum-review"]
+    terms = [c.get("platform_terms") for c in reg.records("source-classes") if c["id"] == "forum-review"]
     terms = [t for t in terms if t and "reddit" in str(t.get("url", "")).lower()]
     allowed = bool(terms) and all(terms[0].get(k) == "allowed" for k in ("ml_use", "hosted_processing"))
     if not allowed:
-        raise ValidationFailed("Reddit Data API terms are not recorded as allowing ML use and hosted "
-                               "processing for the forum-review class (check C-I7); not fetched")
+        raise ValidationFailed(
+            "Reddit Data API terms are not recorded as allowing ML use and hosted "
+            "processing for the forum-review class (check C-I7); not fetched"
+        )
 
 
 def fetch_thread(
@@ -124,5 +125,6 @@ def fetch_thread(
         "retention_until": retention_until,
     }
     raw = json.dumps(listing, ensure_ascii=False).encode("utf-8")
-    return create_snapshot(settings, raw, "json", url, meta, update=update, reason=reason,
-                           text=flatten_thread(listing))
+    return create_snapshot(
+        settings, raw, "json", url, meta, update=update, reason=reason, text=flatten_thread(listing)
+    )

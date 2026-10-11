@@ -1,0 +1,43 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "pages": [
+      {
+        "pageid": 1000006, "ns": 6, "title": "File:Mapa ubicación Carril bici Castellana.jpg", "index": 1,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 120456, "width": 1600, "height": 1200,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/06/Mapa_ubicaci%C3%B3n_Carril_bici_Castellana.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Mapa_ubicaci%C3%B3n_Carril_bici_Castellana.jpg",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000006",
+          "extmetadata": {
+            "Categories": {"value": "Carril Bici Castellana|Self-published work", "source": "commons-categories", "hidden": ""},
+            "ImageDescription": {"value": "Mapa de la ubicación del carril bici", "source": "commons-desc-page"},
+            "Artist": {"value": "Uploader A", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "GFDL", "source": "commons-desc-page", "hidden": ""},
+            "LicenseUrl": {"value": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "source": "commons-desc-page"}
+          },
+          "mime": "image/jpeg"
+        }]
+      },
+      {
+        "pageid": 1000007, "ns": 6, "title": "File:Bike lane network diagram.png", "index": 2,
+        "imagerepository": "local",
+        "imageinfo": [{
+          "size": 65000, "width": 900, "height": 700,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Bike_lane_network_diagram.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "descriptionurl": "https://commons.wikimedia.org/wiki/File:Bike_lane_network_diagram.png",
+          "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=1000007",
+          "extmetadata": {
+            "Categories": {"value": "Cycling infrastructure diagrams", "source": "commons-categories", "hidden": ""},
+            "ImageDescription": {"value": "Network of bike lanes", "source": "commons-desc-page"},
+            "Artist": {"value": "Uploader A", "source": "commons-desc-page"},
+            "LicenseShortName": {"value": "CC0", "source": "commons-desc-page", "hidden": ""},
+            "LicenseUrl": {"value": "http://creativecommons.org/publicdomain/zero/1.0/deed.en", "source": "commons-desc-page"}
+          },
+          "mime": "image/png"
+        }]
+      }
+    ]
+  }
+}

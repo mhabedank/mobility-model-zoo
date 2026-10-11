@@ -42,19 +42,23 @@ def main() -> None:
         gpu_mb = torch.mps.driver_allocated_memory() / (1024 * 1024)  # at the end, not a peak
     maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     maxrss_mb = maxrss / (1024 * 1024) if sys.platform == "darwin" else maxrss / 1024
-    print(json.dumps({
-        "load_time_s": round(load_time, 4),
-        "latency_9k_chars_s": round(statistics.median(latencies), 4),
-        "latencies_s": [round(v, 4) for v in latencies],
-        "text_chars": len(text),
-        "n_chunks": len(job["chunks"]),
-        "chunks_wall_s": round(wall, 4),
-        "chunks_per_min": round(len(job["chunks"]) / wall * 60, 4) if wall else None,
-        "ru_maxrss_mb": round(maxrss_mb, 1),
-        "threads": torch.get_num_threads(),
-        "device": device,
-        "gpu_memory_mb": None if gpu_mb is None else round(gpu_mb, 1),
-    }))
+    print(
+        json.dumps(
+            {
+                "load_time_s": round(load_time, 4),
+                "latency_9k_chars_s": round(statistics.median(latencies), 4),
+                "latencies_s": [round(v, 4) for v in latencies],
+                "text_chars": len(text),
+                "n_chunks": len(job["chunks"]),
+                "chunks_wall_s": round(wall, 4),
+                "chunks_per_min": round(len(job["chunks"]) / wall * 60, 4) if wall else None,
+                "ru_maxrss_mb": round(maxrss_mb, 1),
+                "threads": torch.get_num_threads(),
+                "device": device,
+                "gpu_memory_mb": None if gpu_mb is None else round(gpu_mb, 1),
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

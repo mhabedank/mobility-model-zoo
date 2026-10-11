@@ -35,8 +35,9 @@ def rows_path(settings: Settings):
     return rows_dir(settings) / "rows.jsonl"
 
 
-def align_units(text: str, items: list[dict[str, Any]]
-                ) -> list[tuple[tuple[int, int], dict[str, Any] | None]]:
+def align_units(
+    text: str, items: list[dict[str, Any]]
+) -> list[tuple[tuple[int, int], dict[str, Any] | None]]:
     """Each unit of `text` with the item it belongs to (None: no item).
 
     A unit takes the item that overlaps it most, if the overlap covers at least half of the unit
@@ -50,8 +51,10 @@ def align_units(text: str, items: list[dict[str, Any]]
             overlap = min(b, e) - max(a, s)
             if overlap > best_overlap:
                 best, best_overlap = item, overlap
-        if best and (best_overlap >= MIN_OVERLAP * (b - a)
-                     or best_overlap >= MIN_OVERLAP * (best["span"][1] - best["span"][0])):
+        if best and (
+            best_overlap >= MIN_OVERLAP * (b - a)
+            or best_overlap >= MIN_OVERLAP * (best["span"][1] - best["span"][0])
+        ):
             aligned.append(((a, b), best))
         else:
             aligned.append(((a, b), None))
@@ -64,7 +67,7 @@ def validation_snapshots(snapshot_ids: list[str], fraction: float, seed: int) ->
         return set()
     rng = random.Random(seed)
     rng.shuffle(ids)
-    return set(ids[:max(1, round(fraction * len(ids)))])
+    return set(ids[: max(1, round(fraction * len(ids)))])
 
 
 def build_rows(settings: Settings, run_id: str, recipe_file: str | None = None) -> dict[str, Any]:
@@ -80,8 +83,11 @@ def build_rows(settings: Settings, run_id: str, recipe_file: str | None = None) 
     chunks = chunk_map(settings, "train")
     outputs = load_outputs(settings, run_id)
     validation = settings.span_train["validation"]
-    val = validation_snapshots([c.snapshot_id for c in chunks.values()],
-                               float(validation["fraction_of_snapshots"]), int(validation["seed"]))
+    val = validation_snapshots(
+        [c.snapshot_id for c in chunks.values()],
+        float(validation["fraction_of_snapshots"]),
+        int(validation["seed"]),
+    )
     stats: Counter = Counter()
     excluded: Counter = Counter()
     rows = []
@@ -95,15 +101,25 @@ def build_rows(settings: Settings, run_id: str, recipe_file: str | None = None) 
         if out.relevant and out.items and not items:
             excluded["all_items_dropped"] += 1  # an empty target would teach a wrong "nothing"
             continue
-        row_items = [{"span": list(it.span), "kind": it.kind, **{d: getattr(it, d) for d in dims}}
-                     for it in sorted(items, key=lambda i: i.span)]
+        row_items = [
+            {"span": list(it.span), "kind": it.kind, **{d: getattr(it, d) for d in dims}}
+            for it in sorted(items, key=lambda i: i.span)
+        ]
         aligned = sum(1 for _, item in align_units(chunk.text, row_items) if item)
         stats["units_with_item"] += aligned
-        rows.append({"chunk_id": chunk_id, "snapshot_id": chunk.snapshot_id, "text": chunk.text,
-                     "relevant": out.relevant, "items": row_items,
-                     "split": "val" if chunk.snapshot_id in val else "train",
-                     "language": chunk.language, "source_type": chunk.source_type,
-                     "sub_area": chunk.sub_area})
+        rows.append(
+            {
+                "chunk_id": chunk_id,
+                "snapshot_id": chunk.snapshot_id,
+                "text": chunk.text,
+                "relevant": out.relevant,
+                "items": row_items,
+                "split": "val" if chunk.snapshot_id in val else "train",
+                "language": chunk.language,
+                "source_type": chunk.source_type,
+                "sub_area": chunk.sub_area,
+            }
+        )
     write_jsonl(rows_path(settings), rows)
     split_counts = Counter(r["split"] for r in rows)
     result = {
@@ -112,8 +128,7 @@ def build_rows(settings: Settings, run_id: str, recipe_file: str | None = None) 
         "chunks_in": len(chunks),
         "excluded": dict(excluded),
         "rows": len(rows),
-        "rows_per_split": {"train": split_counts.get("train", 0),
-                           "val": split_counts.get("val", 0)},
+        "rows_per_split": {"train": split_counts.get("train", 0), "val": split_counts.get("val", 0)},
         "validation_snapshots": len(val),
         "items_in": stats["items_in"],
         "items_kept": sum(len(r["items"]) for r in rows),
@@ -123,7 +138,8 @@ def build_rows(settings: Settings, run_id: str, recipe_file: str | None = None) 
         "relevant_rows": sum(1 for r in rows if r["relevant"]),
         "composition": {
             key: dict(sorted(Counter(r[key] for r in rows).items()))
-            for key in ("language", "source_type", "sub_area")},
+            for key in ("language", "source_type", "sub_area")
+        },
     }
     write_json(rows_dir(settings) / "rows.stats.json", result)
     return result
@@ -140,8 +156,7 @@ def load_rows(settings: Settings, split: str | None = None) -> list[dict[str, An
 def _data_hashes(settings: Settings) -> dict[str, Any]:
     chunks = {c: sha256_text(ch.text) for c, ch in sorted(chunk_map(settings, "train").items())}
     rows_sha = sha256_bytes(rows_path(settings).read_bytes())
-    combined = sha256_text("\n".join([*(f"{k}:{v}" for k, v in chunks.items()),
-                                      f"rows:{rows_sha}"]))
+    combined = sha256_text("\n".join([*(f"{k}:{v}" for k, v in chunks.items()), f"rows:{rows_sha}"]))
     return {"chunks": chunks, "rows_sha256": rows_sha, "sha256": combined}
 
 
@@ -156,24 +171,38 @@ def freeze_data(settings: Settings) -> dict[str, Any]:
     if path.exists():
         frozen = read_json(path)
         if frozen["sha256"] != current["sha256"]:
-            raise ValidationFailed(f"{settings.span_train.get('dataset')} is already frozen with "
-                                   "other content; build a new dataset version instead")
+            raise ValidationFailed(
+                f"{settings.span_train.get('dataset')} is already frozen with "
+                "other content; build a new dataset version instead"
+            )
         return {k: v for k, v in frozen.items() if k != "chunks"}
     now = datetime.now(UTC)
     retention = settings.span_train.get("retention") or {}
     months = int(retention.get("review_by_months_after_freeze", 24))
     year, month = divmod(now.month - 1 + months, 12)
     review_by = date(now.year + year, month + 1, min(now.day, 28))
-    frozen = {"dataset": settings.span_train.get("dataset"), "frozen_at": now.isoformat(),
-              "chunk_count": len(current["chunks"]), **current}
+    frozen = {
+        "dataset": settings.span_train.get("dataset"),
+        "frozen_at": now.isoformat(),
+        "chunk_count": len(current["chunks"]),
+        **current,
+    }
     write_json(path, frozen)
     import yaml
 
-    (settings.data_dir / "retention.yaml").write_text(yaml.safe_dump({
-        "dataset": settings.span_train.get("dataset"), "frozen_at": now.isoformat(),
-        "rule": retention.get("rule", "while a model trained on it is current"),
-        "review_by": review_by.isoformat(), "published": False}, sort_keys=False),
-        encoding="utf-8")
+    (settings.data_dir / "retention.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "dataset": settings.span_train.get("dataset"),
+                "frozen_at": now.isoformat(),
+                "rule": retention.get("rule", "while a model trained on it is current"),
+                "review_by": review_by.isoformat(),
+                "published": False,
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
     return {k: v for k, v in frozen.items() if k != "chunks"}
 
 

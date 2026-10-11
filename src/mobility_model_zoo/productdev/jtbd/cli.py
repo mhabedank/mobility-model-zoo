@@ -80,16 +80,26 @@ def source_fetch(
     update: bool = typer.Option(False, "--update"),
     reason: str = typer.Option(None, "--reason"),
     tos_url: str = typer.Option(None, "--tos-url", help="Terms of service page to screen (C-F6)"),
-    tos_confirmed: bool = typer.Option(False, "--tos-confirmed",
-                                       help="The owner read the flagged terms and they allow mining"),
+    tos_confirmed: bool = typer.Option(
+        False, "--tos-confirmed", help="The owner read the flagged terms and they allow mining"
+    ),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.sources.snapshot import fetch_url
 
-    meta = _meta(source_type=source_type, license=license, legal_basis=legal_basis,
-                 permitted_uses=permitted_uses, retention_until=retention_until,
-                 access_terms_checked=access_terms)
-    _run(ctx, lambda s: fetch_url(s, url, meta, update=update, reason=reason, tos_url=tos_url,
-                                  tos_confirmed=tos_confirmed))
+    meta = _meta(
+        source_type=source_type,
+        license=license,
+        legal_basis=legal_basis,
+        permitted_uses=permitted_uses,
+        retention_until=retention_until,
+        access_terms_checked=access_terms,
+    )
+    _run(
+        ctx,
+        lambda s: fetch_url(
+            s, url, meta, update=update, reason=reason, tos_url=tos_url, tos_confirmed=tos_confirmed
+        ),
+    )
 
 
 @source_app.command("reddit")
@@ -122,11 +132,15 @@ def source_register(
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.sources.snapshot import register_file
 
-    meta = _meta(source_type=source_type, license=license, legal_basis=legal_basis,
-                 permitted_uses=permitted_uses, retention_until=retention_until,
-                 access_terms_checked=access_terms)
-    _run(ctx, lambda s: register_file(s, path, url, meta, update=update, reason=reason,
-                                           signals=signals))
+    meta = _meta(
+        source_type=source_type,
+        license=license,
+        legal_basis=legal_basis,
+        permitted_uses=permitted_uses,
+        retention_until=retention_until,
+        access_terms_checked=access_terms,
+    )
+    _run(ctx, lambda s: register_file(s, path, url, meta, update=update, reason=reason, signals=signals))
 
 
 @source_app.command("list")
@@ -155,9 +169,11 @@ def corpus_autochunk(
     evaluation: int = typer.Option(..., "--eval"),
     seed: int = typer.Option(..., "--seed"),
     exclude_benchmark: Path = typer.Option(
-        None, "--exclude-benchmark",
+        None,
+        "--exclude-benchmark",
         help="Benchmark config whose main and holdout sources may not supply training chunks "
-             "(default: span_train.exclude_benchmark of the config)"),
+        "(default: span_train.exclude_benchmark of the config)",
+    ),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.corpus.autochunk import autochunk
 
@@ -256,14 +272,24 @@ def label_cmd(
     split: str = typer.Option("main", "--split"),
     limit: int = typer.Option(None, "--limit"),
     retry_failed: bool = typer.Option(
-        False, "--retry-failed", help="Retry chunks excluded after backend failures"),
+        False, "--retry-failed", help="Retry chunks excluded after backend failures"
+    ),
     workers: int = typer.Option(1, "--workers", help="Parallel model calls (chunks at a time)"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd.labeling.runner import label
 
     def action(s: Settings) -> Any:
-        return label(s, role=role, backend=backend, model_id=model, host=host, split=split,
-                     limit=limit, retry_failed=retry_failed, workers=workers)
+        return label(
+            s,
+            role=role,
+            backend=backend,
+            model_id=model,
+            host=host,
+            split=split,
+            limit=limit,
+            retry_failed=retry_failed,
+            workers=workers,
+        )
 
     _run(ctx, action)
 
@@ -348,9 +374,7 @@ def categorize_cmd(
     ctx: typer.Context,
     export: bool = typer.Option(False, "--export", help="Write contested-review.csv"),
     import_path: Path = typer.Option(None, "--import", help="Read a filled-in review CSV"),
-    check: bool = typer.Option(
-        False, "--check", help="Fail if any contested entry is uncategorized"
-    ),
+    check: bool = typer.Option(False, "--check", help="Fail if any contested entry is uncategorized"),
     freetext: bool = typer.Option(False, "--freetext", help="Write the free-text sample (FR-025)"),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd import categorize
@@ -393,14 +417,16 @@ def perf_cmd(
     hardware: str = typer.Option(None, "--hardware", help="VM type label, e.g. hetzner-cx32"),
     frontier: bool = typer.Option(False, "--frontier"),
     run: str = typer.Option(None, "--run"),
-    sample: int = typer.Option(None, "--sample",
-                               help="Chunks to measure: frontier default 20, local default all"),
+    sample: int = typer.Option(
+        None, "--sample", help="Chunks to measure: frontier default 20, local default all"
+    ),
     backend: str = typer.Option(None, "--backend", help="`span` for a span-model directory"),
     model_dir: Path = typer.Option(None, "--model-dir", help="Span model files (--backend span)"),
     text: Path = typer.Option(None, "--text", help="Latency text (default: the 9k perf text)"),
     device: str = typer.Option("cpu", "--device", help="cpu, mps or cuda (--backend span)"),
-    suffix: str = typer.Option(None, "--suffix",
-                               help="Name suffix for measurements off the reference hardware"),
+    suffix: str = typer.Option(
+        None, "--suffix", help="Name suffix for measurements off the reference hardware"
+    ),
 ) -> None:
     from mobility_model_zoo.productdev.jtbd import perf
     from mobility_model_zoo.productdev.jtbd.errors import UsageError
@@ -409,8 +435,9 @@ def perf_cmd(
         if backend == "span":
             if not model_dir:
                 raise UsageError("--backend span requires --model-dir")
-            return perf.perf_span(s, model_dir, hardware, text, quality_run, device=device,
-                                  suffix=suffix)
+            return perf.perf_span(
+                s, model_dir, hardware, text, quality_run, device=device, suffix=suffix
+            )
         if backend:
             raise UsageError(f"unknown --backend {backend!r} (only `span`)")
         if frontier:
@@ -419,8 +446,9 @@ def perf_cmd(
             return perf.perf_frontier(s, run, sample or 20)
         if not model:
             raise UsageError("--model is required")
-        return perf.perf_local(s, model, host, warmup, quality_run, hardware, sample=sample,
-                               suffix=suffix)
+        return perf.perf_local(
+            s, model, host, warmup, quality_run, hardware, sample=sample, suffix=suffix
+        )
 
     _run(ctx, action)
 
@@ -441,20 +469,23 @@ def report_cmd(ctx: typer.Context) -> None:
 
 
 @spike_app.command("export-sft")
-def spike_export(ctx: typer.Context, run: str = typer.Option(..., "--run"),
-                 out: Path = typer.Option(..., "--out"),
-                 repair_quotes: bool = typer.Option(
-                     True, "--repair/--no-repair",
-                     help="Replace near-miss teacher quotes with the verbatim source passage")
-                 ) -> None:
+def spike_export(
+    ctx: typer.Context,
+    run: str = typer.Option(..., "--run"),
+    out: Path = typer.Option(..., "--out"),
+    repair_quotes: bool = typer.Option(
+        True,
+        "--repair/--no-repair",
+        help="Replace near-miss teacher quotes with the verbatim source passage",
+    ),
+) -> None:
     from mobility_model_zoo.productdev.jtbd.spike import export_sft
 
     _run(ctx, lambda s: export_sft(s, run, out, repair_quotes))
 
 
 @spike_app.command("report")
-def spike_report_cmd(ctx: typer.Context,
-                     sft_stats: Path = typer.Option(None, "--sft-stats")) -> None:
+def spike_report_cmd(ctx: typer.Context, sft_stats: Path = typer.Option(None, "--sft-stats")) -> None:
     from mobility_model_zoo.productdev.jtbd.spike import spike_report
 
     _run(ctx, lambda s: spike_report(s, sft_stats))

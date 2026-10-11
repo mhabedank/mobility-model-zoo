@@ -3,7 +3,19 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.metrics import average_precision_score, f1_score, precision_score, recall_score
+from sklearn.metrics import (
+    average_precision_score,
+    f1_score,
+    matthews_corrcoef,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+
+GRACE_S = 1.0  # an alarm up to 1 s after an episode still detects it (benchmark protocol)
+EPISODE_GAP_S = 1.0
+ALARM_GRID = [(k, w) for k in (1, 2, 3, 5, 8) for w in (50, 200, 1000)]
+ALARM_HOLDOFF_MS = 1000
 
 
 def alarm_events(ts: np.ndarray, flagged: np.ndarray, merge_s: float = 1.0) -> int:
@@ -23,8 +35,11 @@ def frame_metrics(y: np.ndarray, score: np.ndarray, threshold: float = 0.5) -> d
         "recall": float(recall_score(y, pred, zero_division=0)),
         "f1": float(f1_score(y, pred, zero_division=0)),
         "fpr": float(np.mean(pred[y == 0])) if np.any(y == 0) else float("nan"),
+        "mcc": float(matthews_corrcoef(y, pred)) if 0 < y.sum() < y.size else float("nan"),
     }
-    out["auc_pr"] = float(average_precision_score(y, score)) if 0 < y.sum() < y.size else float("nan")
+    both = 0 < y.sum() < y.size
+    out["auc_pr"] = float(average_precision_score(y, score)) if both else float("nan")
+    out["auc_roc"] = float(roc_auc_score(y, score)) if both else float("nan")
     return out
 
 
@@ -86,5 +101,40 @@ def alarm_metrics(
         "episodes": episodes,
         "episode_recall": detected / episodes if episodes else float("nan"),
         "median_latency_ms": float(np.median(latencies) * 1000) if latencies else float("nan"),
+        "p95_latency_ms": float(np.percentile(latencies, 95) * 1000) if latencies else float("nan"),
         "false_alarms_per_hour": false_alarms / hours if hours > 0 else float("nan"),
     }
+
+
+def recall_at_fpr(
+    y: np.ndarray, score: np.ndarray, benign_val_scores: np.ndarray, fpr: float = 0.001
+) -> float:
+    """Attack-class recall at the threshold that gives `fpr` on benign validation frames.
+
+    The threshold comes from validation data passed in by the caller, never from the test frames.
+    """
+    thr = float(np.quantile(np.asarray(benign_val_scores, dtype=np.float64), 1.0 - fpr))
+    attacks = score[y == 1]
+    return float(np.mean(attacks > thr)) if attacks.size else float("nan")
+
+
+def budget_operating_point(
+    val_caps: list[dict], val_scores: list[np.ndarray], thr: float, budget_per_hour: float
+) -> dict | None:
+    """Alarm rule with the highest episode recall whose false alarms per hour on the validation
+    captures stay within the budget (ties: faster alarm). None if no rule fits."""
+    from mobility_model_zoo.security.can_ids.forest_features import alarms, to_microseconds
+
+    best = None
+    for k, w in ALARM_GRID:
+        runs = [
+            (c["ts"], c["y"], alarms(to_microseconds(c["ts"]), sc >= thr, k, w, ALARM_HOLDOFF_MS))
+            for c, sc in zip(val_caps, val_scores, strict=True)
+        ]
+        m = alarm_metrics(runs)
+        if not m["false_alarms_per_hour"] <= budget_per_hour:  # also rejects NaN
+            continue
+        rank = (m["episode_recall"], -np.nan_to_num(m["median_latency_ms"], nan=np.inf))
+        if best is None or rank > best[0]:
+            best = (rank, {"k": k, "window_ms": w, "holdoff_ms": ALARM_HOLDOFF_MS, "validation": m})
+    return best[1] if best else None

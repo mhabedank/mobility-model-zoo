@@ -15,6 +15,6 @@
 {% endfor %}
 </tbody></table></div></div>
 {% endif %}
-<div class="stack"><h3 class="h3">Versioning</h3><div class="prose">{{ fmt.versioning | md }}</div><p>Full reference: <a href="{{ root }}formats/{{ fmt.id }}/">output format {{ fmt.id }}</a> · <a href="{{ site.repo }}/blob/{{ p.latest.tag }}/{{ fmt.schema_path }}">JSON schema</a>.</p></div>
+<div class="stack"><h3 class="h3">Versioning</h3><div class="prose">{{ fmt.versioning | md }}</div><p>Full reference: <a href="{{ root }}formats/{{ fmt.id }}/">output format {{ fmt.id }}</a> · <a href="{{ p.schema_url }}">JSON schema</a>.</p></div>
 {% endif %}
 </div></section>

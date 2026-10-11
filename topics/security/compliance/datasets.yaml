@@ -364,3 +364,95 @@ datasets:
   owner: Martin Habedank
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
+- id: kcid
+  title: KCID - Kidmose CANid Dataset
+  use_case: Benign CAN traffic of four vehicles (16 drivers) for false alarms per hour of CAN intrusion detectors on unseen vehicles
+  origin_url: https://doi.org/10.11583/DTU.30483005
+  creators:
+  - Brooke Elizabeth Kidmose
+  - Andreas Brasen Kidmose
+  publisher: Technical University of Denmark (DTU Data)
+  doi: 10.11583/DTU.30483005
+  attribution_text: The Kidmose CANid Dataset (KCID) by B. E. Kidmose and A. B. Kidmose, Technical University of
+    Denmark, doi:10.11583/DTU.30483005 (CC BY 4.0)
+  citation: Kidmose and Kidmose, 'The Kidmose CANid Dataset (KCID)', Technical University of Denmark, 2025.
+    doi:10.11583/DTU.30483005
+  provider: url
+  locator:
+    url: https://ndownloader.figshare.com/files/59228933
+  license_check: api
+  license_checked: '2026-10-10'
+  approx_size_mb: 27900
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+  modifications: Selected .log traces (Ford Focus, Honda CR-V, OBD experiment) read by ranged requests; converted to the common frame format for evaluation only; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: benchmark_only
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-10'
+    retrospective: false
+  personal_data: *id001
+  storage: $MMZ_DATA/kcid (local cache outside git)
+  retention_until: '2027-10-10'
+  used_by: []
+  status: active
+  reason: null
+  class: can-bus-datasets
+  vehicle_data: *id002
+- id: autohack
+  title: AutoHack - physically verified multi-bus CAN dataset
+  use_case: CAN intrusion detection on a further vehicle (C-, P- and B-CAN; fuzzing, spoofing, replay, DoS, UDS)
+  origin_url: https://zenodo.org/records/19661007
+  creators: unknown
+  publisher: Korea University and Kookmin University (Zenodo)
+  doi: 10.5281/zenodo.19661007
+  attribution_text: AutoHack dataset, Korea University and Kookmin University, doi:10.5281/zenodo.19661007 (CC BY
+    4.0)
+  citation: "AutoHack: A Physically Verified Multi-Bus CAN Dataset for Intrusion Detection System Evaluation,
+    Zenodo, 2026 (submitted to USENIX VehicleSec 2026). doi:10.5281/zenodo.19661007"
+  provider: zenodo
+  locator:
+    zenodo_record: '19661007'
+  license_check: api
+  license_checked: '2026-10-10'
+  approx_size_mb: 310
+  owner: Martin Habedank
+  last_reviewed: '2026-10-10'
+  next_review: '2027-04-10'
+  modifications: Converted to the common frame format for evaluation only; not redistributed.
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  permitted_use: benchmark_only
+  redistribution: unclear
+  redistribution_basis: CC BY 4.0 permits redistribution with attribution; provider terms not yet checked; not published
+    (FR-011).
+  commercial_use: true
+  quote_allowed: false
+  signals:
+    robots: allow
+    tdmrep: absent
+    x_robots: absent
+    meta_noai: absent
+    ai_txt: absent
+    checked_at: '2026-10-10'
+    retrospective: false
+  personal_data: *id001
+  storage: $MMZ_DATA/autohack (local cache outside git)
+  retention_until: '2027-10-10'
+  used_by: []
+  status: active
+  reason: null
+  class: can-bus-datasets
+  vehicle_data: *id002

@@ -36,8 +36,26 @@ boards:
   # Replace the match with what `edge discover` prints for your board.
   - id: esp8266-1
     target: esp8266
+    match: {vid_pid: "10c4:ea60"}  # owner's D1 mini (CP2102 variant)
+    tags: [esp, xtensa]
+
+  # Second ESP8266 board of the owner (CH340 adapter, ESP8266EX, 26 MHz crystal).
+  - id: esp8266-2
+    target: esp8266
     match: {vid_pid: "1a86:7523"}
     tags: [esp, xtensa]
+
+  # Arduino MKR Zero (SAMD21 Cortex-M0+, 48 MHz, no FPU).
+  - id: mkrzero-1
+    target: samd21
+    match: {vid_pid: "2341:804f"}
+    tags: [arm, cortex-m0plus]
+
+  # LilyGO LoRa32 (ESP32-D0WDQ6-V3, 240 MHz, CH9102, AXP power chip: press PWR if it stops answering).
+  - id: esp32-1
+    target: esp32
+    match: {vid_pid: "1a86:55d4"}
+    tags: [esp, xtensa, fpu]
 
   # Further boards - uncomment / adapt as you add hardware:
   # - id: esp32-1

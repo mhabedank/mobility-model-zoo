@@ -134,3 +134,13 @@ nrf52840:
   usb_ids: ["2341:805a", "2341:005a"]
   chip_match: "^nRF52840"
   reenumerates: true
+
+samd21:
+  description: SAMD21 (Arduino MKR Zero) - Cortex-M0+ @ 48 MHz, no FPU
+  arch: armv6m
+  pio_env: mkrzero
+  flasher: platformio
+  reset: soft
+  usb_ids: ["2341:804f", "2341:004f"]
+  chip_match: "^SAMD21"
+  reenumerates: true

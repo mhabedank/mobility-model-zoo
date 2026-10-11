@@ -17,8 +17,13 @@ from mobility_model_zoo.productdev.jtbd.errors import UsageError, ValidationFail
 from mobility_model_zoo.productdev.jtbd.jsonio import write_json
 from mobility_model_zoo.productdev.jtbd.sources.snapshot import load_snapshot
 
-SUB_AREAS = ("public_transport_rural", "logistics_delivery", "emobility_charging",
-             "car_ownership_use", "sharing_platforms")
+SUB_AREAS = (
+    "public_transport_rural",
+    "logistics_delivery",
+    "emobility_charging",
+    "car_ownership_use",
+    "sharing_platforms",
+)
 
 
 def _share(counter: Counter, total: int) -> dict[str, float]:
@@ -52,14 +57,16 @@ def composition(chunks: list, targets: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _compliance_train(settings: Settings, origins: list[str],
-                      chunks: list[tuple[str, str]] | None = None) -> dict[str, Any]:
+def _compliance_train(
+    settings: Settings, origins: list[str], chunks: list[tuple[str, str]] | None = None
+) -> dict[str, Any]:
     """Train-stage checks of the compliance harness (feature 006, C-T1 … C-T5)."""
     from mobility_model_zoo.compliance.findings import StageFailed
     from mobility_model_zoo.compliance.hashing import url_hasher
     from mobility_model_zoo.compliance.ingest import harness_present
     from mobility_model_zoo.compliance.register import Register
     from mobility_model_zoo.compliance.train import check_training, suppressed_identifier_findings
+    from mobility_model_zoo.compliance.usage import declared_class
 
     if not harness_present(settings.base):
         if settings.test_fixture:
@@ -69,11 +76,22 @@ def _compliance_train(settings: Settings, origins: list[str],
     import json
 
     # The teachers whose labels the training rows use: every teacher run of this dataset.
-    teachers = sorted({json.loads(m.read_text(encoding="utf-8")).get("model_id")
-                       for m in settings.runs_dir.glob("*/manifest.json")
-                       if json.loads(m.read_text(encoding="utf-8")).get("role") == "teacher"})
-    findings = check_training(reg, origins=origins, model_licence=None, teachers=teachers,
-                              url_hash=url_hasher())
+    teachers = sorted(
+        {
+            json.loads(m.read_text(encoding="utf-8")).get("model_id")
+            for m in settings.runs_dir.glob("*/manifest.json")
+            if json.loads(m.read_text(encoding="utf-8")).get("role") == "teacher"
+        }
+    )
+    target = declared_class(settings.base, (settings.span_train or {}).get("model"))
+    findings = check_training(
+        reg,
+        origins=origins,
+        model_licence=None,
+        teachers=teachers,
+        url_hash=url_hasher(),
+        usage_class=target,
+    )
     findings += suppressed_identifier_findings(reg, chunks or [], url_hasher())
     return {"checked": True, "findings": StageFailed(findings).failures if findings else []}
 
@@ -97,7 +115,8 @@ def data_check(settings: Settings) -> dict[str, Any]:
             problems.append("not_training_allowed")
         if chunk.snapshot_id not in rules_by_snapshot:
             rules_by_snapshot[chunk.snapshot_id] = separation.violations(
-                settings, chunk.snapshot_id, bench, spike)
+                settings, chunk.snapshot_id, bench, spike
+            )
         rules = rules_by_snapshot[chunk.snapshot_id]
         if any(r != "spike_data" for r in rules):
             problems.append("shared_with_benchmark")
@@ -107,28 +126,46 @@ def data_check(settings: Settings) -> dict[str, Any]:
             problems.append("redaction_not_passed")
         counts.update(problems)
         if problems:
-            violating.append({"chunk_id": chunk.chunk_id, "snapshot_id": chunk.snapshot_id,
-                              "problems": problems, "rules": rules})
+            violating.append(
+                {
+                    "chunk_id": chunk.chunk_id,
+                    "snapshot_id": chunk.snapshot_id,
+                    "problems": problems,
+                    "rules": rules,
+                }
+            )
         sources[(snapshot.origin_url, snapshot.license, snapshot.permitted_uses)] += 1
     result = {
         "dataset": settings.span_train.get("dataset"),
         "excluded_benchmark": str(settings.span_train.get("exclude_benchmark")),
         "chunks": len(chunks),
-        "violations": {k: counts.get(k, 0) for k in ("not_training_allowed",
-                                                       "shared_with_benchmark", "spike_data",
-                                                       "redaction_not_passed")},
+        "violations": {
+            k: counts.get(k, 0)
+            for k in (
+                "not_training_allowed",
+                "shared_with_benchmark",
+                "spike_data",
+                "redaction_not_passed",
+            )
+        },
         "violating_chunks": violating,
-        "sources": [{"origin": o, "license": lic, "permitted_use": use, "count": n}
-                    for (o, lic, use), n in sorted(sources.items())],
+        "sources": [
+            {"origin": o, "license": lic, "permitted_use": use, "count": n}
+            for (o, lic, use), n in sorted(sources.items())
+        ],
         "composition": composition(chunks, settings.span_train.get("composition_targets") or {}),
     }
-    result["compliance"] = _compliance_train(settings, [s["origin"] for s in result["sources"]],
-                                             [(c.chunk_id, c.text) for c in chunks])
+    result["compliance"] = _compliance_train(
+        settings, [s["origin"] for s in result["sources"]], [(c.chunk_id, c.text) for c in chunks]
+    )
     write_json(settings.data_dir / "analysis" / "provenance.json", result)
     if result["compliance"]["findings"]:
-        raise ValidationFailed("compliance train check failed: "
-                               + "; ".join(result["compliance"]["findings"][:10]))
+        raise ValidationFailed(
+            "compliance train check failed: " + "; ".join(result["compliance"]["findings"][:10])
+        )
     if violating:
-        raise ValidationFailed(f"{len(violating)} training chunk(s) violate provenance rules: "
-                               f"{result['violations']} (details in analysis/provenance.json)")
+        raise ValidationFailed(
+            f"{len(violating)} training chunk(s) violate provenance rules: "
+            f"{result['violations']} (details in analysis/provenance.json)"
+        )
     return {k: v for k, v in result.items() if k != "violating_chunks"}

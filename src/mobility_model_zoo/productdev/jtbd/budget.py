@@ -18,8 +18,11 @@ PAID_BACKENDS = {"openrouter", "anthropic_api"}
 
 def ledger_rows(settings: Settings) -> list[dict[str, Any]]:
     """Rows of the active budget. Rows without a budget name belong to the pilot budget."""
-    return [r for r in read_jsonl(settings.ledger_path)
-            if r.get("budget", DEFAULT_BUDGET) == settings.budget_name]
+    return [
+        r
+        for r in read_jsonl(settings.ledger_path)
+        if r.get("budget", DEFAULT_BUDGET) == settings.budget_name
+    ]
 
 
 def _charge(row: dict[str, Any]) -> float:

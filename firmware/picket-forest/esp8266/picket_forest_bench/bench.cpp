@@ -1,23 +1,63 @@
 #include <Arduino.h>
+#include <stdio.h>
+
+/* Timing and board helpers: cycle counter on ESP boards, micros() elsewhere (e.g. SAMD21). */
+#if defined(ESP8266) || defined(ESP32)
+#define PF_CYCLES() ((uint32_t)ESP.getCycleCount())
+#define PF_MHZ() ((float)ESP.getCpuFreqMHz())
+#define PF_FREE_HEAP() ((unsigned)ESP.getFreeHeap())
+#define PF_YIELD() yield()
+#else
+#define PF_CYCLES() ((uint32_t)micros() * (uint32_t)(F_CPU / 1000000UL))
+#define PF_MHZ() ((float)(F_CPU / 1000000UL))
+#define PF_FREE_HEAP() 0u
+#define PF_YIELD() \
+    do {           \
+    } while (0)
+#endif
 
 
 #define TV_STORAGE PROGMEM
+#if __has_include("src/picket_forest_v2.h")
+/* picket-forest 0.2.0: calibrated features, event decision (feature 010) */
+#include "src/picket_forest_v2.h"
+#include "src/picket_forest_config.h"
+typedef picket_forest_v2_t pf_state_t;
+static void pf_init(pf_state_t *p) { picket_forest_v2_init(p); }
+static float pf_threshold(void) { return PICKET_FOREST_THRESHOLD; }
+static int pf_process(pf_state_t *p, int64_t ts, uint32_t id, uint8_t dlc, const uint8_t *d, float *s)
+{
+    return picket_forest_v2_process(p, ts, id, dlc, d, s, NULL);
+}
+#else
 #include "src/picket_forest.h"
+typedef picket_forest_t pf_state_t;
+static void pf_init(pf_state_t *p) { picket_forest_init(p); }
+static float pf_threshold(void) { return picket_forest_threshold(); }
+static int pf_process(pf_state_t *p, int64_t ts, uint32_t id, uint8_t dlc, const uint8_t *d, float *s)
+{
+    return picket_forest_process(p, ts, id, dlc, d, s);
+}
+#endif
 #include "src/test_vectors.h"
+
+#ifndef PF_TARGET
+#define PF_TARGET "esp8266"
+#endif
 
 #ifndef TV_EXPECTED_ALARMS
 #define TV_EXPECTED_ALARMS (-1) /* test vectors generated without the alarm stage */
 #endif
 
-static picket_forest_t s_ids;
+static pf_state_t s_ids;
 static uint32_t s_cycles[TV_N_FRAMES];
 static int s_mismatches, s_detected, s_attacks, s_alarms;
 static uint32_t s_sum;
 
 static void run_once()
 {
-    picket_forest_init(&s_ids);
-    const float thr = picket_forest_threshold();
+    pf_init(&s_ids);
+    const float thr = pf_threshold();
     s_mismatches = s_detected = s_attacks = s_alarms = 0;
     for (int i = 0; i < TV_N_FRAMES; i++) {
         tv_frame_t f;
@@ -25,14 +65,14 @@ static void run_once()
         memcpy_P(&f, &tv_frames[i], sizeof(f));
         memcpy_P(&expected, &tv_expected_score[i], sizeof(expected));
         float s;
-        uint32_t t0 = ESP.getCycleCount();
-        s_alarms += picket_forest_process(&s_ids, f.ts_us, f.can_id, f.dlc, f.data, &s);
-        s_cycles[i] = ESP.getCycleCount() - t0;
+        uint32_t t0 = PF_CYCLES();
+        s_alarms += pf_process(&s_ids, f.ts_us, f.can_id, f.dlc, f.data, &s);
+        s_cycles[i] = PF_CYCLES() - t0;
         s_mismatches += (s != expected);
         s_attacks += f.label;
         s_detected += f.label && (s >= thr);
         if ((i & 255) == 0) {
-            yield(); /* keep the watchdog happy */
+            PF_YIELD(); /* keep the watchdog happy */
         }
     }
 }
@@ -47,6 +87,11 @@ void setup()
 {
     Serial.begin(115200);
     delay(500);
+#if !(defined(ESP8266) || defined(ESP32))
+    while (!Serial && millis() < 5000) {
+        /* USB serial (SAMD): wait for the host to open the port */
+    }
+#endif
     run_once(); /* warm-up: fill the flash cache */
     run_once();
     s_sum = 0;
@@ -58,8 +103,9 @@ void setup()
 
 void loop()
 {
-    const float mhz = ESP.getCpuFreqMHz();
-    Serial.printf("PICKET_FOREST_RESULT {\"target\":\"esp8266\",\"cpu_mhz\":%.0f,\"frames\":%d,"
+    const float mhz = PF_MHZ();
+    static char line[512];
+    snprintf(line, sizeof(line), "PICKET_FOREST_RESULT {\"target\":\"" PF_TARGET "\",\"cpu_mhz\":%.0f,\"frames\":%d,"
                   "\"score_mismatches\":%d,\"attack_frames\":%d,\"detected\":%d,"
                   "\"alarms\":%d,\"expected_alarms\":%d,"
                   "\"latency_us\":{\"median\":%.2f,\"mean\":%.2f,\"p99\":%.2f,\"max\":%.2f},"
@@ -68,6 +114,7 @@ void loop()
                   TV_EXPECTED_ALARMS,
                   s_cycles[TV_N_FRAMES / 2] / mhz, (float)s_sum / TV_N_FRAMES / mhz,
                   s_cycles[(TV_N_FRAMES * 99) / 100] / mhz, s_cycles[TV_N_FRAMES - 1] / mhz,
-                  (unsigned)sizeof(s_ids), (unsigned)ESP.getFreeHeap());
+                  (unsigned)sizeof(s_ids), PF_FREE_HEAP());
+    Serial.print(line);
     delay(5000);
 }

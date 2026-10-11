@@ -11,8 +11,13 @@ from mobility_model_zoo.productdev.jtbd.errors import ValidationFailed
 from mobility_model_zoo.productdev.jtbd.jsonio import write_json
 from mobility_model_zoo.productdev.jtbd.schema import ChunkRecord
 
-SUB_AREAS = ("public_transport_rural", "logistics_delivery", "emobility_charging",
-             "car_ownership_use", "sharing_platforms")
+SUB_AREAS = (
+    "public_transport_rural",
+    "logistics_delivery",
+    "emobility_charging",
+    "car_ownership_use",
+    "sharing_platforms",
+)
 SOURCE_TYPES = ("paper", "reddit", "forum_review", "transcript")
 
 
@@ -35,8 +40,11 @@ def composition(chunks: list[ChunkRecord]) -> dict[str, Any]:
 
 
 def check_targets(
-    chunks: list[ChunkRecord], targets: dict[str, Any], split: str,
-    substitutions: list[dict[str, Any]], snapshot_ids: set[str] | None = None,
+    chunks: list[ChunkRecord],
+    targets: dict[str, Any],
+    split: str,
+    substitutions: list[dict[str, Any]],
+    snapshot_ids: set[str] | None = None,
 ) -> tuple[dict[str, Any], list[str]]:
     comp = composition(chunks)
     n, n_rel = comp["n"], comp["n_relevant"]
@@ -51,8 +59,9 @@ def check_targets(
     for area in SUB_AREAS:
         share = comp["sub_area"].get(area, 0) / n_rel if n_rel else 0.0
         if not _in(share, targets["sub_area_share_of_relevant"]):
-            failures.append(f"sub_area {area} share {share:.2f} outside "
-                            f"{targets['sub_area_share_of_relevant']}")
+            failures.append(
+                f"sub_area {area} share {share:.2f} outside {targets['sub_area_share_of_relevant']}"
+            )
 
     subs = {s["source_type"]: s for s in substitutions}
     for sub in substitutions:
@@ -69,10 +78,13 @@ def check_targets(
             failures.append(f"source_type {stype} share {share:.2f} outside {[low, high]}")
 
     irrelevant = comp["relevance_intent"].get("irrelevant", 0) + comp["relevance_intent"].get(
-        "near_miss", 0)
+        "near_miss", 0
+    )
     if not _in(irrelevant / n, targets["irrelevant_or_near_miss_share"]):
-        failures.append(f"irrelevant/near-miss share {irrelevant / n:.2f} outside "
-                        f"{targets['irrelevant_or_near_miss_share']}")
+        failures.append(
+            f"irrelevant/near-miss share {irrelevant / n:.2f} outside "
+            f"{targets['irrelevant_or_near_miss_share']}"
+        )
 
     non_eu = comp["region"].get("non_EU", 0) / n
     if not _in(non_eu, targets["non_eu_share"]):
@@ -85,8 +97,7 @@ def check_targets(
     for lang in ("de", "en"):
         share = comp["language"].get(lang, 0) / n
         if share < targets["language_min_share"] - 1e-9:
-            failures.append(f"language {lang} share {share:.2f} below "
-                            f"{targets['language_min_share']}")
+            failures.append(f"language {lang} share {share:.2f} below {targets['language_min_share']}")
 
     low, high = targets["token_range"]
     for chunk in chunks:
@@ -108,8 +119,12 @@ def validate_split(settings: Settings, split: str) -> dict[str, Any]:
         settings.pilot.get("substitutions") or [],
         snapshot_ids,
     )
-    result = {"split": split, "composition": comp, "failures": failures,
-              "substitutions": settings.pilot.get("substitutions") or []}
+    result = {
+        "split": split,
+        "composition": comp,
+        "failures": failures,
+        "substitutions": settings.pilot.get("substitutions") or [],
+    }
     write_json(settings.analysis_dir / f"composition-{split}.json", result)
     if failures:
         raise ValidationFailed(f"{len(failures)} composition target(s) missed: {failures}")

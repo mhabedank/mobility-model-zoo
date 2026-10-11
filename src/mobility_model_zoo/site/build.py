@@ -64,6 +64,18 @@ def environment() -> jinja2.Environment:
 
 
 # ---- the model page ---------------------------------------------------------------------------
+def _schema_url(reg: Registry, fmt: dict[str, Any], tag: str) -> str:
+    """The output schema at the release tag, or on main if it was documented after the release."""
+    import subprocess
+
+    at_tag = subprocess.run(
+        ["git", "-C", str(reg.root), "cat-file", "-e", f"{tag}:{fmt['schema_path']}"],
+        capture_output=True,
+        check=False,
+    )
+    return context.gh_blob(fmt["schema_path"], tag if at_tag.returncode == 0 else "main")
+
+
 def _metric_rows(reg: Registry, name: str, version: str, kind: str, f: facts.Facts, page: str):
     rows = []
     for m in reg.results(name, version, kind)["metrics"]:
@@ -100,7 +112,11 @@ def model_page(
     fmt = None
     if latest["output_format_version"]:
         fmt = schema_doc.output_format(reg, latest["output_format_version"])
-    exs = examples.load(reg, name, version, fmt["schema"] if fmt else None, offline, refresh)
+    schema = fmt["schema"] if fmt else None
+    if reg.runtime(m) == "mcu":
+        exs = examples.device(reg, name, version, schema)
+    else:
+        exs = examples.load(reg, name, version, schema, offline, refresh)
     quick = next((e for e in exs if e["file"] == pitch["quickstart_example"]), exs[0] if exs else None)
     quality = {q["name"]: q for q in reg.results(name, version, "quality")["metrics"]}
     benchmark = next((q.get("benchmark") for q in quality.values() if q.get("benchmark")), None)
@@ -118,6 +134,7 @@ def model_page(
         "topic": topic,
         "topic_url": topic_url(topic),
         "status": sm["status"],
+        "usage": sm["usage"],
         "latest": latest,
         "releases": sm["releases"],
         "pitch": pitch,
@@ -135,6 +152,7 @@ def model_page(
         "quick": quick,
         "examples": exs,
         "fmt": fmt,
+        "schema_url": _schema_url(reg, fmt, latest["tag"]) if fmt else None,
         "benchmark": benchmark,
         "checks": checks,
         "cards": [_card(reg, name, version, c, f, notes, page) for c in pitch.get("metric_cards", [])],
