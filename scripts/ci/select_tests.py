@@ -94,7 +94,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     ("compliance-tests", ("tests/compliance/*",)),
     ("release-tests", ("tests/release/*",)),
     ("datasets-tests", ("tests/datasets/*",)),
-    ("site", (f"{SRC}/site/*", "zoo/site.yaml", "tests/website/*", "scripts/site_og_image.py")),
+    ("site", (f"{SRC}/site/*", "zoo/site.yaml", "tests/website/*")),
     ("registry", ("zoo/*",)),
     ("edge", (f"{SRC}/edge/*", "firmware/*", "hil/*", "tests/edge/*", "tests/fixtures/edge-int8/*")),
     # Research notes, reports and task documents of a topic are prose.

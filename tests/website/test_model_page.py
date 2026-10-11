@@ -78,3 +78,16 @@ def test_unpublished_model_has_no_page(built):
     assert not (built.out / "models" / "picket-forest").exists()
     assert (built.out / "formats" / "jtbd-span-v1" / "index.html").exists()
     assert (built.out / "404.html").exists()
+
+
+def test_hero_shows_the_labels_of_the_preview_image(site_env):
+    """FR-003: the page states at its top what the preview image states."""
+    site_env.build()
+    hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
+    assert '<span class="chip label-experimental">experimental</span>' in hero
+    site_env.edit_yaml(
+        f"zoo/models/{MODEL}/releases/{VERSION}.yaml", lambda r: r.update(status="released")
+    )
+    site_env.build()
+    hero = site_env.html(f"models/{MODEL}/index.html").split('id="title"')[0]
+    assert "label-" not in hero

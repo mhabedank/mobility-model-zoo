@@ -57,3 +57,20 @@ def test_sandbox_models_skip(reg):
 
     with pytest.raises(Skip):
         rule_17(reg, "sandbox-pipeline-tiny", "0.1.0")
+
+
+# ---- feature 012: the share line on the preview image (B6) -----------------------------------
+def test_share_line_too_long_fails(reg):
+    edit(reg, lambda p: p.update(share_line="x" * 95))
+    assert any("share_line" in f and "too long" in f for f in rule_17(reg))  # the schema says 90
+
+
+def test_share_line_with_placeholder_fails(reg):
+    edit(reg, lambda p: p.update(share_line="Runs in {metric:performance.peak_ram_gb}"))
+    assert any("metric placeholder" in f for f in rule_17(reg))
+
+
+def test_long_tagline_without_share_line_fails(reg):
+    edit(reg, lambda p: p.pop("share_line"))
+    found = [f for f in rule_17(reg) if f.startswith("B6 scout-large")]
+    assert found and found[0].endswith("; add share_line to site.yaml")

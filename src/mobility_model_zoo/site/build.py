@@ -2,12 +2,15 @@
 
 Pages: the start page, one page per published model, one page per output format, a 404 page.
 Every model fact comes from the release records and results (FR-004); `_build/facts.json` lists
-each rendered fact with its source for `zoo site check` and is removed before deployment.
+each rendered fact with its source for `zoo site check` and is removed before deployment. Every
+shareable page also gets a preview image (`og.py`, feature 012), listed in `_build/og.json`.
 """
 
 from __future__ import annotations
 
+import json
 import shutil
+import time
 from collections.abc import Callable
 from importlib import resources
 from pathlib import Path
@@ -19,7 +22,7 @@ from markupsafe import Markup
 from mobility_model_zoo.release.card import fill, install_line, num, topic_url
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
-from mobility_model_zoo.site import charts, context, examples, facts, schema_doc
+from mobility_model_zoo.site import charts, context, examples, facts, og, schema_doc
 from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
@@ -59,7 +62,7 @@ def environment() -> jinja2.Environment:
     env.filters["num"] = num
     env.filters["md"] = md
     env.filters["ucfirst"] = lambda s: s[:1].upper() + s[1:]
-    env.globals.update(mark=mark, motif=motif)
+    env.globals.update(mark=mark, motif=motif, og_width=og.WIDTH, og_height=og.HEIGHT)
     return env
 
 
@@ -161,7 +164,8 @@ def build(
     offline: bool = False,
     refresh: bool = False,
     say: Callable[[str], None] = print,
-) -> dict[str, int]:
+    images: bool = True,
+) -> dict[str, Any]:
     site = context.load_site_config(reg)
     models = context.site_models(reg)
     env = environment()
@@ -174,12 +178,36 @@ def build(
     with resources.as_file(_static()) as static:
         shutil.copytree(static, out / "assets", dirs_exist_ok=True)
 
+    formats = []
+    for format_id in schema_doc.format_ids(reg):
+        try:
+            fmt = schema_doc.output_format(reg, format_id)
+        except GateFailed as e:
+            failures += e.failures
+            continue
+        if fmt is None:
+            failures.append(f"B5 {format_id}: zoo/formats/{format_id}.yaml is missing")
+            continue
+        formats.append(fmt)
+
+    share = og.cards(reg, site, models, formats)
+    failures += og.card_errors(share)
+    renderer = og.renderer_id(reg.root)
+    for card in share:
+        html = og.card_html(env, card)
+        card["html"] = f"{og.CARD_DIR}/{card['slug']}.html"
+        _write(out, card["html"], html)
+        card["inputs_sha256"] = og.input_hash(html, (out / card["html"]).parent, renderer)
+        card["file"] = og.card_file(card, card["inputs_sha256"])
+    by_page = {c["page"]: c for c in share}
+
     common = {"site": site}
     pages = 0
 
     def render(rel: str, template: str, root: str, path: str, **ctx: Any) -> None:
         nonlocal pages
-        html = env.get_template(template).render(**common, root=root, path=path, **ctx)
+        card = by_page.get(path, by_page[""])
+        html = env.get_template(template).render(**common, root=root, path=path, card=card, **ctx)
         _write(out, rel, html)
         pages += 1
         say(f"  wrote {rel}")
@@ -197,20 +225,12 @@ def build(
             f"models/{sm['name']}/index.html", "model.html.j2", "../../", f"models/{sm['name']}/", p=ctx
         )
         rendered.append(sm["name"])
-    for format_id in schema_doc.format_ids(reg):
-        try:
-            fmt = schema_doc.output_format(reg, format_id)
-        except GateFailed as e:
-            failures += e.failures
-            continue
-        if fmt is None:
-            failures.append(f"B5 {format_id}: zoo/formats/{format_id}.yaml is missing")
-            continue
+    for fmt in formats:
         render(
-            f"formats/{format_id}/index.html",
+            f"formats/{fmt['id']}/index.html",
             "format.html.j2",
             "../../",
-            f"formats/{format_id}/",
+            f"formats/{fmt['id']}/",
             fmt=fmt,
         )
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
@@ -229,6 +249,22 @@ def build(
     if failures:
         raise GateFailed(failures)
     f.write(out)
+    started = time.monotonic()
+    if images:
+        og.render(share, out, say)
+    seconds = time.monotonic() - started
+    manifest = {"renderer": renderer, "cards": [og.manifest_card(c) for c in share]}
+    _write(out, og.MANIFEST, json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
+    drawn = len(share) if images else 0
     in_progress = sum(1 for sm in models if sm["status"] == "in_progress")
-    say(f"site: {pages} pages, {len(rendered)} models ({in_progress} in progress)")
-    return {"pages": pages, "models": len(rendered), "in_progress": in_progress}
+    say(
+        f"site: {pages} pages, {drawn} images in {seconds:.1f} s, {len(rendered)} models "
+        f"({in_progress} in progress)"
+    )
+    return {
+        "pages": pages,
+        "images": drawn,
+        "image_seconds": round(seconds, 1),
+        "models": len(rendered),
+        "in_progress": in_progress,
+    }

@@ -18,7 +18,7 @@ import jsonschema
 from mobility_model_zoo.release.card import REPO_URL, usage_line
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml, parse_version
-from mobility_model_zoo.site import facts
+from mobility_model_zoo.site import facts, og
 
 HF = "https://huggingface.co"
 
@@ -116,8 +116,10 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
             for v in sorted(reg.published_versions(name), key=parse_version, reverse=True)
         ]
         rec = reg.record_raw(name, latest) if latest else {}
-        usage = rec.get("usage") or {"class": model.get("usage_class", "commercial"),
-                                     "licence": model["license"]}
+        usage = rec.get("usage") or {
+            "class": model.get("usage_class", "commercial"),
+            "licence": model["license"],
+        }
         out.append(
             {
                 "name": name,
@@ -125,8 +127,11 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
                 "status": state,
                 "latest": latest,
                 # constitution 2.1.0: every model states what users may do with it (feature 011)
-                "usage": {"class": usage["class"], "licence": usage["licence"],
-                          "text": usage_line(model, rec)},
+                "usage": {
+                    "class": usage["class"],
+                    "licence": usage["licence"],
+                    "text": usage_line(model, rec),
+                },
                 "releases": releases,
                 "pitch": load_pitch(reg, name) if latest else optional_pitch(reg, name),
             }
@@ -172,6 +177,7 @@ def pitch_errors(reg: Registry, name: str, version: str) -> list[str]:
                 facts.metric(reg, name, version, kind, metric_name)
             except GateFailed as e:
                 errors += e.failures
+    errors += og.share_line_errors(name, *og.share_line(pitch))
     example = pitch.get("quickstart_example")
     if example and not (reg.model_dir(name) / "examples" / example).exists():
         errors.append(f"B1 {name}: quickstart_example {example} is not in examples/")
