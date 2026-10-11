@@ -69,6 +69,13 @@ def load_stage_settings(path: Path | str) -> tuple[dict[str, Any], str]:
     return settings, file_sha256(path)
 
 
+def spec_neighbours(neighbours: dict[str, Any]) -> int:
+    """Neighbours per group that are specificity candidates (`k_spec`, default 5). The NLI model
+    runs on both directions of every candidate pair, so this bounds the stage's cost: with the
+    deduplication's k = 30, the dev pool alone gave about 73,000 pairs (2026-10-11)."""
+    return int(neighbours.get("k_spec", 5))
+
+
 class ClusterStage:
     def __init__(self, settings: dict[str, Any], settings_sha256: str, encoder: Encoder,
                  decision: dict[str, Any] | None = None, nli: NLI | None = None):
@@ -168,7 +175,7 @@ class ClusterStage:
         links = specificity_links(
             [g["kind"] for g in groups], [g["group_id"] for g in groups],
             [items[r].quote for r in reps], vectors[reps], self.nli,
-            k=int(self.settings["neighbours"]["k"]), t_spec=float(thresholds["t_spec"]),
+            k=spec_neighbours(self.settings["neighbours"]), t_spec=float(thresholds["t_spec"]),
             t_dup=float(thresholds["t_dup"]), t_nli=float(thresholds["t_nli"]))
         for child, parent in sorted(links.items()):
             groups[child]["parent"] = groups[parent]["group_id"]

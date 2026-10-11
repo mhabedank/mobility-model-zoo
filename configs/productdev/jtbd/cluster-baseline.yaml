@@ -26,6 +26,7 @@ nli:
 neighbours:
   k: 30
   candidate_floor: 0.50
+  k_spec: 5          # specificity candidates per group (NLI cost; research R8, note of 2026-10-11)
 thresholds:
   t_dup: 0.88
   t_spec: 0.75
