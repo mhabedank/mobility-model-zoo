@@ -20,6 +20,8 @@ from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
 
 PLACEHOLDER = re.compile(r"\{metric:(quality|performance)\.([a-z0-9_]+)\}")
+# A free-standing number (check F2); digits inside names such as "M3 Pro" or "jtbd-span-v1" are not.
+NUMBER = re.compile(r"(?<![\w.,-])\d+(?:[.,]\d+)*(?![\w-]|[.,]\d)")
 UNITS = {"chunks/min": "texts/min"}
 
 
@@ -75,6 +77,11 @@ def metric(reg: Registry, name: str, version: str, kind: str, metric_name: str) 
 
 def placeholders(text: str) -> list[tuple[str, str]]:
     return PLACEHOLDER.findall(text or "")
+
+
+def literal_numbers(text: str) -> list[str]:
+    """Free-standing numbers in prose, placeholders excluded."""
+    return [m.group(0) for m in NUMBER.finditer(PLACEHOLDER.sub(" ", text))]
 
 
 @dataclass
