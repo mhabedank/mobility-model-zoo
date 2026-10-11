@@ -157,3 +157,21 @@ def test_cached_gzip_robots_is_decoded_once():
     assert client.get("https://gz.example.org/robots.txt").text.startswith("User-agent")
     cached = client.get("https://gz.example.org/robots.txt")
     assert cached.text.startswith("User-agent")
+
+
+def test_an_error_in_one_entry_does_not_end_the_run(catalog_dir, monkeypatch):
+    """Batch 1: a host label over 63 characters raised UnicodeError and lost a 2.5-hour run."""
+    real = checks.network_checks
+
+    def flaky(entry, *args):
+        if entry["id"] == "jp-infographic-traffic":
+            raise UnicodeError("encoding with 'idna' codec failed (label too long)")
+        return real(entry, *args)
+
+    monkeypatch.setattr(checks, "network_checks", flaky)
+    cat = load(catalog_dir)
+    summary = _run(cat, Web(), ids=["pl-stat-transport-tables", "jp-infographic-traffic"])
+    assert summary["checked"] == 2
+    bad = _check(load(catalog_dir).entries["jp-infographic-traffic"], "K4")
+    assert bad["result"] == "fail" and bad["detail"].startswith("check failed: UnicodeError")
+    assert load(catalog_dir).entries["pl-stat-transport-tables"]["status"]["value"] == "cleared"

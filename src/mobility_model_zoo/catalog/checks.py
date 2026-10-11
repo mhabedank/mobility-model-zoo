@@ -337,11 +337,16 @@ def run(
         for eid in selected:
             hosts[urlparse(cat.entries[eid]["landing_url"]).hostname or ""].append(eid)
 
+        def one(eid: str) -> tuple[list[dict[str, Any]], dict[str, Any] | None, bool]:
+            # a malformed address (e.g. a host label over 63 characters) must not end the whole run
+            try:
+                return network_checks(cat.entries[eid], client, lists, url_hash, today_s)
+            except Exception as e:  # noqa: BLE001 - reported as a K4 failure of this entry
+                why = f"check failed: {type(e).__name__}: {e}"[:300]
+                return [_result("K4", "fail", why)], None, False
+
         def work(group: list[str]) -> list[tuple[str, Any]]:
-            return [
-                (eid, network_checks(cat.entries[eid], client, lists, url_hash, today_s))
-                for eid in group
-            ]
+            return [(eid, one(eid)) for eid in group]
 
         with ThreadPoolExecutor(max_workers=MAX_HOSTS) as pool:
             # report in completion order: one large host must not hide progress on the others
