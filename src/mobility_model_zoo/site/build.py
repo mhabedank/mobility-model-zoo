@@ -19,7 +19,7 @@ from typing import Any
 import jinja2
 from markupsafe import Markup
 
-from mobility_model_zoo.release.card import fill, install_line, num, topic_url
+from mobility_model_zoo.release.card import fill, install_line, num, status_sentence, topic_url
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
 from mobility_model_zoo.site import charts, context, examples, facts, og, schema_doc
@@ -162,6 +162,12 @@ def model_page(
         "charts": charts.render(reg, name, version, pitch.get("charts", []), f, page),
         "quality_rows": _metric_rows(reg, name, version, "quality", f, page),
         "performance_rows": _metric_rows(reg, name, version, "performance", f, page),
+        # feature 013: release status, short forms of the card, unmet criteria with their values
+        "release_status": sm["release_status"],
+        "status_sentence": status_sentence(sm["release_status"] or ""),
+        "not_for": [res(t, f"not_for{i}") for i, t in enumerate(sm["short"]["not_for"])],
+        "limits_short": [res(t, f"limits_short{i}") for i, t in enumerate(sm["short"]["limits_short"])],
+        "unmet": facts.unmet_rows(reg, name, version, sm["short"]["unmet_criteria"], f, notes, page),
         "notes": notes.items,
         "recipe": context.gh_blob(recipe) if (reg.root / recipe).exists() else None,
         "hf": f"{context.HF}/{m['repos']['public']}",

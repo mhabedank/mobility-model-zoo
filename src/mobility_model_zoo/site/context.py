@@ -14,11 +14,12 @@ from importlib import resources
 from typing import Any
 
 import jsonschema
+import yaml
 
 from mobility_model_zoo.release.card import REPO_URL, usage_line
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml, parse_version
-from mobility_model_zoo.site import facts, og
+from mobility_model_zoo.site import budgets, facts, og
 
 HF = "https://huggingface.co"
 
@@ -67,6 +68,87 @@ def status(reg: Registry, name: str) -> tuple[str, str | None]:
     if reg.record_raw(name, latest).get("deprecated"):
         return "deprecated", latest
     return "published", latest
+
+
+def release_status(reg: Registry, name: str, version: str) -> str:
+    """`experimental` or `released` (feature 013). `zoo release deprecate` overwrites the record's
+    status with `deprecated`; the status the version was published with is in the record at its tag."""
+    status = reg.record_raw(name, version).get("status", "")
+    if status != "deprecated":
+        return status
+    at_tag = file_at_tag(reg, f"zoo/models/{name}/releases/{version}.yaml", f"{name}/v{version}")
+    old = (yaml.safe_load(at_tag) or {}).get("status") if at_tag else None
+    return old if old in ("experimental", "released") else "experimental"
+
+
+def short_forms(model: dict[str, Any]) -> dict[str, list[Any]]:
+    card = model.get("card") or {}
+    return {k: list(card.get(k) or []) for k in ("not_for", "limits_short", "unmet_criteria")}
+
+
+def _resolves(reg: Registry, name: str, version: str, text: str, where: str) -> list[str]:
+    errors = []
+    for kind, metric_name in facts.placeholders(text):
+        try:
+            facts.metric(reg, name, version, kind, metric_name)
+        except GateFailed as e:
+            errors += [f"{where}: {f}" for f in e.failures]
+    return errors
+
+
+def short_form_errors(
+    reg: Registry, name: str, version: str, status: str, model: dict[str, Any]
+) -> list[str]:
+    """Short forms of the card that a published model needs (site check D1, gate rule 18): `not_for`
+    and `limits_short` exist and fit their budgets; an `experimental` release names its unmet
+    criteria, a `released` one has none; every measured value resolves, every target has a source."""
+    b = budgets
+    short = short_forms(model)
+    not_for, limits, unmet = short["not_for"], short["limits_short"], short["unmet_criteria"]
+    errors = []
+    if not b.NOT_FOR_ITEMS[0] <= len(not_for) <= b.NOT_FOR_ITEMS[1]:
+        errors.append(
+            f"card.not_for has {len(not_for)} items, needs {b.NOT_FOR_ITEMS[0]} to {b.NOT_FOR_ITEMS[1]}"
+        )
+    for i, text in enumerate(not_for):
+        if b.words(text) > b.NOT_FOR_ITEM_WORDS:
+            errors.append(f"card.not_for[{i}] has {b.words(text)} words, limit {b.NOT_FOR_ITEM_WORDS}")
+    if sum(b.words(t) for t in not_for) > b.NOT_FOR_WORDS:
+        errors.append(
+            f"card.not_for has {sum(b.words(t) for t in not_for)} words, limit {b.NOT_FOR_WORDS}"
+        )
+    if not limits:
+        errors.append("card.limits_short is missing")
+    for i, text in enumerate(limits):
+        if b.words(text) > b.LIMITS_SHORT_ITEM_WORDS:
+            errors.append(
+                f"card.limits_short[{i}] has {b.words(text)} words, limit {b.LIMITS_SHORT_ITEM_WORDS}"
+            )
+    if len(unmet) + len(limits) > b.LIMITS_SHORT_ITEMS:
+        errors.append(
+            f"card.unmet_criteria and card.limits_short have {len(unmet) + len(limits)} items, "
+            f"limit {b.LIMITS_SHORT_ITEMS}"
+        )
+    if status == "experimental" and not unmet:
+        errors.append("status experimental: card.unmet_criteria must name every unmet criterion")
+    if status == "released" and unmet:
+        errors.append("status released: card.unmet_criteria must be empty")
+    for i, item in enumerate(unmet):
+        where = f"card.unmet_criteria[{i}]"
+        if b.words(item.get("criterion", "")) > b.UNMET_CRITERION_WORDS:
+            errors.append(f"{where}.criterion is longer than {b.UNMET_CRITERION_WORDS} words")
+        if b.words(item.get("note", "")) > b.UNMET_NOTE_WORDS:
+            errors.append(f"{where}.note is longer than {b.UNMET_NOTE_WORDS} words")
+        if not (item.get("measured") or item.get("note")):
+            errors.append(f"{where} has neither measured nor note")
+        errors += _resolves(reg, name, version, item.get("measured", ""), f"{where}.measured")
+        source = (item.get("target") or {}).get("source")
+        if source and not (reg.root / source).exists():
+            errors.append(f"{where}.target.source {source} does not exist")
+    for key in ("not_for", "limits_short"):
+        for i, text in enumerate(short[key]):
+            errors += _resolves(reg, name, version, text, f"card.{key}[{i}]")
+    return errors
 
 
 def gh_blob(path: str, ref: str = "main") -> str:
@@ -133,6 +215,9 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
                     "text": usage_line(model, rec),
                 },
                 "releases": releases,
+                # feature 013: release status from the record, short forms from the card block
+                "release_status": release_status(reg, name, latest) if latest else None,
+                "short": short_forms(model),
                 "pitch": load_pitch(reg, name) if latest else optional_pitch(reg, name),
             }
         )

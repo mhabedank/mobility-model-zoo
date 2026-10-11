@@ -30,12 +30,13 @@
       "description": "One line on the preview image when the page is shared: what the model does and why it matters. No numbers and no {metric:…} placeholders (an image cannot carry the note that says what a number is measured against). If absent, the tagline is used and must meet the same rules (check B6)."
     },
     "audience": {
-      "$ref": "#/$defs/prose"
+      "$ref": "#/$defs/prose",
+      "description": "Who the model is for, at most 25 words (gate rule 17, site check D2)."
     },
     "differentiators": {
       "type": "array",
       "minItems": 3,
-      "maxItems": 5,
+      "maxItems": 4,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -52,7 +53,8 @@
             "$ref": "#/$defs/prose"
           }
         }
-      }
+      },
+      "description": "Three or four reasons to use the model, shown in the overview (feature 013): title at most 5 words, text at most 20 words (gate rule 17, site check D2). No release status: it is generated."
     },
     "quickstart_example": {
       "type": "string",
@@ -96,8 +98,8 @@
     },
     "metric_cards": {
       "type": "array",
-      "maxItems": 6,
-      "description": "Headline metrics of the quality section; each card prints the value, what it is compared with and what it is measured against or on.",
+      "maxItems": 4,
+      "description": "Headline figures of the quality layer (at most 4, feature 013); each card prints the value, what it is compared with and what it is measured against or on.",
       "items": {
         "type": "object",
         "additionalProperties": false,

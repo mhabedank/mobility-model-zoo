@@ -1,4 +1,4 @@
-"""The model page (contracts/site-tree.md): sections in order, facts from the release (US1)."""
+"""The model page (contracts/site-tree.md, feature 013 page-layers.md): sections in order, facts."""
 
 from __future__ import annotations
 
@@ -6,14 +6,17 @@ import re
 
 from site_fixture import MODEL, VERSION
 
+# Feature 013: the six layers (contracts/page-layers.md); old anchors stay inside them.
 SECTIONS = [
     "top",
     "why",
-    "quickstart",
-    "interface",
-    "examples",
     "quality",
     "limits",
+    "quickstart",
+    "reference",
+    "interface",
+    "examples",
+    "details",
     "provenance",
     "versions",
     "cite",

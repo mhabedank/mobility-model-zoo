@@ -200,6 +200,98 @@
           "type": "string",
           "minLength": 1,
           "description": "C snippet calling the model on a device; required for runtime mcu (gate rule 1); may use {repo_id} and {revision}"
+        },
+        "not_for": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Feature 013: the two or three most important things the model is not for, one short point each (at most 15 words, together at most 40). Shown in the website overview and under the card summary. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+        },
+        "limits_short": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Feature 013: the most important known failure modes in short form (at most 25 words each; together with unmet_criteria at most 5 items and 120 words). Shown first in the limits layer of the website and at the top of 'Limitations and risks' on the card. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+        },
+        "unmet_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "criterion"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "measured"
+                ]
+              },
+              {
+                "required": [
+                  "note"
+                ]
+              }
+            ],
+            "properties": {
+              "criterion": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The success criterion the release does not meet, at most 12 words, no numbers."
+              },
+              "target": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "value",
+                  "unit",
+                  "source"
+                ],
+                "properties": {
+                  "op": {
+                    "enum": [
+                      "<=",
+                      ">=",
+                      "<",
+                      ">",
+                      "="
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Repository path of the task document that defines the criterion."
+                  }
+                }
+              },
+              "measured": {
+                "type": "string",
+                "pattern": "^\\{metric:(quality|performance)\\.[a-z0-9_]+\\}$",
+                "description": "The measured value, resolved against the release's results."
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 15 words, no numbers, for example 'measured only in an emulator'."
+              }
+            }
+          },
+          "description": "Feature 013, constitution IX: every success criterion an experimental release does not meet, with its measured value. Required and non-empty for status experimental, empty for released (gate rule 18, site check D1)."
         }
       }
     },

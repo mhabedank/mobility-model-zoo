@@ -19,7 +19,7 @@ from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
 from mobility_model_zoo.site import og
-from mobility_model_zoo.site.facts import NUMBER, literal_numbers
+from mobility_model_zoo.site.facts import NUMBER, literal_numbers, target_key
 
 PREFIX = "/mobility-model-zoo/"
 RESOURCE_ATTRS = {
@@ -156,8 +156,16 @@ def check_facts(reg: Registry, out: Path) -> Iterable[Finding]:
             yield Finding("F1", row["page"], f"{row['key']}: source {row['source']} does not exist")
             continue
         if row["source"] not in cache:
-            data = json.loads(source.read_text(encoding="utf-8"))
-            cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
+            if source.name == "model.yaml":  # targets of unmet criteria (feature 013)
+                items = ((load_yaml(source) or {}).get("card") or {}).get("unmet_criteria") or []
+                cache[row["source"]] = {
+                    target_key(i): it["target"]["value"]
+                    for i, it in enumerate(items)
+                    if it.get("target")
+                }
+            else:
+                data = json.loads(source.read_text(encoding="utf-8"))
+                cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
         values = cache[row["source"]]
         if row["metric"] not in values:
             yield Finding("F1", row["page"], f"{row['key']}: {row['metric']} not in {row['source']}")

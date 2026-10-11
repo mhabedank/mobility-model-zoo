@@ -85,3 +85,15 @@ def test_placeholders_resolve_with_notes_and_facts(site_env):
         f.rows[0]["metric"] == "comparison_composite"
         and notes.items[0]["metric"] == "quality.comparison_composite"
     )
+
+
+def test_site_yaml_limits_of_feature_013():
+    """At most four differentiators and four headline figures (feature 013)."""
+    from mobility_model_zoo.site.context import _schema_errors
+
+    base = {"tagline": "t", "audience": "a", "quickstart_example": "x.txt"}
+    four = [{"title": "t", "text": "x"}] * 4
+    assert _schema_errors("site", {**base, "differentiators": four}) == []
+    assert _schema_errors("site", {**base, "differentiators": four + four[:1]}) != []
+    cards = [{"label": "l", "metric": "quality.x"}] * 5
+    assert _schema_errors("site", {**base, "differentiators": four, "metric_cards": cards}) != []

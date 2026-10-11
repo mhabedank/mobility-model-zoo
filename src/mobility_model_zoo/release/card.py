@@ -59,6 +59,16 @@ BANNERS = {
     ),
     "released": ("Released.", "The output format is stable within this major version."),
 }
+# One sentence per release status, shared by the card and the website (feature 013, research R4).
+STATUS_SENTENCES = {
+    "experimental": "Experimental: not ready for production use.",
+    "released": "Released: meets the success criteria and budgets of its task.",
+}
+OPS = {"<=": "≤", ">=": "≥", "<": "<", ">": ">", "=": "="}
+
+
+def status_sentence(status: str) -> str:
+    return STATUS_SENTENCES.get(status, "")
 
 
 def num(value: Any) -> str:
