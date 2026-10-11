@@ -1,6 +1,7 @@
 """`zoo site build`: render the website from the registry into `_site/` (contracts/site-tree.md).
 
-Pages: the start page, one page per published model, one page per output format, a 404 page.
+Pages: the start page, the quickstart (`docs/quickstart.md`), one page per published model, one page
+per output format, a 404 page.
 Every model fact comes from the release records and results (FR-004); `_build/facts.json` lists
 each rendered fact with its source for `zoo site check` and is removed before deployment. Every
 shareable page also gets a preview image (`og.py`, feature 012), listed in `_build/og.json`.
@@ -9,6 +10,7 @@ shareable page also gets a preview image (`og.py`, feature 012), listed in `_bui
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import time
@@ -25,6 +27,7 @@ from mobility_model_zoo.release.card import (
     fill,
     install_line,
     num,
+    python_requirement,
     status_sentence,
     topic_url,
 )
@@ -35,6 +38,9 @@ from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
 DETERMINISTIC = ("quotes_verbatim_rate", "schema_valid_rate", "consistency_rate")
+QUICKSTART = "docs/quickstart.md"
+_QUICKSTART_FIELD = re.compile(r"\{(install|snippet|output):([a-z0-9-]+)\}")
+NO_OUTPUT = "(the model page shows what the program prints)"
 
 
 def _static() -> Any:
@@ -151,8 +157,10 @@ def model_page(
     if latest["output_format_version"]:
         fmt = schema_doc.output_format(reg, latest["output_format_version"])
     schema = fmt["schema"] if fmt else None
+    run_output = None
     if reg.runtime(m) == "mcu":
         exs = examples.device(reg, name, version, schema)
+        run_output = examples.run_output(reg, name, version, offline, refresh)
     else:
         exs = examples.load(reg, name, version, schema, offline, refresh)
     quick = next((e for e in exs if e["file"] == pitch["quickstart_example"]), exs[0] if exs else None)
@@ -184,9 +192,12 @@ def model_page(
         ],
         "hardware_note": res(pitch.get("hardware_note", ""), "hardware_note"),
         "install": install_line(m, version),
+        "python_requirement": python_requirement(),
         "how_to_run": fill(
             m["card"]["how_to_run"], m["repos"]["public"], f"v{version}", quick["text"] if quick else ""
         ).strip(),
+        "run_output": run_output,
+        "own_data": fill(m["card"].get("own_data", ""), m["repos"]["public"], f"v{version}", "").strip(),
         "quick": quick,
         "examples": exs,
         "fmt": fmt,
@@ -208,6 +219,36 @@ def model_page(
         "recipe": context.gh_blob(recipe) if (reg.root / recipe).exists() else None,
         "hf": f"{context.HF}/{m['repos']['public']}",
     }
+
+
+def quickstart(reg: Registry, models: list[dict[str, Any]], offline: bool, refresh: bool) -> str:
+    """The text of `docs/quickstart.md` with the install line, program and printed output of the
+    named models filled in from the registry (latest published version), so the page cannot drift
+    from the model cards. Fields: `{install:<model>}`, `{snippet:<model>}`, `{output:<model>}`."""
+    by_name = {sm["name"]: sm for sm in models}
+    failures: list[str] = []
+
+    def field(match: re.Match[str]) -> str:
+        kind, name = match.groups()
+        sm = by_name.get(name)
+        if sm is None or not sm["latest"]:
+            failures.append(f"Q1 {QUICKSTART} names {name}, which has no published version")
+            return match.group(0)
+        m, version = sm["m"], sm["latest"]
+        mcu = reg.runtime(m) == "mcu"
+        if kind == "install":
+            return install_line(m, version)
+        if kind == "snippet":
+            texts = [] if mcu else reg.examples(name)
+            first = texts[0][1] if texts else ""
+            return fill(m["card"]["how_to_run"], m["repos"]["public"], f"v{version}", first).strip()
+        shown = examples.run_output(reg, name, version, offline, refresh) if mcu else None
+        return shown or NO_OUTPUT
+
+    body = _QUICKSTART_FIELD.sub(field, (reg.root / QUICKSTART).read_text(encoding="utf-8"))
+    if failures:
+        raise GateFailed(failures)
+    return body
 
 
 # ---- building ---------------------------------------------------------------------------------
@@ -292,6 +333,13 @@ def build(
             f"formats/{fmt['id']}/",
             fmt=fmt,
         )
+    if (reg.root / QUICKSTART).is_file():
+        try:
+            body = quickstart(reg, models, offline, refresh)
+        except GateFailed as e:
+            failures += e.failures
+        else:
+            render("quickstart/index.html", "quickstart.html.j2", "../", "quickstart/", body=body)
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
     render(
         "index.html",

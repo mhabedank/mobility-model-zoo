@@ -76,6 +76,8 @@ Any real use. The model has random weights and its outputs mean nothing.
 
 ## How to run it
 
+Requires Python 3.12 or newer.
+
 ```bash
 pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@edge-fixture-tiny/v0.1.0"
 ```

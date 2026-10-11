@@ -201,6 +201,11 @@
           "minLength": 1,
           "description": "C snippet calling the model on a device; required for runtime mcu (gate rule 1); may use {repo_id} and {revision}"
         },
+        "own_data": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Python snippet that uses the model on the user's own data (feature 013); shown on the card and the website under 'Use it on your own data', never executed by the gate; may use {repo_id} and {revision}, never {text}"
+        },
         "not_for": {
           "type": "array",
           "minItems": 2,

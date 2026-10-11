@@ -87,6 +87,8 @@ All limitations:
 
 ## How to run it
 
+Requires {{ python_requirement }}.
+
 ```bash
 {{ install }}
 ```
@@ -94,12 +96,28 @@ All limitations:
 ```python
 {{ how_to_run }}
 ```
+{% if mcu and how_to_run_output %}
+
+Output:
+
+```text
+{{ how_to_run_output }}
+```
+{% endif %}
 {% if mcu %}
 
 On the device (C, {{ "tree model exported with emlearn; build with `-ffp-contract=off`" if tree else "int8 engine of the zoo" }}):
 
 ```c
 {{ device_usage }}
+```
+{% endif %}
+{% if own_data %}
+
+### Use it on your own data
+
+```python
+{{ own_data }}
 ```
 {% endif %}
 

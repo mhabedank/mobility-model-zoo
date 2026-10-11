@@ -229,3 +229,102 @@ def test_published_records_validate(path):
     if not record.get("published"):
         pytest.skip("draft: `zoo check --offline` reports what is missing")
     assert schema_errors("release-record", record) == []
+
+
+# ---- feature 013: the card's snippet runs in the card's own environment -------------------------
+
+
+def test_rule_12_runs_how_to_run_for_mcu(mcu_env):
+    from release_env import FakeRunner
+
+    from mobility_model_zoo.release import card as cards
+
+    runner = FakeRunner()
+    gate = run_gate(mcu_env, online=True, runner=runner)
+    assert failures(gate, 12) == ""
+    staging = mcu_env.record()["staging"]
+    expected = cards.fill(
+        mcu_env.reg.model_raw(mcu_env.model)["card"]["how_to_run"],
+        staging["repo"],
+        staging["revision"],
+        "",
+    )
+    assert runner.calls == [expected]  # once, filled with the staging repository and revision
+    assert gate.how_to_run_output and gate.how_to_run_output.startswith('{"items": []')
+    section = cards.sections(cards.split_card(gate._card())[1])["How to run it"]
+    assert f"Output:\n\n```text\n{gate.how_to_run_output}\n```" in section
+
+
+def test_rule_12_fails_when_the_mcu_snippet_fails(mcu_env):
+    from release_env import FakeRunner
+
+    gate = run_gate(mcu_env, online=True, runner=FakeRunner(returncode=1))
+    reason = failures(gate, 12)
+    assert "how_to_run failed (exit 1)" in reason and "boom" in reason
+    assert gate.how_to_run_output is None
+
+
+def test_mcu_card_has_no_output_block_without_a_run(mcu_env):
+    from mobility_model_zoo.release import card as cards
+
+    section = cards.sections(cards.split_card(run_gate(mcu_env).card)[1])["How to run it"]
+    assert "Output:" not in section
+
+
+def _v2(env):
+    edit_record(env, lambda r: r.update(output_format_version="picket-forest-v2"))
+
+
+def test_v2_tree_files_must_be_staged(mcu_forest_env):
+    _v2(mcu_forest_env)
+    reason = failures(run_gate(mcu_forest_env), 13)
+    assert "calibration_table.json is not staged" in reason
+    assert "examples/01-dos.json is not staged" in reason
+
+
+def test_v2_staged_example_must_equal_the_registry_file(mcu_forest_env):
+    env = mcu_forest_env
+    _v2(env)
+    from mobility_model_zoo.release.hub import sha256_file
+
+    def stage(r):
+        for p in sorted((env.reg.model_dir(env.model) / "examples").glob("*.json")):
+            r["files"].append({"path": f"examples/{p.name}", "sha256": sha256_file(p), "size_bytes": 1})
+        r["files"].append({"path": "calibration_table.json", "sha256": "0" * 64, "size_bytes": 1})
+        r["files"][-2]["sha256"] = "f" * 64  # the last example differs from the registry
+
+    edit_record(env, stage)
+    reason = failures(run_gate(env), 13)
+    assert "staged examples/03-scan.json differs from the registry file" in reason
+    assert "is not staged" not in reason
+
+
+def test_v1_tree_models_need_neither_examples_nor_table(mcu_forest_env):
+    assert failures(run_gate(mcu_forest_env), 13) == ""
+
+
+def test_staged_table_must_describe_the_staged_header(zoo_env, tmp_path):
+    from mobility_model_zoo.release.gate import Gate
+    from mobility_model_zoo.security.can_ids import picket_forest as pf
+    from mobility_model_zoo.security.can_ids import release_export_v2 as rx
+
+    work = tmp_path / "table"
+    work.mkdir()
+    table = rx.example_table()
+    rx.table_header(table, work / "picket_forest_table.h", "test")
+    pf.save_table(table, work / "calibration_table.json", "test")
+    repo = zoo_env.reg.model_raw(zoo_env.model)["repos"]["staging"]
+    files = {p.name: p.read_bytes() for p in work.iterdir()}
+
+    def gate_for(files):
+        gate = Gate(zoo_env.reg, zoo_env.model, zoo_env.version, hub=zoo_env.hub)
+        gate.record = {
+            "staging": {"repo": repo, "revision": zoo_env.hub.seed(repo, files, private=True)}
+        }
+        return gate
+
+    assert gate_for(files)._v2_table_failures() == []
+    table.max_count[next(iter(table.max_count))] += 1
+    pf.save_table(table, work / "calibration_table.json", "test")
+    files["calibration_table.json"] = (work / "calibration_table.json").read_bytes()
+    assert "describe different tables" in gate_for(files)._v2_table_failures()[0]

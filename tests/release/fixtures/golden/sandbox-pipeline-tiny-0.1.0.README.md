@@ -74,8 +74,10 @@ Any real use. The model has random weights and its outputs mean nothing.
 
 ## How to run it
 
+Requires Python 3.12 or newer.
+
 ```bash
-pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@sandbox-pipeline-tiny/v0.1.0"
+pip install "mobility-model-zoo[text] @ git+https://github.com/mhabedank/mobility-model-zoo@sandbox-pipeline-tiny/v0.1.0"
 ```
 
 ```python

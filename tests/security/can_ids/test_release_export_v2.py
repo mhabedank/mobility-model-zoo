@@ -39,6 +39,9 @@ def test_c_chain_is_bit_exact_with_python(model, tmp_path):
     par = rx.parity(clf, 0.5, caps, table, tmp_path / "parity")
     assert par["frames"] > 0
     assert par["score_mismatches"] == 0 and par["alarm_mismatches"] == 0
+    # the numpy reference users run (picket_forest) agrees with the ctypes build of msml_cal
+    assert par["numpy_feature_mismatches"] == 0
+    assert par["numpy_alarm_mismatches"] == 0
 
 
 def test_examples_check_against_the_staged_chain(model, tmp_path):

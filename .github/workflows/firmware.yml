@@ -99,8 +99,9 @@ jobs:
           for f in $F/msml_can_features.c $F/msml_alarm.c; do
             gcc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -I $F/include -c "$f" -o "/tmp/$(basename "$f" .c).o"
           done
-      # emlearn + scikit-learn without the TensorFlow-heavy edge-train extra
+      # emlearn + scikit-learn without the TensorFlow-heavy edge-train extra. emlearn imports
+      # distutils, which Python 3.12 only has through setuptools (torch used to bring it in).
       - name: emlearn available (the parity test would otherwise skip)
-        run: uv run --extra edge --with "emlearn>=0.23" --with scikit-learn --with pandas python -c "import emlearn, sklearn"
+        run: uv run --extra edge --with "emlearn>=0.23" --with setuptools --with pandas python -c "import emlearn, sklearn"
       - name: picket-forest C port matches Python
-        run: uv run --extra edge --with "emlearn>=0.23" --with scikit-learn --with pandas pytest tests/security/can_ids -q -rs
+        run: uv run --extra edge --with "emlearn>=0.23" --with setuptools --with pandas pytest tests/security/can_ids -q -rs

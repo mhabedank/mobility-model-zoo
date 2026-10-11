@@ -32,7 +32,7 @@ card:
       alt: Time to process 10,000 texts for scout-large on four machines and for the generative models of the pilot
   input_output: |
     Input: a text in German or English, any length (it is read in overlapping 512-token windows). Output: JSON in the format `jtbd-span-v1`: `output_format_version`; `relevant` (does the text contain jobs, pains or gains at all) and `relevance_probability`; `dimensions`, the attribute dimensions this model produces (here `actor_type`, `evidence_type` and `evidence_scope`); and `items`. Each item has `kind` (job, pain or gain), `quote` with its character offsets `start` and `end` (always a verbatim span of the input), a `score`, and one value per produced dimension. An empty list is a valid result.
-  install: pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  install: pip install "mobility-model-zoo[text] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
     import json
 

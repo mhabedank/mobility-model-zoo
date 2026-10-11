@@ -11,6 +11,7 @@ import json
 import re
 from dataclasses import dataclass
 from importlib import resources
+from importlib.metadata import metadata
 from typing import Any
 
 import jinja2
@@ -142,6 +143,17 @@ def fill(code: str, repo_id: str, revision: str, text: str) -> str:
 
 def install_line(model: dict[str, Any], version: str) -> str:
     return model["card"]["install"].replace("<tag>", f"{model['name']}/v{version}")
+
+
+def python_requirement() -> str:
+    """The interpreter the install line needs, e.g. "Python 3.12 or newer".
+
+    Read from the package's own `Requires-Python` so the card and the website never drift from
+    `pyproject.toml`; pip refuses the install line with a bare version error on an older interpreter.
+    """
+    spec = metadata("mobility-model-zoo").get("Requires-Python") or ""
+    floor = re.match(r">=\s*(\d+\.\d+)", spec)
+    return f"Python {floor.group(1)} or newer" if floor else f"Python {spec}"
 
 
 def figure_urls(model: dict[str, Any], version: str) -> list[dict[str, str]]:
@@ -399,6 +411,7 @@ class CardInput:
     example_outputs: dict[str, str] | None = None
     deprecated_banner: bool = True
     model: dict[str, Any] | None = None  # model.yaml as of the version's tag (published versions)
+    how_to_run_output: str | None = None  # what how_to_run printed in the gate's fresh venv (mcu)
 
 
 def render(inp: CardInput) -> str:
@@ -440,9 +453,14 @@ def render(inp: CardInput) -> str:
         usage=usage_line(model, record),
         front_matter=front_matter(model, record, quality),
         install=install_line(model, version),
+        python_requirement=python_requirement(),
         figures=figure_urls(model, version),
         how_to_run=fill(
             model["card"]["how_to_run"], model["repos"]["public"], f"v{version}", first_text
+        ).strip(),
+        how_to_run_output=(inp.how_to_run_output or "").strip(),
+        own_data=fill(
+            model["card"].get("own_data", ""), model["repos"]["public"], f"v{version}", ""
         ).strip(),
         examples=[
             {"name": n, "text": t.strip(), "output": outputs.get(n, NO_OUTPUT).strip()}
@@ -504,6 +522,22 @@ def parse_card_examples(text: str) -> dict[str, str]:
             outputs[name] = "\n".join(block)
             name = None
     return outputs
+
+
+def parse_card_run_output(text: str) -> str | None:
+    """What `how_to_run` printed, as shown under "How to run it" of a rendered card (microcontroller
+    models); keeps it on a card-only update."""
+    in_section, lines = False, text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            in_section = line[3:].strip() == "How to run it"
+        elif in_section and line == "Output:":
+            j, block = i + 3, []  # skip the blank line and the opening fence
+            while j < len(lines) and not lines[j].startswith("```"):
+                block.append(lines[j])
+                j += 1
+            return "\n".join(block)
+    return None
 
 
 def split_card(card: str) -> tuple[dict[str, Any], str]:
