@@ -1794,6 +1794,7 @@ edge = [
     { name = "pyserial" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
+    { name = "typer" },
 ]
 edge-hw = [
     { name = "esptool" },
@@ -1919,6 +1920,7 @@ requires-dist = [
     { name = "trafilatura", marker = "extra == 'jtbd'", specifier = ">=1.12" },
     { name = "transformers", marker = "extra == 'text'", specifier = ">=4.46" },
     { name = "typer", marker = "extra == 'catalog'", specifier = ">=0.12" },
+    { name = "typer", marker = "extra == 'edge'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'jtbd'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'release'", specifier = ">=0.12" },
 ]
