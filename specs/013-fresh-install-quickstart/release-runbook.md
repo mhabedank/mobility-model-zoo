@@ -4,8 +4,8 @@ Everything the code needs is in the branch. These steps need the owner's Hugging
 compliance sign-off and the approval of the reviewed cards, so nobody else can run them.
 
 Both releases are card and packaging patches: weights, thresholds, features and device code are the
-ones of 0.2.0 and 0.1.2 (the gate's sha256 list proves it). `README.md` already names
-`picket-forest/v0.2.1`; the README test stays red until step 3 creates that release record.
+ones of 0.2.0 and 0.1.2 (the gate's sha256 list proves it). `README.md` names
+`picket-forest/v0.2.1`, whose draft record is in the branch.
 
 ## 0. Prerequisites
 
@@ -35,10 +35,12 @@ The directory holds the 12 files of 0.2.0 (byte-identical), the three example ca
 
 ## 2. picket-forest 0.2.1
 
+The draft record (`zoo/models/picket-forest/releases/0.2.1.yaml`, results, compliance drafts) is in the
+branch, created with `zoo new-patch picket-forest 0.2.0 0.2.1 --restage`; `files[]` and the staging
+revision are empty until `zoo stage` fills them, so `zoo validate --all` skips it.
+
 ```bash
-uv run zoo new-patch picket-forest 0.2.0 0.2.1 --commit "$RECIPE" \
-  --changes "Card and packaging only: the Python reference runs without the repository or a compiler, the model repository ships the example captures and the calibration table as JSON, the install line names the edge extra. Weights, thresholds and device code identical to 0.2.0."
-uv run zoo stage picket-forest 0.2.1 --from build/repack-0.2.1     # replaces files[] and staging.revision
+uv run zoo stage picket-forest 0.2.1 --from build/repack-0.2.1     # fills files[] and staging.revision
 uv run zoo compliance scan-publish --model picket-forest --version 0.2.1
 uv run zoo compliance signoff --model picket-forest --version 0.2.1  # owner decision
 uv run zoo check picket-forest 0.2.1

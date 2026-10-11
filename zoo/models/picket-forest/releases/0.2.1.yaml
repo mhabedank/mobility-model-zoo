@@ -1,0 +1,45 @@
+model: picket-forest
+version: 0.2.1
+date: 2026-10-11
+status: experimental
+change_type: patch
+changes: 'Card and packaging only: the Python reference runs without the repository or a compiler, the
+  model repository ships the example captures and the calibration table as JSON, the install line names
+  the edge extra. Weights, thresholds and device code identical to 0.2.0.'
+output_format_version: picket-forest-v2
+sandbox: false
+files: []
+staging:
+  repo: mobility-model-zoo/picket-forest-staging
+  revision: ''
+recipe:
+  git_commit: c996cb64b4ee4becc05317ae65dc959ad6d2e80f
+  config: configs/security/can-ids/picket-forest.yaml
+  doc: topics/security/tasks/can-ids.md
+provenance:
+  sources:
+  - origin: dataset can-train-and-test (topics/*/compliance/datasets.yaml)
+    license: CC-BY-4.0
+    permitted_use: training_allowed
+    count: 0
+    dataset: can-train-and-test
+  teachers: []
+  spike_data: false
+evaluation:
+  benchmark: can-ids-v3
+  reference: labels of the can-train-and-test and ROAD datasets; KCID benign traces for false alarms
+  reference_kind: ground_truth
+  results: results/0.2.1/quality.json
+performance:
+  hardware: ESP32-S3 (HIL bench)
+  budget:
+    ram_kb: 16
+    flash_kb: 128
+    target: ESP32-S3
+  results: results/0.2.1/performance.json
+usage:
+  class: commercial
+  licence: Apache-2.0
+  restricting_inputs: []
+published: null
+deprecated: null
