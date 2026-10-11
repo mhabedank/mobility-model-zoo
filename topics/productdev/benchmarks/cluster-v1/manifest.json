@@ -1,6 +1,6 @@
 {
   "version": "cluster-v1",
-  "state": "frozen",
+  "state": "revise",
   "built_at": "2026-10-11T09:53:31.937796+00:00",
   "hashes": {
     "guideline": "ad0ec27f7a963ebcbeb1622664a1cd8e7af1755e4796e3c9fe60026000cd55fb",
@@ -61,9 +61,19 @@
       "at": "2026-10-11T09:52:57.519941+00:00",
       "state": "draft",
       "event": "rebuilt before any labeling"
+    },
+    {
+      "at": "2026-10-11T10:23:20.775598+00:00",
+      "state": "piloted",
+      "event": "agreement on test"
+    },
+    {
+      "at": "2026-10-11T10:23:55.157971+00:00",
+      "state": "revise",
+      "event": "a level is below its threshold"
     }
   ],
   "frozen_at": "2026-10-11T09:53:37.459295+00:00",
   "retention_review_by": "2028-10-11",
-  "reruns": 0
+  "reruns": 1
 }
