@@ -1,4 +1,4 @@
-"""Layers 5 and 6 of the model page: reference and details, old anchors (feature 013, US5, D3, D5)."""
+"""Layers 5 and 6 of the model page: reference and details, old anchors (feature 014, US5, D3, D5)."""
 
 from __future__ import annotations
 

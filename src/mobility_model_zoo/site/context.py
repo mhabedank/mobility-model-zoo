@@ -71,7 +71,7 @@ def status(reg: Registry, name: str) -> tuple[str, str | None]:
 
 
 def release_status(reg: Registry, name: str, version: str) -> str:
-    """`experimental` or `released` (feature 013). `zoo release deprecate` overwrites the record's
+    """`experimental` or `released` (feature 014). `zoo release deprecate` overwrites the record's
     status with `deprecated`; the status the version was published with is in the record at its tag."""
     status = reg.record_raw(name, version).get("status", "")
     if status != "deprecated":
@@ -215,7 +215,7 @@ def site_models(reg: Registry) -> list[dict[str, Any]]:
                     "text": usage_line(model, rec),
                 },
                 "releases": releases,
-                # feature 013: release status from the record, short forms from the card block
+                # feature 014: release status from the record, short forms from the card block
                 "release_status": release_status(reg, name, latest) if latest else None,
                 "short": short_forms(model),
                 "pitch": load_pitch(reg, name) if latest else optional_pitch(reg, name),
@@ -247,7 +247,7 @@ def load_pitch(reg: Registry, name: str) -> dict[str, Any]:
 
 
 def budget_errors(name: str, pitch: dict[str, Any]) -> list[str]:
-    """Depth budgets of the hand-written website text (feature 013, gate rule 17, site check D2)."""
+    """Depth budgets of the hand-written website text (feature 014, gate rule 17, site check D2)."""
     b = budgets
     errors = []
     diffs = pitch.get("differentiators", [])

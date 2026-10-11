@@ -1,7 +1,7 @@
-# Website text of scout-large (features 008, 013). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
+# Website text of scout-large (features 008, 014). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
 # Numbers only as {metric:<kind>.<name>} placeholders: they resolve against the results of the
 # latest release, so this text stays true after the next release (checks B2, F2; gate rule 17).
-# Feature 013 budgets: audience at most 25 words; 3-4 differentiators, title at most 5 words and
+# Feature 014 budgets: audience at most 25 words; 3-4 differentiators, title at most 5 words and
 # text at most 20; no release status (the page generates it from the release record).
 tagline: Finds jobs, pains and gains in mobility texts and quotes each one verbatim, on your own machine.
 share_line: Finds jobs, pains and gains in mobility texts, each with a verbatim quote.

@@ -217,3 +217,7 @@ Script (one model page per reader, alternating scout-large and picket-forest; th
 | Date | Role (no name) | Page | Q1 | Q2 | Q3 | Seconds | Pass |
 |---|---|---|---|---|---|---|---|
 | | | | | | | | |
+
+## Renumbering
+
+Developed as feature 013. Feature `013-fresh-install-quickstart` was merged into `main` first, so this feature was renumbered to 014 on 2026-10-11 (owner decision): folder `specs/014-model-page-layout`, references in code, tests and docs. Commit messages of the branch still say 013. The baseline and after measurements above are unchanged.

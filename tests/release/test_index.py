@@ -27,7 +27,7 @@ def add_topic_and_model(env, topic: str, name: str) -> None:
     shutil.copytree(src, dst)
     model = env.reg.model_raw(name)
     parts = name.split("-")
-    # A public model states its status in short form (gate rule 18, feature 013).
+    # A public model states its status in short form (gate rule 18, feature 014).
     model["card"].update(
         not_for=["Production use", "Real vehicles"],
         limits_short=["A test model."],

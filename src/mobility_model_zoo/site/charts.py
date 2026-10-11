@@ -269,7 +269,7 @@ def render(
     return [CHARTS[c["type"]](reg, name, version, c, facts, page) for c in declared]
 
 
-# ---- comparison bar of a headline figure (feature 013, research R6) ---------------------------
+# ---- comparison bar of a headline figure (feature 014, research R6) ---------------------------
 BAR_W = 240
 
 

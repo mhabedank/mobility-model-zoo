@@ -1,4 +1,4 @@
-# Contract: checks added or changed by feature 013
+# Contract: checks added or changed by feature 014
 
 Adds to [specs/008-zoo-website/contracts/checks.md](../../008-zoo-website/contracts/checks.md) (and to feature 012's B6, B7, O1–O5). Every check blocks publication like the existing ones. Budgets come from one constants table ([data-model.md](../data-model.md#budget)).
 

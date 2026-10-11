@@ -210,7 +210,7 @@ figure.chart figcaption { font-size: 18px; font-weight: 650; }
 }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
-/* ---- feature 013: layers of the model page ------------------------------------------------ */
+/* ---- feature 014: layers of the model page ------------------------------------------------ */
 .status-line { padding: 10px 14px; border: 1px solid var(--border-strong); border-left-width: 4px;
   border-radius: 8px; background: var(--surface-2); font-weight: 600; }
 .status-line a { font-weight: 600; }

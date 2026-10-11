@@ -60,7 +60,7 @@ Write a task document `topics/<topic>/tasks/<task>.md` before the first model: s
    ```
 
    This uploads the files in one commit and writes `files[]` and `staging.revision` into `zoo/models/<name>/releases/<version>.yaml`.
-2. Write the short forms of the card in `model.yaml` (feature 013, gate rule 18); the website shows them first and the card puts them under the summary and at the top of "Limitations and risks":
+2. Write the short forms of the card in `model.yaml` (feature 014, gate rule 18); the website shows them first and the card puts them under the summary and at the top of "Limitations and risks":
    - `card.not_for`: the two or three most important things the model is not for (at most 15 words each, 40 together).
    - `card.limits_short`: the most important known failure modes (at most 25 words each).
    - `card.unmet_criteria`: for an `experimental` release, every success criterion of the task it does not meet, with the measured value as a placeholder and the target from the task document, or a short note; empty for `released`. Together with `limits_short` at most five items.

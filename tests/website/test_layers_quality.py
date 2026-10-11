@@ -1,4 +1,4 @@
-"""Layer 2 of the model page: quality and speed, figures first (feature 013, US2, check D3)."""
+"""Layer 2 of the model page: quality and speed, figures first (feature 014, US2, check D3)."""
 
 from __future__ import annotations
 

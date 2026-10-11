@@ -156,7 +156,7 @@ def check_facts(reg: Registry, out: Path) -> Iterable[Finding]:
             yield Finding("F1", row["page"], f"{row['key']}: source {row['source']} does not exist")
             continue
         if row["source"] not in cache:
-            if source.name == "model.yaml":  # targets of unmet criteria (feature 013)
+            if source.name == "model.yaml":  # targets of unmet criteria (feature 014)
                 items = ((load_yaml(source) or {}).get("card") or {}).get("unmet_criteria") or []
                 cache[row["source"]] = {
                     target_key(i): it["target"]["value"]
@@ -233,7 +233,7 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
         for key, text in _prose(load_yaml(path) or {}):
             for n in literal_numbers(text):
                 yield Finding("F2", f"zoo/models/{name}/site.yaml", f"{key}: literal number {n!r}")
-    for name in reg.model_names():  # feature 013: short forms of the card
+    for name in reg.model_names():  # feature 014: short forms of the card
         card = reg.model_raw(name).get("card") or {}
         for key, text in _card_prose(card):
             for n in literal_numbers(text):

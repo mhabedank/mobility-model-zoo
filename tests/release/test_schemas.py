@@ -10,7 +10,7 @@ import pytest
 from mobility_model_zoo.release.registry import SCHEMAS, schema_errors
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACTS = ROOT / "specs/013-model-page-layout/contracts/release"  # latest owner of the format
+CONTRACTS = ROOT / "specs/014-model-page-layout/contracts/release"  # latest owner of the format
 PACKAGED = ROOT / "src/mobility_model_zoo/release/schemas"
 
 
@@ -58,7 +58,7 @@ def test_patterns_from_the_data_model(zoo_env):
     assert _invalid("model", model, lambda d: d["card"].update(how_to_run="print('no placeholders')"))
 
 
-# ---- feature 013: short forms of the card -----------------------------------------------------
+# ---- feature 014: short forms of the card -----------------------------------------------------
 SHORT = {
     "not_for": ["Production use", "Texts outside mobility"],
     "limits_short": ["Agreement with reference models, not human judgement."],

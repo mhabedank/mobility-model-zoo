@@ -1,4 +1,4 @@
-"""Depth budgets of a model page (feature 013, research R5) and the one way they are counted.
+"""Depth budgets of a model page (feature 014, research R5) and the one way they are counted.
 
 The release gate (rules 17 and 18) counts the hand-written input, the site checks (D1-D6) count
 the rendered page; both use the constants and `words()` below, so they cannot disagree.
@@ -44,7 +44,7 @@ LAYER_IDS = {
     "reference": "reference",
     "details": "details",
 }
-# Anchors of the page before feature 013 that must keep resolving (FR-019).
+# Anchors of the page before feature 014 that must keep resolving (FR-019).
 ANCHORS = (
     "top", "why", "quickstart", "interface", "examples", "quality", "limits",
     "metrics", "provenance", "versions", "cite", "notes",

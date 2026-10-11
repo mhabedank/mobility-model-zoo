@@ -1,4 +1,4 @@
-"""Gate rule 18 (feature 013): a release states its status in short form. `experimental` names every
+"""Gate rule 18 (feature 014): a release states its status in short form. `experimental` names every
 unmet criterion with its measured value, `released` names none; `not_for` and `limits_short` exist."""
 
 from __future__ import annotations

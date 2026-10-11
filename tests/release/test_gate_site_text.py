@@ -87,7 +87,7 @@ def test_output_format_without_documentation_fails(reg):
     )
 
 
-# ---- feature 013: depth budgets of the website text ---------------------------------------------
+# ---- feature 014: depth budgets of the website text ---------------------------------------------
 @pytest.mark.parametrize(
     "mutate, needle",
     [

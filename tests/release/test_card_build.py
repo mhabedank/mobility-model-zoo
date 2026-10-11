@@ -95,7 +95,7 @@ def test_figures_link_the_release_tag_and_must_exist(zoo_env):
     assert any("figure docs/figures/speed.png is not in the repository" in f for f in exc.value.failures)
 
 
-# ---- feature 013: short forms on the card ------------------------------------------------------
+# ---- feature 014: short forms on the card ------------------------------------------------------
 def _section(card: str, title: str) -> str:
     return card.split(f"## {title}\n", 1)[1].split("\n## ", 1)[0]
 

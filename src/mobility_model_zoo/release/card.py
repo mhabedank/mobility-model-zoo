@@ -25,8 +25,8 @@ GROUND_TRUTH = (
 )
 
 REPO_URL = "https://github.com/mhabedank/mobility-model-zoo"
-# Feature 013: the order of the website layers (overview, quality and speed, limits, how to run,
-# reference, details); specs/013-model-page-layout/contracts/card-order.md.
+# Feature 014: the order of the website layers (overview, quality and speed, limits, how to run,
+# reference, details); specs/014-model-page-layout/contracts/card-order.md.
 SECTIONS = (
     "Summary",
     "Quality",
@@ -62,7 +62,7 @@ BANNERS = {
     ),
     "released": ("Released.", "The output format is stable within this major version."),
 }
-# One sentence per release status, shared by the card and the website (feature 013, research R4).
+# One sentence per release status, shared by the card and the website (feature 014, research R4).
 STATUS_SENTENCES = {
     "experimental": "Experimental: not ready for production use.",
     "released": "Released: meets the success criteria and budgets of its task.",
@@ -80,7 +80,7 @@ PLACEHOLDER = re.compile(r"\{metric:(quality|performance)\.([a-z0-9_]+)\}")
 def short_forms(
     model: dict[str, Any], record: dict[str, Any], quality: dict[str, Any], performance: dict[str, Any]
 ) -> dict[str, Any]:
-    """The card's short forms (feature 013): "Not for" under the summary; status sentence, unmet
+    """The card's short forms (feature 014): "Not for" under the summary; status sentence, unmet
     criteria and short limits at the top of "Limitations and risks". Absent in model.yaml of older
     tags, so every block may be empty."""
     card = model.get("card") or {}

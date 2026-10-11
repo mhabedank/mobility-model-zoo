@@ -87,8 +87,8 @@ def test_placeholders_resolve_with_notes_and_facts(site_env):
     )
 
 
-def test_site_yaml_limits_of_feature_013():
-    """At most four differentiators and four headline figures (feature 013)."""
+def test_site_yaml_limits_of_feature_014():
+    """At most four differentiators and four headline figures (feature 014)."""
     from mobility_model_zoo.site.context import _schema_errors
 
     base = {"tagline": "t", "audience": "a", "quickstart_example": "x.txt"}

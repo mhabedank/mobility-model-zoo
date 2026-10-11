@@ -145,7 +145,7 @@ def unmet_rows(
     notes: Notes,
     page: str,
 ) -> list[dict[str, Any]]:
-    """The unmet criteria of an experimental release (feature 013), ready to print: the measured
+    """The unmet criteria of an experimental release (feature 014), ready to print: the measured
     value from the results with its note, the target from `model.yaml` with the task that sets it."""
     rows = []
     for i, item in enumerate(items):

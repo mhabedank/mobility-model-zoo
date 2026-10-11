@@ -1,8 +1,8 @@
 # Implementation Plan: Model pages in progressive depth
 
-**Branch**: `013-model-page-layout` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md)
+**Branch**: `014-model-page-layout` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md)
 
-**Input**: Feature specification from `/specs/013-model-page-layout/spec.md`
+**Input**: Feature specification from `/specs/014-model-page-layout/spec.md`
 
 ## Summary
 
@@ -56,7 +56,7 @@ Re-check after Phase 1 (data model, contracts): **PASS**. The design adds struct
 ### Documentation (this feature)
 
 ```text
-specs/013-model-page-layout/
+specs/014-model-page-layout/
 ├── plan.md              # This file
 ├── research.md          # Phase 0: decisions R1–R11
 ├── data-model.md        # Phase 1: new fields, layers, budgets

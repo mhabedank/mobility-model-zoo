@@ -1,6 +1,6 @@
 # Feature Specification: Model pages in progressive depth
 
-**Feature Branch**: `013-model-page-layout`
+**Feature Branch**: `014-model-page-layout`
 
 **Created**: 2026-10-11
 

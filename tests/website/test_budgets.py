@@ -1,4 +1,4 @@
-"""The counting rule of the depth budgets (feature 013, research R5)."""
+"""The counting rule of the depth budgets (feature 014, research R5)."""
 
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
-# Website text of picket-forest (features 010, 013). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
+# Website text of picket-forest (features 010, 014). Schema: src/mobility_model_zoo/site/schemas/site.schema.json.
 # Numbers only as {metric:<kind>.<name>} placeholders (checks B2, F2; gate rule 17).
-# Feature 013 budgets: audience at most 25 words; 3-4 differentiators, title at most 5 words and
+# Feature 014 budgets: audience at most 25 words; 3-4 differentiators, title at most 5 words and
 # text at most 20; no release status (the page generates it from the release record).
 tagline: CAN intrusion detector for microcontrollers, calibrated on your vehicle's normal traffic.
 share_line: CAN intrusion detector for microcontrollers, calibrated on your vehicle's normal traffic.

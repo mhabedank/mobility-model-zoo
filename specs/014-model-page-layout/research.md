@@ -76,7 +76,7 @@ Phase 0 of [plan.md](plan.md). The reader-side research (standards, model pages,
 
 ### R11. Order with feature 012
 
-- **Decision**: 013 is implemented after 012 is merged and rebased onto it. Both touch the hero partial, `site.schema.json`, `check.py` and the two `site.yaml` files; 012's `share_line` and 013's budgets do not conflict.
+- **Decision**: 014 is implemented after 012 is merged and rebased onto it. Both touch the hero partial, `site.schema.json`, `check.py` and the two `site.yaml` files; 012's `share_line` and 014's budgets do not conflict.
 - **Rationale**: 012 is further along (plan and contracts done); sequencing avoids a three-way merge in the check module.
 
 ## Open items

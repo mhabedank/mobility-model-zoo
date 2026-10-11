@@ -1,4 +1,4 @@
-"""Layer 4 of the model page: the quickstart after the limits, no code before them (feature 013, US4)."""
+"""Layer 4 of the model page: the quickstart after the limits, no code before them (feature 014, US4)."""
 
 from __future__ import annotations
 

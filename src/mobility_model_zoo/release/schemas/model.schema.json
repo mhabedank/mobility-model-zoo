@@ -214,7 +214,7 @@
             "type": "string",
             "minLength": 1
           },
-          "description": "Feature 013: the two or three most important things the model is not for, one short point each (at most 15 words, together at most 40). Shown in the website overview and under the card summary. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+          "description": "Feature 014: the two or three most important things the model is not for, one short point each (at most 15 words, together at most 40). Shown in the website overview and under the card summary. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
         },
         "limits_short": {
           "type": "array",
@@ -224,7 +224,7 @@
             "type": "string",
             "minLength": 1
           },
-          "description": "Feature 013: the most important known failure modes in short form (at most 25 words each; together with unmet_criteria at most 5 items and 120 words). Shown first in the limits layer of the website and at the top of 'Limitations and risks' on the card. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+          "description": "Feature 014: the most important known failure modes in short form (at most 25 words each; together with unmet_criteria at most 5 items and 120 words). Shown first in the limits layer of the website and at the top of 'Limitations and risks' on the card. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
         },
         "unmet_criteria": {
           "type": "array",
@@ -296,7 +296,7 @@
               }
             }
           },
-          "description": "Feature 013, constitution IX: every success criterion an experimental release does not meet, with its measured value. Required and non-empty for status experimental, empty for released (gate rule 18, site check D1)."
+          "description": "Feature 014, constitution IX: every success criterion an experimental release does not meet, with its measured value. Required and non-empty for status experimental, empty for released (gate rule 18, site check D1)."
         }
       }
     },

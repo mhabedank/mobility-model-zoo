@@ -1,6 +1,6 @@
 # Tasks: Model pages in progressive depth
 
-**Input**: Design documents from `/specs/013-model-page-layout/`
+**Input**: Design documents from `/specs/014-model-page-layout/`
 
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md)
 
@@ -19,9 +19,9 @@
 
 **Purpose**: start from the state that contains feature 012 and record the baseline.
 
-- [X] T001 Rebase branch `013-model-page-layout` onto `main` after feature 012 (`012-social-preview-images`) is merged; if 012 is not merged yet, stop and report (research R11). Resolve conflicts in `src/mobility_model_zoo/site/check.py`, `src/mobility_model_zoo/site/templates/partials/hero.html.j2`, `src/mobility_model_zoo/site/schemas/site.schema.json`, `zoo/models/*/site.yaml` by keeping 012's `share_line` and checks B6, B7, O1–O5
-- [X] T002 [P] Record the baseline measurement (section start in screens and word count per section at 1440 × 900, for scout-large and picket-forest, as in the spec's "Context: the pages today" table) by building the current site with `uv run zoo site build` and measuring with Playwright; write it to `specs/013-model-page-layout/validation.md` under "Baseline"
-- [X] T003 [P] Write a link inventory of each current model page (every `href` target on `_site/models/scout-large/index.html` and `_site/models/picket-forest/index.html`) to `specs/013-model-page-layout/validation.md` under "Link inventory before" (input for SC-006)
+- [X] T001 Rebase branch `014-model-page-layout` onto `main` after feature 012 (`012-social-preview-images`) is merged; if 012 is not merged yet, stop and report (research R11). Resolve conflicts in `src/mobility_model_zoo/site/check.py`, `src/mobility_model_zoo/site/templates/partials/hero.html.j2`, `src/mobility_model_zoo/site/schemas/site.schema.json`, `zoo/models/*/site.yaml` by keeping 012's `share_line` and checks B6, B7, O1–O5
+- [X] T002 [P] Record the baseline measurement (section start in screens and word count per section at 1440 × 900, for scout-large and picket-forest, as in the spec's "Context: the pages today" table) by building the current site with `uv run zoo site build` and measuring with Playwright; write it to `specs/014-model-page-layout/validation.md` under "Baseline"
+- [X] T003 [P] Write a link inventory of each current model page (every `href` target on `_site/models/scout-large/index.html` and `_site/models/picket-forest/index.html`) to `specs/014-model-page-layout/validation.md` under "Link inventory before" (input for SC-006)
 
 ---
 
@@ -111,10 +111,10 @@
 
 - [X] T034 [US3] Rewrite `src/mobility_model_zoo/site/templates/partials/limits.html.j2` as layer 3: `<div data-short="limits">` with the status sentence, the unmet rows (T011) and `limits_short`; then evidence links (recipe document `record.recipe.doc` at the tag, results directory `zoo/models/<name>/results/<version>/` at the tag, release notes anchor in `#versions`, compliance record when present); then intended use, out of scope and limitations each in a closed `<details>` with a `<summary>`
 - [X] T035 [US3] Implement check D1 as `check_short_forms(reg)` and the layer-3 parts of D2 and D3 as `check_limits_layer(out)` in `src/mobility_model_zoo/site/check.py`; register both in `run_checks`
-- [X] T036 [US3] Implement gate rule 18 as `rule_18` in `src/mobility_model_zoo/release/gate.py` (docstring: "Status and limits (feature 013)…"), append 18 to `ORDER`, update the module docstring "rules 1-17" to "rules 1-18"; reuse the D1 logic from a shared function in `src/mobility_model_zoo/site/context.py` so gate and site agree
+- [X] T036 [US3] Implement gate rule 18 as `rule_18` in `src/mobility_model_zoo/release/gate.py` (docstring: "Status and limits (feature 014)…"), append 18 to `ORDER`, update the module docstring "rules 1-17" to "rules 1-18"; reuse the D1 logic from a shared function in `src/mobility_model_zoo/site/context.py` so gate and site agree
 - [X] T037 [US3] Extend check F2 in `src/mobility_model_zoo/site/check.py` (`_prose`, `check_literal_numbers`) to `card.not_for`, `card.limits_short`, `card.unmet_criteria[].criterion` and `card.unmet_criteria[].note` of every published model's `model.yaml`
 - [X] T038 [US3] Write `card.limits_short` and `card.unmet_criteria` for `zoo/models/picket-forest/model.yaml` from its card limitations, its release record `changes` and the success criteria in `topics/security/tasks/can-ids.md` (criteria: false alarms per hour on unknown vehicles with `measured` `{metric:quality.fa_per_hour_default_unknown_vehicle_unknown_attack_worst}` and the target from the task document; flooding by identifiers missing from calibration as `note`; device evidence emulator-only as `note`); verify each metric name exists in `zoo/models/picket-forest/results/0.2.0/*.json`
-- [X] T039 [US3] Write `card.limits_short` and `card.unmet_criteria` for `zoo/models/scout-large/model.yaml` from its published 0.1.2 card limitations and the success criteria in `specs/004-production-span-model/spec.md`; every `measured` must resolve in `zoo/models/scout-large/results/0.1.2/*.json`. If the published card does not name a missed criterion with its value, do not invent one: record the gap in `specs/013-model-page-layout/validation.md` under "Open compliance gaps" and report it
+- [X] T039 [US3] Write `card.limits_short` and `card.unmet_criteria` for `zoo/models/scout-large/model.yaml` from its published 0.1.2 card limitations and the success criteria in `specs/004-production-span-model/spec.md`; every `measured` must resolve in `zoo/models/scout-large/results/0.1.2/*.json`. If the published card does not name a missed criterion with its value, do not invent one: record the gap in `specs/014-model-page-layout/validation.md` under "Open compliance gaps" and report it
 - [X] T040 [P] [US3] Styles for the short form (status sentence, criteria list) in `src/mobility_model_zoo/site/static/css/site.css`
 
 **Checkpoint**: limits come before any code, with the unmet criteria and their values.
@@ -153,7 +153,7 @@
 - [X] T048 [US5] Assemble layer 6 in `src/mobility_model_zoo/site/templates/model.html.j2`: `metrics.html.j2`, `provenance.html.j2`, `versions.html.j2`, `cite.html.j2` inside `<section id="details" data-layer="details">` with a short heading "Details and documents"
 - [X] T049 [US5] Change check A2 in `src/mobility_model_zoo/site/a11y.py`: drop `"#interface table.tbl": "field table"` for model pages; require a link to the model's format page; add the field-table requirement for each `formats/<id>/` page; update the module docstring
 - [X] T050 [US5] Implement D5 and the layer-5 part of D3 as `check_layer_order(out)` in `src/mobility_model_zoo/site/check.py`; register it in `run_checks`; L3 keeps its limitations link target `#limits`
-- [X] T051 [US5] Rebuild the site, write the link inventory after the change to `specs/013-model-page-layout/validation.md` under "Link inventory after" and confirm no target from T003 is missing (SC-006); any missing target is a failing result to fix, not to accept
+- [X] T051 [US5] Rebuild the site, write the link inventory after the change to `specs/014-model-page-layout/validation.md` under "Link inventory after" and confirm no target from T003 is missing (SC-006); any missing target is a failing result to fix, not to accept
 
 **Checkpoint**: all six layers in place; nothing required lost.
 
@@ -179,7 +179,7 @@
 - [X] T058 [US6] Implement D6 in `src/mobility_model_zoo/site/a11y.py`: measure at 1440 × 900 and 390 × 844 the positions listed in contracts/checks.md D6; report each measured value; findings fail the run
 - [X] T059 [US6] Change `SECTIONS` in `src/mobility_model_zoo/release/card.py` to the order of [contracts/card-order.md](contracts/card-order.md) (Summary, Quality, Speed and memory, Limitations and risks, Intended use, Out-of-scope use, How to run it, Input and output, Examples, Training data provenance, Training recipe, Version history, License, Citation, About the zoo); keep `COMPLIANCE_SECTIONS` replacing "Training data provenance" at its position
 - [X] T060 [US6] Reorder `src/mobility_model_zoo/release/templates/model_card.md.j2` to `SECTIONS`; add "Not for:" with the `not_for` items at the end of Summary and, at the top of "Limitations and risks", the status sentence, the unmet criteria (criterion: measured value, target) and `limits_short`, each block only when the field exists; numbers via `card.num()`
-- [X] T061 [US6] Regenerate the golden card with `ZOO_UPDATE_GOLDEN=1 uv run pytest tests/release/test_card_build.py -k golden`; review the diff: only moved sections and the new short-form blocks, no changed number; note the review result in `specs/013-model-page-layout/validation.md`
+- [X] T061 [US6] Regenerate the golden card with `ZOO_UPDATE_GOLDEN=1 uv run pytest tests/release/test_card_build.py -k golden`; review the diff: only moved sections and the new short-form blocks, no changed number; note the review result in `specs/014-model-page-layout/validation.md`
 - [X] T062 [P] [US6] Add `card.not_for`, `card.limits_short` and `card.unmet_criteria` to the unpublished models `zoo/models/hum-fan/model.yaml`, `zoo/models/pace-cnn/model.yaml` and `zoo/models/picket-mlp/model.yaml` from their card texts and task success criteria (the task document named in each model's release `recipe.doc`, for example `topics/condition-monitoring/tasks/activity.md` or `topics/security/tasks/can-ids.md`), so their next release passes rule 18; every `measured` must resolve in their latest results
 - [X] T063 [US6] Run `uv run pytest tests/release/test_card_emlearn.py tests/release/test_card_mcu.py tests/release/test_deprecate_from_tag.py` and fix fallout from the new section order (device cards, deprecation re-render from an old tag)
 
@@ -192,10 +192,10 @@
 - [X] T064 [P] Update `docs/website.md`: the six layers and their sources, the budget table, checks D1–D6, the changed A2, gate rule 18
 - [X] T065 [P] Update `docs/adding-a-model.md`: the new `card` fields `not_for`, `limits_short`, `unmet_criteria` with one example, the `site.yaml` word limits, gate rule 18
 - [X] T066 [P] Add `src/mobility_model_zoo/site/budgets.py`, `tests/website/test_budgets.py`, `tests/website/test_layers_*.py` and `tests/release/test_rule18.py` to the path filters in `scripts/ci/select_tests.py` so site and release test jobs run when they change
-- [X] T067 Run the full validation of [quickstart.md](quickstart.md) steps 1–5: `uv run pytest tests/website tests/release`, `uv run zoo site build`, `uv run zoo site check --a11y`; record D6 positions for both models next to the baseline in `specs/013-model-page-layout/validation.md` (SC-001–SC-004, SC-007)
+- [X] T067 Run the full validation of [quickstart.md](quickstart.md) steps 1–5: `uv run pytest tests/website tests/release`, `uv run zoo site build`, `uv run zoo site check --a11y`; record D6 positions for both models next to the baseline in `specs/014-model-page-layout/validation.md` (SC-001–SC-004, SC-007)
 - [X] T068 Run `uv run zoo compliance check` (REUSE, C1) and add licence headers to every new file
-- [X] T070 Report the scout-large card gap (analysis U1): its published 0.1.2 card neither states "not production ready" nor names unmet success criteria with values (constitution 2.2.0, IX, amended after that release). Write the finding and the proposed fix (a card-only patch release 0.1.3 rendered with the new card template and the `unmet_criteria` of T039, for the owner to approve) to `specs/013-model-page-layout/validation.md` under "Open compliance gaps"; do not publish anything
-- [X] T069 Prepare the reader test (SC-005): five-question script and result table in `specs/013-model-page-layout/validation.md` under "Reader test"; to be run after deployment, combinable with feature 008's open SC-001 test
+- [X] T070 Report the scout-large card gap (analysis U1): its published 0.1.2 card neither states "not production ready" nor names unmet success criteria with values (constitution 2.2.0, IX, amended after that release). Write the finding and the proposed fix (a card-only patch release 0.1.3 rendered with the new card template and the `unmet_criteria` of T039, for the owner to approve) to `specs/014-model-page-layout/validation.md` under "Open compliance gaps"; do not publish anything
+- [X] T069 Prepare the reader test (SC-005): five-question script and result table in `specs/014-model-page-layout/validation.md` under "Reader test"; to be run after deployment, combinable with feature 008's open SC-001 test
 
 ---
 

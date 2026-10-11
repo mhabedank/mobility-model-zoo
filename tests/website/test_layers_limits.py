@@ -1,4 +1,4 @@
-"""Layer 3 of the model page: limits and status before any code (feature 013, US3, checks D1-D3)."""
+"""Layer 3 of the model page: limits and status before any code (feature 014, US3, checks D1-D3)."""
 
 from __future__ import annotations
 

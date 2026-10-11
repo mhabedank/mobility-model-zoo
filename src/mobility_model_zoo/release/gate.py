@@ -431,7 +431,7 @@ class Gate:
         return pitch_errors(self.reg, self.name, self.version)
 
     def rule_18(self) -> list[str]:
-        """Status and limits in short form (feature 013, constitution IX): `card.not_for` and
+        """Status and limits in short form (feature 014, constitution IX): `card.not_for` and
         `card.limits_short` exist; an `experimental` release names every unmet criterion with its
         measured value, a `released` one names none. Same rules as site check D1."""
         if self.model["topic"] == "sandbox" or self.record.get("sandbox"):

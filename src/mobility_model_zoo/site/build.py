@@ -119,7 +119,7 @@ def _card(reg, name, version, spec, f: facts.Facts, notes: facts.Notes, page) ->
 
 
 def _evidence(reg: Registry, name: str, version: str, latest: dict[str, Any]) -> list[dict[str, str]]:
-    """Where the limits come from (feature 013, FR-013): method, results, release notes, compliance."""
+    """Where the limits come from (feature 014, FR-013): method, results, release notes, compliance."""
     tag = latest["tag"]
     rec = reg.record_raw(name, version)
     out = []
@@ -208,7 +208,7 @@ def model_page(
         "charts": charts.render(reg, name, version, pitch.get("charts", []), f, page),
         "quality_rows": _metric_rows(reg, name, version, "quality", f, page),
         "performance_rows": _metric_rows(reg, name, version, "performance", f, page),
-        # feature 013: release status, short forms of the card, unmet criteria with their values
+        # feature 014: release status, short forms of the card, unmet criteria with their values
         "release_status": sm["release_status"],
         "status_sentence": status_sentence(sm["release_status"] or ""),
         "not_for": [res(t, f"not_for{i}") for i, t in enumerate(sm["short"]["not_for"])],

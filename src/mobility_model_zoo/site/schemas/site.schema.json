@@ -54,7 +54,7 @@
           }
         }
       },
-      "description": "Three or four reasons to use the model, shown in the overview (feature 013): title at most 5 words, text at most 20 words (gate rule 17, site check D2). No release status: it is generated."
+      "description": "Three or four reasons to use the model, shown in the overview (feature 014): title at most 5 words, text at most 20 words (gate rule 17, site check D2). No release status: it is generated."
     },
     "quickstart_example": {
       "type": "string",
@@ -99,7 +99,7 @@
     "metric_cards": {
       "type": "array",
       "maxItems": 4,
-      "description": "Headline figures of the quality layer (at most 4, feature 013); each card prints the value, what it is compared with and what it is measured against or on.",
+      "description": "Headline figures of the quality layer (at most 4, feature 014); each card prints the value, what it is compared with and what it is measured against or on.",
       "items": {
         "type": "object",
         "additionalProperties": false,

@@ -2,14 +2,14 @@
 
 - A1: axe-core, WCAG 2.0/2.1 A and AA, every page in the light and the dark colour scheme.
 - A2: with JavaScript disabled, model pages still hold quickstart, examples, limits and a link to
-  their output format; format pages hold the field table (feature 013 moved it there).
+  their output format; format pages hold the field table (feature 014 moved it there).
 - A3: every image has a text alternative; every chart has a table of its values.
 - A4: keyboard: the skip link comes first, every control is reachable and shows a focus ring.
 - P2: every request goes to the local server; no page sets a cookie.
 - A5: reflow: no page scrolls sideways at a phone width of 390 px (WCAG 1.4.10).
 - S2: Largest Contentful Paint at most 2 s under a slow mobile network and a 4x slower CPU.
 - O3: colour contrast of the preview image pages (feature 012).
-- D6: placement of the model page layers on screen (feature 013, SC-001 to SC-003).
+- D6: placement of the model page layers on screen (feature 014, SC-001 to SC-003).
 """
 
 from __future__ import annotations
@@ -189,7 +189,7 @@ PLACEMENT_JS = """() => {
           limits: top(document.getElementById('limits')),
           chips: chips.filter(Boolean).map(bottom), vh: innerHeight};
 }"""
-# Screen budgets (feature 013): first quality figure within 2 screens and limits within 4 on a
+# Screen budgets (feature 014): first quality figure within 2 screens and limits within 4 on a
 # desktop; status, usage class and licence in the first screen, within 2 screens on a phone.
 PLACEMENT = (
     {"width": 1440, "height": 900, "first": 2, "limits": 4, "chips": 1},

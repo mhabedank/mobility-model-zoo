@@ -1,4 +1,4 @@
-"""Depth checks of the model pages (feature 013, specs/013-model-page-layout/contracts/checks.md).
+"""Depth checks of the model pages (feature 014, specs/014-model-page-layout/contracts/checks.md).
 
 - D1: every published model's card has the short forms its release status requires.
 - D2: word and item budgets of the layers, counted on the rendered page (`budgets.py`).

@@ -46,7 +46,7 @@ def test_valid_fixture_passes_online(zoo_env, runner):
     gate = run_gate(zoo_env, online=True, runner=runner)
     # Rule 15 (device evidence) is for mcu models; rule 16 (compliance) skips in fixture registries
     # without a compliance register.
-    skipped = {15, 16, 17, 18}  # rules 17 and 18 (site text, features 008 and 013) skip sandbox models
+    skipped = {15, 16, 17, 18}  # rules 17 and 18 (site text, features 008 and 014) skip sandbox models
     assert all(s == "PASS" for n, (s, _) in gate.results.items() if n not in skipped), gate.results
     assert gate.results[15][0] == "SKIP" and gate.results[16][0] == "SKIP"
     assert len(gate.example_outputs) == 3

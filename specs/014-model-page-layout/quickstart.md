@@ -1,6 +1,6 @@
 # Quickstart: validate the model pages in progressive depth
 
-How to prove feature 013 works end to end. Commands are those of [docs/website.md](../../docs/website.md); checks are defined in [contracts/checks.md](contracts/checks.md).
+How to prove feature 014 works end to end. Commands are those of [docs/website.md](../../docs/website.md); checks are defined in [contracts/checks.md](contracts/checks.md).
 
 ## Prerequisites
 
@@ -57,4 +57,4 @@ Then `git diff` the golden card: only moved sections and the new short-form bloc
 
 ## 6. Reader test (SC-005)
 
-After deployment, five readers from the target group open a model page and answer within 30 seconds: what does it do, how good and how fast in one sentence, is it experimental. Pass: at least four of five. Recorded in `specs/013-model-page-layout/validation.md`; it can be combined with the open SC-001 user test of feature 008.
+After deployment, five readers from the target group open a model page and answer within 30 seconds: what does it do, how good and how fast in one sentence, is it experimental. Pass: at least four of five. Recorded in `specs/014-model-page-layout/validation.md`; it can be combined with the open SC-001 user test of feature 008.

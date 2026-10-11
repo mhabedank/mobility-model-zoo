@@ -1,4 +1,4 @@
-"""Layer 1 of the model page: what it is, may I use it (feature 013, US1, checks D2-D4)."""
+"""Layer 1 of the model page: what it is, may I use it (feature 014, US1, checks D2-D4)."""
 
 from __future__ import annotations
 

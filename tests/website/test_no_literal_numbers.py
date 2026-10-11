@@ -39,7 +39,7 @@ def test_literal_number_in_site_yaml_is_f2(site_env):
 
 
 def test_card_short_forms_have_no_literal_numbers(site_env):
-    """Feature 013: numbers in the short forms only as placeholders or structured targets."""
+    """Feature 014: numbers in the short forms only as placeholders or structured targets."""
     from site_fixture import MODEL
 
     from mobility_model_zoo.site import check
