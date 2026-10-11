@@ -59,8 +59,9 @@ def check_can_fetch(settings: Settings, url: str, update: bool, reason: str | No
     return None
 
 
-def register(settings: Settings, snapshot_id: str, url: str, retrieved_at: str,
-             supersedes: str | None) -> None:
+def register(
+    settings: Settings, snapshot_id: str, url: str, retrieved_at: str, supersedes: str | None
+) -> None:
     append_jsonl(
         index_path(settings),
         {

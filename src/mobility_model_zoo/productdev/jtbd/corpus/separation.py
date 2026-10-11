@@ -79,18 +79,18 @@ def source_set(settings: Settings, snapshot_ids: set[str]) -> SourceSet:
     return found
 
 
-def benchmark_settings(settings: Settings, exclude_benchmark: str | Path | None = None
-                       ) -> Settings:
+def benchmark_settings(settings: Settings, exclude_benchmark: str | Path | None = None) -> Settings:
     path = exclude_benchmark or (settings.span_train or {}).get("exclude_benchmark")
     if not path:
-        raise UsageError("no benchmark to exclude: give --exclude-benchmark or set "
-                         "span_train.exclude_benchmark in the config")
+        raise UsageError(
+            "no benchmark to exclude: give --exclude-benchmark or set "
+            "span_train.exclude_benchmark in the config"
+        )
     path = Path(path)
     return load_settings(path if path.is_absolute() else settings.base / path)
 
 
-def benchmark_sources(settings: Settings, exclude_benchmark: str | Path | None = None
-                      ) -> SourceSet:
+def benchmark_sources(settings: Settings, exclude_benchmark: str | Path | None = None) -> SourceSet:
     """Sources of every main and holdout chunk of the excluded benchmark."""
     bench = benchmark_settings(settings, exclude_benchmark)
     ids = {c.snapshot_id for c in load_chunks(bench) if c.split in ("main", "holdout")}
@@ -101,12 +101,14 @@ def spike_snapshot_ids(settings: Settings) -> set[str]:
     directory = settings.base / SPIKE_DATA / "chunks"
     if not directory.exists():
         return set()
-    return {json.loads(p.read_text(encoding="utf-8"))["snapshot_id"]
-            for p in directory.glob("ch-*.json")}
+    return {
+        json.loads(p.read_text(encoding="utf-8"))["snapshot_id"] for p in directory.glob("ch-*.json")
+    }
 
 
-def violations(settings: Settings, snapshot_id: str, benchmark: SourceSet,
-               spike_ids: set[str]) -> list[str]:
+def violations(
+    settings: Settings, snapshot_id: str, benchmark: SourceSet, spike_ids: set[str]
+) -> list[str]:
     """Rules by which `snapshot_id` may not supply training chunks (empty: allowed)."""
     found = []
     own = source_set(settings, {snapshot_id})

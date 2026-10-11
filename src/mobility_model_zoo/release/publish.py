@@ -235,8 +235,9 @@ def publish(
         if not record.get("published") and hub.visibility(public) is not None:
             refs = hub.refs(public)
             head = refs["branches"].get("main")
-            resumed = bool(head and refs["tags"].get(tag) == head
-                           and _same_files(hub, public, head, upload))
+            resumed = bool(
+                head and refs["tags"].get(tag) == head and _same_files(hub, public, head, upload)
+            )
         rules = PUBLISH_RULES - {4} if resumed else PUBLISH_RULES
         Gate(reg, name, version, hub=hub, card=card, only=rules, git=git).run(say)
 

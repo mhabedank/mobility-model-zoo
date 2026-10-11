@@ -32,10 +32,17 @@ OUTPUT_FORMAT_VERSION = "jtbd-span-v1"
 CONFIG_FILE = "span_config.json"
 WEIGHTS_FILE = "model.safetensors"
 # Every file a model directory may contain (contracts/model-files.md).
-MODEL_FILES = frozenset({
-    WEIGHTS_FILE, "config.json", CONFIG_FILE, "tokenizer.json", "tokenizer_config.json",
-    "special_tokens_map.json", "sentencepiece.bpe.model",
-})
+MODEL_FILES = frozenset(
+    {
+        WEIGHTS_FILE,
+        "config.json",
+        CONFIG_FILE,
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "special_tokens_map.json",
+        "sentencepiece.bpe.model",
+    }
+)
 SCORE_DIGITS = 4
 # The jtbd-span-v1 JSON Schema (validated by `jtbd check`; not needed at inference time).
 SCHEMA_PATH = Path(__file__).with_name("jtbd-span-v1.schema.json")
@@ -60,8 +67,7 @@ def _materialize_buffers(model) -> None:
 
 
 class SpanExtractor:
-    def __init__(self, model: SpanTagger, tokenizer: Any, config: dict[str, Any],
-                 device: str = "cpu"):
+    def __init__(self, model: SpanTagger, tokenizer: Any, config: dict[str, Any], device: str = "cpu"):
         self.model = model.to(device).eval()
         self.tokenizer = tokenizer
         self.config = config
@@ -69,8 +75,13 @@ class SpanExtractor:
 
     # ---- loading and saving ----------------------------------------------------------------------
     @classmethod
-    def from_pretrained(cls, name_or_path: str | Path, revision: str | None = None,
-                        device: str = "cpu", token: str | None = None) -> SpanExtractor:
+    def from_pretrained(
+        cls,
+        name_or_path: str | Path,
+        revision: str | None = None,
+        device: str = "cpu",
+        token: str | None = None,
+    ) -> SpanExtractor:
         directory = Path(name_or_path)
         if not directory.is_dir():
             from huggingface_hub import snapshot_download
@@ -99,8 +110,10 @@ class SpanExtractor:
         state = load_file(str(directory / WEIGHTS_FILE))
         heads = {k.split(".")[2] for k in state if k.startswith("heads.attrs.")}
         if heads != set(model.dimensions):
-            raise ValueError(f"attribute heads in {WEIGHTS_FILE} {sorted(heads)} do not match the "
-                             f"dimensions in {CONFIG_FILE} {sorted(model.dimensions)}")
+            raise ValueError(
+                f"attribute heads in {WEIGHTS_FILE} {sorted(heads)} do not match the "
+                f"dimensions in {CONFIG_FILE} {sorted(model.dimensions)}"
+            )
         try:
             model.load_state_dict(state, strict=True, assign=True)
         except RuntimeError as exc:
@@ -123,11 +136,16 @@ class SpanExtractor:
             save_file(state, str(staging / WEIGHTS_FILE), metadata={"format": "pt"})
             self.model.encoder.config.save_pretrained(staging)
             self.tokenizer.save_pretrained(staging)
-            config = {**self.config, "output_format_version": OUTPUT_FORMAT_VERSION,
-                      "unit_labels": UNIT_LABELS, "bio_labels": BIO_LABELS,
-                      "dimensions": self.model.dimensions}
+            config = {
+                **self.config,
+                "output_format_version": OUTPUT_FORMAT_VERSION,
+                "unit_labels": UNIT_LABELS,
+                "bio_labels": BIO_LABELS,
+                "dimensions": self.model.dimensions,
+            }
             (staging / CONFIG_FILE).write_text(
-                json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
             # Library extras (for example a chat template) are not part of the model files.
             for path in staging.iterdir():
                 if path.name in MODEL_FILES:
@@ -145,8 +163,10 @@ class SpanExtractor:
     @property
     def thresholds(self) -> dict[str, float]:
         values = self.config.get("thresholds") or {}
-        return {"unit": float(values.get("unit", 0.5)),
-                "relevance": float(values.get("relevance", values.get("unit", 0.5)))}
+        return {
+            "unit": float(values.get("unit", 0.5)),
+            "relevance": float(values.get("relevance", values.get("unit", 0.5))),
+        }
 
     @property
     def window_settings(self) -> tuple[int, int]:
@@ -156,9 +176,13 @@ class SpanExtractor:
     # ---- extraction ----------------------------------------------------------------------------------
     def extract(self, text: str) -> dict[str, Any]:
         """Relevance and items of `text` (any length) in the jtbd-span-v1 format."""
-        result: dict[str, Any] = {"output_format_version": OUTPUT_FORMAT_VERSION,
-                                  "relevant": False, "relevance_probability": 0.0,
-                                  "dimensions": self.dimensions, "items": []}
+        result: dict[str, Any] = {
+            "output_format_version": OUTPUT_FORMAT_VERSION,
+            "relevant": False,
+            "relevance_probability": 0.0,
+            "dimensions": self.dimensions,
+            "items": [],
+        }
         if not text.strip():
             return result
         scored, relevance_probability = self.score_units(text)
@@ -169,9 +193,14 @@ class SpanExtractor:
         result["relevance_probability"] = round(relevance_probability, SCORE_DIGITS)
         if relevant:
             result["items"] = [
-                {"kind": u["kind"], "quote": text[u["start"]:u["end"]], "start": u["start"],
-                 "end": u["end"], "score": round(u["score"], SCORE_DIGITS),
-                 **{d: u[d] for d in self.dimensions}}
+                {
+                    "kind": u["kind"],
+                    "quote": text[u["start"] : u["end"]],
+                    "start": u["start"],
+                    "end": u["end"],
+                    "score": round(u["score"], SCORE_DIGITS),
+                    **{d: u[d] for d in self.dimensions},
+                }
                 for u in kept
             ]
         return result
@@ -188,8 +217,8 @@ class SpanExtractor:
         sums: dict[tuple[int, int], list] = {}
         relevance: list[float] = []
         for b in range(0, len(enc["input_ids"]), batch_size):
-            ids = torch.tensor(enc["input_ids"][b:b + batch_size], device=self.device)
-            mask = torch.tensor(enc["attention_mask"][b:b + batch_size], device=self.device)
+            ids = torch.tensor(enc["input_ids"][b : b + batch_size], device=self.device)
+            mask = torch.tensor(enc["attention_mask"][b : b + batch_size], device=self.device)
             states, _, rel = self.model(ids, mask)
             states = states.float().cpu()
             relevance += torch.sigmoid(rel.float()).cpu().tolist()
@@ -204,26 +233,40 @@ class SpanExtractor:
         mapping = unit_token_index(units(text), tokens)
         if not mapping:
             return [], sum(relevance) / max(len(relevance), 1)
-        pooled = torch.stack([
-            torch.stack([sums[tokens[i]][1] / sums[tokens[i]][0] for i in idx]).mean(0)
-            for _, idx in mapping
-        ]).to(self.device)
+        pooled = torch.stack(
+            [
+                torch.stack([sums[tokens[i]][1] / sums[tokens[i]][0] for i in idx]).mean(0)
+                for _, idx in mapping
+            ]
+        ).to(self.device)
         unit_probs = self.model.unit_logits(pooled).softmax(-1).float().cpu()
-        attrs = {d: logits.argmax(-1).cpu().tolist()
-                 for d, logits in self.model.attribute_logits(pooled).items()}
+        attrs = {
+            d: logits.argmax(-1).cpu().tolist()
+            for d, logits in self.model.attribute_logits(pooled).items()
+        }
         scored = []
         for n, ((a, b), _) in enumerate(mapping):
             probs = unit_probs[n]
-            scored.append({
-                "start": a, "end": b, "score": 1.0 - float(probs[0]),
-                "kind": KINDS[int(probs[1:].argmax())],
-                **{d: self.model.dimensions[d][attrs[d][n]] for d in self.model.dimensions},
-            })
+            scored.append(
+                {
+                    "start": a,
+                    "end": b,
+                    "score": 1.0 - float(probs[0]),
+                    "kind": KINDS[int(probs[1:].argmax())],
+                    **{d: self.model.dimensions[d][attrs[d][n]] for d in self.model.dimensions},
+                }
+            )
         return scored, sum(relevance) / len(relevance)
 
 
 def default_config(**extra: Any) -> dict[str, Any]:
     """The span_config.json fields every model has; training adds its own fields via `extra`."""
-    return {"output_format_version": OUTPUT_FORMAT_VERSION, "unit_labels": UNIT_LABELS,
-            "bio_labels": BIO_LABELS, "windows": {"max_length": MAX_LENGTH, "stride": STRIDE},
-            "unit_split": UNIT_SPLIT, "thresholds": {"unit": 0.5, "relevance": 0.5}, **extra}
+    return {
+        "output_format_version": OUTPUT_FORMAT_VERSION,
+        "unit_labels": UNIT_LABELS,
+        "bio_labels": BIO_LABELS,
+        "windows": {"max_length": MAX_LENGTH, "stride": STRIDE},
+        "unit_split": UNIT_SPLIT,
+        "thresholds": {"unit": 0.5, "relevance": 0.5},
+        **extra,
+    }

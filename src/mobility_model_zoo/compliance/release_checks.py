@@ -123,6 +123,40 @@ def _release(ctx) -> tuple[dict[str, Any] | None, str]:
 # ---- publication (C-U1 … C-U4) ----------------------------------------------------------------
 
 
+TREE_NUMERIC_FIELDS = ("frames", "expected_scores", "expected_alarms")
+_HEX8 = re.compile(r"^[0-9a-f]{8}$")
+
+
+def _numbers_only(value) -> bool:
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, int):
+        return True
+    if isinstance(value, str):
+        return bool(_HEX8.match(value))  # float32 bit patterns of expected scores
+    if isinstance(value, list):
+        return all(_numbers_only(v) for v in value)
+    return False
+
+
+def scan_text(path: Path, text: str) -> str:
+    """Text the publication scan looks at. Tree-model examples (feature 010) hold frames, score bit
+    patterns and alarm indices as numbers only; when those fields are verified to contain nothing
+    but integers and 8-digit hex patterns, they are left out (they matched phone-number patterns),
+    and every other field is scanned."""
+    if path.suffix != ".json":
+        return text
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return text
+    if not isinstance(data, dict) or not all(k in data for k in TREE_NUMERIC_FIELDS):
+        return text
+    if not all(_numbers_only(data[k]) for k in TREE_NUMERIC_FIELDS):
+        return text
+    return json.dumps({k: v for k, v in data.items() if k not in TREE_NUMERIC_FIELDS}, indent=1)
+
+
 def publication_files(ctx) -> dict[str, str]:
     """{logical path: text} of everything that is published with this release."""
     root, model, version = ctx.root, ctx.model, ctx.version
@@ -132,7 +166,7 @@ def publication_files(ctx) -> dict[str, str]:
     base = root / "zoo" / "models" / model
     for path in sorted((base / "examples").glob("*")):
         if path.is_file() and path.name != "SOURCES.yaml":
-            files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8")
+            files[path.relative_to(root).as_posix()] = scan_text(path, path.read_text(encoding="utf-8"))
     for path in sorted((base / "results" / version).glob("*.json")):
         files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8")
     for suffix in ("ai-act.md", "training-data-summary.md"):
@@ -354,7 +388,7 @@ def stage_repository(ctx) -> list[Finding]:
                     )
                     break
         if not rel.startswith(PII_SKIP_PREFIXES) and Path(rel).suffix in PII_SUFFIXES:
-            hits = pii(text, allow + EXAMPLE_ADDRESSES)
+            hits = pii(scan_text(root / rel, text), allow + EXAMPLE_ADDRESSES)
             if hits:
                 kinds = sorted({h.kind for h in hits})
                 findings.append(

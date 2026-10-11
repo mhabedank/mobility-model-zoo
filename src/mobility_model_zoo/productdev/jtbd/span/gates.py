@@ -25,8 +25,10 @@ def pilot_decision(settings: Settings) -> tuple[Settings, dict[str, Any]]:
     bench = benchmark_settings(settings)
     path = bench.analysis_dir / "decision.json"
     if not path.exists():
-        raise ValidationFailed(f"the pilot has not decided yet ({path} is missing); training "
-                               "data waits for the pilot (FR-001)")
+        raise ValidationFailed(
+            f"the pilot has not decided yet ({path} is missing); training "
+            "data waits for the pilot (FR-001)"
+        )
     return bench, read_json(path)
 
 
@@ -35,16 +37,19 @@ def passed_attributes(decision: dict[str, Any]) -> list[str]:
     per_dim = decision.get("per_dimension") or {}
     failed_core = [d for d in CORE if not (per_dim.get(d) or {}).get("passed")]
     if failed_core:
-        raise ValidationFailed(f"core dimensions failed the pilot: {failed_core}; the span model "
-                               "cannot be trained (spec edge cases)")
+        raise ValidationFailed(
+            f"core dimensions failed the pilot: {failed_core}; the span model "
+            "cannot be trained (spec edge cases)"
+        )
     return [d for d in ATTRIBUTES if (per_dim.get(d) or {}).get("passed")]
 
 
 def recommended_teacher(decision: dict[str, Any]) -> str:
     recommended = (decision.get("teacher_fitness") or {}).get("recommended")
     if not recommended:
-        raise ValidationFailed("the pilot recommends no fit teacher; training data cannot be "
-                               "generated (spec edge cases)")
+        raise ValidationFailed(
+            "the pilot recommends no fit teacher; training data cannot be generated (spec edge cases)"
+        )
     return recommended
 
 
@@ -57,16 +62,16 @@ def teacher_models(settings: Settings, decision: dict[str, Any]) -> set[str]:
     return {recommended} | members
 
 
-def check_teacher(settings: Settings, entry: ModelEntry, split: str,
-                  frozen: dict[str, Any]) -> None:
+def check_teacher(settings: Settings, entry: ModelEntry, split: str, frozen: dict[str, Any]) -> None:
     """`jtbd label --role teacher`: train split, recommended teacher, the decision's hashes."""
     if split != "train":
         raise ValidationFailed("role teacher labels the train split only")
     bench, decision = pilot_decision(settings)
     allowed = teacher_models(settings, decision)
     if entry.model_id not in allowed:
-        raise ValidationFailed(f"{entry.model_id} is not the pilot's recommended teacher "
-                               f"({sorted(allowed)})")
+        raise ValidationFailed(
+            f"{entry.model_id} is not the pilot's recommended teacher ({sorted(allowed)})"
+        )
     check_hashes(bench, frozen)
 
 
@@ -75,5 +80,7 @@ def check_hashes(bench: Settings, frozen: dict[str, Any]) -> None:
     decided = load_manifest(bench) or {}
     for key in ("guideline", "schema"):
         if (decided.get("hashes") or {}).get(key) != frozen["hashes"].get(key):
-            raise ValidationFailed(f"the {key} differs from the one of the pilot's final decision "
-                                   f"({decided.get('version')})")
+            raise ValidationFailed(
+                f"the {key} differs from the one of the pilot's final decision "
+                f"({decided.get('version')})"
+            )

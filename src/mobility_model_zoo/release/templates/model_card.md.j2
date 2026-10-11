@@ -40,7 +40,7 @@
 ```
 {% if mcu %}
 
-On the device (C, int8 engine of the zoo):
+On the device (C, {{ "tree model exported with emlearn; build with `-ffp-contract=off`" if tree else "int8 engine of the zoo" }}):
 
 ```c
 {{ device_usage }}
@@ -55,6 +55,16 @@ The tag `v{{ r.version }}` always points to this version. For strict reproducibi
 {% for ex in device_examples %}
 ### Example {{ loop.index }}: `{{ ex.name }}`
 
+{% if tree %}
+Source: {{ ex.source }}{% if ex.attack %} ({{ ex.attack }} attack){% endif %}. {{ ex.n_frames }} CAN frames in bus order; the detector raises {{ ex.n_alarms }} alarm{{ "" if ex.n_alarms == 1 else "s" }}, at frame{{ "" if ex.n_alarms == 1 else "s" }} {{ ex.alarms }}. First five frames:
+
+| Time (µs) | ID | DLC | Data |
+|-----------|----|-----|------|
+{% for f in ex.head %}| {{ f.ts }} | {{ f.id }} | {{ f.dlc }} | {{ f.data }} |
+{% endfor %}
+
+The full example with the expected score of every frame is `examples/{{ ex.name }}` in the repository; the release gate reproduces every score and alarm bit-exactly with the C code of this release.
+{% else %}
 Source: {{ ex.source }}. Input ({{ ex.n_in }} int8 values):
 
 ```json
@@ -66,6 +76,7 @@ Expected output (bit-exact on the host reference and on the device):
 ```json
 {{ ex.expected }}
 ```
+{% endif %}
 {% endfor %}
 {% endif %}
 {% for ex in examples %}

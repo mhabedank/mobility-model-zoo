@@ -84,13 +84,25 @@ def span_items(output: dict[str, Any], text: str) -> list[LocatedItem]:
     items = []
     for n, item in enumerate(output.get("items", [])):
         start, end = item.get("start"), item.get("end")
-        ok = (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text)
-              and text[start:end] == item.get("quote"))
-        items.append(LocatedItem(
-            index=n, kind=item.get("kind"), quote=item.get("quote", ""), actor=None,
-            actor_type=item.get("actor_type"), statement=None,
-            evidence_type=item.get("evidence_type"), evidence_scope=item.get("evidence_scope"),
-            span=(start, end) if ok else None))
+        ok = (
+            isinstance(start, int)
+            and isinstance(end, int)
+            and 0 <= start < end <= len(text)
+            and text[start:end] == item.get("quote")
+        )
+        items.append(
+            LocatedItem(
+                index=n,
+                kind=item.get("kind"),
+                quote=item.get("quote", ""),
+                actor=None,
+                actor_type=item.get("actor_type"),
+                statement=None,
+                evidence_type=item.get("evidence_type"),
+                evidence_scope=item.get("evidence_scope"),
+                span=(start, end) if ok else None,
+            )
+        )
     return items
 
 
@@ -116,12 +128,12 @@ def load_outputs(settings: Settings, run_id: str) -> dict[str, ChunkOutput]:
             continue
         if manifest.backend == "span":
             raw = read_json(parsed_path)
-            outputs[chunk_id] = ChunkOutput(chunk_id, bool(raw.get("relevant")),
-                                            span_items(raw, chunk.text))
+            outputs[chunk_id] = ChunkOutput(
+                chunk_id, bool(raw.get("relevant")), span_items(raw, chunk.text)
+            )
             continue
         output = ExtractionOutput.model_validate(read_json(parsed_path))
-        outputs[chunk_id] = ChunkOutput(chunk_id, output.relevant,
-                                        locate_items(output, chunk.text))
+        outputs[chunk_id] = ChunkOutput(chunk_id, output.relevant, locate_items(output, chunk.text))
     return outputs
 
 

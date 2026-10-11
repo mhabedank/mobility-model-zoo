@@ -9,8 +9,9 @@ from pathlib import Path
 
 import typer
 
-app = typer.Typer(no_args_is_help=True,
-                  help="Production span model: data check, rows, training, evaluation, results")
+app = typer.Typer(
+    no_args_is_help=True, help="Production span model: data check, rows, training, evaluation, results"
+)
 
 
 def _run(ctx: typer.Context, fn) -> None:
@@ -28,9 +29,11 @@ def data_check_cmd(ctx: typer.Context) -> None:
 
 
 @app.command("build-rows")
-def build_rows_cmd(ctx: typer.Context, run: str = typer.Option(..., "--run"),
-                   recipe: str = typer.Option(None, "--recipe",
-                                              help="Recipe (default span-xlmr.yaml)")) -> None:
+def build_rows_cmd(
+    ctx: typer.Context,
+    run: str = typer.Option(..., "--run"),
+    recipe: str = typer.Option(None, "--recipe", help="Recipe (default span-xlmr.yaml)"),
+) -> None:
     """Teacher run on the train split -> training rows with repaired quotes."""
     from mobility_model_zoo.productdev.jtbd.span.rows import build_rows
 
@@ -46,13 +49,15 @@ def freeze_data_cmd(ctx: typer.Context) -> None:
 
 
 @app.command("train")
-def train_cmd(ctx: typer.Context,
-              recipe: str = typer.Option(None, "--recipe", help="Recipe (default span-xlmr.yaml)"),
-              out: Path = typer.Option(..., "--out", help="Directory for the model files"),
-              device: str = typer.Option("cpu", "--device", help="cpu, cuda or mps"),
-              max_epochs: int = typer.Option(
-                  None, "--max-epochs", help="Override for smoke tests; recorded in the model")
-              ) -> None:
+def train_cmd(
+    ctx: typer.Context,
+    recipe: str = typer.Option(None, "--recipe", help="Recipe (default span-xlmr.yaml)"),
+    out: Path = typer.Option(..., "--out", help="Directory for the model files"),
+    device: str = typer.Option("cpu", "--device", help="cpu, cuda or mps"),
+    max_epochs: int = typer.Option(
+        None, "--max-epochs", help="Override for smoke tests; recorded in the model"
+    ),
+) -> None:
     """Train one candidate on the frozen training rows (best epoch on validation rows)."""
     from mobility_model_zoo.productdev.jtbd.span.commands import train_command
 
@@ -60,8 +65,11 @@ def train_cmd(ctx: typer.Context,
 
 
 @app.command("tune")
-def tune_cmd(ctx: typer.Context, model_dir: Path = typer.Option(..., "--model-dir"),
-             recipe: str = typer.Option(None, "--recipe")) -> None:
+def tune_cmd(
+    ctx: typer.Context,
+    model_dir: Path = typer.Option(..., "--model-dir"),
+    recipe: str = typer.Option(None, "--recipe"),
+) -> None:
     """Tune unit and relevance thresholds on the validation rows only."""
     from mobility_model_zoo.productdev.jtbd.span.commands import tune_command
 
@@ -69,11 +77,13 @@ def tune_cmd(ctx: typer.Context, model_dir: Path = typer.Option(..., "--model-di
 
 
 @app.command("label")
-def label_cmd(ctx: typer.Context, model_dir: Path = typer.Option(..., "--model-dir"),
-              split: str = typer.Option("main", "--split"),
-              change: str = typer.Option(..., "--candidate-change",
-                                         help="What this candidate changes and why"),
-              recipe: str = typer.Option(None, "--recipe")) -> None:
+def label_cmd(
+    ctx: typer.Context,
+    model_dir: Path = typer.Option(..., "--model-dir"),
+    split: str = typer.Option("main", "--split"),
+    change: str = typer.Option(..., "--candidate-change", help="What this candidate changes and why"),
+    recipe: str = typer.Option(None, "--recipe"),
+) -> None:
     """Evaluate a candidate on the benchmark: a student run with backend span."""
     from mobility_model_zoo.productdev.jtbd.span.evaluate import label_span
 
@@ -89,10 +99,13 @@ def select_cmd(ctx: typer.Context, recipe: str = typer.Option(None, "--recipe"))
 
 
 @app.command("results")
-def results_cmd(ctx: typer.Context, run: str = typer.Option(..., "--run"),
-                perf: Path = typer.Option(..., "--perf", help="Perf file of the same model"),
-                version: str = typer.Option(..., "--version"),
-                recipe: str = typer.Option(None, "--recipe")) -> None:
+def results_cmd(
+    ctx: typer.Context,
+    run: str = typer.Option(..., "--run"),
+    perf: Path = typer.Option(..., "--perf", help="Perf file of the same model"),
+    version: str = typer.Option(..., "--version"),
+    recipe: str = typer.Option(None, "--recipe"),
+) -> None:
     """Write the zoo results files (quality.json, performance.json) for a version."""
     from mobility_model_zoo.productdev.jtbd.span.results import write_results
 
@@ -100,8 +113,11 @@ def results_cmd(ctx: typer.Context, run: str = typer.Option(..., "--run"),
 
 
 @app.command("release-check")
-def release_check_cmd(ctx: typer.Context, version: str = typer.Option(..., "--version"),
-                      recipe: str = typer.Option(None, "--recipe")) -> None:
+def release_check_cmd(
+    ctx: typer.Context,
+    version: str = typer.Option(..., "--version"),
+    recipe: str = typer.Option(None, "--recipe"),
+) -> None:
     """Evaluate the release bar from the results files (exit 1 if any condition fails)."""
     from mobility_model_zoo.productdev.jtbd.span.results import release_check
 
@@ -117,8 +133,11 @@ def pareto_cmd(ctx: typer.Context, recipe: str = typer.Option(None, "--recipe"))
 
 
 @app.command("record")
-def record_cmd(ctx: typer.Context, version: str = typer.Option(..., "--version"),
-               recipe: str = typer.Option(None, "--recipe")) -> None:
+def record_cmd(
+    ctx: typer.Context,
+    version: str = typer.Option(..., "--version"),
+    recipe: str = typer.Option(None, "--recipe"),
+) -> None:
     """Fill the release record (provenance, teachers, recipe, evaluation, performance)."""
     from mobility_model_zoo.productdev.jtbd.span.results import write_record
 

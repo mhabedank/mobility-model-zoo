@@ -1,38 +1,30 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 2.0.0 → 2.1.0
-Bump rationale: MINOR. Owner direction of 2026-10-10: the zoo may also build and publish
-non-commercial (NC) models, marked as such and under a fitting licence; compliance takes precedence
-over unrestricted use, so a user's rights to a model may be restricted. The amendment adds the
-usage class of a model and the rule that restrictions of every input carry over to it. It relaxes
-one prohibition (NC-licensed data may now train NC models) and adds obligations; nothing that
-complied with 2.0.0 stops complying, so the change is backward compatible.
+Version change: 2.1.0 → 2.2.0
+Bump rationale: MINOR. Owner direction of 2026-10-10: a model that is not yet production ready MAY
+be published with release status `experimental`. This expands the release guidance in Principle
+IX and the release gate; no rule is removed or redefined incompatibly (the release-record schema
+already knows the statuses `experimental` and `released`). Drafted on branch 010 as "2.1.0" on
+the same day; renumbered because the usage-class amendment (feature 011, PR #16) took 2.1.0.
 
 Modified principles:
-- VI. Clean Provenance, Quality First → VI. Clean Provenance, Restrictions Carry Over: usage
-  class per model; NC data allowed for training of NC models only; data whose licence or terms
-  forbid training stays `benchmark_only`; teacher terms and outputs of NC models carry over;
-  third-party models loaded at run time are pinned and their licence basis includes their
-  documented training data, followed conservatively.
-- IX. Reproducible, Dated Releases: usage class and licence marking of every release; NC models
-  under a non-commercial licence and with the name suffix `-nc`; never less restrictive than the
-  inputs; compliance before unrestricted use.
+- IX. Reproducible, Dated Releases: release statuses defined; `released` requires production
+  readiness against the task's success criteria and budgets; `experimental` allowed below that,
+  with the card stating what is not met; a kill outcome blocks the claims it concerns, not an
+  experimental release.
 
 Modified sections:
-- Preamble: "open-source collection" → "open collection"; models under open or, where their
-  inputs require it, restricted licences.
-- Project Scope & Iterative Delivery: naming rule `<name>-<variant>-nc` for NC models; a change
-  of usage class means a new model name.
-- Development Workflow & Quality Gates: gate before a release checks the usage class against the
-  released licence and covers third-party models.
+- Development Workflow & Quality Gates: "gate before a release" checks the status rule.
 
 Added sections: none. Removed sections: none.
 
-Previous reports: 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy" ban by a
-metric naming rule and allowed dataset publication after a redistribution check; 1.3.0 → 1.4.0
-changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the multi-topic
-`mobility-model-zoo`.
+Previous reports: 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the usage class of every
+model, NC models under an NC licence with the suffix `-nc`, restrictions of inputs carrying over and
+pinned third-party models; 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy"
+ban by a metric naming rule and allowed dataset publication after a redistribution check;
+1.3.0 → 1.4.0 changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the
+multi-topic `mobility-model-zoo`.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -40,15 +32,9 @@ changed rules):
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
-Follow-up (code and documents that encode the 2.0.0 rule; not changed by this amendment):
-- release gate rule 6 (src/mobility_model_zoo/release/gate.py) fails any NC training source;
-  compliance check C-T2 (src/mobility_model_zoo/compliance/train.py) forces NC licences to
-  `benchmark_only`. Both must allow NC data for models whose usage class is NC.
-- release-record.schema.json, the model card template, the Hugging Face card and the website need
-  a usage class field and the NC marking.
-- No register of third-party models exists yet (encoders, NLI model, base models).
-- Feature 009 T008: the NLI model (training data XNLI and ANLI, CC BY-NC 4.0) is now allowed in
-  principle, but makes the stage output NC; the owner decides whether the baseline uses it.
+Follow-up (outside this amendment):
+- release gate and card template: check whether a card of an `experimental` release must carry a
+  "not production ready" statement automatically.
 -->
 
 # mobility-model-zoo Constitution
@@ -240,6 +226,13 @@ same way. A fixed framework would force the wrong tool onto some tasks.
   marked deprecated, never silently overwritten or deleted.
 - Models MUST be published only through the release pipeline, after its release gate passes and
   after the project owner approves the reviewed model card.
+- Every release has a status. `released` MUST be used only for a production-ready model: it meets
+  the success criteria and budgets of its task on the frozen benchmark, including the operational
+  criteria the task defines (for example false alarms per hour). A model that does not yet meet
+  them MAY be published with status `experimental`. Its model card MUST say that it is not
+  production ready, name every criterion it misses with the measured value, and make no claim
+  beyond the evidence. A kill outcome (Principle IV) blocks the claims it concerns, not an
+  `experimental` release; the card reports the outcome.
 - Training data, raw source text and labeling outputs MUST NOT be published. Datasets follow
   Principle VI: published only with `redistribution: allowed`, versioned and with attribution.
 - Every release record and model card MUST state the model's usage class (Principle VI) and its
@@ -258,7 +251,9 @@ same way. A fixed framework would force the wrong tool onto some tasks.
 
 Rationale: Frozen, dated artifacts keep results comparable and let the benchmark itself be
 audited later, because frontier models and base models change quickly. Marking the usage class
-where users look first keeps a restricted model from being used beyond its license.
+where users look first keeps a restricted model from being used beyond its license. The status
+tells users at a glance whether a model is ready for use or a documented research result, so an
+honest model that falls short can still be shared without overstating it.
 
 ### X. Scope Discipline
 
@@ -384,7 +379,9 @@ labeled and walled off from gates and releases stops them from turning into unme
 - Gate before a release: model, configuration, prompts and evaluation results MUST be
   reproducible from the versioned configuration; every included source, dataset and third-party
   model MUST have recorded origin, license and permitted use; and the usage class derived from all
-  inputs MUST NOT be less restrictive than the released license and its marking.
+  inputs MUST NOT be less restrictive than the released license and its marking. The release
+  status MUST follow Principle IX: `released` only when the task's success criteria and budgets
+  are met, otherwise `experimental` with the unmet criteria on the model card.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
   section with a rationale and the simpler alternative that was rejected.
 
@@ -402,4 +399,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 2.1.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-10
+**Version**: 2.2.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-10

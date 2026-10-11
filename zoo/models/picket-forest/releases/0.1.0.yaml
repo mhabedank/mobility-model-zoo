@@ -3,7 +3,7 @@ version: 0.1.0
 date: 2026-10-08
 status: experimental
 change_type: initial
-changes: 'Draft of the first release (feature 005): registered, not trained on the frozen benchmark yet.'
+changes: 'Draft of the first release (feature 005). Not released: the evaluation on can-ids-v1 (feature 007) gave the R10 outcome kill and the model is not production ready (topics/security/research/07-production-readiness.md).'
 output_format_version: picket-forest-v1
 sandbox: false
 files: []

@@ -91,9 +91,24 @@ URL_KINDS = {"profile_url", "user_path_url"}
 PLACEHOLDER_NAMES = {"name", "user", "username", "someuser", "someone", "max", "erika.mustermann"}
 # Code tokens that look like @handles: CSS at-rules (`@font-face` matches as `@font`) and Python
 # decorators in specs and docs. They name no person.
-CODE_AT_TOKENS = {"font", "media", "import", "keyframes", "supports", "page", "charset", "layer",
-                  "container", "namespace", "pytest", "dataclass", "property", "staticmethod",
-                  "classmethod", "cache"}
+CODE_AT_TOKENS = {
+    "font",
+    "media",
+    "import",
+    "keyframes",
+    "supports",
+    "page",
+    "charset",
+    "layer",
+    "container",
+    "namespace",
+    "pytest",
+    "dataclass",
+    "property",
+    "staticmethod",
+    "classmethod",
+    "cache",
+}
 NON_PERSONAL_DOMAINS = {
     "example.org",
     "example.com",

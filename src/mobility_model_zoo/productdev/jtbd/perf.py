@@ -49,8 +49,7 @@ def ollama_rss_mb(proc_root: Path = Path("/proc")) -> float | None:
         if not pid_dir.name.isdigit():
             continue
         try:
-            cmdline = (pid_dir / "cmdline").read_bytes().replace(b"\0", b" ").decode(
-                errors="replace")
+            cmdline = (pid_dir / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace")
             if "ollama" not in cmdline:
                 continue
             for line in (pid_dir / "status").read_text().splitlines():
@@ -102,8 +101,12 @@ def available_cpus(cgroup: Path = Path("/sys/fs/cgroup/cpu.max")) -> int:
 
 
 def hardware_info(label: str | None) -> dict[str, Any]:
-    info: dict[str, Any] = {"label": label, "machine": platform.machine(),
-                            "vcpus": available_cpus(), "host_cpus": os.cpu_count()}
+    info: dict[str, Any] = {
+        "label": label,
+        "machine": platform.machine(),
+        "vcpus": available_cpus(),
+        "host_cpus": os.cpu_count(),
+    }
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
             if line.startswith("model name"):
@@ -134,20 +137,29 @@ def _quality_run(settings: Settings, model_id: str, quality_run: str | None):
             candidates.append(data["run_id"])
     if len(candidates) != 1:
         raise ValidationFailed(
-            f"found {len(candidates)} quality runs for {model_id}; pass --quality-run <run_id>")
+            f"found {len(candidates)} quality runs for {model_id}; pass --quality-run <run_id>"
+        )
     return load_run_manifest(settings, candidates[0])
 
 
-def perf_local(settings: Settings, model_id: str, host: str, warmup: int,
-               quality_run: str | None, hardware: str | None,
-               sample: int | None = None, suffix: str | None = None) -> dict[str, Any]:
+def perf_local(
+    settings: Settings,
+    model_id: str,
+    host: str,
+    warmup: int,
+    quality_run: str | None,
+    hardware: str | None,
+    sample: int | None = None,
+    suffix: str | None = None,
+) -> dict[str, Any]:
     entry = settings.model(model_id)
     quality = _quality_run(settings, model_id, quality_run)
     digest = model_digest(resolve_host(host), entry.api_model)
     if digest != quality.model_version:
         raise ValidationFailed(
             f"digest on {host} ({digest[:12]}) differs from quality run {quality.run_id} "
-            f"({quality.model_version[:12]}); pull the identical model file")
+            f"({quality.model_version[:12]}); pull the identical model file"
+        )
     backend = OllamaBackend(settings, entry, host)
     backend.num_thread = available_cpus()
     system, schema = build_system_prompt(settings), wire_schema()
@@ -238,24 +250,37 @@ def _student_run(settings: Settings, sha: str, quality_run: str | None):
     if quality_run:
         run = load_run_manifest(settings, quality_run)
     else:
-        found = [read_json(p)["run_id"] for p in sorted(settings.runs_dir.glob("run-*/manifest.json"))
-                 if read_json(p).get("backend") == "span"
-                 and read_json(p).get("settings", {}).get("model_sha256") == sha]
+        found = [
+            read_json(p)["run_id"]
+            for p in sorted(settings.runs_dir.glob("run-*/manifest.json"))
+            if read_json(p).get("backend") == "span"
+            and read_json(p).get("settings", {}).get("model_sha256") == sha
+        ]
         if len(found) != 1:
-            raise ValidationFailed(f"found {len(found)} span quality runs for model {sha[:12]}; "
-                                   "evaluate it with `jtbd span label` first or pass --quality-run")
+            raise ValidationFailed(
+                f"found {len(found)} span quality runs for model {sha[:12]}; "
+                "evaluate it with `jtbd span label` first or pass --quality-run"
+            )
         run = load_run_manifest(settings, found[0])
     expected = getattr(run.settings, "model_sha256", None)
     if expected != sha:
-        raise ValidationFailed(f"model.safetensors ({sha[:12]}) differs from the files of the "
-                               f"quality run {run.run_id} ({str(expected)[:12]})")
+        raise ValidationFailed(
+            f"model.safetensors ({sha[:12]}) differs from the files of the "
+            f"quality run {run.run_id} ({str(expected)[:12]})"
+        )
     return run
 
 
-def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
-              text_file: Path | None = None, quality_run: str | None = None,
-              repeats: int = LATENCY_REPEATS, device: str = "cpu",
-              suffix: str | None = None) -> dict[str, Any]:
+def perf_span(
+    settings: Settings,
+    model_dir: Path,
+    hardware: str | None,
+    text_file: Path | None = None,
+    quality_run: str | None = None,
+    repeats: int = LATENCY_REPEATS,
+    device: str = "cpu",
+    suffix: str | None = None,
+) -> dict[str, Any]:
     """Speed and peak memory of a span model in a child process (research R13, FR-014)."""
     import json
     import subprocess
@@ -273,12 +298,24 @@ def perf_span(settings: Settings, model_dir: Path, hardware: str | None,
     chunks = [c.text for c in load_chunks(settings, "main")]
     threads = available_cpus()
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
-        json.dump({"model_dir": str(model_dir), "text": text, "chunks": chunks,
-                   "threads": threads, "repeats": repeats, "device": device}, f)
+        json.dump(
+            {
+                "model_dir": str(model_dir),
+                "text": text,
+                "chunks": chunks,
+                "threads": threads,
+                "repeats": repeats,
+                "device": device,
+            },
+            f,
+        )
         job = f.name
-    child = subprocess.Popen([sys.executable, "-m",
-                              "mobility_model_zoo.productdev.jtbd.span.perfworker", job],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    child = subprocess.Popen(
+        [sys.executable, "-m", "mobility_model_zoo.productdev.jtbd.span.perfworker", job],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     sampled: float | None = None
     while child.poll() is None:
         value = process_rss_mb(child.pid)

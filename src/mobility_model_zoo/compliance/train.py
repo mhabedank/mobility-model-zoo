@@ -77,8 +77,15 @@ def check_training(
             # unknown, no-derivatives, all rights reserved and every licence not on the list
             findings.append(Finding("C-T2", "train", rec["id"], "licence", f"{licence} cannot train"))
         elif target.commercial and (entry.non_commercial or rec.get("commercial_use") is False):
-            findings.append(Finding("C-T2", "train", rec["id"], "licence",
-                                    f"{licence} is non-commercial; the model is declared {target}"))
+            findings.append(
+                Finding(
+                    "C-T2",
+                    "train",
+                    rec["id"],
+                    "licence",
+                    f"{licence} is non-commercial; the model is declared {target}",
+                )
+            )
         if rec.get("permitted_use") != "training_allowed":
             findings.append(Finding("C-T2", "train", rec["id"], "permitted_use", "benchmark_only"))
         share_alike |= bool(entry and entry.share_alike)
