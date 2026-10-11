@@ -45,6 +45,12 @@ boards:
     match: {vid_pid: "1a86:7523"}
     tags: [esp, xtensa]
 
+  # Arduino MKR Zero (SAMD21 Cortex-M0+, 48 MHz, no FPU).
+  - id: mkrzero-1
+    target: samd21
+    match: {vid_pid: "2341:804f"}
+    tags: [arm, cortex-m0plus]
+
   # Further boards - uncomment / adapt as you add hardware:
   # - id: esp32-1
   #   target: esp32

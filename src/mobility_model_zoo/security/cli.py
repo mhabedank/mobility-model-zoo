@@ -183,7 +183,7 @@ def freeze(
 
 @can_ids.command()
 def measure(
-    target: str = typer.Option("host", help="host, esp32-qemu or esp8266"),
+    target: str = typer.Option("host", help="host, esp32-qemu, esp8266 or mkrzero"),
     board: str = typer.Option(None, "-b", "--board", help="board id in hil/boards.yaml (esp8266)"),
     export: Path = typer.Option(None, help="exported model ($MMZ_DATA/derived/picket-forest/export)"),
     out: Path = typer.Option(None, help="performance results file to merge into"),
@@ -206,6 +206,11 @@ def measure(
             say("esp8266 needs -b BOARD (see `uv run edge list`)")
             raise typer.Exit(2)
         run = m.run_board(export, board)
+    elif target == "mkrzero":
+        if not board:
+            say("mkrzero needs -b BOARD (see `uv run edge list`)")
+            raise typer.Exit(2)
+        run = m.run_mkrzero(export, board)
     else:
         say(f"unknown target {target}")
         raise typer.Exit(2)

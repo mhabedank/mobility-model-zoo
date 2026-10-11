@@ -92,7 +92,7 @@ def test_vectors(export_dir: Path, n_frames: int = 4000, seed: int = 42) -> tupl
     return "\n".join(lines), meta
 
 
-def prepare_sketch(export_dir: Path) -> dict:
+def prepare_sketch(export_dir: Path, n_frames: int = 4000) -> dict:
     """Fill the sketch's generated src/: detector sources, exported headers, test vectors."""
     if SKETCH_SRC.exists():
         shutil.rmtree(SKETCH_SRC)
@@ -102,7 +102,7 @@ def prepare_sketch(export_dir: Path) -> dict:
         shutil.copy(path, SKETCH_SRC / name)
     for name in headers:
         shutil.copy(export_dir / name, SKETCH_SRC / name)
-    header, meta = test_vectors(export_dir)
+    header, meta = test_vectors(export_dir, n_frames=n_frames)
     (SKETCH_SRC / "test_vectors.h").write_text(header)
     return meta
 
@@ -120,7 +120,11 @@ def pio(*args: str) -> str:
 def object_sizes(env: str, objects: tuple[str, ...] = DETECTOR_OBJECTS) -> dict[str, int]:
     """text/data/bss of the detector objects of a PlatformIO build (bytes)."""
     build = BUILD_DIR / "picket-forest" / "pio" / env
-    tool = {"esp32": "xtensa-esp32-elf-size", "esp8266": "xtensa-lx106-elf-size"}[env]
+    tool = {
+        "esp32": "xtensa-esp32-elf-size",
+        "esp8266": "xtensa-lx106-elf-size",
+        "mkrzero": "arm-none-eabi-size",
+    }[env]
     exe = shutil.which(tool) or next(
         (str(p) for p in (Path.home() / ".platformio" / "packages").glob(f"toolchain-*/bin/{tool}")),
         None,
@@ -194,6 +198,32 @@ def run_board(export_dir: Path, board_id: str, timeout: float = 120.0) -> dict:
     }
 
 
+MKRZERO_FRAMES = 2000  # SAMD21 has 32 KB RAM: the timing buffer holds one uint32 per frame
+
+
+def run_mkrzero(export_dir: Path, board_id: str, timeout: float = 180.0) -> dict:
+    """Arduino MKR Zero (SAMD21 Cortex-M0+, 48 MHz, no FPU): flash with bossac, read over USB."""
+    import serial
+
+    from mobility_model_zoo.edge.bench.config import load_lab
+    from mobility_model_zoo.edge.bench.discovery import resolve_port
+
+    board = load_lab().board(board_id)
+    port = resolve_port(board)
+    meta = prepare_sketch(export_dir, n_frames=MKRZERO_FRAMES)
+    pio("run", "-d", str(PIO_DIR), "-e", "mkrzero", "-t", "upload", "--upload-port", port)
+    time.sleep(3)  # the board re-enumerates after the bootloader
+    port = resolve_port(board)
+    with serial.Serial(port, 115200, timeout=2) as ser:
+        result = _read_result(lambda: ser.readline().decode(errors="replace"), timeout)
+    return {
+        "result": result,
+        "sizes": object_sizes("mkrzero", _objects(export_dir)),
+        "vectors": meta,
+        "board": board_id,
+    }
+
+
 def run_host(export_dir: Path, n_frames: int = 200_000) -> dict:
     df = generate("fabrication", n_frames=n_frames, seed=7)
     exe = scorer.build_scorer(export_dir, BUILD_DIR / "picket-forest" / "host", fmt=fmt_of(export_dir))
@@ -251,6 +281,9 @@ def metrics(target: str, run: dict) -> list[dict]:
             "_esp32_qemu",
         )
         note = " (emulator: not representative)"
+    elif target == "mkrzero":
+        hw = f"SAMD21 Cortex-M0+ (board {run.get('board')}), {r['cpu_mhz']} MHz, no FPU"
+        origin, sfx, note = "real_board", "_samd21", ""
     else:
         board = run.get("board") or "esp8266"
         hw = f"ESP8266 (board {board}), {r['cpu_mhz']} MHz, {SUBSTITUTE}"
