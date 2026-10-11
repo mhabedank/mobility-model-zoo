@@ -559,7 +559,9 @@ class Gate:
 
         if getattr(self, "_tree_scorer", None) is not None:
             return self._tree_scorer
-        fmt = self.record.get("output_format_version", "picket-forest-v1")
+        # 0.2.0-style chains (calibration table, msml_cal) for formats ending in -v2, else 0.1.0
+        out_fmt = str(self.record.get("output_format_version", ""))
+        fmt = "picket-forest-v2" if out_fmt.endswith("-v2") else "picket-forest-v1"
         SOURCES, HEADERS, _, _ = layout(fmt)
         r, commit = self.record["staging"], self.record["recipe"]["git_commit"]
         self._tree_tmp = tempfile.TemporaryDirectory()
