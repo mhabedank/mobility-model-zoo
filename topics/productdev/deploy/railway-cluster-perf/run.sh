@@ -6,11 +6,14 @@
 #   PERF_SETTINGS  space-separated stage settings files (tuned candidates of T044)
 #   PERF_SCALE     items of the scale set (default 50000)
 #   PERF_LABEL     hardware label recorded in each result
+#   PERF_TIMEOUT   seconds per measurement (default 1800); a run that takes longer is reported as
+#                  PERF_TIMEOUT, which already fails the stage budget of 15 minutes (SC-005)
 set -uo pipefail
 cd /app
 CONFIG=configs/productdev/jtbd/cluster-v1.yaml
 LABEL="${PERF_LABEL:-railway service eu-west, 4 vCPU limit, 8 GB RAM limit, no GPU}"
 SCALE="${PERF_SCALE:-50000}"
+LIMIT="${PERF_TIMEOUT:-1800}"
 OUT=data/cluster/analysis/cluster-v1
 emit() {  # name, file
   echo "=== PERF_RESULT $1 ==="; base64 -w0 "$2"; echo; echo "=== END $1 ==="
@@ -35,8 +38,12 @@ PY
     args=(--settings "$settings" --hardware "$LABEL")
     suffix=""
     if [ -n "$scale" ]; then args+=(--scale "$scale"); suffix="-scale$scale"; fi
-    if uv run jtbd --config "$CONFIG" cluster perf "${args[@]}" > /tmp/out.json 2> /tmp/err.log; then
+    timeout "$LIMIT" uv run jtbd --config "$CONFIG" cluster perf "${args[@]}" > /tmp/out.json 2> /tmp/err.log
+    code=$?
+    if [ $code -eq 0 ]; then
       emit "perf-$name$suffix" "$OUT/perf-$name$suffix.json"
+    elif [ $code -eq 124 ]; then
+      echo "=== PERF_TIMEOUT $name$suffix after $LIMIT s ==="
     else
       echo "=== PERF_ERROR $name$suffix ==="; tail -c 2000 /tmp/err.log; echo
     fi

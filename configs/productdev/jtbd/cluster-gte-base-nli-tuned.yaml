@@ -1,0 +1,305 @@
+# Tuned on the development split by `jtbd cluster tune` (tasks T032, T043).
+name: cluster-gte-base-nli-tuned
+encoder:
+  model_id: alibaba-nlp-community/gte-multilingual-base
+  revision: fdaec56c6a50d6ebcf691f616ee83a166346b76c
+  licence_basis: Apache-2.0 (model card licence tag of both repos; weights identical
+    to Alibaba-NLP/gte-multilingual-base, checked 2026-10-11)
+  prefix: ''
+  trust_remote_code: false
+  pooling: cls
+  normalize: true
+  batch_size: 64
+  max_length: 128
+nli:
+  model_id: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+  revision: b5113eb38ab63efdd7f280f8c144ea8b13f978ce
+  licence_basis: MIT weights; training data XNLI and ANLI CC BY-NC 4.0, so non-commercial
+    (checked 2026-10-10)
+neighbours:
+  k: 30
+  candidate_floor: 0.5
+  k_spec: 5
+thresholds:
+  t_dup: 0.91
+  t_spec: 0.7
+  t_nli: 0.7
+levels:
+- 0.7
+representative: medoid
+settings_changes:
+- 'thresholds and levels tuned on dev: t_dup 0.91, t_spec 0.7, t_nli 0.7, level_1
+  0.7'
+decision: ../../../topics/productdev/benchmarks/cluster-v1/decision.json
+tuning:
+  split: dev
+  benchmark_version: cluster-v1
+  metric: duplicate pair F1, then specificity F1, then cluster level 1 B-cubed F1
+  base_settings: configs/productdev/jtbd/cluster-gte-base-nli.yaml
+  base_settings_sha256: 10caa69ab66e640a60130698ad1d1b80c54b6b215628a71197d7f9eb0030c707
+  consensus_pairs: 373
+  chosen:
+    t_dup: 0.91
+    t_spec: 0.7
+    t_nli: 0.7
+    level_1: 0.7
+  grid:
+  - t_dup: 0.8
+    precision: 0.4
+    recall: 0.5
+    f1: 0.4444
+    n: 373
+  - t_dup: 0.81
+    precision: 0.4
+    recall: 0.5
+    f1: 0.4444
+    n: 373
+  - t_dup: 0.82
+    precision: 0.4444
+    recall: 0.5
+    f1: 0.4706
+    n: 373
+  - t_dup: 0.83
+    precision: 0.5714
+    recall: 0.5
+    f1: 0.5333
+    n: 373
+  - t_dup: 0.84
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.85
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.86
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.87
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.88
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.89
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.9
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.91
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.92
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.93
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.94
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.95
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  specificity_grid:
+  - t_spec: 0.65
+    t_nli: 0.6
+    links: 813
+    precision: 0.1538
+    recall: 0.3333
+    f1: 0.2105
+    n: 365
+  - t_spec: 0.65
+    t_nli: 0.7
+    links: 718
+    precision: 0.1538
+    recall: 0.3333
+    f1: 0.2105
+    n: 365
+  - t_spec: 0.65
+    t_nli: 0.8
+    links: 587
+    precision: 0.125
+    recall: 0.1667
+    f1: 0.1429
+    n: 365
+  - t_spec: 0.65
+    t_nli: 0.9
+    links: 416
+    precision: 0.25
+    recall: 0.1667
+    f1: 0.2
+    n: 365
+  - t_spec: 0.7
+    t_nli: 0.6
+    links: 468
+    precision: 0.2
+    recall: 0.3333
+    f1: 0.25
+    n: 365
+  - t_spec: 0.7
+    t_nli: 0.7
+    links: 417
+    precision: 0.2
+    recall: 0.3333
+    f1: 0.25
+    n: 365
+  - t_spec: 0.7
+    t_nli: 0.8
+    links: 341
+    precision: 0.1667
+    recall: 0.1667
+    f1: 0.1667
+    n: 365
+  - t_spec: 0.7
+    t_nli: 0.9
+    links: 243
+    precision: 0.3333
+    recall: 0.1667
+    f1: 0.2222
+    n: 365
+  - t_spec: 0.75
+    t_nli: 0.6
+    links: 187
+    precision: 0.1429
+    recall: 0.1667
+    f1: 0.1538
+    n: 365
+  - t_spec: 0.75
+    t_nli: 0.7
+    links: 168
+    precision: 0.1667
+    recall: 0.1667
+    f1: 0.1667
+    n: 365
+  - t_spec: 0.75
+    t_nli: 0.8
+    links: 148
+    precision: 0.2
+    recall: 0.1667
+    f1: 0.1818
+    n: 365
+  - t_spec: 0.75
+    t_nli: 0.9
+    links: 106
+    precision: 0.3333
+    recall: 0.1667
+    f1: 0.2222
+    n: 365
+  - t_spec: 0.8
+    t_nli: 0.6
+    links: 50
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.8
+    t_nli: 0.7
+    links: 50
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.8
+    t_nli: 0.8
+    links: 47
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.8
+    t_nli: 0.9
+    links: 36
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.85
+    t_nli: 0.6
+    links: 11
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.85
+    t_nli: 0.7
+    links: 10
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.85
+    t_nli: 0.8
+    links: 11
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  - t_spec: 0.85
+    t_nli: 0.9
+    links: 9
+    precision: 0.0
+    recall: 0.0
+    f1: 0.0
+    n: 365
+  cluster_grid:
+  - level_1: 0.45
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.5
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.55
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 2
+  - level_1: 0.6
+    bcubed_f1: 0.3526
+    n: 6
+    clusters: 34
+  - level_1: 0.65
+    bcubed_f1: 0.4078
+    n: 6
+    clusters: 169
+  - level_1: 0.7
+    bcubed_f1: 0.4628
+    n: 6
+    clusters: 324
+  - level_1: 0.75
+    bcubed_f1: 0.4467
+    n: 6
+    clusters: 305
+  - level_1: 0.8
+    bcubed_f1: 0.4323
+    n: 6
+    clusters: 124
+  - level_1: 0.85
+    bcubed_f1: 0.3996
+    n: 6
+    clusters: 30
+  tuned_at: '2026-10-11T14:44:46.238933+00:00'
