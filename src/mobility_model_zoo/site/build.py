@@ -92,12 +92,15 @@ def _card(reg, name, version, spec, f: facts.Facts, notes: facts.Notes, page) ->
     kind, metric_name = spec["metric"].split(".", 1)
     m = facts.metric(reg, name, version, kind, metric_name)
     f.add(page, f"card:{spec['metric']}", m["value"], m["source"], metric_name)
-    card = {"label": spec["label"], "m": m, "note": notes.ref(m), "compare": None}
+    card = {"label": spec["label"], "m": m, "note": notes.ref(m), "compare": None, "bar": None}
     if spec.get("compare"):
         ckind, cname = spec["compare"].split(".", 1)
         c = facts.metric(reg, name, version, ckind, cname)
         f.add(page, f"card:{spec['compare']}", c["value"], c["source"], cname)
         card["compare"] = {"m": c, "label": spec.get("compare_label", c["description"])}
+        card["bar"] = charts.comparison_bar(
+            m["raw"], c["raw"], m["unit"], spec["label"], card["compare"]["label"]
+        )
     return card
 
 

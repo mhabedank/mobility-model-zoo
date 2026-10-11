@@ -219,3 +219,5 @@ ul.why { list-style: none; padding: 0; margin: 0; }
 .layers li { counter-increment: layer; }
 .layers li::before { content: counter(layer) "  "; color: var(--muted); font-variant-numeric: tabular-nums; }
 .layers ol { counter-reset: layer 1; }
+.metric .bar { width: 100%; max-width: 240px; height: auto; margin-top: 6px; }
+ul.why li + li, .layers li + li { margin-top: 0; }

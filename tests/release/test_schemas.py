@@ -88,7 +88,9 @@ def test_card_short_forms_validate(zoo_env):
         lambda c: c.update(limits_short=["x"] * 6),
         lambda c: c.update(unmet_criteria=[{"criterion": "neither measured nor note"}]),
         lambda c: c.update(unmet_criteria=[{"criterion": "c", "measured": "0.59"}]),
-        lambda c: c.update(unmet_criteria=[{"criterion": "c", "note": "n", "target": {"op": "<=", "value": 1}}]),
+        lambda c: c.update(
+            unmet_criteria=[{"criterion": "c", "note": "n", "target": {"op": "<=", "value": 1}}]
+        ),
     ],
 )
 def test_card_short_forms_reject(zoo_env, mutate):

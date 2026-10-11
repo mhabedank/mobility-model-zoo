@@ -80,16 +80,16 @@
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Tests for the layer-2 part of D3 in `tests/website/test_layers_quality.py`: 1–4 `.metric` figures; no `table` outside a chart's `<details>`; at most one sentence of prose before the first figure; a link to `#metrics` exists
-- [ ] T025 [P] [US2] Tests for the comparison bar in `tests/website/test_charts.py`: a metric card with `compare` renders an inline SVG with `role="img"` and a text alternative naming both values; the bar lengths are proportional on one scale; a card without `compare` renders no bar; no new fact appears in `_build/facts.json`
+- [X] T024 [P] [US2] Tests for the layer-2 part of D3 in `tests/website/test_layers_quality.py`: 1–4 `.metric` figures; no `table` outside a chart's `<details>`; at most one sentence of prose before the first figure; a link to `#metrics` exists
+- [X] T025 [P] [US2] Tests for the comparison bar in `tests/website/test_charts.py`: a metric card with `compare` renders an inline SVG with `role="img"` and a text alternative naming both values; the bar lengths are proportional on one scale; a card without `compare` renders no bar; no new fact appears in `_build/facts.json`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Add `comparison_bar(value, compare, unit, label, compare_label) -> Markup` in `src/mobility_model_zoo/site/charts.py`: server-rendered inline SVG, two bars on one scale, numbers as text next to the bars, `role="img"` with `aria-label`, colours from tokens; call it from `_card()` in `src/mobility_model_zoo/site/build.py` when the card has a comparison
-- [ ] T027 [US2] Rewrite `src/mobility_model_zoo/site/templates/partials/quality.html.j2` as layer 2 in this order: heading; at most one lead sentence; benchmark and deterministic-check line; headline figures with bars; charts with their value tables in `<details>`; link "All metrics of version x" to `#metrics`. Move the "All metrics" tables in the same step into a new partial `src/mobility_model_zoo/site/templates/partials/metrics.html.j2` (`id="metrics"`, tables open) included in the `details` layer, so no deployable state lacks them (analysis I1)
-- [ ] T028 [US2] Implement the layer-2 part of D3 as `check_quality_layer(out)` in `src/mobility_model_zoo/site/check.py`; register it in `run_checks`
-- [ ] T029 [P] [US2] Styles for the bar pair and the compact check line in `src/mobility_model_zoo/site/static/css/site.css`
-- [ ] T030 [US2] Reduce `metric_cards` to at most 4 in `zoo/models/scout-large/site.yaml` (keep the comparison composite and the DGX Spark throughput with their comparisons) and check `zoo/models/picket-forest/site.yaml` (already 4)
+- [X] T026 [US2] Add `comparison_bar(value, compare, unit, label, compare_label) -> Markup` in `src/mobility_model_zoo/site/charts.py`: server-rendered inline SVG, two bars on one scale, numbers as text next to the bars, `role="img"` with `aria-label`, colours from tokens; call it from `_card()` in `src/mobility_model_zoo/site/build.py` when the card has a comparison
+- [X] T027 [US2] Rewrite `src/mobility_model_zoo/site/templates/partials/quality.html.j2` as layer 2 in this order: heading; at most one lead sentence; benchmark and deterministic-check line; headline figures with bars; charts with their value tables in `<details>`; link "All metrics of version x" to `#metrics`. Move the "All metrics" tables in the same step into a new partial `src/mobility_model_zoo/site/templates/partials/metrics.html.j2` (`id="metrics"`, tables open) included in the `details` layer, so no deployable state lacks them (analysis I1)
+- [X] T028 [US2] Implement the layer-2 part of D3 as `check_quality_layer(out)` in `src/mobility_model_zoo/site/check.py`; register it in `run_checks`
+- [X] T029 [P] [US2] Styles for the bar pair and the compact check line in `src/mobility_model_zoo/site/static/css/site.css`
+- [X] T030 [US2] Reduce `metric_cards` to at most 4 in `zoo/models/scout-large/site.yaml` (keep the comparison composite and the DGX Spark throughput with their comparisons) and check `zoo/models/picket-forest/site.yaml` (already 4)
 
 **Checkpoint**: US1 + US2 give the reader "what is it, may I use it, how good and fast" in the first two screens (MVP).
 

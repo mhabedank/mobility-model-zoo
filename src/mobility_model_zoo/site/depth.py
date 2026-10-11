@@ -85,7 +85,7 @@ def overview_findings(rel: str, root: b.Node, sm: dict[str, Any]) -> list[Findin
             out.append(
                 Finding("D2", rel, f"overview: {len(items)} 'Not for' points, needs {lo} to {hi}")
             )
-        list_words = sum(b.words(i.text()) for i in items)
+        list_words = sum(b.words(i.text(visible=True)) for i in items)
         if list_words > b.NOT_FOR_WORDS:
             out.append(
                 Finding(
@@ -99,12 +99,12 @@ def overview_findings(rel: str, root: b.Node, sm: dict[str, Any]) -> list[Findin
     for i, d in enumerate(diffs):
         title = d.find(lambda n: n.tag == "h3")
         text = d.find(lambda n: n.tag == "p")
-        if title and b.words(title.text()) > b.DIFFERENTIATOR_TITLE_WORDS:
+        if title and b.words(title.text(visible=True)) > b.DIFFERENTIATOR_TITLE_WORDS:
             out.append(
                 Finding("D2", rel, f"reason {i + 1}: title over {b.DIFFERENTIATOR_TITLE_WORDS} words")
             )
-        if text and b.words(text.text()) > b.DIFFERENTIATOR_TEXT_WORDS:
-            n = b.words(text.text())
+        if text and b.words(text.text(visible=True)) > b.DIFFERENTIATOR_TEXT_WORDS:
+            n = b.words(text.text(visible=True))
             out.append(
                 Finding("D2", rel, f"reason {i + 1}: {n} words, limit {b.DIFFERENTIATOR_TEXT_WORDS}")
             )
@@ -123,3 +123,56 @@ def check_overview(reg: Registry, out: Path) -> Iterable[Finding]:
             yield Finding("D5", rel, "model page is missing")
             continue
         yield from overview_findings(rel, root, sm)
+
+
+# ---- the second layer of D3 --------------------------------------------------------------------
+def _inside(node: b.Node, tag: str) -> bool:
+    p = node.parent
+    while p is not None:
+        if p.tag == tag:
+            return True
+        p = p.parent
+    return False
+
+
+def quality_findings(rel: str, root: b.Node) -> list[Finding]:
+    layer = _layer(root, "quality")
+    if layer is None:
+        return [Finding("D5", rel, "no quality layer")]
+    out: list[Finding] = []
+    figures = layer.find_all(lambda n: "metric" in n.classes)
+    if not 1 <= len(figures) <= b.HEADLINE_FIGURES_MAX:
+        out.append(
+            Finding(
+                "D3",
+                rel,
+                f"quality: {len(figures)} headline figures, needs 1 to {b.HEADLINE_FIGURES_MAX}",
+            )
+        )
+    for t in layer.find_all(lambda n: n.tag == "table"):
+        if not _inside(t, "details"):
+            out.append(Finding("D3", rel, "quality: a table outside a chart's value list"))
+    lead = []
+    for n in layer.iter():
+        if "metric" in n.classes or n.tag == "figure":
+            break
+        if n.tag == "p":
+            lead.append(n.text(visible=True))
+    if b.sentences(" ".join(lead)) > b.QUALITY_LEAD_SENTENCES:
+        out.append(
+            Finding(
+                "D3",
+                rel,
+                f"quality: more than {b.QUALITY_LEAD_SENTENCES} sentence before the first figure",
+            )
+        )
+    if not layer.find(lambda n: n.tag == "a" and n.get("href") == "#metrics"):
+        out.append(Finding("D3", rel, "quality: no link to #metrics"))
+    return out
+
+
+def check_quality(reg: Registry, out: Path) -> Iterable[Finding]:
+    for sm in _published(reg):
+        rel, root = _page(out, sm["name"])
+        if root is not None:
+            yield from quality_findings(rel, root)

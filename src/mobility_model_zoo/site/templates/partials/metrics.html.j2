@@ -1,0 +1,13 @@
+<div class="sec" id="metrics"><div class="wrap">
+<div class="sec-head"><div class="eyebrow">All metrics</div><h2 class="h2" id="m-h">Every number of version {{ p.latest.version }} and what it is measured against.</h2></div>
+<div class="tw"><table class="tbl">
+<caption>Quality</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">What it is</th><th scope="col">Measured against</th><th scope="col">Items</th></tr></thead>
+<tbody>{% for r in p.quality_rows %}<tr><td class="mono"><code>{{ r.name }}</code></td><td>{{ r.value }}{% if r.unit %} {{ r.unit }}{% endif %}</td><td>{{ r.description }}</td><td>{{ r.against }}</td><td>{{ r.n_items if r.n_items is not none else "–" }}</td></tr>{% endfor %}</tbody>
+</table>
+<table class="tbl">
+<caption>Speed and memory</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">What it is</th><th scope="col">Measured on</th></tr></thead>
+<tbody>{% for r in p.performance_rows %}<tr><td class="mono"><code>{{ r.name }}</code></td><td>{{ r.value }}{% if r.unit %} {{ r.unit }}{% endif %}</td><td>{{ r.description }}</td><td>{{ r.against }}</td></tr>{% endfor %}</tbody>
+</table></div>
+</div></div>

@@ -604,6 +604,7 @@ def run_checks(
         ("O4", lambda: check_og_parity(reg, out)),
         ("O5", lambda: check_og_hash(reg, out)),
         ("D4", lambda: depth.check_overview(reg, out)),
+        ("D3", lambda: depth.check_quality(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

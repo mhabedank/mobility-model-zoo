@@ -13,8 +13,14 @@ ROOT = Path(__file__).resolve().parents[2]
 NC_USAGE = {
     "class": "non-commercial",
     "licence": "CC-BY-NC-4.0",
-    "restricting_inputs": [{"kind": "dataset", "id": "nc-corpus", "licence": "CC-BY-NC-4.0",
-                            "restriction": "non-commercial"}],
+    "restricting_inputs": [
+        {
+            "kind": "dataset",
+            "id": "nc-corpus",
+            "licence": "CC-BY-NC-4.0",
+            "restriction": "non-commercial",
+        }
+    ],
 }
 
 
@@ -26,8 +32,10 @@ def test_commercial_model_page_states_its_class(built):
 
 
 def test_non_commercial_model_is_marked_before_the_install_line(site_env):
-    site_env.edit_yaml(f"zoo/models/{MODEL}/model.yaml",
-                       lambda m: m.update(usage_class="non-commercial", license="CC-BY-NC-4.0"))
+    site_env.edit_yaml(
+        f"zoo/models/{MODEL}/model.yaml",
+        lambda m: m.update(usage_class="non-commercial", license="CC-BY-NC-4.0"),
+    )
     site_env.edit_yaml(f"zoo/models/{MODEL}/releases/{VERSION}.yaml", lambda r: r.update(usage=NC_USAGE))
     site_env.build()
     html = site_env.html(f"models/{MODEL}/index.html")
