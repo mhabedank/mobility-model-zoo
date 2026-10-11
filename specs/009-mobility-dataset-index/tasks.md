@@ -131,7 +131,7 @@ public repository unless they start with `catalog:`, which means the private rep
   - `.github/workflows/recheck.yml` (FR-020, SC-009), which runs monthly (`cron: "0 4 1 * *"`) and on manual dispatch: it installs the package the same way, runs `zoo catalog --catalog . check`, and commits changed entries with the message "Monthly re-check <date>" using `GITHUB_TOKEN` with `contents: write`; it never pushes to any other repository;
   - `.gitignore`.
 - [X] T027 [US1] Implement `zoo catalog init PATH` in `catalog/cli.py`. It copies the templates and creates the empty folders `entries/`, `runs/`, `fetch-lists/`, `reports/` and `pilot/` (each with `.gitkeep`). It refuses (exit 3) a non-empty directory or any path that resolves inside the zoo repository. It never runs git commands.
-- [ ] T028 [US1] Owner-assisted step: run `uv run zoo catalog init <tmp>`, copy the result into a clone of `catalog:` (the owner created `https://github.com/mhabedank/mobility-model-zoo-catalog`), commit and push to `main` after the owner confirms, and check that the `check` workflow is green on the empty catalog (quickstart scenario 6).
+- [X] T028 [US1] Owner-assisted step: run `uv run zoo catalog init <tmp>`, copy the result into a clone of `catalog:` (the owner created `https://github.com/mhabedank/mobility-model-zoo-catalog`), commit and push to `main` after the owner confirms, and check that the `check` workflow is green on the empty catalog (quickstart scenario 6).
 
 **Checkpoint**: Entries can be added and validated; the private repository has its CI gate.
 

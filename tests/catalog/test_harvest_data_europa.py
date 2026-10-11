@@ -17,6 +17,7 @@ from mobility_model_zoo.catalog.harvest.data_europa import (
     _area,
     _licence_id,
     _route,
+    ckan_licence,
     dane_gov_pl_licence,
 )
 from mobility_model_zoo.catalog.model import read_yaml, schema
@@ -200,3 +201,36 @@ def test_dane_gov_pl_other_datasets_and_failures():
     assert dane_gov_pl_licence(andalucia, dane({}, calls)) is None
     assert calls == []
     assert dane_gov_pl_licence(DANE_ID, dane({}, calls, status=503), say=lambda m: None) is None
+
+
+def ckan(result: dict | None, calls: list[httpx.Request], status: int = 200) -> httpx.Client:
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        assert request.url.host == "data.gov.lv"
+        assert request.url.path == "/dati/api/3/action/package_show"
+        assert request.url.params["id"] == "019e39ed-9d72"
+        return httpx.Response(status, json={"success": status == 200, "result": result})
+
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+def test_ckan_licence_read_from_a_national_portal():
+    calls: list[httpx.Request] = []
+    result = {"name": "eksporta-dati", "license_id": "CC-BY-4.0",
+              "license_url": "https://creativecommons.org/licenses/by/4.0/"}
+    lic = ckan_licence("data-gov-lv", "019e39ed-9d72~~1", ckan(result, calls))
+    assert lic["id"] == "CC-BY-4.0"
+    assert lic["evidence_url"] == "https://data.gov.lv/dati/lv/dataset/eksporta-dati"
+    assert lic["url"] == "https://creativecommons.org/licenses/by/4.0/"
+    assert len(calls) == 1
+
+
+def test_ckan_licence_unknown_other_portals_and_failures():
+    calls: list[httpx.Request] = []
+    unspecified = ckan({"name": "x", "license_id": "notspecified"}, calls)
+    lic = ckan_licence("data-gov-lv", "019e39ed-9d72", unspecified)
+    assert lic["id"] == "unknown" and lic["evidence_url"] is None
+    assert ckan_licence("open-data-bulgaria", "4571", ckan({}, calls)) is None
+    assert len(calls) == 1
+    failing = ckan({}, calls, status=500)
+    assert ckan_licence("data-gov-lv", "019e39ed-9d72", failing, say=lambda m: None) is None

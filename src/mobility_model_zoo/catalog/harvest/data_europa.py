@@ -7,7 +7,8 @@ no language) its title was written in it (`translation_meta`); such a dataset ge
 licence is read from the distributions; distributions with different known licences make `mixed`.
 data.europa.eu drops the reuse conditions of the Polish portal dane.gov.pl, so for its datasets the
 harvester reads the licence from the dane.gov.pl API (`dane_gov_pl_licence`) and keeps `unknown`
-when the publisher adds its own conditions.
+when the publisher adds its own conditions. The same holds for the CKAN portals in `CKAN_PORTALS`,
+whose `package_show` the harvester asks (`ckan_licence`).
 
 Heuristics (documented for the owner):
 - origin area: EU institutions and agencies → `EU`; else the dataset `country`; `EUROPE` → `150`;
@@ -70,6 +71,14 @@ DANE_GOV_PL = re.compile(r"^https-dane-gov-pl-(?:[a-z]{2}-)?dataset-(\d+)(?:-|$)
 DANE_API = "https://api.dane.gov.pl/1.4/datasets/{n}"
 DANE_PAGE = "https://dane.gov.pl/pl/dataset/{n}"
 # conditions a publisher may add on dane.gov.pl; any of them makes the licence alone insufficient
+# National CKAN portals whose licences data.europa.eu drops: data.europa.eu catalog id ->
+# (package_show endpoint, dataset page). Probed 2026-10-11; si and hu publish no licence, hr and ro
+# did not answer, cy and bg have no usable API.
+CKAN_PORTALS = {
+    "data-gov-lv": ("https://data.gov.lv/dati/api/3/action/package_show",
+                    "https://data.gov.lv/dati/lv/dataset/{name}"),
+}
+CKAN_SUFFIX = re.compile(r"~~\d+$")
 DANE_CONDITIONS = ("license_condition_custom_description", "license_condition_db_or_copyrighted",
                    "license_condition_personal_data")
 RESEARCH = re.compile(r"univers|research|investigaci|forschung|recherche|ricerca|badawcz|csic|cnrs|"
@@ -147,6 +156,31 @@ def dane_gov_pl_licence(dataset_id: str, client: httpx.Client,
     if lid == "unknown":
         return base.licence_block("unknown", None, None)
     return base.licence_block(lid, None, DANE_PAGE.format(n=n))
+
+
+def ckan_licence(catalog_id: str | None, dataset_id: str, client: httpx.Client,
+                 say: Any = print) -> dict[str, Any] | None:
+    """Licence block from a national CKAN portal of `CKAN_PORTALS`; None if not one or it fails."""
+    portal = CKAN_PORTALS.get(catalog_id or "")
+    if portal is None:
+        return None
+    api, page = portal
+    ref = CKAN_SUFFIX.sub("", dataset_id)
+    try:
+        resp = client.get(api, params={"id": ref})
+        resp.raise_for_status()
+        result = resp.json().get("result") or {}
+    except (httpx.HTTPError, ValueError, AttributeError) as e:
+        say(f"data-europa: {catalog_id} dataset {ref}: {type(e).__name__}: {e}")
+        return None
+    lid = base.spdx(str(result.get("license_id") or ""))
+    if lid == "unknown":
+        lid = base.spdx(str(result.get("license_title") or ""))
+    if lid == "unknown" or not result.get("name"):
+        return base.licence_block("unknown", None, None)
+    url = result.get("license_url")
+    return base.licence_block(lid, url if isinstance(url, str) and url.startswith("http") else None,
+                              page.format(name=result["name"]))
 
 
 def _first(value: Any) -> str | None:
@@ -370,7 +404,9 @@ class DataEuropa:
         subdomains = [subdomain]
         licence = _licence(dataset, landing)
         if licence["id"] == "unknown":
-            licence = dane_gov_pl_licence(str(did), ctx.client, ctx.say) or licence
+            catalog = (dataset.get("catalog") or {}).get("id")
+            licence = (dane_gov_pl_licence(str(did), ctx.client, ctx.say)
+                       or ckan_licence(catalog, str(did), ctx.client, ctx.say) or licence)
         cand = base.candidate(
             self,
             title=str(title),
