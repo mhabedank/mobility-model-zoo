@@ -23,6 +23,14 @@ Rules:
 6. When unsure between `same` and a "more specific" label, choose the "more specific" label. When unsure between a "more specific" label and `different`, choose `different`.
 7. Very short or generic quotes ("It's too expensive.") are judged as they stand. Do not fill in what they might refer to; a generic quote can be the more general side of a pair.
 
+Common errors (added for the re-pilot, from disagreements on the dev split):
+
+8. **A shared topic or mood is not the same need.** Two quotes about the same project, place, mode or feeling are `same` only if they state the same need. "We were listened to" and "the project was fun" share a topic and a positive mood but are `different`.
+9. **Long quotes: judge the core need, not the filler.** Spoken quotes carry hedges, repetitions and side remarks ("like", "you know", "I think"). Find the one need each quote states and compare those. Fillers neither make two quotes `same` nor make them `different`.
+10. **Vague statements are compared literally.** "They had a good time" and "they felt comfortable" are two different statements; do not merge them into a general "it went well". Fragments without a clear need ("sidewalks that are on...") are `different` from everything except an identical fragment.
+11. **A related measure is not a special case.** A quote is more specific only if it states the other quote's need *plus* a narrowing (condition, place, time, group, means). A measure that would help with the other need, a step towards it or a consequence of it is `different` ("rebuild the bridge quickly" and "speed up planning procedures").
+12. **One quote states the other's need and more.** If quote B states quote A's whole need and adds a further point, B is the more specific side (`b_more_specific`), not `same`: one line for A would lose B's additional point.
+
 Pairs of different kinds are never shown to you as pairs: duplicates and the specificity relation stay within one kind.
 
 ## 2. Sets: what belongs together

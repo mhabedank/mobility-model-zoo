@@ -196,6 +196,7 @@ def label(settings: Settings, model_id: str, split: str, limit: int | None = Non
             "benchmark_version": settings.benchmark_version,
             "settings": {"temperature": model.temperature,
                          "structured_output": model.structured_output, "max_retries": retries,
+                         "reasoning_effort": entry.extra.get("reasoning_effort"),
                          "batch_size": int(cluster.get("batch_size", 20))},
             "hashes": manifest_b["hashes"], "prompt_sha256": prompt_sha256(settings),
             "started_at": datetime.now(UTC).isoformat(), "finished_at": None, "cost_eur": 0.0,

@@ -49,7 +49,9 @@ PAIR_TASK = (
 )
 SET_TASK = (
     "Task: group the items below into clusters following section 2 of the guideline. Every item id "
-    "must appear in exactly one cluster. Answer with JSON "
+    "must appear in exactly one cluster. `count` gives the number of items: your clusters together "
+    "list exactly that many ids, each copied exactly as given, none left out, none invented. Check "
+    "this before you answer. Answer with JSON "
     '{"clusters": [{"cluster_id": "c1", "members": ["..."]}], "coarse": null} or, when several '
     'clusters clearly serve one broader goal, with "coarse": [{"group_id": "g1", "clusters": '
     '["c1", "c2"]}] in which every cluster id appears exactly once.'
@@ -72,7 +74,8 @@ def pair_message(pairs: list[dict[str, Any]], pool: dict[str, dict[str, Any]]) -
 
 def set_message(item_ids: list[str], pool: dict[str, dict[str, Any]]) -> str:
     body = [{"id": i, "kind": pool[i]["kind"], "quote": pool[i]["quote"]} for i in item_ids]
-    return SET_TASK + "\n\n" + json.dumps({"items": body}, ensure_ascii=False, indent=1)
+    return SET_TASK + "\n\n" + json.dumps({"count": len(body), "items": body}, ensure_ascii=False,
+                                           indent=1)
 
 
 def _sha(text: str) -> str:

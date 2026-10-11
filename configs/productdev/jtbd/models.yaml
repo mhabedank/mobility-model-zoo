@@ -19,7 +19,9 @@ models:
     role: reference
     benchmark_labeler: true
     provider_order: [openai]
-    reasoning_effort: low
+    # low in the pilot and the first cluster-v1 runs (see this file's git history); medium from the
+    # cluster-v1 re-pilot on (owner decision 2026-10-11: at low it lost track of ids in 40-item sets)
+    reasoning_effort: medium
     temperature: null                   # GPT-5 models take no temperature (smoke test T058, 2026-10-06)
   # The two entries above are also the references of the cluster benchmark cluster-v1 (feature 009),
   # under decision D-cluster-v1-references (C-P4 waived for that benchmark only).

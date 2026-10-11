@@ -147,6 +147,37 @@ pairs:
     b: "The bus is very reliable."
     label: different
     why: "Opposite statements (rule 4)."
+  # --- Common errors (rules 8-12, added for the re-pilot; fictional, modelled on dev disagreements)
+  - lang: en
+    kind: gain
+    a: "Yeah, I think, like, the best thing was that the teachers actually listened to what we said, you know?"
+    b: "It was really fun to plan the bike day together with the other classes."
+    label: different
+    why: "Same project and positive mood, but being listened to and having fun are separate gains (rule 8)."
+  - lang: en
+    kind: gain
+    a: "Yeah, I think, like, the best thing was that the teachers actually listened to what we said, you know?"
+    b: "For once the adults took our ideas seriously."
+    label: same
+    why: "The same gain, being heard by the adults; the fillers in A do not matter (rule 9)."
+  - lang: de
+    kind: gain
+    a: "Die Kinder hatten viel Spaß."
+    b: "Die Kinder haben sich sicher gefühlt."
+    label: different
+    why: "Fun and feeling safe are two different statements (rule 10)."
+  - lang: de
+    kind: job
+    a: "Die gesperrte Brücke muss schnell wieder aufgebaut werden."
+    b: "Genehmigungsverfahren für Verkehrsprojekte beschleunigen."
+    label: different
+    why: "Faster approvals would help, but the bridge is not a special case of the procedure (rule 11)."
+  - lang: de
+    kind: pain
+    a: "Der Regionalzug ist morgens überfüllt."
+    b: "Der Regionalzug ist morgens überfüllt, und im Winter fällt auch noch oft die Heizung aus."
+    label: b_more_specific
+    why: "B states A's pain and adds a further point, so one line for A would lose something (rule 12)."
 sets:
   - id: example-set-commute
     items:
