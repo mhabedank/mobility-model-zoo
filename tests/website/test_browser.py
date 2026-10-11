@@ -40,3 +40,29 @@ def test_injected_faults_are_found(built):
     ids = {f[0] for f in run(built)}
     assert {"P2", "A3", "A4"} <= ids
     assert "A1" in ids  # the muted-on-highlight pair fails contrast in dark mode (research R9)
+
+
+def test_a2_field_table_on_the_format_page_and_link_on_the_model_page(built):
+    """Feature 014: the field table moved to the format page; the model page links it."""
+    from site_fixture import MODEL
+
+    fmt = built.out / "formats" / "jtbd-span-v1" / "index.html"
+    fmt.write_text(fmt.read_text().replace('class="tbl"', 'class="x"'))
+    model = built.out / "models" / MODEL / "index.html"
+    model.write_text(model.read_text().replace('/formats/jtbd-span-v1/"', '/elsewhere/"'))
+    found = [f for f in run(built) if f[0] == "A2"]
+    assert any(f[1].startswith("formats/") and "field table" in f[2] for f in found)
+    assert any(f[1].startswith("models/") and "output format" in f[2] for f in found)
+
+
+def test_d6_placement_of_the_layers(built):
+    """Feature 014, SC-001 to SC-003: figures within 2 screens, limits within 4, terms on top."""
+    from site_fixture import MODEL
+
+    assert [f for f in run(built) if f[0] == "D6"] == []
+    page = built.out / "models" / MODEL / "index.html"
+    spacer = '<div style="height:5000px"></div>'
+    page.write_text(page.read_text().replace('<p class="lead">', spacer + '<p class="lead">', 1))
+    found = [f for f in run(built) if f[0] == "D6"]
+    assert any("first quality figure" in f[2] for f in found)
+    assert any("limits layer" in f[2] for f in found)

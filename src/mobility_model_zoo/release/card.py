@@ -25,16 +25,18 @@ GROUND_TRUTH = (
 )
 
 REPO_URL = "https://github.com/mhabedank/mobility-model-zoo"
+# Feature 014: the order of the website layers (overview, quality and speed, limits, how to run,
+# reference, details); specs/014-model-page-layout/contracts/card-order.md.
 SECTIONS = (
     "Summary",
-    "Intended use",
-    "Out-of-scope use",
-    "Input and output",
-    "How to run it",
-    "Examples",
     "Quality",
     "Speed and memory",
     "Limitations and risks",
+    "Intended use",
+    "Out-of-scope use",
+    "How to run it",
+    "Input and output",
+    "Examples",
     "Training data provenance",
     "Training recipe",
     "Version history",
@@ -60,6 +62,60 @@ BANNERS = {
     ),
     "released": ("Released.", "The output format is stable within this major version."),
 }
+# One sentence per release status, shared by the card and the website (feature 014, research R4).
+STATUS_SENTENCES = {
+    "experimental": "Experimental: not ready for production use.",
+    "released": "Released: meets the success criteria and budgets of its task.",
+}
+OPS = {"<=": "≤", ">=": "≥", "<": "<", ">": ">", "=": "="}
+
+
+def status_sentence(status: str) -> str:
+    return STATUS_SENTENCES.get(status, "")
+
+
+PLACEHOLDER = re.compile(r"\{metric:(quality|performance)\.([a-z0-9_]+)\}")
+
+
+def short_forms(
+    model: dict[str, Any], record: dict[str, Any], quality: dict[str, Any], performance: dict[str, Any]
+) -> dict[str, Any]:
+    """The card's short forms (feature 014): "Not for" under the summary; status sentence, unmet
+    criteria and short limits at the top of "Limitations and risks". Absent in model.yaml of older
+    tags, so every block may be empty."""
+    card = model.get("card") or {}
+    values = {("quality", m["name"]): m for m in quality.get("metrics", [])}
+    values.update({("performance", m["name"]): m for m in performance.get("metrics", [])})
+
+    def value(kind: str, metric_name: str) -> str:
+        m = values.get((kind, metric_name))
+        if m is None:
+            return f"(metric {kind}.{metric_name} missing)"
+        unit = m.get("unit") or ""
+        return f"{num(m['value'])} {unit}".strip()
+
+    def fill_in(text: str) -> str:
+        return PLACEHOLDER.sub(lambda g: value(g[1], g[2]), text)
+
+    unmet = []
+    for item in card.get("unmet_criteria") or []:
+        target = item.get("target")
+        aim = ""
+        if target:
+            unit = f" {target['unit']}" if target["unit"] else ""
+            aim = f" (target {OPS[target['op']]} {num(target['value'])}{unit})"
+        found = [value(k, n) for k, n in PLACEHOLDER.findall(item.get("measured", ""))]
+        note = item.get("note")
+        if found:
+            unmet.append(f"**{item['criterion']}**: {found[0]}{aim}" + (f"; {note}" if note else ""))
+        else:
+            unmet.append(f"**{item['criterion']}**: {note}{aim}")
+    return {
+        "status_sentence": status_sentence(record.get("status", "")),
+        "not_for": [fill_in(t) for t in card.get("not_for") or []],
+        "limits_short": [fill_in(t) for t in card.get("limits_short") or []],
+        "unmet": unmet,
+    }
 
 
 def num(value: Any) -> str:
@@ -412,6 +468,7 @@ def render(inp: CardInput) -> str:
         ],
         quality=quality,
         performance=performance,
+        short=short_forms(model, record, quality, performance),
         mcu=mcu,
         device_usage=fill(
             model["card"].get("device_usage", ""), model["repos"]["public"], f"v{version}", ""

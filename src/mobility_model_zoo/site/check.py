@@ -19,7 +19,7 @@ from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
 from mobility_model_zoo.site import og
-from mobility_model_zoo.site.facts import NUMBER, literal_numbers
+from mobility_model_zoo.site.facts import NUMBER, literal_numbers, target_key
 
 PREFIX = "/mobility-model-zoo/"
 RESOURCE_ATTRS = {
@@ -156,8 +156,16 @@ def check_facts(reg: Registry, out: Path) -> Iterable[Finding]:
             yield Finding("F1", row["page"], f"{row['key']}: source {row['source']} does not exist")
             continue
         if row["source"] not in cache:
-            data = json.loads(source.read_text(encoding="utf-8"))
-            cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
+            if source.name == "model.yaml":  # targets of unmet criteria (feature 014)
+                items = ((load_yaml(source) or {}).get("card") or {}).get("unmet_criteria") or []
+                cache[row["source"]] = {
+                    target_key(i): it["target"]["value"]
+                    for i, it in enumerate(items)
+                    if it.get("target")
+                }
+            else:
+                data = json.loads(source.read_text(encoding="utf-8"))
+                cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
         values = cache[row["source"]]
         if row["metric"] not in values:
             yield Finding("F1", row["page"], f"{row['key']}: {row['metric']} not in {row['source']}")
@@ -177,6 +185,16 @@ def _prose(pitch: dict) -> Iterable[tuple[str, str]]:
         yield f"differentiators[{i}]", f"{d['title']} {d['text']}"
     for i, c in enumerate(pitch.get("metric_cards", [])):
         yield f"metric_cards[{i}]", " ".join([c["label"], c.get("compare_label", "")])
+
+
+def _card_prose(card: dict) -> Iterable[tuple[str, str]]:
+    for key in ("not_for", "limits_short"):
+        for i, text in enumerate(card.get(key) or []):
+            yield f"{key}[{i}]", text
+    for i, item in enumerate(card.get("unmet_criteria") or []):
+        for field in ("criterion", "note"):
+            if item.get(field):
+                yield f"unmet_criteria[{i}].{field}", item[field]
 
 
 class _TemplateText(HTMLParser):
@@ -215,6 +233,11 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
         for key, text in _prose(load_yaml(path) or {}):
             for n in literal_numbers(text):
                 yield Finding("F2", f"zoo/models/{name}/site.yaml", f"{key}: literal number {n!r}")
+    for name in reg.model_names():  # feature 014: short forms of the card
+        card = reg.model_raw(name).get("card") or {}
+        for key, text in _card_prose(card):
+            for n in literal_numbers(text):
+                yield Finding("F2", f"zoo/models/{name}/model.yaml", f"card.{key}: literal number {n!r}")
     from importlib import resources
 
     base = resources.files("mobility_model_zoo.site").joinpath("templates")
@@ -575,7 +598,7 @@ def run_checks(
     offline: bool = False,
     say: Callable[[str], None] = print,
 ) -> list[Finding]:
-    from mobility_model_zoo.site import context
+    from mobility_model_zoo.site import context, depth
 
     if not (out / "index.html").exists():
         raise GateFailed([f"no site in {out}; run zoo site build first"])
@@ -595,6 +618,13 @@ def run_checks(
         ("O2", lambda: check_og_layout(out)),
         ("O4", lambda: check_og_parity(reg, out)),
         ("O5", lambda: check_og_hash(reg, out)),
+        ("D4", lambda: depth.check_overview(reg, out)),
+        ("D3", lambda: depth.check_quality(reg, out)),
+        ("D1", lambda: depth.check_short_forms(reg)),
+        ("D3", lambda: depth.check_limits(reg, out)),
+        ("D3", lambda: depth.check_code_order(reg, out)),
+        ("D5", lambda: depth.check_order(reg, out)),
+        ("D2", lambda: depth.check_words_before_quality(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

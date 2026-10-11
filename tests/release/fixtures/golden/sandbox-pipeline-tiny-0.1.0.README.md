@@ -41,6 +41,29 @@ A tiny deterministic test model. It exists only to test the release pipeline and
 
 `sandbox-pipeline-tiny` belongs to the topic **Pipeline tests** (`sandbox`), task `pipeline`, variant `tiny`.
 
+## Quality
+
+These numbers are agreement with none (synthetic test numbers); they are not measured against human ground truth. Benchmark: `synthetic`. **Synthetic test numbers.**
+
+| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
+|--------|-------|------------------|-----------|-----------|-------|------|
+| `item_f1` | 0.5 | Synthetic item matching F1 (test number) | none (synthetic) | synthetic | 3 | 2026-10-01 |
+
+## Speed and memory
+
+Budget: 1 GB RAM, no GPU. Measured on: GitHub-hosted ubuntu-latest runner, CPU. **Synthetic test numbers.**
+
+| Metric | Value | Unit | What it measures | Hardware | Items | Date |
+|--------|-------|------|------------------|----------|-------|------|
+| `seconds_per_text` | 0.01 | s | Synthetic time per example text (test number) | GitHub-hosted ubuntu-latest runner, CPU | 3 | 2026-10-01 |
+| `peak_memory_mb` | 300 | MB | Synthetic peak memory (test number) | GitHub-hosted ubuntu-latest runner, CPU | 3 | 2026-10-01 |
+
+## Limitations and risks
+
+**Experimental: not ready for production use.**
+
+Random weights. The outputs are deterministic but meaningless.
+
 ## Intended use
 
 Testing the release pipeline of the mobility model zoo.
@@ -48,10 +71,6 @@ Testing the release pipeline of the mobility model zoo.
 ## Out-of-scope use
 
 Any real use. The model has random weights and its outputs mean nothing.
-
-## Input and output
-
-Input: a text. Output: JSON with one item per sentence (`kind`, `quote`, `score`).
 
 ## How to run it
 
@@ -71,6 +90,10 @@ print(json.dumps(model.predict("Der Bus fährt nur zweimal am Tag. Für den Weg 
 ```
 
 The tag `v0.1.0` always points to this version. For strict reproducibility, pin the commit hash of that tag instead (`revision="<commit>"`).
+
+## Input and output
+
+Input: a text. Output: JSON with one item per sentence (`kind`, `quote`, `score`).
 
 ## Examples
 
@@ -115,27 +138,6 @@ Output:
 ```json
 {"items": [], "run": "07389382"}
 ```
-
-## Quality
-
-These numbers are agreement with none (synthetic test numbers); they are not measured against human ground truth. Benchmark: `synthetic`. **Synthetic test numbers.**
-
-| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
-|--------|-------|------------------|-----------|-----------|-------|------|
-| `item_f1` | 0.5 | Synthetic item matching F1 (test number) | none (synthetic) | synthetic | 3 | 2026-10-01 |
-
-## Speed and memory
-
-Budget: 1 GB RAM, no GPU. Measured on: GitHub-hosted ubuntu-latest runner, CPU. **Synthetic test numbers.**
-
-| Metric | Value | Unit | What it measures | Hardware | Items | Date |
-|--------|-------|------|------------------|----------|-------|------|
-| `seconds_per_text` | 0.01 | s | Synthetic time per example text (test number) | GitHub-hosted ubuntu-latest runner, CPU | 3 | 2026-10-01 |
-| `peak_memory_mb` | 300 | MB | Synthetic peak memory (test number) | GitHub-hosted ubuntu-latest runner, CPU | 3 | 2026-10-01 |
-
-## Limitations and risks
-
-Random weights. The outputs are deterministic but meaningless.
 
 ## Training data provenance
 

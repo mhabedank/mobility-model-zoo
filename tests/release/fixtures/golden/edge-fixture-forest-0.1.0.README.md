@@ -42,6 +42,30 @@ A tiny deterministic random forest exported to C. It exists only to test the rel
 
 `edge-fixture-forest` belongs to the topic **Pipeline tests** (`sandbox`), task `pipeline`, variant `forest`. Trained from scratch.
 
+## Quality
+
+Quality is measured against the labels of the datasets named below, on test data not used for training. Reference: synthetic labels (test numbers). Benchmark: `synthetic`. **Synthetic test numbers.**
+
+| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
+|--------|-------|------------------|-----------|-----------|-------|------|
+| `int8_accuracy` | 0.5 | Synthetic share of correct classes (test number) | synthetic labels | synthetic | 3 | 2026-10-08 |
+
+## Speed and memory
+
+Budget: 16 KB RAM, 64 KB flash on ESP32-S3. **Synthetic test numbers.**
+
+| Metric | Value | Unit | What it measures | Measured on | Items | Date |
+|--------|-------|------|------------------|-------------|-------|------|
+| `latency_us` | 12 | us | Synthetic median latency (test number) | ESP32 in QEMU, 240 MHz (emulator) | 3 | 2026-10-08 |
+| `flash_kb` | 1.5 | KiB | Synthetic flash (test number) | host simulator (simulator) | None | 2026-10-08 |
+| `ram_kb` | 0.2 | KiB | Synthetic RAM (test number) | host simulator (simulator) | None | 2026-10-08 |
+
+## Limitations and risks
+
+**Experimental: not ready for production use.**
+
+Random weights. The outputs are deterministic but meaningless.
+
 ## Intended use
 
 Testing the release pipeline of the mobility model zoo for microcontroller models.
@@ -49,10 +73,6 @@ Testing the release pipeline of the mobility model zoo for microcontroller model
 ## Out-of-scope use
 
 Any real use. The model has random weights and its outputs mean nothing.
-
-## Input and output
-
-Input: CAN frames in bus order. Output: an attack score per frame and an alarm flag.
 
 ## How to run it
 
@@ -83,6 +103,10 @@ int alarm = picket_forest_process(&ids, ts_us, can_id, dlc, data, &score);
 ```
 
 The tag `v0.1.0` always points to this version. For strict reproducibility, pin the commit hash of that tag instead (`revision="<commit>"`).
+
+## Input and output
+
+Input: CAN frames in bus order. Output: an attack score per frame and an alarm flag.
 
 ## Examples
 
@@ -127,28 +151,6 @@ Source: synthetic (scan attack). 600 CAN frames in bus order; the detector raise
 | 5867 | 0x474 | 8 | 00 68 34 10 00 00 74 20 |
 
 The full example with the expected score of every frame is `examples/03-scan.json` in the repository; the release gate reproduces every score and alarm bit-exactly with the C code of this release.
-
-## Quality
-
-Quality is measured against the labels of the datasets named below, on test data not used for training. Reference: synthetic labels (test numbers). Benchmark: `synthetic`. **Synthetic test numbers.**
-
-| Metric | Value | What it measures | Reference | Benchmark | Items | Date |
-|--------|-------|------------------|-----------|-----------|-------|------|
-| `int8_accuracy` | 0.5 | Synthetic share of correct classes (test number) | synthetic labels | synthetic | 3 | 2026-10-08 |
-
-## Speed and memory
-
-Budget: 16 KB RAM, 64 KB flash on ESP32-S3. **Synthetic test numbers.**
-
-| Metric | Value | Unit | What it measures | Measured on | Items | Date |
-|--------|-------|------|------------------|-------------|-------|------|
-| `latency_us` | 12 | us | Synthetic median latency (test number) | ESP32 in QEMU, 240 MHz (emulator) | 3 | 2026-10-08 |
-| `flash_kb` | 1.5 | KiB | Synthetic flash (test number) | host simulator (simulator) | None | 2026-10-08 |
-| `ram_kb` | 0.2 | KiB | Synthetic RAM (test number) | host simulator (simulator) | None | 2026-10-08 |
-
-## Limitations and risks
-
-Random weights. The outputs are deterministic but meaningless.
 
 ## Training data provenance
 
