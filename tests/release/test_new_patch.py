@@ -89,3 +89,21 @@ def test_new_patch_refuses_an_older_version_and_an_existing_record(zoo_env):
     patch(zoo_env)
     with pytest.raises(UsageError, match="exists already"):
         patch(zoo_env)
+
+
+def test_new_patch_keeps_dates_as_text_in_the_compliance_record(zoo_env):
+    releases = publish_it(zoo_env)
+    path = releases / "0.1.0.compliance.yaml"
+    path.write_text(path.read_text() + "checked_at: '2026-10-11'\n", encoding="utf-8")
+    patch(zoo_env)
+    assert "checked_at: '2026-10-11'" in (releases / "0.1.1.compliance.yaml").read_text()
+
+
+def test_restage_empties_files_so_the_record_is_a_draft(zoo_env):
+    publish_it(zoo_env)
+    ops.new_patch(
+        zoo_env.reg, zoo_env.model, "0.1.0", "0.1.1", COMMIT, "Files change.", lambda line: None, True
+    )
+    new = zoo_env.reg.record_raw(zoo_env.model, "0.1.1")
+    assert new["files"] == [] and new["staging"]["revision"] == ""
+    assert new["staging"]["repo"]  # the repository stays

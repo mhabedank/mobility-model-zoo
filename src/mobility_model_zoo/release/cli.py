@@ -182,9 +182,12 @@ def new_patch_cmd(
     version: str,
     commit: str = typer.Option(..., "--commit", help="git commit of the recipe (the packaging change)"),
     changes: str = typer.Option(..., "--changes", help="what changed, for the version history"),
+    restage: bool = typer.Option(
+        False, "--restage", help="the files change: empty files[] until `zoo stage`"
+    ),
 ) -> None:
     """Start a patch release from a published version: record, results and compliance drafts."""
-    _run(lambda: ops.new_patch(_registry(), model, from_version, version, commit, changes, say))
+    _run(lambda: ops.new_patch(_registry(), model, from_version, version, commit, changes, say, restage))
 
 
 @app.command("check")

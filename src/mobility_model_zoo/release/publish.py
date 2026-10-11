@@ -10,6 +10,7 @@ import copy
 import datetime as dt
 import hashlib
 import json
+import re
 import shutil
 import tempfile
 from collections.abc import Callable
@@ -105,12 +106,20 @@ def _record_template(reg: Registry, name: str, version: str, model: dict[str, An
 
 
 def new_patch(
-    reg: Registry, name: str, from_version: str, version: str, commit: str, changes: str, say: Say
+    reg: Registry,
+    name: str,
+    from_version: str,
+    version: str,
+    commit: str,
+    changes: str,
+    say: Say,
+    restage: bool = False,
 ) -> Path:
     """Start a patch release of a published version (feature 013).
 
-    The new record is the old one with a new version, date, change text and recipe commit; files
-    and staging stay those of the old version until `zoo stage` replaces them. The results of the
+    The new record is the old one with a new version, date, change text and recipe commit. Files and
+    staging stay those of the old version (a card-only patch), or, with `restage`, are emptied so
+    that the record counts as a draft until `zoo stage` uploads the new files. The results of the
     old version are copied (a patch does not change what was measured), and the compliance drafts
     (AI Act classification, training data summary, compliance record) are copied with the version
     renamed and the owner's sign-off reset: `zoo compliance scan-publish` and `signoff` follow."""
@@ -133,6 +142,9 @@ def new_patch(
         deprecated=None,
     )
     record["recipe"]["git_commit"] = commit
+    if restage:
+        record["files"] = []
+        record["staging"]["revision"] = ""
     for key, kind in (("evaluation", "quality"), ("performance", "performance")):
         record[key]["results"] = f"results/{version}/{kind}.json"
     results = reg.model_dir(name) / "results"
@@ -151,12 +163,11 @@ def new_patch(
             text = old.read_text(encoding="utf-8").replace(from_version, version)
             (releases / f"{version}.{suffix}").write_text(text, encoding="utf-8")
     compliance = releases / f"{version}.compliance.yaml"
-    if compliance.exists():
-        from mobility_model_zoo.release.registry import dump_yaml, load_yaml
-
-        data = load_yaml(compliance)
-        data.update(state="draft", signed_off_by=None, signed_off_at=None)
-        compliance.write_text(dump_yaml(data), encoding="utf-8")
+    if compliance.exists():  # text edits, so that dates and quoting of the rest stay as they are
+        text = compliance.read_text(encoding="utf-8")
+        for key, value in (("state", "draft"), ("signed_off_by", "null"), ("signed_off_at", "null")):
+            text = re.sub(rf"^{key}:.*$", f"{key}: {value}", text, count=1, flags=re.M)
+        compliance.write_text(text, encoding="utf-8")
     say(f"{path.relative_to(reg.root)} created from {from_version}; results copied")
     say("next: zoo stage (if files changed), zoo compliance scan-publish and signoff, zoo check")
     return path
