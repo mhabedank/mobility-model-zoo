@@ -153,11 +153,20 @@ SPDX_ALIASES = {
 }
 
 
+# Licence pages without a standard id (owner decision D-catalog-licences-2026-10)
+LICENCE_PAGES = {
+    "nap.transportes.gob.es/licencia-datos": "LicenseRef-Spain-MITRAMS-LDA",
+}
+
+
 def spdx(value: str | None) -> str:
     """Best-effort SPDX id from a licence name, id or URL; `unknown` when nothing matches."""
     if not value:
         return "unknown"
     text = str(value).strip()
+    for page, lid in LICENCE_PAGES.items():
+        if page in text.lower():
+            return lid
     m = CC.search(text)
     if m:
         kind, code, version, port = m.group(1).lower(), m.group(2).lower(), m.group(3), m.group(4)
