@@ -218,3 +218,99 @@ def measure(
     for metric in new:
         where = f"{metric['origin']}, {metric['hardware']}"
         say(f"{metric['name']}: {metric['value']} {metric['unit']} ({where})")
+
+
+v2 = typer.Typer(no_args_is_help=True, add_completion=False, help="picket-forest 0.2.0 (calibrated).")
+can_ids.add_typer(v2, name="v2")
+V2_BENCHMARK = "can-ids-v3"
+
+
+@v2.command("export")
+def v2_export(
+    out: Path = typer.Option(
+        None, help="export folder (default $MMZ_DATA/derived/picket-forest/export-v2)"
+    ),
+) -> None:
+    """Train the release model on can-ids-v3; write headers, joblib, C sources, SBOM; C = Python."""
+    import json
+
+    from mobility_model_zoo.datasets import require_training_allowed
+    from mobility_model_zoo.edge.paths import derived_dir
+    from mobility_model_zoo.security.can_ids import calibrated as cal
+    from mobility_model_zoo.security.can_ids import evaluate as ev
+    from mobility_model_zoo.security.can_ids import release_export_v2 as rx
+
+    require_training_allowed("can-train-and-test", model="picket-forest")
+    path = benchmark_dir(V2_BENCHMARK) / "manifest.json"
+    if not path.exists():
+        say(f"benchmark {V2_BENCHMARK} is not frozen")
+        raise typer.Exit(NOT_FROZEN)
+    manifest = json.loads(path.read_text())
+    sources, cache = benchmark_sources(), derived_dir("picket-forest") / "features"
+    by_id = {c["id"]: c for c in manifest["captures"]}
+    table = cal.calibrate(
+        [
+            ev.load_capture(by_id[i], sources, cache)
+            for i in manifest["calibration"]["road"]["road-vehicle"]
+        ]
+    )
+    road_test = [
+        ev.load_capture(c, sources, cache)
+        for c in manifest["captures"]
+        if c["dataset"] == "road" and c["role"] == "test"
+    ]
+    target = out or derived_dir("picket-forest") / "export-v2"
+    config = rx.export(target, manifest, sources, cache, road_test, table)
+    say(
+        json.dumps(
+            {k: config[k] for k in ("frame_threshold", "event", "tree_nodes", "parity_c_vs_python")},
+            default=float,
+        )
+    )
+    say(f"export: {target}")
+
+
+@v2.command("examples")
+def v2_examples(
+    export: Path = typer.Option(None, help="export folder"),
+    out: Path = typer.Option(None, help="examples folder (default zoo/models/picket-forest/examples)"),
+) -> None:
+    """Write the synthetic release examples with expected scores and alarms from the staged C chain."""
+    from mobility_model_zoo.edge.paths import REPO_ROOT, derived_dir
+    from mobility_model_zoo.security.can_ids import release_export_v2 as rx
+
+    src = export or derived_dir("picket-forest") / "export-v2"
+    for p in rx.write_examples(src, out or REPO_ROOT / "zoo" / "models" / "picket-forest" / "examples"):
+        say(str(p))
+
+
+@v2.command("table")
+def v2_table(
+    log: list[Path] = typer.Argument(..., help="candump logs of benign traffic of your vehicle"),
+    out: Path = typer.Option(Path("picket_forest_table.h"), help="header to write"),
+    minutes: float = typer.Option(None, help="use at most this many minutes"),
+) -> None:
+    """Calibration table of your vehicle from benign candump logs (cover driving, idle and parked)."""
+    import numpy as np
+
+    from mobility_model_zoo.security.can_ids import calibrated as cal
+    from mobility_model_zoo.security.can_ids import release_export_v2 as rx
+    from mobility_model_zoo.security.can_ids.frames import read_candump
+
+    caps = []
+    for p in log:
+        df = read_candump(p)
+        caps.append(
+            {
+                "ts": df["ts_us"].to_numpy(np.float64) / 1e6,
+                "can_id": df["can_id"].to_numpy(np.uint32),
+                "dlc": df["dlc"].to_numpy(np.uint8),
+                "data": df[[f"b{i}" for i in range(8)]].to_numpy(np.uint8),
+                "y": np.zeros(len(df), np.uint8),
+            }
+        )
+    table = cal.calibrate(caps, max_seconds=None if minutes is None else minutes * 60)
+    rx.table_header(table, out, ", ".join(p.name for p in log))
+    say(f"{out}: {len(table.known)} IDs, {table.seconds / 60:.1f} min")
+    if table.seconds < 3600:
+        say("warning: less than 60 min of calibration; false alarms rise sharply with short calibration")

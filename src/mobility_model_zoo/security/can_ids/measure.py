@@ -33,6 +33,18 @@ from mobility_model_zoo.security.can_ids.synth import generate
 PIO_DIR = REPO_ROOT / "firmware" / "picket-forest" / "platformio"
 SKETCH_SRC = REPO_ROOT / "firmware" / "picket-forest" / "esp8266" / "picket_forest_bench" / "src"
 DETECTOR_OBJECTS = ("picket_forest.c.o", "msml_can_features.c.o", "msml_alarm.c.o")
+DETECTOR_OBJECTS_V2 = ("picket_forest_v2.c.o", "msml_cal.c.o", "msml_alarm.c.o")
+
+
+def _objects(export_dir: Path) -> tuple[str, ...]:
+    return DETECTOR_OBJECTS_V2 if fmt_of(export_dir) == scorer.V2 else DETECTOR_OBJECTS
+
+
+def fmt_of(export_dir: Path) -> str:
+    """Output format of an export folder (0.2.0 exports carry a calibration table header)."""
+    return scorer.V2 if (Path(export_dir) / "picket_forest_table.h").exists() else scorer.V1
+
+
 SUBSTITUTE = "substitute for the reference board ESP32-S3"
 RESULT = re.compile(r"PICKET_FOREST_RESULT (\{.*\})")
 
@@ -40,7 +52,7 @@ RESULT = re.compile(r"PICKET_FOREST_RESULT (\{.*\})")
 def test_vectors(export_dir: Path, n_frames: int = 4000, seed: int = 42) -> tuple[str, dict]:
     """C header with synthetic frames and the expected scores of the host build."""
     df = generate("fabrication", n_frames=n_frames, seed=seed)
-    exe = scorer.build_scorer(export_dir, BUILD_DIR / "picket-forest" / "host")
+    exe = scorer.build_scorer(export_dir, BUILD_DIR / "picket-forest" / "host", fmt=fmt_of(export_dir))
     scores, alarms = scorer.run_scorer(exe, df)
     ts_us = np.rint((df["ts"].to_numpy() - df["ts"].iloc[0]) * 1e6).astype(np.int64)
     rows = []
@@ -85,9 +97,10 @@ def prepare_sketch(export_dir: Path) -> dict:
     if SKETCH_SRC.exists():
         shutil.rmtree(SKETCH_SRC)
     SKETCH_SRC.mkdir(parents=True)
-    for name, path in scorer.SOURCES.items():
+    srcs, headers, _, _ = scorer.layout(fmt_of(export_dir))
+    for name, path in srcs.items():
         shutil.copy(path, SKETCH_SRC / name)
-    for name in scorer.HEADERS:
+    for name in headers:
         shutil.copy(export_dir / name, SKETCH_SRC / name)
     header, meta = test_vectors(export_dir)
     (SKETCH_SRC / "test_vectors.h").write_text(header)
@@ -104,7 +117,7 @@ def pio(*args: str) -> str:
     return res.stdout
 
 
-def object_sizes(env: str) -> dict[str, int]:
+def object_sizes(env: str, objects: tuple[str, ...] = DETECTOR_OBJECTS) -> dict[str, int]:
     """text/data/bss of the detector objects of a PlatformIO build (bytes)."""
     build = BUILD_DIR / "picket-forest" / "pio" / env
     tool = {"esp32": "xtensa-esp32-elf-size", "esp8266": "xtensa-lx106-elf-size"}[env]
@@ -112,8 +125,8 @@ def object_sizes(env: str) -> dict[str, int]:
         (str(p) for p in (Path.home() / ".platformio" / "packages").glob(f"toolchain-*/bin/{tool}")),
         None,
     )
-    objs = [p for name in DETECTOR_OBJECTS for p in build.rglob(name)]
-    if exe is None or len(objs) < len(DETECTOR_OBJECTS):
+    objs = [p for name in objects for p in build.rglob(name)]
+    if exe is None or len(objs) < len(objects):
         raise RuntimeError(f"cannot size the detector objects of {env} ({tool}, {len(objs)} objects)")
     out = subprocess.run([exe, "-t", *map(str, objs)], capture_output=True, text=True, check=True).stdout
     total = out.strip().splitlines()[-1].split()
@@ -158,7 +171,7 @@ def run_qemu(export_dir: Path, port: int = 5565, timeout: float = 180.0) -> dict
         result = _read_result(buf.readline, timeout)
     finally:
         qemu.stop(port)
-    return {"result": result, "sizes": object_sizes("esp32"), "vectors": meta}
+    return {"result": result, "sizes": object_sizes("esp32", _objects(export_dir)), "vectors": meta}
 
 
 def run_board(export_dir: Path, board_id: str, timeout: float = 120.0) -> dict:
@@ -173,12 +186,17 @@ def run_board(export_dir: Path, board_id: str, timeout: float = 120.0) -> dict:
     pio("run", "-d", str(PIO_DIR), "-e", "esp8266", "-t", "upload", "--upload-port", port)
     with serial.Serial(port, 115200, timeout=2) as ser:
         result = _read_result(lambda: ser.readline().decode(errors="replace"), timeout)
-    return {"result": result, "sizes": object_sizes("esp8266"), "vectors": meta, "board": board_id}
+    return {
+        "result": result,
+        "sizes": object_sizes("esp8266", _objects(export_dir)),
+        "vectors": meta,
+        "board": board_id,
+    }
 
 
 def run_host(export_dir: Path, n_frames: int = 200_000) -> dict:
     df = generate("fabrication", n_frames=n_frames, seed=7)
-    exe = scorer.build_scorer(export_dir, BUILD_DIR / "picket-forest" / "host")
+    exe = scorer.build_scorer(export_dir, BUILD_DIR / "picket-forest" / "host", fmt=fmt_of(export_dir))
     t0 = time.perf_counter()
     scorer.run_scorer(exe, df)
     us = (time.perf_counter() - t0) / n_frames * 1e6

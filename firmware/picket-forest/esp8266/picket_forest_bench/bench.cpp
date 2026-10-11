@@ -2,7 +2,27 @@
 
 
 #define TV_STORAGE PROGMEM
+#if __has_include("src/picket_forest_v2.h")
+/* picket-forest 0.2.0: calibrated features, event decision (feature 010) */
+#include "src/picket_forest_v2.h"
+#include "src/picket_forest_config.h"
+typedef picket_forest_v2_t pf_state_t;
+static void pf_init(pf_state_t *p) { picket_forest_v2_init(p); }
+static float pf_threshold(void) { return PICKET_FOREST_THRESHOLD; }
+static int pf_process(pf_state_t *p, int64_t ts, uint32_t id, uint8_t dlc, const uint8_t *d, float *s)
+{
+    return picket_forest_v2_process(p, ts, id, dlc, d, s, NULL);
+}
+#else
 #include "src/picket_forest.h"
+typedef picket_forest_t pf_state_t;
+static void pf_init(pf_state_t *p) { picket_forest_init(p); }
+static float pf_threshold(void) { return picket_forest_threshold(); }
+static int pf_process(pf_state_t *p, int64_t ts, uint32_t id, uint8_t dlc, const uint8_t *d, float *s)
+{
+    return picket_forest_process(p, ts, id, dlc, d, s);
+}
+#endif
 #include "src/test_vectors.h"
 
 #ifndef PF_TARGET
@@ -13,15 +33,15 @@
 #define TV_EXPECTED_ALARMS (-1) /* test vectors generated without the alarm stage */
 #endif
 
-static picket_forest_t s_ids;
+static pf_state_t s_ids;
 static uint32_t s_cycles[TV_N_FRAMES];
 static int s_mismatches, s_detected, s_attacks, s_alarms;
 static uint32_t s_sum;
 
 static void run_once()
 {
-    picket_forest_init(&s_ids);
-    const float thr = picket_forest_threshold();
+    pf_init(&s_ids);
+    const float thr = pf_threshold();
     s_mismatches = s_detected = s_attacks = s_alarms = 0;
     for (int i = 0; i < TV_N_FRAMES; i++) {
         tv_frame_t f;
@@ -30,7 +50,7 @@ static void run_once()
         memcpy_P(&expected, &tv_expected_score[i], sizeof(expected));
         float s;
         uint32_t t0 = ESP.getCycleCount();
-        s_alarms += picket_forest_process(&s_ids, f.ts_us, f.can_id, f.dlc, f.data, &s);
+        s_alarms += pf_process(&s_ids, f.ts_us, f.can_id, f.dlc, f.data, &s);
         s_cycles[i] = ESP.getCycleCount() - t0;
         s_mismatches += (s != expected);
         s_attacks += f.label;
