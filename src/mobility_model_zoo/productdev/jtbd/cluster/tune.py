@@ -42,7 +42,7 @@ from mobility_model_zoo.productdev.jtbd.cluster.specificity import NLI, CachedNL
 from mobility_model_zoo.productdev.jtbd.cluster.stage import ClusterStage, load_stage_settings
 from mobility_model_zoo.productdev.jtbd.config import Settings
 from mobility_model_zoo.productdev.jtbd.errors import UsageError, ValidationFailed
-from mobility_model_zoo.productdev.jtbd.jsonio import read_jsonl
+from mobility_model_zoo.productdev.jtbd.jsonio import read_json, read_jsonl
 
 GRID = tuple(round(0.80 + 0.01 * i, 2) for i in range(16))
 SPEC_GRID = tuple((round(0.65 + 0.05 * i, 2), round(0.6 + 0.1 * j, 1))
@@ -126,6 +126,20 @@ def choose_cluster(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     return max(scored, key=lambda r: (r["bcubed_f1"], r["level_1"])) if scored else None
 
 
+def dev_reference_sets(settings: Settings) -> dict[str, dict[str, dict]]:
+    """Set answers of the dev runs the development consensus came from (`agreement-dev.json`),
+    which may predate a guideline revision for the re-pilot."""
+    from mobility_model_zoo.productdev.jtbd.cluster.label import runs_dir
+
+    agreement = read_json(analysis_dir(settings) / "agreement-dev.json")
+    out = {}
+    for name in agreement["runs"]:
+        path = runs_dir(settings) / name
+        out[read_json(path / "manifest.json")["model_id"]] = {
+            r["set_id"]: r for r in read_jsonl(path / "sets.jsonl")}
+    return out
+
+
 def tracked_decision(settings: Settings) -> Path | None:
     path = bench.manifest_path(settings).parent / "decision.json"
     return path if path.exists() else None
@@ -135,8 +149,6 @@ def tune(settings: Settings, settings_path: Path, split: str, out: Path | None =
          encoder: Encoder | None = None, nli: NLI | None = None) -> dict[str, Any]:
     if split != "dev":
         raise UsageError("thresholds are tuned on the development split only (--split dev)")
-    from mobility_model_zoo.productdev.jtbd.cluster.label import reference_runs
-
     stage_settings, digest = load_stage_settings(settings_path)
     rows_dev = read_jsonl(analysis_dir(settings) / "consensus-dev.jsonl")
     consensus = {r["pair_id"]: r["label"] for r in rows_dev}
@@ -183,8 +195,7 @@ def tune(settings: Settings, settings_path: Path, split: str, out: Path | None =
     levels = list(tuned.get("levels") or [])
     if stage.cluster_levels_allowed >= 1 and levels:
         sets = {s["set_id"]: s["items"] for s in bench.load_sets(settings, "dev")}
-        refs = {m: {r["set_id"]: r for r in read_jsonl(path / "sets.jsonl")}
-                for m, path in reference_runs(settings, "dev").items()}
+        refs = dev_reference_sets(settings)
         cluster_rows = cluster_search(run, sets, refs)
         chosen = choose_cluster(cluster_rows)
         record["cluster_grid"] = cluster_rows

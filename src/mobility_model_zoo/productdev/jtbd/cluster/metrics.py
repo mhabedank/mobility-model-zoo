@@ -302,8 +302,12 @@ def run_agreement(settings, split: str) -> dict[str, Any]:
         "statement": f"agreement between {names[0]} and {names[1]} on "
                      f"{settings.benchmark_version} ({split}); not measured against human labels",
     }
-    # The development split serves tuning only; the pilot decides on test (or holdout).
-    write_json(out / ("agreement-dev.json" if split == "dev" else "agreement.json"), result)
+    # The development split serves tuning only; the pilot decides on test (or holdout), and
+    # candidates are scored against the latest test or holdout agreement. Every split also keeps
+    # its own file, so a later agreement never overwrites the one a decision was made on.
+    write_json(out / f"agreement-{split}.json", result)
+    if split != "dev":
+        write_json(out / "agreement.json", result)
     manifest = bench.load_manifest(settings)
     if split != "dev" and manifest and manifest["state"] == "frozen":
         bench.set_state(settings, "piloted", f"agreement on {split}")
