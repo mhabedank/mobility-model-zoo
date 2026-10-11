@@ -1,0 +1,129 @@
+{
+ "meta": {
+  "count": 484,
+  "page": null,
+  "per_page": 3,
+  "next_cursor": null,
+  "cost_usd": 0.001
+ },
+ "results": [
+  {
+   "id": "https://openalex.org/W844043465",
+   "doi": "https://doi.org/10.5821/ebook-9788498803204",
+   "display_name": "Transporte marítimo y ferrocarril",
+   "language": "es",
+   "publication_date": "2003-01-01",
+   "primary_location": {
+    "landing_page_url": "https://doi.org/10.5821/ebook-9788498803204",
+    "pdf_url": null,
+    "license": "public-domain",
+    "is_oa": false,
+    "source": {
+     "id": "https://openalex.org/S4306469285",
+     "display_name": "Edicions UPC eBooks",
+     "host_organization_name": null
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "https://upcommons.upc.edu/bitstreams/a5a08e77-59d8-4d4f-9778-0ac79c72d96f/download",
+    "pdf_url": null,
+    "license": "cc-by-nc-nd",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4306400303",
+     "display_name": "Repositori UJI (Universitat Jaume I)",
+     "host_organization_name": "Universitat Jaume I"
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": []
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/W4379135372",
+   "doi": "https://doi.org/10.25062/0120-0631.4484",
+   "display_name": "El ferrocarril del Atlántico",
+   "language": "es",
+   "publication_date": "1961-08-31",
+   "primary_location": {
+    "landing_page_url": "http://dx.doi.org/10.25062/0120-0631.4484",
+    "pdf_url": "https://esdegrevistas.edu.co/index.php/refa/article/download/4484/4746",
+    "license": "cc-by-nc-nd",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4387288890",
+     "display_name": "Revista de las Fuerzas Armadas",
+     "host_organization_name": "Escuela Superior de Guerra"
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "http://dx.doi.org/10.25062/0120-0631.4484",
+    "pdf_url": "https://esdegrevistas.edu.co/index.php/refa/article/download/4484/4746",
+    "license": "cc-by-nc-nd",
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4387288890",
+     "display_name": "Revista de las Fuerzas Armadas",
+     "host_organization_name": "Escuela Superior de Guerra"
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": []
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/W1731779973",
+   "doi": "https://doi.org/10.17811/er.0.1994.241-247",
+   "display_name": "Ferrocarril y territorio: el centenario del ferrocarril de La Robla",
+   "language": "es",
+   "publication_date": "1994-01-01",
+   "primary_location": {
+    "landing_page_url": "https://reunido.uniovi.es/index.php/RCG/article/view/1181",
+    "pdf_url": null,
+    "license": null,
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210200692",
+     "display_name": "Ería",
+     "host_organization_name": "University of Oviedo"
+    }
+   },
+   "best_oa_location": {
+    "landing_page_url": "https://reunido.uniovi.es/index.php/RCG/article/view/1181",
+    "pdf_url": null,
+    "license": null,
+    "is_oa": true,
+    "source": {
+     "id": "https://openalex.org/S4210200692",
+     "display_name": "Ería",
+     "host_organization_name": "University of Oviedo"
+    }
+   },
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "display_name": "Author A"
+     },
+     "institutions": [
+      {
+       "country_code": "ES"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

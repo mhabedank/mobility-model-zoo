@@ -335,7 +335,7 @@ def _ext_for(content_type: str, url: str) -> str:
 def _compliance_lists(settings: Settings):
     from mobility_model_zoo.compliance.hashing import url_hasher
     from mobility_model_zoo.compliance.register import Register
-    from mobility_model_zoo.compliance.signals import Lists
+    from mobility_model_zoo.compliance.signals import Lists, reservation_labels
 
     reg = Register.load(settings.base)
     hasher = url_hasher()
@@ -345,6 +345,7 @@ def _compliance_lists(settings: Settings):
         denylist=(reg.lists("denylist") or {}).get("domains", []),
         piracy=(reg.lists("piracy-domains") or {}).get("domains", []),
         suppressed_url_hashes=suppressed,
+        reservation_labels=reservation_labels(reg.lists("ai-preferences")),
     )
     if suppressed and hasher is None:
         raise UsageError("the suppression list is not empty but MMZ_SUPPRESSION_KEY is not set")

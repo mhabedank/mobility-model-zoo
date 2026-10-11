@@ -87,27 +87,37 @@ def zoo_repo_root() -> Path | None:
     return root if (root / "zoo" / "topics.yaml").is_file() else None
 
 
+def _is_zoo_checkout(path: Path) -> bool:
+    return (path / "zoo" / "topics.yaml").is_file() and (path / "src" / "mobility_model_zoo").is_dir()
+
+
 def inside_zoo_repo(path: Path) -> bool:
-    root = zoo_repo_root()
-    if root is None:
-        return False
+    """True for any path in a checkout of the public zoo repository (including worktrees in it)."""
     path = path.resolve()
-    return path == root or root in path.parents
+    return any(_is_zoo_checkout(p) for p in (path, *path.parents))
+
+
+def compliance_list(name: str, zoo_root: Path | None = None) -> Any:
+    """A file of compliance/lists: the zoo checkout's copy if given, else the package data (wheel),
+    else the repository this package runs from (editable install). None if it exists nowhere."""
+    candidates = []
+    if zoo_root is not None:
+        candidates.append(zoo_root / "compliance" / "lists" / f"{name}.yaml")
+    candidates.append(DATA_DIR / "lists" / f"{name}.yaml")
+    repo = zoo_repo_root()
+    if repo is not None:
+        candidates.append(repo / "compliance" / "lists" / f"{name}.yaml")
+    for path in candidates:
+        if path.is_file():
+            return read_yaml(path)
+    return None
 
 
 def licence_allowlist(zoo_root: Path | None = None) -> list[dict[str, Any]]:
-    """The licence allow-list: the zoo checkout's copy if given or found, else the package data."""
-    candidates = []
-    if zoo_root is not None:
-        candidates.append(zoo_root / "compliance" / "lists" / "licence-allowlist.yaml")
-    candidates.append(DATA_DIR / "licence-allowlist.yaml")
-    repo = zoo_repo_root()
-    if repo is not None:
-        candidates.append(repo / "compliance" / "lists" / "licence-allowlist.yaml")
-    for path in candidates:
-        if path.is_file():
-            return read_yaml(path)["licences"]
-    raise CredentialError("licence allow-list not found (package data missing; pass --zoo-root)")
+    data = compliance_list("licence-allowlist", zoo_root)
+    if data is None:
+        raise CredentialError("licence allow-list not found (package data missing; pass --zoo-root)")
+    return data["licences"]
 
 
 # ---- vocabularies --------------------------------------------------------------------------------

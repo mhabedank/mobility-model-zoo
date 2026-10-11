@@ -837,22 +837,6 @@
       "if": {
         "properties": {
           "level": {
-            "const": "item"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "parent": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "level": {
             "const": "collection"
           }
         }

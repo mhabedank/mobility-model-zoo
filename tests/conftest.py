@@ -43,3 +43,30 @@ def register_tree(tmp_path):
     from compliance_helpers import make_register_tree
 
     return make_register_tree(tmp_path)
+
+
+# ---- feature 009: synthetic fixture catalogs (copies, so tests may write) ----------------------
+
+CATALOG_FIXTURES = Path(__file__).resolve().parent / "fixtures"
+
+
+@pytest.fixture
+def catalog_dir(tmp_path: Path, monkeypatch) -> Path:
+    """A writable copy of tests/fixtures/catalog."""
+    import shutil
+
+    monkeypatch.delenv("MMZ_CATALOG", raising=False)
+    target = tmp_path / "catalog"
+    shutil.copytree(CATALOG_FIXTURES / "catalog", target)
+    return target
+
+
+@pytest.fixture
+def invalid_dir(tmp_path: Path, monkeypatch) -> Path:
+    """A writable copy of tests/fixtures/catalog-invalid."""
+    import shutil
+
+    monkeypatch.delenv("MMZ_CATALOG", raising=False)
+    target = tmp_path / "catalog-invalid"
+    shutil.copytree(CATALOG_FIXTURES / "catalog-invalid", target)
+    return target

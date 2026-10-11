@@ -103,6 +103,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "tests/catalog/*",
             "tests/fixtures/catalog/*",
             "tests/fixtures/catalog-invalid/*",
+            "tests/fixtures/catalog-http/*",
             ".claude/skills/catalog-discover/*",
         ),
     ),

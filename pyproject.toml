@@ -100,10 +100,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/mobility_model_zoo"]
 
-# The catalog's offline checks need the licence allow-list without a checkout of this repository
-# (catalog repository CI, feature 009 analysis I1).
+# The catalog's checks need the compliance lists (licence allow-list, AI agents, deny lists, AI
+# preference labels) without a checkout of this repository (catalog repository CI, feature 009).
 [tool.hatch.build.targets.wheel.force-include]
-"compliance/lists/licence-allowlist.yaml" = "mobility_model_zoo/catalog/data/licence-allowlist.yaml"
+"compliance/lists" = "mobility_model_zoo/catalog/data/lists"
 
 # CPU-only torch on Linux (CI runners, the reference VM); macOS wheels are CPU/MPS anyway.
 [[tool.uv.index]]

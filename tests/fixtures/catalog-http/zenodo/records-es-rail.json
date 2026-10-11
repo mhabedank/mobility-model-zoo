@@ -1,0 +1,140 @@
+{
+ "hits": {
+  "total": 4,
+  "hits": [
+   {
+    "id": 17553920,
+    "doi": "10.5281/zenodo.17553920",
+    "links": {
+     "self_html": "https://zenodo.org/records/17553920"
+    },
+    "metadata": {
+     "title": "Conjunto de notas de leitura de processos relativos à ação de construção de \"Construcción de la Estación de Ferrocarril de Cáceres, 1959-1963\"",
+     "language": "spa",
+     "license": {
+      "id": "cc-by-4.0"
+     },
+     "resource_type": {
+      "title": "Dataset",
+      "type": "dataset"
+     },
+     "access_right": "open",
+     "doi": "10.5281/zenodo.17553920",
+     "creators": [
+      {
+       "name": "Author A",
+       "affiliation": "Centro de Estudos sobre a Mudança Socioeconómica e o Território"
+      }
+     ],
+     "description": "<p>Recorded abstract, trimmed (must not reach the candidate).</p>"
+    },
+    "files": [
+     {
+      "key": "Arquitectura Aqui 2025-11-07T17_46_44.743Z_Caceres.csv",
+      "size": 47656,
+      "links": {
+       "self": "https://zenodo.org/api/records/17553920/files/Arquitectura%20Aqui%202025-11-07T17_46_44.743Z_Caceres.csv/content"
+      }
+     }
+    ]
+   },
+   {
+    "id": 17229388,
+    "doi": "10.5281/zenodo.17229388",
+    "links": {
+     "self_html": "https://zenodo.org/records/17229388"
+    },
+    "metadata": {
+     "title": "Conformación del Barrio Ferroviario de Riobamba: antecedentes históricos, representación obrera y su inserción en la dinámica de ciudad (1924-1958)",
+     "language": "spa",
+     "resource_type": {
+      "title": "Journal article",
+      "type": "publication",
+      "subtype": "article"
+     },
+     "access_right": "open",
+     "doi": "10.5281/zenodo.17229388",
+     "creators": [
+      {
+       "name": "Author A",
+       "affiliation": "Pontificia Universidad Católica del Ecuador"
+      }
+     ],
+     "description": "<p>Recorded abstract, trimmed (must not reach the candidate).</p>"
+    },
+    "files": [
+     {
+      "key": "092025-032026, vol. 3, nro. 1, e13.pdf",
+      "size": 6134799,
+      "links": {
+       "self": "https://zenodo.org/api/records/17229388/files/092025-032026,%20vol.%203,%20nro.%201,%20e13.pdf/content"
+      }
+     }
+    ]
+   },
+   {
+    "id": 8183787,
+    "doi": "10.5281/zenodo.8183787",
+    "links": {
+     "self_html": "https://zenodo.org/records/8183787"
+    },
+    "metadata": {
+     "title": "FERROCARRIL TACNA ARICA ¿UNA OPORTUNIDAD DESPERDICIADA?",
+     "license": {
+      "id": "cc-by-4.0"
+     },
+     "resource_type": {
+      "title": "Proposal",
+      "type": "publication",
+      "subtype": "proposal"
+     },
+     "access_right": "open",
+     "doi": "10.5281/zenodo.8183787",
+     "creators": [
+      {
+       "name": "Author A"
+      }
+     ],
+     "description": "<p>Recorded abstract, trimmed (must not reach the candidate).</p>"
+    },
+    "files": [
+     {
+      "key": "Artículo FCTA markII-jul-2023.docx",
+      "size": 888086,
+      "links": {
+       "self": "https://zenodo.org/api/records/8183787/files/Art%C3%ADculo%20FCTA%20markII-jul-2023.docx/content"
+      }
+     }
+    ]
+   },
+   {
+    "id": 18869346,
+    "doi": "10.5281/zenodo.18869346",
+    "links": {
+     "self_html": "https://zenodo.org/records/18869346"
+    },
+    "metadata": {
+     "title": "Arquitectura relacional de la ciudad: análisis de redes y visibilidad documental (1800–1939).",
+     "language": "spa",
+     "license": {
+      "id": "cc-by-4.0"
+     },
+     "resource_type": {
+      "title": "Dataset",
+      "type": "dataset"
+     },
+     "access_right": "restricted",
+     "doi": "10.5281/zenodo.18869346",
+     "creators": [
+      {
+       "name": "Author A",
+       "affiliation": "Universidad Internacional De La Rioja"
+      }
+     ],
+     "description": "<p>Recorded abstract, trimmed (must not reach the candidate).</p>"
+    },
+    "files": []
+   }
+  ]
+ }
+}

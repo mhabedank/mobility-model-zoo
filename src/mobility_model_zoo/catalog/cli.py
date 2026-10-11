@@ -156,7 +156,8 @@ def new_cmd(from_file: Path = typer.Option(..., "--from", help="YAML file with o
             print(f.line())
         if new_id is None:
             raise GateFailed(["entry not added"])
-        say(f"added {new_id} as candidate")
+        merged = any(f.message.startswith("merged") for f in findings)
+        say(f"merged into {new_id}" if merged else f"added {new_id} as candidate")
 
     _run(fn)
 

@@ -30,7 +30,7 @@ One resource, either a collection or an item. File name = `id`.
 | `id` | slug `^[a-z0-9][a-z0-9-]{2,79}$` | yes | `dct:identifier` | Never changes (FR-005). |
 | `schema_version` | int | yes | (none) | Currently 1. |
 | `level` | `collection` \| `item` | yes | (none) | FR-002. |
-| `parent` | entry id \| null | yes | `dct:isPartOf` | Only for items; the parent must exist and be a collection. |
+| `parent` | entry id \| null | yes | `dct:isPartOf` | Null for collections. An item has at most one parent (a standalone paper or record has none); a parent must exist and be a collection. |
 | `title.original`, `title.en` | string | yes | `dct:title` | `title.en` may equal `title.original` for English. |
 | `description` | string ≤ 600 chars | should | `dct:description` | In the curator's own words, never copied (FR-032). Harvesters leave it empty; only the discovery agent or the owner writes it. |
 | `languages[]` | `{code, origin}` | yes, ≥ 1 | `dct:language` | `code` is BCP 47 from the vocabulary; `zxx` = not applicable, `und` = unknown. `origin` is one of `original`, `human_translated`, `machine_translated`, `ai_generated`, `unknown` (FR-009). `zxx` and `und` cannot be combined with other codes. |

@@ -20,7 +20,7 @@ Free API keys for the pilot harvesters go in `.env`, as described in `docs/crede
 
 ## 1. Mandatory facts are enforced (US1, FR-005, SC-001)
 
-Run `uv run pytest tests/catalog/test_validate.py`. It uses the fixture catalog
+Run `uv run pytest tests/catalog/test_catalog_validate.py`. It uses the fixture catalog
 `tests/fixtures/catalog/`, which holds 12 entries across all six modalities plus the invalid ones
 below.
 
@@ -33,7 +33,7 @@ Expected:
 
 ## 2. State machine and clearing rules (FR-016, FR-018, R5)
 
-Run `uv run pytest tests/catalog/test_rules.py tests/catalog/test_states.py`.
+Run `uv run pytest tests/catalog/test_catalog_rules.py tests/catalog/test_catalog_states.py`.
 
 Expected:
 - `CC-BY-4.0` with no signals and a free API route ends as `cleared` (rule U3).
@@ -60,7 +60,7 @@ Expected:
 
 ## 4. Ingest and duplicates (US3, FR-019, FR-022)
 
-Run `uv run pytest tests/catalog/test_ingest.py`.
+Run `uv run pytest tests/catalog/test_catalog_ingest.py`.
 
 Expected:
 - A run file with 10 candidates becomes 7 new entries, 2 merged access routes (same DOI, same
@@ -69,7 +69,7 @@ Expected:
 
 ## 5. Fetch list hand-off (US4, FR-028, SC-007 preparation)
 
-Run `uv run pytest tests/catalog/test_fetchlist.py`.
+Run `uv run pytest tests/catalog/test_catalog_fetchlist.py`.
 
 Expected:
 - Only cleared entries become items.

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import os
+import shutil
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -94,9 +94,9 @@ def test_validate_runs_without_a_zoo_checkout(catalog_dir, tmp_path, monkeypatch
     import mobility_model_zoo.catalog.model as model
 
     monkeypatch.chdir(tmp_path)
-    data = model.DATA_DIR / "licence-allowlist.yaml"
+    data = model.DATA_DIR / "lists" / "licence-allowlist.yaml"
     repo_copy = Path(__file__).resolve().parents[2] / "compliance" / "lists" / "licence-allowlist.yaml"
-    created = not data.exists()
+    created = not model.DATA_DIR.exists()
     if created:
         data.parent.mkdir(parents=True, exist_ok=True)
         data.write_text(repo_copy.read_text(encoding="utf-8"), encoding="utf-8")
@@ -111,7 +111,7 @@ def test_validate_runs_without_a_zoo_checkout(catalog_dir, tmp_path, monkeypatch
         assert model.licence_allowlist(zoo) == [{"id": "MIT"}]
     finally:
         if created:
-            os.remove(data)
+            shutil.rmtree(model.DATA_DIR)
 
 
 def test_missing_catalog_exits_5(tmp_path, monkeypatch):
