@@ -82,5 +82,9 @@ usage:
   class: commercial
   licence: Apache-2.0
   restricting_inputs: []
-published: null
+published:
+  repo_commit: 9d5beab03ad2cc57e4cdfca7bcf6a3dd3679144c
+  tag: v0.2.0
+  published_at: 2026-10-11T10:01:07Z
+  card_sha256: a379370dfe316f8da54e18f58ed38992034a2f17608de7de5cb7a92cabd66680
 deprecated: null
