@@ -98,12 +98,13 @@ class CachingTransport(httpx.BaseTransport):
             self.throttle.wait(request.url.host)
             response = self.inner.handle_request(request)
         if cacheable:
-            body = response.read()
+            body = response.read()  # decoded: drop the encoding headers so it is not decoded twice
+            headers = {k: v for k, v in response.headers.items()
+                       if k.lower() not in ("content-encoding", "content-length", "transfer-encoding")}
+            response.close()
             with self.lock:
-                self.cache[key] = (response.status_code, dict(response.headers), body)
-            return httpx.Response(
-                response.status_code, headers=response.headers, content=body, request=request
-            )
+                self.cache[key] = (response.status_code, headers, body)
+            return httpx.Response(response.status_code, headers=headers, content=body, request=request)
         return response
 
 
@@ -342,6 +343,7 @@ def run(
         with ThreadPoolExecutor(max_workers=MAX_HOSTS) as pool:
             for done in pool.map(work, hosts.values()):
                 net.update(dict(done))
+                say(f"network checks: {len(net)}/{len(selected)} entries")
         client.close()
         if not any(reachable for _, _, reachable in net.values()):
             raise HubError("no host was reachable; check the network and run again")

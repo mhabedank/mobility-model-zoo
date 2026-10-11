@@ -143,3 +143,16 @@ def test_429_is_retried_after_retry_after():
     )
     assert client.get("https://api.example.org/x").status_code == 200
     assert 2.0 in slept
+
+
+def test_cached_gzip_robots_is_decoded_once():
+    import gzip
+
+    body = gzip.compress(b"User-agent: *\nDisallow: /private\n")
+
+    def handler(req):
+        return httpx.Response(200, content=body, headers={"content-encoding": "gzip"})
+
+    client = checks.make_client(httpx.MockTransport(handler), checks.Throttle(sleep=lambda s: None))
+    assert client.get("https://gz.example.org/robots.txt").text.startswith("User-agent")
+    assert client.get("https://gz.example.org/robots.txt").text.startswith("User-agent")  # from the cache
