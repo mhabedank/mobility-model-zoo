@@ -1,0 +1,57 @@
+{
+ "kind": "performance",
+ "model": "picket-forest",
+ "version": "0.2.0",
+ "synthetic": false,
+ "source_run": "security can-ids measure",
+ "metrics": [
+  {
+   "name": "latency_us",
+   "value": 185.81,
+   "unit": "us",
+   "description": "whole chain per frame, median",
+   "reference": null,
+   "benchmark": null,
+   "n_items": 4000,
+   "hardware": "ESP8266 (esp8266-1, Wemos D1 mini with CP2102), 160 MHz, substitute for the reference board ESP32-S3",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "latency_p99_us",
+   "value": 210.23,
+   "unit": "us",
+   "description": "whole chain per frame, 99th percentile",
+   "reference": null,
+   "benchmark": null,
+   "n_items": 4000,
+   "hardware": "ESP8266 (esp8266-1, Wemos D1 mini with CP2102), 160 MHz, substitute for the reference board ESP32-S3",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "flash_kb",
+   "value": 18.736,
+   "unit": "KiB",
+   "description": "detector code and constants (features, forest, alarm stage), from the object files",
+   "reference": null,
+   "benchmark": null,
+   "n_items": null,
+   "hardware": "ESP8266 (esp8266-1, Wemos D1 mini with CP2102), 160 MHz, substitute for the reference board ESP32-S3",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  },
+  {
+   "name": "ram_kb",
+   "value": 11.938,
+   "unit": "KiB",
+   "description": "detector static data plus the detector state",
+   "reference": null,
+   "benchmark": null,
+   "n_items": null,
+   "hardware": "ESP8266 (esp8266-1, Wemos D1 mini with CP2102), 160 MHz, substitute for the reference board ESP32-S3",
+   "origin": "real_board",
+   "date": "2026-10-11"
+  }
+ ]
+}

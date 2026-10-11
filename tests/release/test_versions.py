@@ -8,7 +8,7 @@ import json
 import shutil
 
 import pytest
-from conftest import FakeRunner
+from release_env import FakeRunner
 
 from mobility_model_zoo.release import audit
 from mobility_model_zoo.release import publish as ops

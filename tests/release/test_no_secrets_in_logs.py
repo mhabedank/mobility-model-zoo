@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import subprocess
 
-from conftest import FakeRunner
+from release_env import FakeRunner
 from typer.testing import CliRunner
 
 from mobility_model_zoo.release import cli
