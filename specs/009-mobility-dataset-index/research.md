@@ -139,7 +139,10 @@ plus a run header) that `zoo catalog ingest` validates, deduplicates and checks:
    | Zenodo | datasets, reports, papers | `license.id` / `language` | none |
    | Hugging Face Hub | datasets | card `license`, `language` tags | none |
 
-   Later harvesters (no pilot dependency): Transitland, national CKAN portals (for example
+   Harvesters for the scale-up, because harvesters cover images, graphics and audio poorly
+   (SC-003): Wikimedia Commons (images, maps, charts; licence per file in `extmetadata`, no key) and
+   Podcast Index (audio; `podcast:license` and `language`, free key and secret). Later harvesters:
+   Transitland, national CKAN portals (for example
    datos.gob.es, dane.gov.pl, data.go.jp), Podcast Index, YouTube Data API (metadata only; its
    developer policies forbid downloading content through the API), Wikimedia Commons, Eurostat,
    OECD/ITF, World Bank.
@@ -149,6 +152,16 @@ plus a run header) that `zoo catalog ingest` validates, deduplicates and checks:
    tells a Claude Code agent how to search one scope (language × subdomain × modality) and write
    candidates into a run file. The agent never downloads content and records an evidence address
    for every licence statement.
+
+Harvesters never store abstracts or descriptions from the catalogues (FR-032); `description` is
+left empty. They set the judgment fields by documented defaults per harvester and genre
+(`catalog/harvest/defaults.yaml`): `personal_data` (for example GTFS → none, podcast → present:
+voices, names; video hearing → present: voices, faces, names) and `quality` (score 3, rationale
+"harvested from <catalogue>; authority: <kind>; relevance and density not assessed").
+
+OpenAlex bills usage beyond its free daily allowance. The owner's OpenAlex account has no payment
+method, so the free allowance is a hard limit (Resources & Cost Discipline); the harvester also
+stops at 80% of it.
 
 **Rationale**: The 2,000-entry target (SC-002) is reachable cheaply only if most entries come from
 APIs whose licence field is machine-readable, which also helps SC-004. Agents cover modalities and

@@ -116,7 +116,8 @@ accepted entry passes the automated checks.
    identifier, or same title and publisher), **When** it is checked, **Then** it is not added as a
    new entry and the existing entry is referenced.
 3. **Given** a candidate whose site signals a text-and-data-mining opt-out, **When** it is checked,
-   **Then** it is stored with the signal and is not eligible for download for training.
+   **Then** it is stored with the signal and marked not usable, so it is never cleared for download
+   (an Article 4 reservation covers every form of text and data mining, benchmarks included).
 
 ---
 
@@ -237,7 +238,9 @@ base-model support (yes, no, unknown) and share in the current training data.
   reports, laws, transcripts, articles, books, forum threads), audio (podcasts, recorded speeches),
   video (hearings, lectures, talks, documentaries), images (photos, maps), graphics and charts, and
   structured or quantitative data (tables, spreadsheets, databases, object storage buckets, data
-  files in formats such as JSON or XML, APIs, feeds, geodata, time series and sensor data).
+  files in formats such as JSON or XML, APIs, feeds, geodata, time series and sensor data). A
+  resource counts as mobility-related when at least one value of the controlled subdomain
+  vocabulary (FR-007) applies to it; a candidate without one is rejected as out of scope.
 - **FR-004**: The index MUST be shared by all topics of the zoo. Every entry MUST record which
   topics it is relevant to (for example productdev, security, condition-monitoring), and the list
   of topics MUST be extensible without changing existing entries.
@@ -267,8 +270,9 @@ base-model support (yes, no, unknown) and share in the current training data.
 
 **Further facts the index needs**
 
-- **FR-007**: Every entry SHOULD carry descriptive facts: an own short English description;
-  mobility subdomain tags from a controlled vocabulary (for example road, rail, public transport,
+- **FR-007**: Every entry MUST carry at least one mobility subdomain tag (FR-003) and SHOULD carry
+  further descriptive facts: an own short English description; mobility subdomain tags from a
+  controlled vocabulary (for example road, rail, public transport,
   cycling, walking, micromobility, shared mobility, aviation, maritime, freight and logistics,
   electric vehicles and charging, automated driving, vehicle technology, urban and rural planning,
   policy and regulation, safety); time period covered; publication date and date of last update;
@@ -306,8 +310,8 @@ base-model support (yes, no, unknown) and share in the current training data.
 
 **Lifecycle and checks**
 
-- **FR-016**: Every entry MUST have one status: candidate, verified, cleared for fetch, fetched,
-  rejected, retired or withdrawn. Rejected, retired and withdrawn entries MUST remain in the index
+- **FR-016**: Every entry MUST have one status: candidate, verified, cleared for fetch (status
+  value `cleared`), fetched, rejected, retired or withdrawn. Rejected, retired and withdrawn entries MUST remain in the index
   with reason and date so they are not proposed again.
 - **FR-017**: Automated checks MUST run before every status change and on demand: mandatory facts
   present, vocabulary valid, landing page reachable, licence evidence present, opt-out signals
@@ -315,12 +319,13 @@ base-model support (yes, no, unknown) and share in the current training data.
 - **FR-018**: An entry MUST become "cleared for fetch" only when its licence is determined (not
   unknown), its permitted use is training_allowed or benchmark_only, no opt-out signal and no
   platform term forbids the intended use, and it has at least one access route that can be used
-  without payment, request or manual registration. Clearing MUST NOT require manual review by the
+  without payment, request or per-resource registration. A project-wide API key that the owner
+  registered once for a catalogue service counts as usable. Clearing MUST NOT require manual review by the
   owner; cases the rules cannot decide are flagged for an owner decision.
 - **FR-019**: Duplicate detection MUST consider normalised addresses, persistent identifiers (such
   as DOIs) and the combination of title and publisher.
-- **FR-020**: A periodic re-check MUST verify landing page, licence evidence and opt-out signals of
-  every cleared entry. A change MUST revoke the cleared status and be recorded with date and
+- **FR-020**: A periodic, automatically scheduled re-check (at least monthly) MUST verify landing
+  page, licence evidence and opt-out signals of every cleared entry. A change MUST revoke the cleared status and be recorded with date and
   previous value.
 - **FR-021**: An objection from a rights holder or data subject, received through the project's
   existing objection channel, MUST set the entry to "withdrawn" and exclude it from every later
@@ -364,10 +369,13 @@ base-model support (yes, no, unknown) and share in the current training data.
 **Visibility and privacy**
 
 - **FR-031**: The index MUST NOT contain personal data beyond the names of publishers, public
-  bodies and creators where attribution requires them.
+  bodies and creators where attribution requires them. An automated check MUST flag contact data
+  (e-mail addresses, phone numbers) and user handles in titles, descriptions, publisher names and
+  addresses.
 - **FR-032**: The index is internal to the project in this feature. It MUST be built so that it
   can later be published as an open catalogue without rework: own descriptions only, no copied
-  abstracts or content, and every fact traceable to its evidence. Publication itself is a later
+  abstracts or content (harvested abstracts and descriptions are never stored), and every fact
+  traceable to its evidence. Publication itself is a later
   feature with its own release check.
 
 ### Key Entities

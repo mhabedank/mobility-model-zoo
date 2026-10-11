@@ -4,19 +4,92 @@
   "title": "Discovery candidate (one line of runs/<run>.jsonl, feature 009)",
   "description": "A partial entry proposed by a harvester or an agent. `zoo catalog ingest` fills id (if absent), schema_version, provenance.added_by, provenance.added_at, status and checks, then validates the result against entry.schema.json. Unknown facts MUST be given as explicit unknown values (`und`, `unknown`), never omitted.",
   "type": "object",
-  "required": ["level", "title", "languages", "origin_area", "publisher", "landing_url", "resource_type",
-    "topics", "licence", "personal_data", "access", "quality", "provenance"],
+  "required": [
+    "level",
+    "title",
+    "languages",
+    "origin_area",
+    "publisher",
+    "landing_url",
+    "resource_type",
+    "topics",
+    "subdomains",
+    "licence",
+    "personal_data",
+    "access",
+    "quality",
+    "provenance"
+  ],
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"},
-    "parent": {"type": ["string", "null"]},
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+    },
+    "parent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "provenance": {
-      "type": "object", "required": ["method", "evidence"],
+      "type": "object",
+      "required": [
+        "method",
+        "evidence"
+      ],
       "properties": {
-        "method": {"enum": ["search", "citation", "recommendation", "registry", "harvest"]},
-        "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^https?://"}}
+        "method": {
+          "enum": [
+            "search",
+            "citation",
+            "recommendation",
+            "registry",
+            "harvest"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^https?://"
+          }
+        }
       }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 600,
+      "description": "Own words only. Harvesters leave it out (FR-032)."
     }
   },
-  "not": {"anyOf": [{"required": ["status"]}, {"required": ["checks"]}, {"required": ["usage"]},
-    {"required": ["signals"]}, {"required": ["fetched"]}]}
+  "not": {
+    "anyOf": [
+      {
+        "required": [
+          "status"
+        ]
+      },
+      {
+        "required": [
+          "checks"
+        ]
+      },
+      {
+        "required": [
+          "usage"
+        ]
+      },
+      {
+        "required": [
+          "signals"
+        ]
+      },
+      {
+        "required": [
+          "fetched"
+        ]
+      }
+    ]
+  }
 }

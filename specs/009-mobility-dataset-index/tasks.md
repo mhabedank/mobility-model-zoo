@@ -30,7 +30,7 @@ public repository unless they start with `catalog:`, which means the private rep
 
 **Purpose**: Package skeleton, dependencies, CLI mount, CI routing.
 
-- [ ] T001 Add the optional extra `catalog = ["pyyaml>=6.0", "jsonschema>=4.23", "typer>=0.12", "httpx>=0.27", "rapidfuzz>=3.14.6"]` to `pyproject.toml`, run `uv lock`, and add `--extra catalog` to the `uv sync` line of the test job in `.github/workflows/ci.yml`.
+- [ ] T001 Add the optional extra `catalog = ["pyyaml>=6.0", "jsonschema>=4.23", "typer>=0.12", "httpx>=0.27", "rapidfuzz>=3.14.6"]` to `pyproject.toml`, add `[tool.hatch.build.targets.wheel.force-include]` mapping `compliance/lists/licence-allowlist.yaml` to `mobility_model_zoo/catalog/data/licence-allowlist.yaml` (so offline checks run without a zoo checkout, analysis I1), run `uv lock`, and add `--extra catalog` to the `uv sync` line of the test job in `.github/workflows/ci.yml`.
 - [ ] T002 Create the package skeleton `src/mobility_model_zoo/catalog/` with `__init__.py` (docstring naming feature 009 and R1: entries live in the private repository, never in this one), empty modules `cli.py`, `model.py`, `validate.py`, `rules.py`, `states.py`, `checks.py`, `ingest.py`, `query.py`, `reports.py`, `audit.py`, `fetchlist.py` and `pilot.py`, and the folders `harvest/`, `schemas/`, `vocab/` and `templates/`, each with a one-line docstring.
 - [ ] T003 Mount `zoo catalog` in `src/mobility_model_zoo/release/cli.py` with a `_mount_catalog()` function following `_mount_data()`. In `catalog/cli.py`, create the Typer app with the global option `--catalog PATH` (resolution order: option, then `$MMZ_CATALOG`, then `../mobility-model-zoo-catalog`; exit 5 with the message "catalog repository not found: …" if none exists) and an error wrapper that maps `ZooError`/`GateFailed` to their exit codes as `datasets/cli.py` `_run` does.
 - [ ] T004 [P] Add a `catalog` area to `scripts/ci/select_tests.py` mapping `src/mobility_model_zoo/catalog/*`, `tests/catalog/*`, `tests/fixtures/catalog/*` and `.claude/skills/catalog-discover/*` to `tests/catalog` (plus `tests/compliance/test_signals.py` for `compliance/signals.py` changes). Keep `tests/unit/test_ci_select.py` green.
@@ -66,7 +66,8 @@ public repository unless they start with `catalog:`, which means the private rep
 - [ ] T015 [P] Create the fixture catalog `tests/fixtures/catalog/`:
   - `catalog.yaml`;
   - 12 valid synthetic entries, two per modality, across `es`, `pl`, `ja`, `fr`, `zxx` and `und`, with licences CC-BY-4.0, CC-BY-NC-4.0, unknown, mixed, LicenseRef-proprietary and CC0-1.0; one collection with two items; one audio entry with transcripts;
-  - a folder `invalid/` with: an entry without `licence`, one with `publisher.kind: blog`, one combining `zxx` and `es`, an item whose parent does not exist, and an entry with a non-unknown licence and `evidence_url: null`;
+  - every entry carries at least one `subdomains` value;
+  - a separate invalid catalog `tests/fixtures/catalog-invalid/` (`catalog.yaml` plus `entries/<area>/<id>.yaml`, correctly placed so that only the intended check fires) with: an entry without `licence`, one with `publisher.kind: blog`, one combining `zxx` and `es`, an item whose parent does not exist, an entry with a non-unknown licence and `evidence_url: null`, an entry with an empty `subdomains`, and an entry whose `description` contains an e-mail address;
   - `EXPECTED.md`, listing the expected results of the quickstart queries.
 
   All URLs use `https://example.org/…` or `.test` domains.
@@ -79,7 +80,7 @@ public repository unless they start with `catalog:`, which means the private rep
 
 **Goal**: The index accepts complete entries and rejects incomplete or invalid ones, naming the field (FR-005, FR-006). The private repository has its CI gate.
 
-**Independent Test**: Quickstart scenario 1. `pytest tests/catalog/test_validate.py` passes; `zoo catalog --catalog tests/fixtures/catalog validate` exits 0, and exits 1 on `tests/fixtures/catalog/invalid`.
+**Independent Test**: Quickstart scenario 1. `pytest tests/catalog/test_validate.py` passes; `zoo catalog --catalog tests/fixtures/catalog validate` exits 0, and exits 1 on `tests/fixtures/catalog-invalid`.
 
 ### Tests for User Story 1
 
@@ -89,14 +90,17 @@ public repository unless they start with `catalog:`, which means the private rep
   - `zxx`/`und` combined with another code fails with "zxx and und cannot be combined with other codes";
   - a genre outside its modality fails;
   - a `topics` value of `sandbox` fails;
-  - a `description` longer than 600 characters fails ("≤ 600 chars").
+  - a `description` longer than 600 characters fails ("≤ 600 chars");
+  - an empty `subdomains` fails as out of scope (FR-003);
+  - K9: an e-mail address or phone number in `title`, `description` or `publisher.name` fails; `@handle`, `/user/`, `/u/` or `?user=` in an address warns and adds the flag `personal_data_in_metadata`;
+  - `validate` passes on the fixture catalog when run from a temporary directory with no zoo checkout (the licence allow-list comes from package data), and `--zoo-root` makes the repository copy win.
 - [ ] T017 [P] [US1] Write `tests/catalog/test_dedupe.py` for R7:
   - same canonical landing URL (with/without `www.`, trailing slash) → exact duplicate;
   - same DOI → exact duplicate;
   - title + publisher similarity ≥ 0.92 → `possible_duplicate` warn only;
   - similarity < 0.92 → no finding.
 - [ ] T018 [P] [US1] Write `tests/catalog/test_init.py`:
-  - `zoo catalog init` creates `catalog.yaml`, `entries/`, `runs/`, `fetch-lists/`, `reports/`, `pilot/` and `.github/workflows/check.yml` in a temporary directory;
+  - `zoo catalog init` creates `catalog.yaml`, `entries/`, `runs/`, `fetch-lists/`, `reports/`, `pilot/`, `.github/workflows/check.yml` and `.github/workflows/recheck.yml` (with a monthly `cron`) in a temporary directory;
   - it refuses a non-empty directory (exit 3);
   - it refuses a path inside the zoo repository (exit 3).
 - [ ] T019 [P] [US1] Write `tests/catalog/test_repo_hygiene.py`: the public repository contains no `entries/` directory with catalog entries outside `tests/fixtures/catalog/` (any `*.yaml` with `schema_version` and `landing_url` outside the fixtures fails).
@@ -117,15 +121,17 @@ public repository unless they start with `catalog:`, which means the private rep
   - key (c): `rapidfuzz.fuzz.token_sort_ratio` of normalised `title.original + publisher.name` ≥ 92.
 
   (a) and (b) between two entries are `fail`, unless one has `relations.duplicate_of` set to the other. (c) is `warn` and adds the flag `possible_duplicate`. Make the helper reusable by `ingest.py`.
-- [ ] T023 [US1] Implement `zoo catalog validate` in `catalog/cli.py`. It runs K1, K2 and K3 (and K8 once T040 exists) offline over all entries and prints one line per finding. Exit 1 on any `fail`; with no findings it prints `ok: N entries, index <commit[:12]> <sha256[:12]>, vocab v<n>`.
-- [ ] T024 [US1] Implement `zoo catalog new --from FILE.yaml` in `catalog/cli.py`. It sets `schema_version: 1`, `provenance.added_by: owner`, `provenance.added_at: today` and `status {value: candidate, since: today}`, runs K1–K3, writes the entry through `model.write_entry`, and refuses (exit 1) on a `fail`, printing the findings.
-- [ ] T025 [US1] Create the scaffold templates in `src/mobility_model_zoo/catalog/templates/`:
+- [ ] T023 [US1] Implement K9 (FR-031) in `catalog/validate.py`: run `compliance.scan.pii()` over `title.original`, `title.en`, `description` and `publisher.name` (contact data → `fail`), and the patterns `@[A-Za-z0-9_]{2,}`, `/user/`, `/u/` and `[?&]user=` over `landing_url` and `access[].url` (→ `warn` plus the flag `personal_data_in_metadata`).
+- [ ] T024 [US1] Implement `zoo catalog validate [--zoo-root PATH]` in `catalog/cli.py`. It runs K1, K2, K3 and K9 (and K8 once T041 exists) offline over all entries and prints one line per finding. Exit 1 on any `fail`; with no findings it prints `ok: N entries, index <commit[:12]> <sha256[:12]>, vocab v<n>`.
+- [ ] T025 [US1] Implement `zoo catalog new --from FILE.yaml` in `catalog/cli.py`. It sets `schema_version: 1`, `provenance.added_by: owner`, `provenance.added_at: today` and `status {value: candidate, since: today}`, runs K1–K3, writes the entry through `model.write_entry`, and refuses (exit 1) on a `fail`, printing the findings.
+- [ ] T026 [US1] Create the scaffold templates in `src/mobility_model_zoo/catalog/templates/`:
   - `catalog.yaml` with `catalog_id`, `schema_version: 1`, `owner` and `models: {scout-large: {training_data: span-train-v1, language_shares: {de: 0.28, en: 0.72}, source: topics/productdev/recipes/scout-large.md}}`;
   - `README.md` explaining that the repository is private, holds metadata only, and must never hold content or personal data beyond attribution;
   - `.github/workflows/check.yml`, which on push and pull request installs `mobility-model-zoo[catalog,release]` from `git+https://github.com/mhabedank/mobility-model-zoo` with uv and runs `zoo catalog --catalog . validate`;
+  - `.github/workflows/recheck.yml` (FR-020, SC-009), which runs monthly (`cron: "0 4 1 * *"`) and on manual dispatch: it installs the package the same way, runs `zoo catalog --catalog . check`, and commits changed entries with the message "Monthly re-check <date>" using `GITHUB_TOKEN` with `contents: write`; it never pushes to any other repository;
   - `.gitignore`.
-- [ ] T026 [US1] Implement `zoo catalog init PATH` in `catalog/cli.py`. It copies the templates and creates the empty folders `entries/`, `runs/`, `fetch-lists/`, `reports/` and `pilot/` (each with `.gitkeep`). It refuses (exit 3) a non-empty directory or any path that resolves inside the zoo repository. It never runs git commands.
-- [ ] T027 [US1] Owner-assisted step: run `uv run zoo catalog init <tmp>`, copy the result into a clone of `catalog:` (the owner created `https://github.com/mhabedank/mobility-model-zoo-catalog`), commit and push to `main` after the owner confirms, and check that the `check` workflow is green on the empty catalog (quickstart scenario 6).
+- [ ] T027 [US1] Implement `zoo catalog init PATH` in `catalog/cli.py`. It copies the templates and creates the empty folders `entries/`, `runs/`, `fetch-lists/`, `reports/` and `pilot/` (each with `.gitkeep`). It refuses (exit 3) a non-empty directory or any path that resolves inside the zoo repository. It never runs git commands.
+- [ ] T028 [US1] Owner-assisted step: run `uv run zoo catalog init <tmp>`, copy the result into a clone of `catalog:` (the owner created `https://github.com/mhabedank/mobility-model-zoo-catalog`), commit and push to `main` after the owner confirms, and check that the `check` workflow is green on the empty catalog (quickstart scenario 6).
 
 **Checkpoint**: Entries can be added and validated; the private repository has its CI gate.
 
@@ -139,26 +145,27 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 2
 
-- [ ] T028 [P] [US2] Write `tests/catalog/test_query.py`:
+- [ ] T029 [P] [US2] Write `tests/catalog/test_query.py`:
   - options combine with AND across options and OR within one;
   - `--lang es pt --modality video --use training_allowed` returns exactly the entries listed in `EXPECTED.md`;
   - `--transcripts yes` and `--include-transcripts` behave as described in contracts/cli.md;
   - `--format ids` prints one id per line;
   - `--format json` validates entries against the entry schema.
-- [ ] T029 [P] [US2] Write `tests/catalog/test_report_coverage.py`:
+- [ ] T030 [P] [US2] Write `tests/catalog/test_report_coverage.py`:
   - counts and summed volume per language × modality, area, kind and permitted use match `EXPECTED.md`;
   - machine-translated and AI-generated language entries are counted separately, never as original;
   - every target language with no `cleared` or `training_allowed` entry appears in `gaps`, and so does every modality without one;
+  - the share of entries with a licence other than `unknown` is reported (SC-004);
   - the JSON report carries `catalog_commit`, `catalog_sha256` and `vocab_version`.
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement `catalog/query.py` with `select(catalog, **filters) -> list[entry]`. Filters: lang, area, modality, genre, kind, topic, subdomain, status, use (`usage.permitted_use`, where a missing `usage` counts as `undetermined`), transcripts, origin (the language origin), min_quality and include_transcripts.
-- [ ] T031 [US2] Implement `zoo catalog query` in `catalog/cli.py` with the options of contracts/cli.md and `--format table|json|ids`. The table columns are id, languages, area, modality/genre, kind, licence, permitted use, status and quality.
-- [ ] T032 [US2] Implement the coverage report in `catalog/reports.py` with `coverage(catalog) -> dict` and `render_markdown(dict) -> str`:
-  - sections "By language × modality", "By area", "By kind of source", "By permitted use", "Machine-translated and AI-generated" and "Gaps";
+- [ ] T031 [US2] Implement `catalog/query.py` with `select(catalog, **filters) -> list[entry]`. Filters: lang, area, modality, genre, kind, topic, subdomain, status, use (`usage.permitted_use`, where a missing `usage` counts as `undetermined`), transcripts, origin (the language origin), min_quality and include_transcripts.
+- [ ] T032 [US2] Implement `zoo catalog query` in `catalog/cli.py` with the options of contracts/cli.md and `--format table|json|ids`. The table columns are id, languages, area, modality/genre, kind, licence, permitted use, status and quality.
+- [ ] T033 [US2] Implement the coverage report in `catalog/reports.py` with `coverage(catalog) -> dict` and `render_markdown(dict) -> str`:
+  - sections "By language × modality", "By area", "By kind of source", "By permitted use", "Licence determined" (share of entries whose licence is not `unknown`, SC-004), "Machine-translated and AI-generated" and "Gaps";
   - estimated volume is summed per unit (items, hours, bytes) and never mixed across units.
-- [ ] T033 [US2] Implement `zoo catalog report coverage [--out DIR]` in `catalog/cli.py`. It writes `<out or catalog:reports>/<date>-coverage.md` and `.json` and prints the gap list.
+- [ ] T034 [US2] Implement `zoo catalog report coverage [--out DIR]` in `catalog/cli.py`. It writes `<out or catalog:reports>/<date>-coverage.md` and `.json` and prints the gap list.
 
 **Checkpoint**: US1 and US2 together are the MVP: a validated, queryable index with gap reporting.
 
@@ -172,12 +179,12 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 3
 
-- [ ] T034 [P] [US3] Extend `tests/compliance/test_signals.py`:
+- [ ] T035 [P] [US3] Extend `tests/compliance/test_signals.py`:
   - a robots.txt with `Content-Signal: ai-train=no` blocks with check C-F1 and sets `content_signal: deny`;
   - an HTTP header `Content-Usage` with a label listed in `compliance/lists/ai-preferences.yaml` as a reservation blocks with check C-F2 and sets `content_usage: deny`;
   - with neither present, both are `absent`;
   - the existing cases stay unchanged.
-- [ ] T035 [P] [US3] Write `tests/catalog/test_rules.py`. One case per rule U1–U6 of research R5, first match wins:
+- [ ] T036 [P] [US3] Write `tests/catalog/test_rules.py`. One case per rule U1–U6 of research R5, first match wins:
   - U1: withdrawn, a `deny` signal, or `platform_terms.ml_use: not_allowed` → `not_usable` / `not_allowed`;
   - U2: licence `unknown` or `mixed` → `undetermined` / `unclear`;
   - U3: a licence on `compliance/lists/licence-allowlist.yaml` → `training_allowed` / `allowed`, with `share_alike: true` for CC-BY-SA-4.0;
@@ -186,97 +193,101 @@ public repository unless they start with `catalog:`, which means the private rep
   - U6: anything else → `undetermined` plus the flag `owner_decision_needed`.
 
   Every outcome has `rule`, `rules_version`, `rationale` and `decided_at`.
-- [ ] T036 [P] [US3] Write `tests/catalog/test_states.py` for the transitions of data-model.md:
+- [ ] T037 [P] [US3] Write `tests/catalog/test_states.py` for the transitions of data-model.md:
   - candidate→verified only with no `fail`;
   - verified→cleared only when every condition of the data-model clearing rule holds: `permitted_use` in {training_allowed, benchmark_only}, signals `allow` or `absent`, platform terms not `not_allowed`, and one route with method in {direct_download, bulk_dump, api, feed, page_by_page}, `cost: free` and `auth` in {none, api_key};
   - cleared→verified with `previous` kept when a re-check changes the licence;
   - retired only after three 404/410 answers at least 7 days apart;
   - rejected, retired and withdrawn require a `reason`;
   - withdrawn requires a `request_id`.
-- [ ] T037 [P] [US3] Write `tests/catalog/test_checks.py` with `httpx.MockTransport` and recorded responses in `tests/fixtures/catalog/http/`:
+- [ ] T038 [P] [US3] Write `tests/catalog/test_checks.py` with `httpx.MockTransport` and recorded responses in `tests/fixtures/catalog/http/`:
   - K4: 200 → pass; 404 → fail with `unreachable`;
   - K5: a missing evidence page → fail; a licence of `unknown` → skipped;
   - K6: a robots.txt deny for ClaudeBot → `deny`;
   - K7: a HEAD on `download_url` returning 405 falls back to a range GET of bytes 0–0;
   - per-host throttling (at most one request per second per host, measured with an injected clock);
   - robots.txt is cached per host for one day.
-- [ ] T038 [P] [US3] Write `tests/catalog/test_ingest.py`. A run file with 10 candidates gives:
+- [ ] T039 [P] [US3] Write `tests/catalog/test_ingest.py`. A run file with 10 candidates gives:
   - 7 new entries with status `candidate`;
   - 2 merges as extra `access[]` routes (same DOI; same canonical URL);
   - 1 rejected line (missing `provenance.evidence`), listed in `outcome.rejected_lines` with its reason.
 
   In addition: the run header holds `by_cell` counts including a zero cell; the command exits 1 when more than 20% of lines fail; candidates that contain `status`, `usage`, `signals`, `checks` or `fetched` are rejected.
-- [ ] T039 [P] [US3] Write `tests/catalog/test_harvest.py`, one recorded-response test per harvester (data-europa, mobility-database, openalex, zenodo, huggingface). Each checks that:
+- [ ] T040 [P] [US3] Write `tests/catalog/test_harvest.py`, one recorded-response test per harvester (data-europa, mobility-database, openalex, zenodo, huggingface). Each checks that:
   - a run header and JSONL are written, and every line validates against `candidate.schema.json`;
   - a missing licence becomes `licence.id: unknown`, and a missing language becomes `und`;
+  - no candidate has a `description`, even when the recorded response contains an abstract;
+  - `personal_data` and `quality` follow `harvest/defaults.yaml`;
   - a missing key exits 5 naming `MOBILITYDATABASE_REFRESH_TOKEN` or `OPENALEX_API_KEY`;
   - the OpenAlex harvester stops before its daily budget (an injected budget counter).
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Create `src/mobility_model_zoo/catalog/rules.yaml` (`version: 1`, changelog, rules U1–U6 as in research R5, and `source_class_map:` from publisher kind to topic source class, initially `parliament: parliamentary-records` for topic productdev). Implement K8 in `catalog/rules.py`: `apply(entry, allowlist, today) -> usage`, reading `compliance/lists/licence-allowlist.yaml` (with its `share_alike` flags) and treating licence ids containing `-NC` or `-ND` as U4.
-- [ ] T041 [US3] Implement `catalog/states.py`: `transition(entry, check_results, usage, today) -> entry` with the state machine and flags of data-model.md. It is the only place that changes `status`.
-- [ ] T042 [US3] Extend `src/mobility_model_zoo/compliance/signals.py`:
+- [ ] T041 [US3] Create `src/mobility_model_zoo/catalog/rules.yaml` (`version: 1`, changelog, rules U1–U6 as in research R5, and `source_class_map:` from publisher kind to topic source class, initially `parliament: parliamentary-records` for topic productdev). Implement K8 in `catalog/rules.py`: `apply(entry, allowlist, today) -> usage`, reading the licence allow-list (with its `share_alike` flags) from `<zoo-root>/compliance/lists/licence-allowlist.yaml` when `--zoo-root` is given or the current directory is the zoo repository, otherwise from the package data `catalog/data/licence-allowlist.yaml` (T001) and treating licence ids containing `-NC` or `-ND` as U4.
+- [ ] T042 [US3] Implement `catalog/states.py`: `transition(entry, check_results, usage, today) -> entry` with the state machine and flags of data-model.md. It is the only place that changes `status`.
+- [ ] T043 [US3] Extend `src/mobility_model_zoo/compliance/signals.py`:
   - add `content_signal` and `content_usage` to `Verdict`;
   - parse `Content-Signal:` lines in robots.txt (`ai-train=no` → deny, check C-F1);
   - read the `Content-Usage` header and robots.txt rule, matched against labels in the new list `compliance/lists/ai-preferences.yaml` (version, changelog, `reservation_labels`, source: IETF drafts aipref-vocab-08 and aipref-attach-05, check C-F2).
 
   Add both fields as optional (`allow`, `deny`, `absent`) to the `signals` object of `src/mobility_model_zoo/compliance/schemas/sources.schema.json` and `datasets.schema.json`, so existing records stay valid.
-- [ ] T043 [US3] Implement the network checks K4–K7 in `catalog/checks.py` on top of `compliance.signals.check_url(…, fetch_content=True)` for the landing page:
+- [ ] T044 [US3] Implement the network checks K4–K7 in `catalog/checks.py` on top of `compliance.signals.check_url(…, fetch_content=True)` for the landing page:
   - K5: a GET of `licence.evidence_url`, storing only its SHA-256, never the content;
   - K7: a HEAD, or a range GET of bytes 0–0, on `download_url`; a GET on the API base for `method: api`;
   - a per-host throttle of one request per second, at most eight hosts in parallel (thread pool), and a robots.txt cache of one day per host;
   - every result is written as `{check, result, at, detail, previous?}`.
-- [ ] T044 [US3] Implement `zoo catalog check [--id …] [--status …] [--stale DAYS] [--offline]` in `catalog/cli.py`:
+- [ ] T045 [US3] Implement `zoo catalog check [--id …] [--status …] [--stale DAYS] [--offline]` in `catalog/cli.py`:
   - default selection: all `candidate` entries plus `cleared` entries with `provenance.last_verified` more than 180 days ago;
   - run K1–K8, apply `states.transition`, set `provenance.last_verified` and write the entries;
   - exit 6 only when no host was reachable at all.
-- [ ] T045 [US3] Implement `zoo catalog flags`, `zoo catalog decide ID --use … --reason …` (writes `usage.rule: U0`, `rationale: owner decision: <reason>`, and removes `owner_decision_needed`), and `zoo catalog reject|retire ID --reason …` in `catalog/cli.py`.
-- [ ] T046 [US3] Implement `catalog/ingest.py` and `zoo catalog ingest RUN.jsonl --run RUN.yaml`:
+- [ ] T046 [US3] Implement `zoo catalog flags`, `zoo catalog decide ID --use … --reason …` (writes `usage.rule: U0`, `rationale: owner decision: <reason>`, and removes `owner_decision_needed`), and `zoo catalog reject|retire ID --reason …` in `catalog/cli.py`.
+- [ ] T047 [US3] Implement `catalog/ingest.py` and `zoo catalog ingest RUN.jsonl --run RUN.yaml`:
   - validate each line against `candidate.schema.json`;
   - assign an id when absent (slug `<area>-<publisher>-<title>` truncated to 80 characters, made unique with a numeric suffix);
   - dedupe with the T022 helper (an exact key merges as an extra `access[]` route plus evidence; a fuzzy match adds the `possible_duplicate` flag);
   - set provenance and status, run the offline checks and write entries;
   - fill `outcome` and `by_cell` (language × modality, including zero cells from `scope`) into the run header;
   - exit 1 when more than 20% of lines fail.
-- [ ] T047 [US3] Implement the harvester base in `catalog/harvest/base.py`:
+- [ ] T048 [US3] Implement the harvester base in `catalog/harvest/base.py`:
   - the `Harvester` protocol (`name`, `env_keys`, `iterate(scope) -> Iterator[candidate]`);
   - a shared httpx client with the project user agent from `compliance/signals.py`;
   - per-host throttling, a `--limit N`, and a budget counter hook;
   - a run writer for `runs/<date>-<slug>.yaml` and `.jsonl`;
-  - a missing environment key → exit 5 naming it (the keys come from the `.env` loaded with python-dotenv as in `productdev/jtbd/config.py`).
-- [ ] T048 [P] [US3] Implement `catalog/harvest/data_europa.py`: query the data.europa.eu search API by language (`es`, `pl`, …) and transport-related themes and keywords. Map `dct:license`, `dct:language`, `dct:publisher` and distribution `accessURL`/`downloadURL`/`format`/`byteSize` to candidate fields; a missing licence becomes `unknown`.
-- [ ] T049 [P] [US3] Implement `catalog/harvest/mobility_database.py`:
+  - a missing environment key → exit 5 naming it (the keys come from the `.env` loaded with python-dotenv as in `productdev/jtbd/config.py`);
+  - harvesters never write `description` and never store abstracts or descriptions from the catalogue (FR-032);
+  - `catalog/harvest/defaults.yaml` (version, changelog) sets the judgment fields per harvester and genre: `personal_data` (gtfs, gtfs_rt, table, statistics → `none`; paper, report → `possible: names`; podcast → `present: voices, names`; hearing, lecture, talk → `present: voices, faces, names`; photo → `possible: faces`) and `quality` (`score: 3`, rationale "harvested from <catalogue>; authority: <publisher kind>; relevance and density not assessed"), plus a default `subdomains` derived from the query terms of the run.
+- [ ] T049 [P] [US3] Implement `catalog/harvest/data_europa.py`: query the data.europa.eu search API by language (`es`, `pl`, …) and transport-related themes and keywords. Map `dct:license`, `dct:language`, `dct:publisher` and distribution `accessURL`/`downloadURL`/`format`/`byteSize` to candidate fields; a missing licence becomes `unknown`.
+- [ ] T050 [P] [US3] Implement `catalog/harvest/mobility_database.py`:
   - exchange `MOBILITYDATABASE_REFRESH_TOKEN` for an access token (POST `https://api.mobilitydatabase.org/v1/tokens`);
   - list `gtfs_feeds` and `gtfs_rt_feeds` per `--area` country code;
   - map each feed to modality `structured_data`, genre `gtfs` or `gtfs_rt`, language `zxx`, the publisher, and the feed licence URL (licence id `unknown` unless the URL maps to SPDX);
   - set `access[].provider_hint: mobilitydatabase`;
   - group feeds by provider as collections.
-- [ ] T050 [P] [US3] Implement `catalog/harvest/openalex.py`:
+- [ ] T051 [P] [US3] Implement `catalog/harvest/openalex.py`:
   - search works filtered by `language`, open-access status and transport-related concepts or topics, using `OPENALEX_API_KEY`;
   - map `best_oa_location.license` to SPDX, the DOI to `identifiers.doi`, and the `primary_location` source as a collection;
   - add a budget counter that stops at 80% of the documented free daily allowance, read from the response headers or the configured value.
-- [ ] T051 [P] [US3] Implement `catalog/harvest/zenodo.py`: search records by keywords, `language` (ISO 639-3, mapped to BCP 47) and resource type; map `metadata.license.id` and files (size, type) to candidates with `provider_hint: zenodo`.
-- [ ] T052 [P] [US3] Implement `catalog/harvest/huggingface.py`: list datasets from `https://huggingface.co/api/datasets` with `language:` and mobility search terms; map the card's `license` and `language` tags and set `provider_hint: huggingface`. Gated datasets get an access route with `auth: account`, so they are never cleared.
-- [ ] T053 [US3] Implement `zoo catalog harvest NAME --lang … --area … --subdomain … --limit N --run-id ID` in `catalog/cli.py`, dispatching to the harvesters and then calling ingest.
-- [ ] T054 [US3] Write `.claude/skills/catalog-discover/SKILL.md` following contracts/cli.md "Discovery skill":
+- [ ] T052 [P] [US3] Implement `catalog/harvest/zenodo.py`: search records by keywords, `language` (ISO 639-3, mapped to BCP 47) and resource type; map `metadata.license.id` and files (size, type) to candidates with `provider_hint: zenodo`.
+- [ ] T053 [P] [US3] Implement `catalog/harvest/huggingface.py`: list datasets from `https://huggingface.co/api/datasets` with `language:` and mobility search terms; map the card's `license` and `language` tags and set `provider_hint: huggingface`. Gated datasets get an access route with `auth: account`, so they are never cleared.
+- [ ] T054 [US3] Implement `zoo catalog harvest NAME --lang … --area … --subdomain … --limit N --run-id ID` in `catalog/cli.py`, dispatching to the harvesters and then calling ingest.
+- [ ] T055 [US3] Write `.claude/skills/catalog-discover/SKILL.md` following contracts/cli.md "Discovery skill":
   - input: a scope and the catalog path;
   - read the vocabularies and existing entries of that scope, including rejected, retired and withdrawn;
   - search the web, favouring kinds of source with open licences;
-  - write candidate JSONL per `candidate.schema.json` with an evidence URL for every licence statement and explicit unknowns;
+  - write candidate JSONL per `candidate.schema.json` with an evidence URL for every licence statement and explicit unknowns, at least one subdomain, and a `description` in the agent's own words (at most 600 characters, never copied);
   - write the run header with the tool, model id and scope;
   - run `zoo catalog ingest`;
   - never download content, and stop on a CAPTCHA or login.
 
   Write the skill in English, as `tests/unit/test_docs_english.py` requires.
-- [ ] T055 [US3] Implement `catalog/pilot.py` and `zoo catalog pilot evaluate FILE`. Read `catalog:pilot/pilot-v1.yaml` (`languages`, `modalities`, `runs[]`, `criteria {min_determined_licence_share: 0.30, min_training_allowed: 10, min_languages_passing: 2}`, `criteria_changes[]`). Compute, per language over the accepted entries of the named runs:
+- [ ] T056 [US3] Implement `catalog/pilot.py` and `zoo catalog pilot evaluate FILE`. Read `catalog:pilot/pilot-v1.yaml` (`languages`, `modalities`, `runs[]`, `criteria {min_determined_licence_share: 0.30, min_training_allowed: 10, min_languages_passing: 2}`, `criteria_changes[]`). Compute, per language over the accepted entries of the named runs:
   - the share with a licence other than `unknown`;
   - the count with `training_allowed`.
 
   Print pass or fail per language and overall. Exit 3 if `git log` of the pilot file shows a change after the first run date without a matching `criteria_changes` entry (constitution IV).
-- [ ] T056 [P] [US3] Write `tests/catalog/test_pilot.py` covering pass, fail, overall fail (2 of 3 languages fail), and the refusal on changed criteria without a rationale.
-- [ ] T057 [US3] Pilot preparation (catalog repository): commit `catalog:pilot/pilot-v1.yaml` with languages `es pl ja`, modalities `text video structured_data`, and the criteria of T055, before any pilot run.
-- [ ] T058 [US3] Pilot run (catalog repository). Run in this order:
+- [ ] T057 [P] [US3] Write `tests/catalog/test_pilot.py` covering pass, fail, overall fail (2 of 3 languages fail), and the refusal on changed criteria without a rationale.
+- [ ] T058 [US3] Pilot preparation (catalog repository): commit `catalog:pilot/pilot-v1.yaml` with languages `es pl ja`, modalities `text video structured_data`, and the criteria of T056, before any pilot run.
+- [ ] T059 [US3] Pilot run (catalog repository). Run in this order:
   1. `zoo catalog harvest data-europa --lang es pl`;
   2. `zoo catalog harvest mobility-database --area ES PL JP`;
   3. `zoo catalog harvest openalex --lang es pl ja`;
@@ -286,7 +297,7 @@ public repository unless they start with `catalog:`, which means the private rep
   7. `zoo catalog pilot evaluate pilot/pilot-v1.yaml`.
 
   Commit the runs, the entries and the evaluation output (`catalog:reports/<date>-pilot.md`).
-- [ ] T059 [US3] Pilot gate: if the overall result is fail (two of three languages miss the criteria), stop and write `catalog:reports/<date>-pilot-review.md` covering what failed and the revised discovery strategy. Phase 9, T079 onwards (the scale-up), MUST NOT start until a pilot run passes.
+- [ ] T060 [US3] Pilot gate: if the overall result is fail (two of three languages miss the criteria), stop and write `catalog:reports/<date>-pilot-review.md` covering what failed and the revised discovery strategy. Phase 9, T082 onwards (the scale-up), MUST NOT start until a pilot run passes.
 
 **Checkpoint**: Discovery works end to end; the riskiest assumption is tested.
 
@@ -300,21 +311,21 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 4
 
-- [ ] T060 [P] [US4] Write `tests/catalog/test_fetchlist.py`:
+- [ ] T061 [P] [US4] Write `tests/catalog/test_fetchlist.py`:
   - only `cleared` entries become items; every other entry is in `refused` with its status and reason;
   - a withdrawn entry is never an item;
   - the file validates against `fetch-list.schema.json`;
   - a text entry's `proposed_record`, after adding `storage`, `retention_until`, `crawl_manifest_sha256` and `pii_scan` stubs, validates against `src/mobility_model_zoo/compliance/schemas/sources.schema.json`;
   - a structured-data entry's record validates against `datasets.schema.json`;
   - an empty item list exits 3.
-- [ ] T061 [P] [US4] Write `tests/catalog/test_link.py`:
+- [ ] T062 [P] [US4] Write `tests/catalog/test_link.py`:
   - `zoo catalog link` sets `fetched` and the status `fetched` when the record exists in a fixture topic register;
   - it exits 3 when the record is missing;
   - `require_cleared` raises `UsageRefused` for an uncleared entry or one verified more than 180 days ago.
 
 ### Implementation for User Story 4
 
-- [ ] T062 [US4] Implement `catalog/fetchlist.py`. `build(catalog, selection, name) -> dict` picks the first usable access route. The target register is `datasets` for modality `structured_data` and `sources` otherwise; the target topic is the first of `topics[]`. `proposed_record(entry)` maps entry fields to the register fields:
+- [ ] T063 [US4] Implement `catalog/fetchlist.py`. `build(catalog, selection, name) -> dict` picks the first usable access route. The target register is `datasets` for modality `structured_data` and `sources` otherwise; the target topic is the first of `topics[]`. `proposed_record(entry)` maps entry fields to the register fields:
   - `id`, `origin_url`, `title`, `publisher`;
   - `creators`: the publisher name;
   - `licence`, `licence_url`, `attribution_text`;
@@ -328,9 +339,9 @@ public repository unless they start with `catalog:`, which means the private rep
   - for datasets, also `provider` (from `provider_hint`), `locator`, `approx_size_mb`, `commercial_use` and `license_check: manual`.
 
   Write the result to `catalog:fetch-lists/<date>-<name>.yaml` with `catalog_commit`, `catalog_sha256`, `vocab_version` and `rules_version`.
-- [ ] T063 [US4] Implement `zoo catalog fetchlist NAME [query options]` in `catalog/cli.py`, reusing `query.select`; exit 3 when no item remains.
-- [ ] T064 [US4] Implement `zoo catalog link ID REGISTER:TOPIC:RECORD` in `catalog/cli.py`. Look up the record in `topics/<topic>/compliance/<register>.yaml` of the zoo repository (`--zoo-root`, default the current directory); exit 3 if it is missing; set `fetched {register, topic, record_id, linked_at}` and the status `fetched`.
-- [ ] T065 [US4] Implement the library interface in `catalog/__init__.py`: `load`, `fetchlist.read(path)` (validated against the schema) and `require_cleared(entry_id, catalog)`. The last raises `release.errors.UsageRefused` unless the status is `cleared` and `last_verified` is within 180 days.
+- [ ] T064 [US4] Implement `zoo catalog fetchlist NAME [query options]` in `catalog/cli.py`, reusing `query.select`; exit 3 when no item remains.
+- [ ] T065 [US4] Implement `zoo catalog link ID REGISTER:TOPIC:RECORD` in `catalog/cli.py`. Look up the record in `topics/<topic>/compliance/<register>.yaml` of the zoo repository (`--zoo-root`, default the current directory); exit 3 if it is missing; set `fetched {register, topic, record_id, linked_at}` and the status `fetched`.
+- [ ] T066 [US4] Implement the library interface in `catalog/__init__.py`: `load`, `fetchlist.read(path)` (validated against the schema) and `require_cleared(entry_id, catalog)`. The last raises `release.errors.UsageRefused` unless the status is `cleared` and `last_verified` is within 180 days.
 
 **Checkpoint**: A later download feature can consume fetch lists without new research.
 
@@ -344,11 +355,11 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 5
 
-- [ ] T066 [P] [US5] Write `tests/catalog/test_recheck.py`:
+- [ ] T067 [P] [US5] Write `tests/catalog/test_recheck.py`:
   - a cleared entry whose evidence page hash changed → `verified` with flag `licence_changed`, and `previous` holds the old hash and licence;
   - a landing page 404 → flag `unreachable`, and the entry stays out of fetch lists;
   - three 404s at least 7 days apart → `retired` with a reason.
-- [ ] T067 [P] [US5] Write `tests/catalog/test_withdraw.py`:
+- [ ] T068 [P] [US5] Write `tests/catalog/test_withdraw.py`:
   - `withdraw` with an unknown request id exits 3;
   - with a known request in a temporary `compliance/requests.yaml`, the status becomes `withdrawn` with `request_id` and `reason`;
   - `compliance/suppression.yaml` gains one keyed hash per canonical landing and access URL (same hashing as `zoo compliance request add`);
@@ -356,12 +367,12 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Implementation for User Story 5
 
-- [ ] T068 [US5] Store the previous values (licence id, evidence hash, signals) in `checks[].previous` in `catalog/checks.py` and `catalog/states.py`. Implement the `retired` rule (three 404 or 410 answers at least 7 days apart, counted from the K4 history in `checks[].previous`).
-- [ ] T069 [US5] Implement `zoo catalog withdraw ID --request REQ [--zoo-root PATH]` in `catalog/cli.py`:
+- [ ] T069 [US5] Store the previous values (licence id, evidence hash, signals) in `checks[].previous` in `catalog/checks.py` and `catalog/states.py`. Implement the `retired` rule (three 404 or 410 answers at least 7 days apart, counted from the K4 history in `checks[].previous`).
+- [ ] T070 [US5] Implement `zoo catalog withdraw ID --request REQ [--zoo-root PATH]` in `catalog/cli.py`:
   - look up `REQ` in `compliance/requests.yaml` (types objection, takedown or opt_out; exit 3 otherwise);
   - set the status `withdrawn` with `request_id` and `reason`;
   - add `keyed_hash(canonical(url))` for the landing page and every access URL to `compliance/suppression.yaml` using the helpers behind `zoo compliance request add` (`compliance/hashing.py`, needs `MMZ_SUPPRESSION_KEY`; exit 5 without it).
-- [ ] T070 [US5] Add the catalog maintenance routine to `docs/catalog.md`: monthly `zoo catalog check` (re-checks cleared entries older than 180 days, SC-009), `zoo catalog flags` for the owner queue, and objections through `zoo compliance request add` followed by `zoo catalog withdraw`.
+- [ ] T071 [US5] Add the catalog maintenance routine to `docs/catalog.md`: the monthly `recheck.yml` workflow of the catalog repository (T026; re-checks cleared entries older than 180 days, SC-009; manual `zoo catalog check` only as a fallback), `zoo catalog flags` for the owner queue, and objections through `zoo compliance request add` followed by `zoo catalog withdraw`.
 
 **Checkpoint**: The index stays current and objections are enforced twice, at the index and at fetch time.
 
@@ -375,7 +386,7 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 6
 
-- [ ] T071 [P] [US6] Write `tests/catalog/test_report_languages.py`:
+- [ ] T072 [P] [US6] Write `tests/catalog/test_report_languages.py`:
   - every language in the index appears with entries, cleared entries and volume;
   - for scout-large, read from `zoo/models/scout-large/model.yaml` (`base_model: FacebookAI/xlm-roberta-large`), `mt` is `no`, `es` is `yes` and an unknown base model gives `unknown`;
   - the training shares come from `catalog.yaml` (`de 0.28`, `en 0.72`, and 0 for the rest);
@@ -383,8 +394,8 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Implementation for User Story 6
 
-- [ ] T072 [P] [US6] Create `src/mobility_model_zoo/catalog/vocab/base-models.yaml` (version and changelog). It maps `FacebookAI/xlm-roberta-large` (and `xlm-roberta-base`) to the 100 CC-100 language codes of `https://github.com/facebookresearch/fairseq/tree/main/examples/xlmr`, recording that Maltese is absent and Irish is present. Add the source URL and the check date 2026-10-10.
-- [ ] T073 [US6] Implement `languages(catalog, zoo_root) -> dict` in `catalog/reports.py`, plus its markdown rendering, and `zoo catalog report languages [--out DIR] [--zoo-root PATH]` in `catalog/cli.py`.
+- [ ] T073 [P] [US6] Create `src/mobility_model_zoo/catalog/vocab/base-models.yaml` (version and changelog). It maps `FacebookAI/xlm-roberta-large` (and `xlm-roberta-base`) to the 100 CC-100 language codes of `https://github.com/facebookresearch/fairseq/tree/main/examples/xlmr`, recording that Maltese is absent and Irish is present. Add the source URL and the check date 2026-10-10.
+- [ ] T074 [US6] Implement `languages(catalog, zoo_root) -> dict` in `catalog/reports.py`, plus its markdown rendering, and `zoo catalog report languages [--out DIR] [--zoo-root PATH]` in `catalog/cli.py`.
 
 **Checkpoint**: The encoder decision is backed by data.
 
@@ -394,22 +405,24 @@ public repository unless they start with `catalog:`, which means the private rep
 
 **Purpose**: The independent re-check (SC-005, SC-008), documentation, and the scale-up to the first-version targets (SC-002–SC-004).
 
-- [ ] T074 [P] Write `tests/catalog/test_audit.py`. With a seeded sample and mocked evidence pages and a mocked local model client, the audit must:
+- [ ] T075 [P] Write `tests/catalog/test_audit.py`. With seeded samples (`--sample 30` for usage, `--dup-sample 50` for duplicates) and mocked evidence pages and a mocked local model client, the audit must:
   - report agreement of the stored `permitted_use` with the SPDX matcher and with the model;
   - exit 1 when agreement is below 90% or when any cleared entry is classified `not_usable`;
-  - report duplicates in a 50-entry sample;
+  - report duplicates in the `--dup-sample` sample;
   - record the seed, the sample ids and the model id.
-- [ ] T075 Implement `catalog/audit.py` and `zoo catalog audit --sample N [--seed S] [--model ID]`:
+- [ ] T076 Implement `catalog/audit.py` and `zoo catalog audit [--sample N=30] [--dup-sample M=50] [--seed S] [--model ID]`:
   - a deterministic SPDX matcher over licence names, URLs and badges in the evidence page text, held in memory only;
   - a classification by a local model on the DGX Spark through the OpenAI-compatible endpoint configured in `.env` (`OLLAMA_HOST`); the default model is a non-Claude family, with its name recorded;
   - output to `catalog:reports/<date>-audit.{md,json}`.
-- [ ] T076 [P] Write `docs/catalog.md`, the guide covering: purpose and the R1 storage rule (entries never in the public repository), setup (`MMZ_CATALOG`, keys), adding entries, harvesters, the discovery skill, checks and flags, fetch lists, reports, the audit, and maintenance (from T070). Link it from `README.md`'s documentation list if one exists, and from `docs/layout.md`.
-- [ ] T077 [P] Add `docs/catalog.md` and `.claude/skills/catalog-discover/SKILL.md` to the paths checked by `tests/unit/test_docs_english.py` if that test uses an explicit list. Run `uv run ruff check` and `uv run pytest tests/catalog tests/compliance/test_signals.py tests/unit/test_ci_select.py` green.
-- [ ] T078 Run the quickstart scenarios 1–5 from `specs/009-mobility-dataset-index/quickstart.md` against the fixture catalog. Record the outcome in `specs/009-mobility-dataset-index/validation.md`.
-- [ ] T079 Scale-up batch 1 (only after T059 passes), catalog repository: run the harvesters data-europa, zenodo, openalex and huggingface for the remaining EU languages (`bg hr cs da nl et fi fr el hu ga it lv lt mt pt ro sk sl sv`), and mobility-database for their countries. Then run `zoo catalog check` and commit the runs and entries.
-- [ ] T080 Scale-up batch 2, catalog repository: run the harvesters for `zh ja ko hi ar tr ru id uk vi` (openalex, zenodo, huggingface; mobility-database for CN, KR, IN, SA, AE, EG, TR, ID, UA and VN). Then `zoo catalog check`, and commit.
-- [ ] T081 Scale-up batch 3, catalog repository: run the `catalog-discover` skill over the gaps reported by `zoo catalog report coverage`, prioritising audio, video, image and graphic, which harvesters cover poorly. Spread the runs over several days because of the subscription usage limits; each run is one scope cell.
-- [ ] T082 Final measurement, catalog repository: `zoo catalog report coverage`, `zoo catalog report languages` and `zoo catalog audit --sample 30 --seed 9`. Commit the reports. Record in `specs/009-mobility-dataset-index/validation.md` whether SC-001 to SC-005, SC-008 and SC-009 are met, with numbers. SC-007 is measured by the later download feature, and SC-006 by the owner.
+- [ ] T077 [P] Write `docs/catalog.md`, the guide covering: purpose and the R1 storage rule (entries never in the public repository), setup (`MMZ_CATALOG`, keys), adding entries, harvesters, the discovery skill, checks and flags, fetch lists, reports, the audit, and maintenance (from T071). Link it from `README.md`'s documentation list if one exists, and from `docs/layout.md`.
+- [ ] T078 [P] Add `docs/catalog.md` and `.claude/skills/catalog-discover/SKILL.md` to the paths checked by `tests/unit/test_docs_english.py` if that test uses an explicit list. Run `uv run ruff check` and `uv run pytest tests/catalog tests/compliance/test_signals.py tests/unit/test_ci_select.py` green.
+- [ ] T079 Run the quickstart scenarios 1–5 from `specs/009-mobility-dataset-index/quickstart.md` against the fixture catalog. Record the outcome in `specs/009-mobility-dataset-index/validation.md`.
+- [ ] T080 [P] Implement `catalog/harvest/wikimedia_commons.py` (analysis C3, SC-003): search Commons files in mobility categories and by search terms per language; map `extmetadata.LicenseShortName`/`LicenseUrl` to SPDX, captions' languages to `languages` (no caption → `zxx`), file type to modality `image` or `graphic` (charts, diagrams, maps by category); `access[].provider_hint: url`. No key; follow the Wikimedia User-Agent policy with the project user agent. Add a recorded-response case to `tests/catalog/test_harvest.py`.
+- [ ] T081 [P] Implement `catalog/harvest/podcast_index.py` (analysis C3, SC-003): search podcasts by term and language with `PODCASTINDEX_API_KEY` and `PODCASTINDEX_API_SECRET` (auth header per the Podcast Index API docs; missing → exit 5); map feeds to collections of modality `audio`, genre `podcast`, `podcast:license` to SPDX (else `unknown`), `language` to BCP 47, transcripts from `podcast:transcript` tags. Add both keys to `.env.example` and `docs/credentials.md`, and a recorded-response case to `tests/catalog/test_harvest.py`. The owner registers the free key at podcastindex.org before the first real run.
+- [ ] T082 Scale-up batch 1 (only after T060 passes), catalog repository: run the harvesters data-europa, zenodo, openalex and huggingface for the remaining EU languages (`bg hr cs da nl et fi fr el hu ga it lv lt mt pt ro sk sl sv`), and mobility-database for their countries. Then run `zoo catalog check` and commit the runs and entries.
+- [ ] T083 Scale-up batch 2, catalog repository: run the harvesters for `zh ja ko hi ar tr ru id uk vi` (openalex, zenodo, huggingface; mobility-database for CN, KR, IN, SA, AE, EG, TR, ID, UA and VN). Then `zoo catalog check`, and commit.
+- [ ] T084 Scale-up batch 3, catalog repository: run the `wikimedia-commons` and `podcast-index` harvesters over all target languages, then the `catalog-discover` skill over the remaining gaps reported by `zoo catalog report coverage`, prioritising audio, video, image and graphic, which harvesters cover poorly. Spread the runs over several days because of the subscription usage limits; each run is one scope cell.
+- [ ] T085 Final measurement, catalog repository: `zoo catalog report coverage`, `zoo catalog report languages` and `zoo catalog audit --sample 30 --seed 9`. Commit the reports. Record in `specs/009-mobility-dataset-index/validation.md` whether SC-001 to SC-005, SC-008 and SC-009 are met, with numbers. SC-007 is measured by the later download feature, and SC-006 by the owner.
 
 ---
 
@@ -419,25 +432,25 @@ public repository unless they start with `catalog:`, which means the private rep
 
 - **Setup (Phase 1)** has no dependencies. T001 comes first, because T003 imports typer through the extra.
 - **Foundational (Phase 2)** depends on Setup and blocks all stories.
-- **US1 (Phase 3)** depends on Phase 2. T027 (pushing the private repository) needs the owner's confirmation.
+- **US1 (Phase 3)** depends on Phase 2. T028 (pushing the private repository) needs the owner's confirmation.
 - **US2 (Phase 4)** depends on Phase 2 and can run in parallel with US1 once T014 and T015 exist. Its `use` filter reads `usage`, which the fixtures carry, so it does not wait for US3.
-- **US3 (Phase 5)** depends on US1 (validate, dedupe, write_entry). T040 also completes K8 in `validate` (T023).
+- **US3 (Phase 5)** depends on US1 (validate, dedupe, write_entry). T041 also completes K8 in `validate` (T024).
 - **US4 (Phase 6)** depends on US3 (states, so that `cleared` exists) and on US2 (`query.select`).
 - **US5 (Phase 7)** depends on US3 (checks, states).
 - **US6 (Phase 8)** depends on Phase 2 and US2 (`reports.py`); it is independent of US3–US5.
-- **Polish (Phase 9)**: T074–T078 depend on US1–US6. The scale-up tasks T079–T082 depend on the pilot gate T059.
+- **Polish (Phase 9)**: T075–T079 depend on US1–US6. The harvesters T080 and T081 depend on the harvester base T048. The scale-up tasks T082–T085 depend on the pilot gate T060.
 
 ### Within each story
 
 - Tests are written first and must fail before the implementation.
-- Rules and state machine (T040, T041) come before checks (T043) and the check command (T044).
-- The harvester base (T047) comes before the harvesters (T048–T052), and they come before `harvest` (T053) and the pilot (T058).
+- Rules and state machine (T041, T042) come before checks (T044) and the check command (T045).
+- The harvester base (T048) comes before the harvesters (T049–T053), and they come before `harvest` (T054) and the pilot (T059).
 
 ### Parallel opportunities
 
 - Phase 2: T007–T012 (the vocabulary files) and T015 (fixtures) in parallel.
 - US1: the tests T016–T019 in parallel.
-- US3: the tests T034–T039 in parallel; the harvesters T048–T052 in parallel after T047.
+- US3: the tests T035–T040 in parallel; the harvesters T049–T053 in parallel after T048.
 - US2 and US6 can run alongside US3.
 
 ## Parallel Example: User Story 3
@@ -451,7 +464,7 @@ Task: "Write tests/catalog/test_checks.py with recorded responses"
 Task: "Write tests/catalog/test_ingest.py"
 Task: "Write tests/catalog/test_harvest.py"
 
-# Harvesters together after T047:
+# Harvesters together after T048:
 Task: "catalog/harvest/data_europa.py"
 Task: "catalog/harvest/mobility_database.py"
 Task: "catalog/harvest/openalex.py"

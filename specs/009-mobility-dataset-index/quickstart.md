@@ -16,7 +16,7 @@ export MMZ_CATALOG=../mobility-model-zoo-catalog
 ```
 
 Free API keys for the pilot harvesters go in `.env`, as described in `docs/credentials.md`:
-`MOBILITYDATABASE_TOKEN` and `OPENALEX_API_KEY`.
+`MOBILITYDATABASE_REFRESH_TOKEN` and `OPENALEX_API_KEY`.
 
 ## 1. Mandatory facts are enforced (US1, FR-005, SC-001)
 

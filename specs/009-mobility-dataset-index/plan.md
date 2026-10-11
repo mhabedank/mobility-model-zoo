@@ -48,7 +48,7 @@ scales to 2,000+ entries.
 | **Target Platform** | The development laptop (macOS) and the DGX Spark (Linux) for local re-check runs; GitHub Actions for both repositories. |
 | **Project Type** | CLI and library inside the existing package; a Claude Code skill for agent discovery. |
 | **Performance Goals** | Loading and validating 2,000 entries (10,000 as the ceiling) in under 2 s, a query in under 1 s (SC-006), a full network re-check of 2,000 entries in under 30 min (R12). |
-| **Constraints** | No content download (FR-001, FR-024). One request per second per host, at most eight hosts in parallel. Cash budget 0 €. Agent discovery uses the flat-rate subscription, with runs spread over time because of its usage limits. The public repository must never receive entries; `zoo catalog init` refuses paths inside it, and a repository hygiene test enforces that no `entries/` directory exists. |
+| **Constraints** | No content download (FR-001, FR-024). One request per second per host, at most eight hosts in parallel. Cash budget 0 €. The OpenAlex account has no payment method, so its free daily allowance is a hard spending limit; the harvester stops at 80% of it. Agent discovery uses the flat-rate subscription, with runs spread over time because of its usage limits. The public repository must never receive entries; `zoo catalog init` refuses paths inside it, and a repository hygiene test enforces that no `entries/` directory exists. |
 | **Scale/Scope** | At least 2,000 entries in at least 30 non-German, non-English target languages, at least 50 per modality group (SC-002, SC-003). 34 target languages; 5 harvesters in the first set; 1 discovery skill. |
 
 ## Constitution Check
@@ -142,7 +142,7 @@ Each step ends with a measurable result, following the iterative rule.
 1. **Schema, vocabularies, validation, fixture catalog** (US1): `validate`, `new`; CI gate.
    Result: scenario 1 passes.
 2. **Query and coverage report** (US2). Result: scenario 3 passes.
-3. **Rules, state machine, network checks and signal extension** (FR-017, FR-018, FR-020).
+3. **Rules, state machine, network checks and signal extension** (FR-017, FR-018, FR-020), and the monthly re-check workflow of the catalog repository.
    Result: scenario 2 passes; recorded-response tests for K4–K7 pass.
 4. **Ingest, the five harvesters and the discovery skill** (US3), then `init` and the private
    repository (owner pushes).

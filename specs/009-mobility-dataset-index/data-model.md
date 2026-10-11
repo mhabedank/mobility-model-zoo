@@ -32,17 +32,17 @@ One resource, either a collection or an item. File name = `id`.
 | `level` | `collection` \| `item` | yes | (none) | FR-002. |
 | `parent` | entry id \| null | yes | `dct:isPartOf` | Only for items; the parent must exist and be a collection. |
 | `title.original`, `title.en` | string | yes | `dct:title` | `title.en` may equal `title.original` for English. |
-| `description` | string ≤ 600 chars | should | `dct:description` | In the curator's own words, never copied (FR-032). |
+| `description` | string ≤ 600 chars | should | `dct:description` | In the curator's own words, never copied (FR-032). Harvesters leave it empty; only the discovery agent or the owner writes it. |
 | `languages[]` | `{code, origin}` | yes, ≥ 1 | `dct:language` | `code` is BCP 47 from the vocabulary; `zxx` = not applicable, `und` = unknown. `origin` is one of `original`, `human_translated`, `machine_translated`, `ai_generated`, `unknown` (FR-009). `zxx` and `und` cannot be combined with other codes. |
 | `origin_area` | ISO 3166-1 alpha-2 \| region code | yes | `dct:spatial` | `001` = global, `EU`, or another M49 region (R3). |
-| `publisher.name` | string | yes | `dct:publisher` | |
+| `publisher.name` | string | yes | `dct:publisher` | Checked by K9 for contact data and handles (FR-031). |
 | `publisher.kind` | enum *source kind* | yes | (none) | The kind of source (FR-005). |
 | `publisher.ids` | `{ror?, wikidata?}` | no | `adms:identifier` | |
 | `landing_url` | https URL | yes | `dcat:landingPage` | |
 | `resource_type.modality` | enum *modality* | yes | `dct:type` (DCMI) | FR-003. |
 | `resource_type.genre` | enum *genre* | yes | (none) | The genre must be allowed for the modality (vocabulary table). |
 | `topics[]` | enum *topic* (from `zoo/topics.yaml`, without `sandbox`) | yes, ≥ 1 | `dcat:theme` | FR-004. |
-| `subdomains[]` | enum *subdomain* | should | `dcat:keyword` | FR-007. |
+| `subdomains[]` | enum *subdomain* | yes, ≥ 1 | `dcat:keyword` | FR-003, FR-007: at least one subdomain is the operational definition of "mobility-related". |
 | `licence` | object, see below | yes | `dct:license`, `dct:rights` | FR-005, FR-010. |
 | `platform_terms` | `{url, ml_use, automated_access, checked_at, clause?}` \| null | no | `dct:accessRights` | `ml_use` and `automated_access` are `allowed`, `not_allowed` or `unclear`. |
 | `signals` | object | set by checks | `odrl:hasPolicy` | robots, tdmrep, x_robots, meta_noai, ai_txt, content_signal, content_usage (`allow`, `deny`, `absent`), `checked_at` (R4). |
@@ -104,8 +104,10 @@ Transition rules:
   `possible_duplicate`) adds a flag but does not block.
 - **verified → cleared**: the rule outcome (R5) is `training_allowed` or `benchmark_only`, every
   signal is `allow` or `absent`, `platform_terms.ml_use` and `automated_access` are not
-  `not_allowed`, and at least one access route has `method` in {`direct_download`, `bulk_dump`,
-  `api`, `feed`, `page_by_page`} with `cost: free` and `auth` in {`none`, `api_key`} (FR-018).
+  `not_allowed`, no flag `unreachable` or `personal_data_in_metadata` is set, and at least one access
+  route has `method` in {`direct_download`, `bulk_dump`, `api`, `feed`, `page_by_page`} with
+  `cost: free` and `auth` in {`none`, `api_key`}. `api_key` means a project-wide key registered once
+  (FR-018); `account` (per-resource registration) never clears.
 - **cleared → verified**: a re-check finds a change; the previous values are kept in the check
   result.
 - **→ rejected**: a mandatory check fails permanently (for example out of scope, or the URL never
@@ -115,8 +117,10 @@ Transition rules:
 - **→ withdrawn**: only through `zoo catalog withdraw` with a request id (R11).
 - `rejected`, `retired` and `withdrawn` entries stay in the index (FR-016).
 
-Flags (`status.flags[]`) record what the rules cannot decide: `owner_decision_needed` (rule U6),
-`possible_duplicate`, `licence_changed`, `mixed_licence_children_missing`. `zoo catalog flags`
+Flags (`status.flags[]`) record what the rules cannot decide or what needs attention:
+`owner_decision_needed` (rule U6), `possible_duplicate`, `licence_changed`,
+`mixed_licence_children_missing`, `unreachable` (the landing page did not answer on the last
+re-check), `personal_data_in_metadata` (K9 warn). `zoo catalog flags`
 lists them.
 
 ## Entity: Check result
@@ -133,8 +137,11 @@ lists them.
 | K6 | Opt-out signals (R4) | yes |
 | K7 | Access route reachable (HEAD or a small range GET on `download_url`; API base answers) | yes |
 | K8 | Usage rule applied (R5) | no |
+| K9 | Personal data in metadata (FR-031): `compliance.scan.pii` over `title`, `description` and `publisher.name`, plus handle and user-path patterns (`@name`, `/user/`, `/u/`, `?user=`) in addresses. Contact data (e-mail, phone) → `fail`; a handle or user path → `warn` plus the flag `personal_data_in_metadata` | no |
 
-The offline checks (K1–K3, K8) run in CI. The network checks run through `zoo catalog check`.
+The offline checks (K1–K3, K8, K9) run in CI. They need no checkout of the zoo repository: the
+lists they read (`licence-allowlist.yaml`) ship with the package as package data, and the zoo
+repository's copy wins when `--zoo-root` is given. The network checks run through `zoo catalog check`.
 
 ## Entity: Discovery run
 
@@ -171,7 +178,8 @@ download feature.
 ## Entity: Reports
 
 - **Coverage** (FR-026): counts and the sum of estimated volume per language × modality, per
-  country, per kind of source and per `permitted_use`. Gaps are the target languages (vocabulary
+  country, per kind of source and per `permitted_use`, and the share of entries with a determined
+  licence (SC-004). Gaps are the target languages (vocabulary
   `targets`) and modalities with zero `cleared` or `training_allowed` entries. Machine-translated
   and AI-generated languages are counted separately.
 - **Languages** (FR-027): per language: entries, cleared entries, and volume; for each model in
