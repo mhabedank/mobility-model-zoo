@@ -24,7 +24,7 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 
 | Topic | Title | Collection | Tasks and models |
 |-------|-------|------------|------------------|
-| `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large) |
+| `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large); `jtbd-cluster`: none yet (training-free baseline, feature 009) |
 | `security` | Automotive security | not yet published | `can-ids`: `picket-forest`, `picket-mlp` (registered, not released) |
 | `condition-monitoring` | Condition monitoring | not yet published | `sound-anomaly`: `hum-fan`; `activity`: `pace-cnn` (registered, not released) |
 
@@ -109,6 +109,19 @@ Additional prerequisites for labeling and measurement:
 cp .env.example .env   # then fill in the keys and hosts
 uv run jtbd doctor
 ```
+
+## Topic: product development, task: deduplication and clustering (`jtbd cluster`)
+
+`jtbd cluster` turns the items of `scout-large` into an opportunity map: exact and near duplicates become evidence-backed groups (mentions and independent sources), more specific needs are linked under more general ones, and groups of every kind are clustered into opportunities. People can correct the structure and annotate nodes; ids stay stable across runs. Task document: [topics/productdev/tasks/jtbd-cluster.md](topics/productdev/tasks/jtbd-cluster.md); spec, plan and tasks: [specs/009-jtbd-dedup-cluster/](specs/009-jtbd-dedup-cluster/); CLI contract: [specs/009-jtbd-dedup-cluster/contracts/cli.md](specs/009-jtbd-dedup-cluster/contracts/cli.md).
+
+```bash
+uv sync --extra jtbd --extra cluster
+uv run jtbd cluster --help
+uv run jtbd cluster run --input items.jsonl --map map/ --settings configs/productdev/jtbd/cluster-gte-base.yaml
+uv run jtbd cluster report --map map/      # tree.md (opportunity tree) and needs.csv
+```
+
+The benchmark `cluster-v1` and its reference labels are built with `jtbd --config configs/productdev/jtbd/cluster-v1.yaml cluster bench build | freeze | label | agreement | decide | tune | score | perf`. Licences differ by settings file: `cluster-gte-base.yaml` is commercially usable and has no specificity relation; the files with the NLI model or an e5 encoder give non-commercial results (constitution, principle VI).
 
 ## Topics: automotive security and condition monitoring (edge models)
 

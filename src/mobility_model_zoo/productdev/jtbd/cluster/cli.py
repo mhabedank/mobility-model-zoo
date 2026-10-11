@@ -289,3 +289,14 @@ def annotate_cmd(map_dir: Path = MAP,
         return {"node": node, "statement": bool(statement), "assignments": len(pairs)}
 
     _plain(go)
+
+
+@app.command("perf")
+def perf_cmd(ctx: typer.Context,
+             settings: Path = typer.Option(..., "--settings", help="Stage settings to measure"),
+             scale: int = typer.Option(None, "--scale", help="Scale set of at least N items"),
+             hardware: str = typer.Option(None, "--hardware", help="Label of the machine")) -> None:
+    """Wall time and peak memory of one stage run in a child process, offline (research R17)."""
+    from mobility_model_zoo.productdev.jtbd.cluster.perf import perf
+
+    _run(ctx, lambda s: perf(s, settings, scale, hardware))
