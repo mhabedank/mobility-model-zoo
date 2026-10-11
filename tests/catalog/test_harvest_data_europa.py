@@ -13,6 +13,7 @@ from mobility_model_zoo.catalog import ingest, model
 from mobility_model_zoo.catalog.checks import Throttle
 from mobility_model_zoo.catalog.harvest import base, get
 from mobility_model_zoo.catalog.harvest.data_europa import (
+    TITLE_LANGUAGE_NOTE,
     DataEuropa,
     _area,
     _licence_id,
@@ -117,7 +118,10 @@ def test_candidates_validate_and_follow_the_rules(tmp_path):
     assert csv["formats"] == ["text/csv"] and csv["size_bytes_est"] == 20480
 
     zaragoza = by_url[ZARAGOZA]
-    assert zaragoza["languages"] == [{"code": "und", "origin": "unknown"}]
+    # no declared language: the original title language counts, with a note (owner decision 2026-10-11)
+    assert zaragoza["languages"] == [{"code": "es", "origin": "original"}]
+    assert zaragoza["quality"]["rationale"].endswith(TITLE_LANGUAGE_NOTE)
+    assert TITLE_LANGUAGE_NOTE not in baleares["quality"]["rationale"]
     assert zaragoza["licence"]["id"] == "unknown" and zaragoza["licence"]["evidence_url"] is None
     assert {r["method"] for r in zaragoza["access"]} == {"api"}
 

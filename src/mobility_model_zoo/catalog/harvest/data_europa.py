@@ -3,7 +3,8 @@ member states.
 
 The search API has no language facet, so the harvester searches with the terms of the target
 language and keeps a dataset only if its `language` lists that language, or (when the dataset gives
-no language) its title was written in it (`translation_meta`); such a dataset gets `und`. The
+no language) its title was written in it (`translation_meta`); such a dataset gets the title's
+original language, noted in the quality rationale (owner decision 2026-10-11). The
 licence is read from the distributions; distributions with different known licences make `mixed`.
 data.europa.eu drops the reuse conditions of the Polish portal dane.gov.pl, so for its datasets the
 harvester reads the licence from the dane.gov.pl API (`dane_gov_pl_licence`) and keeps `unknown`
@@ -99,6 +100,7 @@ CKAN_PORTALS = {
     ),
 }
 CKAN_SUFFIX = re.compile(r"~~\d+$")
+TITLE_LANGUAGE_NOTE = "Language taken from the original title; the dataset declares none."
 # conditions a publisher may add on dane.gov.pl; any of them makes the licence alone insufficient
 DANE_CONDITIONS = (
     "license_condition_custom_description",
@@ -467,6 +469,9 @@ class DataEuropa:
                 or ckan_licence(catalog, str(did), ctx.client, ctx.say)
                 or licence
             )
+        inferred = not langs and base.language_code(original) != "und"
+        if inferred:
+            langs = [base.language_code(original)]
         cand = base.candidate(
             self,
             title=str(title),
@@ -488,5 +493,7 @@ class DataEuropa:
             level="collection",
             identifiers={"doi": doi} if (doi := _doi(dataset)) else None,
         )
+        if inferred:
+            cand["quality"]["rationale"] += f" {TITLE_LANGUAGE_NOTE}"
         seen[landing] = cand
         return cand
