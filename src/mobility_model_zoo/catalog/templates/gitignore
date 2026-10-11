@@ -1,0 +1,7 @@
+.DS_Store
+__pycache__/
+.venv/
+.env
+*.tmp
+# Resource content never belongs here (metadata only).
+downloads/

@@ -30,11 +30,11 @@ public repository unless they start with `catalog:`, which means the private rep
 
 **Purpose**: Package skeleton, dependencies, CLI mount, CI routing.
 
-- [ ] T001 Add the optional extra `catalog = ["pyyaml>=6.0", "jsonschema>=4.23", "typer>=0.12", "httpx>=0.27", "rapidfuzz>=3.14.6"]` to `pyproject.toml`, add `[tool.hatch.build.targets.wheel.force-include]` mapping `compliance/lists/licence-allowlist.yaml` to `mobility_model_zoo/catalog/data/licence-allowlist.yaml` (so offline checks run without a zoo checkout, analysis I1), run `uv lock`, and add `--extra catalog` to the `uv sync` line of the test job in `.github/workflows/ci.yml`.
-- [ ] T002 Create the package skeleton `src/mobility_model_zoo/catalog/` with `__init__.py` (docstring naming feature 009 and R1: entries live in the private repository, never in this one), empty modules `cli.py`, `model.py`, `validate.py`, `rules.py`, `states.py`, `checks.py`, `ingest.py`, `query.py`, `reports.py`, `audit.py`, `fetchlist.py` and `pilot.py`, and the folders `harvest/`, `schemas/`, `vocab/` and `templates/`, each with a one-line docstring.
-- [ ] T003 Mount `zoo catalog` in `src/mobility_model_zoo/release/cli.py` with a `_mount_catalog()` function following `_mount_data()`. In `catalog/cli.py`, create the Typer app with the global option `--catalog PATH` (resolution order: option, then `$MMZ_CATALOG`, then `../mobility-model-zoo-catalog`; exit 5 with the message "catalog repository not found: …" if none exists) and an error wrapper that maps `ZooError`/`GateFailed` to their exit codes as `datasets/cli.py` `_run` does.
-- [ ] T004 [P] Add a `catalog` area to `scripts/ci/select_tests.py` mapping `src/mobility_model_zoo/catalog/*`, `tests/catalog/*`, `tests/fixtures/catalog/*` and `.claude/skills/catalog-discover/*` to `tests/catalog` (plus `tests/compliance/test_signals.py` for `compliance/signals.py` changes). Keep `tests/unit/test_ci_select.py` green.
-- [ ] T005 [P] Add the line `src/mobility_model_zoo/catalog/  shared resource index (feature 009); entries live in the private repository mobility-model-zoo-catalog` to the layout block in `docs/layout.md`, and add a "Resource index" row to its "Where a new topic or task goes" table.
+- [X] T001 Add the optional extra `catalog = ["pyyaml>=6.0", "jsonschema>=4.23", "typer>=0.12", "httpx>=0.27", "rapidfuzz>=3.14.6"]` to `pyproject.toml`, add `[tool.hatch.build.targets.wheel.force-include]` mapping `compliance/lists/licence-allowlist.yaml` to `mobility_model_zoo/catalog/data/licence-allowlist.yaml` (so offline checks run without a zoo checkout, analysis I1), run `uv lock`, and add `--extra catalog` to the `uv sync` line of the test job in `.github/workflows/ci.yml`.
+- [X] T002 Create the package skeleton `src/mobility_model_zoo/catalog/` with `__init__.py` (docstring naming feature 009 and R1: entries live in the private repository, never in this one), empty modules `cli.py`, `model.py`, `validate.py`, `rules.py`, `states.py`, `checks.py`, `ingest.py`, `query.py`, `reports.py`, `audit.py`, `fetchlist.py` and `pilot.py`, and the folders `harvest/`, `schemas/`, `vocab/` and `templates/`, each with a one-line docstring.
+- [X] T003 Mount `zoo catalog` in `src/mobility_model_zoo/release/cli.py` with a `_mount_catalog()` function following `_mount_data()`. In `catalog/cli.py`, create the Typer app with the global option `--catalog PATH` (resolution order: option, then `$MMZ_CATALOG`, then `../mobility-model-zoo-catalog`; exit 5 with the message "catalog repository not found: …" if none exists) and an error wrapper that maps `ZooError`/`GateFailed` to their exit codes as `datasets/cli.py` `_run` does.
+- [X] T004 [P] Add a `catalog` area to `scripts/ci/select_tests.py` mapping `src/mobility_model_zoo/catalog/*`, `tests/catalog/*`, `tests/fixtures/catalog/*` and `.claude/skills/catalog-discover/*` to `tests/catalog` (plus `tests/compliance/test_signals.py` for `compliance/signals.py` changes). Keep `tests/unit/test_ci_select.py` green.
+- [X] T005 [P] Add the line `src/mobility_model_zoo/catalog/  shared resource index (feature 009); entries live in the private repository mobility-model-zoo-catalog` to the layout block in `docs/layout.md`, and add a "Resource index" row to its "Where a new topic or task goes" table.
 
 ---
 
@@ -44,26 +44,26 @@ public repository unless they start with `catalog:`, which means the private rep
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Copy `specs/009-mobility-dataset-index/contracts/entry.schema.json`, `candidate.schema.json` and `fetch-list.schema.json` to `src/mobility_model_zoo/catalog/schemas/`. Add `run.schema.json` for the run header in data-model.md "Entity: Discovery run", with required fields `id`, `date`, `kind` (pattern `^(harvester:[a-z0-9-]+|agent)$`), `scope{languages[],areas[],subdomains[],modalities[]}`, `method`, `agent` (object `{tool, model_id, model_version}` or null), `cost{cash_eur, notes}` and `outcome{proposed, accepted, merged, rejected, by_cell[], rejected_lines[]}`. Add a `schema(stem)` loader in `catalog/model.py` modelled on `compliance/register.py` `schema()`.
-- [ ] T007 [P] Create `src/mobility_model_zoo/catalog/vocab/languages.yaml` with `version: 1`, a `changelog[]` of `{date, change, reason}`, `codes:` (every ISO 639-1 code with its English name, plus `zh-Hans`, `zh-Hant`, `zxx` "no linguistic content" and `und` "undetermined"; ISO 639-3 codes are added on demand through the changelog), and `targets:` with the 34 target languages of FR-023: `bg hr cs da nl en et fi fr de el hu ga it lv lt mt pl pt ro sk sl es sv zh ja ko hi ar tr ru id uk vi`.
-- [ ] T008 [P] Create `src/mobility_model_zoo/catalog/vocab/areas.yaml` (version and changelog) with every ISO 3166-1 alpha-2 code and its English name, plus the regions `EU` (European Union), `001` (World, meaning "global"), `150` (Europe), `142` (Asia), `002` (Africa), `019` (Americas), `009` (Oceania), `145` (Western Asia) and `419` (Latin America and the Caribbean).
-- [ ] T009 [P] Create `src/mobility_model_zoo/catalog/vocab/source-kinds.yaml` (version and changelog; one definition per value) with: parliament, government, research, open_data_portal, company, association, standards_body, media, community, education, individual, international_org.
-- [ ] T010 [P] Create `src/mobility_model_zoo/catalog/vocab/resource-types.yaml` (version and changelog). It maps each modality to its DCMI Type (text→Text, audio→Sound, video→MovingImage, image→StillImage, graphic→StillImage, structured_data→Dataset or Service) and lists the allowed genres per modality:
+- [X] T006 Copy `specs/009-mobility-dataset-index/contracts/entry.schema.json`, `candidate.schema.json` and `fetch-list.schema.json` to `src/mobility_model_zoo/catalog/schemas/`. Add `run.schema.json` for the run header in data-model.md "Entity: Discovery run", with required fields `id`, `date`, `kind` (pattern `^(harvester:[a-z0-9-]+|agent)$`), `scope{languages[],areas[],subdomains[],modalities[]}`, `method`, `agent` (object `{tool, model_id, model_version}` or null), `cost{cash_eur, notes}` and `outcome{proposed, accepted, merged, rejected, by_cell[], rejected_lines[]}`. Add a `schema(stem)` loader in `catalog/model.py` modelled on `compliance/register.py` `schema()`.
+- [X] T007 [P] Create `src/mobility_model_zoo/catalog/vocab/languages.yaml` with `version: 1`, a `changelog[]` of `{date, change, reason}`, `codes:` (every ISO 639-1 code with its English name, plus `zh-Hans`, `zh-Hant`, `zxx` "no linguistic content" and `und` "undetermined"; ISO 639-3 codes are added on demand through the changelog), and `targets:` with the 34 target languages of FR-023: `bg hr cs da nl en et fi fr de el hu ga it lv lt mt pl pt ro sk sl es sv zh ja ko hi ar tr ru id uk vi`.
+- [X] T008 [P] Create `src/mobility_model_zoo/catalog/vocab/areas.yaml` (version and changelog) with every ISO 3166-1 alpha-2 code and its English name, plus the regions `EU` (European Union), `001` (World, meaning "global"), `150` (Europe), `142` (Asia), `002` (Africa), `019` (Americas), `009` (Oceania), `145` (Western Asia) and `419` (Latin America and the Caribbean).
+- [X] T009 [P] Create `src/mobility_model_zoo/catalog/vocab/source-kinds.yaml` (version and changelog; one definition per value) with: parliament, government, research, open_data_portal, company, association, standards_body, media, community, education, individual, international_org.
+- [X] T010 [P] Create `src/mobility_model_zoo/catalog/vocab/resource-types.yaml` (version and changelog). It maps each modality to its DCMI Type (text→Text, audio→Sound, video→MovingImage, image→StillImage, graphic→StillImage, structured_data→Dataset or Service) and lists the allowed genres per modality:
   - text: paper, report, law, transcript, article, book, forum_thread, standard, statistics_publication;
   - audio: podcast, speech_recording, radio_programme;
   - video: hearing, lecture, talk, documentary, news_video, explainer;
   - image: photo, map, satellite_image;
   - graphic: chart, infographic, diagram;
   - structured_data: table, spreadsheet, database, bucket, api, feed, gtfs, gtfs_rt, geodata, time_series, sensor_data, json_xml_dump.
-- [ ] T011 [P] Create `src/mobility_model_zoo/catalog/vocab/subdomains.yaml` (version and changelog) with: road, rail, public_transport, cycling, walking, micromobility, shared_mobility, aviation, maritime, freight_logistics, ev_charging, automated_driving, vehicle_technology, vehicle_security, condition_monitoring, urban_planning, rural_mobility, policy_regulation, safety, accessibility.
-- [ ] T012 [P] Create `src/mobility_model_zoo/catalog/vocab/frequencies.yaml` (the EU frequency codes `CONT`, `DAILY`, `WEEKLY`, `MONTHLY`, `QUARTERLY`, `ANNUAL`, `IRREG`, `NEVER`, `UNKNOWN`), and `vocab/topics.yaml` listing the topic ids of `zoo/topics.yaml` without `sandbox`.
-- [ ] T013 [P] Add `tests/catalog/test_vocab.py`. It checks that every vocabulary file has `version` and a non-empty `changelog`, that `targets` has exactly 34 codes all present in `codes`, that `vocab/topics.yaml` equals the non-sandbox ids of `zoo/topics.yaml` (drift guard), and that every genre belongs to exactly one modality.
-- [ ] T014 Implement `catalog/model.py` with `load(path) -> Catalog`:
+- [X] T011 [P] Create `src/mobility_model_zoo/catalog/vocab/subdomains.yaml` (version and changelog) with: road, rail, public_transport, cycling, walking, micromobility, shared_mobility, aviation, maritime, freight_logistics, ev_charging, automated_driving, vehicle_technology, vehicle_security, condition_monitoring, urban_planning, rural_mobility, policy_regulation, safety, accessibility.
+- [X] T012 [P] Create `src/mobility_model_zoo/catalog/vocab/frequencies.yaml` (the EU frequency codes `CONT`, `DAILY`, `WEEKLY`, `MONTHLY`, `QUARTERLY`, `ANNUAL`, `IRREG`, `NEVER`, `UNKNOWN`), and `vocab/topics.yaml` listing the topic ids of `zoo/topics.yaml` without `sandbox`.
+- [X] T013 [P] Add `tests/catalog/test_vocab.py`. It checks that every vocabulary file has `version` and a non-empty `changelog`, that `targets` has exactly 34 codes all present in `codes`, that `vocab/topics.yaml` equals the non-sandbox ids of `zoo/topics.yaml` (drift guard), and that every genre belongs to exactly one modality.
+- [X] T014 Implement `catalog/model.py` with `load(path) -> Catalog`:
   - read `entries/**/*.yaml` and `catalog.yaml`;
   - `Catalog.entries: dict[id, dict]`, `Catalog.root`, `Catalog.commit` (`git rev-parse HEAD` in the catalog root, or None outside git), and `Catalog.sha256` (SHA-256 over the entries sorted by id and serialised as canonical JSON with sorted keys, R10);
   - `Catalog.vocab` (all vocabulary files with `vocab_version` = the maximum of their versions);
   - `write_entry(entry)`, which writes `entries/<origin_area lower>/<id>.yaml` with a stable key order (the order of the data-model table) and refuses a target path inside the public repository: raise `UsageRefused` if the catalog root resolves to the zoo repository or below it.
-- [ ] T015 [P] Create the fixture catalog `tests/fixtures/catalog/`:
+- [X] T015 [P] Create the fixture catalog `tests/fixtures/catalog/`:
   - `catalog.yaml`;
   - 12 valid synthetic entries, two per modality, across `es`, `pl`, `ja`, `fr`, `zxx` and `und`, with licences CC-BY-4.0, CC-BY-NC-4.0, unknown, mixed, LicenseRef-proprietary and CC0-1.0; one collection with two items; one audio entry with transcripts;
   - every entry carries at least one `subdomains` value;
@@ -84,7 +84,7 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 1
 
-- [ ] T016 [P] [US1] Write `tests/catalog/test_validate.py`:
+- [X] T016 [P] [US1] Write `tests/catalog/test_validate.py`:
   - the 12 fixture entries pass;
   - each invalid fixture fails with the expected check and field in the message (`FAIL <id> K1 languages[0].code: …`);
   - `zxx`/`und` combined with another code fails with "zxx and und cannot be combined with other codes";
@@ -94,43 +94,43 @@ public repository unless they start with `catalog:`, which means the private rep
   - an empty `subdomains` fails as out of scope (FR-003);
   - K9: an e-mail address or phone number in `title`, `description` or `publisher.name` fails; `@handle`, `/user/`, `/u/` or `?user=` in an address warns and adds the flag `personal_data_in_metadata`;
   - `validate` passes on the fixture catalog when run from a temporary directory with no zoo checkout (the licence allow-list comes from package data), and `--zoo-root` makes the repository copy win.
-- [ ] T017 [P] [US1] Write `tests/catalog/test_dedupe.py` for R7:
+- [X] T017 [P] [US1] Write `tests/catalog/test_dedupe.py` for R7:
   - same canonical landing URL (with/without `www.`, trailing slash) → exact duplicate;
   - same DOI → exact duplicate;
   - title + publisher similarity ≥ 0.92 → `possible_duplicate` warn only;
   - similarity < 0.92 → no finding.
-- [ ] T018 [P] [US1] Write `tests/catalog/test_init.py`:
+- [X] T018 [P] [US1] Write `tests/catalog/test_init.py`:
   - `zoo catalog init` creates `catalog.yaml`, `entries/`, `runs/`, `fetch-lists/`, `reports/`, `pilot/`, `.github/workflows/check.yml` and `.github/workflows/recheck.yml` (with a monthly `cron`) in a temporary directory;
   - it refuses a non-empty directory (exit 3);
   - it refuses a path inside the zoo repository (exit 3).
-- [ ] T019 [P] [US1] Write `tests/catalog/test_repo_hygiene.py`: the public repository contains no `entries/` directory with catalog entries outside `tests/fixtures/catalog/` (any `*.yaml` with `schema_version` and `landing_url` outside the fixtures fails).
+- [X] T019 [P] [US1] Write `tests/catalog/test_repo_hygiene.py`: the public repository contains no `entries/` directory with catalog entries outside `tests/fixtures/catalog/` (any `*.yaml` with `schema_version` and `landing_url` outside the fixtures fails).
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Implement K1 in `catalog/validate.py`:
+- [X] T020 [US1] Implement K1 in `catalog/validate.py`:
   - JSON Schema validation against `schemas/entry.schema.json`;
   - vocabulary membership for `languages[].code`, `content.transcripts.languages[]`, `origin_area`, `publisher.kind`, `resource_type.genre` (must be allowed for its modality), `topics[]`, `subdomains[]` and `content.frequency`;
   - the rule "`zxx` and `und` cannot be combined with other codes";
   - `licence.id` must be an SPDX id, `LicenseRef-…`, `unknown` or `mixed`.
 
   Each finding is a `Finding(entry_id, check, severity, field, message)`; reuse `compliance/findings.py` if it fits, otherwise a local dataclass.
-- [ ] T021 [US1] Implement K2 in `catalog/validate.py`: a parent exists and has `level: collection`; an item's parent is not itself an item; `relations.translation_of[]` and `duplicate_of` targets exist; ids are unique; the file path matches `entries/<origin_area lower>/<id>.yaml`.
-- [ ] T022 [US1] Implement K3 (R7) in `catalog/validate.py` with a `dedupe` helper:
+- [X] T021 [US1] Implement K2 in `catalog/validate.py`: a parent exists and has `level: collection`; an item's parent is not itself an item; `relations.translation_of[]` and `duplicate_of` targets exist; ids are unique; the file path matches `entries/<origin_area lower>/<id>.yaml`.
+- [X] T022 [US1] Implement K3 (R7) in `catalog/validate.py` with a `dedupe` helper:
   - key (a): `compliance.signals.canonical()` of `landing_url` and of every `access[].url`;
   - key (b): `identifiers.doi` (lower-cased) and `identifiers.other`;
   - key (c): `rapidfuzz.fuzz.token_sort_ratio` of normalised `title.original + publisher.name` ≥ 92.
 
   (a) and (b) between two entries are `fail`, unless one has `relations.duplicate_of` set to the other. (c) is `warn` and adds the flag `possible_duplicate`. Make the helper reusable by `ingest.py`.
-- [ ] T023 [US1] Implement K9 (FR-031) in `catalog/validate.py`: run `compliance.scan.pii()` over `title.original`, `title.en`, `description` and `publisher.name` (contact data → `fail`), and the patterns `@[A-Za-z0-9_]{2,}`, `/user/`, `/u/` and `[?&]user=` over `landing_url` and `access[].url` (→ `warn` plus the flag `personal_data_in_metadata`).
-- [ ] T024 [US1] Implement `zoo catalog validate [--zoo-root PATH]` in `catalog/cli.py`. It runs K1, K2, K3 and K9 (and K8 once T041 exists) offline over all entries and prints one line per finding. Exit 1 on any `fail`; with no findings it prints `ok: N entries, index <commit[:12]> <sha256[:12]>, vocab v<n>`.
-- [ ] T025 [US1] Implement `zoo catalog new --from FILE.yaml` in `catalog/cli.py`. It sets `schema_version: 1`, `provenance.added_by: owner`, `provenance.added_at: today` and `status {value: candidate, since: today}`, runs K1–K3, writes the entry through `model.write_entry`, and refuses (exit 1) on a `fail`, printing the findings.
-- [ ] T026 [US1] Create the scaffold templates in `src/mobility_model_zoo/catalog/templates/`:
+- [X] T023 [US1] Implement K9 (FR-031) in `catalog/validate.py`: run `compliance.scan.pii()` over `title.original`, `title.en`, `description` and `publisher.name` (contact data → `fail`), and the patterns `@[A-Za-z0-9_]{2,}`, `/user/`, `/u/` and `[?&]user=` over `landing_url` and `access[].url` (→ `warn` plus the flag `personal_data_in_metadata`).
+- [X] T024 [US1] Implement `zoo catalog validate [--zoo-root PATH]` in `catalog/cli.py`. It runs K1, K2, K3 and K9 (and K8 once T041 exists) offline over all entries and prints one line per finding. Exit 1 on any `fail`; with no findings it prints `ok: N entries, index <commit[:12]> <sha256[:12]>, vocab v<n>`.
+- [X] T025 [US1] Implement `zoo catalog new --from FILE.yaml` in `catalog/cli.py`. It sets `schema_version: 1`, `provenance.added_by: owner`, `provenance.added_at: today` and `status {value: candidate, since: today}`, runs K1–K3, writes the entry through `model.write_entry`, and refuses (exit 1) on a `fail`, printing the findings.
+- [X] T026 [US1] Create the scaffold templates in `src/mobility_model_zoo/catalog/templates/`:
   - `catalog.yaml` with `catalog_id`, `schema_version: 1`, `owner` and `models: {scout-large: {training_data: span-train-v1, language_shares: {de: 0.28, en: 0.72}, source: topics/productdev/recipes/scout-large.md}}`;
   - `README.md` explaining that the repository is private, holds metadata only, and must never hold content or personal data beyond attribution;
   - `.github/workflows/check.yml`, which on push and pull request installs `mobility-model-zoo[catalog,release]` from `git+https://github.com/mhabedank/mobility-model-zoo` with uv and runs `zoo catalog --catalog . validate`;
   - `.github/workflows/recheck.yml` (FR-020, SC-009), which runs monthly (`cron: "0 4 1 * *"`) and on manual dispatch: it installs the package the same way, runs `zoo catalog --catalog . check`, and commits changed entries with the message "Monthly re-check <date>" using `GITHUB_TOKEN` with `contents: write`; it never pushes to any other repository;
   - `.gitignore`.
-- [ ] T027 [US1] Implement `zoo catalog init PATH` in `catalog/cli.py`. It copies the templates and creates the empty folders `entries/`, `runs/`, `fetch-lists/`, `reports/` and `pilot/` (each with `.gitkeep`). It refuses (exit 3) a non-empty directory or any path that resolves inside the zoo repository. It never runs git commands.
+- [X] T027 [US1] Implement `zoo catalog init PATH` in `catalog/cli.py`. It copies the templates and creates the empty folders `entries/`, `runs/`, `fetch-lists/`, `reports/` and `pilot/` (each with `.gitkeep`). It refuses (exit 3) a non-empty directory or any path that resolves inside the zoo repository. It never runs git commands.
 - [ ] T028 [US1] Owner-assisted step: run `uv run zoo catalog init <tmp>`, copy the result into a clone of `catalog:` (the owner created `https://github.com/mhabedank/mobility-model-zoo-catalog`), commit and push to `main` after the owner confirms, and check that the `check` workflow is green on the empty catalog (quickstart scenario 6).
 
 **Checkpoint**: Entries can be added and validated; the private repository has its CI gate.
@@ -145,13 +145,13 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Tests for User Story 2
 
-- [ ] T029 [P] [US2] Write `tests/catalog/test_query.py`:
+- [X] T029 [P] [US2] Write `tests/catalog/test_query.py`:
   - options combine with AND across options and OR within one;
   - `--lang es pt --modality video --use training_allowed` returns exactly the entries listed in `EXPECTED.md`;
   - `--transcripts yes` and `--include-transcripts` behave as described in contracts/cli.md;
   - `--format ids` prints one id per line;
   - `--format json` validates entries against the entry schema.
-- [ ] T030 [P] [US2] Write `tests/catalog/test_report_coverage.py`:
+- [X] T030 [P] [US2] Write `tests/catalog/test_report_coverage.py`:
   - counts and summed volume per language × modality, area, kind and permitted use match `EXPECTED.md`;
   - machine-translated and AI-generated language entries are counted separately, never as original;
   - every target language with no `cleared` or `training_allowed` entry appears in `gaps`, and so does every modality without one;
@@ -160,12 +160,12 @@ public repository unless they start with `catalog:`, which means the private rep
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implement `catalog/query.py` with `select(catalog, **filters) -> list[entry]`. Filters: lang, area, modality, genre, kind, topic, subdomain, status, use (`usage.permitted_use`, where a missing `usage` counts as `undetermined`), transcripts, origin (the language origin), min_quality and include_transcripts.
-- [ ] T032 [US2] Implement `zoo catalog query` in `catalog/cli.py` with the options of contracts/cli.md and `--format table|json|ids`. The table columns are id, languages, area, modality/genre, kind, licence, permitted use, status and quality.
-- [ ] T033 [US2] Implement the coverage report in `catalog/reports.py` with `coverage(catalog) -> dict` and `render_markdown(dict) -> str`:
+- [X] T031 [US2] Implement `catalog/query.py` with `select(catalog, **filters) -> list[entry]`. Filters: lang, area, modality, genre, kind, topic, subdomain, status, use (`usage.permitted_use`, where a missing `usage` counts as `undetermined`), transcripts, origin (the language origin), min_quality and include_transcripts.
+- [X] T032 [US2] Implement `zoo catalog query` in `catalog/cli.py` with the options of contracts/cli.md and `--format table|json|ids`. The table columns are id, languages, area, modality/genre, kind, licence, permitted use, status and quality.
+- [X] T033 [US2] Implement the coverage report in `catalog/reports.py` with `coverage(catalog) -> dict` and `render_markdown(dict) -> str`:
   - sections "By language × modality", "By area", "By kind of source", "By permitted use", "Licence determined" (share of entries whose licence is not `unknown`, SC-004), "Machine-translated and AI-generated" and "Gaps";
   - estimated volume is summed per unit (items, hours, bytes) and never mixed across units.
-- [ ] T034 [US2] Implement `zoo catalog report coverage [--out DIR]` in `catalog/cli.py`. It writes `<out or catalog:reports>/<date>-coverage.md` and `.json` and prints the gap list.
+- [X] T034 [US2] Implement `zoo catalog report coverage [--out DIR]` in `catalog/cli.py`. It writes `<out or catalog:reports>/<date>-coverage.md` and `.json` and prints the gap list.
 
 **Checkpoint**: US1 and US2 together are the MVP: a validated, queryable index with gap reporting.
 

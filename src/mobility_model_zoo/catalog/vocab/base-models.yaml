@@ -1,0 +1,17 @@
+# Pretraining languages of the base models of zoo models (language report, FR-027, research R9).
+# XLM-RoBERTa: the CC-100 languages listed at
+# https://github.com/facebookresearch/fairseq/tree/main/examples/xlmr (checked 2026-10-10).
+# Romanized variants (bn, hi, ta, te, ur), Burmese Zawgyi and Traditional Chinese are folded into
+# their language codes. Maltese (mt) is not covered; Irish (ga) is.
+version: 1
+changelog:
+- {date: "2026-10-11", change: XLM-RoBERTa (CC-100), reason: feature 009 research R9}
+models:
+  FacebookAI/xlm-roberta-large:
+    languages: &cc100 [af, am, ar, as, az, be, bg, bn, br, bs, ca, cs, cy, da, de, el, en, eo, es,
+      et, eu, fa, fi, fr, fy, ga, gd, gl, gu, ha, he, hi, hr, hu, hy, id, is, it, ja, jv, ka, kk,
+      km, kn, ko, ku, ky, la, lo, lt, lv, mg, mk, ml, mn, mr, ms, my, ne, nl, 'no', om, or, pa, pl,
+      ps, pt, ro, ru, sa, sd, si, sk, sl, so, sq, sr, su, sv, sw, ta, te, th, tl, tr, ug, uk, ur,
+      uz, vi, xh, yi, zh, zh-Hans, zh-Hant]
+  FacebookAI/xlm-roberta-base:
+    languages: *cc100

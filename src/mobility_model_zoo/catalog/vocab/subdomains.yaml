@@ -1,0 +1,26 @@
+# Mobility subdomains. At least one per entry is the operational definition of
+# "mobility-related" (FR-003, FR-007).
+version: 1
+changelog:
+- {date: "2026-10-11", change: initial list, reason: feature 009 (FR-003, FR-007)}
+subdomains:
+  road: Roads, road traffic and private cars.
+  rail: Rail passenger and freight transport, infrastructure and operations.
+  public_transport: Buses, trams, metros, ferries and their timetables, fares and planning.
+  cycling: Cycling and cycling infrastructure.
+  walking: Walking and pedestrian infrastructure.
+  micromobility: E-scooters, e-bikes and other light vehicles.
+  shared_mobility: Car sharing, bike sharing, ride hailing, ride pooling, on-demand transport.
+  aviation: Air transport, airports and drones.
+  maritime: Shipping, ports and inland waterways.
+  freight_logistics: Freight, logistics, delivery and supply chains.
+  ev_charging: Electric vehicles, batteries and charging infrastructure.
+  automated_driving: Driver assistance and automated or connected driving.
+  vehicle_technology: Vehicle engineering, powertrains, software and manufacturing.
+  vehicle_security: Security of vehicles, vehicle buses and their radio interfaces.
+  condition_monitoring: Monitoring of vehicle, infrastructure or machine condition.
+  urban_planning: Urban and transport planning, land use and street space.
+  rural_mobility: Mobility in rural and peripheral areas.
+  policy_regulation: Transport policy, law, regulation, pricing and funding.
+  safety: Road, rail and transport safety and accidents.
+  accessibility: Accessible and inclusive mobility.

@@ -1,0 +1,30 @@
+# Monthly re-check of links, licence evidence and opt-out signals (FR-020, SC-009, feature 009).
+# Commits changed entries to this repository only.
+name: recheck
+on:
+  schedule:
+    - cron: "0 4 1 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      # The zoo package without torch and transformers (the catalog needs neither).
+      - run: |
+          uv venv
+          uv pip install --no-deps "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo"
+          uv pip install pyyaml jsonschema typer httpx rapidfuzz python-dotenv jinja2 markdown-it-py
+      - run: .venv/bin/zoo catalog --catalog . check
+      - name: commit changed entries
+        run: |
+          git config user.name "catalog-recheck"
+          git config user.email "catalog-recheck@users.noreply.github.com"
+          git add entries
+          if ! git diff --cached --quiet; then
+            git commit -m "Monthly re-check $(date -u +%Y-%m-%d)"
+            git push
+          fi

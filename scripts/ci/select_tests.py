@@ -61,6 +61,8 @@ AREAS: dict[str, Area] = {
         ),
         edge=True,
     ),
+    # The resource index (feature 009) imports the compliance signal checker and PII scan.
+    "catalog": Area(("tests/catalog", "tests/compliance/test_signals.py")),
     # Covered by the checks every pull request runs (ruff, guards, zoo validate, compliance).
     "docs": Area(()),
 }
@@ -94,6 +96,16 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     ("compliance-tests", ("tests/compliance/*",)),
     ("release-tests", ("tests/release/*",)),
     ("datasets-tests", ("tests/datasets/*",)),
+    (
+        "catalog",
+        (
+            f"{SRC}/catalog/*",
+            "tests/catalog/*",
+            "tests/fixtures/catalog/*",
+            "tests/fixtures/catalog-invalid/*",
+            ".claude/skills/catalog-discover/*",
+        ),
+    ),
     ("site", (f"{SRC}/site/*", "zoo/site.yaml", "tests/website/*", "scripts/site_og_image.py")),
     ("registry", ("zoo/*",)),
     ("edge", (f"{SRC}/edge/*", "firmware/*", "hil/*", "tests/edge/*", "tests/fixtures/edge-int8/*")),

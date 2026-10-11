@@ -1782,6 +1782,14 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+catalog = [
+    { name = "httpx" },
+    { name = "jsonschema" },
+    { name = "python-dotenv" },
+    { name = "pyyaml" },
+    { name = "rapidfuzz" },
+    { name = "typer" },
+]
 edge = [
     { name = "httpx" },
     { name = "jsonschema" },
@@ -1848,11 +1856,13 @@ requires-dist = [
     { name = "anthropic", marker = "extra == 'labeling-api'", specifier = ">=0.69" },
     { name = "emlearn", marker = "extra == 'edge-train'", specifier = ">=0.23" },
     { name = "esptool", marker = "extra == 'edge-hw'", specifier = ">=4.7" },
+    { name = "httpx", marker = "extra == 'catalog'", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'edge'", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'jtbd'", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'release'", specifier = ">=0.27" },
     { name = "huggingface-hub", specifier = ">=1.19" },
     { name = "jinja2", marker = "extra == 'release'", specifier = ">=3.1" },
+    { name = "jsonschema", marker = "extra == 'catalog'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'edge'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'jtbd'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'release'", specifier = ">=4.23" },
@@ -1869,10 +1879,13 @@ requires-dist = [
     { name = "pypdf", marker = "extra == 'jtbd'", specifier = ">=4.3" },
     { name = "pyserial", marker = "extra == 'edge'", specifier = ">=3.5" },
     { name = "pytest-xdist", marker = "extra == 'edge-hw'", specifier = ">=3.3" },
+    { name = "python-dotenv", marker = "extra == 'catalog'", specifier = ">=1.0" },
     { name = "python-dotenv", marker = "extra == 'jtbd'", specifier = ">=1.0" },
+    { name = "pyyaml", marker = "extra == 'catalog'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'edge'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'jtbd'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'release'", specifier = ">=6.0" },
+    { name = "rapidfuzz", marker = "extra == 'catalog'", specifier = ">=3.14.6" },
     { name = "rapidfuzz", marker = "extra == 'jtbd'", specifier = ">=3.14.6" },
     { name = "safetensors", specifier = ">=0.4" },
     { name = "scikit-learn", marker = "extra == 'edge-train'", specifier = ">=1.5" },
@@ -1887,10 +1900,11 @@ requires-dist = [
     { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.4", index = "https://download.pytorch.org/whl/cpu" },
     { name = "trafilatura", marker = "extra == 'jtbd'", specifier = ">=1.12" },
     { name = "transformers", specifier = ">=4.46" },
+    { name = "typer", marker = "extra == 'catalog'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'jtbd'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'release'", specifier = ">=0.12" },
 ]
-provides-extras = ["jtbd", "release", "edge", "edge-hw", "edge-train", "labeling-api"]
+provides-extras = ["jtbd", "release", "edge", "edge-hw", "edge-train", "catalog", "labeling-api"]
 
 [package.metadata.requires-dev]
 dev = [
