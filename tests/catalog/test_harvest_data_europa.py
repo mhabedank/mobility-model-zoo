@@ -12,7 +12,13 @@ import pytest
 from mobility_model_zoo.catalog import ingest, model
 from mobility_model_zoo.catalog.checks import Throttle
 from mobility_model_zoo.catalog.harvest import base, get
-from mobility_model_zoo.catalog.harvest.data_europa import DataEuropa, _area, _licence_id, _route
+from mobility_model_zoo.catalog.harvest.data_europa import (
+    DataEuropa,
+    _area,
+    _licence_id,
+    _route,
+    dane_gov_pl_licence,
+)
 from mobility_model_zoo.catalog.model import read_yaml, schema
 
 RECORDED = Path(__file__).resolve().parents[1] / "fixtures" / "catalog-http" / "data-europa"
@@ -155,3 +161,42 @@ def test_other_modality_yields_nothing(tmp_path):
                             transport=httpx.MockTransport(api(calls)),
                             throttle=Throttle(sleep=lambda s: None))
     assert lines(jsonl) == [] and calls == []
+
+
+def dane(attrs: dict | None, calls: list[httpx.Request], status: int = 200) -> httpx.Client:
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        assert request.url.host == "api.dane.gov.pl" and request.url.path == "/1.4/datasets/4187"
+        return httpx.Response(status, json={"data": {"attributes": attrs or {}}})
+
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+DANE_ID = "https-dane-gov-pl-pl-dataset-4187-26820b94f4ef"
+
+
+def test_dane_gov_pl_licence_read_from_the_portal_api():
+    calls: list[httpx.Request] = []
+    lic = dane_gov_pl_licence(DANE_ID, dane({"license_name": "CC BY 4.0", "license_chosen": 2}, calls))
+    assert lic["id"] == "CC-BY-4.0"
+    assert lic["evidence_url"] == "https://dane.gov.pl/pl/dataset/4187"
+    assert lic["commercial_use"] == "yes" and lic["attribution_required"] == "yes"
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize("attrs", [
+    {"license_name": "CC BY 4.0", "license_condition_custom_description": "Only with written consent."},
+    {"license_name": "CC0 1.0", "license_condition_db_or_copyrighted": "Database rights apply."},
+    {"license_name": None},
+])
+def test_dane_gov_pl_extra_conditions_or_no_licence_stay_unknown(attrs):
+    lic = dane_gov_pl_licence(DANE_ID, dane(attrs, []))
+    assert lic["id"] == "unknown" and lic["evidence_url"] is None
+
+
+def test_dane_gov_pl_other_datasets_and_failures():
+    calls: list[httpx.Request] = []
+    andalucia = "-91ff7a79-ceb3-45a7-9686-c992634343ce-_100358_es"
+    assert dane_gov_pl_licence(andalucia, dane({}, calls)) is None
+    assert calls == []
+    assert dane_gov_pl_licence(DANE_ID, dane({}, calls, status=503), say=lambda m: None) is None

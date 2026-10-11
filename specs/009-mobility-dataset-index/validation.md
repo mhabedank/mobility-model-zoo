@@ -32,3 +32,35 @@ Findings from these runs:
 - **OpenAlex budget.** The free key allows 10,000 credits a day, and one search page costs 10 credits. The harvester stops at 80% of the allowance, and also earlier when the account's remaining-credit headers fall below 20%.
 - **data.europa.eu language filter.** The API has no language filter. The harvester searches with terms in the target language and keeps a dataset only when its language metadata lists that language.
 - **OpenAlex topic filter.** The harvester restricts OpenAlex results to transport-related subfields. Without this filter the term search also returned literature, so precision wins over recall here.
+
+## Pilot v1 (catalog repository, 2026-10-11, T058–T060)
+
+The pilot criteria were committed before the first run (catalog commit 7cbacc1). The runs, entries
+and reports are in catalog commit faacb9a, and the full report is
+`catalog:reports/2026-10-11-pilot.md`.
+
+| Language | Accepted | Licence determined | `training_allowed` | Result |
+|---|---|---|---|---|
+| es | 353 | 77% | 180 | PASS |
+| pl | 282 | 72% | 167 | PASS |
+| ja | 178 | 58% | 43 | PASS |
+
+**Overall: PASS**, so the scale-up (T082–T085) may start.
+
+Index after the pilot: 1,270 active entries, of which 782 are cleared. 76.4% have a determined
+licence; the SC-004 target is 80%.
+
+What the pilot changed in the code:
+
+- **Gzip fix.** The network check decoded cached robots.txt responses twice.
+- **HTTP 429.** The shared client now retries after Retry-After.
+- **Progress output** is now reported in completion order.
+- **dane.gov.pl licences.** data.europa.eu drops the reuse conditions of dane.gov.pl, so the
+  data-europa harvester now reads them from the dane.gov.pl API. This raised the Polish determined
+  licences from 41% to 72%.
+
+Still open:
+
+- Video and audio have no `training_allowed` entry in the three pilot languages. YouTube falls
+  under platform terms, and the podcasts have no licence.
+- The owner queue holds 111 flags, 70 of them possible duplicates.

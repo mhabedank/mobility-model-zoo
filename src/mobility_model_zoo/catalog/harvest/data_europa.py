@@ -5,6 +5,9 @@ The search API has no language facet, so the harvester searches with the terms o
 language and keeps a dataset only if its `language` lists that language, or (when the dataset gives
 no language) its title was written in it (`translation_meta`); such a dataset gets `und`. The
 licence is read from the distributions; distributions with different known licences make `mixed`.
+data.europa.eu drops the reuse conditions of the Polish portal dane.gov.pl, so for its datasets the
+harvester reads the licence from the dane.gov.pl API (`dane_gov_pl_licence`) and keeps `unknown`
+when the publisher adds its own conditions.
 
 Heuristics (documented for the owner):
 - origin area: EU institutions and agencies → `EU`; else the dataset `country`; `EUROPE` → `150`;
@@ -63,6 +66,12 @@ GEO_FORMATS = {"GEOJSON", "KML", "KMZ", "GML", "SHP", "GPKG"}
 MEDIA_TYPE = re.compile(r"^[a-z]+/[A-Za-z0-9.+-]+$")
 IANA_URL = re.compile(r"iana\.org/assignments/media-types/([a-z]+/[A-Za-z0-9.+-]+)")
 DOI = re.compile(r"(10\.\d{4,9}/\S+)$")
+DANE_GOV_PL = re.compile(r"^https-dane-gov-pl-(?:[a-z]{2}-)?dataset-(\d+)(?:-|$)")
+DANE_API = "https://api.dane.gov.pl/1.4/datasets/{n}"
+DANE_PAGE = "https://dane.gov.pl/pl/dataset/{n}"
+# conditions a publisher may add on dane.gov.pl; any of them makes the licence alone insufficient
+DANE_CONDITIONS = ("license_condition_custom_description", "license_condition_db_or_copyrighted",
+                   "license_condition_personal_data")
 RESEARCH = re.compile(r"univers|research|investigaci|forschung|recherche|ricerca|badawcz|csic|cnrs|"
                       r"fraunhofer|helmholtz|academ", re.IGNORECASE)
 COMPANY = re.compile(r"\b(s\.?a\.?u?|s\.?l\.?|gmbh|ag|ltd|plc|inc|b\.?v\.?|s\.?p\.?a\.?|sp\. z o\.o\.)$",
@@ -112,6 +121,32 @@ def _licence(dataset: dict[str, Any], landing: str) -> dict[str, Any]:
         return base.licence_block("mixed", None, landing)
     lid, url = next(iter(ids.items()))
     return base.licence_block(lid, url, landing)
+
+
+def dane_gov_pl_licence(dataset_id: str, client: httpx.Client,
+                        say: Any = print) -> dict[str, Any] | None:
+    """Licence block from the dane.gov.pl API for a dataset that data.europa.eu harvested from it.
+
+    None when the id is not a dane.gov.pl dataset or the API fails; `unknown` when the dataset has
+    no licence or its publisher added conditions of its own.
+    """
+    m = DANE_GOV_PL.match(dataset_id)
+    if not m:
+        return None
+    n = m.group(1)
+    try:
+        resp = client.get(DANE_API.format(n=n), headers={"Accept": "application/json"})
+        resp.raise_for_status()
+        attrs = ((resp.json().get("data") or {}).get("attributes")) or {}
+    except (httpx.HTTPError, ValueError, AttributeError) as e:
+        say(f"data-europa: dane.gov.pl dataset {n}: {type(e).__name__}: {e}")
+        return None
+    if any(attrs.get(k) for k in DANE_CONDITIONS):
+        return base.licence_block("unknown", None, None)
+    lid = base.spdx(str(attrs.get("license_name") or ""))
+    if lid == "unknown":
+        return base.licence_block("unknown", None, None)
+    return base.licence_block(lid, None, DANE_PAGE.format(n=n))
 
 
 def _first(value: Any) -> str | None:
@@ -284,7 +319,7 @@ class DataEuropa:
             for language in languages:
                 for term in base.search_terms(subdomain, language):
                     for dataset in self._search(term, scope, ctx, pages):
-                        cand = self._candidate(dataset, subdomain, language, scope, seen)
+                        cand = self._candidate(dataset, subdomain, language, scope, seen, ctx)
                         if cand is not None:
                             yield cand
 
@@ -307,7 +342,8 @@ class DataEuropa:
                 return
 
     def _candidate(self, dataset: dict[str, Any], subdomain: str, language: str | None,
-                   scope: base.Scope, seen: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+                   scope: base.Scope, seen: dict[str, dict[str, Any]],
+                   ctx: base.Context) -> dict[str, Any] | None:
         did = dataset.get("id")
         titles = dataset.get("title") or {}
         if not did or not isinstance(titles, dict) or not titles:
@@ -332,6 +368,9 @@ class DataEuropa:
             return None
         publisher, kind = _publisher(dataset)
         subdomains = [subdomain]
+        licence = _licence(dataset, landing)
+        if licence["id"] == "unknown":
+            licence = dane_gov_pl_licence(str(did), ctx.client, ctx.say) or licence
         cand = base.candidate(
             self,
             title=str(title),
@@ -344,9 +383,10 @@ class DataEuropa:
             modality="structured_data",
             genre=_genre(dataset, str(title)),
             subdomains=subdomains,
-            licence=_licence(dataset, landing),
+            licence=licence,
             access=_access(dataset, landing),
-            evidence=[landing],
+            evidence=[landing, licence["evidence_url"]] if licence["evidence_url"] not in (None, landing)
+            else [landing],
             topics=_topics(subdomains),
             level="collection",
             identifiers={"doi": doi} if (doi := _doi(dataset)) else None,

@@ -286,8 +286,8 @@ public repository unless they start with `catalog:`, which means the private rep
 
   Print pass or fail per language and overall. Exit 3 if `git log` of the pilot file shows a change after the first run date without a matching `criteria_changes` entry (constitution IV).
 - [X] T057 [P] [US3] Write `tests/catalog/test_catalog_pilot.py` covering pass, fail, overall fail (2 of 3 languages fail), and the refusal on changed criteria without a rationale.
-- [ ] T058 [US3] Pilot preparation (catalog repository): commit `catalog:pilot/pilot-v1.yaml` with languages `es pl ja`, modalities `text video structured_data`, and the criteria of T056, before any pilot run.
-- [ ] T059 [US3] Pilot run (catalog repository). Run in this order:
+- [X] T058 [US3] Pilot preparation (catalog repository): commit `catalog:pilot/pilot-v1.yaml` with languages `es pl ja`, modalities `text video structured_data`, and the criteria of T056, before any pilot run.
+- [X] T059 [US3] Pilot run (catalog repository). Run in this order:
   1. `zoo catalog harvest data-europa --lang es pl`;
   2. `zoo catalog harvest mobility-database --area ES PL JP`;
   3. `zoo catalog harvest openalex --lang es pl ja`;
@@ -297,7 +297,7 @@ public repository unless they start with `catalog:`, which means the private rep
   7. `zoo catalog pilot evaluate pilot/pilot-v1.yaml`.
 
   Commit the runs, the entries and the evaluation output (`catalog:reports/<date>-pilot.md`).
-- [ ] T060 [US3] Pilot gate: if the overall result is fail (two of three languages miss the criteria), stop and write `catalog:reports/<date>-pilot-review.md` covering what failed and the revised discovery strategy. Phase 9, T082 onwards (the scale-up), MUST NOT start until a pilot run passes.
+- [X] T060 [US3] Pilot gate: if the overall result is fail (two of three languages miss the criteria), stop and write `catalog:reports/<date>-pilot-review.md` covering what failed and the revised discovery strategy. Phase 9, T082 onwards (the scale-up), MUST NOT start until a pilot run passes.
 
 **Checkpoint**: Discovery works end to end; the riskiest assumption is tested.
 
