@@ -3,11 +3,11 @@
 Evaluation follows the can-train-and-test protocol: for each of the four sets, train on
 train_01 and test on four splits (known/unknown vehicle x known/unknown attack).
 
-    uv run security can-ids forest evaluate     # protocol results -> $MMZ_DATA/derived/picket-forest/
-    uv run security can-ids forest export       # final model on all vehicles -> C header
-    uv run security can-ids forest alarms       # recompute the alarm grid from stored scores
-    uv run security can-ids forest convert      # re-run C conversion and parity check (no training)
-    uv run security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
+    uv run zoo-security can-ids forest evaluate     # protocol results -> $MMZ_DATA/derived/picket-forest
+    uv run zoo-security can-ids forest export       # final model on all vehicles -> C header
+    uv run zoo-security can-ids forest alarms       # recompute the alarm grid from stored scores
+    uv run zoo-security can-ids forest convert      # re-run C conversion and parity check (no training)
+    uv run zoo-security can-ids forest testvectors  # headers + test vectors -> firmware/picket-forest/c/
 
 Every subcommand takes --data (dataset root, default $MMZ_DATA/can-train-and-test/extracted) and --out
 (derived files, default $MMZ_DATA/derived/picket-forest).
@@ -41,6 +41,7 @@ from mobility_model_zoo.security.can_ids.metrics import (
     false_alarms_per_hour,
     frame_metrics,
 )
+from mobility_model_zoo.security.can_ids.picket_forest import vote_score  # noqa: F401  (re-export)
 
 MODEL = "picket-forest"
 
@@ -122,18 +123,6 @@ def cols(names: list[str]) -> list[int]:
 def fit(X: np.ndarray, y: np.ndarray, hp: dict) -> RandomForestClassifier:
     clf = RandomForestClassifier(min_samples_leaf=20, n_jobs=-1, random_state=SEED, **hp)
     return clf.fit(X, y)
-
-
-def vote_score(clf: RandomForestClassifier, X: np.ndarray) -> np.ndarray:
-    """Share of trees voting "attack".
-
-    This is what the emlearn C code computes on the device (hard voting per tree), which
-    differs from scikit-learn's averaged leaf probabilities.
-    """
-    votes = np.zeros(X.shape[0], dtype=np.float32)
-    for tree in clf.estimators_:
-        votes += tree.predict(X).astype(np.float32)
-    return votes / len(clf.estimators_)
 
 
 def predict(clf, caps: list[dict], idx: list[int]) -> list[np.ndarray]:
@@ -473,7 +462,7 @@ def cmd_export(args) -> None:
     require_training_allowed(DATASET, model=MODEL)
     path = benchmark_dir() / "manifest.json"
     if not path.exists():
-        raise SystemExit(f"benchmark not frozen ({path}); run `security can-ids freeze` first")
+        raise SystemExit(f"benchmark not frozen ({path}); run `zoo-security can-ids freeze` first")
     manifest = json.loads(path.read_text())
     config = export(args.out / "export", manifest, benchmark_sources(), args.out / "features")
     print(
@@ -577,7 +566,7 @@ def cmd_testvectors(args) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        prog="security can-ids forest", description="picket-forest CAN intrusion detector"
+        prog="zoo-security can-ids forest", description="picket-forest CAN intrusion detector"
     )
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(

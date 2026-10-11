@@ -7,6 +7,7 @@
 - P2: every request goes to the local server; no page sets a cookie.
 - A5: reflow: no page scrolls sideways at a phone width of 390 px (WCAG 1.4.10).
 - S2: Largest Contentful Paint at most 2 s under a slow mobile network and a 4x slower CPU.
+- O3: colour contrast of the preview image pages (feature 012).
 """
 
 from __future__ import annotations
@@ -237,4 +238,37 @@ def _load_time(browser, base: str, rels: list[str]) -> list[Finding]:
                 )
             )
     ctx.close()
+    return findings
+
+
+def contrast(out: Path) -> Iterable[Finding]:
+    """O3: axe-core colour contrast on every preview image page, in the scheme it is drawn in."""
+    from playwright.sync_api import sync_playwright
+
+    from mobility_model_zoo.site import og
+    from mobility_model_zoo.site.check import og_manifest
+
+    manifest = og_manifest(out) or {"cards": []}
+    axe = _axe()
+    findings: list[Finding] = []
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch()
+        try:
+            ctx = browser.new_context(
+                viewport={"width": og.WIDTH, "height": og.HEIGHT}, color_scheme="dark"
+            )
+            page = ctx.new_page()
+            for card in manifest["cards"]:
+                page.goto((out / card["html"]).resolve().as_uri(), wait_until="load")
+                page.add_script_tag(content=axe)
+                result = page.evaluate(
+                    "() => axe.run(document, {runOnly: {type: 'rule', values: ['color-contrast']}})"
+                )
+                for v in result["violations"]:
+                    targets = ", ".join(str(n["target"][0]) for n in v["nodes"][:3])
+                    findings.append(
+                        Finding("O3", card["page"] or "index.html", f"{v['help']} at {targets}")
+                    )
+        finally:
+            browser.close()
     return findings

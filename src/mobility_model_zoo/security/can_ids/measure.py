@@ -344,7 +344,7 @@ def merge(path: Path, new: list[dict], model: str, version: str) -> dict:
             "model": model,
             "version": version,
             "synthetic": False,
-            "source_run": "security can-ids measure",
+            "source_run": "zoo-security can-ids measure",
             "metrics": [],
         }
     )

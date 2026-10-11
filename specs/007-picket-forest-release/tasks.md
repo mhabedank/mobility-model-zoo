@@ -90,7 +90,7 @@
   - `verify_captures(manifest, data_dir)`.
 
   The manifest format follows data-model.md, with the protocol constants episode gap 1.0 s, grace 1.0 s, budgets [1, 10], benign keep 0.1, seed 0 and recall FPR 0.001. Attack families come from the capture names (`DoS`, `fuzzing`, `interval`, `rpm`, `speed`, `standstill`, `systematic`, `force-neutral`, `double`, `triple`, …; ROAD: `fabrication`, `fuzzing`, `masquerade`, `accelerator`).
-- [X] T009 [US1] Wire `security can-ids freeze [--benchmark can-ids-v1] [--data DIR]` in `src/mobility_model_zoo/security/cli.py` to `benchmark.freeze`, with the exit codes of contracts/cli.md. Missing dataset gives 5; an unresolved duplicate gives 1; a change to a frozen manifest gives 3.
+- [X] T009 [US1] Wire `zoo-security can-ids freeze [--benchmark can-ids-v1] [--data DIR]` in `src/mobility_model_zoo/security/cli.py` to `benchmark.freeze`, with the exit codes of contracts/cli.md. Missing dataset gives 5; an unresolved duplicate gives 1; a change to a frozen manifest gives 3.
 - [X] T010 [US1] Run the freeze on the real data. First check the suspect pairs (set_01/test_04 vs set_02/test_01, set_03/test_04 vs set_04/test_01).
   - Write every duplicate group with its resolution and reason to `topics/security/benchmarks/can-ids-v1/resolutions.yaml`.
   - Commit `manifest.json` and `resolutions.yaml`.
@@ -157,9 +157,9 @@
     - limitations, `code_commit` and `manifest_sha256`.
   - **`metrics.json`** holds the full numbers.
   - **`zoo/models/picket-forest/results/0.1.0/quality.json`** holds metric names `<metric>_<split>_<agg>` (data-model.md), each with `reference`, `benchmark: can-ids-v1` and `n_items`.
-- [X] T016 [US2] Wire `security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
-- [X] T017 [US2] Fast check: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --sets set_01` and record the runtime and partial results in `validation.md` under "US2 (partial)". Fix anything that fails before the full run.
-- [X] T018 [US2] Full run: run `uv run security can-ids evaluate all --benchmark can-ids-v1 --report`.
+- [X] T016 [US2] Wire `zoo-security can-ids evaluate DETECTOR|all --benchmark can-ids-v1 [--sets …] [--report]` in `src/mobility_model_zoo/security/cli.py` per contracts/cli.md, replacing the exit-5 stub. Keep `zoo-security can-ids forest evaluate` as an alias that calls the harness for picket-forest only.
+- [X] T017 [US2] Fast check: run `uv run zoo-security can-ids evaluate all --benchmark can-ids-v1 --sets set_01` and record the runtime and partial results in `validation.md` under "US2 (partial)". Fix anything that fails before the full run.
+- [X] T018 [US2] Full run: run `uv run zoo-security can-ids evaluate all --benchmark can-ids-v1 --report`.
   - Record the runtime, the R10 outcome, the headline per split (median and worst set) for picket-forest and for the best control and baseline, and the ROAD results in `validation.md` under "US2".
   - Commit the report, `metrics.json` and `quality.json`.
   - **GATE**: `ctrl-shuffled` collapses (attack-class AUROC at most 0.6 on every split, research R10); otherwise stop and investigate leakage (research R10, kill).
@@ -229,21 +229,21 @@
 
 ### Implementation for User Story 4
 
-- [X] T026 **(code done and tested on synthetic data; not run on real data: release cancelled, see Outcome)** [US4] Change `security can-ids forest export` in `src/mobility_model_zoo/security/can_ids/forest.py` so that it:
+- [X] T026 **(code done and tested on synthetic data; not run on real data: release cancelled, see Outcome)** [US4] Change `zoo-security can-ids forest export` in `src/mobility_model_zoo/security/can_ids/forest.py` so that it:
   - trains the release model on `train_01` of all four sets with the config of `configs/security/can-ids/picket-forest.yaml`. Selection uses validation captures only; if it picks other hyperparameters than 30 trees, depth 12, alarm 3 in 200 ms, the config is updated with the reason;
   - reuses the release model cached by T014 if its recipe hash matches, otherwise trains it;
   - writes to `$MMZ_DATA/derived/picket-forest/export/` the files `picket_forest_model.h`, `picket_forest_config.h`, `model.joblib`, `config.json` (with `manifest_sha256` and `code_commit`) and the `c/` sources (`picket_forest.{c,h}`, `msml_can_features.{c,h}`, `msml_alarm.{c,h}`);
   - writes `sbom.cdx.json` (CycloneDX 1.5: component per source file with SHA-256, plus emlearn and scikit-learn with versions) and a test in `tests/security/can_ids/test_forest_port.py` that the SBOM lists every staged source with its hash.
 
   Run it and record the parity result and the chosen hyperparameters in `validation.md` under "US4".
-- [X] T027 **(code done and tested; examples not written: release cancelled, see Outcome)** [US4] Add `security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
+- [X] T027 **(code done and tested; examples not written: release cancelled, see Outcome)** [US4] Add `zoo-security can-ids forest examples --out DIR` to `forest.py`. It writes three synthetic examples (`fabrication`, `dos`, `fuzzing`) with T019 and computes the expected scores and alarms with the scorer of T022 from the exported headers. Run it into `zoo/models/picket-forest/examples/` and commit the files.
 - [X] T028 [P] [US4] (CI build deferred, see validation.md) Create a PlatformIO project in `firmware/picket-forest/platformio/` (`platformio.ini` with envs `esp32` and `esp8266` = `d1_mini` at 160 MHz, framework arduino):
   - `src/` reuses the existing replay sketch `firmware/picket-forest/esp8266/picket_forest_bench/bench.cpp` and the C sources through `lib_extra_dirs`/`build_src_filter`; no copies;
   - a pre-script copies the exported headers and a synthetic test-vector header (from the T027 examples, not dataset frames) into a gitignored `generated/` folder;
   - the sketch prints `PICKET_FOREST_RESULT` with frames, cycles or µs per frame (median, p99), score mismatches against the expected scores, alarms, state bytes and free heap.
 
   Add the envs to `.github/workflows/firmware.yml` (build only).
-- [X] T029 [US4] Create `src/mobility_model_zoo/security/can_ids/measure.py` and wire `security can-ids measure --target host|esp32-qemu|esp8266 -b BOARD [--out FILE]` in `security/cli.py` per contracts/cli.md:
+- [X] T029 [US4] Create `src/mobility_model_zoo/security/can_ids/measure.py` and wire `zoo-security can-ids measure --target host|esp32-qemu|esp8266 -b BOARD [--out FILE]` in `security/cli.py` per contracts/cli.md:
   - **`host`:** times the scorer of T022 over the examples (median and p99 µs per frame), origin `host`.
   - **`esp32-qemu`:** builds the `esp32` env and runs it in QEMU through `mobility_model_zoo.edge.bench.qemu`. Reads the result line and takes `flash_kb` (detector code plus rodata from the linker map) and `ram_kb` (state bytes plus static data). Origin `emulator`; the latency description says "not representative".
   - **`esp8266 -b BOARD`:** builds the `esp8266` env, flashes it through the bench flasher of the board in `hil/boards.yaml`, reads the result line over serial, and records `latency_us`, `latency_p99_us` and `ram_kb` with origin `real_board` and hardware "ESP8266 (Wemos D1 mini), 160 MHz, substitute for the reference board ESP32-S3".

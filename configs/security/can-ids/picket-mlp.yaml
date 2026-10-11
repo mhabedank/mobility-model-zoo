@@ -1,5 +1,5 @@
 # picket-mlp: task can-ids (topics/security/tasks/can-ids.md).
-# Train: uv run security can-ids mlp train --config configs/security/can-ids/picket-mlp.yaml
+# Train: uv run zoo-security can-ids mlp train --config configs/security/can-ids/picket-mlp.yaml
 # Sections other than `train` document values fixed in the code; the command refuses the
 # config if they differ (edge/int8/keras_export.py load_config).
 model: picket-mlp

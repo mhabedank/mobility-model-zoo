@@ -1,13 +1,18 @@
 """`zoo site build`: render the website from the registry into `_site/` (contracts/site-tree.md).
 
-Pages: the start page, one page per published model, one page per output format, a 404 page.
+Pages: the start page, the quickstart (`docs/quickstart.md`), one page per published model, one page
+per output format, a 404 page.
 Every model fact comes from the release records and results (FR-004); `_build/facts.json` lists
-each rendered fact with its source for `zoo site check` and is removed before deployment.
+each rendered fact with its source for `zoo site check` and is removed before deployment. Every
+shareable page also gets a preview image (`og.py`, feature 012), listed in `_build/og.json`.
 """
 
 from __future__ import annotations
 
+import json
+import re
 import shutil
+import time
 from collections.abc import Callable
 from importlib import resources
 from pathlib import Path
@@ -16,14 +21,17 @@ from typing import Any
 import jinja2
 from markupsafe import Markup
 
-from mobility_model_zoo.release.card import fill, install_line, num, topic_url
+from mobility_model_zoo.release.card import fill, install_line, num, python_requirement, topic_url
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
-from mobility_model_zoo.site import charts, context, examples, facts, schema_doc
+from mobility_model_zoo.site import charts, context, examples, facts, og, schema_doc
 from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
 DETERMINISTIC = ("quotes_verbatim_rate", "schema_valid_rate", "consistency_rate")
+QUICKSTART = "docs/quickstart.md"
+_QUICKSTART_FIELD = re.compile(r"\{(install|snippet|output):([a-z0-9-]+)\}")
+NO_OUTPUT = "(the model page shows what the program prints)"
 
 
 def _static() -> Any:
@@ -59,7 +67,7 @@ def environment() -> jinja2.Environment:
     env.filters["num"] = num
     env.filters["md"] = md
     env.filters["ucfirst"] = lambda s: s[:1].upper() + s[1:]
-    env.globals.update(mark=mark, motif=motif)
+    env.globals.update(mark=mark, motif=motif, og_width=og.WIDTH, og_height=og.HEIGHT)
     return env
 
 
@@ -113,8 +121,10 @@ def model_page(
     if latest["output_format_version"]:
         fmt = schema_doc.output_format(reg, latest["output_format_version"])
     schema = fmt["schema"] if fmt else None
+    run_output = None
     if reg.runtime(m) == "mcu":
         exs = examples.device(reg, name, version, schema)
+        run_output = examples.run_output(reg, name, version, offline, refresh)
     else:
         exs = examples.load(reg, name, version, schema, offline, refresh)
     quick = next((e for e in exs if e["file"] == pitch["quickstart_example"]), exs[0] if exs else None)
@@ -146,9 +156,12 @@ def model_page(
         ],
         "hardware_note": res(pitch.get("hardware_note", ""), "hardware_note"),
         "install": install_line(m, version),
+        "python_requirement": python_requirement(),
         "how_to_run": fill(
             m["card"]["how_to_run"], m["repos"]["public"], f"v{version}", quick["text"] if quick else ""
         ).strip(),
+        "run_output": run_output,
+        "own_data": fill(m["card"].get("own_data", ""), m["repos"]["public"], f"v{version}", "").strip(),
         "quick": quick,
         "examples": exs,
         "fmt": fmt,
@@ -165,6 +178,36 @@ def model_page(
     }
 
 
+def quickstart(reg: Registry, models: list[dict[str, Any]], offline: bool, refresh: bool) -> str:
+    """The text of `docs/quickstart.md` with the install line, program and printed output of the
+    named models filled in from the registry (latest published version), so the page cannot drift
+    from the model cards. Fields: `{install:<model>}`, `{snippet:<model>}`, `{output:<model>}`."""
+    by_name = {sm["name"]: sm for sm in models}
+    failures: list[str] = []
+
+    def field(match: re.Match[str]) -> str:
+        kind, name = match.groups()
+        sm = by_name.get(name)
+        if sm is None or not sm["latest"]:
+            failures.append(f"Q1 {QUICKSTART} names {name}, which has no published version")
+            return match.group(0)
+        m, version = sm["m"], sm["latest"]
+        mcu = reg.runtime(m) == "mcu"
+        if kind == "install":
+            return install_line(m, version)
+        if kind == "snippet":
+            texts = [] if mcu else reg.examples(name)
+            first = texts[0][1] if texts else ""
+            return fill(m["card"]["how_to_run"], m["repos"]["public"], f"v{version}", first).strip()
+        shown = examples.run_output(reg, name, version, offline, refresh) if mcu else None
+        return shown or NO_OUTPUT
+
+    body = _QUICKSTART_FIELD.sub(field, (reg.root / QUICKSTART).read_text(encoding="utf-8"))
+    if failures:
+        raise GateFailed(failures)
+    return body
+
+
 # ---- building ---------------------------------------------------------------------------------
 def _write(out: Path, rel: str, html: str) -> None:
     path = out / rel
@@ -178,7 +221,8 @@ def build(
     offline: bool = False,
     refresh: bool = False,
     say: Callable[[str], None] = print,
-) -> dict[str, int]:
+    images: bool = True,
+) -> dict[str, Any]:
     site = context.load_site_config(reg)
     models = context.site_models(reg)
     env = environment()
@@ -191,12 +235,36 @@ def build(
     with resources.as_file(_static()) as static:
         shutil.copytree(static, out / "assets", dirs_exist_ok=True)
 
+    formats = []
+    for format_id in schema_doc.format_ids(reg):
+        try:
+            fmt = schema_doc.output_format(reg, format_id)
+        except GateFailed as e:
+            failures += e.failures
+            continue
+        if fmt is None:
+            failures.append(f"B5 {format_id}: zoo/formats/{format_id}.yaml is missing")
+            continue
+        formats.append(fmt)
+
+    share = og.cards(reg, site, models, formats)
+    failures += og.card_errors(share)
+    renderer = og.renderer_id(reg.root)
+    for card in share:
+        html = og.card_html(env, card)
+        card["html"] = f"{og.CARD_DIR}/{card['slug']}.html"
+        _write(out, card["html"], html)
+        card["inputs_sha256"] = og.input_hash(html, (out / card["html"]).parent, renderer)
+        card["file"] = og.card_file(card, card["inputs_sha256"])
+    by_page = {c["page"]: c for c in share}
+
     common = {"site": site}
     pages = 0
 
     def render(rel: str, template: str, root: str, path: str, **ctx: Any) -> None:
         nonlocal pages
-        html = env.get_template(template).render(**common, root=root, path=path, **ctx)
+        card = by_page.get(path, by_page[""])
+        html = env.get_template(template).render(**common, root=root, path=path, card=card, **ctx)
         _write(out, rel, html)
         pages += 1
         say(f"  wrote {rel}")
@@ -214,22 +282,21 @@ def build(
             f"models/{sm['name']}/index.html", "model.html.j2", "../../", f"models/{sm['name']}/", p=ctx
         )
         rendered.append(sm["name"])
-    for format_id in schema_doc.format_ids(reg):
-        try:
-            fmt = schema_doc.output_format(reg, format_id)
-        except GateFailed as e:
-            failures += e.failures
-            continue
-        if fmt is None:
-            failures.append(f"B5 {format_id}: zoo/formats/{format_id}.yaml is missing")
-            continue
+    for fmt in formats:
         render(
-            f"formats/{format_id}/index.html",
+            f"formats/{fmt['id']}/index.html",
             "format.html.j2",
             "../../",
-            f"formats/{format_id}/",
+            f"formats/{fmt['id']}/",
             fmt=fmt,
         )
+    if (reg.root / QUICKSTART).is_file():
+        try:
+            body = quickstart(reg, models, offline, refresh)
+        except GateFailed as e:
+            failures += e.failures
+        else:
+            render("quickstart/index.html", "quickstart.html.j2", "../", "quickstart/", body=body)
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
     render(
         "index.html",
@@ -246,6 +313,22 @@ def build(
     if failures:
         raise GateFailed(failures)
     f.write(out)
+    started = time.monotonic()
+    if images:
+        og.render(share, out, say)
+    seconds = time.monotonic() - started
+    manifest = {"renderer": renderer, "cards": [og.manifest_card(c) for c in share]}
+    _write(out, og.MANIFEST, json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
+    drawn = len(share) if images else 0
     in_progress = sum(1 for sm in models if sm["status"] == "in_progress")
-    say(f"site: {pages} pages, {len(rendered)} models ({in_progress} in progress)")
-    return {"pages": pages, "models": len(rendered), "in_progress": in_progress}
+    say(
+        f"site: {pages} pages, {drawn} images in {seconds:.1f} s, {len(rendered)} models "
+        f"({in_progress} in progress)"
+    )
+    return {
+        "pages": pages,
+        "images": drawn,
+        "image_seconds": round(seconds, 1),
+        "models": len(rendered),
+        "in_progress": in_progress,
+    }

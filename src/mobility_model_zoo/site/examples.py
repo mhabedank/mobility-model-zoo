@@ -16,7 +16,7 @@ from typing import Any
 
 import jsonschema
 
-from mobility_model_zoo.release.card import parse_card_examples
+from mobility_model_zoo.release.card import parse_card_examples, parse_card_run_output
 from mobility_model_zoo.release.errors import GateFailed, UsageError
 from mobility_model_zoo.release.registry import Registry, load_yaml
 
@@ -64,6 +64,37 @@ def card_outputs(
         encoding="utf-8",
     )
     return outputs
+
+
+def run_output(
+    reg: Registry, name: str, version: str, offline: bool = False, refresh: bool = False
+) -> str | None:
+    """What the card's `how_to_run` printed in the release gate's fresh environment (microcontroller
+    models), from the published card of this version (cached like `card_outputs`). None when the
+    version is not published, the card shows none, or the card is not cached and the build is offline."""
+    record = reg.record_raw(name, version)
+    published = record.get("published") or {}
+    commit, sha = published.get("repo_commit"), published.get("card_sha256")
+    if not commit or not sha:
+        return None
+    cache = reg.root / CACHE / name / f"{version}.run.json"
+    if cache.exists() and not refresh:
+        data = json.loads(cache.read_text(encoding="utf-8"))
+        if data.get("repo_commit") == commit and data.get("card_sha256") == sha:
+            return data["run_output"]
+    if offline:
+        return None
+    card = _download_card(reg.model_raw(name)["repos"]["public"], commit)
+    got = hashlib.sha256(card).hexdigest()
+    if got != sha:
+        raise GateFailed([f"B3 {name} {version}: card hash {got} is not card_sha256 {sha}"])
+    output = parse_card_run_output(card.decode("utf-8"))
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(
+        json.dumps({"repo_commit": commit, "card_sha256": sha, "run_output": output}, indent=1) + "\n",
+        encoding="utf-8",
+    )
+    return output
 
 
 # ---- spans ------------------------------------------------------------------------------------

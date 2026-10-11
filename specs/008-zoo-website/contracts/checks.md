@@ -27,3 +27,5 @@
 | S1 | Main HTML ≤ 150 KB per page; total size without fonts ≤ 300 KB; no `<script>` without `defer` | SC-007 |
 | S2 | Under Playwright network throttling (Fast 3G profile: 1.6 Mbps down, 150 ms RTT) and 4× CPU slowdown, Largest Contentful Paint of every page ≤ 2,000 ms | SC-007 |
 | C1 | `reuse lint` passes, including fonts, mark and generated assets; this check comes from the existing `zoo compliance check` | FR-019 |
+
+Feature 012 adds the preview image checks B6, B7 and O1–O5, extends P1 and P3 to the card pages under `_build/og/`, and excludes `assets/og/` from the S1 total: see [specs/012-social-preview-images/contracts/checks.md](../../012-social-preview-images/contracts/checks.md).

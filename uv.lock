@@ -1774,11 +1774,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "huggingface-hub" },
-    { name = "safetensors" },
-    { name = "sentencepiece" },
-    { name = "torch", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
-    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
-    { name = "transformers" },
+    { name = "numpy" },
 ]
 
 [package.optional-dependencies]
@@ -1794,16 +1790,24 @@ cluster = [
     { name = "jsonschema" },
     { name = "numpy" },
     { name = "pyyaml" },
+    { name = "safetensors" },
     { name = "scikit-learn" },
     { name = "scipy" },
+    { name = "sentencepiece" },
+    { name = "torch", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "transformers" },
     { name = "typer" },
 ]
 edge = [
     { name = "httpx" },
+    { name = "joblib" },
     { name = "jsonschema" },
     { name = "numpy" },
     { name = "pyserial" },
     { name = "pyyaml" },
+    { name = "scikit-learn" },
+    { name = "typer" },
 ]
 edge-hw = [
     { name = "esptool" },
@@ -1832,9 +1836,14 @@ jtbd = [
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "rapidfuzz" },
+    { name = "safetensors" },
     { name = "scikit-learn" },
     { name = "scipy" },
+    { name = "sentencepiece" },
+    { name = "torch", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
     { name = "trafilatura" },
+    { name = "transformers" },
     { name = "typer" },
 ]
 labeling-api = [
@@ -1849,6 +1858,13 @@ release = [
     { name = "pandas" },
     { name = "pyyaml" },
     { name = "typer" },
+]
+text = [
+    { name = "safetensors" },
+    { name = "sentencepiece" },
+    { name = "torch", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "transformers" },
 ]
 
 [package.dev-dependencies]
@@ -1872,6 +1888,7 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'release'", specifier = ">=0.27" },
     { name = "huggingface-hub", specifier = ">=1.19" },
     { name = "jinja2", marker = "extra == 'release'", specifier = ">=3.1" },
+    { name = "joblib", marker = "extra == 'edge'", specifier = ">=1.3" },
     { name = "jsonschema", marker = "extra == 'catalog'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'cluster'", specifier = ">=4.23" },
     { name = "jsonschema", marker = "extra == 'edge'", specifier = ">=4.23" },
@@ -1879,6 +1896,9 @@ requires-dist = [
     { name = "jsonschema", marker = "extra == 'release'", specifier = ">=4.23" },
     { name = "markdown-it-py", marker = "extra == 'release'", specifier = ">=3.0" },
     { name = "matplotlib", marker = "extra == 'jtbd'", specifier = ">=3.9" },
+    { name = "mobility-model-zoo", extras = ["text"], marker = "extra == 'cluster'" },
+    { name = "mobility-model-zoo", extras = ["text"], marker = "extra == 'jtbd'" },
+    { name = "numpy", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'cluster'", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'edge'", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'jtbd'", specifier = ">=1.26" },
@@ -1902,27 +1922,29 @@ requires-dist = [
     { name = "pyyaml", marker = "extra == 'release'", specifier = ">=6.0" },
     { name = "rapidfuzz", marker = "extra == 'catalog'", specifier = ">=3.14.6" },
     { name = "rapidfuzz", marker = "extra == 'jtbd'", specifier = ">=3.14.6" },
-    { name = "safetensors", specifier = ">=0.4" },
+    { name = "safetensors", marker = "extra == 'text'", specifier = ">=0.4" },
     { name = "scikit-learn", marker = "extra == 'cluster'", specifier = ">=1.5" },
+    { name = "scikit-learn", marker = "extra == 'edge'", specifier = ">=1.5" },
     { name = "scikit-learn", marker = "extra == 'edge-train'", specifier = ">=1.5" },
     { name = "scikit-learn", marker = "extra == 'jtbd'", specifier = ">=1.5" },
     { name = "scipy", marker = "extra == 'cluster'", specifier = ">=1.13" },
     { name = "scipy", marker = "extra == 'jtbd'", specifier = ">=1.13" },
-    { name = "sentencepiece", specifier = ">=0.2" },
+    { name = "sentencepiece", marker = "extra == 'text'", specifier = ">=0.2" },
     { name = "setuptools", marker = "extra == 'edge-train'", specifier = ">=70" },
     { name = "tensorflow", marker = "sys_platform != 'linux' and extra == 'edge-train'", specifier = ">=2.16" },
     { name = "tensorflow-cpu", marker = "sys_platform == 'linux' and extra == 'edge-train'", specifier = ">=2.16" },
     { name = "tflite", marker = "extra == 'edge-train'", specifier = ">=2.10" },
-    { name = "torch", marker = "sys_platform != 'linux'", specifier = ">=2.4" },
-    { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.4", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform == 'linux' and extra == 'text'", specifier = ">=2.4", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform != 'linux' and extra == 'text'", specifier = ">=2.4" },
     { name = "trafilatura", marker = "extra == 'jtbd'", specifier = ">=1.12" },
-    { name = "transformers", specifier = ">=4.46" },
+    { name = "transformers", marker = "extra == 'text'", specifier = ">=4.46" },
     { name = "typer", marker = "extra == 'catalog'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'cluster'", specifier = ">=0.12" },
+    { name = "typer", marker = "extra == 'edge'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'jtbd'", specifier = ">=0.12" },
     { name = "typer", marker = "extra == 'release'", specifier = ">=0.12" },
 ]
-provides-extras = ["jtbd", "cluster", "release", "edge", "edge-hw", "edge-train", "catalog", "labeling-api"]
+provides-extras = ["text", "jtbd", "cluster", "release", "edge", "edge-hw", "edge-train", "catalog", "labeling-api"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -23,6 +23,12 @@
       "$ref": "#/$defs/prose",
       "maxLength": 120
     },
+    "share_line": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 90,
+      "description": "One line on the preview image when the page is shared: what the model does and why it matters. No numbers and no {metric:…} placeholders (an image cannot carry the note that says what a number is measured against). If absent, the tagline is used and must meet the same rules (check B6)."
+    },
     "audience": {
       "$ref": "#/$defs/prose"
     },

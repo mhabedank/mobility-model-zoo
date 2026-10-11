@@ -20,7 +20,7 @@ card:
   intended_use: Testing the release pipeline of the mobility model zoo.
   out_of_scope: Any real use. The model has random weights and its outputs mean nothing.
   input_output: "Input: a text. Output: JSON with one item per sentence (`kind`, `quote`, `score`)."
-  install: pip install "mobility-model-zoo @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  install: pip install "mobility-model-zoo[text] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
     import json
 
