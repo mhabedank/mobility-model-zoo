@@ -16,6 +16,18 @@
       "description": "The line on the start page's preview image; no numbers. If absent, the tagline is used and must meet the same rules (check B6)."
     },
     "lead": {"type": "string", "minLength": 1},
+    "roadmap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "share_line": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 90,
+          "description": "The line on the roadmap page's preview image (feature 015); no numbers (check B6). If absent: 'What the zoo plans to release next.'"
+        }
+      }
+    },
     "values": {
       "type": "array",
       "maxItems": 4,

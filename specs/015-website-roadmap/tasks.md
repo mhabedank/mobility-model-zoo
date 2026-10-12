@@ -198,43 +198,43 @@
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] RM5 test in `tests/website/test_roadmap_history.py`:
+- [X] T028 [P] [US3] RM5 test in `tests/website/test_roadmap_history.py`:
   - set up a git repository in the fixture copy: `git init`, commit the fixture;
   - change `planned` of `hum-bearing` and commit: `RM5 hum-bearing: planned was 2027-Q1..Q2 when the entry was added`;
   - a correct move (append to `moves`, change `horizon` only) passes;
   - without a git repository, RM5 passes.
-- [ ] T029 [P] [US3] RM6 and RM8 tests in `tests/website/test_roadmap_record.py`:
+- [X] T029 [P] [US3] RM6 and RM8 tests in `tests/website/test_roadmap_record.py`:
   - `ZOO_TODAY=2027-01-05` with an open entry in `2026-Q4` gives RM6;
   - `as_of` 101 days before today gives RM6, and 100 days does not;
   - `as_of` in the future gives RM6;
   - `ZOO_TODAY=2026-12-20` gives the warning and no finding;
   - `delivered_by: {model: scout-large, version: 9.9.9}` gives RM8.
-- [ ] T030 [P] [US3] RM9 tests in `tests/website/test_checks.py`:
+- [X] T030 [P] [US3] RM9 tests in `tests/website/test_checks.py`:
   - on a built fixture site RM9 passes;
   - after removing an entry's `li` from `_site/roadmap/index.html`, reordering two entries, or removing a start-page card, RM9 reports it;
   - a heading count that differs from the cards shown is reported.
-- [ ] T031 [P] [US3] CLI test in `tests/website/test_roadmap_cli.py`: `zoo roadmap check` (typer `CliRunner`, cwd at the fixture copy, the same registry resolution as `zoo site`) exits 0 on the fixture and 1 with the RM2 fault, printing the finding line
+- [X] T031 [P] [US3] CLI test in `tests/website/test_roadmap_cli.py`: `zoo roadmap check` (typer `CliRunner`, cwd at the fixture copy, the same registry resolution as `zoo site`) exits 0 on the fixture and 1 with the RM2 fault, printing the finding line
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement RM5 in `src/mobility_model_zoo/site/roadmap.py`:
+- [X] T032 [US3] Implement RM5 in `src/mobility_model_zoo/site/roadmap.py`:
   - list the commits of `zoo/roadmap/roadmap.yaml` oldest first (`git -C <root> log --format=%H --reverse -- zoo/roadmap/roadmap.yaml`);
   - read each with `git show <sha>:zoo/roadmap/roadmap.yaml` and find each entry id's first appearance;
   - compare `planned`;
   - skip silently when the root is not a git repository or the file has no history;
   - cache the parsed history per root for one run.
-- [ ] T033 [US3] Implement RM6 in `src/mobility_model_zoo/site/roadmap.py`:
+- [X] T033 [US3] Implement RM6 in `src/mobility_model_zoo/site/roadmap.py`:
   - `as_of` must not be after today and must be at most 100 days before it (constant `MAX_AS_OF_AGE_DAYS = 100`);
   - no open entry may sit in a horizon whose `end` is before today;
   - a `warnings(record, today)` function returns the 14-day warning (constant `WARN_DAYS_BEFORE_END = 14`), which `build()` and `zoo roadmap check` print without failing.
-- [ ] T034 [US3] Implement RM8 in `src/mobility_model_zoo/site/roadmap.py`: `delivered_by` must name a version whose release record exists and has `published.published_at`
-- [ ] T035 [US3] Implement RM9 `check_roadmap_pages(reg, out)` in `src/mobility_model_zoo/site/check.py` per [contracts/checks.md](contracts/checks.md):
+- [X] T034 [US3] Implement RM8 in `src/mobility_model_zoo/site/roadmap.py`: `delivered_by` must name a version whose release record exists and has `published.published_at`
+- [X] T035 [US3] Implement RM9 `check_roadmap_pages(reg, out)` in `src/mobility_model_zoo/site/check.py` per [contracts/checks.md](contracts/checks.md):
   - parse `_site/roadmap/index.html` and `_site/index.html` with the existing `Page` parser, or a small `HTMLParser` that collects `li.entry` ids per `section.horizon` and `a.mini` hrefs;
   - compare with `roadmap.page_context`;
   - check the heading counts;
   - register it in `run_checks` as `("RM9", …)`.
-- [ ] T036 [US3] Create `src/mobility_model_zoo/site/roadmap_cli.py` with a Typer app with the command `check`: run `roadmap.load` and `validate`, print findings and warnings to stderr, exit 1 on findings ([contracts/cli.md](contracts/cli.md)). Register it in `src/mobility_model_zoo/release/cli.py` with a `_mount_roadmap()` next to `_mount_site()` (`app.add_typer(roadmap_app, name="roadmap")`)
-- [ ] T037 [US3] Add `- run: uv run zoo roadmap check` after `uv run zoo validate --all` in the `checks` job of `.github/workflows/ci.yml`
+- [X] T036 [US3] Create `src/mobility_model_zoo/site/roadmap_cli.py` with a Typer app with the command `check`: run `roadmap.load` and `validate`, print findings and warnings to stderr, exit 1 on findings ([contracts/cli.md](contracts/cli.md)). Register it in `src/mobility_model_zoo/release/cli.py` with a `_mount_roadmap()` next to `_mount_site()` (`app.add_typer(roadmap_app, name="roadmap")`)
+- [X] T037 [US3] Add `- run: uv run zoo roadmap check` after `uv run zoo validate --all` in the `checks` job of `.github/workflows/ci.yml`
 
 **Checkpoint**: the roadmap cannot silently drift from the registry, the calendar or its own history.
 
@@ -253,7 +253,7 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
 
 ### Tests for User Story 4
 
-- [ ] T038 [P] [US4] Pace tests in `tests/website/test_roadmap_pace.py` on a fixture copy:
+- [X] T038 [P] [US4] Pace tests in `tests/website/test_roadmap_pace.py` on a fixture copy:
   - give picket-forest a published record with `published_at: 2026-11-20T10:00:00Z` (on time for `2026-Q4`);
   - move `scout-large-reader-test` to `2027-Q1..Q2` with a reason;
   - drop `picket-signal` with a reason;
@@ -266,15 +266,15 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
   - **Empty tables**: printed as "None.".
   - **Trend**: has one row.
   - **Quarter not closed**: refused without `--draft`.
-- [ ] T039 [P] [US4] `--write` tests in `tests/website/test_roadmap_pace.py`: the file is created with the "## Re-planning" heading; a second `--write` keeps hand-written text under "## Re-planning" and replaces the generated sections
-- [ ] T040 [P] [US4] RM7 tests in `tests/website/test_roadmap_record.py`:
+- [X] T039 [P] [US4] `--write` tests in `tests/website/test_roadmap_pace.py`: the file is created with the "## Re-planning" heading; a second `--write` keeps hand-written text under "## Re-planning" and replaces the generated sections
+- [X] T040 [P] [US4] RM7 tests in `tests/website/test_roadmap_record.py`:
   - horizons `2027-Q1`, `2027-Q2..Q3`, `2027-Q4..2028-Q1` with `ZOO_TODAY=2027-01-05` and no review gives `RM7 … no review for 2026-Q4`;
   - a review whose "Re-planning" section is empty gives RM7;
   - a filled review passes.
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Create `src/mobility_model_zoo/site/pace.py` with `report(reg, record, quarter, today, draft=False) -> dict` per research R6 and [contracts/pace-report.md](contracts/pace-report.md):
+- [X] T041 [US4] Create `src/mobility_model_zoo/site/pace.py` with `report(reg, record, quarter, today, draft=False) -> dict` per research R6 and [contracts/pace-report.md](contracts/pace-report.md):
   - **Delivered in the quarter**: with timing against `planned` and slip.
   - **Due and not delivered**: first planned horizon ending in or before the quarter, not delivered by the quarter's end, with current horizon and move reasons.
   - **Moved and dropped**: those whose dates fall in the quarter.
@@ -282,11 +282,11 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
   - **Counts**: releases, delivered, due, delivery rate "<a> of <b>".
   - **Trend**: one row per quarter from `since` up to this one, recomputed.
   - **Rules**: a quarter that has not ended raises an error unless `draft`; the "Due" rule (a two-quarter horizon is due in its second quarter) as stated in the contract.
-- [ ] T042 [US4] Add `render_markdown(report) -> str` and `write(reg, quarter, text)` to `src/mobility_model_zoo/site/pace.py`:
+- [X] T042 [US4] Add `render_markdown(report) -> str` and `write(reg, quarter, text)` to `src/mobility_model_zoo/site/pace.py`:
   - the Markdown follows the template of [contracts/pace-report.md](contracts/pace-report.md), with empty tables printed as "None.";
   - `write` creates `zoo/roadmap/reviews/<quarter>.md`, or replaces everything above "## Re-planning" in an existing file and keeps that section.
-- [ ] T043 [US4] Add the command `pace QUARTER [--write] [--draft]` to `src/mobility_model_zoo/site/roadmap_cli.py` ([contracts/cli.md](contracts/cli.md)): print the Markdown to stdout, or write and print the path
-- [ ] T044 [US4] Implement RM7 in `src/mobility_model_zoo/site/roadmap.py`: for every quarter from `since` up to the quarter before the first horizon's start, `zoo/roadmap/reviews/<quarter>.md` exists and its "## Re-planning" section contains at least one sentence (non-empty text other than the template placeholder line). Wire it into `validate()`
+- [X] T043 [US4] Add the command `pace QUARTER [--write] [--draft]` to `src/mobility_model_zoo/site/roadmap_cli.py` ([contracts/cli.md](contracts/cli.md)): print the Markdown to stdout, or write and print the path
+- [X] T044 [US4] Implement RM7 in `src/mobility_model_zoo/site/roadmap.py`: for every quarter from `since` up to the quarter before the first horizon's start, `zoo/roadmap/reviews/<quarter>.md` exists and its "## Re-planning" section contains at least one sentence (non-empty text other than the template placeholder line). Wire it into `validate()`
 
 **Checkpoint**: plan against actual is measurable; the horizons cannot roll forward without a review.
 
@@ -298,13 +298,13 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
 
 **Independent Test**: `uv run zoo site build` (with images) writes a preview image for `roadmap/`; `zoo site check` reports no O1–O5 or B6 finding; `og:image` of `roadmap/index.html` points to it.
 
-- [ ] T045 [P] [US5] Tests in `tests/website/test_og_meta.py` and `tests/website/test_share_line.py`:
+- [X] T045 [P] [US5] Tests in `tests/website/test_og_meta.py` and `tests/website/test_share_line.py`:
   - the cards list contains `roadmap/` with eyebrow "Roadmap", title "What comes next" and the default line when `zoo/site.yaml` has no `roadmap.share_line`;
   - a share line with a digit fails B6;
   - `og:image` of the roadmap page names its card file.
-- [ ] T046 [US5] Add the optional block `roadmap: {share_line}` to `src/mobility_model_zoo/site/schemas/site-config.schema.json` (`share_line`: string, `minLength` 1, `maxLength` 90, same description rules as the top-level `share_line`)
-- [ ] T047 [US5] Add the roadmap card to `og.cards()` in `src/mobility_model_zoo/site/og.py`: `_card("roadmap/", "page", "roadmap", "What comes next", line, eyebrow="Roadmap", owner="roadmap", from_tagline=False)`, where `line` is `site.get("roadmap", {}).get("share_line")` or "What the zoo plans to release next."; keep `site_cards()` in step so O4 sees it
-- [ ] T048 [P] [US5] Add `roadmap: {share_line: "What the zoo plans to release next, and what it has delivered."}` to `zoo/site.yaml` (no numbers, at most 90 characters)
+- [X] T046 [US5] Add the optional block `roadmap: {share_line}` to `src/mobility_model_zoo/site/schemas/site-config.schema.json` (`share_line`: string, `minLength` 1, `maxLength` 90, same description rules as the top-level `share_line`)
+- [X] T047 [US5] Add the roadmap card to `og.cards()` in `src/mobility_model_zoo/site/og.py`: `_card("roadmap/", "page", "roadmap", "What comes next", line, eyebrow="Roadmap", owner="roadmap", from_tagline=False)`, where `line` is `site.get("roadmap", {}).get("share_line")` or "What the zoo plans to release next."; keep `site_cards()` in step so O4 sees it
+- [X] T048 [P] [US5] Add `roadmap: {share_line: "What the zoo plans to release next, and what it has delivered."}` to `zoo/site.yaml` (no numbers, at most 90 characters)
 
 **Checkpoint**: all stories done.
 

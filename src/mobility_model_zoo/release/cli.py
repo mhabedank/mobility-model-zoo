@@ -103,10 +103,17 @@ def _mount_site() -> None:
     app.add_typer(site_app, name="site")
 
 
+def _mount_roadmap() -> None:
+    from mobility_model_zoo.site.roadmap_cli import app as roadmap_app
+
+    app.add_typer(roadmap_app, name="roadmap")
+
+
 _mount_compliance()
 _mount_data()
 _mount_catalog()
 _mount_site()
+_mount_roadmap()
 
 
 @app.command("validate")

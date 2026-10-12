@@ -590,6 +590,54 @@ def check_language(out: Path) -> Iterable[Finding]:
             yield Finding("E1", rel(out, path), 'missing <html lang="en">')
 
 
+def check_roadmap_pages(reg: Registry, out: Path) -> Iterable[Finding]:
+    """RM9 (feature 015): the roadmap page and the start-page cards show exactly the open entries of
+    the record, in record order, and the models heading counts what is shown."""
+    from mobility_model_zoo.site import roadmap
+
+    try:
+        record = roadmap.load(reg)
+    except GateFailed as e:
+        yield from (Finding("RM9", "zoo/roadmap/roadmap.yaml", f) for f in e.failures)
+        return
+    ctx = roadmap.page_context(reg, record)
+    page = out / "roadmap" / "index.html"
+    if not page.exists():
+        yield Finding("RM9", "roadmap/index.html", "missing")
+        return
+    html = page.read_text(encoding="utf-8")
+    for h in ctx["horizons"]:
+        start = html.find(f'id="h-{h["id"]}"')
+        if start < 0:
+            yield Finding("RM9", "roadmap/index.html", f"no section for {h['label']}")
+            continue
+        end = html.find('<section class="horizon"', start + 1)
+        shown = re.findall(
+            r'<li class="entry [^"]*" id="([^"]+)"', html[start : end if end > 0 else None]
+        )
+        expected = [e["id"] for e in h["entries"]]
+        if shown != expected:
+            yield Finding(
+                "RM9", "roadmap/index.html", f"{h['label']} shows {shown}, the record has {expected}"
+            )
+    start_page = (out / "index.html").read_text(encoding="utf-8")
+    cards = re.findall(r'<a class="mini" href="roadmap/#([^"]+)"', start_page)
+    expected = [e["id"] for e in ctx["upcoming"]]
+    if cards != expected:
+        yield Finding("RM9", "index.html", f"Coming next shows {cards}, the record has {expected}")
+    tiles = len(re.findall(r'<(?:a|div) class="tile"', start_page))
+    heading = re.search(r'id="m-h">(\d+) published · (\d+) coming next\.<', start_page)
+    if not heading:
+        yield Finding("RM9", "index.html", "models heading does not count published and coming next")
+    elif (int(heading.group(1)), int(heading.group(2))) != (tiles, len(cards)):
+        yield Finding(
+            "RM9",
+            "index.html",
+            f"heading says {heading.group(1)} published and {heading.group(2)} coming next, "
+            f"the page shows {tiles} tiles and {len(cards)} cards",
+        )
+
+
 def run_checks(
     reg: Registry,
     out: Path,
@@ -625,6 +673,7 @@ def run_checks(
         ("D3", lambda: depth.check_code_order(reg, out)),
         ("D5", lambda: depth.check_order(reg, out)),
         ("D2", lambda: depth.check_words_before_quality(reg, out)),
+        ("RM9", lambda: check_roadmap_pages(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

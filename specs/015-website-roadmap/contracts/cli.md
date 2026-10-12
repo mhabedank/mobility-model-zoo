@@ -11,7 +11,7 @@ Runs RM1–RM8 ([checks.md](checks.md)) without building the site. Prints the RM
 - `QUARTER`: a closed quarter id, for example `2026-Q4`. A quarter that has not ended yet is refused unless `--draft` is given; a draft report is marked "draft" and is never written.
 - Without `--write`: prints the report ([pace-report.md](pace-report.md)) as Markdown to stdout.
 - With `--write`: writes `zoo/roadmap/reviews/QUARTER.md`. If the file exists, the generated sections are replaced and the hand-written `## Re-planning` section is kept.
-- Reads only the repository: the roadmap record, the release records and the git history of the record (for moves made after the quarter, the report uses the record as of the quarter's last commit when the history is available, else the current record with a note).
+- Reads only the repository: the current roadmap record and the release records. The record keeps each entry's first planned horizon and dates every move and drop, so edits made after the quarter do not change its report.
 
 ## `zoo site build` / `zoo site check`
 
