@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mhabedank/mobility-model-zoo/schemas/roadmap.schema.json",
+  "title": "The zoo roadmap (zoo/roadmap/roadmap.yaml), feature 015",
+  "description": "Structure only. Cross-field and registry rules are checks RM2 to RM8 (contracts/checks.md).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["as_of", "since", "horizons", "entries"],
+  "$defs": {
+    "quarter": {"type": "string", "pattern": "^[0-9]{4}-Q[1-4]$"},
+    "horizon": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-Q[1-4](\\.\\.(Q[1-4]|[0-9]{4}-Q1))?$",
+      "description": "One quarter (2026-Q4) or two consecutive quarters (2027-Q1..Q2, 2027-Q4..2028-Q1)."
+    },
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+    "dated_reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "reason"],
+      "properties": {
+        "date": {"type": "string", "format": "date"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "properties": {
+    "as_of": {"type": "string", "format": "date"},
+    "since": {"$ref": "#/$defs/quarter"},
+    "horizons": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/horizon"}},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "working_name", "topic", "kind", "stage", "text", "planned", "horizon"],
+        "properties": {
+          "id": {"$ref": "#/$defs/slug"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 40},
+          "working_name": {"type": "boolean"},
+          "model": {"$ref": "#/$defs/slug"},
+          "topic": {"$ref": "#/$defs/slug"},
+          "kind": {"enum": ["new-model", "first-release", "update"]},
+          "stage": {"enum": ["planned", "in-progress"]},
+          "text": {"type": "string", "minLength": 1},
+          "precondition": {"type": "string", "minLength": 1},
+          "planned": {"$ref": "#/$defs/horizon"},
+          "horizon": {"$ref": "#/$defs/horizon"},
+          "moves": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["date", "to", "reason"],
+              "properties": {
+                "date": {"type": "string", "format": "date"},
+                "to": {"$ref": "#/$defs/horizon"},
+                "reason": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "dropped": {"$ref": "#/$defs/dated_reason"},
+          "delivered_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["model", "version"],
+            "properties": {
+              "model": {"$ref": "#/$defs/slug"},
+              "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+            }
+          }
+        },
+        "allOf": [
+          {"if": {"properties": {"kind": {"enum": ["first-release", "update"]}}}, "then": {"required": ["model"]}},
+          {"if": {"properties": {"kind": {"not": {"const": "update"}}}}, "then": {"not": {"required": ["delivered_by"]}}}
+        ]
+      }
+    }
+  }
+}

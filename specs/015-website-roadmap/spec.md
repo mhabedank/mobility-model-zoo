@@ -46,7 +46,7 @@ A visitor (an engineer at a supplier, a researcher, a possible data partner) wan
 
 ### User Story 2 - Upcoming models as small cards on the start page (Priority: P1)
 
-A visitor on the start page sees the published models as today's tiles and, below them, every upcoming model as a small card: name, topic, one line, the horizon it is planned for. The cards are compact enough that the start page stays calm: the published models remain the visual focus. A link leads to the full roadmap.
+A visitor on the start page sees the published models as today's tiles and, below them, every upcoming model as a small card: name, topic and the horizon it is planned for. The cards are compact enough that the start page stays calm: the published models remain the visual focus. A link leads to the full roadmap.
 
 **Why this priority**: The owner asked for these cards explicitly. They show the breadth of the zoo where most visitors land.
 
@@ -55,7 +55,7 @@ A visitor on the start page sees the published models as today's tiles and, belo
 **Acceptance Scenarios**:
 
 1. **Given** the start page, **When** a visitor scrolls to the models, **Then** the published models come first as full tiles, followed by one row or grid of small cards for upcoming models, ordered by horizon and then by priority.
-2. **Given** an upcoming model card, **When** a visitor reads it, **Then** it shows name, topic, one sentence and horizon, and no version, no numbers and no performance claim.
+2. **Given** an upcoming model card, **When** a visitor reads it, **Then** it shows name, topic and horizon, and no version, no numbers and no performance claim; the sentence is on the roadmap entry it links to.
 3. **Given** the upcoming cards, **When** a visitor selects one, **Then** they reach its entry on the roadmap page.
 4. **Given** the start page's model heading, **When** it counts models, **Then** it counts published models and upcoming models separately and the numbers match the cards shown.
 
@@ -67,12 +67,12 @@ The owner (or Claude on their behalf) changes the plan: moves an item to a later
 
 **Why this priority**: A roadmap that rots is worse than none. Keeping it consistent with the registry automatically is what makes the feature trustworthy, but it matters only once the page exists.
 
-**Independent Test**: Make each of these changes in a copy of the repository and build the site: move an entry between horizons (page and cards follow); publish a model that is on the roadmap as a new model (the build fails until the entry is removed or turned into an update); let a horizon end with an unfinished entry (the build fails and names the entry).
+**Independent Test**: Make each of these changes in a copy of the repository and build the site: move an entry between horizons (page and cards follow); publish a model that is on the roadmap as a new model (the entry leaves page and cards and counts as delivered); let a horizon end with an unfinished entry (the build fails and names the entry).
 
 **Acceptance Scenarios**:
 
 1. **Given** the roadmap record, **When** an entry is moved to another horizon and the site is rebuilt, **Then** the roadmap page and the start-page card show the new horizon and nothing else changes.
-2. **Given** a model that is published, **When** the roadmap still lists it as a new model or a first release, **Then** the build fails and names the entry.
+2. **Given** a model on the roadmap as a new model or first release, **When** its first version is published, **Then** the entry counts as delivered with that release's publication date and leaves page and cards, without a second edit.
 3. **Given** a model that is registered but not published, **When** it has no roadmap entry, **Then** the build fails and names the model.
 4. **Given** a horizon whose period has ended, **When** it still holds an entry, **Then** the build fails and names the entry, so the owner moves it forward, drops it or marks it done.
 5. **Given** the roadmap date, **When** it is more than 100 days old, **Then** the build fails with a reminder to review the roadmap.
@@ -92,7 +92,7 @@ At the end of a quarter, the owner wants to know how the zoo did against its pla
 
 1. **Given** an entry that is moved to a later horizon, **When** the record is changed, **Then** its first planned horizon stays as it was and the move is recorded with date and reason.
 2. **Given** an entry that is dropped, **When** the record is changed, **Then** the entry stays in the record with the date and reason of the drop and disappears from page and cards.
-3. **Given** an entry whose release is published, **When** the record is updated, **Then** it carries the publication date of the release record, leaves page and cards and counts as delivered in the quarter of that date.
+3. **Given** an entry whose release is published, **When** the site is built, **Then** it takes the publication date from the release record, leaves page and cards and counts as delivered in the quarter of that date.
 4. **Given** the end of a quarter, **When** the owner produces the pace report, **Then** it shows per entry early, on time or late (slip in horizons and days to the end of the first planned horizon), moved and dropped entries with reasons, releases published per quarter and the share of planned entries delivered, and it is stored dated in the repository.
 5. **Given** a roadmap whose horizons are rolled forward, **When** the build runs, **Then** it fails unless a pace review for the closed quarter exists.
 
@@ -118,7 +118,7 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 - **Model renamed before registration**: working names may change until the model is registered; the card shows "working name". Once a model is registered, its roadmap entry uses the registered name, and names never change after first publication (constitution, Project Scope).
 - **Item dropped**: a dropped entry stays in the record with date and reason (constitution, "Roadmap and Delivery Pace") and disappears from page and cards. The page does not show dropped items.
 - **Item moved**: a moved entry keeps its first planned horizon; it counts as late in the pace report even if it is published on time for its new horizon.
-- **Published entry**: when a roadmap entry's release is published, the entry gets the publication date in the same change as the release, or the stale-horizon check catches it at the end of the period. A delivered entry leaves page and cards.
+- **Published entry**: when a roadmap entry's release is published, the entry is delivered with the release's publication date: automatically for a first release or new model, through the one-line `delivered by` reference for an update. A delivered entry leaves page and cards.
 - **Several releases for one entry**: an entry is delivered with its first published release; later patch releases do not count again.
 - **Work published that was never on the roadmap**: it is not an error; the pace report lists it as unplanned delivery, so the plan can learn from it.
 - **Item blocked**: an entry waiting for a precondition (a licence check, a privacy review) stays in its horizon and shows the precondition; it is not called "in progress" until work on the model itself has started.
@@ -134,7 +134,7 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 
 - **FR-001**: The roadmap MUST live in one versioned, hand-maintained record in the repository, next to the model registry. Every roadmap fact on the site (entries, order, horizons, date) MUST come from that record; no roadmap text is written into pages or templates.
 - **FR-002**: The record MUST hold a roadmap date and exactly three horizons in time order: the next quarter, the half-year after it and the half-year after that. Each horizon has a calendar label and an end date.
-- **FR-003**: Each entry MUST state: name (registered name, or a working name marked as such), topic (one of the zoo's topics), kind (`new model`, `first release` of a registered model, or `update` of a published model), stage (`planned` or `in progress`), one sentence on what the model does or what the update changes, and optionally one precondition it waits for. An update entry MUST name the published model it updates. For the pace review, each entry MUST also record the horizon it was first planned in (never changed afterwards), every move with date, new horizon and reason, a drop with date and reason, and, once delivered, the publication date of its release.
+- **FR-003**: Each entry MUST state: name (registered name, or a working name marked as such), topic (one of the zoo's topics), kind (`new model`, `first release` of a registered model, or `update` of a published model), stage (`planned` or `in progress`), one sentence on what the model does or what the update changes, and optionally one precondition it waits for. An update entry MUST name the published model it updates. For the pace review, each entry MUST also record the horizon it was first planned in (never changed afterwards), every move with date, new horizon and reason, a drop with date and reason, and, for an update once released, the release that delivers it. The delivery date is read from that release record; a first release or new model is delivered by the first published version of its model (research R3).
 - **FR-004**: The sentence MUST be at most 20 words and the precondition at most 8 words. Neither may contain numbers, metric placeholders or performance claims, in line with the rule for hand-written site text (check F2 of feature 008).
 - **FR-005**: The order of entries inside a horizon MUST be their priority order, and the site MUST show them in that order.
 - **FR-006**: A horizon MUST hold at most 6 entries, so the roadmap stays an overview.
@@ -152,13 +152,13 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 **Start page**
 
 - **FR-014**: The start page MUST show, after the published model tiles, one small card per upcoming model: every entry of kind `new model` or `first release`. Update entries MUST NOT appear there.
-- **FR-015**: Each small card MUST show name, topic, the one sentence and the horizon label, and link to the entry on the roadmap page. It MUST NOT show a version, numbers or performance claims (feature 008, FR-003).
+- **FR-015**: Each small card MUST show name, topic and the horizon label (the sentence stays on the roadmap page, to keep the cards small), and link to the entry on the roadmap page. It MUST NOT show a version, numbers or performance claims (feature 008, FR-003).
 - **FR-016**: The upcoming cards MUST take less visual weight than the published tiles (smaller, quieter), and the start page MUST link to the roadmap page from the models section.
 - **FR-017**: The models heading MUST count published and upcoming models separately; the counts MUST equal the tiles and cards shown.
 
 **Consistency with the registry**
 
-- **FR-018**: The build MUST fail when a registered, unpublished model has no roadmap entry; when an entry of kind `new model` or `first release` names a model that is published; when an `update` entry names a model that is not published; when a horizon that has ended still holds an entry that is neither delivered, moved nor dropped; when an entry's first planned horizon differs from the one it had when it was added; when an entry marked delivered has no published release record with that date; when the horizons are rolled forward without a pace review of the closed quarter; when the roadmap date is more than 100 days old; or when a horizon exceeds the limit of FR-006. Each failure MUST name the entry or model and what to change.
+- **FR-018**: The build MUST fail when a registered, unpublished model has no roadmap entry; when an `update` entry names a model that is not published; when a horizon that has ended still holds an entry that is neither delivered, moved nor dropped; when an entry's first planned horizon differs from the one it had when it was added; when an update entry names a delivering release that is not published; when the horizons are rolled forward without a pace review of the closed quarter; when the roadmap date is more than 100 days old; or when a horizon exceeds the limit of FR-006. Each failure MUST name the entry or model and what to change.
 - **FR-019**: Registered, unpublished models MUST keep appearing as upcoming (feature 008, FR-003); after this feature, they appear through their roadmap entry, so there is one list of upcoming models, not two.
 
 **Quality bar shared with the rest of the site**
@@ -195,7 +195,7 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 - **SC-001**: In a test with at least three people who have not seen the project, each names the next three planned releases and the period of one of them within 60 seconds on the roadmap page.
 - **SC-002**: On a 1440 × 900 desktop screen, all three horizons are visible side by side and the roadmap page needs at most two screen heights; on a 390-pixel-wide phone screen, no card needs horizontal scrolling.
 - **SC-003**: On the start page, the upcoming cards take less than half the vertical space of the models section on a desktop screen, and the published tiles are above them.
-- **SC-004**: 100% of registered, unpublished models appear on the roadmap and as start-page cards; a registered model without an entry, a published model listed as new, an ended horizon with an entry and a roadmap older than 100 days each fail the build (each tested with a deliberate fault).
+- **SC-004**: 100% of registered, unpublished models appear on the roadmap and as start-page cards; a registered model without an entry, an update naming an unpublished release, an ended horizon with an open entry and a roadmap older than 100 days each fail the build (each tested with a deliberate fault).
 - **SC-005**: Changing the plan (moving, adding, dropping an entry) takes one edit of one record; no page or template changes.
 - **SC-006**: The roadmap page passes the accessibility, privacy, link and weight checks with zero violations in light and dark mode and loads its main content in under 2 seconds on a slow mobile connection, like the other pages.
 - **SC-007**: The pace report for a quarter is produced with one command in under a minute, and its delivered, moved, dropped and unplanned entries and its counts agree 100% with the roadmap record and the release records (checked by hand on the first review).
@@ -226,10 +226,10 @@ Order follows four rules: (1) finish what is in flight before starting new work;
 | 2 | `cell-soh` (working name): battery cell health on a microcontroller | new model | condition-monitoring | planned | Strongest evidence of the research (open data, published microcontroller results); needs a new regression pipeline. | – |
 | 3 | `gnss-guard` (working name): GNSS jamming and spoofing detection | new model | security | planned | Confirmed gap: no open model trained on real jamming data. | Data licence to be confirmed |
 | 4 | `scout-large`: more languages | update | productdev | planned | Uses the multilingual resource index (feature 009); pilot languages Spanish, Polish, Japanese. | Resource index first version |
-| 5 | `jtbd-cluster`: first baseline | first release | productdev | planned | Completes the JTBD chain after extraction (feature 009). | – |
+| 5 | `jtbd-cluster` (working name): first baseline | new model | productdev | planned | Completes the JTBD chain after extraction (feature 009). | – |
 | 6 | `picket-forest`: features that pass the shuffled-label control | update | security | planned | Fixes the failed control of the pre-registered evaluation; needs new feature design, so after the first releases. | – |
 
-`jtbd-cluster` is a task, not a registered model yet; its entry uses a working name until the baseline model is registered.
+`jtbd-cluster` is a task, not a registered model yet; its entry is a new model with a working name until the baseline model is registered.
 
 ### H2 2027 (until 2027-12-31)
 
