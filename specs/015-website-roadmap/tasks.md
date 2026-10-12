@@ -312,11 +312,11 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
 
 ## Phase 8: Polish & cross-cutting concerns
 
-- [ ] T049 [P] Document the roadmap in `docs/website.md`:
+- [X] T049 [P] Document the roadmap in `docs/website.md`:
   - a row for `/roadmap/` in the pages table;
   - a section "Roadmap and pace review": the record, the fields, how to move or drop an entry, delivery from release records, the quarterly routine (`zoo roadmap pace <quarter> --write`, fill "Re-planning", roll the horizons, `zoo roadmap check`), and RM1–RM9 in the checks list.
-- [ ] T050 [P] Add one line to `README.md` (website section or topics) linking the roadmap page `https://mhabedank.github.io/mobility-model-zoo/roadmap/`
-- [ ] T051 Run the whole suite and the site checks locally:
+- [X] T050 [P] Add one line to `README.md` (website section or topics) linking the roadmap page `https://mhabedank.github.io/mobility-model-zoo/roadmap/`
+- [X] T051 Run the whole suite and the site checks locally:
   - `uv run ruff check`, `uv run ruff format --check`;
   - `uv run pytest -q $(python3 scripts/ci/select_tests.py --guards)`;
   - `uv run pytest tests/website -q`;
@@ -325,11 +325,11 @@ With `--write`, the file `zoo/roadmap/reviews/2026-Q4.md` is created. Rolling th
   - `uv run pytest tests/website -q -m slow`.
   
   Fix every finding.
-- [ ] T052 Walk through [quickstart.md](quickstart.md) sections 1–4 and record the results in `specs/015-website-roadmap/validation.md`:
+- [X] T052 Walk through [quickstart.md](quickstart.md) sections 1–4 and record the results in `specs/015-website-roadmap/validation.md`:
   - the commands and their output;
   - the screen measurements for SC-002 and SC-003: at 1440 × 900 three columns and the page height in screens; on the start page the height of "Coming next" against the models section; at 390 px no horizontal scroll;
   - a screenshot description of the roadmap page in light and dark mode.
-- [ ] T053 Re-check the Constitution Check of [plan.md](plan.md) against the implementation (no hand-written number on the site, first planned horizon guarded, delivery only from published records, review gate) and note the result in `specs/015-website-roadmap/validation.md`; leave SC-001 (reader test) and SC-008 (first review at the end of Q4 2026) as open items for the owner
+- [X] T053 Re-check the Constitution Check of [plan.md](plan.md) against the implementation (no hand-written number on the site, first planned horizon guarded, delivery only from published records, review gate) and note the result in `specs/015-website-roadmap/validation.md`; leave SC-001 (reader test) and SC-008 (first review at the end of Q4 2026) as open items for the owner
 
 ---
 
