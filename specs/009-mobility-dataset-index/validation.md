@@ -64,3 +64,30 @@ Still open:
 - Video and audio have no `training_allowed` entry in the three pilot languages. YouTube falls
   under platform terms, and the podcasts have no licence.
 - The owner queue holds 111 flags, 70 of them possible duplicates.
+
+## Scale-up batch 1 (catalog repository, 2026-10-11/12, T082)
+
+Batch 1 covered the 20 remaining EU languages. Its runs are in catalog commits e27993c and 3dad640.
+
+The first run on 2026-10-11 found three defects:
+
+- **Search terms.** `terms.yaml` had terms only for en, es, pl and ja, so the harvesters searched the other 20 languages with English terms. Hungarian got 0 hits.
+- **Dedupe identity.** Dedupe treated a shared access address as the same resource. Distinct datasets behind one WFS endpoint, catalogue search page or publisher page were merged into one entry.
+- **Network check crash.** One host label over 63 characters crashed the network check after 2.5 hours. Nothing was saved, because the check writes only at the end of a run.
+
+All three are fixed in PR #28. The catalog was then reset to the pilot commit and batch 1 run again.
+
+Data that national portals hand to data.europa.eu without a licence:
+
+- dane.gov.pl (Poland) and data.gov.lv (Latvia): the licence is now read from the portal's own API.
+- si and hu: the portals publish no licence.
+- hr and ro: the portals did not answer.
+- cy and bg: no usable API.
+
+Owner decision on 2026-10-11: a dataset that declares no language takes the original language of its title, and the quality rationale says so. This applied to 810 entries.
+
+Result after batch 1:
+
+- 5,051 entries in total.
+- 24 target languages besides de and en have entries, and each of them has at least one `training_allowed` entry.
+- 54.5% of entries have a determined licence; the SC-004 target is 80%. The lowest shares are et 2%, bg 8%, sl 10%, cs 16%, hr 20% and hu 23%.
