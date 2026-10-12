@@ -12,9 +12,9 @@
 </div></section>
 {% endif %}
 <section class="sec" id="models" aria-labelledby="m-h"><div class="wrap">
-<div class="sec-head"><div class="eyebrow">Models</div><h2 class="h2" id="m-h">{{ linked | length }} published, {{ models | selectattr("status", "equalto", "in_progress") | list | length }} in progress.</h2></div>
+<div class="sec-head"><div class="eyebrow">Models</div><h2 class="h2" id="m-h">{{ linked | length }} published · {{ upcoming | length }} coming next.</h2></div>
 <div class="grid3">
-{% for sm in models | sort(attribute="status", reverse=True) %}
+{% for sm in models | rejectattr("status", "equalto", "in_progress") | sort(attribute="status", reverse=True) %}
 {% set topic = topics | selectattr("id", "equalto", sm.m.topic) | first %}
 {% set motif_name = (sm.pitch.get("motif") if sm.pitch and sm.pitch.get("motif") else sm.name ~ ".svg") %}
 {% set inner %}
@@ -26,6 +26,7 @@
 {% if sm.name in linked %}<a class="tile" href="models/{{ sm.name }}/">{{ inner }}</a>{% else %}<div class="tile">{{ inner }}</div>{% endif %}
 {% endfor %}
 </div>
+{% include "partials/upcoming.html.j2" %}
 </div></section>
 <section class="sec" id="topics" aria-labelledby="t-h"><div class="wrap">
 <div class="sec-head"><div class="eyebrow">Topics</div><h2 class="h2" id="t-h">{{ topics | length }} fields, one way of working.</h2></div>

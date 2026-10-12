@@ -55,6 +55,8 @@ jobs:
       - run: uv run ruff check
       - run: uv run pytest -q $(python3 scripts/ci/select_tests.py --guards)
       - run: uv run zoo validate --all
+      # Feature 015: the roadmap record (RM1-RM8); fails when the roadmap is stale or unreviewed.
+      - run: uv run zoo roadmap check
       # Compliance harness (feature 006): register, notices, drift, REUSE, repository hygiene and the
       # secret scan (C-G3 needs gitleaks).
       - name: install gitleaks
