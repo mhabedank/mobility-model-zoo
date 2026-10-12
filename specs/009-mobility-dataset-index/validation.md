@@ -91,3 +91,35 @@ Result after batch 1:
 - 5,051 entries in total.
 - 24 target languages besides de and en have entries, and each of them has at least one `training_allowed` entry.
 - 54.5% of entries have a determined licence; the SC-004 target is 80%. The lowest shares are et 2%, bg 8%, sl 10%, cs 16%, hr 20% and hu 23%.
+
+## Scale-up batch 2 (catalog repository, 2026-10-12, T083)
+
+Batch 2 covered the world languages zh, ja, ko, hi, ar, tr, ru, id, uk and vi. The sources were
+OpenAlex, Zenodo, Mobility Database (CN, KR, IN, SA, AE, EG, TR, ID, UA, VN) and Hugging Face,
+followed by the network check.
+
+The index now holds 6,391 entries:
+
+| Status | Entries |
+|---|---|
+| cleared | 2,961 |
+| verified | 2,490 |
+| candidate | 940 |
+
+| Permitted use | Entries |
+|---|---|
+| training_allowed | 2,770 |
+| benchmark_only | 617 |
+| undetermined | 2,947 |
+| not_usable | 57 |
+
+Owner targets for the first version:
+
+- At least 2,000 entries: met, with 6,391.
+- At least 30 languages besides de and en: met, with 32. Each of the 32 has at least one `training_allowed` entry.
+- The coverage report shows no target-language gap. Of the 34 targets, de has entries but no `training_allowed` entry yet.
+
+Still open:
+
+- 58.4% of entries have a determined licence; the SC-004 target is 80%.
+- Audio, video, image and graphic have no usable entry. Batch 3 (T084) addresses these modalities.
