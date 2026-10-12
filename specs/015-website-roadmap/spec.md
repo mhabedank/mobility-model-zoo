@@ -15,6 +15,8 @@
 - The roadmap looks too slow for AI-assisted work. Delivery against the plan is measured, and the
   measured pace decides how the next quarters are filled (constitution 2.3.0, "Roadmap and
   Delivery Pace"). The first plan is filled from the pace observed so far (see Proposed roadmap).
+- Updates of published models are on the roadmap, as a quieter kind of entry (FR-009).
+- An entry is `in progress` only while the zoo is working on it; everything else is `planned`.
 
 ## Context
 
@@ -255,8 +257,8 @@ Order follows four rules: (1) finish what is in flight before starting new work;
 ## Assumptions
 
 - Horizons are calendar periods: the current quarter counts as "the next quarter" because it has most of its weeks ahead (as of 2026-10-12 that is Q4 2026), followed by H1 2027 and H2 2027. When a quarter ends, the owner runs the pace review and rolls the horizons forward; the stale check (FR-018) enforces both.
-- Updates of published models are on the roadmap, as a quieter kind of entry (FR-009). The owner was unsure about this; they are included because the most important near-term work is closing the open criteria of `picket-forest` and `scout-large`, and leaving that out would make the roadmap misleading. Updates do not appear as start-page cards (FR-014), so the start page stays focused on models.
-- An entry is `in progress` only when work on the model itself has started (registered, pipeline running); otherwise it is `planned`. The owner asked for the new models "in progress"; the cards say "planned" for those not started, because the site must not claim more than is true (constitution IX). The start-page section is called "Coming next", which covers both.
+- Updates do not appear as start-page cards (FR-014), so the start page stays focused on models; they are on the roadmap page (owner decision 2026-10-12).
+- `in progress` means work on the entry has started (for a model: registered and its pipeline running); the start-page section is called "Coming next", which covers `planned` and `in progress` (owner decision 2026-10-12).
 - The working names follow the zoo's naming scheme (`<name>-<variant>`) and reuse family names where a model reuses a pipeline (`hum-`, `picket-`); they are proposals.
 - The roadmap is public. It contains no dates finer than a horizon, no partner names and no internal costs.
 - The stale-roadmap limit of 100 days is a little longer than a quarter, so one review per quarter keeps the build green.

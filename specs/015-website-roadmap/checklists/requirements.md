@@ -33,6 +33,6 @@
 
 - Validation pass 1 (2026-10-12): all items pass.
 - The spec names existing site checks (feature 008: F2, accessibility, privacy, weight) by reference rather than by tool; "one versioned record in the repository" states where the truth lives, not how it is stored.
-- Two owner choices were made as documented defaults instead of clarification markers (see Assumptions): updates of published models are on the roadmap as a quieter kind of entry; models whose work has not started are labelled "planned", not "in progress". Both are open for the owner to overturn in `/speckit-clarify` or review.
-- The proposed roadmap (section "Proposed roadmap") needs owner approval before it is published (FR-023).
+- Two owner choices were made as documented defaults instead of clarification markers (see Assumptions): updates of published models are on the roadmap as a quieter kind of entry; models whose work has not started are labelled "planned", not "in progress". Both were confirmed by the owner on 2026-10-12 and are recorded as owner decisions.
+- The proposed roadmap (section "Proposed roadmap") needs owner approval before it is published (FR-023); its order was approved on 2026-10-12.
 - Validation pass 2 (2026-10-12, after constitution 2.3.0): pace review added (User Story 4, FR-024 to FR-026, SC-007, SC-008); priority order approved by the owner; first horizons filled from the observed pace. All items still pass.
