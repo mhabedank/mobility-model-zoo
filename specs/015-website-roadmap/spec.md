@@ -10,6 +10,12 @@
 
 "All these models" are the model ideas of the research of 2026-10-11 ([model-ideas-research.md](model-ideas-research.md)): transport mode from smartphone motion sensors, battery cell health, road roughness from vehicle signals, bearing faults from vibration, and the roadmap candidates GNSS jamming/spoofing and CAN masquerade detection that the research confirmed.
 
+**Owner decisions (2026-10-12)**:
+- The priority order of the proposed roadmap is approved.
+- The roadmap looks too slow for AI-assisted work. Delivery against the plan is measured, and the
+  measured pace decides how the next quarters are filled (constitution 2.3.0, "Roadmap and
+  Delivery Pace"). The first plan is filled from the pace observed so far (see Proposed roadmap).
+
 ## Context
 
 The website (feature 008, model pages in feature 014) shows published models as tiles and registered but unpublished models (`hum-fan`, `pace-cnn`, `picket-mlp`) as "in progress". It does not show what the zoo plans next, and model ideas that are not registered do not appear at all. Visitors (researchers, engineers at OEMs and suppliers, possible collaborators) cannot tell whether the zoo is active, where it is heading or whether a model they need is coming.
@@ -72,7 +78,25 @@ The owner (or Claude on their behalf) changes the plan: moves an item to a later
 
 ---
 
-### User Story 4 - Share the roadmap (Priority: P3)
+### User Story 4 - Know whether we are faster or slower than planned (Priority: P2)
+
+At the end of a quarter, the owner wants to know how the zoo did against its plan: which entries were published early, on time or late against the horizon they were first planned in, which were moved or dropped and why, how many releases were published per quarter, and which share of the planned entries was delivered. From that, they fill the next horizons: more when the zoo is ahead, fewer or re-scoped entries when it is behind (constitution, "Roadmap and Delivery Pace").
+
+**Why this priority**: The owner expects AI-assisted work to move faster than a classic plan assumes, and wants evidence instead of a guess. The report needs the roadmap record (US3) but nothing on the page.
+
+**Independent Test**: In a copy of the repository, publish one roadmap entry before its horizon ends, move a second one to the next horizon and drop a third. Produce the pace report: it lists the first as early or on time with its publication date, the second as late with its first planned horizon, the slip and the reason of the move, and the third as dropped with its reason; the counts per quarter match the release records.
+
+**Acceptance Scenarios**:
+
+1. **Given** an entry that is moved to a later horizon, **When** the record is changed, **Then** its first planned horizon stays as it was and the move is recorded with date and reason.
+2. **Given** an entry that is dropped, **When** the record is changed, **Then** the entry stays in the record with the date and reason of the drop and disappears from page and cards.
+3. **Given** an entry whose release is published, **When** the record is updated, **Then** it carries the publication date of the release record, leaves page and cards and counts as delivered in the quarter of that date.
+4. **Given** the end of a quarter, **When** the owner produces the pace report, **Then** it shows per entry early, on time or late (slip in horizons and days to the end of the first planned horizon), moved and dropped entries with reasons, releases published per quarter and the share of planned entries delivered, and it is stored dated in the repository.
+5. **Given** a roadmap whose horizons are rolled forward, **When** the build runs, **Then** it fails unless a pace review for the closed quarter exists.
+
+---
+
+### User Story 5 - Share the roadmap (Priority: P3)
 
 The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the zoo identity and a share line for the roadmap, as for the other pages.
 
@@ -90,8 +114,11 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 
 - **Empty horizon**: a horizon without entries shows one quiet line ("Nothing planned yet") instead of an empty column, so the layout does not break.
 - **Model renamed before registration**: working names may change until the model is registered; the card shows "working name". Once a model is registered, its roadmap entry uses the registered name, and names never change after first publication (constitution, Project Scope).
-- **Item dropped**: an entry removed from the roadmap disappears from page and cards; the record's history in the repository is the log. The page does not show dropped items.
-- **Published update**: when an update of a published model is released, its entry is removed in the same change as the release, or the stale-horizon check catches it at the end of the period.
+- **Item dropped**: a dropped entry stays in the record with date and reason (constitution, "Roadmap and Delivery Pace") and disappears from page and cards. The page does not show dropped items.
+- **Item moved**: a moved entry keeps its first planned horizon; it counts as late in the pace report even if it is published on time for its new horizon.
+- **Published entry**: when a roadmap entry's release is published, the entry gets the publication date in the same change as the release, or the stale-horizon check catches it at the end of the period. A delivered entry leaves page and cards.
+- **Several releases for one entry**: an entry is delivered with its first published release; later patch releases do not count again.
+- **Work published that was never on the roadmap**: it is not an error; the pace report lists it as unplanned delivery, so the plan can learn from it.
 - **Item blocked**: an entry waiting for a precondition (a licence check, a privacy review) stays in its horizon and shows the precondition; it is not called "in progress" until work on the model itself has started.
 - **Non-commercial or share-alike model**: an upcoming model whose planned training data makes it non-commercial or share-alike shows that label on its card, as published models do (constitution IX). If the usage class is not known yet, the card shows nothing about it rather than a guess.
 - **No JavaScript**: roadmap and cards are complete without scripts.
@@ -105,7 +132,7 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 
 - **FR-001**: The roadmap MUST live in one versioned, hand-maintained record in the repository, next to the model registry. Every roadmap fact on the site (entries, order, horizons, date) MUST come from that record; no roadmap text is written into pages or templates.
 - **FR-002**: The record MUST hold a roadmap date and exactly three horizons in time order: the next quarter, the half-year after it and the half-year after that. Each horizon has a calendar label and an end date.
-- **FR-003**: Each entry MUST state: name (registered name, or a working name marked as such), topic (one of the zoo's topics), kind (`new model`, `first release` of a registered model, or `update` of a published model), stage (`planned` or `in progress`), one sentence on what the model does or what the update changes, and optionally one precondition it waits for. An update entry MUST name the published model it updates.
+- **FR-003**: Each entry MUST state: name (registered name, or a working name marked as such), topic (one of the zoo's topics), kind (`new model`, `first release` of a registered model, or `update` of a published model), stage (`planned` or `in progress`), one sentence on what the model does or what the update changes, and optionally one precondition it waits for. An update entry MUST name the published model it updates. For the pace review, each entry MUST also record the horizon it was first planned in (never changed afterwards), every move with date, new horizon and reason, a drop with date and reason, and, once delivered, the publication date of its release.
 - **FR-004**: The sentence MUST be at most 20 words and the precondition at most 8 words. Neither may contain numbers, metric placeholders or performance claims, in line with the rule for hand-written site text (check F2 of feature 008).
 - **FR-005**: The order of entries inside a horizon MUST be their priority order, and the site MUST show them in that order.
 - **FR-006**: A horizon MUST hold at most 6 entries, so the roadmap stays an overview.
@@ -129,7 +156,7 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 
 **Consistency with the registry**
 
-- **FR-018**: The build MUST fail when a registered, unpublished model has no roadmap entry; when an entry of kind `new model` or `first release` names a model that is published; when an `update` entry names a model that is not published; when a horizon that has ended still holds an entry; when the roadmap date is more than 100 days old; or when a horizon exceeds the limit of FR-006. Each failure MUST name the entry or model and what to change.
+- **FR-018**: The build MUST fail when a registered, unpublished model has no roadmap entry; when an entry of kind `new model` or `first release` names a model that is published; when an `update` entry names a model that is not published; when a horizon that has ended still holds an entry that is neither delivered, moved nor dropped; when an entry's first planned horizon differs from the one it had when it was added; when an entry marked delivered has no published release record with that date; when the horizons are rolled forward without a pace review of the closed quarter; when the roadmap date is more than 100 days old; or when a horizon exceeds the limit of FR-006. Each failure MUST name the entry or model and what to change.
 - **FR-019**: Registered, unpublished models MUST keep appearing as upcoming (feature 008, FR-003); after this feature, they appear through their roadmap entry, so there is one list of upcoming models, not two.
 
 **Quality bar shared with the rest of the site**
@@ -142,11 +169,20 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 
 - **FR-023**: The first published roadmap MUST be the proposed roadmap below, after the owner has approved or changed it. Dataset licences and privacy reviews named as preconditions MUST NOT be presented as resolved on the site.
 
+**Pace review**
+
+- **FR-024**: The owner MUST be able to produce a pace report from the roadmap record and the release records with one command. It reports, for a closed quarter: per entry delivered early, on time or late against its first planned horizon (slip in horizons and days), moved entries with their reasons, dropped entries with their reasons, unplanned deliveries (published releases without a roadmap entry), releases published per quarter, and the share of the entries first planned for that quarter that were delivered in it.
+- **FR-025**: Each pace review MUST be stored, dated, in the repository, and MUST state how the next horizons were filled from the measured pace (constitution, gate before rolling the roadmap forward).
+- **FR-026**: Delivered and dropped entries MUST stay in the record and MUST NOT appear on the roadmap page or as cards. The pace report is for the owner; it is not published on the website in this feature.
+
 ### Key Entities
 
 - **Roadmap**: the roadmap date and three horizons in time order.
 - **Horizon**: calendar label (for example "Q4 2026"), end date, ordered list of at most six entries.
-- **Roadmap entry**: name and whether it is a working name, topic, kind (`new model`, `first release`, `update`), stage (`planned`, `in progress`), sentence, optional precondition, optional usage-class label, and for updates the published model it updates.
+- **Roadmap entry**: name and whether it is a working name, first planned horizon, topic, kind (`new model`, `first release`, `update`), stage (`planned`, `in progress`), sentence, optional precondition, optional usage-class label, and for updates the published model it updates.
+- **Move**: date, new horizon and reason; an entry may have several. **Drop**: date and reason.
+- **Delivery**: the publication date of the entry's first published release, taken from its release record.
+- **Pace review**: dated report for a closed quarter (FR-024) and the note on how the next horizons were filled from it (FR-025).
 - **Upcoming model card**: the start-page view of an entry of kind `new model` or `first release`, with its horizon label.
 - Existing entities used: model (registry), release record (published or not), topic.
 
@@ -160,10 +196,14 @@ The owner shares the roadmap link on LinkedIn or Mastodon. The preview shows the
 - **SC-004**: 100% of registered, unpublished models appear on the roadmap and as start-page cards; a registered model without an entry, a published model listed as new, an ended horizon with an entry and a roadmap older than 100 days each fail the build (each tested with a deliberate fault).
 - **SC-005**: Changing the plan (moving, adding, dropping an entry) takes one edit of one record; no page or template changes.
 - **SC-006**: The roadmap page passes the accessibility, privacy, link and weight checks with zero violations in light and dark mode and loads its main content in under 2 seconds on a slow mobile connection, like the other pages.
+- **SC-007**: The pace report for a quarter is produced with one command in under a minute, and its delivered, moved, dropped and unplanned entries and its counts agree 100% with the roadmap record and the release records (checked by hand on the first review).
+- **SC-008**: The first pace review (end of Q4 2026) states whether the zoo delivered faster or slower than planned, and the horizons of 2027 are re-filled from it.
 
-## Proposed roadmap (for owner approval)
+## Proposed roadmap (order approved 2026-10-12)
 
 Order follows four rules: (1) finish what is in flight before starting new work; (2) close open criteria of published models where that moves them towards `released`; (3) new models that reuse a pipeline the zoo already has come before models that need a new pipeline; (4) models waiting for a licence or privacy check come after those that can start now. "Horizon" is the period in which the release is planned, not when work starts.
+
+**Pace used to fill the horizons.** Since the constitution was ratified on 2026-09-25, the zoo published four releases of two models in about two and a half weeks (`scout-large` 0.1.0 to 0.1.2, `picket-forest` 0.2.0; sandbox releases not counted). Those releases ran on pipelines that existed or were built alongside; new models need new data declarations, and some need new pipelines or licence checks. The first plan therefore puts six entries into Q4 2026 (the most a horizon holds, FR-006) and fills H1 2027 completely; H2 2027 keeps room for ideas that the resource index or the pace review bring in. Compared with the first draft, `picket-mlp` moves from H1 2027 into Q4 2026 and `picket-forest` (shuffled-label control) from H2 into H1 2027; the priority order is unchanged. These are the first planned horizons for the pace review. The first review at the end of Q4 2026 shows whether this is still too slow and pulls 2027 entries forward if so.
 
 ### Q4 2026 (until 2026-12-31)
 
@@ -174,17 +214,18 @@ Order follows four rules: (1) finish what is in flight before starting new work;
 | 3 | `pace-cnn` | first release | condition-monitoring | in progress | Registered, pipeline and data ready; only training on the frozen benchmark is missing. | – |
 | 4 | `hum-fan` | first release | condition-monitoring | in progress | Same as `pace-cnn`; share-alike because of MIMII (CC BY-SA). | – |
 | 5 | `hum-bearing` (working name): bearing faults from vibration, rail context | new model | condition-monitoring | planned | Lowest effort of the new ideas: reuses the `hum-fan` pipeline, data under CC BY 4.0. | – |
+| 6 | `picket-mlp` | first release | security | planned | Registered; second CAN model gives `can-ids` a comparison with `picket-forest`. | – |
 
 ### H1 2027 (until 2027-06-30)
 
 | # | Entry | Kind | Topic | Stage | Why here | Precondition |
 |---|---|---|---|---|---|---|
-| 1 | `picket-mlp` | first release | security | planned | Registered; second CAN model gives `can-ids` a comparison with `picket-forest`. | – |
-| 2 | `mode-cnn` (working name): transport mode from smartphone motion | new model | condition-monitoring | planned | Reuses the `pace-cnn` pipeline; strong public interest; honest per-user evaluation is its edge. | Data licence to be confirmed |
-| 3 | `cell-soh` (working name): battery cell health on a microcontroller | new model | condition-monitoring | planned | Strongest evidence of the research (open data, published microcontroller results); needs a new regression pipeline. | – |
-| 4 | `gnss-guard` (working name): GNSS jamming and spoofing detection | new model | security | planned | Confirmed gap: no open model trained on real jamming data. | Data licence to be confirmed |
-| 5 | `scout-large`: more languages | update | productdev | planned | Uses the multilingual resource index (feature 009); pilot languages Spanish, Polish, Japanese. | Resource index first version |
-| 6 | `jtbd-cluster`: first baseline | first release | productdev | planned | Completes the JTBD chain after extraction (feature 009). | – |
+| 1 | `mode-cnn` (working name): transport mode from smartphone motion | new model | condition-monitoring | planned | Reuses the `pace-cnn` pipeline; strong public interest; honest per-user evaluation is its edge. | Data licence to be confirmed |
+| 2 | `cell-soh` (working name): battery cell health on a microcontroller | new model | condition-monitoring | planned | Strongest evidence of the research (open data, published microcontroller results); needs a new regression pipeline. | – |
+| 3 | `gnss-guard` (working name): GNSS jamming and spoofing detection | new model | security | planned | Confirmed gap: no open model trained on real jamming data. | Data licence to be confirmed |
+| 4 | `scout-large`: more languages | update | productdev | planned | Uses the multilingual resource index (feature 009); pilot languages Spanish, Polish, Japanese. | Resource index first version |
+| 5 | `jtbd-cluster`: first baseline | first release | productdev | planned | Completes the JTBD chain after extraction (feature 009). | – |
+| 6 | `picket-forest`: features that pass the shuffled-label control | update | security | planned | Fixes the failed control of the pre-registered evaluation; needs new feature design, so after the first releases. | – |
 
 `jtbd-cluster` is a task, not a registered model yet; its entry uses a working name until the baseline model is registered.
 
@@ -192,10 +233,9 @@ Order follows four rules: (1) finish what is in flight before starting new work;
 
 | # | Entry | Kind | Topic | Stage | Why here | Precondition |
 |---|---|---|---|---|---|---|
-| 1 | `picket-forest`: features that pass the shuffled-label control | update | security | planned | Fixes the failed control of the pre-registered evaluation; needs new feature design, so later. | – |
-| 2 | `rough-road` (working name): road roughness from vehicle signals | new model | condition-monitoring | planned | Open data from electric cars with official road measurements; new signal pipeline. | Privacy review of GPS data |
-| 3 | `v2x-guard` (working name): V2X misbehaviour detection | new model | security | planned | On the security roadmap since 2026-10-07; open data, no hardware needed. | Data access to be confirmed |
-| 4 | `picket-signal` (working name): CAN masquerade detection on signal level | new model | security | planned | Closes the gap of timing-only detection; builds on `picket-*` and the ROAD data. | – |
+| 1 | `rough-road` (working name): road roughness from vehicle signals | new model | condition-monitoring | planned | Open data from electric cars with official road measurements; new signal pipeline. | Privacy review of GPS data |
+| 2 | `v2x-guard` (working name): V2X misbehaviour detection | new model | security | planned | On the security roadmap since 2026-10-07; open data, no hardware needed. | Data access to be confirmed |
+| 3 | `picket-signal` (working name): CAN masquerade detection on signal level | new model | security | planned | Closes the gap of timing-only detection; builds on `picket-*` and the ROAD data. | – |
 
 ### Not on the roadmap, and why
 
@@ -209,14 +249,16 @@ Order follows four rules: (1) finish what is in flight before starting new work;
 - **VI. Clean provenance, restrictions carry over**: an upcoming model shows a usage-class label only when its planned data declares it (FR-007); open licence questions stay visible as preconditions and are never presented as resolved (FR-023). Every new model still needs its dataset declaration before training.
 - **IX. Reproducible, dated releases**: the roadmap is dated and called a plan, not a commitment (FR-010); it never implies a release status. Publishing stays with the release pipeline; the roadmap only follows it (FR-018).
 - **Project scope & iterative delivery**: working names are marked as such and may change until registration; registered names never change (edge cases). Every new model on the roadmap still needs its own task document or spec that defines scope, reference, budgets and riskiest assumption before work starts.
+- **Roadmap and delivery pace (2.3.0)**: every entry keeps its first planned horizon; moves and drops are recorded with date and reason, never silently (FR-003, FR-026); delivered means published through the release pipeline (FR-018); the pace review reports plan against actual and is required before the horizons roll forward (FR-018, FR-024, FR-025); the first plan is filled from the pace observed so far (Proposed roadmap).
 - **Feature 008 rules**: one source per fact (FR-001), unpublished models without page or claims (FR-015), no third-party resources, accessibility and legal links (FR-020).
 
 ## Assumptions
 
-- Horizons are calendar periods: the current quarter counts as "the next quarter" because it has most of its weeks ahead (as of 2026-10-12 that is Q4 2026), followed by H1 2027 and H2 2027. When a quarter ends, the owner rolls the horizons forward; the stale check (FR-018) enforces it.
+- Horizons are calendar periods: the current quarter counts as "the next quarter" because it has most of its weeks ahead (as of 2026-10-12 that is Q4 2026), followed by H1 2027 and H2 2027. When a quarter ends, the owner runs the pace review and rolls the horizons forward; the stale check (FR-018) enforces both.
 - Updates of published models are on the roadmap, as a quieter kind of entry (FR-009). The owner was unsure about this; they are included because the most important near-term work is closing the open criteria of `picket-forest` and `scout-large`, and leaving that out would make the roadmap misleading. Updates do not appear as start-page cards (FR-014), so the start page stays focused on models.
 - An entry is `in progress` only when work on the model itself has started (registered, pipeline running); otherwise it is `planned`. The owner asked for the new models "in progress"; the cards say "planned" for those not started, because the site must not claim more than is true (constitution IX). The start-page section is called "Coming next", which covers both.
 - The working names follow the zoo's naming scheme (`<name>-<variant>`) and reuse family names where a model reuses a pipeline (`hum-`, `picket-`); they are proposals.
 - The roadmap is public. It contains no dates finer than a horizon, no partner names and no internal costs.
 - The stale-roadmap limit of 100 days is a little longer than a quarter, so one review per quarter keeps the build green.
+- The pace report is internal for now (FR-026). Publishing delivery pace on the website (for example "delivered last quarter") is possible later, but would add a second kind of content to a page meant to stay calm.
 - The research findings that the proposed roadmap relies on are kept with this feature in [model-ideas-research.md](model-ideas-research.md); licences named there are checked again in each model's own dataset declaration before training.
