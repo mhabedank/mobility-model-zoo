@@ -19,9 +19,9 @@
 
 **Purpose**: the record, its schema and the test fixture.
 
-- [ ] T001 Create `zoo/roadmap/roadmap.yaml` with the initial record from the table "Initial record" at the end of this file: `as_of: 2026-10-12`, `since: 2026-Q4`, `horizons: [2026-Q4, 2027-Q1..Q2, 2027-Q3..Q4]`, 15 entries in the listed order, each with `planned` equal to `horizon`, no `moves`, `dropped` or `delivered_by`. Add the file to `REUSE.toml` coverage if `reuse lint` requires it
-- [ ] T002 [P] Copy `specs/015-website-roadmap/contracts/roadmap.schema.json` to `src/mobility_model_zoo/site/schemas/roadmap.schema.json` (identical content); make sure the package data includes it (check `pyproject.toml` package-data patterns for `schemas/*.json`)
-- [ ] T003 [P] Create the test fixture `tests/website/fixtures/registry/zoo/roadmap/roadmap.yaml`:
+- [X] T001 Create `zoo/roadmap/roadmap.yaml` with the initial record from the table "Initial record" at the end of this file: `as_of: 2026-10-12`, `since: 2026-Q4`, `horizons: [2026-Q4, 2027-Q1..Q2, 2027-Q3..Q4]`, 15 entries in the listed order, each with `planned` equal to `horizon`, no `moves`, `dropped` or `delivered_by`. Add the file to `REUSE.toml` coverage if `reuse lint` requires it
+- [X] T002 [P] Copy `specs/015-website-roadmap/contracts/roadmap.schema.json` to `src/mobility_model_zoo/site/schemas/roadmap.schema.json` (identical content); make sure the package data includes it (check `pyproject.toml` package-data patterns for `schemas/*.json`)
+- [X] T003 [P] Create the test fixture `tests/website/fixtures/registry/zoo/roadmap/roadmap.yaml`:
   - **Header**: `as_of: 2026-10-12`, `since: 2026-Q4`, the same three horizons as T001.
   - **Entries**, in this order:
     - `picket-forest`: kind `first-release`, `model: picket-forest`, topic `security`, stage `in-progress`, horizon `2026-Q4` (picket-forest is unpublished in the fixture);
@@ -29,7 +29,7 @@
     - `hum-bearing`: kind `new-model`, `working_name: true`, topic `condition-monitoring`, horizon `2027-Q1..Q2`, `precondition: "Data licence to be confirmed"`;
     - `picket-signal`: kind `new-model`, `working_name: true`, topic `security`, horizon `2027-Q3..Q4`.
   - **Texts**: each at most 20 words, without numbers.
-- [ ] T004 Add an autouse fixture to `tests/website/conftest.py` that sets the environment variable `ZOO_TODAY=2026-10-12` (via `monkeypatch.setenv`), so every website test runs with a fixed today (research R5); tests that need another date override it
+- [X] T004 Add an autouse fixture to `tests/website/conftest.py` that sets the environment variable `ZOO_TODAY=2026-10-12` (via `monkeypatch.setenv`), so every website test runs with a fixed today (research R5); tests that need another date override it
 
 ---
 
@@ -39,25 +39,25 @@
 
 **⚠️ CRITICAL**: no user-story work before this phase is complete.
 
-- [ ] T005 Create `src/mobility_model_zoo/site/roadmap.py` with horizon ids (data-model.md "Horizon id", research R2):
+- [X] T005 Create `src/mobility_model_zoo/site/roadmap.py` with horizon ids (data-model.md "Horizon id", research R2):
   - `Horizon` dataclass with `id`, `quarters` (list of `(year, q)`), `start` (date), `end` (date), `label` (str) and `months` (str, e.g. "October – December").
   - `parse_horizon(id) -> Horizon` accepts `YYYY-Qn`, `YYYY-Qa..Qb` with `b = a + 1`, and `YYYY-Q4..ZZZZ-Q1` with `ZZZZ = YYYY + 1`; it raises `ValueError` otherwise.
   - Labels: `Qn YYYY`; `H1 YYYY` for `Q1..Q2`; `H2 YYYY` for `Q3..Q4`; `Qa–Qb YYYY` (en dash) for other same-year pairs; `Q4 YYYY – Q1 ZZZZ` across a year.
   - `quarter_of(date) -> str` returns e.g. `2026-Q4`.
   - `quarters_between(a, b) -> list[str]` (inclusive).
   - `today() -> date`: the UTC date, or `ZOO_TODAY` (ISO date) when set.
-- [ ] T006 [P] Unit tests for T005 in `tests/website/test_roadmap_horizons.py`:
+- [X] T006 [P] Unit tests for T005 in `tests/website/test_roadmap_horizons.py`:
   - every grammar case and its label;
   - start and end dates, including `2027-Q4..2028-Q1` (end 2028-03-31);
   - rejected ids: `2027-Q2..Q4`, `2027-Q3..2028-Q1`, `2027-Q5`;
   - `quarter_of`, `quarters_between`;
   - `today()` with and without `ZOO_TODAY`.
-- [ ] T007 Add loading and RM1 to `src/mobility_model_zoo/site/roadmap.py`:
+- [X] T007 Add loading and RM1 to `src/mobility_model_zoo/site/roadmap.py`:
   - `load(reg) -> dict` reads `reg.zoo / "roadmap" / "roadmap.yaml"` (finding `RM1 zoo/roadmap/roadmap.yaml is missing` if absent).
   - It validates against `roadmap.schema.json` with the same `jsonschema.Draft202012Validator` and format checker as `context._schema_errors`.
   - It reports duplicate entry ids as `RM1 entries: duplicate id <id>`.
   - Findings are raised as `GateFailed` with lines `RM<n> <where> <detail>`.
-- [ ] T008 Add delivery and state derivation to `src/mobility_model_zoo/site/roadmap.py` (data-model.md "Derived per entry", research R3):
+- [X] T008 Add delivery and state derivation to `src/mobility_model_zoo/site/roadmap.py` (data-model.md "Derived per entry", research R3):
   - `delivering_release(reg, entry) -> (model, version) | None`:
     - `update` entries use `delivered_by`, if that version's record has `published.published_at`;
     - `first-release` and `new-model` entries with `model` use the lowest published version (`reg.published_versions`, `parse_version`).
@@ -66,13 +66,13 @@
   - `timing(entry, date) -> ("early" | "on time" | "late", slip_days | None, slip_quarters | None)` is computed against `parse_horizon(entry["planned"])`.
   - `usage_label(reg, entry)` maps the model's `usage_class`: `commercial-share-alike` → "share-alike", `non-commercial` → "non-commercial", otherwise `None`.
   - `motif_name(reg, entry)`: the `motif` of `zoo/models/<model>/site.yaml` if present, else `<model>.svg` if `src/mobility_model_zoo/site/static/img/motifs/<model>.svg` exists, else `None`.
-- [ ] T009 [P] Unit tests for T007 and T008 in `tests/website/test_roadmap_record.py`:
+- [X] T009 [P] Unit tests for T007 and T008 in `tests/website/test_roadmap_record.py`:
   - **RM1**: the fixture loads; a missing file gives `RM1`; an unknown key gives `RM1`; a duplicate id gives `RM1`.
   - **Delivery**: a `first-release` entry is delivered once its model has a published record, with the date from `published_at`; an `update` entry without `delivered_by` stays open.
   - **Timing**: early, on time and late, with slip days and quarters.
   - **State**: `dropped` wins.
   - **Usage label**: derived from the model's `usage_class`.
-- [ ] T010 Add `page_context(reg, record) -> dict` to `src/mobility_model_zoo/site/roadmap.py` (data-model.md "Page context"):
+- [X] T010 Add `page_context(reg, record) -> dict` to `src/mobility_model_zoo/site/roadmap.py` (data-model.md "Page context"):
   - `as_of` (date and the display form "12 October 2026");
   - `horizons` (each with `id`, `label`, `months`, `start`, `end`, `is_first`, and its open entries in record order);
   - per entry: `id`, `name`, `working_name`, `model`, `topic_title` (from `reg.topic`), `kind`, `stage`, `text`, `precondition`, `usage_label`, `motif`, and `model_url` (`models/<model>/` for `update` entries only, FR-011);
@@ -91,10 +91,10 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] RM3 and RM4 tests in `tests/website/test_roadmap_record.py`, each with a deliberate fault edited into the fixture via `site_env.edit_yaml`:
+- [X] T011 [P] [US1] RM3 and RM4 tests in `tests/website/test_roadmap_record.py`, each with a deliberate fault edited into the fixture via `site_env.edit_yaml`:
   - **RM3**: `text` of 21 words; `text` "Runs 2x faster" (literal number); `precondition` of 9 words; a `{metric:quality.x}` placeholder; the word "released" in `text`.
   - **RM4**: two horizons; a first horizon spanning two quarters; a gap between horizons; a moved entry whose last `to` differs from `horizon`; `horizon` differing from `planned` without moves; an open entry in a horizon not in the list; seven open entries in one horizon; an entry both `dropped` and delivered.
-- [ ] T012 [P] [US1] Page tests in `tests/website/test_roadmap_page.py` on `built`:
+- [X] T012 [P] [US1] Page tests in `tests/website/test_roadmap_page.py` on `built`:
   - content and order as in the Independent Test;
   - update cards carry the class `entry-update`, new-model and first-release cards `entry-new`;
   - the stage chip text is "Planned" or "In progress";
@@ -104,19 +104,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement RM3 in `src/mobility_model_zoo/site/roadmap.py`, using `budgets.words`, `facts.NUMBER`/`facts.literal_numbers`, `budgets.PLACEHOLDER` and `budgets.STATUS_WORDS`:
+- [X] T013 [US1] Implement RM3 in `src/mobility_model_zoo/site/roadmap.py`, using `budgets.words`, `facts.NUMBER`/`facts.literal_numbers`, `budgets.PLACEHOLDER` and `budgets.STATUS_WORDS`:
   - "`text` ≤ 20 words, `precondition` ≤ 8 words, move and drop reasons ≤ 20 words";
   - no free-standing number, no `{metric:…}` placeholder, no release-status word in `text` or `precondition`;
   - findings as `RM3 <entry id>.<field> <detail>`.
-- [ ] T014 [US1] Implement RM4 in `src/mobility_model_zoo/site/roadmap.py`:
+- [X] T014 [US1] Implement RM4 in `src/mobility_model_zoo/site/roadmap.py`:
   - exactly three horizons: the first spans one quarter, the second and third two quarters each, consecutive without gaps;
   - `horizon == planned` without moves, else `horizon ==` the `to` of the last move;
   - move dates ascend;
   - an open entry's `horizon` is one of the three;
   - "at most 6 open entries per horizon" (constant `MAX_OPEN_PER_HORIZON = 6`);
   - not both dropped and delivered.
-- [ ] T015 [US1] Add `validate(reg, record, today) -> list[str]` to `src/mobility_model_zoo/site/roadmap.py` that runs RM1, RM3 and RM4 now and later RM2, RM5–RM8 (each a separate function), and call it at the start of `build()` in `src/mobility_model_zoo/site/build.py`, adding its findings to `failures`
-- [ ] T016 [US1] Create `src/mobility_model_zoo/site/templates/roadmap.html.j2` (extends `base.html.j2`) per [contracts/pages.md](contracts/pages.md) "/roadmap/":
+- [X] T015 [US1] Add `validate(reg, record, today) -> list[str]` to `src/mobility_model_zoo/site/roadmap.py` that runs RM1, RM3 and RM4 now and later RM2, RM5–RM8 (each a separate function), and call it at the start of `build()` in `src/mobility_model_zoo/site/build.py`, adding its findings to `failures`
+- [X] T016 [US1] Create `src/mobility_model_zoo/site/templates/roadmap.html.j2` (extends `base.html.j2`) per [contracts/pages.md](contracts/pages.md) "/roadmap/":
   - **Head**: eyebrow "Roadmap", `h1` "What comes next", and the plan line with `as_of`.
   - **Timeline band**: an `aria-hidden="true"` `div.timeline` with three segments and a "now" marker positioned by `now_fraction` via an inline `style="--now:…"` custom property.
   - **Horizons**: three `section.horizon` with `h2` label, muted months and `ol.entries`.
@@ -129,9 +129,9 @@
   - **Empty horizon**: "Nothing planned yet."
   - **Legend**: the line from the contract.
   - **No literal numbers** in template text (F2).
-- [ ] T017 [US1] Render the roadmap page in `build()` of `src/mobility_model_zoo/site/build.py`: `render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=roadmap.page_context(reg, record))`, after the model pages and before the start page
-- [ ] T018 [P] [US1] Add "Roadmap" to the header navigation in `src/mobility_model_zoo/site/templates/base.html.j2` between "Models" and "Topics", `href="{{ root }}roadmap/"` (FR-012)
-- [ ] T019 [P] [US1] Add the roadmap styles to `src/mobility_model_zoo/site/static/css/site.css`, using only existing tokens (`--surface`, `--border`, `--border-strong`, `--mark`, `--muted`, `--text`, `--accent`) and no new colours:
+- [X] T017 [US1] Render the roadmap page in `build()` of `src/mobility_model_zoo/site/build.py`: `render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=roadmap.page_context(reg, record))`, after the model pages and before the start page
+- [X] T018 [P] [US1] Add "Roadmap" to the header navigation in `src/mobility_model_zoo/site/templates/base.html.j2` between "Models" and "Topics", `href="{{ root }}roadmap/"` (FR-012)
+- [X] T019 [P] [US1] Add the roadmap styles to `src/mobility_model_zoo/site/static/css/site.css`, using only existing tokens (`--surface`, `--border`, `--border-strong`, `--mark`, `--muted`, `--text`, `--accent`) and no new colours:
   - `.timeline`: a line of three segments, the first a third of the width, and a `::after` "now" dot at `left: calc(var(--now) * 33.33%)`.
   - `.horizons`: a grid of one column, `repeat(3, 1fr)` from 960 px.
   - `.entry-new`: `card` look with a 4 px `--mark` left border.
@@ -156,12 +156,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Rewrite `tests/website/test_start_page.py::test_topics_and_tiles` for the new start page (no tile for picket-forest; picket-forest appears as a card) and add tests:
+- [X] T020 [P] [US2] Rewrite `tests/website/test_start_page.py::test_topics_and_tiles` for the new start page (no tile for picket-forest; picket-forest appears as a card) and add tests:
   - card order, links and content as in the Independent Test;
   - the heading counts;
   - an entry delivered by publishing its model (edit the fixture record of picket-forest to have `published`) leaves the cards and its tile appears;
   - `update` entries never appear as cards.
-- [ ] T021 [P] [US2] RM2 tests in `tests/website/test_roadmap_record.py`, each with a deliberate fault:
+- [X] T021 [P] [US2] RM2 tests in `tests/website/test_roadmap_record.py`, each with a deliberate fault:
   - delete the `picket-forest` entry (a registered, unpublished model without an entry);
   - `model: no-such-model`;
   - `topic: sandbox`;
@@ -171,20 +171,20 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement RM2 in `src/mobility_model_zoo/site/roadmap.py` per [contracts/checks.md](contracts/checks.md) using `context.is_sandbox`, `context.status` and `reg.model_names()`. Every registered, non-sandbox model without a published version must have an open `first-release` or `new-model` entry naming it. Wire it into `validate()`
-- [ ] T023 [US2] Create `src/mobility_model_zoo/site/templates/partials/upcoming.html.j2` per [contracts/pages.md](contracts/pages.md) "/ start page":
+- [X] T022 [US2] Implement RM2 in `src/mobility_model_zoo/site/roadmap.py` per [contracts/checks.md](contracts/checks.md) using `context.is_sandbox`, `context.status` and `reg.model_names()`. Every registered, non-sandbox model without a published version must have an open `first-release` or `new-model` entry naming it. Wire it into `validate()`
+- [X] T023 [US2] Create `src/mobility_model_zoo/site/templates/partials/upcoming.html.j2` per [contracts/pages.md](contracts/pages.md) "/ start page":
   - `h3` "Coming next";
   - `div.mini-grid` of `a.mini` cards, each linking `roadmap/#<id>`, with the topic eyebrow, the name (plus "(working name)") and the horizon chip;
   - a link "See the roadmap →" to `roadmap/`;
   - no text sentence on the cards (FR-015).
-- [ ] T024 [US2] Change `src/mobility_model_zoo/site/templates/start.html.j2`:
+- [X] T024 [US2] Change `src/mobility_model_zoo/site/templates/start.html.j2`:
   - the models heading becomes "{{ linked | length }} published · {{ upcoming | length }} coming next.";
   - the tile loop covers only models with status `published` or `deprecated`;
   - include `partials/upcoming.html.j2` after the tiles;
   - the hero button "Browse the models" is unchanged.
-- [ ] T025 [US2] Pass `upcoming=r["upcoming"]` from `build()` to the start page render in `src/mobility_model_zoo/site/build.py`, and change the build summary line to count "coming next" from the roadmap instead of `in_progress`
-- [ ] T026 [P] [US2] Add `.mini-grid` (`grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))`, gap 12px) and `.mini` (compact card: padding 12px 14px, `--surface`, `1px solid var(--border)`, radius 10px, three short lines, focus ring like `.tile`) to `src/mobility_model_zoo/site/static/css/site.css`
-- [ ] T027 [P] [US2] Update `specs/008-zoo-website/contracts/site-tree.md` "/ start page" item 4 and the header navigation list to point at feature 015 ([contracts/pages.md](contracts/pages.md)): unpublished models appear as "Coming next" cards from the roadmap, not as tiles
+- [X] T025 [US2] Pass `upcoming=r["upcoming"]` from `build()` to the start page render in `src/mobility_model_zoo/site/build.py`, and change the build summary line to count "coming next" from the roadmap instead of `in_progress`
+- [X] T026 [P] [US2] Add `.mini-grid` (`grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))`, gap 12px) and `.mini` (compact card: padding 12px 14px, `--surface`, `1px solid var(--border)`, radius 10px, three short lines, focus ring like `.tile`) to `src/mobility_model_zoo/site/static/css/site.css`
+- [X] T027 [P] [US2] Update `specs/008-zoo-website/contracts/site-tree.md` "/ start page" item 4 and the header navigation list to point at feature 015 ([contracts/pages.md](contracts/pages.md)): unpublished models appear as "Coming next" cards from the roadmap, not as tiles
 
 **Checkpoint**: US1 and US2 together deliver the visible feature; the site builds on the real repository with the initial record.
 

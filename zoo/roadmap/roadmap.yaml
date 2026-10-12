@@ -1,0 +1,156 @@
+# The zoo roadmap (feature 015). Schema: src/mobility_model_zoo/site/schemas/roadmap.schema.json;
+# rules: specs/015-website-roadmap/contracts/checks.md (RM1-RM9) and constitution, "Roadmap and
+# Delivery Pace". Order inside a horizon is the priority order. `planned` never changes: to move an
+# entry, append to `moves` and change `horizon`; to drop one, add `dropped`. Delivery is read from
+# the release records (first published version of `model`, or `delivered_by` for updates).
+as_of: 2026-10-12
+since: 2026-Q4
+horizons: [2026-Q4, 2027-Q1..Q2, 2027-Q3..Q4]
+entries:
+  - id: picket-forest-board
+    name: picket-forest
+    working_name: false
+    model: picket-forest
+    topic: security
+    kind: update
+    stage: planned
+    text: Speed and memory measured on a real microcontroller board instead of an emulator.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: scout-large-reader-test
+    name: scout-large
+    working_name: false
+    model: scout-large
+    topic: productdev
+    kind: update
+    stage: planned
+    text: Reader test and a clean-machine run, the last open criteria for production readiness.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: pace-cnn
+    name: pace-cnn
+    working_name: false
+    model: pace-cnn
+    topic: condition-monitoring
+    kind: first-release
+    stage: in-progress
+    text: Activity recognition from motion sensors on a microcontroller.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: hum-fan
+    name: hum-fan
+    working_name: false
+    model: hum-fan
+    topic: condition-monitoring
+    kind: first-release
+    stage: in-progress
+    text: Detects unusual fan sounds on a microcontroller, trained only on normal recordings.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: hum-bearing
+    name: hum-bearing
+    working_name: true
+    topic: condition-monitoring
+    kind: new-model
+    stage: planned
+    text: Finds bearing faults from vibration, for rail and machine maintenance.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: picket-mlp
+    name: picket-mlp
+    working_name: false
+    model: picket-mlp
+    topic: security
+    kind: first-release
+    stage: planned
+    text: A small neural network that detects attacks on the vehicle CAN bus.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: mode-cnn
+    name: mode-cnn
+    working_name: true
+    topic: condition-monitoring
+    kind: new-model
+    stage: planned
+    text: Recognises the mode of transport from smartphone motion sensors, tested on people it never saw.
+    precondition: Data licence to be confirmed
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: cell-soh
+    name: cell-soh
+    working_name: true
+    topic: condition-monitoring
+    kind: new-model
+    stage: planned
+    text: Estimates the health of battery cells on a microcontroller.
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: gnss-guard
+    name: gnss-guard
+    working_name: true
+    topic: security
+    kind: new-model
+    stage: planned
+    text: Detects jamming and spoofing of satellite navigation, trained on real attack recordings.
+    precondition: Data licence to be confirmed
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: scout-large-languages
+    name: scout-large
+    working_name: false
+    model: scout-large
+    topic: productdev
+    kind: update
+    stage: planned
+    text: Reads mobility texts in more languages, starting with Spanish, Polish and Japanese.
+    precondition: Resource index first version
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: jtbd-cluster
+    name: jtbd-cluster
+    working_name: true
+    topic: productdev
+    kind: new-model
+    stage: planned
+    text: Groups duplicate needs found by scout-large and counts how often they occur.
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: picket-forest-control
+    name: picket-forest
+    working_name: false
+    model: picket-forest
+    topic: security
+    kind: update
+    stage: planned
+    text: New features that pass the shuffled-label control of the evaluation.
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: rough-road
+    name: rough-road
+    working_name: true
+    topic: condition-monitoring
+    kind: new-model
+    stage: planned
+    text: Estimates road roughness from signals an electric car already records.
+    precondition: Privacy review of location data
+    planned: 2027-Q3..Q4
+    horizon: 2027-Q3..Q4
+  - id: v2x-guard
+    name: v2x-guard
+    working_name: true
+    topic: security
+    kind: new-model
+    stage: planned
+    text: Flags misbehaving vehicles in vehicle-to-vehicle messages.
+    precondition: Data access to be confirmed
+    planned: 2027-Q3..Q4
+    horizon: 2027-Q3..Q4
+  - id: picket-signal
+    name: picket-signal
+    working_name: true
+    topic: security
+    kind: new-model
+    stage: planned
+    text: Detects forged CAN messages by their content, not only their timing.
+    planned: 2027-Q3..Q4
+    horizon: 2027-Q3..Q4
