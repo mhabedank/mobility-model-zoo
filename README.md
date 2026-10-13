@@ -14,6 +14,7 @@ What the zoo stands for ([in full on the website](https://mhabedank.github.io/mo
 
 - Website: [mhabedank.github.io/mobility-model-zoo](https://mhabedank.github.io/mobility-model-zoo/)
 - Models and their latest versions: [zoo/MODELS.md](zoo/MODELS.md)
+- What comes next: [the roadmap](https://mhabedank.github.io/mobility-model-zoo/roadmap/) (record: [zoo/roadmap/roadmap.yaml](zoo/roadmap/roadmap.yaml))
 - On Hugging Face: [huggingface.co/mobility-model-zoo](https://huggingface.co/mobility-model-zoo)
 - Constitution (the project rules): [.specify/memory/constitution.md](.specify/memory/constitution.md)
 - Repository layout (one folder per topic): [docs/layout.md](docs/layout.md)

@@ -1,30 +1,32 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 2.1.0 → 2.2.0
-Bump rationale: MINOR. Owner direction of 2026-10-10: a model that is not yet production ready MAY
-be published with release status `experimental`. This expands the release guidance in Principle
-IX and the release gate; no rule is removed or redefined incompatibly (the release-record schema
-already knows the statuses `experimental` and `released`). Drafted on branch 010 as "2.1.0" on
-the same day; renumbered because the usage-class amendment (feature 011, PR #16) took 2.1.0.
+Version change: 2.2.0 → 2.3.0
+Bump rationale: MINOR. Owner direction of 2026-10-12: delivery against the roadmap is measured,
+and the measured pace drives re-planning. Adds a section and a gate; no rule is removed or
+redefined.
 
-Modified principles:
-- IX. Reproducible, Dated Releases: release statuses defined; `released` requires production
-  readiness against the task's success criteria and budgets; `experimental` allowed below that,
-  with the card stating what is not met; a kill outcome blocks the claims it concerns, not an
-  experimental release.
+Modified principles: none.
+
+Added sections:
+- Roadmap and Delivery Pace: one roadmap in three calendar horizons; first planned horizon
+  fixed per entry; moves and drops recorded with date and reason; delivered means published
+  through the release pipeline; quarterly pace review (early, on time, late, moved, dropped,
+  releases per quarter, share of planned entries delivered); re-planning from the measured pace;
+  no re-dating.
 
 Modified sections:
-- Development Workflow & Quality Gates: "gate before a release" checks the status rule.
+- Development Workflow & Quality Gates: new gate before rolling the roadmap forward.
 
-Added sections: none. Removed sections: none.
+Removed sections: none.
 
-Previous reports: 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the usage class of every
-model, NC models under an NC licence with the suffix `-nc`, restrictions of inputs carrying over and
-pinned third-party models; 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy"
-ban by a metric naming rule and allowed dataset publication after a redistribution check;
-1.3.0 → 1.4.0 changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the
-multi-topic `mobility-model-zoo`.
+Previous reports: 2.1.0 → 2.2.0 (MINOR, 2026-10-10, feature 010) allowed `experimental`
+releases below production readiness; 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the
+usage class of every model, NC models under an NC licence with the suffix `-nc`, restrictions of
+inputs carrying over and pinned third-party models; 1.4.0 → 2.0.0 made tools and budgets per
+task, replaced the "accuracy" ban by a metric naming rule and allowed dataset publication after a
+redistribution check; 1.3.0 → 1.4.0 changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0
+made the project the multi-topic `mobility-model-zoo`.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -33,8 +35,8 @@ changed rules):
 - .specify/templates/tasks-template.md ✅
 
 Follow-up (outside this amendment):
-- release gate and card template: check whether a card of an `experimental` release must carry a
-  "not production ready" statement automatically.
+- Feature 015 (website roadmap): the roadmap record holds the first planned horizon, moves,
+  drops and publication dates, and the site build supports the pace review.
 -->
 
 # mobility-model-zoo Constitution
@@ -306,6 +308,37 @@ Rationale: Tasks differ in data, references and metrics, so a single build pipel
 them would be the wrong abstraction. Releases must look the same everywhere, because that is what
 users of the zoo rely on.
 
+## Roadmap and Delivery Pace
+
+- The zoo keeps one roadmap of planned releases in three calendar horizons: the next quarter and
+  the two half-years after it. It is a plan, not a commitment, and is maintained as one versioned
+  record in the repository.
+- Every roadmap entry MUST record the horizon it was first planned in. That value MUST NOT be
+  changed afterwards. Moving an entry records its new horizon in addition, with the date and
+  reason of the move; dropping an entry records the date and reason instead of deleting it
+  silently.
+- An entry counts as delivered only when its release is published through the release pipeline
+  (Principle IX), and its record MUST then carry the publication date. Finished work that is not
+  published is not delivered.
+- Pace review: at the end of every quarter, and before the horizons are rolled forward, a pace
+  review MUST compare plan and actual for the closed period and report, per entry, whether it was
+  delivered early, on time or late against the horizon it was first planned in (with the slip in
+  horizons and days), which entries were moved or dropped, the number of releases delivered per
+  quarter, and the share of planned entries delivered. The review is stored, dated, in the
+  repository.
+- Re-planning MUST use the measured pace: the next horizons are filled according to what the
+  last reviews show the project actually delivers, not according to a fixed assumption. When the
+  project is ahead, later entries are pulled forward; when it is behind, entries are moved or
+  re-scoped with a stated reason. Because the work is AI-assisted, the pace is expected to change
+  quickly; the review is where the plan follows it.
+- Measurement is honest: an entry is never re-dated to hide a slip, a late entry is reported as
+  late even after it was re-planned, and an entry that was pulled forward is reported as early.
+
+Rationale: A plan is only useful if the project learns from how far reality departs from it.
+Keeping the first planned horizon fixed and counting only published releases makes the pace
+measurable, and basing each new plan on the measured pace keeps the roadmap neither timid nor
+wishful.
+
 ## Resources & Cost Discipline
 
 - Resource inventory (as of 2026-10-08; updated by PATCH amendment):
@@ -382,6 +415,8 @@ labeled and walled off from gates and releases stops them from turning into unme
   inputs MUST NOT be less restrictive than the released license and its marking. The release
   status MUST follow Principle IX: `released` only when the task's success criteria and budgets
   are met, otherwise `experimental` with the unmet criteria on the model card.
+- Gate before rolling the roadmap forward: the pace review of the closed quarter (see "Roadmap
+  and Delivery Pace") MUST be complete, and the new plan MUST state how it uses the measured pace.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
   section with a rationale and the simpler alternative that was rejected.
 
@@ -399,4 +434,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 2.2.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-10
+**Version**: 2.3.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-12

@@ -4,6 +4,8 @@
 title: Mobility Model Zoo
 canonical_url: https://mhabedank.github.io/mobility-model-zoo/
 tagline: Safer, more affordable and better mobility through AI.
+roadmap:
+  share_line: What the zoo plans to release next, new models and updates.
 lead: >-
   We build machine learning models for real mobility problems and make them available to everyone,
   for research and, where their licences allow it, for commercial products. From product development to vehicles and embedded

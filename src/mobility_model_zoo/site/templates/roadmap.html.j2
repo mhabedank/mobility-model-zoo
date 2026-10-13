@@ -1,0 +1,40 @@
+{% extends "base.html.j2" %}
+{% block title %}Roadmap · {{ site.title }}{% endblock %}
+{% block description %}What the zoo plans to release next: new models and updates, by quarter and half-year.{% endblock %}
+{% block main %}
+<section class="hero roadmap-hero" aria-labelledby="title"><div class="wrap stack" style="gap:14px">
+<div class="eyebrow">Roadmap</div>
+<h1 class="h-display" id="title">What comes next</h1>
+<p class="lead muted plan-line">A plan, not a commitment. As of {{ r.as_of }}.</p>
+</div></section>
+<section class="sec roadmap" aria-label="Horizons"><div class="wrap">
+<div class="timeline" aria-hidden="true" style="--now:{{ r.now_fraction }}">{% for h in r.horizons %}<span class="seg{% if h.is_first %} seg-now{% endif %}"></span>{% endfor %}</div>
+<div class="horizons">
+{% for h in r.horizons %}
+<section class="horizon" id="h-{{ h.id }}" aria-labelledby="h-{{ h.id }}-title">
+<div class="horizon-head"><h2 class="h3" id="h-{{ h.id }}-title">{{ h.label }}</h2><p class="cap">{{ h.months }}{% if h.is_first %} · now{% endif %}</p></div>
+{% if h.entries %}
+<ol class="entries">
+{% for e in h.entries %}
+<li class="entry {{ 'entry-update' if e.kind == 'update' else 'entry-new' }}" id="{{ e.id }}">
+<div class="eyebrow">{{ e.topic_title }}</div>
+<h3 class="entry-name">{{ motif(e.motif, 28) }}{% if e.model_url %}<a href="{{ root }}{{ e.model_url }}">{{ e.name }}</a>{% else %}<span>{{ e.name }}</span>{% endif %}{% if e.working_name %} <span class="cap">(working name)</span>{% endif %}</h3>
+<p class="small">{{ e.text }}</p>
+<div class="chips">
+<span class="chip kind">{{ {"new-model": "New model", "first-release": "First release"}.get(e.kind) or "Update of " ~ e.model }}</span>
+<span class="chip {{ 'progress' if e.stage == 'in-progress' else 'planned' }}"><i></i>{{ "In progress" if e.stage == "in-progress" else "Planned" }}</span>
+{% if e.usage_label %}<span class="chip usage">{{ e.usage_label }}</span>{% endif %}
+</div>
+{% if e.precondition %}<p class="cap waits">Waits for: {{ e.precondition }}</p>{% endif %}
+</li>
+{% endfor %}
+</ol>
+{% else %}
+<p class="muted small empty">Nothing planned yet.</p>
+{% endif %}
+</section>
+{% endfor %}
+</div>
+<p class="cap legend">New models and first releases are framed; updates of published models are outlined. In progress means we are working on it now; planned means we are not yet.</p>
+</div></section>
+{% endblock %}

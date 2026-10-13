@@ -1,7 +1,7 @@
 """`zoo site build`: render the website from the registry into `_site/` (contracts/site-tree.md).
 
-Pages: the start page, the quickstart (`docs/quickstart.md`), one page per published model, one page
-per output format, a 404 page.
+Pages: the start page, the quickstart (`docs/quickstart.md`), the roadmap (`zoo/roadmap/roadmap.yaml`,
+feature 015), one page per published model, one page per output format, a 404 page.
 Every model fact comes from the release records and results (FR-004); `_build/facts.json` lists
 each rendered fact with its source for `zoo site check` and is removed before deployment. Every
 shareable page also gets a preview image (`og.py`, feature 012), listed in `_build/og.json`.
@@ -33,7 +33,7 @@ from mobility_model_zoo.release.card import (
 )
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
-from mobility_model_zoo.site import charts, context, examples, facts, og, schema_doc
+from mobility_model_zoo.site import charts, context, examples, facts, og, roadmap, schema_doc
 from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
@@ -271,6 +271,16 @@ def build(
     env = environment()
     f = facts.Facts()
     failures: list[str] = []
+    # feature 015: the roadmap record and its checks RM1-RM8 (contracts/checks.md)
+    plan: dict[str, Any] | None = None
+    try:
+        plan = roadmap.load_and_check(reg)
+    except GateFailed as e:
+        failures += e.failures
+    else:
+        for warning in roadmap.warnings(plan):
+            say(warning)
+    ahead = roadmap.page_context(reg, plan) if plan else {"upcoming": []}
 
     if out.exists():
         shutil.rmtree(out)
@@ -340,6 +350,8 @@ def build(
             failures += e.failures
         else:
             render("quickstart/index.html", "quickstart.html.j2", "../", "quickstart/", body=body)
+    if plan:
+        render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=ahead)
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
     render(
         "index.html",
@@ -350,6 +362,7 @@ def build(
         topic_url=topic_url,
         models=models,
         linked=set(rendered),
+        upcoming=ahead["upcoming"],
     )
     base = "/" + site["canonical_url"].split("://", 1)[1].split("/", 1)[1]
     render("404.html", "404.html.j2", base, "404.html")
@@ -365,8 +378,8 @@ def build(
     drawn = len(share) if images else 0
     in_progress = sum(1 for sm in models if sm["status"] == "in_progress")
     say(
-        f"site: {pages} pages, {drawn} images in {seconds:.1f} s, {len(rendered)} models "
-        f"({in_progress} in progress)"
+        f"site: {pages} pages, {drawn} images in {seconds:.1f} s, {len(rendered)} models, "
+        f"{len(ahead['upcoming'])} coming next"
     )
     return {
         "pages": pages,
@@ -374,4 +387,5 @@ def build(
         "image_seconds": round(seconds, 1),
         "models": len(rendered),
         "in_progress": in_progress,
+        "upcoming": len(ahead["upcoming"]),
     }

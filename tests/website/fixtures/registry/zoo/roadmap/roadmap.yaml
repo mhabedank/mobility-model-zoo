@@ -1,0 +1,44 @@
+# Fixture roadmap of the website tests (feature 015).
+as_of: 2026-10-12
+since: 2026-Q4
+horizons: [2026-Q4, 2027-Q1..Q2, 2027-Q3..Q4]
+entries:
+  - id: picket-forest
+    name: picket-forest
+    working_name: false
+    model: picket-forest
+    topic: security
+    kind: first-release
+    stage: in-progress
+    text: Detects attacks on the vehicle CAN bus with a small decision forest.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: scout-large-reader-test
+    name: scout-large
+    working_name: false
+    model: scout-large
+    topic: productdev
+    kind: update
+    stage: planned
+    text: Reader test and a clean-machine run.
+    planned: 2026-Q4
+    horizon: 2026-Q4
+  - id: hum-bearing
+    name: hum-bearing
+    working_name: true
+    topic: condition-monitoring
+    kind: new-model
+    stage: planned
+    text: Finds bearing faults from vibration, for rail and machine maintenance.
+    precondition: Data licence to be confirmed
+    planned: 2027-Q1..Q2
+    horizon: 2027-Q1..Q2
+  - id: picket-signal
+    name: picket-signal
+    working_name: true
+    topic: security
+    kind: new-model
+    stage: planned
+    text: Detects forged CAN messages by their content, not only their timing.
+    planned: 2027-Q3..Q4
+    horizon: 2027-Q3..Q4
