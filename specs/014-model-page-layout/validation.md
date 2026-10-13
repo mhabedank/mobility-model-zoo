@@ -221,3 +221,11 @@ Script (one model page per reader, alternating scout-large and picket-forest; th
 ## Renumbering
 
 Developed as feature 013. Feature `013-fresh-install-quickstart` was merged into `main` first, so this feature was renumbered to 014 on 2026-10-11 (owner decision): folder `specs/014-model-page-layout`, references in code, tests and docs. Commit messages of the branch still say 013. The baseline and after measurements above are unchanged.
+
+## scout-large 0.1.3 (card patch, prepared 2026-10-11)
+
+Draft created with `zoo new-patch scout-large 0.1.2 0.1.3` (same staged files as 0.1.2). Fixed in the draft: `usage` block as the gate expects it; `recipe.doc` points to `topics/productdev/recipes/scout-large.md` (the recorded path of 0.1.2 no longer exists). The 87 training sources and the scopes of the three "0.1.x" owner decisions (D-claude-risk-0.1.x, D-interviews-0.1.x, D-accessibility-0.1.x) now name `scout-large@0.1.3`, so the third-party notices and the training-data summary of 0.1.3 list the same sources as 0.1.2. Publication scan: 178 sources, longest restricted overlap 0 words, PII hits 0. Card preview: [scout-large-0.1.3-card-preview.md](scout-large-0.1.3-card-preview.md) (rendered without example outputs; the gate adds them).
+
+Remaining, owner only: `zoo compliance signoff`, `zoo check` with the staging token, tag and `release-publish`.
+
+Side finding: in `THIRD_PARTY_NOTICES.md` the section of picket-forest has an empty source table. No picket-forest version is tagged in any `used_by` of the register; its datasets are credited on the model card (dataset table). Whether the notices should list them as well is open, not part of this patch.
