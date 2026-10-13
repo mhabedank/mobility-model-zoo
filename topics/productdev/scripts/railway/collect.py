@@ -45,6 +45,8 @@ def main() -> None:
                                               "items", "peak_rss_mb", "peak_memory_mb")})
     for name in re.findall(r"=== PERF_ERROR (\S+) ===", log):
         print("error:", name)
+    for name, limit in re.findall(r"=== PERF_TIMEOUT (\S+) after (\d+) s ===", log):
+        print(f"timeout: {name} (over {limit} s)")
     print("hardware:", re.search(r"=== HARDWARE ===\s*\n(.*)", log).group(1)
           if "=== HARDWARE ===" in log else None)
     print("done:", "=== ALL_DONE ===" in log)

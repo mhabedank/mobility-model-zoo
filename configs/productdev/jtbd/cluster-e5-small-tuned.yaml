@@ -1,0 +1,158 @@
+# Tuned on the development split by `jtbd cluster tune` (tasks T032, T043).
+name: cluster-e5-small-tuned
+encoder:
+  model_id: intfloat/multilingual-e5-small
+  revision: 614241f622f53c4eeff9890bdc4f31cfecc418b3
+  licence_basis: MIT (model card licence tag, checked 2026-10-09; the repository has
+    no LICENSE file, rechecked 2026-10-10 when pinning)
+  prefix: 'query: '
+  trust_remote_code: false
+  pooling: mean
+  normalize: true
+  batch_size: 64
+  max_length: 128
+nli: null
+neighbours:
+  k: 30
+  candidate_floor: 0.5
+  k_spec: 5
+thresholds:
+  t_dup: 0.93
+  t_spec: 0.75
+  t_nli: 0.8
+levels:
+- 0.85
+representative: medoid
+settings_changes:
+- 'thresholds and levels tuned on dev: t_dup 0.93, level_1 0.85'
+decision: ../../../topics/productdev/benchmarks/cluster-v1/decision.json
+tuning:
+  split: dev
+  benchmark_version: cluster-v1
+  metric: duplicate pair F1, then specificity F1, then cluster level 1 B-cubed F1
+  base_settings: configs/productdev/jtbd/cluster-e5-small.yaml
+  base_settings_sha256: e53780073263fec5199d0d62ef183390bf33cfb0b641026b8fa03a99fadcaf66
+  consensus_pairs: 373
+  chosen:
+    t_dup: 0.93
+    level_1: 0.85
+  grid:
+  - t_dup: 0.8
+    precision: 0.0214
+    recall: 1.0
+    f1: 0.042
+    n: 373
+  - t_dup: 0.81
+    precision: 0.0214
+    recall: 1.0
+    f1: 0.042
+    n: 373
+  - t_dup: 0.82
+    precision: 0.0214
+    recall: 1.0
+    f1: 0.042
+    n: 373
+  - t_dup: 0.83
+    precision: 0.0219
+    recall: 1.0
+    f1: 0.0429
+    n: 373
+  - t_dup: 0.84
+    precision: 0.0235
+    recall: 1.0
+    f1: 0.0458
+    n: 373
+  - t_dup: 0.85
+    precision: 0.0299
+    recall: 1.0
+    f1: 0.058
+    n: 373
+  - t_dup: 0.86
+    precision: 0.047
+    recall: 0.875
+    f1: 0.0892
+    n: 373
+  - t_dup: 0.87
+    precision: 0.0625
+    recall: 0.875
+    f1: 0.1167
+    n: 373
+  - t_dup: 0.88
+    precision: 0.1207
+    recall: 0.875
+    f1: 0.2121
+    n: 373
+  - t_dup: 0.89
+    precision: 0.125
+    recall: 0.75
+    f1: 0.2143
+    n: 373
+  - t_dup: 0.9
+    precision: 0.1818
+    recall: 0.75
+    f1: 0.2927
+    n: 373
+  - t_dup: 0.91
+    precision: 0.2083
+    recall: 0.625
+    f1: 0.3125
+    n: 373
+  - t_dup: 0.92
+    precision: 0.3636
+    recall: 0.5
+    f1: 0.4211
+    n: 373
+  - t_dup: 0.93
+    precision: 0.5714
+    recall: 0.5
+    f1: 0.5333
+    n: 373
+  - t_dup: 0.94
+    precision: 0.75
+    recall: 0.375
+    f1: 0.5
+    n: 373
+  - t_dup: 0.95
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  specificity_grid: 'not tuned: no NLI model in the settings'
+  cluster_grid:
+  - level_1: 0.45
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.5
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.55
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.6
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.65
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.7
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.75
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.8
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.85
+    bcubed_f1: 0.3337
+    n: 6
+    clusters: 55
+  tuned_at: '2026-10-11T16:24:00.777829+00:00'

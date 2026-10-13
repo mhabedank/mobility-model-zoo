@@ -114,6 +114,7 @@ entries:
     kind: first-release
     stage: in-progress
     text: Groups duplicate needs found by scout-large and counts how often they occur.
+    precondition: A candidate that meets the duplicate quality bar.
     planned: 2027-Q1..Q2
     horizon: 2027-Q1..Q2
   - id: picket-forest-control

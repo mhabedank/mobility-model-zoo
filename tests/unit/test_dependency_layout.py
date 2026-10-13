@@ -46,8 +46,14 @@ def test_jtbd_extra_includes_the_text_extra():
 TRAINING_EXTRAS = {"jtbd", "edge-train", "labeling-api"}
 
 
+def test_cluster_extra_includes_the_text_extra():
+    assert "mobility-model-zoo[text]" in EXTRAS["cluster"]
+
+
 @pytest.mark.parametrize("path", MODELS, ids=lambda p: p.parent.name)
 def test_install_line_names_the_extra_of_the_runtime(path):
+    """mcu models name `edge`; python models name `text` or one extra that includes it (a task
+    stage such as `cluster` needs more than the text stack)."""
     model = yaml.safe_load(path.read_text(encoding="utf-8"))
     extras = re.search(r"mobility-model-zoo\[([^\]]+)\]", model["card"]["install"])
     expected = "edge" if model.get("runtime") == "mcu" else "text"

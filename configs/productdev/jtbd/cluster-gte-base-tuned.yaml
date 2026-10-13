@@ -1,0 +1,158 @@
+# Tuned on the development split by `jtbd cluster tune` (tasks T032, T043).
+name: cluster-gte-base-tuned
+encoder:
+  model_id: alibaba-nlp-community/gte-multilingual-base
+  revision: fdaec56c6a50d6ebcf691f616ee83a166346b76c
+  licence_basis: Apache-2.0 (model card licence tag of both repos; weights identical
+    to Alibaba-NLP/gte-multilingual-base, checked 2026-10-11)
+  prefix: ''
+  trust_remote_code: false
+  pooling: cls
+  normalize: true
+  batch_size: 64
+  max_length: 128
+nli: null
+neighbours:
+  k: 30
+  candidate_floor: 0.5
+  k_spec: 5
+thresholds:
+  t_dup: 0.91
+  t_spec: 0.75
+  t_nli: 0.8
+levels:
+- 0.65
+representative: medoid
+settings_changes:
+- 'thresholds and levels tuned on dev: t_dup 0.91, level_1 0.65'
+decision: ../../../topics/productdev/benchmarks/cluster-v1/decision.json
+tuning:
+  split: dev
+  benchmark_version: cluster-v1
+  metric: duplicate pair F1, then specificity F1, then cluster level 1 B-cubed F1
+  base_settings: configs/productdev/jtbd/cluster-gte-base.yaml
+  base_settings_sha256: 9b268a0c6cebc63bf2b5c1adbfb7a663fa1ce35d512eccc798bf14e13df0fb8e
+  consensus_pairs: 373
+  chosen:
+    t_dup: 0.91
+    level_1: 0.65
+  grid:
+  - t_dup: 0.8
+    precision: 0.4
+    recall: 0.5
+    f1: 0.4444
+    n: 373
+  - t_dup: 0.81
+    precision: 0.4
+    recall: 0.5
+    f1: 0.4444
+    n: 373
+  - t_dup: 0.82
+    precision: 0.4444
+    recall: 0.5
+    f1: 0.4706
+    n: 373
+  - t_dup: 0.83
+    precision: 0.5714
+    recall: 0.5
+    f1: 0.5333
+    n: 373
+  - t_dup: 0.84
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.85
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.86
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.87
+    precision: 0.8
+    recall: 0.5
+    f1: 0.6154
+    n: 373
+  - t_dup: 0.88
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.89
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.9
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.91
+    precision: 1.0
+    recall: 0.5
+    f1: 0.6667
+    n: 373
+  - t_dup: 0.92
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.93
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.94
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  - t_dup: 0.95
+    precision: 1.0
+    recall: 0.25
+    f1: 0.4
+    n: 373
+  specificity_grid: 'not tuned: no NLI model in the settings'
+  cluster_grid:
+  - level_1: 0.45
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.5
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 1
+  - level_1: 0.55
+    bcubed_f1: 0.302
+    n: 6
+    clusters: 2
+  - level_1: 0.6
+    bcubed_f1: 0.3645
+    n: 6
+    clusters: 42
+  - level_1: 0.65
+    bcubed_f1: 0.4447
+    n: 6
+    clusters: 193
+  - level_1: 0.7
+    bcubed_f1: 0.426
+    n: 6
+    clusters: 445
+  - level_1: 0.75
+    bcubed_f1: 0.4062
+    n: 6
+    clusters: 433
+  - level_1: 0.8
+    bcubed_f1: 0.3806
+    n: 6
+    clusters: 161
+  - level_1: 0.85
+    bcubed_f1: 0.368
+    n: 6
+    clusters: 34
+  tuned_at: '2026-10-11T12:23:02.756629+00:00'
