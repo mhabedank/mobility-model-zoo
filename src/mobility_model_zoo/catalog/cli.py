@@ -339,6 +339,7 @@ def harvest_cmd(
     lang: list[str] = typer.Option(None, "--lang"),
     area: list[str] = typer.Option(None, "--area"),
     subdomain: list[str] = typer.Option(None, "--subdomain"),
+    modality: list[str] = typer.Option(None, "--modality", help="Only these modalities."),
     limit: int = typer.Option(200, "--limit", help="At most N candidates."),
     run_id: str | None = typer.Option(None, "--run-id"),
 ) -> None:
@@ -355,6 +356,7 @@ def harvest_cmd(
             languages=lang or [],
             areas=area or [],
             subdomains=subdomain or [],
+            modalities=modality or [],
             limit=limit,
             run_id=run_id,
             say=say,

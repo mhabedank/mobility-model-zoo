@@ -35,7 +35,7 @@ def transport(requests: list[httpx.Request], lag_first: bool = False) -> httpx.M
                 200, headers={"Retry-After": "5"}, content=(HTTP / "maxlag.json").read_bytes()
             )
         params = request.url.params
-        term = params["gsrsearch"].removesuffix(" filetype:bitmap|drawing")
+        term = params["gsrsearch"].rsplit(" filetype:", 1)[0]
         name = RECORDED.get((term, params.get("gsroffset", "0")))
         body = (HTTP / name).read_bytes() if name else json.dumps(EMPTY).encode()
         return httpx.Response(200, content=body, headers={"Content-Type": "application/json"})
@@ -66,7 +66,7 @@ def by_title(rows: list[dict]) -> dict[str, dict]:
 def test_registry_and_contract():
     h = get("wikimedia-commons")
     assert isinstance(h, wc.WikimediaCommons)
-    assert h.env_keys == () and set(h.modalities) == {"image", "graphic"}
+    assert h.env_keys == () and set(h.modalities) == {"image", "graphic", "video", "audio"}
 
 
 def test_candidates_validate_and_ingest(tmp_path):
@@ -197,6 +197,8 @@ def test_licence_names(short, url, categories, expected):
         ("Metro network", "Transport diagrams", "image/png", ("graphic", "diagram")),
         ("Some logo", "", "image/svg+xml", ("graphic", "diagram")),
         ("Plano de la red de metro", "", "image/jpeg", ("image", "map")),
+        ("Tram map ride", "Maps of tram lines", "video/webm", ("video", "footage")),
+        ("Station announcement", "", "audio/ogg", ("audio", "field_recording")),
         (
             "Street with bikes",
             "Photographs by someone|Patrimonio gráfico de X",
@@ -232,3 +234,55 @@ def test_limit_and_modality_scope(tmp_path):
     )
     lines = [json.loads(line) for line in jsonl.read_text(encoding="utf-8").splitlines()]
     assert lines and {x["resource_type"]["modality"] for x in lines} == {"graphic"}
+
+
+@pytest.mark.parametrize(
+    ("modalities", "filetypes"),
+    [
+        ([], "bitmap|drawing|video|audio"),
+        (["graphic"], "bitmap|drawing"),
+        (["video", "audio"], "video|audio"),
+    ],
+)
+def test_file_types_follow_the_modality_scope(tmp_path, modalities, filetypes):
+    requests: list[httpx.Request] = []
+    base.harvest(
+        wc.WikimediaCommons(),
+        tmp_path,
+        base.Scope(languages=["es"], subdomains=["cycling"], modalities=modalities),
+        limit=5,
+        run_id=None,
+        say=print,
+        transport=transport(requests),
+        throttle=Throttle(sleep=lambda s: None),
+    )
+    assert requests
+    assert {r.url.params["gsrsearch"].rsplit(" filetype:", 1)[1] for r in requests} == {filetypes}
+
+
+def test_ogg_video_becomes_footage_and_validates():
+    page = {
+        "pageid": 42,
+        "title": "File:Tranvía de Zaragoza.ogv",
+        "imageinfo": [
+            {
+                "url": "https://upload.wikimedia.org/x/Tranv%C3%ADa_de_Zaragoza.ogv",
+                "descriptionurl": "https://commons.wikimedia.org/wiki/File:Tranv%C3%ADa_de_Zaragoza.ogv",
+                "mime": "application/ogg",
+                "size": 1000,
+                "extmetadata": {"LicenseShortName": {"value": "CC BY-SA 4.0"}},
+            }
+        ],
+    }
+    cand = wc.WikimediaCommons().to_candidate(page, "es", "public_transport", [])
+    assert cand["resource_type"] == {"modality": "video", "genre": "footage"}
+    assert cand["access"][0]["formats"] == ["video/ogg"]
+    assert cand["personal_data"] == {"expectation": "possible", "categories": ["faces", "voices"]}
+    assert cand["content"]["transcripts"] == {"available": "unknown"}
+    jsonschema.validate(cand, schema("candidate"))
+    sound = dict(page, title="File:Anuncio estación.oga")
+    assert wc.WikimediaCommons().to_candidate(sound, "es", "rail", [])["resource_type"] == {
+        "modality": "audio",
+        "genre": "field_recording",
+    }
+

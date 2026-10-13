@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,8 @@ from typing import Any
 import yaml
 
 from mobility_model_zoo.catalog.validate import Finding
+
+CC_PORT = re.compile(r"^(CC-BY(?:-SA)?-\d\.\d)-[A-Z]{2,3}$")
 
 RULES_FILE = Path(__file__).resolve().parent / "rules.yaml"
 SIGNALS = ("robots", "tdmrep", "x_robots", "meta_noai", "ai_txt", "content_signal", "content_usage")
@@ -80,6 +83,10 @@ def apply(
         for item in allowlist
         if item.get("trains", True) and not item.get("non_commercial")
     }
+    # a jurisdiction port counts as its listed Creative Commons version (D-catalog-licences-2026-10b)
+    port = CC_PORT.match(lid)
+    if lid not in allowed and port and port.group(1) in allowed:
+        lid = port.group(1)
     if lid in allowed:
         sa = bool(allowed[lid].get("share_alike"))
         why = f"{lid} is on the licence allow-list" + (" (share-alike)" if sa else "")

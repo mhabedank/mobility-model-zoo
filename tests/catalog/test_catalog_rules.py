@@ -80,10 +80,21 @@ def test_u4_nc_nd(entry, lid):
 
 
 def test_u3_skips_licences_that_never_train(entry):
-    assert any(item["id"] == "CC-BY-SA-3.0" and item.get("trains") is False for item in ALLOW)
-    entry["licence"]["id"] = "CC-BY-SA-3.0"
+    never = next(item["id"] for item in ALLOW if item.get("trains") is False)
+    entry["licence"]["id"] = never
     usage, _ = _apply(entry)
     assert usage["rule"] != "U3" and usage["permitted_use"] != "training_allowed"
+
+
+@pytest.mark.parametrize(
+    ("lid", "rule"), [("CC-BY-SA-3.0-CZ", "U3"), ("CC-BY-2.0-FR", "U3"), ("CC-BY-2.1-JP", "U6")]
+)
+def test_u3_counts_a_jurisdiction_port_as_its_listed_version(entry, lid, rule):
+    entry["licence"]["id"] = lid
+    usage, _ = _apply(entry)
+    assert usage["rule"] == rule
+    if rule == "U3":
+        assert usage["permitted_use"] == "training_allowed"
 
 
 def test_u5_proprietary_with_source_class(entry):

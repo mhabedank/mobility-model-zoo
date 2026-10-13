@@ -34,6 +34,8 @@ personal_data:  # by genre; a genre not listed gets `possible` with no categorie
   news_video: {expectation: present, categories: [voices, faces]}
   explainer: {expectation: possible, categories: [voices]}
   photo: {expectation: possible, categories: [faces]}
+  footage: {expectation: possible, categories: [faces, voices]}
+  field_recording: {expectation: possible, categories: [voices]}
   map: {expectation: none, categories: []}
   satellite_image: {expectation: none, categories: []}
   chart: {expectation: none, categories: []}

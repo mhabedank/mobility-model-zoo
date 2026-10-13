@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import copy
 
+import pytest
+
 from mobility_model_zoo.catalog.model import load
-from mobility_model_zoo.catalog.validate import DedupeIndex, k3
+from mobility_model_zoo.catalog.validate import DedupeIndex, identifies, k3
 
 
 def _pair(catalog_dir):
@@ -57,3 +59,24 @@ def test_k3_on_a_catalog(catalog_dir):
     )
     b.setdefault("relations", {})["duplicate_of"] = a["id"]
     assert not [f for f in k3(cat) if f.severity == "fail"]
+
+
+@pytest.mark.parametrize(
+    ("method", "url", "same"),
+    [
+        ("direct_download", "https://example.org/data/stops.zip", True),
+        ("bulk_dump", "https://example.org/dump/all.csv.gz", True),
+        ("feed", "https://example.org/gtfs-rt", True),
+        ("direct_download", "https://example.org/geonetwork/srv/dut/catalog.search", False),
+        ("api", "https://example.org/geoserver/wfs?service=WFS&request=GetCapabilities", False),
+        ("page_by_page", "https://example.org/ministry", False),
+    ],
+)
+def test_only_feeds_and_files_identify_a_resource(catalog_dir, method, url, same):
+    """Batch 1: datasets that share a service endpoint or a catalogue page are not duplicates."""
+    cat, a, b = _pair(catalog_dir)
+    a["access"] = [dict(a["access"][0], method=method, url=url)]
+    b["access"] = [dict(b["access"][0], method=method, url=url)]
+    assert identifies(a["access"][0]) is same
+    match = DedupeIndex.build([a]).exact(b)
+    assert (match is not None and match[0] == a["id"]) is same
