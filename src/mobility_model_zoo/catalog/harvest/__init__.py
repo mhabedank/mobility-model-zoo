@@ -45,8 +45,11 @@ def run_harvester(
     limit: int,
     run_id: str | None,
     say: Callable[[str], None],
+    modalities: list[str] | None = None,
     **kw,
 ) -> tuple[Path, Path]:
     harvester = get(name)
-    scope = Scope(languages=languages, areas=areas, subdomains=subdomains)
+    scope = Scope(
+        languages=languages, areas=areas, subdomains=subdomains, modalities=list(modalities or [])
+    )
     return harvest(harvester, root, scope, limit=limit, run_id=run_id, say=say, **kw)

@@ -3,11 +3,13 @@
 version: 1
 changelog:
 - {date: "2026-10-11", change: initial list, reason: feature 009 (FR-003, FR-005)}
+- {date: "2026-10-13", change: "genres footage (video) and field_recording (audio)", reason: "Wikimedia Commons media files, batch 3 (T084)"}
 modalities:
   text: {dcmi: Text, genres: [paper, report, law, transcript, article, book, forum_thread, standard,
     statistics_publication]}
-  audio: {dcmi: Sound, genres: [podcast, speech_recording, radio_programme]}
-  video: {dcmi: MovingImage, genres: [hearing, lecture, talk, documentary, news_video, explainer]}
+  audio: {dcmi: Sound, genres: [podcast, speech_recording, radio_programme, field_recording]}
+  video: {dcmi: MovingImage, genres: [hearing, lecture, talk, documentary, news_video, explainer,
+    footage]}
   image: {dcmi: StillImage, genres: [photo, map, satellite_image]}
   graphic: {dcmi: StillImage, genres: [chart, infographic, diagram]}
   structured_data: {dcmi: Dataset, genres: [table, spreadsheet, database, bucket, api, feed, gtfs,

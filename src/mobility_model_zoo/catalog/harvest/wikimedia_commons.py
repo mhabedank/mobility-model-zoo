@@ -50,6 +50,9 @@ CC_NAME = re.compile(r"^cc[ -](by(?:-(?:sa|nc|nd))*)[ -](\d\.\d)\b", re.IGNORECA
 US_GOV = re.compile(r"\bPD[- ]?US[- ]?Gov", re.IGNORECASE)
 PUBLICDOMAIN_MARK = re.compile(r"creativecommons\.org/publicdomain/mark/", re.IGNORECASE)
 
+# CirrusSearch file types per modality; charts and maps are bitmaps or drawings alike.
+FILETYPES = {"image": "bitmap|drawing", "graphic": "bitmap|drawing", "video": "video", "audio": "audio"}
+
 # Genre cues in titles and categories, checked in this order (first match wins).
 GENRE_CUES: list[tuple[str, str, re.Pattern[str]]] = [
     (
@@ -141,6 +144,10 @@ def licence(short_name: str, url: str, categories: str, evidence: str) -> dict[s
 
 def classify(title: str, categories: str, mime: str) -> tuple[str, str]:
     """(modality, genre) from title, categories and MIME type; photo when nothing points elsewhere."""
+    if mime.startswith("video/"):
+        return "video", "footage"
+    if mime.startswith("audio/"):
+        return "audio", "field_recording"
     for text in (title, FALSE_CUES.sub(" ", categories)):
         for modality, genre, cue in GENRE_CUES:
             if cue.search(text):
@@ -181,13 +188,16 @@ class WikimediaCommons:
     name = "wikimedia-commons"
     catalogue = "Wikimedia Commons"
     env_keys: tuple[str, ...] = ()
-    modalities = ("image", "graphic")
+    modalities = ("image", "graphic", "video", "audio")
     method = (
-        "MediaWiki API search in the File namespace (bitmap, drawing) with the subdomain terms per "
-        "language; licence from extmetadata LicenseShortName/LicenseUrl; metadata only, no uploaders"
+        "MediaWiki API search in the File namespace (bitmap, drawing, video, audio) with the subdomain "
+        "terms per language; licence from extmetadata LicenseShortName/LicenseUrl; metadata only, no "
+        "uploaders"
     )
 
-    def query(self, ctx: base.Context, term: str, offset: int, size: int) -> dict[str, Any]:
+    def query(
+        self, ctx: base.Context, term: str, offset: int, size: int, filetypes: str = "bitmap|drawing"
+    ) -> dict[str, Any]:
         params = {
             "action": "query",
             "format": "json",
@@ -195,7 +205,7 @@ class WikimediaCommons:
             "maxlag": "5",
             "generator": "search",
             "gsrnamespace": "6",
-            "gsrsearch": f"{term} filetype:bitmap|drawing",
+            "gsrsearch": f"{term} filetype:{filetypes}",
             "gsrlimit": str(size),
             "gsroffset": str(offset),
             "prop": "imageinfo",
@@ -224,7 +234,9 @@ class WikimediaCommons:
         info = (page.get("imageinfo") or [{}])[0]
         page_url = info.get("descriptionurl") or FILE_PAGE + page["title"].replace(" ", "_")
         mime = str(info.get("mime") or "")
-        title, _ = file_title(page["title"])
+        title, ext = file_title(page["title"])
+        if mime == "application/ogg":  # Ogg holds video (.ogv) or sound (.oga, .ogg, .opus)
+            mime = "video/ogg" if ext == "ogv" else "audio/ogg"
         categories = meta(info, "Categories")
         modality, genre = classify(title, categories, mime)
         if allowed and modality not in allowed:
@@ -280,11 +292,13 @@ class WikimediaCommons:
             for term in base.search_terms(sub, lang)
         ]
         quota = max(1, math.ceil(ctx.limit / max(1, len(plan))))
+        wanted = scope.modalities or list(self.modalities)
+        filetypes = "|".join(dict.fromkeys(FILETYPES[m] for m in self.modalities if m in wanted))
         seen: dict[int, dict[str, Any]] = {}
         for lang, sub, term in plan:
             taken, offset = 0, 0
             while taken < quota:
-                data = self.query(ctx, term, offset, min(BATCH, max(quota - taken, 5)))
+                data = self.query(ctx, term, offset, min(BATCH, max(quota - taken, 5)), filetypes)
                 pages = sorted(
                     (data.get("query") or {}).get("pages") or [], key=lambda p: p.get("index", 0)
                 )
