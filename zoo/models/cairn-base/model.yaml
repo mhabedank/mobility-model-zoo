@@ -1,0 +1,48 @@
+name: cairn-base
+topic: productdev
+task: jtbd-cluster
+variant: base
+title: 'Cairn (base): duplicate needs grouped into an opportunity map'
+summary: Turns the jobs, pains and gains that scout-large finds into an opportunity map. Exact and near duplicates across texts and languages become one group with its number of mentions and independent sources, and groups of every kind are clustered into opportunities, so a job sits together with its pains and gains. Training-free baseline from a multilingual sentence encoder with thresholds tuned on the frozen benchmark cluster-v1. In development; this commercially usable variant has no specificity relation between needs.
+license: Apache-2.0
+usage_class: commercial
+license_exception: null
+base_model: null
+base_model_license: null
+runtime_models: [alibaba-nlp-community/gte-multilingual-base]
+languages: [de, en]
+pipeline_tag: sentence-similarity
+library_name: transformers
+tags: [jobs-to-be-done, product-discovery, deduplication, clustering, opportunity-solution-tree]
+repos:
+  public: mobility-model-zoo/cairn-base
+  staging: mobility-model-zoo/cairn-base-staging
+card:
+  intended_use: |
+    Product discovery in mobility: merging the items extracted from many interviews, forum posts, studies and other texts into one list of needs with evidence counts, and grouping them into opportunities for an Opportunity Solution Tree or an outcome-driven list. People can correct the structure and annotate it; ids stay stable when new texts are added.
+  out_of_scope: |
+    Decisions about individuals; profiling or identifying the authors of texts; treating counts as statistics about a population (they count mentions in the collected texts); texts outside mobility.
+  input_output: |
+    Input: bundles of `jtbd-span-v1` outputs with their source ids (`jtbd-cluster-input-v1`). Output: one JSON document in the format `jtbd-cluster-v1` with items, duplicate groups (one kind each), clusters (kinds may mix), counts, attribute distributions, dates, checks and corrections, plus the views `tree.md` and `needs.csv`.
+  install: pip install "mobility-model-zoo[jtbd,cluster] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  how_to_run: |
+    from huggingface_hub import hf_hub_download
+
+    from mobility_model_zoo.productdev.jtbd.cluster.bundle import read_bundle
+    from mobility_model_zoo.productdev.jtbd.cluster.report import write_report
+    from mobility_model_zoo.productdev.jtbd.cluster.stage import ClusterStage
+
+    settings = hf_hub_download("{repo_id}", "cairn-base.yaml", revision="{revision}")
+    ClusterStage.from_settings(settings).run(read_bundle("items.jsonl"), map_dir="map")
+    write_report("map")  # map/tree.md and map/needs.csv
+  limitations: |
+    - In development: not released; numbers on the website and the card follow with the first release.
+    - No specificity relation: more specific needs are not linked under more general ones in this commercially usable variant, because every multilingual NLI model checked so far was trained on non-commercial data.
+    - Quality is measured as agreement with two frontier reference models on the frozen benchmark cluster-v1, not against human judgement.
+  citation: |
+    @misc{mobility-model-zoo-cairn,
+      title  = {Cairn (base): duplicate needs grouped into an opportunity map, mobility-model-zoo},
+      author = {Habedank, Martin},
+      year   = {2026},
+      url    = {https://huggingface.co/mobility-model-zoo/cairn-base}
+    }
