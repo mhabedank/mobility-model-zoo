@@ -236,6 +236,22 @@ decisions:
   review_by: '2027-04-11'
   decided_by: Martin Habedank
   supersedes: null
+- id: D-catalog-nc-training-2026-10
+  date: '2026-10-13'
+  decision: In the resource index, a source under a listed non-commercial licence is training_allowed for
+    non-commercial models (usage.non_commercial true), as feature 011 allows for the register; rule U3 decides it and
+    rule U4 keeps no-derivatives licences and unlisted non-commercial licences benchmark_only. The older versions
+    CC BY-NC 2.0, 2.5 and 3.0 and CC BY-NC-SA 2.0, 2.5 and 3.0 go on compliance/lists/licence-allowlist.yaml as
+    non-commercial (the BY-NC-SA ones share-alike).
+  rationale: Constitution 2.1.0 and feature 011 let the zoo build and publish non-commercial models; about 600 index
+    entries under NC licences (mostly papers) were benchmark_only only because the catalog rules predated that.
+  scope:
+  - compliance/lists/licence-allowlist.yaml
+  - src/mobility_model_zoo/catalog/rules.yaml
+  - catalog:entries (feature 009)
+  review_by: '2027-04-13'
+  decided_by: Martin Habedank
+  supersedes: null
 - id: D-catalog-licences-2026-10b
   date: '2026-10-13'
   decision: Older Creative Commons versions and public domain marks found on Wikimedia Commons by the resource index

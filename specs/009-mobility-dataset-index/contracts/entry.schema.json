@@ -353,6 +353,9 @@
         "share_alike": {
           "type": "boolean"
         },
+        "non_commercial": {
+          "type": "boolean"
+        },
         "rule": {
           "type": "string",
           "pattern": "^U[0-9]+$"

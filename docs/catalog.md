@@ -95,7 +95,7 @@ zoo catalog check
 | K6 | opt-out signals: robots.txt with the AI agent list, TDMRep, `noai`, ai.txt, Cloudflare `Content-Signal` and IETF AIPREF `Content-Usage` |
 | K7 | access route |
 
-`check` then applies the licence rules U1–U6 of `rules.yaml` and the state machine. It fetches only landing, licence and robots pages, never the resource, at one request per second per host.
+`check` then applies the licence rules U1–U6 of `rules.yaml` and the state machine. An entry under a listed non-commercial licence is `training_allowed` with `usage.non_commercial: true`: it may train non-commercial models only (feature 011). No-derivatives licences stay `benchmark_only`. It fetches only landing, licence and robots pages, never the resource, at one request per second per host.
 
 An entry is cleared only when all of these hold (FR-018):
 
