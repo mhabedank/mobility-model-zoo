@@ -233,3 +233,54 @@ ul.why li + li, .layers li + li { margin-top: 0; }
 #limits details { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; background: var(--surface); }
 #limits details summary { cursor: pointer; font-weight: 600; }
 #limits details[open] summary { margin-bottom: 10px; }
+
+/* ---- feature 015: roadmap page and "Coming next" cards ---------------------------------------- */
+.roadmap-hero { padding: 48px 0 28px; }
+.plan-line { font-size: 18px; }
+.sec.roadmap { padding-top: 8px; border-top: 0; }
+.timeline { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; height: 14px;
+  margin-bottom: 24px; }
+.timeline .seg { align-self: center; height: 4px; border-radius: 2px; background: var(--border); }
+.timeline .seg-now { background: linear-gradient(90deg, var(--border-strong) calc(var(--now) * 100%),
+  var(--border) calc(var(--now) * 100%)); }
+.timeline::after { content: ""; position: absolute; top: 0; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--mark); border: 2px solid var(--text);
+  left: calc((100% - 32px) / 3 * var(--now) - 7px); }
+.horizons { display: grid; grid-template-columns: 1fr; gap: 32px; }
+@media (min-width: 960px) {
+  .horizons { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+}
+@media (max-width: 959px) { .timeline { display: none; } }
+.horizon { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.horizon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding-bottom: 8px; border-bottom: 2px solid var(--border-strong); }
+ol.entries { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.entry { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; min-width: 0;
+  scroll-margin-top: 16px; }
+.entry-new { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--mark); }
+.entry-update { background: transparent; border: 1.5px dashed var(--border-strong); }
+.entry:target { outline: 3px solid var(--focus); outline-offset: 2px; }
+.entry-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 18px; line-height: 1.3;
+  font-weight: 650; overflow-wrap: anywhere; }
+.entry-name svg { flex: none; }
+.entry .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.entry .chip { font-size: 12px; padding: 1px 9px; }
+.chip.kind { background: var(--surface-2); }
+.entry-update .chip.kind { background: transparent; }
+.chip.planned i { background: transparent; }
+.chip.progress i { background: linear-gradient(90deg, var(--mark) 50%, transparent 50%); }
+.waits { font-style: italic; }
+.empty { padding: 14px 0; }
+.legend { margin-top: 24px; max-width: 760px; }
+.coming { margin-top: 40px; display: flex; flex-direction: column; gap: 14px; }
+.coming-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(168px, 100%), 1fr)); gap: 12px; }
+a.mini { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 4px solid var(--mark); border-radius: 10px; color: var(--text);
+  text-decoration: none; min-width: 0; }
+a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); color: var(--text); }
+.mini .eyebrow { font-size: 11px; letter-spacing: .04em; }
+.mini .cap { font-size: 12px; line-height: 1.3; }
+.mini-name { font-weight: 650; overflow-wrap: anywhere; }
+.mini-foot { display: flex; margin-top: auto; padding-top: 6px; }
+.mini .chip { font-size: 12px; padding: 0 9px; }

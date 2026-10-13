@@ -64,6 +64,7 @@ NO_BROWSER = (
     "images need the site-check group: uv sync --group site-check && "
     "uv run playwright install chromium (or pass --no-images)"
 )
+ROADMAP_TITLE, ROADMAP_LINE = "What comes next", "What the zoo plans to release next."
 ASSET_REF = re.compile(r"""<link[^>]+href="([^"]+)"|url\(\s*['"]?([^'")]+)['"]?\s*\)""")
 
 
@@ -131,9 +132,14 @@ def labels(sm: dict[str, Any]) -> list[str]:
 def cards(
     reg: Any, site: dict[str, Any], models: list[dict[str, Any]], formats: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
-    """One card per shareable page: the zoo, every published model, every output format."""
+    """One card per shareable page: the zoo, the roadmap, every published model, every output format."""
     line, from_tagline = share_line(site)
     out = [_card("", "zoo", "zoo", site["title"], line, owner="zoo", from_tagline=from_tagline)]
+    # feature 015: the roadmap page; its line comes from zoo/site.yaml roadmap.share_line
+    plan = " ".join(str((site.get("roadmap") or {}).get("share_line") or ROADMAP_LINE).split())
+    out.append(
+        _card("roadmap/", "page", "roadmap", ROADMAP_TITLE, plan, eyebrow="Roadmap", owner="roadmap")
+    )
     for sm in models:
         if sm["status"] == "in_progress" or not sm.get("pitch"):
             continue

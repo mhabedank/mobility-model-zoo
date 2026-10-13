@@ -6,14 +6,55 @@ The website at https://mhabedank.github.io/mobility-model-zoo/ is a set of stati
 
 | Page | Content | Source |
 |---|---|---|
-| Start page `/` | purpose, topics, model tiles, principles | `zoo/site.yaml`, `zoo/topics.yaml`, every `model.yaml` and release record |
+| Start page `/` | purpose, topics, tiles of published models, "Coming next" cards of upcoming models, principles | `zoo/site.yaml`, `zoo/topics.yaml`, every `model.yaml` and release record, `zoo/roadmap/roadmap.yaml` |
+| Roadmap `/roadmap/` | what the zoo plans to release in the next quarter and the two half-years after it (feature 015) | `zoo/roadmap/roadmap.yaml`, release records |
 | Quickstart `/quickstart/` | the five-minute walk-through: environment, install line, program and printed output of picket-forest and scout-large, and the common mistakes | [docs/quickstart.md](quickstart.md); `{install:<model>}`, `{snippet:<model>}` and `{output:<model>}` are filled from the latest published version of that model, so the page cannot drift from the cards |
 | Model page `/models/<name>/` | six layers of increasing depth (feature 014): overview, quality and speed, limits and status, quickstart, reference (interface and worked examples), details and documents (all metrics, provenance, versions, citation) | `model.yaml` (including the card short forms), `zoo/models/<name>/site.yaml`, release records, `results/<version>/*.json`, `examples/`, the published model card |
 | Output format `/formats/<id>/` | every field with type, allowed values and meaning | the format's JSON schema and `zoo/formats/<id>.yaml` |
 
 The layers and what each may contain are in [page-layers.md](../specs/014-model-page-layout/contracts/page-layers.md). The overview shows the release status from the release record (with "Experimental: not ready for production use." for experimental releases), the usage class, the licence and the `card.not_for` points; the limits layer opens with the unmet criteria and `card.limits_short` before any code. The depth budgets (words and items per layer) are one table in `src/mobility_model_zoo/site/budgets.py`, shared by the release gate and the site checks.
 
-Only published models get a page; unpublished models appear on the start page as "in progress". Format pages are never removed, so the documentation of an old format stays reachable. The data model is in [data-model.md](../specs/008-zoo-website/data-model.md).
+Only published models get a page; unpublished models appear on the start page as "Coming next" cards from the roadmap. Format pages are never removed, so the documentation of an old format stays reachable. The data model is in [data-model.md](../specs/008-zoo-website/data-model.md).
+
+## Roadmap and pace review (feature 015)
+
+The roadmap is one record, [zoo/roadmap/roadmap.yaml](../zoo/roadmap/roadmap.yaml) ([schema](../src/mobility_model_zoo/site/schemas/roadmap.schema.json), [data model](../specs/015-website-roadmap/data-model.md)), and the constitution's section "Roadmap and Delivery Pace" says how it is kept.
+
+- **Horizons**: three, the next quarter and two half-years: `2026-Q4`, `2027-Q1..Q2`, `2027-Q3..Q4` (a half-year that does not start in January or July is written like `2027-Q2..Q3` or `2027-Q4..2028-Q1`).
+- **Entries**:
+  - **Kind**: `new-model` (working name until registered), `first-release` of a registered model, or `update` of a published one. The order inside a horizon is the priority order.
+  - **Stage**: `in-progress` only while someone works on it; otherwise `planned`.
+  - **Text**: `text` (at most 20 words) and `precondition` (at most 8 words) carry no numbers.
+- **Moving and dropping**:
+  - `planned` never changes.
+  - To move an entry, append `{date, to, reason}` to `moves` and set `horizon` to the new id.
+  - To drop it, add `dropped: {date, reason}`. A dropped entry stays in the record.
+- **Delivery** comes from the release records:
+  - A `new-model` or `first-release` entry is delivered by the first published version of its `model`.
+  - An `update` entry is delivered by the release named in `delivered_by: {model, version}`.
+  - Delivered entries leave the pages and stay in the record.
+
+**Every quarter**, after it ends:
+
+1. `uv run zoo roadmap pace 2026-Q4 --write` writes `zoo/roadmap/reviews/2026-Q4.md`. It covers delivered early, on time or late, due and not delivered, moved, dropped, unplanned releases, delivery rate and trend.
+2. Fill in the "Re-planning" section of that file: how the next horizons use the measured pace.
+3. Roll the horizons forward, record the moves, set `as_of`, and run `uv run zoo roadmap check`.
+
+Checks (RM1–RM8 in `zoo roadmap check`, CI and `zoo site build`; RM9 in `zoo site check`, [contract](../specs/015-website-roadmap/contracts/checks.md)):
+
+| Check | What it guarantees |
+|---|---|
+| RM1 | schema, unique ids |
+| RM2 | agreement with the model registry; every registered unpublished model has an entry |
+| RM3 | text rules |
+| RM4 | horizons, moves, at most six open entries per horizon |
+| RM5 | `planned` unchanged since the entry was added (git history) |
+| RM6 | `as_of` at most 100 days old, no open entry in an ended horizon; a warning in the last 14 days of the first horizon |
+| RM7 | a filled review for every closed quarter before the horizons roll forward |
+| RM8 | `delivered_by` names a published release |
+| RM9 | pages show exactly the open entries, in order, with correct counts |
+
+`ZOO_TODAY=YYYY-MM-DD` sets "today" for rehearsals. A stale or unreviewed roadmap stops the site build and CI, but never a release: `zoo check` and the release pipeline do not read the roadmap.
 
 ## Website text of a model (`site.yaml`)
 

@@ -1,0 +1,14 @@
+{# "Coming next" on the start page (feature 015, contracts/pages.md): one small card per open new model
+   or first release of the roadmap, by horizon, then priority. The sentence stays on the roadmap page. #}
+<div class="coming" id="coming-next">
+<div class="coming-head"><h3 class="h3">Coming next</h3><a href="roadmap/">See the roadmap →</a></div>
+{% if upcoming %}
+<div class="mini-grid">
+{% for e in upcoming %}
+<a class="mini" href="roadmap/#{{ e.id }}"><span class="eyebrow">{{ e.topic_title }}</span><span class="mini-name">{{ e.name }}</span>{% if e.working_name %}<span class="cap">working name</span>{% endif %}<span class="mini-foot"><span class="chip">{{ e.horizon_label }}</span></span></a>
+{% endfor %}
+</div>
+{% else %}
+<p class="muted small">Nothing planned yet.</p>
+{% endif %}
+</div>
