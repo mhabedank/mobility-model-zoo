@@ -123,3 +123,28 @@ Still open:
 
 - 58.4% of entries have a determined licence; the SC-004 target is 80%.
 - Audio, video, image and graphic have no usable entry. Batch 3 (T084) addresses these modalities.
+
+## Scale-up batch 3, media (catalog repository, 2026-10-12/13, T084 in part)
+
+Wikimedia Commons was searched over all 34 target languages for images and graphics, then for video and audio. For video and audio the harvester gained two genres, `footage` and `field_recording`. Catalog commits: ec6a1f0, 84a0f3f, 38ae0ab.
+
+Owner decision D-catalog-licences-2026-10b added these licences to the list:
+
+- CC BY 2.0 and 2.5;
+- CC BY-SA 2.0 and 2.5;
+- CC BY-SA 3.0, which now trains;
+- LicenseRef-public-domain.
+
+Jurisdiction ports count as their listed version.
+
+The index after batch 3:
+
+- 7,840 entries in total, 4,419 of them cleared.
+- 4,219 entries are `training_allowed`, and 65.8% have a determined licence.
+- `training_allowed` by modality: 846 images, 81 graphics, 350 videos and 139 audio files.
+- The coverage report shows no gap for any target language or modality.
+
+Two parts of T084 are still open:
+
+- `podcast-index` needs the owner's API key.
+- Agent discovery (`catalog-discover`) has not run yet, because the coverage report shows no gap left to fill.
