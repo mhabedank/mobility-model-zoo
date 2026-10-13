@@ -233,6 +233,22 @@ decisions:
   review_by: '2027-04-11'
   decided_by: Martin Habedank
   supersedes: null
+- id: D-catalog-licences-2026-10b
+  date: '2026-10-13'
+  decision: Older Creative Commons versions and public domain marks found on Wikimedia Commons by the resource index
+    are training_allowed and go on compliance/lists/licence-allowlist.yaml. (1) CC BY 2.0 and 2.5. (2) CC BY-SA 2.0 and
+    2.5, share-alike like CC BY-SA 4.0. (3) CC BY-SA 3.0 trains from now on; it was listed for third-party training
+    data only (trains false, feature 011). (4) LicenseRef-public-domain, a public domain mark or dedication on the
+    source page. Jurisdiction ports of a listed Creative Commons version (e.g. CC-BY-SA-3.0-CZ) count as that version.
+  rationale: The licences allow commercial use and adaptation with attribution (share-alike for BY-SA) and do not
+    forbid machine learning. Batch 3 of feature 009 found about 400 Wikimedia Commons images and graphics under them;
+    without the decision they stayed undetermined.
+  scope:
+  - compliance/lists/licence-allowlist.yaml
+  - catalog:entries (feature 009)
+  review_by: '2027-04-13'
+  decided_by: Martin Habedank
+  supersedes: null
 - id: D-railway-perf
   date: '2026-10-11'
   decided_by: Martin Habedank
