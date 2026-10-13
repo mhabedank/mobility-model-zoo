@@ -1,9 +1,24 @@
-<section class="sec" id="limits" aria-labelledby="l-h"><div class="wrap stack" style="gap:28px">
-<div class="sec-head" style="margin:0"><div class="eyebrow">Use and limits</div><h2 class="h2" id="l-h">What it is for, and where to stop trusting it.</h2></div>
-<div class="grid2">
-<div class="stack"><h3 class="h3">Intended use</h3><div class="prose">{{ p.m.card.intended_use | md }}</div></div>
-<div class="stack"><h3 class="h3">Out of scope</h3><div class="prose">{{ p.m.card.out_of_scope | md }}</div></div>
+<section class="sec" id="limits" data-layer="limits" aria-labelledby="l-h"><div class="wrap stack" style="gap:24px">
+<div class="sec-head" style="margin:0"><div class="eyebrow">Limits and status</div><h2 class="h2" id="l-h">Where to stop trusting it.</h2></div>
+<div class="limits-short" data-short="limits">
+{% if p.status_sentence %}<p class="status-line status-{{ p.release_status }}">{{ p.status_sentence }}</p>{% endif %}
+{% if p.unmet %}
+<h3 class="h3">Not met yet</h3>
+<ul class="unmet">
+{% for u in p.unmet %}<li><strong>{{ u.criterion }}</strong>: {% if u.measured %}<span class="fact">{{ u.measured.value }}{% if u.measured.unit %} {{ u.measured.unit }}{% endif %}</span><sup><a href="#fn-{{ u.measured.note_ref }}" aria-label="Note {{ u.measured.note_ref }}">{{ u.measured.note_ref }}</a></sup>{% if u.target %} (target {{ u.target.op }} {{ u.target.value }}{% if u.target.unit %} {{ u.target.unit }}{% endif %}){% endif %}{% if u.note %}; {{ u.note }}{% endif %}{% else %}{{ u.note }}{% if u.target %} (target {{ u.target.op }} {{ u.target.value }}{% if u.target.unit %} {{ u.target.unit }}{% endif %}){% endif %}{% endif %}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% if p.limits_short %}
+<h3 class="h3">Known limits</h3>
+<ul>{% for t in p.limits_short %}<li>{{ t }}</li>{% endfor %}</ul>
+{% endif %}
 </div>
-<div class="callout" role="note"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
-<div class="stack" style="gap:8px"><h3 class="h3" style="font-size:19px">Limitations</h3><div class="prose small">{{ p.m.card.limitations | md }}</div></div></div>
+{% if p.evidence %}<p class="small evidence" data-budget="skip">Evidence: {% for e in p.evidence %}<a href="{{ e.url }}">{{ e.label }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+<div class="stack" style="gap:10px">
+<details><summary>Intended use</summary><div class="prose">{{ p.m.card.intended_use | md }}</div></details>
+<details><summary>Out of scope</summary><div class="prose">{{ p.m.card.out_of_scope | md }}</div></details>
+<details><summary>All limitations</summary><div class="callout" role="note"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
+<div class="prose small">{{ p.m.card.limitations | md }}</div></div></details>
+</div>
 </div></section>

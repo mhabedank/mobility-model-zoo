@@ -2,7 +2,7 @@
 
 The base is `https://mhabedank.github.io/mobility-model-zoo/`. All internal links are relative. Every page has:
 
-- the header: mark, wordmark, and navigation (Models, Topics, Principles, Hugging Face, GitHub);
+- the header: mark, wordmark, and navigation (Models, Roadmap, Topics, Principles, Hugging Face, GitHub; Roadmap added by feature 015);
 - the footer: imprint, privacy notice, copyright policy, licence, and the line "Private, non-commercial project. No cookies, no analytics, no third-party requests.";
 - `lang="en"`, one `h1`, landmark elements, and a skip link;
 - the `color-scheme: light dark` meta and the tokens of both themes.
@@ -14,7 +14,7 @@ In this order:
 1. Hero: the zoo's vision (`zoo/site.yaml` tagline) and mission (`lead`) and two actions, "Browse the models" and "Read the principles".
 2. Three short value points (compliant by design, runs where your data is, known quality and limits). These are the principles in short form, without numbers.
 3. Topics: one block per topic in `topics.yaml`, with its title, description and HF collection link.
-4. Models: one tile per non-sandbox model, with name, topic, task, latest version and a status chip. Published and deprecated tiles link to the model page; "in progress" tiles do not link.
+4. Models: one tile per published or deprecated model, with name, topic, task, latest version and a status chip, linking to the model page. Since feature 015, unpublished models appear below the tiles as "Coming next" cards from the roadmap, not as tiles ([specs/015-website-roadmap/contracts/pages.md](../../015-website-roadmap/contracts/pages.md)).
 5. Principles: the three to five from `zoo/site.yaml`.
 
 ## `/models/<name>/` model page (status published or deprecated)

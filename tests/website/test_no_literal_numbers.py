@@ -36,3 +36,16 @@ def test_literal_number_in_site_yaml_is_f2(site_env):
     )
     found = list(check.check_literal_numbers(site_env.reg))
     assert found and found[0][0] == "F2" and "0.72" in found[0][2]
+
+
+def test_card_short_forms_have_no_literal_numbers(site_env):
+    """Feature 014: numbers in the short forms only as placeholders or structured targets."""
+    from site_fixture import MODEL
+
+    from mobility_model_zoo.site import check
+
+    site_env.edit_yaml(
+        f"zoo/models/{MODEL}/model.yaml", lambda m: m["card"]["not_for"].append("Texts over 512 tokens")
+    )
+    found = [f for f in check.check_literal_numbers(site_env.reg) if "model.yaml" in f[1]]
+    assert any("'512'" in f[2] for f in found)

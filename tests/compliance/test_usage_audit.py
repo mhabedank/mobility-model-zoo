@@ -12,7 +12,8 @@ from mobility_model_zoo.compliance.usage import audit
 from mobility_model_zoo.release.cli import app
 
 ROOT = Path(__file__).resolve().parents[2]
-MODELS = {"scout-large", "sandbox-pipeline-tiny", "hum-fan", "pace-cnn", "picket-forest", "picket-mlp"}
+MODELS = {"scout-large", "sandbox-pipeline-tiny", "hum-fan", "pace-cnn", "picket-forest", "picket-mlp",
+          "cairn-base"}
 
 
 def tree_hash(root: Path) -> str:

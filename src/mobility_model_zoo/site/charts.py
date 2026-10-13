@@ -267,3 +267,25 @@ def render(
     reg: Registry, name: str, version: str, declared: list[dict[str, Any]], facts: Facts, page: str
 ) -> list[dict[str, Any]]:
     return [CHARTS[c["type"]](reg, name, version, c, facts, page) for c in declared]
+
+
+# ---- comparison bar of a headline figure (feature 014, research R6) ---------------------------
+BAR_W = 240
+
+
+def comparison_bar(value: float, compare: float, unit: str, label: str, compare_label: str) -> Markup:
+    """Two bars on one linear scale from zero: the model's value and the value it is compared with.
+    The numbers stay as text in the card; the bar only shows the proportion."""
+    top = max(abs(value), abs(compare)) or 1.0
+
+    def width(v: float) -> float:
+        return max(2.0, abs(v) / top * BAR_W)
+
+    u = f" {unit}" if unit else ""
+    alt = f"{label}: {num(value)}{u}; {compare_label}: {num(compare)}{u}"
+    return Markup(  # noqa: S704 - built from numbers and escaped labels
+        f'<svg class="ch bar" viewBox="0 0 {BAR_W} 30" width="{BAR_W}" height="30" role="img" '
+        f'aria-label="{escape(alt)}">'
+        f'<rect class="sa" x="0" y="2" width="{width(value):.1f}" height="10" rx="2"/>'
+        f'<rect class="sb" x="0" y="18" width="{width(compare):.1f}" height="10" rx="2"/></svg>'
+    )

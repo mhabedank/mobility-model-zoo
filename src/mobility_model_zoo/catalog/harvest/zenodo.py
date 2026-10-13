@@ -35,31 +35,50 @@ MAX_ROUTES = 3
 TYPES = {"structured_data": "dataset", "text": "publication"}
 DOI = re.compile(r"^10\.\d{4,9}/\S+$")
 MEDIA_TYPES = {
-    "csv": "text/csv", "tsv": "text/tab-separated-values", "txt": "text/plain",
+    "csv": "text/csv",
+    "tsv": "text/tab-separated-values",
+    "txt": "text/plain",
     "json": "application/json",
-    "geojson": "application/geo+json", "xml": "application/xml", "zip": "application/zip",
-    "gz": "application/gzip", "xls": "application/vnd.ms-excel",
+    "geojson": "application/geo+json",
+    "xml": "application/xml",
+    "zip": "application/zip",
+    "gz": "application/gzip",
+    "xls": "application/vnd.ms-excel",
     "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "ods": "application/vnd.oasis.opendocument.spreadsheet", "pdf": "application/pdf",
-    "kml": "application/vnd.google-earth.kml+xml", "kmz": "application/vnd.google-earth.kmz",
-    "gml": "application/gml+xml", "shp": "application/vnd.shp", "gpkg": "application/geopackage+sqlite3",
-    "parquet": "application/vnd.apache.parquet", "nc": "application/netcdf", "h5": "application/x-hdf5",
+    "ods": "application/vnd.oasis.opendocument.spreadsheet",
+    "pdf": "application/pdf",
+    "kml": "application/vnd.google-earth.kml+xml",
+    "kmz": "application/vnd.google-earth.kmz",
+    "gml": "application/gml+xml",
+    "shp": "application/vnd.shp",
+    "gpkg": "application/geopackage+sqlite3",
+    "parquet": "application/vnd.apache.parquet",
+    "nc": "application/netcdf",
+    "h5": "application/x-hdf5",
     "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "md": "text/markdown", "html": "text/html", "png": "image/png", "jpg": "image/jpeg",
-    "jpeg": "image/jpeg", "glb": "model/gltf-binary",
+    "md": "text/markdown",
+    "html": "text/html",
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "glb": "model/gltf-binary",
 }
 GEO = {"geojson", "kml", "kmz", "gml", "shp", "gpkg"}
 SPREADSHEETS = {"xls", "xlsx", "ods"}
 DUMPS = {"json", "xml"}
 PAPERS = {"article", "preprint", "conferencepaper", "thesis", "workingpaper", "proposal"}
 BOOKS = {"book", "section"}
-GOVERNMENT = re.compile(r"ayuntamiento|ministr|minister|gobierno|government|council|municipal|agencia|"
-                        r"agency|ministerium|stadt |urz[aą]d|city of|generalitat|junta de|diputaci",
-                        re.IGNORECASE)
-COMPANY = re.compile(r"\b(s\.?a\.?u?|s\.?l\.?|gmbh|ag|ltd|plc|inc|b\.?v\.?|s\.?p\.?a\.?|sp\. z o\.o\.)$",
-                     re.IGNORECASE)
-ASSOCIATION = re.compile(r"asociaci|association|verein|fundaci|foundation|stiftung|stowarzysz",
-                         re.IGNORECASE)
+GOVERNMENT = re.compile(
+    r"ayuntamiento|ministr|minister|gobierno|government|council|municipal|agencia|"
+    r"agency|ministerium|stadt |urz[aą]d|city of|generalitat|junta de|diputaci",
+    re.IGNORECASE,
+)
+COMPANY = re.compile(
+    r"\b(s\.?a\.?u?|s\.?l\.?|gmbh|ag|ltd|plc|inc|b\.?v\.?|s\.?p\.?a\.?|sp\. z o\.o\.)$", re.IGNORECASE
+)
+ASSOCIATION = re.compile(
+    r"asociaci|association|verein|fundaci|foundation|stiftung|stowarzysz", re.IGNORECASE
+)
 NO_AFFILIATION = {"", "none", "n/a", "na", "-", "independent", "independent researcher"}
 
 
@@ -122,16 +141,30 @@ def _access(record: dict[str, Any], landing: str) -> list[dict[str, Any]]:
         link = (f.get("links") or {}).get("self")
         if not isinstance(link, str) or not link.startswith("http"):
             continue
-        route: dict[str, Any] = {"method": "direct_download", "url": landing, "download_url": link,
-                                 "auth": "none", "cost": "free", "provider_hint": "zenodo"}
+        route: dict[str, Any] = {
+            "method": "direct_download",
+            "url": landing,
+            "download_url": link,
+            "auth": "none",
+            "cost": "free",
+            "provider_hint": "zenodo",
+        }
         media = MEDIA_TYPES.get(_ext(f.get("key") or ""))
         if media:
             route["formats"] = [media]
         if isinstance(f.get("size"), int) and f["size"] >= 0:
             route["size_bytes_est"] = f["size"]
         routes.append(route)
-    return routes or [{"method": "api", "url": f"{API}/{record['id']}", "download_url": None,
-                       "auth": "none", "cost": "free", "provider_hint": "zenodo"}]
+    return routes or [
+        {
+            "method": "api",
+            "url": f"{API}/{record['id']}",
+            "download_url": None,
+            "auth": "none",
+            "cost": "free",
+            "provider_hint": "zenodo",
+        }
+    ]
 
 
 def _topics(subdomains: list[str]) -> list[str]:
@@ -148,8 +181,10 @@ class Zenodo:
     catalogue = "Zenodo"
     env_keys: tuple[str, ...] = ()
     modalities = ("structured_data", "text")
-    method = ("Zenodo records API (/api/records), phrase search per subdomain term, filtered by "
-              "metadata.languages.id and type dataset/publication; open records only; metadata only")
+    method = (
+        "Zenodo records API (/api/records), phrase search per subdomain term, filtered by "
+        "metadata.languages.id and type dataset/publication; open records only; metadata only"
+    )
 
     def iterate(self, scope: base.Scope, ctx: base.Context) -> Iterator[dict[str, Any]]:
         types = [TYPES[m] for m in (scope.modalities or self.modalities) if m in TYPES]
@@ -164,8 +199,9 @@ class Zenodo:
                             if cand is not None:
                                 yield cand
 
-    def _search(self, term: str, language: str | None, rtype: str, ctx: base.Context,
-                pages: int) -> Iterator[dict[str, Any]]:
+    def _search(
+        self, term: str, language: str | None, rtype: str, ctx: base.Context, pages: int
+    ) -> Iterator[dict[str, Any]]:
         query = '"{}"'.format(term.replace('"', ""))
         if language:
             codes = iso639_3(language)
@@ -184,8 +220,9 @@ class Zenodo:
             if len(hits) < PAGE_SIZE:
                 return
 
-    def _candidate(self, record: dict[str, Any], wanted: str, subdomain: str,
-                   seen: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    def _candidate(
+        self, record: dict[str, Any], wanted: str, subdomain: str, seen: dict[str, dict[str, Any]]
+    ) -> dict[str, Any] | None:
         metadata = record.get("metadata") or {}
         rid = record.get("id")
         title = str(metadata.get("title") or record.get("title") or "").strip()

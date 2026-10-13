@@ -80,7 +80,7 @@ def test_render_time_five_models(site_env):
     for i in range(4):
         site_env.clone_model(MODEL, f"scout-copy-{i}")
     result = draw(site_env)
-    assert result["images"] == 7  # zoo, five models, one format
+    assert result["images"] == 8  # zoo, roadmap (feature 015), five models, one format
     assert result["image_seconds"] < 60  # SC-005
 
 
@@ -95,4 +95,4 @@ def test_relative_output_directory(site_env, monkeypatch):
         if "playwright install" in str(e):
             pytest.skip("run `uv run playwright install chromium`")
         raise
-    assert result["images"] == 3
+    assert result["images"] == 4  # zoo, roadmap, scout-large, one format

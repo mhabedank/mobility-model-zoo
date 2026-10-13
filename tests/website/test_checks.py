@@ -48,3 +48,30 @@ def test_undeferred_script_is_s1(built):
     path = built.out / "index.html"
     path.write_text(path.read_text().replace(" defer>", ">"))
     assert any(f[0] == "S1" and "deferred" in f[2] for f in check.check_size(built.out))
+
+
+# ---- RM9 (feature 015): rendered roadmap parity -------------------------------------------------
+def test_roadmap_pages_pass_rm9(built):
+    assert list(check.check_roadmap_pages(built.reg, built.out)) == []
+
+
+def test_missing_or_reordered_roadmap_entry_is_rm9(built):
+    path = built.out / "roadmap" / "index.html"
+    html = path.read_text()
+    first = html.index('<li class="entry entry-new" id="picket-forest">')
+    end = html.index("</li>", first) + len("</li>")
+    path.write_text(html[:first] + html[end:])
+    found = [f[2] for f in check.check_roadmap_pages(built.reg, built.out)]
+    assert any(d.startswith("Q4 2026 shows ['scout-large-reader-test']") for d in found)
+
+
+def test_missing_card_and_wrong_count_are_rm9(built):
+    path = built.out / "index.html"
+    html = path.read_text()
+    html = html.replace(
+        '<a class="mini" href="roadmap/#picket-signal">', '<a class="other" href="roadmap/#x">'
+    )
+    path.write_text(html)
+    found = [f[2] for f in check.check_roadmap_pages(built.reg, built.out)]
+    assert any(d.startswith("Coming next shows") for d in found)
+    assert any("heading says 1 published and 3 coming next" in d for d in found)

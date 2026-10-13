@@ -23,6 +23,10 @@ card:
     Research, teaching and bench testing of in-vehicle intrusion detection on classic CAN; a reproducible baseline for calibrated, microcontroller-sized CAN intrusion detection; a starting point for a security sensor that reports events to an IDS manager. Status: experimental, not ready for production use (see limitations).
   out_of_scope: |
     Deployment in vehicles on public roads: the model is not a validated or approved safety or security mechanism and makes no ISO/SAE 21434 or UNECE R155 claim; no safety-critical use without a vehicle-specific validation. Active countermeasures (blocking or injecting frames) based on its output. CAN FD and automotive Ethernet.
+  not_for:
+    - Vehicles on public roads; it is not a validated or approved security mechanism
+    - Active countermeasures such as blocking or injecting frames
+    - CAN FD or automotive Ethernet
   input_output: |
     Calibration (host, once per vehicle): benign candump logs of the vehicle -> `picket_forest_table.h` for the device and `calibration_table.json` for the Python reference (`zoo-security can-ids v2 table`); cover driving, idle and parked phases, at least 60 minutes. Input (device): one classic CAN frame at a time (timestamp in microseconds, 11-bit identifier, DLC, up to 8 data bytes). Output: the rules decision per frame (count above the calibrated maximum by more than 25 %, unknown-identifier burst, DLC change), an alarm flag from the alarm stage (3 flagged frames within 200 ms, then 1 s hold-off) and the forest score (share of trees voting attack) as information.
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
@@ -62,6 +66,15 @@ card:
     - Masquerade (a silenced ECU replaced at its normal timing) is not detected. Classic CAN only; no CAN FD.
     - No adversarial evaluation: an attacker who knows the rules can stay below the calibrated counts. The code, features and thresholds are public; do not rely on it as the only line of defence.
     - Calibration is done on the host and compiled into the device; on-device calibration is not implemented.
+  limits_short:
+    - "False alarms depend on the calibration: it must cover driving, idle, parked and diagnostics."
+    - A legitimate identifier missing from the calibration floods alarms.
+    - Masquerade attacks are not detected, and there is no adversarial evaluation.
+  unmet_criteria:
+    - criterion: Shuffled-label control of the pre-registered evaluation
+      note: failed; the calibrated features are themselves anomaly signals
+    - criterion: Budgets measured on the reference board
+      note: the numbers of this release come from an emulator, not a board
   citation: |
     @misc{mobility-model-zoo-picket-forest,
       title  = {Picket (forest): CAN bus intrusion detection on a microcontroller, mobility-model-zoo},

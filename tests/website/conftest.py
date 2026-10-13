@@ -15,6 +15,13 @@ from site_fixture import FIXTURE, SiteEnv  # noqa: E402
 from mobility_model_zoo.release.registry import Registry  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def fixed_today(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The roadmap checks depend on today (feature 015, research R5); the fixture roadmap is dated
+    2026-10-12. Tests that need another day set ZOO_TODAY themselves."""
+    monkeypatch.setenv("ZOO_TODAY", "2026-10-12")
+
+
 @pytest.fixture
 def site_env(tmp_path: Path) -> SiteEnv:
     root = tmp_path / "repo"

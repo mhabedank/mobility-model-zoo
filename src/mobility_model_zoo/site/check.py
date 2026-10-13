@@ -19,7 +19,7 @@ from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
 from mobility_model_zoo.site import og
-from mobility_model_zoo.site.facts import NUMBER, literal_numbers
+from mobility_model_zoo.site.facts import NUMBER, literal_numbers, target_key
 
 PREFIX = "/mobility-model-zoo/"
 RESOURCE_ATTRS = {
@@ -156,8 +156,16 @@ def check_facts(reg: Registry, out: Path) -> Iterable[Finding]:
             yield Finding("F1", row["page"], f"{row['key']}: source {row['source']} does not exist")
             continue
         if row["source"] not in cache:
-            data = json.loads(source.read_text(encoding="utf-8"))
-            cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
+            if source.name == "model.yaml":  # targets of unmet criteria (feature 014)
+                items = ((load_yaml(source) or {}).get("card") or {}).get("unmet_criteria") or []
+                cache[row["source"]] = {
+                    target_key(i): it["target"]["value"]
+                    for i, it in enumerate(items)
+                    if it.get("target")
+                }
+            else:
+                data = json.loads(source.read_text(encoding="utf-8"))
+                cache[row["source"]] = {m["name"]: m["value"] for m in data["metrics"]}
         values = cache[row["source"]]
         if row["metric"] not in values:
             yield Finding("F1", row["page"], f"{row['key']}: {row['metric']} not in {row['source']}")
@@ -177,6 +185,16 @@ def _prose(pitch: dict) -> Iterable[tuple[str, str]]:
         yield f"differentiators[{i}]", f"{d['title']} {d['text']}"
     for i, c in enumerate(pitch.get("metric_cards", [])):
         yield f"metric_cards[{i}]", " ".join([c["label"], c.get("compare_label", "")])
+
+
+def _card_prose(card: dict) -> Iterable[tuple[str, str]]:
+    for key in ("not_for", "limits_short"):
+        for i, text in enumerate(card.get(key) or []):
+            yield f"{key}[{i}]", text
+    for i, item in enumerate(card.get("unmet_criteria") or []):
+        for field in ("criterion", "note"):
+            if item.get(field):
+                yield f"unmet_criteria[{i}].{field}", item[field]
 
 
 class _TemplateText(HTMLParser):
@@ -215,6 +233,11 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
         for key, text in _prose(load_yaml(path) or {}):
             for n in literal_numbers(text):
                 yield Finding("F2", f"zoo/models/{name}/site.yaml", f"{key}: literal number {n!r}")
+    for name in reg.model_names():  # feature 014: short forms of the card
+        card = reg.model_raw(name).get("card") or {}
+        for key, text in _card_prose(card):
+            for n in literal_numbers(text):
+                yield Finding("F2", f"zoo/models/{name}/model.yaml", f"card.{key}: literal number {n!r}")
     from importlib import resources
 
     base = resources.files("mobility_model_zoo.site").joinpath("templates")
@@ -567,6 +590,54 @@ def check_language(out: Path) -> Iterable[Finding]:
             yield Finding("E1", rel(out, path), 'missing <html lang="en">')
 
 
+def check_roadmap_pages(reg: Registry, out: Path) -> Iterable[Finding]:
+    """RM9 (feature 015): the roadmap page and the start-page cards show exactly the open entries of
+    the record, in record order, and the models heading counts what is shown."""
+    from mobility_model_zoo.site import roadmap
+
+    try:
+        record = roadmap.load(reg)
+    except GateFailed as e:
+        yield from (Finding("RM9", "zoo/roadmap/roadmap.yaml", f) for f in e.failures)
+        return
+    ctx = roadmap.page_context(reg, record)
+    page = out / "roadmap" / "index.html"
+    if not page.exists():
+        yield Finding("RM9", "roadmap/index.html", "missing")
+        return
+    html = page.read_text(encoding="utf-8")
+    for h in ctx["horizons"]:
+        start = html.find(f'id="h-{h["id"]}"')
+        if start < 0:
+            yield Finding("RM9", "roadmap/index.html", f"no section for {h['label']}")
+            continue
+        end = html.find('<section class="horizon"', start + 1)
+        shown = re.findall(
+            r'<li class="entry [^"]*" id="([^"]+)"', html[start : end if end > 0 else None]
+        )
+        expected = [e["id"] for e in h["entries"]]
+        if shown != expected:
+            yield Finding(
+                "RM9", "roadmap/index.html", f"{h['label']} shows {shown}, the record has {expected}"
+            )
+    start_page = (out / "index.html").read_text(encoding="utf-8")
+    cards = re.findall(r'<a class="mini" href="roadmap/#([^"]+)"', start_page)
+    expected = [e["id"] for e in ctx["upcoming"]]
+    if cards != expected:
+        yield Finding("RM9", "index.html", f"Coming next shows {cards}, the record has {expected}")
+    tiles = len(re.findall(r'<(?:a|div) class="tile"', start_page))
+    heading = re.search(r'id="m-h">(\d+) published · (\d+) coming next\.<', start_page)
+    if not heading:
+        yield Finding("RM9", "index.html", "models heading does not count published and coming next")
+    elif (int(heading.group(1)), int(heading.group(2))) != (tiles, len(cards)):
+        yield Finding(
+            "RM9",
+            "index.html",
+            f"heading says {heading.group(1)} published and {heading.group(2)} coming next, "
+            f"the page shows {tiles} tiles and {len(cards)} cards",
+        )
+
+
 def run_checks(
     reg: Registry,
     out: Path,
@@ -575,7 +646,7 @@ def run_checks(
     offline: bool = False,
     say: Callable[[str], None] = print,
 ) -> list[Finding]:
-    from mobility_model_zoo.site import context
+    from mobility_model_zoo.site import context, depth
 
     if not (out / "index.html").exists():
         raise GateFailed([f"no site in {out}; run zoo site build first"])
@@ -595,6 +666,14 @@ def run_checks(
         ("O2", lambda: check_og_layout(out)),
         ("O4", lambda: check_og_parity(reg, out)),
         ("O5", lambda: check_og_hash(reg, out)),
+        ("D4", lambda: depth.check_overview(reg, out)),
+        ("D3", lambda: depth.check_quality(reg, out)),
+        ("D1", lambda: depth.check_short_forms(reg)),
+        ("D3", lambda: depth.check_limits(reg, out)),
+        ("D3", lambda: depth.check_code_order(reg, out)),
+        ("D5", lambda: depth.check_order(reg, out)),
+        ("D2", lambda: depth.check_words_before_quality(reg, out)),
+        ("RM9", lambda: check_roadmap_pages(reg, out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

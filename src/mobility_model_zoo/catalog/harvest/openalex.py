@@ -59,6 +59,8 @@ FIELDS = "id,doi,display_name,language,publication_date,primary_location,best_oa
 TOPIC_SUBFIELDS = "3313|3322|3305|2203|2202|2212|2205|1803"
 DOI = re.compile(r"^10\.[0-9]{4,9}/\S+$")
 CJK = re.compile(r"[぀-ヿ㐀-鿿가-힯]")
+
+
 # OpenAlex licence ids carry no version; like base.SPDX_ALIASES for `cc-by`, CC 4.0 is assumed.
 # `other-oa`, `publisher-specific-oa`, `implied-oa` and `unspecified-oa` stay `unknown`.
 def licence_id(value: str | None) -> str:
@@ -165,13 +167,14 @@ class OpenAlex:
                     break
             ctx.say(f"openalex: {lang} {sub}: {got} works")
 
-    def works(self, ctx: Context, budget: Budget, meter: Meter, language: str, terms: str,
-              per_page: int) -> Iterator[dict[str, Any]]:
+    def works(
+        self, ctx: Context, budget: Budget, meter: Meter, language: str, terms: str, per_page: int
+    ) -> Iterator[dict[str, Any]]:
         cursor: str | None = "*"
         params = {
             "filter": f"language:{language},open_access.is_oa:true,has_doi:true,"
-                      f"topics.subfield.id:{TOPIC_SUBFIELDS},"
-                      f"title_and_abstract.search:{terms}",
+            f"topics.subfield.id:{TOPIC_SUBFIELDS},"
+            f"title_and_abstract.search:{terms}",
             "select": FIELDS,
             "per_page": str(per_page),
         }

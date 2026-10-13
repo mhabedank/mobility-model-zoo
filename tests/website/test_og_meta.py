@@ -24,7 +24,30 @@ def files(env) -> dict[str, str]:
 
 def test_cards_cover_exactly_the_shareable_pages(site_env):
     pages = [c["page"] for c in og.site_cards(site_env.reg)]
-    assert pages == ["", f"models/{MODEL}/", "formats/jtbd-span-v1/"]  # no unpublished, no sandbox
+    # no unpublished model, no sandbox; the roadmap page since feature 015
+    assert pages == ["", "roadmap/", f"models/{MODEL}/", "formats/jtbd-span-v1/"]
+
+
+def test_roadmap_card(site_env):
+    card = next(c for c in og.site_cards(site_env.reg) if c["page"] == "roadmap/")
+    assert (card["eyebrow"], card["title"], card["line"]) == (
+        "Roadmap",
+        "What comes next",
+        "What the zoo plans to release next.",
+    )
+    site_env.edit_yaml(
+        "zoo/site.yaml", lambda s: s.update(roadmap={"share_line": "Next up in the zoo."})
+    )
+    card = next(c for c in og.site_cards(site_env.reg) if c["page"] == "roadmap/")
+    assert card["line"] == "Next up in the zoo." and og.card_errors([card]) == []
+    card["line"] = "Five models in 2027."
+    assert og.card_errors([card]) == ['B6 roadmap: share line contains the number "2027"']
+
+
+def test_roadmap_page_metadata(built):
+    found = files(built)
+    assert re.fullmatch(r"assets/og/roadmap-[0-9a-f]{12}\.png", found["roadmap/"])
+    assert og_meta(built.out / "roadmap" / "index.html")["og:image"] == CANONICAL + found["roadmap/"]
 
 
 def test_model_card_labels_and_alt(site_env):

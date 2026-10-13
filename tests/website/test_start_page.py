@@ -1,4 +1,5 @@
-"""The start page (US3): topics, model tiles by status, a new model needs no code change."""
+"""The start page (US3 of feature 008, US2 of feature 015): topics, tiles of published models, the
+"Coming next" cards from the roadmap, a new model needs no code change."""
 
 from __future__ import annotations
 
@@ -25,8 +26,59 @@ def test_topics_and_tiles(built):
     assert "Pipeline tests" not in html and "sandbox-pipeline-tiny" not in html
     t = tiles(html)
     assert t[MODEL].startswith(f'<a class="tile" href="models/{MODEL}/"') and VERSION in t[MODEL]
-    assert t["picket-forest"].startswith('<div class="tile">') and "in progress" in t["picket-forest"]
-    assert "none yet" in t["picket-forest"]
+    # feature 015: an unpublished model is a "Coming next" card, not a tile (FR-019)
+    assert "picket-forest" not in t
+    assert "picket-forest" in [c["name"] for c in minis(html)]
+
+
+def minis(html: str) -> list[dict[str, str]]:
+    """The "Coming next" cards in page order."""
+    out = []
+    for m in re.finditer(r'<a class="mini" href="([^"]+)">(.*?)</a>', html):
+        body = m.group(2)
+        out.append(
+            {
+                "href": m.group(1),
+                "name": re.search(r'class="mini-name">([^<]+)<', body).group(1),
+                "horizon": re.search(r'class="chip">([^<]+)<', body).group(1),
+                "body": body,
+            }
+        )
+    return out
+
+
+def test_coming_next_cards(built):
+    html = built.html("index.html")
+    cards = minis(html)
+    assert [(c["name"], c["horizon"], c["href"]) for c in cards] == [
+        ("picket-forest", "Q4 2026", "roadmap/#picket-forest"),
+        ("hum-bearing", "H1 2027", "roadmap/#hum-bearing"),
+        ("picket-signal", "H2 2027", "roadmap/#picket-signal"),
+    ]
+    assert "working name" in cards[1]["body"] and "working name" not in cards[0]["body"]
+    for c in cards:  # no version, no sentence, no digits apart from the horizon label
+        assert not re.search(r"\d", c["body"].replace(c["horizon"], ""))
+    assert "1 published · 3 coming next." in html
+    assert 'href="roadmap/">See the roadmap' in html
+    assert "Reader test" not in html  # updates never appear as cards
+
+
+def test_published_entry_leaves_the_cards(site_env):
+    path = site_env.root / "zoo" / "models" / "picket-forest" / "releases" / "0.1.0.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "model: picket-forest\nversion: 0.1.0\ndate: 2026-10-10\nstatus: experimental\n"
+        "published:\n  tag: v0.1.0\n  published_at: 2026-10-10T10:00:00Z\n",
+        encoding="utf-8",
+    )
+    from mobility_model_zoo.site import context, roadmap
+
+    record = roadmap.load(site_env.reg)
+    assert [e["id"] for e in roadmap.page_context(site_env.reg, record)["upcoming"]] == [
+        "hum-bearing",
+        "picket-signal",
+    ]
+    assert context.status(site_env.reg, "picket-forest")[0] == "published"
 
 
 def test_deprecated_model_is_marked(site_env):

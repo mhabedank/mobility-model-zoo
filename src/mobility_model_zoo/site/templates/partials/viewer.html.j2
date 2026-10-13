@@ -1,10 +1,12 @@
-<section class="sec" id="examples" aria-labelledby="ex-h"><div class="wrap">
+<div class="sec" id="examples"><div class="wrap">
+{% if p.examples %}
 {% if p.examples and p.examples[0].device %}
 <div class="sec-head"><div class="eyebrow">Worked examples</div><h2 class="h2" id="ex-h">The released C code reproduces every result exactly.</h2>
 <p class="muted">Inputs and expected results of version {{ p.latest.version }}, as published with the release. The release gate reproduces every result bit-exactly with the C code of this version. The inputs are synthetic.</p></div>
 {% else %}
 <div class="sec-head"><div class="eyebrow">Worked examples</div><h2 class="h2" id="ex-h">Every quote can be found again in the text.</h2>
 <p class="muted">Outputs of version {{ p.latest.version }} for the example texts published with the model, taken from its model card. The texts are fictional.{% if p.examples and p.examples[0].span_format %} Select a marked quote or a JSON item to see its partner.{% endif %}</p></div>
+{% endif %}
 {% endif %}
 {% for ex in p.examples %}
 <article class="example{% if ex.device %} device{% endif %}" id="ex{{ ex.n }}" aria-labelledby="ex{{ ex.n }}-h">
@@ -44,4 +46,4 @@
 {% endif %}
 </article>
 {% endfor %}
-</div></section>
+</div></div>

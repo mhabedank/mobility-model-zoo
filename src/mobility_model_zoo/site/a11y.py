@@ -1,13 +1,15 @@
 """Browser checks of the website with Playwright and the vendored axe-core (contracts/checks.md):
 
 - A1: axe-core, WCAG 2.0/2.1 A and AA, every page in the light and the dark colour scheme.
-- A2: with JavaScript disabled, model pages still hold quickstart, field table, examples, limits.
+- A2: with JavaScript disabled, model pages still hold quickstart, examples, limits and a link to
+  their output format; format pages hold the field table (feature 014 moved it there).
 - A3: every image has a text alternative; every chart has a table of its values.
 - A4: keyboard: the skip link comes first, every control is reachable and shows a focus ring.
 - P2: every request goes to the local server; no page sets a cookie.
 - A5: reflow: no page scrolls sideways at a phone width of 390 px (WCAG 1.4.10).
 - S2: Largest Contentful Paint at most 2 s under a slow mobile network and a 4x slower CPU.
 - O3: colour contrast of the preview image pages (feature 012).
+- D6: placement of the model page layers on screen (feature 014, SC-001 to SC-003).
 """
 
 from __future__ import annotations
@@ -92,6 +94,7 @@ def run(out: Path) -> Iterable[Finding]:
             findings += _no_js(browser, base, rels)
             findings += _keyboard(browser, base, rels)
             findings += _load_time(browser, base, rels)
+            findings += placement(browser, base, rels)
             browser.close()
     finally:
         srv.shutdown()
@@ -143,12 +146,17 @@ def _no_js(browser, base: str, rels: list[str]) -> list[Finding]:
     ctx = browser.new_context(java_script_enabled=False)
     page = ctx.new_page()
     for rel in rels:
+        if rel.startswith("formats/"):
+            page.goto(base + rel)
+            if not page.query_selector("table.tbl"):
+                findings.append(Finding("A2", rel, "without JavaScript: no field table (table.tbl)"))
+            continue
         if not rel.startswith("models/"):
             continue
         page.goto(base + rel)
         required = {
             "#quickstart pre": "quickstart code",
-            "#interface table.tbl": "field table",
+            '#interface a[href*="/formats/"]': "link to the output format",
             "#examples pre": "example JSON",
             "#limits .callout": "limitations",
         }
@@ -166,6 +174,63 @@ def _no_js(browser, base: str, rels: list[str]) -> list[Finding]:
             elif not ex.query_selector("details pre"):
                 findings.append(Finding("A2", rel, f"example {ex.get_attribute('id')} has no full JSON"))
     ctx.close()
+    return findings
+
+
+PLACEMENT_JS = """() => {
+  const top = el => el ? el.getBoundingClientRect().top + scrollY : null;
+  const bottom = el => el ? el.getBoundingClientRect().bottom + scrollY : null;
+  const chips = [document.querySelector('[data-layer=overview] [data-status]'),
+                 ...[...document.querySelectorAll('[data-layer=overview] .chip')]
+                   .filter(c => /Licence|Non-commercial/.test(c.textContent))];
+  const fig = document.querySelector(
+    '[data-layer=quality] .metric, [data-layer=quality] figure.chart');
+  return {first: top(fig),
+          limits: top(document.getElementById('limits')),
+          chips: chips.filter(Boolean).map(bottom), vh: innerHeight};
+}"""
+# Screen budgets (feature 014): first quality figure within 2 screens and limits within 4 on a
+# desktop; status, usage class and licence in the first screen, within 2 screens on a phone.
+PLACEMENT = (
+    {"width": 1440, "height": 900, "first": 2, "limits": 4, "chips": 1},
+    {"width": 390, "height": 844, "first": None, "limits": None, "chips": 2},
+)
+
+
+def placement(browser, base: str, rels: list[str]) -> list[Finding]:
+    findings = []
+    for vp in PLACEMENT:
+        page = browser.new_page(viewport={"width": vp["width"], "height": vp["height"]})
+        for rel in rels:
+            if not rel.startswith("models/"):
+                continue
+            page.goto(base + rel)
+            m = page.evaluate(PLACEMENT_JS)
+            screens = {
+                k: (v / m["vh"] if v is not None else None)
+                for k, v in m.items()
+                if k in ("first", "limits")
+            }
+            size = f"{vp['width']}x{vp['height']}"
+            for key, what in (("first", "first quality figure"), ("limits", "limits layer")):
+                limit = vp[key]
+                if limit is None:
+                    continue
+                if screens[key] is None:
+                    findings.append(Finding("D6", rel, f"{size}: no {what}"))
+                elif screens[key] > limit:
+                    findings.append(
+                        Finding("D6", rel, f"{size}: {what} at screen {screens[key]:.1f}, limit {limit}")
+                    )
+            if not m["chips"] or max(m["chips"]) > vp["chips"] * m["vh"]:
+                findings.append(
+                    Finding(
+                        "D6",
+                        rel,
+                        f"{size}: status, usage class or licence not within {vp['chips']} screen(s)",
+                    )
+                )
+        page.close()
     return findings
 
 

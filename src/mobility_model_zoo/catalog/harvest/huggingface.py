@@ -31,8 +31,12 @@ PAGE = 50
 MAX_LANGUAGES = 10
 CC_TAG = re.compile(r"^cc-by(-(nc|sa|nd))*-\d\.\d$")
 FORMATS = {
-    "csv": "text/csv", "json": "application/json", "parquet": "application/vnd.apache.parquet",
-    "arrow": "application/vnd.apache.arrow.file", "text": "text/plain", "xml": "application/xml",
+    "csv": "text/csv",
+    "json": "application/json",
+    "parquet": "application/vnd.apache.parquet",
+    "arrow": "application/vnd.apache.arrow.file",
+    "text": "text/plain",
+    "xml": "application/xml",
     "webdataset": "application/x-tar",
 }
 FALSE_FRIENDS = ("puerto rico",)  # search terms that are part of a name (es `puerto` = port)
@@ -82,8 +86,10 @@ class HuggingFace:
     catalogue = "Hugging Face Hub"
     env_keys: tuple[str, ...] = ()
     modalities = ("structured_data", "text", "image")
-    method = ("Hugging Face Hub dataset search (/api/datasets, search term x language tag, full=true); "
-              "whole-word match on the dataset id; metadata only")
+    method = (
+        "Hugging Face Hub dataset search (/api/datasets, search term x language tag, full=true); "
+        "whole-word match on the dataset id; metadata only"
+    )
 
     def iterate(self, scope: Scope, ctx: Context) -> Iterator[dict[str, Any]]:
         seen: set[str] = set()
@@ -127,8 +133,11 @@ class HuggingFace:
         if rtype is None:
             return None
         modality, genre = rtype
-        title = str(card.get("pretty_name") or "").strip() or " ".join(
-            re.split(r"[_-]+", dataset_id.split("/")[-1])).strip() or dataset_id
+        title = (
+            str(card.get("pretty_name") or "").strip()
+            or " ".join(re.split(r"[_-]+", dataset_id.split("/")[-1])).strip()
+            or dataset_id
+        )
         languages = [language_code(code) for code in tag_values(tags, "language")]
         languages = [code for code in dict.fromkeys(languages) if code != "und"][:MAX_LANGUAGES]
         if not languages and lang:
@@ -150,18 +159,22 @@ class HuggingFace:
             subdomains=[subdomain],
             topics=TOPICS.get(subdomain),
             licence=licence,
-            access=[{
-                "method": "api",
-                "url": page,
-                "download_url": None,
-                "auth": "account" if item.get("gated") else "none",
-                "cost": "free",
-                "formats": [FORMATS[f] for f in dict.fromkeys(tag_values(tags, "format"))
-                            if f in FORMATS],
-                "provider_hint": "huggingface",
-                "notes": "gated: accept the conditions on the dataset page" if item.get("gated")
-                else "Hugging Face datasets API",
-            }],
+            access=[
+                {
+                    "method": "api",
+                    "url": page,
+                    "download_url": None,
+                    "auth": "account" if item.get("gated") else "none",
+                    "cost": "free",
+                    "formats": [
+                        FORMATS[f] for f in dict.fromkeys(tag_values(tags, "format")) if f in FORMATS
+                    ],
+                    "provider_hint": "huggingface",
+                    "notes": "gated: accept the conditions on the dataset page"
+                    if item.get("gated")
+                    else "Hugging Face datasets API",
+                }
+            ],
             evidence=[page],
             content=content or None,
             identifiers={"other": [f"huggingface:datasets/{dataset_id}"]},
