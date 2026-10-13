@@ -111,7 +111,7 @@ entries:
     working_name: false
     model: cairn-base
     topic: productdev
-    kind: new-model
+    kind: first-release
     stage: in-progress
     text: Groups duplicate needs found by scout-large and counts how often they occur.
     precondition: A candidate that meets the duplicate quality bar.

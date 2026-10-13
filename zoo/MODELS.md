@@ -9,7 +9,8 @@ Models that support product discovery in mobility, starting with jobs-to-be-done
 
 | Model | Task | Latest version | Status | Hugging Face |
 |-------|------|----------------|--------|--------------|
-| `scout-large` | jtbd | 0.1.2 | experimental | [mobility-model-zoo/scout-large](https://huggingface.co/mobility-model-zoo/scout-large) |
+| `cairn-base` | jtbd-cluster | – | not published | [mobility-model-zoo/cairn-base](https://huggingface.co/mobility-model-zoo/cairn-base) |
+| `scout-large` | jtbd | 0.1.3 | experimental | [mobility-model-zoo/scout-large](https://huggingface.co/mobility-model-zoo/scout-large) |
 
 ## Automotive security (`security`)
 

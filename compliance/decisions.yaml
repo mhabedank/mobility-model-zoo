@@ -32,6 +32,7 @@ decisions:
   - scout-large@0.1.0
   - scout-large@0.1.1
   - scout-large@0.1.2
+  - scout-large@0.1.3
   - benchmark:pilot-v2
   - compliance/providers.yaml#claude-consumer-cli
   review_by: '2027-04-08'
@@ -167,6 +168,7 @@ decisions:
   - scout-large@0.1.0
   - scout-large@0.1.1
   - scout-large@0.1.2
+  - scout-large@0.1.3
   - topics/productdev/compliance/sources.yaml#research-interviews
   review_by: '2027-04-08'
   supersedes: null
@@ -182,6 +184,7 @@ decisions:
   - scout-large@0.1.0
   - scout-large@0.1.1
   - scout-large@0.1.2
+  - scout-large@0.1.3
   review_by: '2027-04-08'
   supersedes: null
 - id: D-benchmark-optouts

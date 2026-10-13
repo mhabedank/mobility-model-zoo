@@ -43,6 +43,9 @@ def test_jtbd_extra_includes_the_text_extra():
     assert "mobility-model-zoo[text]" in EXTRAS["jtbd"]
 
 
+TRAINING_EXTRAS = {"jtbd", "edge-train", "labeling-api"}
+
+
 def test_cluster_extra_includes_the_text_extra():
     assert "mobility-model-zoo[text]" in EXTRAS["cluster"]
 
@@ -53,9 +56,12 @@ def test_install_line_names_the_extra_of_the_runtime(path):
     stage such as `cluster` needs more than the text stack)."""
     model = yaml.safe_load(path.read_text(encoding="utf-8"))
     extras = re.search(r"mobility-model-zoo\[([^\]]+)\]", model["card"]["install"])
-    assert extras is not None, model["card"]["install"]
-    named = extras.group(1)
-    if model.get("runtime") == "mcu":
-        assert named == "edge", model["card"]["install"]
-    else:
-        assert named == "text" or "mobility-model-zoo[text]" in EXTRAS.get(named, []), named
+    expected = "edge" if model.get("runtime") == "mcu" else "text"
+    assert extras is not None and "," not in extras.group(1), model["card"]["install"]
+    extra = extras.group(1)
+    # the runtime extra itself, or a model-specific inference extra built on it (cairn-base:
+    # `cluster`); never a training stack such as `jtbd`
+    assert extra not in TRAINING_EXTRAS, model["card"]["install"]
+    assert extra == expected or f"mobility-model-zoo[{expected}]" in EXTRAS[extra], model["card"][
+        "install"
+    ]
