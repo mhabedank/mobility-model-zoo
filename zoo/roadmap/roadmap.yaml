@@ -107,11 +107,12 @@ entries:
     planned: 2027-Q1..Q2
     horizon: 2027-Q1..Q2
   - id: jtbd-cluster
-    name: jtbd-cluster
-    working_name: true
+    name: cairn-base
+    working_name: false
+    model: cairn-base
     topic: productdev
-    kind: new-model
-    stage: planned
+    kind: first-release
+    stage: in-progress
     text: Groups duplicate needs found by scout-large and counts how often they occur.
     planned: 2027-Q1..Q2
     horizon: 2027-Q1..Q2

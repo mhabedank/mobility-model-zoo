@@ -24,7 +24,7 @@ card:
     Decisions about individuals; profiling or identifying the authors of texts; treating counts as statistics about a population (they count mentions in the collected texts); texts outside mobility.
   input_output: |
     Input: bundles of `jtbd-span-v1` outputs with their source ids (`jtbd-cluster-input-v1`). Output: one JSON document in the format `jtbd-cluster-v1` with items, duplicate groups (one kind each), clusters (kinds may mix), counts, attribute distributions, dates, checks and corrections, plus the views `tree.md` and `needs.csv`.
-  install: pip install "mobility-model-zoo[jtbd,cluster] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
+  install: pip install "mobility-model-zoo[cluster] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
   how_to_run: |
     from huggingface_hub import hf_hub_download
 
