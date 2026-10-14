@@ -1,32 +1,42 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 2.2.0 → 2.3.0
-Bump rationale: MINOR. Owner direction of 2026-10-12: delivery against the roadmap is measured,
-and the measured pace drives re-planning. Adds a section and a gate; no rule is removed or
-redefined.
+Version change: 2.3.0 → 3.0.0
+Bump rationale: MAJOR. Owner direction of 2026-10-13: "never use claude as a tool for AI
+learning or extraction. not even in the slightest." Withdraws a permission the constitution gave
+(Claude labeling within the provider's terms, Claude as a benchmark reference labeler) and adds a
+principle that admits no deviation, which changes the general deviation rule. Practice that was
+compliant under 2.3.0 is non-compliant now.
 
-Modified principles: none.
+Owner decisions (2026-10-13): total ban (training, teacher, synthetic data, labels, benchmark
+references, judges, selection signals, the task itself, extraction of Claude); existing Claude
+reference labels kept as they are; Claude stays a development assistant whose outputs never become
+model data.
+
+Modified principles:
+- III. Measure Before Optimizing: benchmark labelers exclude Claude.
+- VI. Clean Provenance, Restrictions Carry Over: a teacher is never Claude.
 
 Added sections:
-- Roadmap and Delivery Pace: one roadmap in three calendar horizons; first planned horizon
-  fixed per entry; moves and drops recorded with date and reason; delivered means published
-  through the release pipeline; quarterly pace review (early, on time, late, moved, dropped,
-  releases per quarter, share of planned entries delivered); re-planning from the measured pace;
-  no re-dating.
+- XI. No Claude in Model Learning or Extraction.
 
 Modified sections:
-- Development Workflow & Quality Gates: new gate before rolling the roadmap forward.
+- Resources & Cost Discipline: inventory as of 2026-10-13, Claude subscription for development
+  assistance only; cost order and subscription-model rule exclude Claude from data work.
+- Technical Spikes: the Claude ban is listed among the rules spikes are not exempt from.
+- Development Workflow & Quality Gates: release gate checks for Claude-produced inputs; new gate
+  before labeling, data generation and evaluation runs; Principle XI admits no deviation.
 
 Removed sections: none.
 
-Previous reports: 2.1.0 → 2.2.0 (MINOR, 2026-10-10, feature 010) allowed `experimental`
-releases below production readiness; 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the
-usage class of every model, NC models under an NC licence with the suffix `-nc`, restrictions of
-inputs carrying over and pinned third-party models; 1.4.0 → 2.0.0 made tools and budgets per
-task, replaced the "accuracy" ban by a metric naming rule and allowed dataset publication after a
-redistribution check; 1.3.0 → 1.4.0 changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0
-made the project the multi-topic `mobility-model-zoo`.
+Previous reports: 2.2.0 → 2.3.0 (MINOR, 2026-10-12) added Roadmap and Delivery Pace and its gate;
+2.1.0 → 2.2.0 (MINOR, 2026-10-10, feature 010) allowed `experimental` releases below production
+readiness; 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the usage class of every model, NC
+models under an NC licence with the suffix `-nc`, restrictions of inputs carrying over and pinned
+third-party models; 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy" ban by a
+metric naming rule and allowed dataset publication after a redistribution check; 1.3.0 → 1.4.0
+changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the multi-topic
+`mobility-model-zoo`.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -34,9 +44,17 @@ changed rules):
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
-Follow-up (outside this amendment):
-- Feature 015 (website roadmap): the roadmap record holds the first planned horizon, moves,
-  drops and publication dates, and the site build supports the pace review.
+Follow-up (outside this amendment; code and records now non-compliant):
+- configs/productdev/jtbd/cluster-v1.yaml `reference_models` and topics/productdev/tasks/
+  jtbd-cluster.md name claude-reference: cluster-v1 stays as it is; the next cluster benchmark
+  version and any new labeling run need a second non-Claude family.
+- configs/productdev/jtbd/models.yaml `claude-reference`, labeling backends `claude_cli` and
+  `anthropic_api`: must be blocked for labeling, teacher, judge and data generation roles, with a
+  gate check that fails any run recording a Claude model.
+- compliance/providers.yaml `claude-api` ("future reference labeler") and decision D-claude-api
+  (future Claude reference labels via the API): superseded; record a new decision.
+- zoo check: release gate check that no input behind a model was produced by Claude, apart from
+  the labels Principle XI keeps.
 -->
 
 # mobility-model-zoo Constitution
@@ -98,7 +116,7 @@ ungrounded item is worse than no item, because it looks like evidence and is not
 - Every task MUST have a fixed, frozen quality reference: the labels of named datasets for
   ground-truth tasks, a consensus benchmark for model-labeled tasks.
 - Model-labeled tasks: the benchmark MUST be labeled independently by at least two frontier
-  models from different model families. No benchmark labeling model may be used to generate
+  models from different model families, none of them Claude (Principle XI). No benchmark labeling model may be used to generate
   training data. Items on which the labeling models do not agree MUST be marked as contested and
   reported separately; they MUST NOT be silently dropped or merged into the consensus score.
 - Ground-truth tasks: test data MUST NOT be used for training, threshold tuning or model
@@ -171,8 +189,8 @@ text extraction, a microcontroller for a CAN bus monitor.
   labeling. Raw data MUST be retained only as long as needed, and the retention period
   MUST be stated for each dataset and each snapshot store. "Needed" includes reuse of raw
   snapshots in later iterations (see Resources & Cost Discipline).
-- A teacher model MAY be used only if its license and provider terms permit training other
-  models on its outputs. Terms that permit this for non-commercial use only make the student NC.
+- A teacher model MAY be used only if it is not Claude (Principle XI) and its license and
+  provider terms permit training other models on its outputs. Terms that permit this for non-commercial use only make the student NC.
   Outputs of an NC model (labels, generated data, stored embeddings) are NC data and MUST NOT
   enter training data of a model that is not NC.
 - Third-party models (base models, encoders, classifiers loaded by a pipeline stage) MUST be
@@ -266,6 +284,47 @@ honest model that falls short can still be shared without overstating it.
 
 Rationale: A narrow task is what makes a small, fast model feasible and measurable.
 
+### XI. No Claude in Model Learning or Extraction
+
+Claude means every model of Anthropic's Claude family, under any name and through any access
+path: consumer apps, Claude Code, the Anthropic API, cloud platforms and resellers (for example
+OpenRouter, Amazon Bedrock, Google Vertex AI).
+
+- Claude MUST NOT be used as a tool for AI learning or extraction, not even in the slightest. No
+  Claude output, in whole, in part or in derived form (paraphrased, filtered, aggregated,
+  embedded), MAY become:
+  - training, fine-tuning or pre-training data, teacher outputs, distillation targets, synthetic
+    or augmented data, preference or reward data of any model;
+  - labels of any kind, including benchmark reference labels, consensus or adjudication of
+    contested items, and agreement pilots (Principles III and IV);
+  - evaluation judgments (model-as-judge), or any signal used for model selection, threshold
+    tuning, prompt optimization or the success and kill criteria of an experiment;
+  - worked or few-shot examples, gold items or label examples that a model sees as input or
+    learns from.
+- Claude MUST NOT perform the task of any model in the zoo (for example extracting jobs, pains,
+  gains and actors from source texts, or judging whether two items belong together), not as a
+  reference, a baseline, a spike, a one-off test or an example.
+- No extraction of Claude itself: the zoo MUST NOT try to replicate, imitate or approximate
+  Claude's capabilities, behaviour, output distribution or weights by any method.
+- Claude MAY be used as a development assistant: writing and reviewing code, specs, plans,
+  documentation, model cards, compliance records and resource metadata (for example the URL,
+  licence, language and permitted use of a source, without its content). What Claude writes in
+  this role MUST NOT be used as model input data, and Claude MUST NOT read source texts to label
+  or extract items for any model.
+- The ban holds whatever the provider terms, licence, access path, cost, usage class or spike
+  status. It admits no deviation (see "Development Workflow & Quality Gates").
+- Every labeling, data generation and evaluation run MUST record the model that produced its
+  output. A run that records a Claude model MUST fail its gate.
+- Existing labels: the Claude reference labels produced before 2026-10-13 in the benchmarks
+  pilot-v1, pilot-v2 and cluster-v1 and in the spike spike-v2 stay as they are, in the role they
+  have (frozen benchmark references, decision D-claude-risk-0.1.x). No new Claude output is
+  produced for any purpose this principle names, and every new benchmark version is labeled
+  without Claude.
+
+Rationale: The owner rules out any use of Claude for building or teaching other AI, without
+exception. A narrow carve-out for development work keeps the assistant usable while drawing a
+hard line: nothing Claude writes is ever data a model learns from or is measured against.
+
 ## Project Scope & Iterative Delivery
 
 - The zoo is organized in topics. Each model belongs to exactly one topic. A model is named
@@ -341,17 +400,19 @@ wishful.
 
 ## Resources & Cost Discipline
 
-- Resource inventory (as of 2026-10-08; updated by PATCH amendment):
+- Resource inventory (as of 2026-10-13; updated by PATCH amendment):
   - A DGX Spark with 128 GB unified memory: local compute for teacher runs, data
     generation, training and quality evaluation.
-  - A Claude subscription (flat rate): Claude labeling within the provider's terms.
+  - A Claude subscription (flat rate): development assistance only (Claude Code). Never
+    labeling, data generation, evaluation or any other use that Principle XI forbids.
   - An OpenRouter account (pay-per-use): only for models that are available neither
     locally nor through the subscription.
   - GitHub CI runners: unit tests, simulated microcontroller boards and emulated ESP32 boards.
   - A hardware-in-the-loop bench with microcontroller boards (ESP8266, ESP32 family,
     RP2040/RP2350, STM32F446, nRF52840), run on a self-hosted runner when one is registered.
-- Cost order: work MUST use local compute first, then the subscription, then pay-per-use
-  APIs. Choosing a more expensive tier MUST be justified in the plan.
+- Cost order: work MUST use local compute first, then a subscription, then pay-per-use
+  APIs. Choosing a more expensive tier MUST be justified in the plan. The Claude subscription is
+  not a tier for labeling, data generation or evaluation (Principle XI).
 - Budgets: every spec that incurs cash costs MUST state a cash budget. Pay-per-use keys MUST
   carry a hard spending limit at or below that budget. Exceeding the budget requires a spec
   amendment.
@@ -360,7 +421,8 @@ wishful.
   hardware only with identical model files, numeric format and settings.
 - Subscription models: use MUST follow the provider's terms. Outputs of a subscription model
   count as outputs of that provider for Principles III and VI. A model whose terms forbid
-  training other models on its outputs MUST NOT be a teacher.
+  training other models on its outputs MUST NOT be a teacher. Claude is never a teacher, labeler
+  or judge, whatever its terms (Principle XI).
 - Crawl once: every fetched source MUST be stored as a complete raw snapshot with retrieval
   date, origin, license, legal basis and permitted uses. Later iterations MUST reuse the
   snapshots. A source is fetched again only when it is new or when a documented update is
@@ -383,7 +445,7 @@ before the agreement pilot is complete.
   (Principle IV and "Development Workflow & Quality Gates"), and the requirement that reported
   results use a named, frozen benchmark version (Principle III). Every other principle still
   applies in full, including verbatim-quote grounding, benchmark labelers never acting as teachers,
-  teacher licensing, clean provenance, crawl once, redaction, local-first cost order and budgets.
+  teacher licensing, the Claude ban (Principle XI), clean provenance, crawl once, redaction, local-first cost order and budgets.
 - Spike results MUST be labeled "spike" and MUST NOT be presented as benchmark results, used to
   pass or fail a gate, or used to change the decision criteria of a pilot.
 - Spike training data and spike models MUST NOT be released and MUST NOT be reused as training
@@ -414,11 +476,16 @@ labeled and walled off from gates and releases stops them from turning into unme
   model MUST have recorded origin, license and permitted use; and the usage class derived from all
   inputs MUST NOT be less restrictive than the released license and its marking. The release
   status MUST follow Principle IX: `released` only when the task's success criteria and budgets
-  are met, otherwise `experimental` with the unmet criteria on the model card.
+  are met, otherwise `experimental` with the unmet criteria on the model card. No training data,
+  teacher output or evaluation behind the model was produced by Claude, apart from the existing
+  benchmark labels that Principle XI keeps as they are.
+- Gate before a labeling, data generation or evaluation run: no model in the run is Claude
+  (Principle XI).
 - Gate before rolling the roadmap forward: the pace review of the closed quarter (see "Roadmap
   and Delivery Pace") MUST be complete, and the new plan MUST state how it uses the measured pace.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
-  section with a rationale and the simpler alternative that was rejected.
+  section with a rationale and the simpler alternative that was rejected. Principle XI admits no
+  deviation: a plan that would violate it is rejected, not justified.
 
 ## Governance
 
@@ -434,4 +501,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 2.3.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-12
+**Version**: 3.0.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-13
