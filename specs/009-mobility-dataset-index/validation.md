@@ -148,3 +148,64 @@ Two parts of T084 are still open:
 
 - `podcast-index` needs the owner's API key.
 - Agent discovery (`catalog-discover`) has not run yet, because the coverage report shows no gap left to fill.
+
+## Final measurement (catalog repository, 2026-10-14, T085)
+
+The index holds 7,840 entries:
+
+| Status | Entries |
+|---|---|
+| cleared | 4,077 |
+| verified | 2,900 |
+| candidate | 863 |
+
+The usage rules are at rules version 3. By permitted use:
+
+| Permitted use | Entries |
+|---|---|
+| `training_allowed` | 4,309 (199 of them for non-commercial models only) |
+| `undetermined` | 3,232 |
+| `benchmark_only` | 235 |
+| `not_usable` | 58 |
+
+| Criterion | Result | Met |
+|---|---|---|
+| SC-001 mandatory facts and vocabularies | `zoo catalog validate` passes on all entries | yes |
+| SC-002 at least 2,000 entries, at least 30 target languages besides de and en with at least 20 entries each | 7,840 entries; 30 of 32 languages reach 20 (ga has 14, mt has 19) | yes |
+| SC-003 at least 50 entries per modality | text 3,159; structured data 3,177; image 874; video 381; audio 166; graphic 83 | yes |
+| SC-004 at least 80% of entries with a determined licence; 100% of cleared entries carry evidence | 65.8% determined; 4,077 of 4,077 cleared entries carry evidence | no (80% part) |
+| SC-005 at least 90% re-check agreement; no cleared entry re-read as not usable | Holdout seed 13: model 93%, matcher 83%. Two cleared entries are each read as not usable by one reader; the other reader confirms them | no (matcher part) |
+| SC-008 under 2% duplicates in 50 entries | 0 of 50 in each run | yes |
+| SC-009 every cleared entry re-checked within 6 months | All re-checked on 2026-10-14 | yes |
+
+SC-006 is measured by the owner, and SC-007 by the later download feature.
+
+### Audit runs (SC-005)
+
+Two readers re-read the licence evidence of 30 seeded entries: a deterministic matcher and a local model on the DGX Spark. The matcher and the readers were improved between runs.
+
+The runs on seeds 9 and 11 were used to find the problems and fix them, so their late results are tuning results, not measurements. Seed 13 had not been used before it was measured, so it is the holdout and the reported result.
+
+| Run | Seed | Model | Matcher | Model agreement | What the run found |
+|---|---|---|---|---|---|
+| 1 | 9 | qwen3:30b | 37% | 54% | data.europa.eu and Zenodo pages are app shells; model answers were not mapped to catalog ids; Licence Ouverte was read as OGL-UK |
+| 2 | 9 | qwen3:30b | 77% | 50% | the model saw only the first 6,000 characters |
+| 3 | 9 | qwen3:30b | 83% | 67% | OpenAlex licences that neither the page nor Crossref states; a paper listed CC BY-NC whose publisher page reserves all rights |
+| 4 | 9 | qwen3.6:35b | 77% | 86% | blocked entries still showed `training_allowed`; unreadable evidence counted as disagreement |
+| 5 | 9 | qwen3.6:35b | 100% | 100% | not valid: a reading of a flagged entry agreed whatever it read |
+| 6 | 9 | qwen3.6:35b | 100% | 97% | tuned on this sample |
+| 7 | 11 | qwen3.6:35b | ≥90% | 77% | written-out Creative Commons names; dane.gov.pl app shell; the model answered unknown for JSON records |
+| 8 | 13 | qwen3.6:35b | 83% | 93% | the matcher missed MIT on a Hugging Face card and confused ODbL with ODC-By (both fixed after the measurement) |
+
+### What changed in the catalog because of the audit
+
+- **K5 licence conflict.** An evidence page that reserves all rights against an open licence sets the blocking flag `licence_conflict` (24 entries).
+- **OpenAlex evidence** (owner decision D-catalog-openalex-evidence-2026-10). An OpenAlex licence clears only if the evidence page or the DOI registry states it; otherwise K5 sets the blocking flag `licence_unconfirmed` (271 entries). Rule U2 makes both kinds of entry `undetermined`.
+- **K5 change detection.** A licence change is now a change of the licence read from the page, not of the page bytes. Changing page bytes had revoked 2,526 clearings in one re-check.
+- **Readers.** Both readers now read portal APIs for app shells and the DOI registry licence (Crossref, DataCite). The matcher recognises written-out Creative Commons names in ten languages, the national licence names, MIT and Apache.
+
+### Open
+
+- SC-004: the share of determined licences is too low. National portals publish no licences: et, bg, sl, cs, hr, hu and cy.
+- SC-005: on the holdout the matcher is below 90%. Measure again with an unused seed at the next monthly re-check.
+- `podcast-index` needs the owner's key.
