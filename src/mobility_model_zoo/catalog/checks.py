@@ -22,9 +22,13 @@ from urllib.parse import urlparse
 import httpx
 
 from mobility_model_zoo.catalog import rules, states
+from mobility_model_zoo.catalog.licence_text import conflicts, match_licence, visible_text
 from mobility_model_zoo.catalog.model import Catalog, compliance_list, licence_allowlist
 from mobility_model_zoo.catalog.validate import Finding, k1, k2, k3, k9
 from mobility_model_zoo.compliance import signals
+
+# K5: the evidence page reserves all rights although the entry carries an open licence (audit 2026-10-14)
+LICENCE_CONFLICT = "evidence page reserves all rights"
 
 MAX_HOSTS = 8
 PER_HOST_SECONDS = 1.0
@@ -228,11 +232,13 @@ def network_checks(
         else:
             digest = hashlib.sha256(ev_page.content).hexdigest()
             previous = _old(entry, "K5").get("previous") or {}
+            read = match_licence(visible_text(ev_page.text), lic["evidence_url"])
+            conflict = conflicts(str(lic.get("id")), read)
             results.append(
                 _result(
                     "K5",
-                    "pass",
-                    f"sha256={digest}",
+                    "warn" if conflict else "pass",
+                    f"{LICENCE_CONFLICT}; sha256={digest}" if conflict else f"sha256={digest}",
                     {
                         "evidence_sha256": digest,
                         "licence_id": lic.get("id"),
@@ -384,6 +390,10 @@ def run(
             )
             if k4["result"] == "pass":
                 e.setdefault("provenance", {})["last_verified"] = today_s
+            k5 = next((r for r in net_results if r["check"] == "K5"), {})
+            states.set_flag(
+                e, "licence_conflict", str(k5.get("detail", "")).startswith(LICENCE_CONFLICT)
+            )
         else:  # keep earlier network results
             results += [c for c in e.get("checks") or [] if c["check"] in ("K4", "K5", "K6", "K7")]
         usage, flags = rules.apply(e, allowlist, today_s)

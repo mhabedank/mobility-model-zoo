@@ -3,7 +3,10 @@
 Two readers classify the licence evidence page of each sampled entry independently of the stored
 decision: a deterministic matcher over licence names, URLs and badges, and a local model of a
 different family than the discovery agent (DGX Spark, OpenAI-compatible endpoint at $OLLAMA_HOST).
-Page text is held in memory only. Results are reported as agreement, not accuracy (constitution III).
+Single-page applications are read through the portal's machine-readable record of the same resource
+(`licence_text.readable_url`), and reader answers are mapped to catalog licence ids before they are
+compared. Page text is held in memory only. Results are reported as agreement, not accuracy
+(constitution III).
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ import httpx
 
 from mobility_model_zoo.catalog import rules
 from mobility_model_zoo.catalog.checks import Throttle, make_client
+from mobility_model_zoo.catalog.licence_text import match_licence, normalise, readable_url, visible_text
 from mobility_model_zoo.catalog.model import Catalog, licence_allowlist
 from mobility_model_zoo.catalog.validate import DedupeIndex
 
@@ -30,57 +34,21 @@ MAX_DUPLICATE_RATE = 0.02
 USABLE = ("training_allowed", "benchmark_only")
 TEXT_LIMIT = 6000
 
-CC_URL = re.compile(r"creativecommons\.org/(licenses|publicdomain)/([a-z-]+)/(\d\.\d)", re.I)
-CC_TEXT = re.compile(r"\bCC[\s-]?(BY(?:[\s-](?:NC|SA|ND)){0,2})[\s-]?(\d\.\d)\b", re.I)
-PATTERNS = [
-    (re.compile(r"\bCC0\b|creativecommons\.org/publicdomain/zero", re.I), "CC0-1.0"),
-    (re.compile(r"open government licence", re.I), "LicenseRef-OGL-UK-3.0"),
-    (re.compile(r"licence ouverte|etalab", re.I), "etalab-2.0"),
-    (re.compile(r"datenlizenz deutschland.{0,20}namensnennung", re.I), "DL-DE-BY-2.0"),
-    (re.compile(r"open data commons attribution|odc-by", re.I), "ODC-By-1.0"),
-    (re.compile(r"\bODbL\b|open database license", re.I), "ODbL-1.0"),
-    (
-        re.compile(
-            r"all rights reserved|todos los derechos reservados|wszelkie prawa zastrzeżone|無断転載",
-            re.I,
-        ),
-        "LicenseRef-proprietary",
-    ),
-]
-
-
-def match_licence(text: str) -> str:
-    """Deterministic reading of a licence page: an SPDX id, LicenseRef-proprietary or unknown."""
-    m = CC_URL.search(text)
-    if m and m.group(1).lower() == "licenses":
-        return f"CC-{m.group(2).upper()}-{m.group(3)}"
-    m = CC_TEXT.search(text)
-    if m:
-        parts = re.split(r"[\s-]+", m.group(1).upper())
-        return f"CC-{'-'.join(parts)}-{m.group(2)}"
-    for pattern, lid in PATTERNS:
-        if pattern.search(text):
-            return lid
-    return "unknown"
-
-
-def _visible_text(html: str) -> str:
-    html = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", html)
-    # keep link targets: licence badges are often only an <a href> to creativecommons.org
-    html = re.sub(r'(?i)href=["\']([^"\']+)["\']', r" \1 ", html)
-    return " ".join(re.sub(r"<[^>]+>", " ", html).split())
-
-
-def local_model_reader(model: str, host: str | None = None) -> Callable[[str], str]:
+def local_model_reader(
+    model: str, host: str | None = None, vocabulary: list[str] | None = None
+) -> Callable[[str], str]:
     """A reader that asks a local OpenAI-compatible model for the licence id."""
     base = (host or os.environ.get("OLLAMA_HOST") or "http://localhost:11434").rstrip("/")
+    named = ", ".join(sorted(v for v in vocabulary or [] if v.startswith("LicenseRef-")))
 
     def read(text: str) -> str:
         prompt = (
             "Which licence does this web page state for the resource it describes? Answer with JSON "
             '{"licence": "<SPDX id, or LicenseRef-proprietary if all rights are reserved, '
             'or unknown>"}. '
-            "Use unknown if the page states no licence.\n\nPAGE:\n" + text[:TEXT_LIMIT]
+            + (f"For these licences use the given id: {named}. " if named else "")
+            + "Use unknown if the page states no licence.\n\nPAGE:\n"
+            + text[:TEXT_LIMIT]
         )
         resp = httpx.post(
             f"{base}/v1/chat/completions",
@@ -135,23 +103,25 @@ def run(
         key=lambda e: e["id"],
     )
     picked = rng.sample(pool, min(sample, len(pool)))
+    known = {item["id"] for item in allowlist}
     if reader is None and model:
-        reader = local_model_reader(model)
+        reader = local_model_reader(model, vocabulary=sorted(known))
     client = make_client(transport, throttle or Throttle())
     rows = []
     try:
         for e in picked:
             row = {"id": e["id"], "stored": e["usage"]["permitted_use"], "status": e["status"]["value"]}
+            evidence = e["licence"]["evidence_url"]
             try:
-                page = client.get(e["licence"]["evidence_url"])
-                text = _visible_text(page.text) if page.status_code < 400 else ""
+                page = client.get(readable_url(evidence))
+                text = visible_text(page.text) if page.status_code < 400 else ""
             except httpx.HTTPError:
                 text = ""
-            matched = match_licence(text) if text else "unknown"
+            matched = match_licence(text, evidence) if text else "unknown"
             row["matcher"] = {"licence": matched, "use": _use_for(e, matched, allowlist)}
             if reader is not None and text:
                 try:
-                    read = reader(text)
+                    read = normalise(reader(text), known)
                     row["model"] = {"licence": read, "use": _use_for(e, read, allowlist)}
                 except (httpx.HTTPError, KeyError, ValueError) as err:
                     row["model"] = {

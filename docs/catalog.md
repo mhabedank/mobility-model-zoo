@@ -91,7 +91,7 @@ zoo catalog check
 | Check | What it tests |
 |---|---|
 | K4 | landing page |
-| K5 | licence evidence, stored as a hash |
+| K5 | licence evidence, stored as a hash; a page that reserves all rights although the entry carries an open licence sets the blocking flag `licence_conflict` |
 | K6 | opt-out signals: robots.txt with the AI agent list, TDMRep, `noai`, ai.txt, Cloudflare `Content-Signal` and IETF AIPREF `Content-Usage` |
 | K7 | access route |
 
@@ -146,7 +146,7 @@ zoo catalog fetchlist spanish-video --lang es --modality video
 zoo catalog audit --sample 30 --dup-sample 50 --seed 9 --model <local model>
 ```
 
-The audit re-reads the licence pages of a seeded sample with two readers: a deterministic matcher and a local model of a different family than the discovery agent, served from `$OLLAMA_HOST`. It reports agreement with the stored decision, cleared entries that a reader finds not usable, and the duplicate rate (SC-005, SC-008).
+The audit re-reads the licence pages of a seeded sample with two readers: a deterministic matcher and a local model of a different family than the discovery agent, served from `$OLLAMA_HOST`. Single-page applications (data.europa.eu, Zenodo) are read through the portal's API record of the same resource, and reader answers are mapped to catalog licence ids before they are compared. It reports agreement with the stored decision, cleared entries that a reader finds not usable, and the duplicate rate (SC-005, SC-008).
 
 ## Pilot
 
