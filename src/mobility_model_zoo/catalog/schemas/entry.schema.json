@@ -712,7 +712,8 @@
               "mixed_licence_children_missing",
               "unreachable",
               "personal_data_in_metadata",
-              "licence_conflict"
+              "licence_conflict",
+              "licence_unconfirmed"
             ]
           }
         }

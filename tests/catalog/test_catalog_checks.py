@@ -197,3 +197,27 @@ def test_a_page_with_a_cc_badge_and_a_footer_notice_is_no_conflict(catalog_dir):
     _run(cat, Web(licence_body=body), ids=["pl-stat-transport-tables"])
     e = load(catalog_dir).entries["pl-stat-transport-tables"]
     assert _check(e, "K5")["result"] == "pass" and e["status"]["value"] == "cleared"
+
+
+def _as_openalex(catalog_dir, eid="pl-stat-transport-tables"):
+    cat = load(catalog_dir)
+    e = cat.entries[eid]
+    e["identifiers"] = {"doi": "10.1234/x.1", "other": ["openalex:W1"]}
+    cat.write_entry(e)
+    return load(catalog_dir)
+
+
+def test_openalex_licence_needs_confirmation(catalog_dir):
+    """D-catalog-openalex-evidence-2026-10: page and registry silent → not cleared."""
+    _run(_as_openalex(catalog_dir), Web(licence_body="Article page"), ids=["pl-stat-transport-tables"])
+    e = load(catalog_dir).entries["pl-stat-transport-tables"]
+    k5 = _check(e, "K5")
+    assert k5["result"] == "warn" and k5["detail"].startswith(checks.LICENCE_UNCONFIRMED)
+    assert "licence_unconfirmed" in e["status"]["flags"] and e["status"]["value"] == "verified"
+
+
+def test_openalex_licence_confirmed_by_the_page_clears(catalog_dir):
+    _run(_as_openalex(catalog_dir), Web(), ids=["pl-stat-transport-tables"])
+    e = load(catalog_dir).entries["pl-stat-transport-tables"]
+    assert _check(e, "K5")["result"] == "pass" and e["status"]["value"] == "cleared"
+    assert "licence_unconfirmed" not in (e["status"].get("flags") or [])

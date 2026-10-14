@@ -91,7 +91,7 @@ zoo catalog check
 | Check | What it tests |
 |---|---|
 | K4 | landing page |
-| K5 | licence evidence, stored as a hash; a page that reserves all rights although the entry carries an open licence sets the blocking flag `licence_conflict` |
+| K5 | licence evidence, stored as a hash; a page that reserves all rights although the entry carries an open licence sets the blocking flag `licence_conflict`; a licence that only OpenAlex reports must be stated by the evidence page or the DOI registry (Crossref, DataCite), otherwise the blocking flag `licence_unconfirmed` is set |
 | K6 | opt-out signals: robots.txt with the AI agent list, TDMRep, `noai`, ai.txt, Cloudflare `Content-Signal` and IETF AIPREF `Content-Usage` |
 | K7 | access route |
 

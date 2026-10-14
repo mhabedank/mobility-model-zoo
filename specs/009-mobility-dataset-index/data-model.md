@@ -104,8 +104,8 @@ Transition rules:
   `possible_duplicate`) adds a flag but does not block.
 - **verified → cleared**: the rule outcome (R5) is `training_allowed` or `benchmark_only`, every
   signal is `allow` or `absent`, `platform_terms.ml_use` and `automated_access` are not
-  `not_allowed`, no flag `unreachable`, `personal_data_in_metadata`, `owner_decision_needed` or
-  `licence_conflict` is set, and at least one access
+  `not_allowed`, no flag `unreachable`, `personal_data_in_metadata`, `owner_decision_needed`,
+  `licence_conflict` or `licence_unconfirmed` is set, and at least one access
   route has `method` in {`direct_download`, `bulk_dump`, `api`, `feed`, `page_by_page`} with
   `cost: free` and `auth` in {`none`, `api_key`}. `api_key` means a project-wide key registered once
   (FR-018); `account` (per-resource registration) never clears.
@@ -122,7 +122,8 @@ Flags (`status.flags[]`) record what the rules cannot decide or what needs atten
 `owner_decision_needed` (rule U6), `possible_duplicate`, `licence_changed`,
 `mixed_licence_children_missing`, `unreachable` (the landing page did not answer on the last
 re-check), `personal_data_in_metadata` (K9 warn), `licence_conflict` (K5: the evidence page reserves
-all rights although the entry carries an open licence; audit 2026-10-14). `zoo catalog flags`
+all rights although the entry carries an open licence; audit 2026-10-14), `licence_unconfirmed` (K5: a
+licence only OpenAlex reports, stated neither by the evidence page nor the DOI registry). `zoo catalog flags`
 lists them.
 
 ## Entity: Check result
