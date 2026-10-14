@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Iterable
 from importlib import resources
 from pathlib import Path
@@ -65,6 +66,21 @@ MOTIF_SIZES_JS = """() => {
     }),
   };
 }"""
+
+MASK_JS = """data => new Promise(resolve => {
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'); c.width = 96; c.height = 96;
+    const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, 96, 96);
+    const px = ctx.getImageData(0, 0, 96, 96).data, ink = [];
+    for (let i = 0; i < 96 * 96; i++) {
+      const l = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+      if (l > 60) ink.push(i);
+    }
+    resolve(ink);
+  };
+  img.src = 'data:image/png;base64,' + data;
+})"""
 
 MOTIF_COLOURS_JS = """() => [...document.querySelectorAll('.plate')].slice(0, 1).map(p => {
   const s = getComputedStyle(p);
@@ -502,24 +518,15 @@ def motif_distinctness(browser, out: Path) -> list[Finding]:
         )
         page.set_content(html, wait_until="load")
         raster[name] = page.screenshot(type="png", omit_background=False)
+    # ink = pixels that are not the plate, read back through a canvas in the browser so the check
+    # needs nothing beyond Playwright; two motifs are distinct when at most half of their ink
+    # overlaps (Jaccard distance >= MOTIF_MIN_DIFF). Near-duplicates overlap almost entirely.
+    masks: dict[str, set[int]] = {}
+    for name, png in raster.items():
+        data = base64.b64encode(png).decode("ascii")
+        masks[name] = set(page.evaluate(MASK_JS, data))
     page.close()
     findings = []
-    try:
-        from PIL import Image
-    except ImportError:
-        return [Finding("M3", "(motifs)", "needs the images extra (Pillow) to compare motifs")]
-    import io
-
-    # ink = pixels that are not the plate; two motifs are distinct when at most half of their ink
-    # overlaps (Jaccard distance >= 0.5). Near-duplicates overlap almost entirely.
-    masks = {
-        n: {
-            i
-            for i, v in enumerate(Image.open(io.BytesIO(b)).convert("L").resize((96, 96)).getdata())
-            if v > 60
-        }
-        for n, b in raster.items()
-    }
     names = sorted(masks)
     for i, a in enumerate(names):
         for b in names[i + 1 :]:

@@ -124,7 +124,10 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "docs/quickstart.md",  # rendered at /quickstart/ (feature 013)
         ),
     ),
-    ("images", ("zoo/site/images/*", "scripts/imagery/*", "tests/website/test_images_*", "tests/imagery/*")),
+    (
+        "images",
+        ("zoo/site/images/*", "scripts/imagery/*", "tests/website/test_images_*", "tests/imagery/*"),
+    ),
     ("registry", ("zoo/*",)),
     (
         "edge",
