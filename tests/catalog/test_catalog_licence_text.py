@@ -118,3 +118,46 @@ def test_excerpt_keeps_the_licence_passage_of_a_long_page():
     text = "intro " * 2000 + "This work is licensed under CC BY-SA 3.0." + " footer" * 500
     short = lt.excerpt(text, 6000)
     assert len(short) <= 6000 and "CC BY-SA 3.0" in short
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            "This work is licensed under a Creative Commons Attribution 4.0 International License",
+            "CC-BY-4.0",
+        ),
+        (
+            "Creative Commons Uznanie autorstwa – Użycie niekomercyjne – Na tych samych warunkach 4.0",
+            "CC-BY-NC-SA-4.0",
+        ),
+        (
+            "Creative Commons Namensnennung - Weitergabe unter gleichen Bedingungen 4.0 International",
+            "CC-BY-SA-4.0",
+        ),
+        (
+            "Licencia Creative Commons Atribución-NoComercial-SinDerivadas 4.0 Internacional",
+            "CC-BY-NC-ND-4.0",
+        ),
+    ],
+)
+def test_written_out_creative_commons_names(text, expected):
+    """Holdout audit (seed 11): publisher pages write the licence out; the matcher read only CC BY."""
+    assert lt.match_licence(text) == expected
+
+
+def test_dane_gov_pl_is_read_through_its_api():
+    assert (
+        lt.readable_url("https://dane.gov.pl/pl/dataset/4167")
+        == "https://api.dane.gov.pl/1.4/datasets/4167"
+    )
+    client = _client(
+        {
+            "api.dane.gov.pl/1.4/datasets/4167": httpx.Response(
+                200, json={"data": {"attributes": {"title": "Ścieżki", "license_name": "CC BY 4.0"}}}
+            )
+        }
+    )
+    assert (
+        lt.match_licence(lt.evidence_text("https://dane.gov.pl/pl/dataset/4167", client)) == "CC-BY-4.0"
+    )

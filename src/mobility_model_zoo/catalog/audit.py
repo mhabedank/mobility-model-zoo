@@ -44,7 +44,9 @@ def local_model_reader(
 
     def read(text: str) -> str:
         prompt = (
-            "Which licence does this web page state for the resource it describes? Answer with JSON "
+            "Which licence does this text state for the resource it describes? The text is a web page "
+            "or a JSON record of a data portal or DOI registry; a licence field or URL there counts. "
+            "Answer with JSON "
             '{"licence": "<SPDX id, or LicenseRef-proprietary if all rights are reserved, '
             'or unknown>"}. '
             + (f"For these licences use the given id: {named}. " if named else "")

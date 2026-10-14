@@ -26,8 +26,10 @@ PATTERNS = [
     (re.compile(r"open data commons attribution|odc-by", re.I), "ODC-By-1.0"),
     (re.compile(r"\bODbL\b|open database license", re.I), "ODbL-1.0"),
     (re.compile(r"公共データ利用規約|public data license", re.I), "LicenseRef-Japan-PDL-1.0"),
-    (re.compile(r"政府標準利用規約|government standard terms of use", re.I),
-     "LicenseRef-Japan-Gov-Standard-Terms-2.0"),
+    (
+        re.compile(r"政府標準利用規約|government standard terms of use", re.I),
+        "LicenseRef-Japan-Gov-Standard-Terms-2.0",
+    ),
     (
         re.compile(
             r"all rights reserved|todos los derechos reservados|wszelkie prawa zastrzeżone|無断転載"
@@ -37,10 +39,73 @@ PATTERNS = [
         "LicenseRef-proprietary",
     ),
 ]
+# Creative Commons licences written out, in the languages of the target set that name them most
+ATTRIB = [
+    "attribution",
+    "namensnennung",
+    "atribuci[oó]n",
+    "reconocimiento",
+    "atribui[cç][aã]o",
+    "uznanie autorstwa",
+    "attribuzione",
+    "naamsvermelding",
+    "erk[äa]nnande",
+    "nimeäminen",
+]
+NC = [
+    "non[- ]?commercial",
+    "nicht[- ]?kommerziell",
+    "no ?comercial",
+    "n[aã]o ?comercial",
+    "pas d.utilisation commerciale",
+    "u[żz]ycie niekomercyjne",
+    "non commerciale",
+    "niet[- ]commercieel",
+    "ickekommersiell",
+    "ei kaupallinen",
+]
+SA = [
+    "share ?alike",
+    "weitergabe unter gleichen bedingungen",
+    "compartir ?igual",
+    "compartilha ?igual",
+    "partage dans les m[êe]mes conditions",
+    "na tych samych warunkach",
+    "condividi allo stesso modo",
+    "gelijk delen",
+    "dela lika",
+    "j[aä]rjest[aä]",
+]
+ND = [
+    "no ?derivatives",
+    "no ?derivs",
+    "keine bearbeitungen?",
+    "sin ?(?:obra ?)?derivadas?",
+    "sem ?deriva[cç][oõ]es",
+    "pas de modification",
+    "bez utwor[oó]w zale[żz]nych",
+    "non opere derivate",
+    "geen afgeleide werken",
+    "inga bearbetningar",
+]
+SEP = r"\W{1,4}"
+
+
+def _any(words: list[str]) -> str:
+    return "(?:" + "|".join(words) + ")"
+
+
+CC_LONG = re.compile(
+    rf"creative ?commons{SEP}{_any(ATTRIB)}"
+    rf"(?P<nc>{SEP}{_any(NC)})?(?P<sa>{SEP}{_any(SA)})?(?P<nd>{SEP}{_any(ND)})?"
+    rf"{SEP}(?:\w+\W{{1,3}}){{0,2}}?(?P<v>\d\.\d)",
+    re.I,
+)
 OPEN_IDS = ("unknown", "mixed", "LicenseRef-proprietary", "LicenseRef-all-rights-reserved")
 
 DATA_EUROPA = re.compile(r"^/data/datasets/([^/?#]+)")
 ZENODO = re.compile(r"^/records?/(\d+)")
+DANE = re.compile(r"^/(?:[a-z]{2}/)?dataset/(\d+)")
 
 
 def match_licence(text: str, url: str | None = None) -> str:
@@ -59,6 +124,10 @@ def match_licence(text: str, url: str | None = None) -> str:
     if m:
         parts = re.split(r"[\s_-]+", m.group(1).upper())
         return f"CC-{'-'.join(parts)}-{m.group(2)}.{m.group(3)}"
+    m = CC_LONG.search(text)
+    if m:
+        parts = ["BY"] + [k.upper() for k in ("nc", "sa", "nd") if m.group(k)]
+        return f"CC-{'-'.join(parts)}-{m.group('v')}"
     for pattern, lid in PATTERNS:
         if pattern.search(text):
             return lid
@@ -80,6 +149,8 @@ def readable_url(url: str) -> str:
         return f"https://data.europa.eu/api/hub/search/datasets/{m.group(1)}"
     if host == "zenodo.org" and (m := ZENODO.match(parts.path)):
         return f"https://zenodo.org/api/records/{m.group(1)}"
+    if host == "dane.gov.pl" and (m := DANE.match(parts.path)):
+        return f"https://api.dane.gov.pl/1.4/datasets/{m.group(1)}"
     return url
 
 
@@ -140,6 +211,10 @@ def _api_excerpt(host: str, data: dict[str, Any]) -> str:
     if host == "zenodo.org":
         meta = data.get("metadata") or {}
         keep = {"title": meta.get("title"), "license": meta.get("license"), "rights": meta.get("rights")}
+    elif host == "dane.gov.pl":
+        attrs = (data.get("data") or {}).get("attributes") or {}
+        fields = ("title", "license_name", "license_condition_custom_description")
+        keep = {k: attrs.get(k) for k in fields}
     else:  # data.europa.eu
         result = data.get("result") or {}
         keep = {
