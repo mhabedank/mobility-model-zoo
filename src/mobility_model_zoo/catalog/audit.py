@@ -114,6 +114,8 @@ def run(
             row = {"id": e["id"], "stored": e["usage"]["permitted_use"], "status": e["status"]["value"]}
             evidence = e["licence"]["evidence_url"]
             text = evidence_text(evidence, client)
+            if not text:  # the evidence could not be fetched: no reading, reported apart
+                row["unread"] = True
             matched = match_licence(text, evidence) if text else "unknown"
             row["matcher"] = {"licence": matched, "use": _use_for(e, matched, allowlist)}
             if reader is not None and text:
@@ -132,8 +134,9 @@ def run(
 
     failures = []
     agreement: dict[str, float | None] = {}
+    unread = [r["id"] for r in rows if r.get("unread")]
     for name in ("matcher", "model"):
-        judged = [r for r in rows if name in r]
+        judged = [r for r in rows if name in r and not r.get("unread")]
         agreement[name] = (
             round(sum(r[name]["use"] == r["stored"] for r in judged) / len(judged), 4)
             if judged
@@ -145,7 +148,7 @@ def run(
         {
             r["id"]
             for r in rows
-            if r["status"] == "cleared"
+            if r["status"] == "cleared" and not r.get("unread")
             for name in ("matcher", "model")
             if name in r and r[name]["use"] not in USABLE
         }
@@ -177,6 +180,7 @@ def run(
         "rows": rows,
         "agreement": agreement,
         "unusable_cleared": unusable_cleared,
+        "unread": unread,
         "duplicate_audit": {"sample": len(dup_pick), "duplicates": duplicates, "rate": dup_rate},
         "passed": not failures,
         "failures": failures,
@@ -199,6 +203,8 @@ def render(rep: dict[str, Any]) -> str:
         f"- Deterministic matcher: {pct(rep['agreement']['matcher'])}",
         f"- Local model: {pct(rep['agreement']['model'])}",
         f"- Cleared entries not usable on re-check: {', '.join(rep['unusable_cleared']) or 'none'}",
+        "- Evidence not readable (left out of the agreement): "
+        + (", ".join(rep.get("unread") or []) or "none"),
         f"- Duplicates in {rep['duplicate_audit']['sample']} entries: "
         f"{len(rep['duplicate_audit']['duplicates'])} ({rep['duplicate_audit']['rate']:.1%})",
         "",

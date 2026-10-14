@@ -1,14 +1,16 @@
 # Provisional usage decision of a catalog entry (research R5, FR-011). First matching rule wins.
 # The binding decision is made when the source record is created at fetch time (feature 006).
-version: 2
+version: 3
 changelog:
 - {date: "2026-10-11", change: rules U1-U6, reason: feature 009 research R5}
 - {date: "2026-10-11", change: "U3 skips list entries with non_commercial or trains: false", reason: licence list format of feature 011}
 - {date: "2026-10-13", change: "U3 admits listed non-commercial licences (usage.non_commercial); U4 keeps ND and unlisted NC", reason: "owner decision D-catalog-nc-training-2026-10 (feature 011: NC inputs train NC models)"}
+- {date: "2026-10-14", change: "U2 also covers licences K5 found unconfirmed or contradicted", reason: "audit 2026-10-14; owner decision D-catalog-openalex-evidence-2026-10"}
 rules:
   U0: Owner decision for a flagged entry (zoo catalog decide); U1 still overrides it.
   U1: Withdrawn, an opt-out signal, or platform terms that forbid machine learning -> not_usable.
-  U2: Licence unknown, or mixed at collection level -> undetermined.
+  U2: Licence unknown, or mixed at collection level, or check K5 found it unconfirmed or contradicted
+    (flags licence_unconfirmed, licence_conflict) -> undetermined.
   U3: Licence on compliance/lists/licence-allowlist.yaml and not trains false -> training_allowed,
     redistribution allowed; share_alike and non_commercial carried as flags (an NC entry trains
     non-commercial models only, feature 011).

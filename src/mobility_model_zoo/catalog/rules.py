@@ -80,6 +80,14 @@ def apply(
         return old, []
     if lid in ("unknown", "mixed"):
         return _usage("undetermined", "unclear", "U2", f"licence is {lid}", today, evidence), []
+    flags = set((entry.get("status") or {}).get("flags") or [])
+    if flags & {"licence_conflict", "licence_unconfirmed"}:
+        why = (
+            "the evidence page reserves all rights"
+            if "licence_conflict" in flags
+            else "neither the evidence page nor the DOI registry states the licence"
+        )
+        return _usage("undetermined", "unclear", "U2", why, today, evidence), []
     # licences that never train stay off; non-commercial ones train non-commercial models only
     # (D-catalog-nc-training-2026-10, feature 011)
     allowed = {item["id"]: item for item in allowlist if item.get("trains", True)}

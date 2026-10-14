@@ -160,3 +160,10 @@ def test_k8_detects_stale_usage(entry):
     entry["licence"]["id"] = "CC-BY-ND-4.0"
     [finding] = rules.k8(entry, ALLOW)
     assert finding.check == "K8" and "rules decide benchmark_only/not_allowed/U4" in finding.message
+
+
+@pytest.mark.parametrize("flag", ["licence_unconfirmed", "licence_conflict"])
+def test_u2_covers_licences_k5_could_not_confirm(entry, flag):
+    entry.setdefault("status", {})["flags"] = [flag]
+    usage, _ = _apply(entry)
+    assert (usage["permitted_use"], usage["rule"]) == ("undetermined", "U2")

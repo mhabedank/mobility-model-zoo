@@ -92,3 +92,16 @@ def test_cli_writes_report(catalog_dir, monkeypatch):
     assert res.exit_code == 0, res.output
     md = next((catalog_dir / "reports").glob("*-audit.md")).read_text()
     assert "Deterministic matcher: 100%" in md and "Local model: not run" in md
+
+
+def test_unreadable_evidence_is_reported_apart(catalog_dir):
+    """Audit 2026-10-14: a Zenodo record that did not answer counted as a disagreement."""
+    cat = load(catalog_dir)
+
+    def handler(req):
+        return httpx.Response(503)
+
+    rep = audit.run(cat, sample=30, seed=9, transport=httpx.MockTransport(handler), throttle=FAST)
+    assert rep["unread"] == rep["sample_ids"] and rep["agreement"]["matcher"] is None
+    assert rep["unusable_cleared"] == []
+    assert "Evidence not readable" in audit.render(rep)
