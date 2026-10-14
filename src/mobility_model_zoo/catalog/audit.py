@@ -71,10 +71,17 @@ def local_model_reader(
     return read
 
 
+# flags that record what K5 read on the evidence page: a reading replaces them, or agreement is circular
+READING_FLAGS = ("licence_conflict", "licence_unconfirmed")
+
+
 def _use_for(entry: dict[str, Any], licence_id: str, allowlist) -> str:
     probe = copy.deepcopy(entry)
     probe["licence"]["id"] = licence_id
     probe.pop("usage", None)
+    status = probe.get("status") or {}
+    if status.get("flags"):
+        status["flags"] = [f for f in status["flags"] if f not in READING_FLAGS]
     return rules.apply(probe, allowlist)[0]["permitted_use"]
 
 
