@@ -403,7 +403,9 @@ def build(
     hero_image = picture("start-hero", None, "", eager=True)
     topic_images = {t["id"]: picture(f"topic:{t['id']}", None, "") for t in topics}
     model_images = {
-        sm["name"]: picture(f"model:{sm['name']}", sm["m"]["topic"], "") for sm in models if sm["name"] in rendered
+        sm["name"]: picture(f"model:{sm['name']}", sm["m"]["topic"], "")
+        for sm in models
+        if sm["name"] in rendered
     }
     render(
         "index.html",
