@@ -20,3 +20,51 @@ path = "src/mobility_model_zoo/site/checks_vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "2015-2026 Deque Systems, Inc."
 SPDX-License-Identifier = "MPL-2.0"
+
+# Website image "Regional train leaving a small station at dawn, mist over the fields" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/hero-train-dawn/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Circuit board with a diagnostic plug on a workbench by a window" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/model-picket-forest-bench/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Notebook on a train table, an orange train passing the window" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/model-scout-large-window/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Railway wheelset on stands in a bright maintenance hall" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/topic-condmon-wheelset/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Empty tram interior in morning light" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/topic-productdev-interior/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Workshop bay at morning with a car under an open hood" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/topic-security-workshop/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"

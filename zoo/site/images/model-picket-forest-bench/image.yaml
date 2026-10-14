@@ -1,0 +1,69 @@
+id: model-picket-forest-bench
+series: siebdruck
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a small green circuit board on a workbench by a window, an orange-yellow automotive diagnostic
+    plug and a thin wiring harness connected to it, an oscilloscope showing a square wave trace, 1970s
+    modernist travel poster illustration, flat colour fields with crisp edges, screen print texture, clean
+    geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and
+    warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground
+  seed: 1011
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements:
+- model:picket-forest
+scene: Circuit board with a diagnostic plug on a workbench by a window
+alt: A small circuit board with an orange-yellow diagnostic plug on a workbench, an oscilloscope trace
+  behind it (AI-generated image)
+focal_point:
+- 0.45
+- 0.6
+aspect: '3:2'
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-14T02:43:01+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+source:
+  file: model-picket-forest-bench.png
+  width: 1200
+  height: 800
+  sha256: 78576979a7f030988362011c540f38e7fa9469df68601dd774dccebca6e30688
+derivatives:
+  '480':
+    file: model-picket-forest-bench-480.webp
+    bytes: 15852
+    sha256: 9e1ce5aad5667c6cf1846ae1bb0da471591d1e02ee02421eb6bfec0d3a20f9d0
+  '960':
+    file: model-picket-forest-bench-960.webp
+    bytes: 36568
+    sha256: 48dc72eef0eb4a65d75d17018ef85df829aabb9bf5b7e9122b0bdceb332073b4
+  '1600':
+    file: model-picket-forest-bench-1600.webp
+    bytes: 57972
+    sha256: 788c9be5ea168e96518a62c22e1d3b75adef47fc83f5791da277b645ef973ec4

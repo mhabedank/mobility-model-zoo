@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="{{ root }}css/og.css">
 </head>
 <body class="og og-{{ card.kind }}">
-{% if card.motif %}<div class="og-motif og-motif-l">{{ motif(card.motif, 0) }}</div><div class="og-motif og-motif-r">{{ motif(card.motif, 0) }}</div>{% endif %}
 <main class="og-stack">
+{% if card.motif %}<div class="og-motif" data-og="motif">{{ motif(card.motif, 96, plate="og") }}</div>{% endif %}
 <div class="og-brand" data-og="brand"><span class="og-mark" data-og="mark">{{ mark(88 if card.kind == "zoo" else 56) }}</span>{% if card.kind != "zoo" %}<span class="og-wordmark">Mobility Model Zoo</span>{% endif %}</div>
 {% if card.eyebrow %}<p class="og-eyebrow">{{ card.eyebrow }}</p>{% endif %}
 <h1 class="og-title" data-og="title">{{ card.title }}</h1>

@@ -27,4 +27,21 @@ The project website (`zoo site`) bundles these works. They are not part of any m
 | Figtree 2.002 (variable, Latin subset) | 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
 | JetBrains Mono 2.211 (variable, Latin subset) | 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
 | axe-core 4.14.0 (only used by the accessibility check, not deployed) | 2015-2026 Deque Systems, Inc. | MPL-2.0 | `src/mobility_model_zoo/site/checks_vendor/` |
+{% if site_images %}
 
+## Website imagery
+
+Every image on the website is AI-generated on the project's own hardware (feature 016) and published under CC0 1.0; none shows a real place, vehicle or person. The generating models and their licences:
+
+| Model | Licence | Model card |
+|---|---|---|
+{% for m in site_image_models %}
+| {{ m.id }} | {{ m.licence }} | {{ m.card }} |
+{% endfor %}
+
+| Image | Model | Generated | Licence |
+|---|---|---|---|
+{% for im in site_images %}
+| {{ im.scene }} (`zoo/site/images/{{ im.id }}/`) | {{ im.model }} @ {{ im.revision[:12] }} | {{ im.generated }} | CC0-1.0 |
+{% endfor %}
+{% endif %}

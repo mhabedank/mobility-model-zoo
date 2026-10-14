@@ -18,7 +18,7 @@
 {% for e in h.entries %}
 <li class="entry {{ 'entry-update' if e.kind == 'update' else 'entry-new' }}" id="{{ e.id }}">
 <div class="eyebrow">{{ e.topic_title }}</div>
-<h3 class="entry-name">{{ motif(e.motif, 28) }}{% if e.model_url %}<a href="{{ root }}{{ e.model_url }}">{{ e.name }}</a>{% else %}<span>{{ e.name }}</span>{% endif %}{% if e.working_name %} <span class="cap">(working name)</span>{% endif %}</h3>
+<h3 class="entry-name">{{ motif(e.motif, 40, plate=48) }}{% if e.model_url %}<a href="{{ root }}{{ e.model_url }}">{{ e.name }}</a>{% else %}<span>{{ e.name }}</span>{% endif %}{% if e.working_name %} <span class="cap">(working name)</span>{% endif %}</h3>
 <p class="small">{{ e.text }}</p>
 <div class="chips">
 <span class="chip kind">{{ {"new-model": "New model", "first-release": "First release"}.get(e.kind) or "Update of " ~ e.model }}</span>

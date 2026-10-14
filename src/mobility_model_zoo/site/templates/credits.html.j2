@@ -1,0 +1,29 @@
+{% extends "base.html.j2" %}
+{% block title %}Image credits · {{ site.title }}{% endblock %}
+{% block description %}Every image on this website is AI-generated on the project's own hardware; this page says with which model, when, and where each image is used.{% endblock %}
+{% block main %}
+<section class="hero roadmap-hero" aria-labelledby="title"><div class="wrap stack" style="gap:14px">
+<div class="eyebrow">Credits</div>
+<h1 class="h-display" id="title">Image credits</h1>
+<p class="lead muted">All images on this site are AI-generated. None shows a real place, vehicle or person. Each was rendered on the project's own hardware from a recorded recipe and is published under {{ licence_label }}.</p>
+</div></section>
+<section class="sec credits-page" aria-label="Images"><div class="wrap">
+{% for e in entries %}
+{% set im = thumbs[e.id] %}
+<article class="credit" id="{{ e.id }}">
+<img data-image="{{ im.id }}" src="{{ im.src }}" srcset="{{ im.srcset }}" sizes="(min-width: 640px) 33vw, 100vw" width="{{ im.width }}" height="{{ im.height }}" alt="{{ im.alt }}" loading="lazy" decoding="async">
+<div class="stack" style="gap:8px">
+<h2 class="h3">{{ e.scene }}</h2>
+<p class="small">{{ e.disclosure }}.</p>
+<dl>
+<dt>Model</dt><dd><a href="{{ e.model_card }}">{{ e.model }}</a> ({{ e.model_licence }})</dd>
+<dt>Generated</dt><dd>{{ e.generated }} on the project's own hardware ({{ e.hardware }})</dd>
+<dt>Used on</dt><dd>{% for u in e.used %}<a href="{{ u.href }}">{{ u.label }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+<dt>Licence</dt><dd><a href="{{ e.licence_url }}">{{ e.licence_label }}</a></dd>
+</dl>
+</div>
+</article>
+{% endfor %}
+<p class="cap" style="margin-top:24px">The recipe of every image (model revision, prompt, seed and sampling parameters) is in the repository under <code>zoo/site/images/</code>.</p>
+</div></section>
+{% endblock %}

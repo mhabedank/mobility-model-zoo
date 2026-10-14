@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "image-record.schema.json",
+  "title": "Image record (zoo/site/images/<id>/image.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "series",
+    "generation",
+    "licence",
+    "placements",
+    "scene",
+    "alt",
+    "focal_point",
+    "aspect",
+    "source",
+    "derivatives",
+    "checks"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 40
+    },
+    "series": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "revision",
+        "model_licence",
+        "model_card",
+        "pipeline",
+        "prompt",
+        "negative_prompt",
+        "seed",
+        "steps",
+        "guidance",
+        "width",
+        "height",
+        "generated",
+        "hardware",
+        "generator"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "model_licence": {
+          "enum": [
+            "Apache-2.0",
+            "MIT"
+          ]
+        },
+        "model_card": {
+          "type": "string",
+          "pattern": "^https://huggingface\\.co/"
+        },
+        "pipeline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 20
+        },
+        "negative_prompt": {
+          "type": "string"
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "steps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "guidance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 512
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 512
+        },
+        "generated": {
+          "type": "string",
+          "format": "date"
+        },
+        "hardware": {
+          "enum": [
+            "dgx-spark",
+            "dev-machine"
+          ]
+        },
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "image_digest"
+          ],
+          "properties": {
+            "commit": {
+              "type": "string",
+              "pattern": "^([0-9a-f]{7,40}|unversioned)$"
+            },
+            "image_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "licence": {
+      "const": "CC0-1.0"
+    },
+    "placements": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(start-hero|topic:[a-z0-9-]+|model:[a-z0-9-]+)$"
+      }
+    },
+    "scene": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 120
+    },
+    "alt": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 160,
+      "pattern": "\\(AI-generated image\\)$"
+    },
+    "focal_point": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "aspect": {
+      "enum": [
+        "16:9",
+        "3:2"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "width",
+        "height",
+        "sha256"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "pattern": "\\.png$"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 512
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 512
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "derivatives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "480",
+        "960",
+        "1600"
+      ],
+      "patternProperties": {
+        "^(480|960|1600)$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "file",
+            "bytes",
+            "sha256"
+          ],
+          "properties": {
+            "file": {
+              "type": "string",
+              "pattern": "\\.webp$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tools",
+        "ran",
+        "faces",
+        "text",
+        "bytes"
+      ],
+      "properties": {
+        "tools": {
+          "type": "object"
+        },
+        "ran": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "faces": {
+          "const": "pass"
+        },
+        "text": {
+          "const": "pass"
+        },
+        "bytes": {
+          "const": "pass"
+        },
+        "faces_below_threshold": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "placements": {
+            "contains": {
+              "const": "start-hero"
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "aspect": {
+            "const": "16:9"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "aspect": {
+            "const": "3:2"
+          }
+        }
+      }
+    }
+  ]
+}

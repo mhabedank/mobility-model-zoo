@@ -4,6 +4,9 @@ name: site
 # run every check of contracts/checks.md, deploy to GitHub Pages from main.
 # After a release, release-publish pushes the updated records with GITHUB_TOKEN, which does not
 # start push workflows; workflow_run rebuilds the site from main instead.
+# Feature 016: `site-images` re-runs the face and text detectors when image records change, and the
+# deploy waits for the owner's approval (environment `site-images`) only when the image set differs
+# from the live site (FR-017).
 on:
   push:
     branches: [main]
@@ -39,6 +42,8 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      images_changed: ${{ steps.images.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,20 +56,87 @@ jobs:
       - run: uv run playwright install --with-deps chromium
       - run: uv run zoo site build
       - run: uv run zoo site check --a11y
+      - name: Compare the image set with the live site
+        id: images
+        run: |
+          live=$(curl -fsSL "https://mhabedank.github.io/mobility-model-zoo/assets/images/set.json" 2>/dev/null | python3 -c 'import sys,json; print(json.load(sys.stdin).get("digest",""))' 2>/dev/null || echo "")
+          built=$(python3 -c 'import json; print(json.load(open("_site/assets/images/set.json")).get("digest",""))')
+          echo "live=$live built=$built"
+          if [ "$live" = "$built" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Website images changed (owner approval needed)"
+              echo
+              echo "| Image | Scene | Series | Model |"
+              echo "|---|---|---|---|"
+              uv run python - <<'PY'
+          import yaml, pathlib
+          for d in sorted(pathlib.Path("zoo/site/images").iterdir()):
+              p = d / "image.yaml"
+              if p.exists():
+                  r = yaml.safe_load(p.read_text())
+                  print(f"| `{r['id']}` | {r['scene']} | {r['series']} | {r['generation']['model']} |")
+          PY
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
       - run: rm -rf _site/_build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+  site-images:
+    # Deep content checks of the image records (I4): faces and readable text on the source PNGs.
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Did image records or the generator change?
+        id: diff
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base" 2>/dev/null; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$base" HEAD | grep -qE '^(zoo/site/images/|scripts/imagery/|src/mobility_model_zoo/site/images)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: astral-sh/setup-uv@v6
+        if: steps.diff.outputs.run == 'true'
+        with:
+          enable-cache: true
+      - run: uv sync --extra release --extra images
+        if: steps.diff.outputs.run == 'true'
+      - run: uv run zoo site images check --deep
+        if: steps.diff.outputs.run == 'true'
+
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.build.outputs.images_changed != 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-with-approval:
+    # Same deployment, but behind the `site-images` environment whose required reviewer is the
+    # owner (docs/website.md, "Image approval"). Runs only when the image set changed.
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.build.outputs.images_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: site-images
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment

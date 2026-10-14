@@ -57,7 +57,8 @@ def test_coming_next_cards(built):
     ]
     assert "working name" in cards[1]["body"] and "working name" not in cards[0]["body"]
     for c in cards:  # no version, no sentence, no digits apart from the horizon label
-        assert not re.search(r"\d", c["body"].replace(c["horizon"], ""))
+        text = re.sub(r"<[^>]+>", "", c["body"])  # feature 016: the motif plate's markup carries sizes
+        assert not re.search(r"\d", text.replace(c["horizon"], ""))
     assert "1 published · 3 coming next." in html
     assert 'href="roadmap/">See the roadmap' in html
     assert "Reader test" not in html  # updates never appear as cards

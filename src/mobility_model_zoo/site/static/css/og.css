@@ -25,8 +25,7 @@ body.og {
   font-size: 22px; font-weight: 700; padding: 6px 16px; border-radius: 999px;
   border: 2px solid var(--accent); color: var(--accent);
 }
-/* The model motif as decoration in two corners, clear of every text block. */
-.og-motif { position: absolute; width: 120px; height: 120px; color: var(--accent); opacity: .55; }
-.og-motif svg { width: 120px; height: 120px; }
-.og-motif-l { left: 32px; top: 32px; }
-.og-motif-r { right: 32px; bottom: 32px; }
+/* feature 016: the model motif as the main figure, centred on its plate inside the safe area. */
+.og-motif { display: inline-flex; }
+.og-motif .plate { width: 120px; height: 120px; border-radius: 26px; }
+.og-stack { gap: 18px; }

@@ -27,6 +27,16 @@ entries:
     text: Reader test and a clean-machine run, the last open criteria for production readiness.
     planned: 2026-Q4
     horizon: 2026-Q4
+  - id: cairn-base
+    name: cairn-base
+    working_name: false
+    model: cairn-base
+    topic: productdev
+    kind: first-release
+    stage: in-progress
+    text: First release of the staged pipeline model, registered and in progress.
+    planned: 2027-Q3..Q4
+    horizon: 2027-Q3..Q4
   - id: pace-cnn
     name: pace-cnn
     working_name: false

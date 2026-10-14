@@ -89,6 +89,15 @@ edge-train = [
     "pandas>=2.2",
     "pyarrow>=17",
 ]
+# Website imagery import (`zoo site images add|check --deep`, feature 016): crop, encode, face and
+# text detection. `zoo site build` and `check` never import it; the generator runs in a container.
+images = [
+    "pillow>=10",
+    "opencv-python-headless>=4.10",
+    "rapidocr-onnxruntime>=1.3",
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+]
 # Mobility resource index (`zoo catalog`, feature 009): entries live in a private repository
 catalog = [
     "pyyaml>=6.0",

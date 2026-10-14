@@ -1,0 +1,68 @@
+id: model-scout-large-window
+series: siebdruck
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a notebook and pen on a train table by a sunlit window, an orange-yellow train passing outside,
+    landscape in soft bands, 1970s modernist travel poster illustration, flat colour fields with crisp
+    edges, screen print texture, clean geometric forms, calm ordered composition with long diagonals,
+    soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine
+    painted in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning
+    light as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies,
+    restrained, no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground
+  seed: 1011
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-13
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements:
+- model:scout-large
+scene: Notebook on a train table, an orange train passing the window
+alt: A notebook and pen on a train table by a sunlit window while an orange-yellow train passes outside
+  (AI-generated image)
+focal_point:
+- 0.5
+- 0.6
+aspect: '3:2'
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-14T02:42:59+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+source:
+  file: model-scout-large-window.png
+  width: 1200
+  height: 800
+  sha256: 6fc67f07010d17ae50434b20a7d4a8b79932bafa208c08bcd1cbe4f9082401f8
+derivatives:
+  '480':
+    file: model-scout-large-window-480.webp
+    bytes: 10184
+    sha256: a340027f8e734db14baeed3e880d2a018af0776ae9c4752369042c7838f6ea20
+  '960':
+    file: model-scout-large-window-960.webp
+    bytes: 22212
+    sha256: 20de4bd925d88b010bad3d0ea05780ad012e822aaae91a3ab53eaa48565a3d22
+  '1600':
+    file: model-scout-large-window-1600.webp
+    bytes: 36508
+    sha256: 435583ae96443e2bf08e8e837c655eb00591899287788dde37d94d91ea0a68b1

@@ -228,18 +228,10 @@ def usage_label(reg: Registry, entry: dict[str, Any]) -> str | None:
 
 
 def motif_name(reg: Registry, entry: dict[str, Any]) -> str | None:
-    from importlib import resources
+    """The entry's motif through the one resolver of feature 016 (registered model, id, name)."""
+    from mobility_model_zoo.site import motifs
 
-    model = entry.get("model")
-    if not model:
-        return None
-    site = reg.model_dir(model) / "site.yaml"
-    if site.exists():
-        motif = (load_yaml(site) or {}).get("motif")
-        if motif:
-            return motif
-    motifs = resources.files("mobility_model_zoo.site").joinpath("static/img/motifs")
-    return f"{model}.svg" if motifs.joinpath(f"{model}.svg").is_file() else None
+    return motifs.resolve_entry(reg, entry)
 
 
 def open_entries(reg: Registry, record: dict[str, Any]) -> list[dict[str, Any]]:

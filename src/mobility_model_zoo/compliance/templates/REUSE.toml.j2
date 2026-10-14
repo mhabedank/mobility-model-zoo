@@ -20,3 +20,13 @@ path = "src/mobility_model_zoo/site/checks_vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "2015-2026 Deque Systems, Inc."
 SPDX-License-Identifier = "MPL-2.0"
+{% for im in site_images %}
+
+# Website image "{{ im.scene }}" (feature 016): AI-generated with {{ im.model }} (revision {{ im.revision }})
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/{{ im.id }}/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+{% endfor %}
