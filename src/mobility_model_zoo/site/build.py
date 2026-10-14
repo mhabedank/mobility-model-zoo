@@ -33,7 +33,17 @@ from mobility_model_zoo.release.card import (
 )
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry
-from mobility_model_zoo.site import charts, context, examples, facts, og, roadmap, schema_doc
+from mobility_model_zoo.site import (
+    charts,
+    context,
+    examples,
+    facts,
+    motifs,
+    og,
+    roadmap,
+    schema_doc,
+)
+from mobility_model_zoo.site import images as image_records
 from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
@@ -56,13 +66,17 @@ def mark(size: int) -> Markup:
     return Markup(body.replace("<svg ", f'<svg width="{size}" height="{size}" aria-hidden="true" ', 1))
 
 
-def motif(name: str | None, size: int = 48, label: str = "") -> Markup:
-    """A motif inlined, so it follows the theme tokens; decorative unless `label` is given."""
+def motif(name: str | None, size: int = 48, label: str = "", plate: int | str | None = None) -> Markup:
+    """A motif inlined, so it follows the theme tokens; decorative unless `label` is given.
+    With `plate` (a size in px or "hero") it sits on the dark plate of feature 016 (research R9)."""
     if not name or not _static().joinpath(f"img/motifs/{name}").is_file():
         return Markup("")
     a11y = f'role="img" aria-label="{label}"' if label else 'aria-hidden="true" focusable="false"'
     attrs = f'width="{size}" height="{size}" {a11y}' if size else a11y
-    return Markup(_svg(f"motifs/{name}").replace("<svg ", f"<svg {attrs} ", 1))
+    svg = _svg(f"motifs/{name}").replace("<svg ", f"<svg {attrs} ", 1)
+    if plate is None:
+        return Markup(svg)
+    return Markup(f'<span class="plate plate-{plate}" data-motif="{name}">{svg}</span>')
 
 
 def environment() -> jinja2.Environment:
@@ -281,12 +295,36 @@ def build(
         for warning in roadmap.warnings(plan):
             say(warning)
     ahead = roadmap.page_context(reg, plan) if plan else {"upcoming": []}
+    # feature 016: image records (I1, I2) and motif coverage (M1) gate the build
+    records, image_failures = image_records.load_records(reg)
+    image_failures += image_records.series_findings(reg, records)
+    failures += image_failures
+    failures += motifs.coverage(reg, plan)
+    failures += motifs.lint_all()
+    placed = image_records.by_placement(records)
+    warnings: list[str] = []
+
+    def picture(
+        placement: str, topic: str | None, root: str, eager: bool = False
+    ) -> dict[str, Any] | None:
+        rec, warning = image_records.resolve(placed, placement, topic)
+        if warning:
+            warnings.append(warning)
+        return image_records.view(rec, root, eager) if rec else None
+
+    for sm in models:
+        sm["motif"] = motifs.resolve(reg, sm["name"])
 
     if out.exists():
         shutil.rmtree(out)
     (out / "assets").mkdir(parents=True)
     with resources.as_file(_static()) as static:
         shutil.copytree(static, out / "assets", dirs_exist_ok=True)
+    if records:
+        (out / image_records.ASSETS).mkdir(parents=True, exist_ok=True)
+        for src, name in image_records.asset_files(records):
+            shutil.copyfile(src, out / image_records.ASSETS / name)
+    _write(out, image_records.SET_FILE, json.dumps(image_records.set_digest(records), indent=1) + "\n")
 
     formats = []
     for format_id in schema_doc.format_ids(reg):
@@ -311,12 +349,13 @@ def build(
         card["file"] = og.card_file(card, card["inputs_sha256"])
     by_page = {c["page"]: c for c in share}
 
-    common = {"site": site}
+    common = {"site": site, "has_images": bool(records)}
     pages = 0
 
     def render(rel: str, template: str, root: str, path: str, **ctx: Any) -> None:
         nonlocal pages
         card = by_page.get(path, by_page[""])
+        ctx.setdefault("page_images", [])
         html = env.get_template(template).render(**common, root=root, path=path, card=card, **ctx)
         _write(out, rel, html)
         pages += 1
@@ -331,8 +370,16 @@ def build(
         except GateFailed as e:
             failures += e.failures
             continue
+        ctx["motif"] = sm["motif"]
+        stage = picture(f"model:{sm['name']}", sm["m"]["topic"], "../../")
+        ctx["stage"] = stage
         render(
-            f"models/{sm['name']}/index.html", "model.html.j2", "../../", f"models/{sm['name']}/", p=ctx
+            f"models/{sm['name']}/index.html",
+            "model.html.j2",
+            "../../",
+            f"models/{sm['name']}/",
+            p=ctx,
+            page_images=[stage] if stage else [],
         )
         rendered.append(sm["name"])
     for fmt in formats:
@@ -353,6 +400,8 @@ def build(
     if plan:
         render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=ahead)
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
+    hero_image = picture("start-hero", None, "", eager=True)
+    topic_images = {t["id"]: picture(f"topic:{t['id']}", None, "") for t in topics}
     render(
         "index.html",
         "start.html.j2",
@@ -363,7 +412,23 @@ def build(
         models=models,
         linked=set(rendered),
         upcoming=ahead["upcoming"],
+        hero_image=hero_image,
+        topic_images=topic_images,
+        page_images=[i for i in [hero_image, *topic_images.values()] if i],
     )
+    if records:
+        render(
+            "credits/index.html",
+            "credits.html.j2",
+            "../",
+            "credits/",
+            entries=image_records.credits(records, {"start": "../"}),
+            licence_label="CC0 1.0",
+            thumbs={r["id"]: image_records.view(r, "../") for r in records},
+            page_images=[image_records.view(r, "../") for r in records],
+        )
+    for warning in sorted(set(warnings)):
+        say(f"warning: {warning}")
     base = "/" + site["canonical_url"].split("://", 1)[1].split("/", 1)[1]
     render("404.html", "404.html.j2", base, "404.html")
     if failures:

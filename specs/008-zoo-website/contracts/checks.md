@@ -29,3 +29,5 @@
 | C1 | `reuse lint` passes, including fonts, mark and generated assets; this check comes from the existing `zoo compliance check` | FR-019 |
 
 Feature 012 adds the preview image checks B6, B7 and O1–O5, extends P1 and P3 to the card pages under `_build/og/`, and excludes `assets/og/` from the S1 total: see [specs/012-social-preview-images/contracts/checks.md](../../012-social-preview-images/contracts/checks.md).
+
+> **Feature 016 (2026-10-14)**: S1's site total now excludes `assets/images/` as well as fonts and preview cards; per-page weight is S4 and layout shift S3 in the browser run. The branding brief's rule "no stock photos" is superseded for the generated, illustrated images of feature 016 (checks I1 to I4, C1, X1, M1 to M5). See [specs/016-emotional-imagery-motifs/contracts/checks.md](../../016-emotional-imagery-motifs/contracts/checks.md).

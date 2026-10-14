@@ -1,0 +1,69 @@
+id: topic-condmon-wheelset
+series: siebdruck
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow railway wheelset, two wheels on one axle, resting on steel stands in a bright
+    maintenance hall, a small figure from behind with a tablet, 1970s modernist travel poster illustration,
+    flat colour fields with crisp edges, screen print texture, clean geometric forms, calm ordered composition
+    with long diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground,
+    the main vehicle or machine painted in a warm orange-yellow accent colour, everything else only navy,
+    mint and cream, early morning light as graphic shapes, quietly futurist and optimistic, West German
+    graphic design of the seventies, restrained, no text, no lettering, no logos, no faces, people only
+    as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground
+  seed: 1021
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements:
+- topic:condition-monitoring
+scene: Railway wheelset on stands in a bright maintenance hall
+alt: An orange-yellow railway wheelset rests on steel stands in a bright hall, a technician from behind
+  with a tablet (AI-generated image)
+focal_point:
+- 0.45
+- 0.55
+aspect: '3:2'
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-14T02:42:58+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+source:
+  file: topic-condmon-wheelset.png
+  width: 1200
+  height: 800
+  sha256: a5712a16fd3918d943fd12144f4c50cb52cc0642b85f8b0a959e97f1e4a434fa
+derivatives:
+  '480':
+    file: topic-condmon-wheelset-480.webp
+    bytes: 21890
+    sha256: cec059cd168f61045668417baffc12386f9f9bb0aaa290162be0d56559319a4e
+  '960':
+    file: topic-condmon-wheelset-960.webp
+    bytes: 50334
+    sha256: b61d8c57127c527b545345eb78dca0f8675951c06c2cf4417e30ef5e3038f96e
+  '1600':
+    file: topic-condmon-wheelset-1600.webp
+    bytes: 81980
+    sha256: 759bdfbcde5854879b7db302ce2a60424226725bd9617645addfaea358762230

@@ -284,3 +284,52 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 .mini-name { font-weight: 650; overflow-wrap: anywhere; }
 .mini-foot { display: flex; margin-top: auto; padding-top: 6px; }
 .mini .chip { font-size: 12px; padding: 0 9px; }
+
+/* ---- feature 016: motif plates, image stages, credits ----------------------------------------- */
+/* A plate is the dark surface every motif sits on, in both colour schemes (research R9): the motif
+   colours keep at least 3:1 against it, which mint cannot on white. Tokens are re-declared locally. */
+.plate { --bg: #111846; --surface: #111846; --text: #EEF1FF; --border-strong: #6F7DC4; --mark: #6FFFC8;
+  display: inline-grid; place-items: center; flex: none; background: var(--surface); border-radius: 14px; }
+.plate svg { display: block; }
+.plate-72 { width: 72px; height: 72px; border-radius: 16px; }
+.plate-48 { width: 48px; height: 48px; border-radius: 12px; }
+.plate-36 { width: 36px; height: 36px; border-radius: 10px; }
+.plate-hero { width: clamp(160px, 40vw, 260px); height: clamp(160px, 40vw, 260px); border-radius: 28px; }
+.plate-hero svg { width: 78%; height: 78%; }
+.tile-name { white-space: normal; }
+.tile-name .h3 { overflow-wrap: anywhere; }
+.entry-name .plate { margin-right: 2px; }
+.mini .plate { margin-bottom: 4px; }
+
+/* Image stages: text never sits on an image (FR-004); the only overlap is the plate (X1). */
+.hero-start { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.hero-stage { margin: 0; border-radius: 16px; overflow: hidden; background: var(--surface-2); }
+.hero-stage img, .topic-img img, .stage img { display: block; width: 100%; height: auto; object-fit: cover; }
+.topic-img { margin: -20px -20px 12px; border-radius: 12px 12px 0 0; overflow: hidden; background: var(--surface-2); }
+.topic-img img { aspect-ratio: 3 / 2; }
+.topic-plates { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.stage { position: relative; margin: 0; border-radius: 16px; overflow: visible; }
+.stage img { border-radius: 16px; aspect-ratio: 3 / 2; }
+.stage .plate-hero { position: absolute; left: -16px; bottom: -16px; }
+.stage-alone { display: flex; justify-content: center; }
+.hero-in .plate-hero { justify-self: center; }
+@media (max-width: 860px) {
+  .hero-start { grid-template-columns: 1fr; }
+  .hero-start .hero-stage { order: -1; }
+  .hero-in { grid-template-columns: 1fr; }
+  .hero-in .hero-art { display: flex; justify-content: center; order: -1; }
+  .stage .plate-hero { left: 50%; transform: translateX(-50%); bottom: -40px; }
+  .stage { margin-bottom: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage img, .topic-img img, .stage img { transition: none; transform: none; }
+}
+.credits-page .credit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px 24px;
+  padding: 16px 0; border-top: 1px solid var(--border); }
+.credits-page .credit:last-child { border-bottom: 1px solid var(--border); }
+.credits-page .credit img { width: 100%; height: auto; border-radius: 10px; }
+.credits-page dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; font-size: 15px; }
+.credits-page dt { color: var(--muted); }
+details.credits { margin: 32px auto 0; max-width: 1200px; }
+details.credits ul { padding: 10px 16px 14px 32px; margin: 0; font-size: 15px; }
+@media (max-width: 640px) { .credits-page .credit { grid-template-columns: 1fr; } }

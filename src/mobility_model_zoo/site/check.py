@@ -18,7 +18,7 @@ from mobility_model_zoo.compliance.release_checks import BRAND, FUNDING
 from mobility_model_zoo.release.card import num
 from mobility_model_zoo.release.errors import GateFailed
 from mobility_model_zoo.release.registry import Registry, load_yaml
-from mobility_model_zoo.site import og
+from mobility_model_zoo.site import images, motifs, og
 from mobility_model_zoo.site.facts import NUMBER, literal_numbers, target_key
 
 PREFIX = "/mobility-model-zoo/"
@@ -63,14 +63,30 @@ class Page(HTMLParser):
         self.ids: set[str] = set()
         self.text: list[str] = []
         self.footer_links: list[str] = []
+        self.footer_link_text: list[str] = []
         self.scripts: list[dict[str, str | None]] = []
+        self.images: list[dict[str, str | None]] = []  # feature 016: img[data-image]
+        self.figure_text: list[str] = []  # text nodes inside figures that hold an image (X1)
         self._skip = 0
         self._footer = 0
+        self._figure = 0
+        self._figure_text: list[str] = []
+        self._figure_has_image = False
+        self._in_footer_a = 0
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = dict(attrs)
         if a.get("id"):
             self.ids.add(a["id"])
+        if tag == "img" and "data-image" in a:
+            self.images.append(a)
+            if self._figure:
+                self._figure_has_image = True
+        if tag == "figure":
+            self._figure += 1
+            self._figure_text, self._figure_has_image = [], False
+        if tag == "a" and self._footer:
+            self._in_footer_a += 1
         if tag in ("script", "style"):
             self._skip += 1
         if tag == "script":
@@ -95,10 +111,21 @@ class Page(HTMLParser):
             self._skip -= 1
         if tag == "footer" and self._footer:
             self._footer -= 1
+        if tag == "figure" and self._figure:
+            self._figure -= 1
+            if self._figure_has_image:
+                self.figure_text += self._figure_text
+            self._figure_text, self._figure_has_image = [], False
+        if tag == "a" and self._in_footer_a:
+            self._in_footer_a -= 1
 
     def handle_data(self, data: str) -> None:
         if not self._skip and data.strip():
             self.text.append(data)
+            if self._figure:
+                self._figure_text.append(data.strip())
+            if self._in_footer_a:
+                self.footer_link_text.append(data.strip())
 
 
 def parse(path: Path) -> Page:
@@ -414,6 +441,9 @@ def check_size(out: Path) -> Iterable[Finding]:
         and p.suffix != ".woff2"
         and p.name != "OFL.txt"
         and not rel(out, p).startswith(og.OG_DIR + "/")  # loaded by link previews, not visitors (O1)
+        and not rel(out, p).startswith(
+            images.ASSETS + "/"
+        )  # one page loads only its own (feature 016, S4)
     )
     if total > MAX_TOTAL_BYTES:
         yield Finding("S1", "(site)", f"{total} bytes without fonts, more than {MAX_TOTAL_BYTES}")
@@ -638,6 +668,126 @@ def check_roadmap_pages(reg: Registry, out: Path) -> Iterable[Finding]:
         )
 
 
+# ---- feature 016: motifs (M1, M2) and images (I1-I3, C1, X1) ----------------------------------
+IMAGE_PAGES = re.compile(r"^(index\.html|models/[^/]+/index\.html|credits/index\.html)$")
+
+
+def check_motifs(reg: Registry) -> Iterable[Finding]:
+    """M1 coverage and M2 grammar, as the build runs them."""
+    from mobility_model_zoo.site import roadmap
+
+    try:
+        plan = roadmap.load_and_check(reg)
+    except GateFailed:
+        plan = None
+    for line in motifs.coverage(reg, plan) + motifs.lint_all():
+        check_id, _, rest = line.partition(" ")
+        name, _, detail = rest.partition(": ")
+        yield Finding(check_id, name, detail)
+
+
+def check_image_records(reg: Registry) -> Iterable[Finding]:
+    """I1 records, files and placements; I2 recipe against the series."""
+    records, findings = images.load_records(reg)
+    for line in findings + images.series_findings(reg, records):
+        check_id, _, rest = line.partition(" ")
+        name, _, detail = rest.partition(": ")
+        yield Finding(check_id, name, detail)
+
+
+def check_image_markup(reg: Registry, out: Path) -> Iterable[Finding]:
+    """I3: every img[data-image] has a record, size, alt, srcset and lazy loading; images only on the
+    start, model and credits pages (FR-007); no orphan files; every derivative carries the marker."""
+    records, _ = images.load_records(reg)
+    by_id = {r["id"]: r for r in records}
+    used: set[str] = set()
+    for path in pages(out):
+        page = parse(path)
+        where = rel(out, path)
+        if page.images and not IMAGE_PAGES.match(where):
+            yield Finding("I3", where, "shows images, but only the start, model and credits pages may")
+        for img in page.images:
+            rec = by_id.get(img.get("data-image") or "")
+            if rec is None:
+                yield Finding("I3", where, f"image {img.get('data-image')} has no record")
+                continue
+            for attr in ("width", "height", "srcset", "alt"):
+                if not img.get(attr):
+                    yield Finding("I3", where, f"image {rec['id']} has no {attr}")
+            if img.get("alt") and img["alt"] != rec["alt"]:
+                yield Finding("I3", where, f"image {rec['id']}: alt differs from the record")
+            if img.get("fetchpriority") != "high" and img.get("loading") != "lazy":
+                yield Finding("I3", where, f"image {rec['id']} is neither lazy nor the hero")
+            for ref in [img.get("src") or ""] + [
+                p.strip().split(" ")[0] for p in (img.get("srcset") or "").split(",")
+            ]:
+                if ref:
+                    used.add(Path(ref).name)
+    published = sorted((out / images.ASSETS).glob("*.webp")) if (out / images.ASSETS).is_dir() else []
+    known = {name for _, name in images.asset_files(records)}
+    for f in published:
+        if f.name not in known:
+            yield Finding("I3", rel(out, f), "orphan file: no record uses it")
+        elif not _has_marker(f):
+            yield Finding("I3", rel(out, f), "no IPTC trainedAlgorithmicMedia marker")
+
+
+def _has_marker(path: Path) -> bool:
+    """The XMP packet of a WebP is plain text inside the file; no decoder needed."""
+    return images.IPTC_MARKER.encode() in path.read_bytes()
+
+
+def check_credits(reg: Registry, out: Path) -> Iterable[Finding]:
+    """C1: the credits page lists every record with its disclosure; every page with images links it
+    from the footer with the words "AI-generated"."""
+    records, _ = images.load_records(reg)
+    if not records:
+        return
+    credits = out / "credits" / "index.html"
+    if not credits.exists():
+        yield Finding("C1", "credits/index.html", "missing")
+        return
+    from html import unescape
+
+    html = unescape(credits.read_text(encoding="utf-8"))
+    for r in records:
+        g = r["generation"]
+        for needle, what in (
+            (f'id="{r["id"]}"', "entry"),
+            (r["scene"], "scene"),
+            (g["model"], "model"),
+            (g["model_licence"], "model licence"),
+            (g["generated"], "date"),
+            (g["hardware"], "hardware class"),
+        ):
+            if needle not in html:
+                yield Finding("C1", "credits/index.html", f"{r['id']}: no {what}")
+    if images.DISCLOSURE not in html:
+        yield Finding("C1", "credits/index.html", "does not say AI-generated")
+    for path in pages(out):
+        page = parse(path)
+        if not page.images:
+            continue
+        where = rel(out, path)
+        target = resolve_local(out, path, "credits/")[0] if where == "index.html" else None
+        footer_ok = any("credits/" in href for href in page.footer_links)
+        if not footer_ok:
+            yield Finding("C1", where, "no footer link to the image credits")
+        if not any("AI-generated" in t for t in page.footer_link_text):
+            yield Finding("C1", where, 'footer link does not say "AI-generated"')
+        del target
+
+
+def check_text_on_images(out: Path) -> Iterable[Finding]:
+    """X1: no text inside a figure that holds an image (text never sits on an image, FR-004)."""
+    for path in pages(out):
+        page = parse(path)
+        if page.images and page.figure_text:
+            yield Finding(
+                "X1", rel(out, path), f"text inside an image figure: {page.figure_text[0][:40]!r}"
+            )
+
+
 def run_checks(
     reg: Registry,
     out: Path,
@@ -674,6 +824,11 @@ def run_checks(
         ("D5", lambda: depth.check_order(reg, out)),
         ("D2", lambda: depth.check_words_before_quality(reg, out)),
         ("RM9", lambda: check_roadmap_pages(reg, out)),
+        ("M", lambda: check_motifs(reg)),
+        ("I", lambda: check_image_records(reg)),
+        ("I3", lambda: check_image_markup(reg, out)),
+        ("C1", lambda: check_credits(reg, out)),
+        ("X1", lambda: check_text_on_images(out)),
     ]
     if not offline:
         checks.append(("L2", lambda: check_external_links(out, reg.root)))

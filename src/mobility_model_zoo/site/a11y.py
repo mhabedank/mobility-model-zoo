@@ -10,10 +10,13 @@
 - S2: Largest Contentful Paint at most 2 s under a slow mobile network and a 4x slower CPU.
 - O3: colour contrast of the preview image pages (feature 012).
 - D6: placement of the model page layers on screen (feature 014, SC-001 to SC-003).
+- S3: Cumulative Layout Shift at most 0.1; S4: bytes per page at 390 px, DPR 2 (feature 016).
+- M3: motifs' ink differs pairwise (Jaccard distance >= 0.5); M4: motif sizes; M5: stroke contrast.
 """
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Iterable
 from importlib import resources
 from pathlib import Path
@@ -24,6 +27,10 @@ from mobility_model_zoo.site.serve import background
 
 AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]
 LCP_LIMIT_MS = 2000
+CLS_LIMIT = 0.1
+PAGE_BYTES_WITH_IMAGES, PAGE_BYTES_PLAIN = 600_000, 300_000
+MOTIF_MIN_DIFF = 0.5  # Jaccard distance of the ink masks
+MOTIF_MIN_CONTRAST = 3.0
 SLOW_NETWORK = {
     "offline": False,
     "latency": 150,
@@ -37,6 +44,48 @@ LCP_JS = """() => new Promise(resolve => {
   new PerformanceObserver(list => { for (const e of list.getEntries()) last = e.startTime; })
     .observe({type: 'largest-contentful-paint', buffered: true});
   setTimeout(() => resolve(last), 300);
+})"""
+
+CLS_JS = """() => new Promise(resolve => {
+  let cls = 0;
+  new PerformanceObserver(list => {
+    for (const e of list.getEntries()) if (!e.hadRecentInput) cls += e.value; })
+    .observe({type: 'layout-shift', buffered: true});
+  setTimeout(() => resolve(cls), 300);
+})"""
+
+MOTIF_SIZES_JS = """() => {
+  const h = el => Math.round(el.getBoundingClientRect().height);
+  return {
+    tiles: [...document.querySelectorAll('.tile .plate svg')].map(h),
+    roadmap: [...document.querySelectorAll('.entry-name .plate svg, a.mini .plate svg')].map(h),
+    hero: [...document.querySelectorAll('.hero-art .plate')].map(el => {
+      const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
+      return {h: Math.round(r.height),
+              visible: s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0};
+    }),
+  };
+}"""
+
+MASK_JS = """data => new Promise(resolve => {
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'); c.width = 96; c.height = 96;
+    const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, 96, 96);
+    const px = ctx.getImageData(0, 0, 96, 96).data, ink = [];
+    for (let i = 0; i < 96 * 96; i++) {
+      const l = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+      if (l > 60) ink.push(i);
+    }
+    resolve(ink);
+  };
+  img.src = 'data:image/png;base64,' + data;
+})"""
+
+MOTIF_COLOURS_JS = """() => [...document.querySelectorAll('.plate')].slice(0, 1).map(p => {
+  const s = getComputedStyle(p);
+  return {plate: s.backgroundColor, text: s.getPropertyValue('--text').trim(),
+          grey: s.getPropertyValue('--border-strong').trim(), mint: s.getPropertyValue('--mark').trim()};
 })"""
 
 FOCUS_JS = """() => {
@@ -95,6 +144,7 @@ def run(out: Path) -> Iterable[Finding]:
             findings += _keyboard(browser, base, rels)
             findings += _load_time(browser, base, rels)
             findings += placement(browser, base, rels)
+            findings += motif_checks(browser, base, rels, out)
             browser.close()
     finally:
         srv.shutdown()
@@ -286,10 +336,47 @@ def _load_time(browser, base: str, rels: list[str]) -> list[Finding]:
     cdp.send("Network.emulateNetworkConditions", SLOW_NETWORK)
     cdp.send("Emulation.setCPUThrottlingRate", {"rate": 4})
     cdp.send("Network.setCacheDisabled", {"cacheDisabled": True})
+    transferred: dict[str, list[tuple[str, int]]] = {}
+
+    def on_response(resp, pages_=transferred):
+        try:
+            body = (
+                len(resp.body())
+                if resp.ok and resp.request.resource_type != "document" or resp.ok
+                else 0
+            )
+        except Exception:  # noqa: BLE001 - a body that is gone is not counted
+            body = 0
+        pages_.setdefault(page.url, []).append((resp.url, body))
+
+    page.on("response", on_response)
     for rel in rels:
         page.goto(base + rel, wait_until="load")
         lcp = page.evaluate(LCP_JS)
+        cls = page.evaluate(CLS_JS)
         width = page.evaluate("document.documentElement.scrollWidth")
+        has_images = page.evaluate("!!document.querySelector('img[data-image]')")
+        got = transferred.pop(page.url, [])
+        total = sum(n for url, n in got if not url.endswith(".woff2"))
+        limit = PAGE_BYTES_WITH_IMAGES if has_images else PAGE_BYTES_PLAIN
+        if total > limit:
+            heaviest = max(got, key=lambda x: x[1])
+            findings.append(
+                Finding(
+                    "S4",
+                    rel or "index.html",
+                    f"{total} bytes transferred without fonts, more than {limit}; "
+                    f"heaviest {heaviest[0].split('/')[-1]} ({heaviest[1]})",
+                )
+            )
+        if cls > CLS_LIMIT:
+            findings.append(
+                Finding(
+                    "S3",
+                    rel or "index.html",
+                    f"Cumulative Layout Shift {cls:.3f}, more than {CLS_LIMIT}",
+                )
+            )
         if width > 390:
             findings.append(
                 Finding("A5", rel or "index.html", f"scrolls sideways at 390 px ({width} px wide)")
@@ -336,4 +423,121 @@ def contrast(out: Path) -> Iterable[Finding]:
                     )
         finally:
             browser.close()
+    return findings
+
+
+# ---- feature 016: motif checks M3, M4, M5 --------------------------------------------------------
+def _luminance(rgb: tuple[int, int, int]) -> float:
+    def ch(c: int) -> float:
+        v = c / 255
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+
+    r, g, b = rgb
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b)
+
+
+def _parse_colour(value: str) -> tuple[int, int, int] | None:
+    import re
+
+    value = value.strip()
+    m = re.match(r"#([0-9a-fA-F]{6})", value)
+    if m:
+        h = m.group(1)
+        return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    m = re.match(r"rgba?\((\d+),\s*(\d+),\s*(\d+)", value)
+    return (int(m.group(1)), int(m.group(2)), int(m.group(3))) if m else None
+
+
+def contrast_ratio(a: str, b: str) -> float | None:
+    ca, cb = _parse_colour(a), _parse_colour(b)
+    if not ca or not cb:
+        return None
+    la, lb = sorted((_luminance(ca), _luminance(cb)), reverse=True)
+    return (la + 0.05) / (lb + 0.05)
+
+
+def motif_checks(browser, base: str, rels: list[str], out: Path) -> list[Finding]:
+    """M4 sizes and hero visibility, M5 stroke contrast against the plate, M3 pairwise difference."""
+    findings = []
+    for scheme, width in (("light", 1280), ("dark", 390)):
+        ctx = browser.new_context(color_scheme=scheme, viewport={"width": width, "height": 900})
+        page = ctx.new_page()
+        for rel in rels:
+            if rel not in ("", "roadmap/") and not rel.startswith("models/"):
+                continue
+            page.goto(base + rel, wait_until="load")
+            sizes = page.evaluate(MOTIF_SIZES_JS)
+            where = rel or "index.html"
+            for h in sizes["tiles"]:
+                if h < 64:
+                    findings.append(
+                        Finding("M4", where, f"{scheme} {width}px: tile motif {h} px, needs 64")
+                    )
+            for h in sizes["roadmap"]:
+                if h < 40:
+                    findings.append(
+                        Finding("M4", where, f"{scheme} {width}px: roadmap/mini motif {h} px, needs 40")
+                    )
+            if rel.startswith("models/") and not any(h["visible"] for h in sizes["hero"]):
+                findings.append(Finding("M4", where, f"{scheme} {width}px: hero motif not visible"))
+            if scheme == "light" and rel == "":
+                for c in page.evaluate(MOTIF_COLOURS_JS):
+                    for name in ("text", "grey", "mint"):
+                        ratio = contrast_ratio(c[name], c["plate"])
+                        if ratio is not None and ratio < MOTIF_MIN_CONTRAST:
+                            findings.append(
+                                Finding(
+                                    "M5",
+                                    where,
+                                    f"{name} on the plate: {ratio:.1f}:1, needs {MOTIF_MIN_CONTRAST}:1",
+                                )
+                            )
+        ctx.close()
+    findings += motif_distinctness(browser, out)
+    return findings
+
+
+def motif_distinctness(browser, out: Path) -> list[Finding]:
+    """M3: every pair of motifs differs in at least 12 % of pixels at 96 px on the plate."""
+    from mobility_model_zoo.site import motifs
+
+    files = motifs.files()
+    page = browser.new_page(viewport={"width": 120, "height": 120}, color_scheme="dark")
+    # the plate colours inline (set_content cannot load file: stylesheets); same values as .plate
+    style = (
+        "body{margin:0;background:#fff}.plate{--text:#EEF1FF;--border-strong:#6F7DC4;--mark:#6FFFC8;"
+        "display:inline-grid;place-items:center;background:#111846}"
+    )
+    raster: dict[str, bytes] = {}
+    for name, path in files.items():
+        svg = path.read_text(encoding="utf-8").replace("<svg ", '<svg width="96" height="96" ', 1)
+        html = (
+            f"<!doctype html><html><head><style>{style}</style></head>"
+            '<body><span class="plate" style="width:120px;height:120px">'
+            f"{svg}</span></body></html>"
+        )
+        page.set_content(html, wait_until="load")
+        raster[name] = page.screenshot(type="png", omit_background=False)
+    # ink = pixels that are not the plate, read back through a canvas in the browser so the check
+    # needs nothing beyond Playwright; two motifs are distinct when at most half of their ink
+    # overlaps (Jaccard distance >= MOTIF_MIN_DIFF). Near-duplicates overlap almost entirely.
+    masks: dict[str, set[int]] = {}
+    for name, png in raster.items():
+        data = base64.b64encode(png).decode("ascii")
+        masks[name] = set(page.evaluate(MASK_JS, data))
+    page.close()
+    findings = []
+    names = sorted(masks)
+    for i, a in enumerate(names):
+        for b in names[i + 1 :]:
+            union = masks[a] | masks[b]
+            dist = 1 - len(masks[a] & masks[b]) / len(union) if union else 0.0
+            if dist < MOTIF_MIN_DIFF:
+                findings.append(
+                    Finding(
+                        "M3",
+                        f"{a} / {b}",
+                        f"ink overlaps too much: distance {dist:.2f}, needs {MOTIF_MIN_DIFF}",
+                    )
+                )
     return findings

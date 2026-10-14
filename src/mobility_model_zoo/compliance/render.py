@@ -97,6 +97,34 @@ def _published_models(root: Path) -> list[tuple[str, str, dict[str, Any]]]:
     return out
 
 
+def _site_images(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Website image records (feature 016): one row per image, one per generating model."""
+    from mobility_model_zoo.release.registry import Registry
+    from mobility_model_zoo.site import images
+
+    if not (root / images.IMAGES_DIR).is_dir():
+        return [], []
+    records, _ = images.load_records(Registry(root))
+    rows = [
+        {
+            "id": r["id"],
+            "scene": r["scene"],
+            "model": r["generation"]["model"],
+            "revision": r["generation"]["revision"],
+            "licence": r["licence"],
+            "generated": r["generation"]["generated"],
+        }
+        for r in sorted(records, key=lambda r: r["id"])
+    ]
+    seen: dict[str, dict[str, Any]] = {}
+    for r in records:
+        g = r["generation"]
+        seen.setdefault(
+            g["model"], {"id": g["model"], "licence": g["model_licence"], "card": g["model_card"]}
+        )
+    return rows, sorted(seen.values(), key=lambda m: m["id"])
+
+
 def context(reg: Register) -> dict[str, Any]:
     classes = reg.records("source-classes")
     sources = reg.records("sources")
@@ -153,7 +181,10 @@ def context(reg: Register) -> dict[str, Any]:
     latest: dict[str, dict[str, Any]] = {}
     for m in models:
         latest[m["name"]] = m  # releases are sorted, so the last one wins
+    site_images, site_image_models = _site_images(reg.root)
     return {
+        "site_images": site_images,
+        "site_image_models": site_image_models,
         "controller": reg.controller(),
         "classes": classes,
         "class_counts": {k: dict(v) for k, v in class_counts.items()},

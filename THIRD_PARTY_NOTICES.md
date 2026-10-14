@@ -113,3 +113,19 @@ The project website (`zoo site`) bundles these works. They are not part of any m
 | JetBrains Mono 2.211 (variable, Latin subset) | 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
 | axe-core 4.14.0 (only used by the accessibility check, not deployed) | 2015-2026 Deque Systems, Inc. | MPL-2.0 | `src/mobility_model_zoo/site/checks_vendor/` |
 
+## Website imagery
+
+Every image on the website is AI-generated on the project's own hardware (feature 016) and published under CC0 1.0; none shows a real place, vehicle or person. The generating models and their licences:
+
+| Model | Licence | Model card |
+|---|---|---|
+| Qwen/Qwen-Image-2512 | Apache-2.0 | https://huggingface.co/Qwen/Qwen-Image-2512 |
+
+| Image | Model | Generated | Licence |
+|---|---|---|---|
+| Regional train leaving a small station at dawn, mist over the fields (`zoo/site/images/hero-train-dawn/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Circuit board with a diagnostic plug on a workbench by a window (`zoo/site/images/model-picket-forest-bench/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Notebook on a train table, an orange train passing the window (`zoo/site/images/model-scout-large-window/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Railway wheelset on stands in a bright maintenance hall (`zoo/site/images/topic-condmon-wheelset/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Empty tram interior in morning light (`zoo/site/images/topic-productdev-interior/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Workshop bay at morning with a car under an open hood (`zoo/site/images/topic-security-workshop/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |

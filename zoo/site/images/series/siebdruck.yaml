@@ -1,0 +1,49 @@
+# Art direction of the website imagery (feature 016, research R13): the house style SIEBDRUCK.
+# 1970s West German modernist poster illustration, quietly futurist, calm and precise. Flat
+# screen-print colour fields, clean geometry, long diagonals. Sky, ground and buildings only in
+# deep navy, pale mint and warm cream; ONE warm orange-yellow accent reserved for the main vehicle
+# or machine. Every image record's prompt is one subject below followed by `style` (check I2).
+name: siebdruck
+style: >-
+  1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print texture,
+  clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+  deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+  everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist and optimistic,
+  West German graphic design of the seventies, restrained, no text, no lettering, no logos, no faces,
+  people only as small simple silhouettes
+negative: >-
+  text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic, glossy, 3d render,
+  neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange ground
+models:
+  draft:
+    id: black-forest-labs/FLUX.2-klein-4B
+    pipeline: Flux2KleinPipeline
+    licence: Apache-2.0
+    card: https://huggingface.co/black-forest-labs/FLUX.2-klein-4B
+    steps: 4
+    guidance: 1.0
+  final:
+    id: Qwen/Qwen-Image-2512
+    pipeline: QwenImagePipeline
+    licence: Apache-2.0
+    card: https://huggingface.co/Qwen/Qwen-Image-2512
+    steps: 50
+    true_cfg_scale: 4.0
+subjects:
+  start-hero:
+    - an orange-yellow tram gliding out of a stop on a wide boulevard at sunrise, one cyclist riding ahead into the light
+    - an orange-yellow regional train leaving a small station at dawn, empty platform, mist over flat fields
+    - a bike lane along a river at sunrise, two cyclists far ahead, an orange-yellow tram crossing a bridge in the distance, city skyline soft
+  topic-productdev:
+    - a bright empty tram interior in morning light, orange-yellow seats, sun streaks on the floor, city through the windows
+    - a quiet bus stop at sunrise, a single small figure from behind with a bicycle, an orange-yellow bus approaching
+  topic-security:
+    - a car dashboard and windshield at sunrise on an open road, round instruments with orange-yellow needles, road ahead empty
+    - a clean vehicle workshop bay at morning, an orange-yellow car with open hood, wiring harness and diagnostic cable, tall windows
+  topic-condition-monitoring:
+    - a large industrial fan with an orange-yellow electric motor on a test rig in a tall workshop hall, sunlight through high windows
+    - an orange-yellow railway wheelset, two wheels on one axle, resting on steel stands in a bright maintenance hall, a small figure from behind with a tablet
+  model-scout-large:
+    - a notebook and pen on a train table by a sunlit window, an orange-yellow train passing outside, landscape in soft bands
+  model-picket-forest:
+    - a small green circuit board on a workbench by a window, an orange-yellow automotive diagnostic plug and a thin wiring harness connected to it, an oscilloscope showing a square wave trace

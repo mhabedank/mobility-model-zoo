@@ -38,6 +38,7 @@ TEXT_SUFFIXES = {
     ".sh",
     ".csv",
     ".html",
+    ".svg",  # website motifs (feature 016)
     "",
 }
 # Files that may name the website: the register itself and the specs that record the decisions.

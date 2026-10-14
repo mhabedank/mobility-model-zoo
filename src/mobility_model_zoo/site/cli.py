@@ -13,6 +13,10 @@ app = typer.Typer(
 
 OUT = typer.Option(Path("_site"), "--out", help="Output directory of the site.")
 
+from mobility_model_zoo.site.images_cli import app as images_app  # noqa: E402
+
+app.add_typer(images_app, name="images")
+
 
 def say(message: str) -> None:
     print(message, file=sys.stderr)

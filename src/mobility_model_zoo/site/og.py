@@ -129,6 +129,12 @@ def labels(sm: dict[str, Any]) -> list[str]:
     return out
 
 
+def _motif_of(reg: Any, name: str) -> str | None:
+    from mobility_model_zoo.site import motifs
+
+    return motifs.resolve(reg, name)
+
+
 def cards(
     reg: Any, site: dict[str, Any], models: list[dict[str, Any]], formats: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
@@ -154,7 +160,7 @@ def cards(
                 line,
                 labels=labels(sm),
                 eyebrow=topic["title"],
-                motif=sm["pitch"].get("motif"),
+                motif=_motif_of(reg, sm["name"]),
                 owner=sm["name"],
                 from_tagline=from_tagline,
             )

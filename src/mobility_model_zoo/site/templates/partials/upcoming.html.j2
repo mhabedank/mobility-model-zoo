@@ -5,7 +5,7 @@
 {% if upcoming %}
 <div class="mini-grid">
 {% for e in upcoming %}
-<a class="mini" href="roadmap/#{{ e.id }}"><span class="eyebrow">{{ e.topic_title }}</span><span class="mini-name">{{ e.name }}</span>{% if e.working_name %}<span class="cap">working name</span>{% endif %}<span class="mini-foot"><span class="chip">{{ e.horizon_label }}</span></span></a>
+<a class="mini" href="roadmap/#{{ e.id }}">{{ motif(e.motif, 40, plate=48) }}<span class="eyebrow">{{ e.topic_title }}</span><span class="mini-name">{{ e.name }}</span>{% if e.working_name %}<span class="cap">working name</span>{% endif %}<span class="mini-foot"><span class="chip">{{ e.horizon_label }}</span></span></a>
 {% endfor %}
 </div>
 {% else %}

@@ -66,6 +66,8 @@ AREAS: dict[str, Area] = {
     ),
     # The resource index (feature 009) imports the compliance signal checker and PII scan.
     "catalog": Area(("tests/catalog", "tests/compliance/test_signals.py")),
+    # Website imagery (feature 016): records under zoo/site/images, the generator and its tests.
+    "images": Area(("tests/website", "tests/imagery")),
     # Covered by the checks every pull request runs (ruff, guards, zoo validate, compliance).
     "docs": Area(()),
 }
@@ -121,6 +123,10 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "tests/website/*",
             "docs/quickstart.md",  # rendered at /quickstart/ (feature 013)
         ),
+    ),
+    (
+        "images",
+        ("zoo/site/images/*", "scripts/imagery/*", "tests/website/test_images_*", "tests/imagery/*"),
     ),
     ("registry", ("zoo/*",)),
     (
