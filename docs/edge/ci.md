@@ -4,11 +4,53 @@
 
 | Workflow | Runner | Content |
 |---|---|---|
-| `ci.yml` | GitHub-hosted | job `checks` on every pull request (ruff, repository-wide tests, `zoo validate`, compliance check); job `test`: the tests of the areas a pull request touches; job `edge-sim`: HIL suite against simulated boards; job `edge-qemu`: HIL suite on the ESP32 firmware in QEMU. `edge-sim` and `edge-qemu` run only when edge code, firmware or `hil/` change. Pushes to `main` run everything. The mapping from paths to tests is in `scripts/ci/select_tests.py` |
+| `ci.yml` | GitHub-hosted | job `checks` on every pull request (ruff, repository-wide tests, `zoo validate`, compliance check); job `test`: the tests of the areas a pull request touches; job `edge-sim`: HIL suite against simulated boards; job `edge-qemu`: HIL suite on the ESP32 firmware in QEMU. `edge-sim` and `edge-qemu` run only when a change can affect them (see [Which jobs a change runs](#which-jobs-a-change-runs)). Pull requests and pushes to `main` are selected; the weekly schedule and manual runs run everything |
 | `firmware.yml` | GitHub-hosted | firmware build for all targets with a size overview (on changes of `firmware/`, `hil/`, `src/mobility_model_zoo/edge/`) |
 | `hil.yml` | **self-hosted, label `hil`** | `uv run edge run --parallel --slow` on all connected boards, nightly and manually; runs only when the repository variable `HIL_RUNNER_ENABLED` is `true`, otherwise the job is skipped |
 
 These workflows are being added in feature 005.
+
+## Which jobs a change runs
+
+`scripts/ci/select_tests.py` decides in the job `changes` of `ci.yml` (features 005 and 017).
+The job `checks` always runs. For the other jobs:
+
+- **Pull requests** are selected from the merge commit against its base, **pushes to `main`**
+  from the previous main head against the new one, so a push with several commits is covered.
+- **The weekly run** (Monday 03:17 UTC) and **manual runs** (*Actions → ci → Run workflow*) run
+  everything: they catch what the selection rules miss.
+- Every changed file is assigned to the first matching rule; its area names the tests and whether
+  the firmware jobs `edge-sim` and `edge-qemu` run (edge code, `firmware/`, `hil/`, the install
+  size script). A file no rule matches runs everything; a new folder needs a rule (a test checks
+  this).
+- Three files are judged by their content at both revisions:
+  - `uv.lock`: any change runs all Python tests. The firmware jobs run only if the *firmware
+    install set* changes: every package `uv sync` installs for them (base dependencies, extras
+    `edge` and `edge-hw`, the group `dev`, without `torch`). A new website-only extra therefore
+    does not start them, while a version change of a shared package such as `numpy` does.
+  - `pyproject.toml`: per key. An extra or dependency group runs the area that uses it (for
+    example `images` and `site-check` the website tests, `edge` and `edge-hw` the firmware jobs).
+    Keys every job shares (base dependencies, `requires-python`, scripts, the `dev` group,
+    `build-system`, `tool.uv`, `tool.hatch`, `tool.pytest`) run everything; `tool.ruff` only the
+    checks.
+  - `ci.yml`: per job. A change to `edge-sim` or `edge-qemu` runs the firmware jobs, to `checks`
+    or `test` all Python tests, to `changes`, the triggers or the job list everything.
+- **Fail safe**: when a comparison is impossible (a file added or removed, content that does not
+  parse, a push whose previous head is unknown or unreachable, for example after a force push),
+  everything runs.
+- Changes to the selector itself (`scripts/ci/`) run no extra jobs: its tests
+  (`tests/unit/test_ci_select.py`) run in `checks` on every pull request. One of them checks that
+  the firmware install set in the selector equals the `uv sync` flags of the firmware jobs; change
+  both together.
+
+**Why did a job run?** The summary of the job `changes` starts with
+`Firmware jobs: run — <file>: <reason>` (for example `uv.lock: numpy 2.1.0 → 2.1.3 (firmware
+install set)` or `full run (schedule)`) or `Firmware jobs: not needed`, followed by one line per
+area with an example file and the rule that matched. Locally:
+`python3 scripts/ci/select_tests.py --diff origin/main HEAD` prints the same on stderr.
+
+**Weekly run switched off?** GitHub disables scheduled workflows of a public repository after 60
+days without repository activity. *Actions → ci → Enable workflow* switches it back on.
 
 ## Setting up the self-hosted runner on the HIL host
 
