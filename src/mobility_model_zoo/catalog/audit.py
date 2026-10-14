@@ -4,9 +4,10 @@ Two readers classify the licence evidence page of each sampled entry independent
 decision: a deterministic matcher over licence names, URLs and badges, and a local model of a
 different family than the discovery agent (DGX Spark, OpenAI-compatible endpoint at $OLLAMA_HOST).
 Single-page applications are read through the portal's machine-readable record of the same resource
-(`licence_text.readable_url`), and reader answers are mapped to catalog licence ids before they are
-compared. Page text is held in memory only. Results are reported as agreement, not accuracy
-(constitution III).
+(`licence_text.readable_url`), a DOI also through the licence its registry records (Crossref,
+DataCite), the model sees the passages around licence words, and reader answers are mapped to
+catalog licence ids before they are compared. Page text is held in memory only. Results are
+reported as agreement, not accuracy (constitution III).
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ import httpx
 
 from mobility_model_zoo.catalog import rules
 from mobility_model_zoo.catalog.checks import Throttle, make_client
-from mobility_model_zoo.catalog.licence_text import match_licence, normalise, readable_url, visible_text
+from mobility_model_zoo.catalog.licence_text import evidence_text, excerpt, match_licence, normalise
 from mobility_model_zoo.catalog.model import Catalog, licence_allowlist
 from mobility_model_zoo.catalog.validate import DedupeIndex
 
@@ -48,7 +49,7 @@ def local_model_reader(
             'or unknown>"}. '
             + (f"For these licences use the given id: {named}. " if named else "")
             + "Use unknown if the page states no licence.\n\nPAGE:\n"
-            + text[:TEXT_LIMIT]
+            + excerpt(text, TEXT_LIMIT)
         )
         resp = httpx.post(
             f"{base}/v1/chat/completions",
@@ -112,11 +113,7 @@ def run(
         for e in picked:
             row = {"id": e["id"], "stored": e["usage"]["permitted_use"], "status": e["status"]["value"]}
             evidence = e["licence"]["evidence_url"]
-            try:
-                page = client.get(readable_url(evidence))
-                text = visible_text(page.text) if page.status_code < 400 else ""
-            except httpx.HTTPError:
-                text = ""
+            text = evidence_text(evidence, client)
             matched = match_licence(text, evidence) if text else "unknown"
             row["matcher"] = {"licence": matched, "use": _use_for(e, matched, allowlist)}
             if reader is not None and text:

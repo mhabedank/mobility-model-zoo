@@ -8,8 +8,12 @@ resource, which states the licence the page shows. Page text is held in memory o
 
 from __future__ import annotations
 
+import json
 import re
-from urllib.parse import urlsplit
+from typing import Any
+from urllib.parse import unquote, urlsplit
+
+import httpx
 
 CC_URL = re.compile(r"creativecommons\.org/(licenses|publicdomain)/([a-z-]+)/(\d\.\d)", re.I)
 CC_TEXT = re.compile(r"\bCC[\s_-]?(BY(?:[\s_-](?:NC|SA|ND)){0,2})[\s_-]?(\d)[._](\d)\b", re.I)
@@ -93,3 +97,97 @@ def normalise(licence: str, known: set[str]) -> str:
 def conflicts(stored: str, read: str) -> bool:
     """The page reserves all rights although the entry carries an open licence."""
     return read == "LicenseRef-proprietary" and stored not in OPEN_IDS
+
+
+DOI_HOSTS = ("doi.org", "dx.doi.org")
+CROSSREF = "https://api.crossref.org/works/{doi}"
+DATACITE = "https://api.datacite.org/dois/{doi}"
+KEYWORDS = re.compile(
+    r"licen[cs]|lizenz|licencia|licença|creative ?commons|\bcc[ -]?by|\bcc0\b|public domain|rights|©"
+    r"|ライセンス|利用規約|许可|授权|라이선스|저작권",
+    re.I,
+)
+
+
+def doi_of(url: str) -> str | None:
+    parts = urlsplit(url)
+    if (parts.hostname or "").lower() in DOI_HOSTS and parts.path.startswith("/10."):
+        return unquote(parts.path[1:])
+    return None
+
+
+def registry_statement(doi: str, client: httpx.Client) -> str:
+    """The licence a DOI registry records for the work (Crossref, else DataCite); '' if none."""
+    try:
+        resp = client.get(CROSSREF.format(doi=doi))
+        if resp.status_code < 400:
+            urls = [x.get("URL", "") for x in (resp.json().get("message") or {}).get("license") or []]
+            if urls:
+                return "Crossref licence: " + " ".join(urls)
+        resp = client.get(DATACITE.format(doi=doi))
+        if resp.status_code < 400:
+            rights = ((resp.json().get("data") or {}).get("attributes") or {}).get("rightsList") or []
+            parts = [f"{r.get('rights', '')} {r.get('rightsUri', '')}" for r in rights]
+            if parts:
+                return "DataCite rights: " + " ".join(parts)
+    except (httpx.HTTPError, ValueError, AttributeError):
+        pass
+    return ""
+
+
+def _api_excerpt(host: str, data: dict[str, Any]) -> str:
+    """Title and licence fields of a portal API record, as compact text."""
+    if host == "zenodo.org":
+        meta = data.get("metadata") or {}
+        keep = {"title": meta.get("title"), "license": meta.get("license"), "rights": meta.get("rights")}
+    else:  # data.europa.eu
+        result = data.get("result") or {}
+        keep = {
+            "title": result.get("title"),
+            "licences": [d.get("license") for d in result.get("distributions") or []],
+            "rights": [d.get("rights") for d in result.get("distributions") or []],
+        }
+    return json.dumps(keep, ensure_ascii=False)
+
+
+def evidence_text(url: str, client: httpx.Client) -> str:
+    """The text a reader judges for an evidence address ('' if it cannot be read)."""
+    readable = readable_url(url)
+    try:
+        resp = client.get(readable)
+    except httpx.HTTPError:
+        resp = None
+    text = ""
+    if resp is not None and resp.status_code < 400:
+        if readable != url:
+            try:
+                text = _api_excerpt((urlsplit(url).hostname or "").lower(), resp.json())
+            except ValueError:
+                text = ""
+        else:
+            text = visible_text(resp.text)
+    doi = doi_of(url)
+    if doi:
+        text = " ".join(t for t in (registry_statement(doi, client), text) if t)
+    return text
+
+
+def excerpt(text: str, limit: int) -> str:
+    """At most `limit` characters: the start plus the passages around licence words."""
+    if len(text) <= limit:
+        return text
+    head = text[: limit // 4]
+    spans: list[tuple[int, int]] = []
+    for m in KEYWORDS.finditer(text, limit // 4):
+        start, end = max(m.start() - 200, limit // 4), m.end() + 200
+        if spans and start <= spans[-1][1]:
+            spans[-1] = (spans[-1][0], end)
+        else:
+            spans.append((start, end))
+    out = head
+    for start, end in spans:
+        piece = " … " + text[start:end]
+        if len(out) + len(piece) > limit:
+            break
+        out += piece
+    return out

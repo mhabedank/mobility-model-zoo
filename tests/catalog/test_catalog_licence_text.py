@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import httpx
 import pytest
 
 from mobility_model_zoo.catalog import licence_text as lt
@@ -63,3 +64,57 @@ def test_conflict_only_against_an_open_stored_licence():
     assert lt.conflicts("CC-BY-NC-4.0", "LicenseRef-proprietary")
     assert not lt.conflicts("LicenseRef-proprietary", "LicenseRef-proprietary")
     assert not lt.conflicts("CC-BY-4.0", "unknown")
+
+
+def _client(routes: dict[str, httpx.Response]) -> httpx.Client:
+    def handle(request: httpx.Request) -> httpx.Response:
+        key = f"{request.url.host}{request.url.path}"
+        return routes.get(key, httpx.Response(404))
+
+    return httpx.Client(transport=httpx.MockTransport(handle))
+
+
+def test_a_doi_is_read_with_the_licence_its_registry_records():
+    client = _client(
+        {
+            "doi.org/10.5281/zenodo.1": httpx.Response(200, text="<html>JS app</html>"),
+            "api.datacite.org/dois/10.5281/zenodo.1": httpx.Response(
+                200,
+                json={
+                    "data": {
+                        "attributes": {
+                            "rightsList": [
+                                {
+                                    "rights": "Creative Commons Attribution 4.0 International",
+                                    "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+                                }
+                            ]
+                        }
+                    }
+                },
+            ),
+        }
+    )
+    text = lt.evidence_text("https://doi.org/10.5281/zenodo.1", client)
+    assert text.startswith("DataCite rights:") and lt.match_licence(text) == "CC-BY-4.0"
+
+
+def test_a_zenodo_record_is_read_through_its_api_excerpt():
+    client = _client(
+        {
+            "zenodo.org/api/records/7": httpx.Response(
+                200,
+                json={
+                    "metadata": {"title": "T", "license": {"id": "cc-by-4.0"}, "description": "x" * 9000}
+                },
+            )
+        }
+    )
+    text = lt.evidence_text("https://zenodo.org/records/7", client)
+    assert "cc-by-4.0" in text and len(text) < 200 and lt.match_licence(text) == "CC-BY-4.0"
+
+
+def test_excerpt_keeps_the_licence_passage_of_a_long_page():
+    text = "intro " * 2000 + "This work is licensed under CC BY-SA 3.0." + " footer" * 500
+    short = lt.excerpt(text, 6000)
+    assert len(short) <= 6000 and "CC BY-SA 3.0" in short
