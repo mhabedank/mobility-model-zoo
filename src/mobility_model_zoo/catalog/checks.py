@@ -257,6 +257,8 @@ def network_checks(
                         "evidence_sha256": digest,
                         "licence_id": lic.get("id"),
                         "before": previous.get("evidence_sha256"),
+                        "reading": read,
+                        "reading_before": previous.get("reading"),
                     },
                 )
             )
@@ -326,7 +328,8 @@ def select(
 def _changed(entry: dict[str, Any], before: dict[str, Any]) -> list[str]:
     out = []
     k5 = _old(entry, "K5").get("previous") or {}
-    if k5.get("before") and k5.get("evidence_sha256") and k5["before"] != k5["evidence_sha256"]:
+    # the licence read from the page, not its bytes: dynamic pages change on every request (2026-10-14)
+    if k5.get("reading_before") and k5.get("reading") and k5["reading_before"] != k5["reading"]:
         out.append("evidence")
     if before.get("licence") != (entry.get("licence") or {}).get("id"):
         out.append("licence")

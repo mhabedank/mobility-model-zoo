@@ -221,3 +221,22 @@ def test_openalex_licence_confirmed_by_the_page_clears(catalog_dir):
     e = load(catalog_dir).entries["pl-stat-transport-tables"]
     assert _check(e, "K5")["result"] == "pass" and e["status"]["value"] == "cleared"
     assert "licence_unconfirmed" not in (e["status"].get("flags") or [])
+
+
+def test_dynamic_page_bytes_do_not_revoke_clearing(catalog_dir):
+    """Re-check 2026-10-14: 2,526 entries lost clearing because page bytes, not licences, changed."""
+    _run(load(catalog_dir), Web(licence_body="CC BY 4.0 · request 1"), ids=["pl-stat-transport-tables"])
+    _run(load(catalog_dir), Web(licence_body="CC BY 4.0 · request 2"), ids=["pl-stat-transport-tables"])
+    e = load(catalog_dir).entries["pl-stat-transport-tables"]
+    k5 = _check(e, "K5")["previous"]
+    assert k5["before"] != k5["evidence_sha256"] and k5["reading"] == k5["reading_before"] == "CC-BY-4.0"
+    assert e["status"]["value"] == "cleared" and "licence_changed" not in (
+        e["status"].get("flags") or []
+    )
+
+
+def test_a_changed_licence_reading_revokes_clearing(catalog_dir):
+    _run(load(catalog_dir), Web(licence_body="CC BY 4.0"), ids=["pl-stat-transport-tables"])
+    _run(load(catalog_dir), Web(licence_body="Now CC BY-NC 4.0"), ids=["pl-stat-transport-tables"])
+    e = load(catalog_dir).entries["pl-stat-transport-tables"]
+    assert e["status"]["value"] == "verified" and "licence_changed" in e["status"]["flags"]
