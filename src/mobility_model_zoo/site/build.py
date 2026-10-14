@@ -402,6 +402,9 @@ def build(
     topics = [t for t in reg.topics() if t["id"] != "sandbox"]
     hero_image = picture("start-hero", None, "", eager=True)
     topic_images = {t["id"]: picture(f"topic:{t['id']}", None, "") for t in topics}
+    model_images = {
+        sm["name"]: picture(f"model:{sm['name']}", sm["m"]["topic"], "") for sm in models if sm["name"] in rendered
+    }
     render(
         "index.html",
         "start.html.j2",
@@ -414,7 +417,8 @@ def build(
         upcoming=ahead["upcoming"],
         hero_image=hero_image,
         topic_images=topic_images,
-        page_images=[i for i in [hero_image, *topic_images.values()] if i],
+        model_images=model_images,
+        page_images=[i for i in [hero_image, *topic_images.values(), *model_images.values()] if i],
     )
     if records:
         render(

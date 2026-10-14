@@ -46,11 +46,6 @@
 <main id="main" tabindex="-1">
 {% block main %}{% endblock %}
 </main>
-{% if page_images %}
-<details class="credits wrap"><summary>Images on this page are AI-generated</summary>
-<ul>{% for im in page_images %}<li><a href="{{ root }}credits/#{{ im.id }}">{{ im.scene }}</a></li>{% endfor %}</ul>
-</details>
-{% endif %}
 <footer class="wrap">
 <div class="ft">
 <a class="brand" href="{{ root }}">{{ mark(24) }}<span>{{ site.title }}</span></a>
