@@ -18,7 +18,7 @@
 </div>
 <div class="row" data-budget="skip"><a class="btn" href="#quickstart">Quickstart</a><a class="btn btn-ghost" href="#limits">Limits</a><a class="btn btn-ghost" href="#details">Details</a><a class="btn btn-ghost" href="{{ p.hf }}">Model card</a></div>
 </div>
-<div class="hero-art">{% if p.stage %}<figure class="stage"><img data-image="{{ p.stage.id }}" src="{{ p.stage.src }}" srcset="{{ p.stage.srcset }}" sizes="(min-width: 860px) 40vw, 100vw" width="{{ p.stage.width }}" height="{{ p.stage.height }}" alt="{{ p.stage.alt }}" loading="lazy" decoding="async" style="object-position:{{ p.stage.position }}">{{ motif(p.motif, 0, plate="hero") }}</figure>{% else %}<div class="stage-alone">{{ motif(p.motif, 0, plate="hero") }}</div>{% endif %}</div>
+<div class="hero-art">{% if p.stage %}<figure class="stage"><img data-image="{{ p.stage.id }}" src="{{ p.stage.src }}" srcset="{{ p.stage.srcset }}" sizes="(min-width: 860px) 40vw, 100vw" width="{{ p.stage.width }}" height="{{ p.stage.height }}" alt="{{ p.stage.alt }}" loading="lazy" decoding="async" style="object-position:{{ p.stage.position }}">{{ motif(p.motif, 0, plate="badge") }}</figure>{% else %}<div class="stage-alone">{{ motif(p.motif, 0, plate="hero") }}</div>{% endif %}</div>
 </div>
 <div class="wrap overview-more">
 <h2 class="visually-hidden">Why use it</h2>

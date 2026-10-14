@@ -302,27 +302,44 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 .mini .plate { margin-bottom: 4px; }
 
 /* Image stages: text never sits on an image (FR-004); the only overlap is the plate (X1). */
-.hero-start { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
-.hero-stage { margin: 0; border-radius: 16px; overflow: hidden; background: var(--surface-2); }
-.hero-stage img, .topic-img img, .stage img { display: block; width: 100%; height: auto; object-fit: cover; }
+.scheme-dark { --bg: #0A0F2E; --surface: #111846; --surface-2: #19235C; --text: #EEF1FF; --muted: #A7B1DE;
+  --border: #2F3C86; --border-strong: #6F7DC4; --link: #A3B5FF; --link-hover: #D2DBFF; --focus: #6FFFC8;
+  --accent: #6FFFC8; --on-accent: #0A0F2E; --mark: #6FFFC8; color: var(--text); background: var(--bg); }
+/* The start hero: full-bleed, a navy text panel hard against the image, poster-like (research R9). */
+.hero-full { display: grid; grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); padding: 0;
+  min-height: min(72vh, 760px); }
+.hero-panel { display: flex; align-items: center; padding: 72px 48px 72px max(32px, calc((100vw - 1200px) / 2 + 32px)); }
+.hero-panel-in { max-width: 560px; }
+.hero-panel .h-display { font-size: clamp(36px, 4.2vw, 58px); }
+.hero-panel .lead { color: var(--muted); }
+.hero-full .hero-stage { margin: 0; border-radius: 0; background: var(--surface-2); min-height: 320px; }
+.hero-full .hero-stage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.topic-img img, .stage img, .tile-img img { display: block; width: 100%; height: auto; object-fit: cover; }
 .topic-img { margin: -20px -20px 12px; border-radius: 12px 12px 0 0; overflow: hidden; background: var(--surface-2); }
 .topic-img img { aspect-ratio: 3 / 2; }
+.tile-img { margin: -20px -20px 6px; border-radius: 12px 12px 0 0; overflow: hidden; background: var(--surface-2); }
+.tile-img img { aspect-ratio: 2 / 1; }
+.tile .tile-img + .tile-top { margin-top: 0; }
+.tile .plate-72 { margin-top: -46px; box-shadow: 0 0 0 4px var(--surface); }
 .topic-plates { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-.stage { position: relative; margin: 0; border-radius: 16px; overflow: visible; }
-.stage img { border-radius: 16px; aspect-ratio: 3 / 2; }
-.stage .plate-hero { position: absolute; left: -16px; bottom: -16px; }
+.hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.stage { position: relative; margin: 0; }
+.stage img { border-radius: 16px; aspect-ratio: 3 / 2; width: 100%; }
+.plate-badge { width: 112px; height: 112px; border-radius: 24px; position: absolute; left: 20px; bottom: 20px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .85); }
+.plate-badge svg { width: 78%; height: 78%; }
 .stage-alone { display: flex; justify-content: center; }
-.hero-in .plate-hero { justify-self: center; }
 @media (max-width: 860px) {
-  .hero-start { grid-template-columns: 1fr; }
-  .hero-start .hero-stage { order: -1; }
+  .hero-full { grid-template-columns: 1fr; min-height: 0; }
+  .hero-full .hero-stage { order: -1; min-height: 0; }
+  .hero-full .hero-stage img { aspect-ratio: 16 / 9; height: auto; }
+  .hero-panel { padding: 40px 16px 48px; }
   .hero-in { grid-template-columns: 1fr; }
-  .hero-in .hero-art { display: flex; justify-content: center; order: -1; }
-  .stage .plate-hero { left: 50%; transform: translateX(-50%); bottom: -40px; }
-  .stage { margin-bottom: 48px; }
+  .hero-in .hero-art { display: block; order: -1; }
+  .plate-badge { width: 88px; height: 88px; left: 14px; bottom: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-stage img, .topic-img img, .stage img { transition: none; transform: none; }
+  .hero-stage img, .topic-img img, .stage img, .tile-img img { transition: none; transform: none; }
 }
 .credits-page .credit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px 24px;
   padding: 16px 0; border-top: 1px solid var(--border); }
@@ -330,6 +347,4 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 .credits-page .credit img { width: 100%; height: auto; border-radius: 10px; }
 .credits-page dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; font-size: 15px; }
 .credits-page dt { color: var(--muted); }
-details.credits { margin: 32px auto 0; max-width: 1200px; }
-details.credits ul { padding: 10px 16px 14px 32px; margin: 0; font-size: 15px; }
 @media (max-width: 640px) { .credits-page .credit { grid-template-columns: 1fr; } }
