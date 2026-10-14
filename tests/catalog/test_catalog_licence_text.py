@@ -161,3 +161,17 @@ def test_dane_gov_pl_is_read_through_its_api():
     assert (
         lt.match_licence(lt.evidence_text("https://dane.gov.pl/pl/dataset/4167", client)) == "CC-BY-4.0"
     )
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("license: mit", "MIT"),
+        ("Apache License, Version 2.0", "Apache-2.0"),
+        ("Open Data Commons Open Database License (ODbL)", "ODbL-1.0"),
+        ("Open Data Commons Attribution License", "ODC-By-1.0"),
+    ],
+)
+def test_software_and_open_data_commons_licences(text, expected):
+    """Holdout audit (seed 13): a Hugging Face card under MIT and an ODbL page read as ODC-By."""
+    assert lt.match_licence(text) == expected

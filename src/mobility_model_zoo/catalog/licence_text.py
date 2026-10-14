@@ -23,8 +23,14 @@ PATTERNS = [
     (re.compile(r"licence ouverte|etalab", re.I), "etalab-2.0"),
     (re.compile(r"open government licence", re.I), "LicenseRef-OGL-UK-3.0"),
     (re.compile(r"datenlizenz deutschland.{0,20}namensnennung", re.I), "DL-DE-BY-2.0"),
-    (re.compile(r"open data commons attribution|odc-by", re.I), "ODC-By-1.0"),
+    # ODbL pages also name Open Data Commons; read ODbL first
     (re.compile(r"\bODbL\b|open database license", re.I), "ODbL-1.0"),
+    (re.compile(r"open data commons attribution|\bodc-by\b", re.I), "ODC-By-1.0"),
+    (re.compile(r"\bMIT License\b|\blicen[cs]e:\s*mit\b", re.I), "MIT"),
+    (
+        re.compile(r"Apache License,? (?:Version )?2\.0|\blicen[cs]e:\s*apache-2\.0\b", re.I),
+        "Apache-2.0",
+    ),
     (re.compile(r"公共データ利用規約|public data license", re.I), "LicenseRef-Japan-PDL-1.0"),
     (
         re.compile(r"政府標準利用規約|government standard terms of use", re.I),
