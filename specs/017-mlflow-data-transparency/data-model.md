@@ -15,6 +15,7 @@ One row of the overview (FR-001, FR-002). It is one version of one dataset, sour
 | `id` | string | register `id`, benchmark family, training set name | e.g. `can-train-and-test`, `can-ids`, `span-train` |
 | `version` | string | benchmark folder (`can-ids-v3`), freeze file (`span-train-v1`), `SOURCE.json` `retrieved_at` date for datasets | A dataset's version is its retrieval date. A dataset that is not downloaded on this machine has version `register`. |
 | `status` | enum `active`, `rejected`, `broken_at_source`, `frozen`, `decided`, `building` | register `status`, manifest `state` | |
+| `source` | repository path | collector | the register, manifest or configuration the row was read from; the `source` of the dataset input in the tracking store |
 | `licence` | string or null | register `licence`, manifest `datasets[].licence` | |
 | `permitted_use` | enum `training_allowed`, `benchmark_only`, null | register | Benchmarks inherit the strictest permitted use of their datasets. |
 | `redistribution` | string or null | register | |
@@ -60,7 +61,7 @@ One row of the overview (FR-001, FR-002). It is one version of one dataset, sour
 
 ### Integrity
 
-- **Always checked**: every `based_on.manifest_sha256` equals the parent's current hash. A frozen manifest has no commits after the one that froze it, except the revisions it records itself.
+- **Always checked**: every `based_on.manifest_sha256` equals the parent's current hash. After a manifest is frozen, later commits may change only lifecycle keys (`state`, `pilot_state`, `events`, `history`, `reruns`, `retention_review_by`, `revisions`), and `hashes` only together with a new `revisions[]` entry. A new freeze (a new `frozen_at`, a new label freeze, or an event the task logs in state `frozen`) starts a new baseline. Skipped in a shallow clone.
 - **With `--verify` and data present**: the existing content verifiers run (jtbd `verify_frozen`, cluster `bench.verify`, can-ids `verify_captures`).
 
 ## HistoryEvent

@@ -42,7 +42,7 @@ zoo data history ID [--json]
 ```
 
 - **Output**: [HistoryEvent](../data-model.md#historyevent) rows, oldest first, then the lineage chain.
-- **Outside git or in a shallow clone**: prints "history unavailable (shallow clone)" and exits 0.
+- **Outside git or in a shallow clone**: prints the history it can see, followed by "history incomplete (shallow clone or no git)", and exits 0. The freeze check of `zoo data stats` is skipped there with a note on each benchmark.
 
 ## `zoo data diff A B`
 

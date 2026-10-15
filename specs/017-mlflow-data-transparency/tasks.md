@@ -31,17 +31,17 @@ Single project:
 
 **Purpose**: extra, configuration keys, CI wiring and package skeletons.
 
-- [ ] T001 Add the optional extra `tracking = ["mlflow-skinny>=3.17.1,<4", "numpy>=1.26", "python-dotenv>=1.0", "psutil>=7", "nvidia-ml-py>=12"]` to `pyproject.toml` (after `labeling-api`, with a comment "experiment tracking client, feature 017; server runs on the Spark"), then run `uv lock` and commit `uv.lock`.
-- [ ] T002 [P] Add `tracking` to `TRAINING_EXTRAS` in `tests/unit/test_dependency_layout.py` and assert that `tracking` does not include `mobility-model-zoo[text]` and that the base dependencies stay `{"huggingface-hub", "numpy"}`.
-- [ ] T003 [P] Add three keys to `.env.example`:
+- [X] T001 Add the optional extra `tracking = ["mlflow-skinny>=3.17.1,<4", "numpy>=1.26", "python-dotenv>=1.0", "psutil>=7", "nvidia-ml-py>=12"]` to `pyproject.toml` (after `labeling-api`, with a comment "experiment tracking client, feature 017; server runs on the Spark"), then run `uv lock` and commit `uv.lock`.
+- [X] T002 [P] Add `tracking` to `TRAINING_EXTRAS` in `tests/unit/test_dependency_layout.py` and assert that `tracking` does not include `mobility-model-zoo[text]` and that the base dependencies stay `{"huggingface-hub", "numpy"}`.
+- [X] T003 [P] Add three keys to `.env.example`:
   - `SPARK_HOST=`
   - `MLFLOW_TRACKING_URI=`, commented "http://127.0.0.1:5000 through `scripts/spark/mlflow/mlflow.sh tunnel`; leave empty to disable tracking"
   - `MLFLOW_TRACKING_URI_CONTAINER=`, commented "address for training containers on the Spark's `mmz-tracking` network, usually http://mlflow:5000"
 
   Add all three to the "Other local settings in `.env` (not used by CI)" paragraph of `docs/credentials.md`.
-- [ ] T004 [P] Create the package skeletons `src/mobility_model_zoo/datasets/inventory/__init__.py` and `src/mobility_model_zoo/tracking/__init__.py`, each with an SPDX header and module docstring, and empty test packages `tests/tracking/__init__.py`.
-- [ ] T005 [P] Add rules to `scripts/ci/select_tests.py` mapping `src/mobility_model_zoo/datasets/inventory/**` to the `datasets` area, `src/mobility_model_zoo/tracking/**` and `tests/tracking/**` to a new `tracking` area (`tests/tracking`), and `scripts/spark/mlflow/**` and `docs/tracking.md` to `docs`. Keep `tests/unit/test_ci_select.py` green.
-- [ ] T006 [P] Add `--extra tracking` to both `uv sync` lines of the `test` job in `.github/workflows/ci.yml`. Leave the `checks`, `edge-sim` and `qemu` jobs unchanged so the install size check is unaffected.
+- [X] T004 [P] Create the package skeletons `src/mobility_model_zoo/datasets/inventory/__init__.py` and `src/mobility_model_zoo/tracking/__init__.py`, each with an SPDX header and module docstring, and empty test packages `tests/tracking/__init__.py`.
+- [X] T005 [P] Add rules to `scripts/ci/select_tests.py` (done: `datasets/inventory` is already covered by the existing `datasets/*` rule of area `all`, which runs every test; new rules map `tracking` and `tests/fixtures/inventory`) mapping `src/mobility_model_zoo/datasets/inventory/**` to the `datasets` area, `src/mobility_model_zoo/tracking/**` and `tests/tracking/**` to a new `tracking` area (`tests/tracking`), and `scripts/spark/mlflow/**` and `docs/tracking.md` to `docs`. Keep `tests/unit/test_ci_select.py` green.
+- [X] T006 [P] Add `--extra tracking` to both `uv sync` lines of the `test` job in `.github/workflows/ci.yml`. Leave the `checks`, `edge-sim` and `qemu` jobs unchanged so the install size check is unaffected.
 
 ---
 
@@ -51,7 +51,7 @@ Single project:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T007 Create the dataclasses `InventoryRow`, `HistoryEvent` and `VersionDiff` in `src/mobility_model_zoo/datasets/inventory/rows.py`, exactly as in [data-model.md](data-model.md).
+- [X] T007 Create the dataclasses `InventoryRow`, `HistoryEvent` and `VersionDiff` in `src/mobility_model_zoo/datasets/inventory/rows.py`, exactly as in [data-model.md](data-model.md).
   - **`InventoryRow` field values**:
     - `kind` ∈ {`dataset`, `source-collection`, `training-set`, `benchmark`}
     - `status` ∈ {`active`, `rejected`, `broken_at_source`, `frozen`, `decided`, `building`}
@@ -61,14 +61,14 @@ Single project:
   - **Validation**: "`(kind, id, version)` is unique"; "`sha256` is null only when `availability` is `register-only` and the hash needs data"; "`counts` values are ≥ 0".
   - **`HistoryEvent.event`** ∈ {`registered`, `field-changed`, `frozen`, `superseded`, `revised`, `excluded`, `retrieved`}.
   - Provide `to_dict()` for JSON output.
-- [ ] T008 Create `src/mobility_model_zoo/datasets/inventory/hashes.py` following the "Hashes" table of data-model.md:
+- [X] T008 Create `src/mobility_model_zoo/datasets/inventory/hashes.py` following the "Hashes" table of data-model.md:
   - `dataset_hash(source_json)`: sha256 over sorted `name:sha256` lines of `SOURCE.json` `files[]`, using `name:checksum` for zip-member entries.
   - `manifest_hash(manifest)`: `sha256(json.dumps(manifest, sort_keys=True).encode())`, the formula used by `security/can_ids/evaluate.py:234`. Import and share it rather than duplicating it if a helper already exists there.
   - `source_collection_hash(path)`: reuse `productdev/jtbd/freeze.sha256_canonical`.
   - `training_set_hash(frozen)`: returns `frozen["sha256"]`.
 
   Note that `productdev.jtbd.freeze` lives behind the `jtbd` extra: import it lazily, and fall back to an inline canonical hash if the import fails.
-- [ ] T009 [P] Add unit tests `tests/datasets/test_inventory_rows.py` for T007 (enum and uniqueness validation, `to_dict`) and T008 (each hash against a hand-computed value; `manifest_hash` equals the `based_on.manifest_sha256` recorded in `topics/security/benchmarks/can-ids-v2/manifest.json` for `can-ids-v1`).
+- [X] T009 [P] Add unit tests `tests/datasets/test_inventory_rows.py` for T007 (enum and uniqueness validation, `to_dict`) and T008 (each hash against a hand-computed value; `manifest_hash` equals the `based_on.manifest_sha256` recorded in `topics/security/benchmarks/can-ids-v2/manifest.json` for `can-ids-v1`).
 
 **Checkpoint**: entities and hashes are tested. US1 and US2 can start; US3 can start in parallel on the tracking core.
 
@@ -82,7 +82,7 @@ Single project:
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement the third-party dataset collector in `src/mobility_model_zoo/datasets/inventory/third_party.py`.
+- [X] T010 [P] [US1] Implement the third-party dataset collector in `src/mobility_model_zoo/datasets/inventory/third_party.py`.
   - **Records**: read them through `datasets.registry.declarations(root)` and `to_source()`; raw YAML is also needed for `last_reviewed` and `storage`.
   - **When `$MMZ_DATA/<id>/SOURCE.json` exists** (resolve via `datasets.download.dataset_dir`):
     - set `version` to the `retrieved_at` date
@@ -92,13 +92,13 @@ Single project:
   - **Otherwise**: `version="register"`, `availability="register-only"`, `sha256=None`, `approx_size_mb` from the register, and the note "not downloaded here".
   - **Status**: rows with status `rejected` or `broken_at_source` are produced too. `collect()` filters them unless `include_rejected` is set, and always counts them.
   - Never open data files other than `SOURCE.json`; only `stat()` them (FR-008).
-- [ ] T011 [P] [US1] Implement the source collection collector for `topics/productdev/compliance/sources.yaml` in `src/mobility_model_zoo/datasets/inventory/sources.py`.
+- [X] T011 [P] [US1] Implement the source collection collector for `topics/productdev/compliance/sources.yaml` in `src/mobility_model_zoo/datasets/inventory/sources.py`.
   - **Rows**: one row `kind=source-collection`, `id=productdev-sources`.
   - **Counts**: `counts.sources`.
   - **Distributions**: `source_class`, `licence` and `permitted_use`.
   - **Snapshots**: `snapshots` count and `size_mb` from the configured snapshot directory when it exists. Take it from `configs/productdev/jtbd/pilot-v1.yaml` `paths`, or the `storage:` value `data/snapshots`.
   - **Hash**: `source_collection_hash`.
-- [ ] T012 [P] [US1] Implement the benchmark readers in `src/mobility_model_zoo/datasets/inventory/benchmarks.py`, one per manifest shape, chosen by keys:
+- [X] T012 [P] [US1] Implement the benchmark readers in `src/mobility_model_zoo/datasets/inventory/benchmarks.py`, one per manifest shape, chosen by keys:
   - **jtbd pilot** (`chunks` + `holdout_chunks`):
     - counts `chunks`, `holdout_chunks`, `train_chunks`
     - lineage `supersedes`
@@ -114,39 +114,39 @@ Single project:
   - **For every benchmark**: `status` from `state`, or `frozen` when `frozen_at` is set. `id` is the family (`pilot`, `cluster`, `can-ids`); `version` is the folder name.
   - **Discovery**: scan `topics/*/benchmarks/*/manifest.json`.
   - **No benchmarks yet**: a topic without a benchmarks folder adds a footer note instead of rows. Today that is condition-monitoring.
-- [ ] T013 [P] [US1] Implement the training set collector for `span-train` in `src/mobility_model_zoo/datasets/inventory/training_sets.py`.
+- [X] T013 [P] [US1] Implement the training set collector for `span-train` in `src/mobility_model_zoo/datasets/inventory/training_sets.py`.
   - **Location**: resolve `paths.data` from `configs/productdev/jtbd/span-train-v1.yaml`.
   - **`frozen.json`**: `chunk_count`, `sha256`, `frozen_at`.
   - **`rows/rows.stats.json`**: `rows`, `rows_per_split.train` and `.val` → `rows_train` and `rows_val`, `relevant_rows`, `items_kept`, `items_dropped`, and distributions `language`, `source_type`, `sub_area` from `composition`.
   - **Missing data**: if the files are absent, emit `availability="register-only"` with the note "training set not on this machine".
   - **Lineage**: `built_from` → `productdev-sources`.
-- [ ] T014 [P] [US1] Implement `used_by` resolution in `src/mobility_model_zoo/datasets/inventory/used_by.py`:
+- [X] T014 [P] [US1] Implement `used_by` resolution in `src/mobility_model_zoo/datasets/inventory/used_by.py`:
   - **Datasets**: register `used_by`.
   - **Benchmarks**: every `zoo/models/*/releases/*.yaml` whose `evaluation.benchmark` equals the version, as `<model>@<version>`.
   - **span-train**: release records whose `recipe.config` or provenance names `span-train-v1`.
-- [ ] T015 [US1] Implement `collect(root, data_root=None, kinds=None, topics=None, use=None, include_rejected=False)` in `src/mobility_model_zoo/datasets/inventory/__init__.py`.
+- [X] T015 [US1] Implement `collect(root, data_root=None, kinds=None, topics=None, use=None, include_rejected=False)` in `src/mobility_model_zoo/datasets/inventory/__init__.py`.
   - **Steps**: call T010 to T014; set `last_change` with one `git log -1 --format=%cs -- <path>` per source file, cached. When git is unavailable or the clone is shallow, set null.
   - **Errors**: catch per-row errors into `availability="error"` with a short note, so one bad manifest never stops the overview.
   - **Order**: sort rows by topic, kind, id, version.
-- [ ] T016 [US1] Implement the table and JSON output in `src/mobility_model_zoo/datasets/inventory/render.py`:
+- [X] T016 [US1] Implement the table and JSON output in `src/mobility_model_zoo/datasets/inventory/render.py`:
   - **Default columns**: `topic kind id version status use size files main-count frozen last-change integrity`.
   - **`--wide`**: adds licence, redistribution, sha256 (12 characters), lineage and used-by.
   - **Footer**: totals per kind and topic, the total measured size, the hidden rejected count, and notes (for example "condition-monitoring: no benchmarks frozen yet").
   - **JSON**: `--json` prints `[row.to_dict()]`.
-- [ ] T017 [US1] Add the `stats` command to `src/mobility_model_zoo/datasets/cli.py`, matching the contract:
+- [X] T017 [US1] Add the `stats` command to `src/mobility_model_zoo/datasets/cli.py`, matching the contract:
   - options `--topic`, `--kind`, `--use`, `--include-rejected`, `--verify`, `--json`, `--wide` (multi-value where the contract shows `...`);
   - exit 0, or 7 when any row has integrity `mismatch` or `changed-after-freeze` (integrity arrives in US2; until then rows say `unchecked`).
 
   Use the existing `_run` error wrapper.
-- [ ] T018 [P] [US1] Add fixtures under `tests/fixtures/inventory/`: a mini repo tree with a `datasets.yaml` (one active, one rejected dataset), a jtbd pilot manifest, a cluster manifest and two can-ids manifests (v1 and v2 with `based_on`), a `sources.yaml`, a fake `$MMZ_DATA/<id>/SOURCE.json` with two files, and a `span-train` `frozen.json` + `rows.stats.json`. Keep every file small; no real data.
-- [ ] T019 [P] [US1] Write tests in `tests/datasets/test_inventory_collect.py`:
+- [X] T018 [P] [US1] Add fixtures under `tests/fixtures/inventory/`: a mini repo tree with a `datasets.yaml` (one active, one rejected dataset), a jtbd pilot manifest, a cluster manifest and two can-ids manifests (v1 and v2 with `based_on`), a `sources.yaml`, a fake `$MMZ_DATA/<id>/SOURCE.json` with two files, and a `span-train` `frozen.json` + `rows.stats.json`. Keep every file small; no real data.
+- [X] T019 [P] [US1] Write tests in `tests/datasets/test_inventory_collect.py`:
   - every reader's counts and distributions on the fixtures;
   - register-only vs measured rows (`MMZ_DATA` set to the fixture or to an empty directory);
   - the strictest permitted use for benchmarks;
   - `used_by` from a fixture release record;
   - an error row from a malformed manifest leaves the other rows intact;
   - the same dataset id in two topic registers yields one error row for that id, not two silent rows (spec edge case).
-- [ ] T020 [US1] Write CLI tests in `tests/datasets/test_inventory_cli.py` with `CliRunner` on the `zoo` app (`["data", "stats", ...]`):
+- [X] T020 [US1] Write CLI tests in `tests/datasets/test_inventory_cli.py` with `CliRunner` on the `zoo` app (`["data", "stats", ...]`):
   - table and `--json` output;
   - filters by topic, kind and use;
   - `--include-rejected`;
@@ -168,7 +168,7 @@ Single project:
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement git history in `src/mobility_model_zoo/datasets/inventory/history.py`, using the pattern of `site/roadmap.py:_history` (`git log --format='%H %cs' --reverse -- <file>` plus `git show <sha>:<file>`, `functools.cache`).
+- [X] T021 [P] [US2] Implement git history in `src/mobility_model_zoo/datasets/inventory/history.py`, using the pattern of `site/roadmap.py:_history` (`git log --format='%H %cs' --reverse -- <file>` plus `git show <sha>:<file>`, `functools.cache`).
   - **Register files** (`topics/*/compliance/datasets.yaml`, `sources.yaml`):
     - parse each historic version;
     - emit `registered` when an id first appears;
@@ -179,7 +179,7 @@ Single project:
     - map the manifest's own `history[]`, `events[]` and `revisions[]` to `revised` and `excluded` events with `commit=null`.
   - **Datasets**: emit `retrieved` from `SOURCE.json` `retrieved_at` when present.
   - **Shallow clone or no git**: return `[]` with a flag that renders "history unavailable (shallow clone)".
-- [ ] T022 [P] [US2] Implement `src/mobility_model_zoo/datasets/inventory/integrity.py`:
+- [X] T022 [P] [US2] Implement `src/mobility_model_zoo/datasets/inventory/integrity.py`:
   1. Every `based_on.manifest_sha256` must equal `manifest_hash` of the parent's current manifest; otherwise mark the child `mismatch`.
   2. A frozen manifest whose path has commits after the freezing commit, other than those covered by its own `revisions[]`, is marked `changed-after-freeze`.
   3. With `verify=True` and data present, call the existing verifiers and map failures to `mismatch`:
@@ -190,27 +190,27 @@ Single project:
      Import them lazily, because they need the `jtbd` or `edge` extras; if the import fails, leave the row `unchecked` with a note.
 
   Rows that are not checked stay `unchecked`; rows that pass get `ok`.
-- [ ] T023 [P] [US2] Implement `diff(a_row, b_row, members=False)` in `src/mobility_model_zoo/datasets/inventory/diff.py`, returning a `VersionDiff`:
+- [X] T023 [P] [US2] Implement `diff(a_row, b_row, members=False)` in `src/mobility_model_zoo/datasets/inventory/diff.py`, returning a `VersionDiff`:
   - **Counts and distributions**: per-dimension `{a, b, delta}`.
   - **Members**: added, removed and changed member ids with hashes — capture `id` and `sha256` for can-ids, chunk ids and hashes for pilots, record ids for registers. Never content.
   - **Protocol**: changed keys of `protocol` or `hashes` blocks.
   - **Kind mismatch**: raise a usage error when kinds or families differ.
-- [ ] T024 [US2] Wire integrity into `collect()` (T015). Add the `history ID` and `diff A B [--members]` commands and `--verify` to `src/mobility_model_zoo/datasets/cli.py`:
+- [X] T024 [US2] Wire integrity into `collect()` (T015). Add the `history ID` and `diff A B [--members]` commands and `--verify` to `src/mobility_model_zoo/datasets/cli.py`:
   - `history` accepts a dataset id, a family (`can-ids`, `pilot`, `cluster`, `span-train`) or one version (`can-ids-v2`) and prints events oldest first, then the lineage chain;
   - `diff` exits 2 on a kind or family mismatch;
   - `stats` exits 7 on `mismatch` or `changed-after-freeze`.
-- [ ] T025 [P] [US2] Write `tests/datasets/test_history_diff.py` on a temporary git repository built in the test (`git init`, commit the T018 fixtures, edit `permitted_use` in a second commit, add can-ids v2 in a third). Assert:
+- [X] T025 [P] [US2] Write `tests/datasets/test_history_diff.py` on a temporary git repository built in the test (`git init`, commit the T018 fixtures, edit `permitted_use` in a second commit, add can-ids v2 in a third). Assert:
   - the `registered` and `field-changed` events with old and new values;
   - the `frozen` and `superseded` events;
   - the diff counts and members;
   - "history unavailable" for a shallow clone (`git clone --depth 1`).
-- [ ] T026 [P] [US2] Write `tests/datasets/test_integrity.py`:
+- [X] T026 [P] [US2] Write `tests/datasets/test_integrity.py`:
   - a `based_on` hash mismatch after editing the parent manifest;
   - `changed-after-freeze` after a later commit to a frozen manifest;
   - no false positive for a cluster manifest whose later change is recorded in `revisions[]`;
   - `unchecked` when the verifier import fails;
   - the CLI exit code 7.
-- [ ] T027 [US2] Run `uv run zoo data stats` and `uv run zoo data history can-ids` on the real repository and fix any finding. Any real integrity finding in the committed benchmarks is reported to the owner, not "fixed" by editing a frozen manifest (constitution IX). Also update the stale table in `topics/security/benchmarks/README.md` to list `can-ids-v2` and `can-ids-v3` with their freeze dates and `based_on`.
+- [X] T027 [US2] Run `uv run zoo data stats` and `uv run zoo data history can-ids` on the real repository and fix any finding. Any real integrity finding in the committed benchmarks is reported to the owner, not "fixed" by editing a frozen manifest (constitution IX). Also update the stale table in `topics/security/benchmarks/README.md` to list `can-ids-v2` and `can-ids-v3` with their freeze dates and `based_on`.
 
 **Checkpoint**: US1 and US2 together are the P1 MVP: the full data overview with history, needing no server.
 

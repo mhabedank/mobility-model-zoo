@@ -1,0 +1,78 @@
+{
+  "based_on": {
+    "benchmark": "cap-v1",
+    "manifest_sha256": "5d046fa1bdf31dc274e63f0b592f71b4f7c17ee263f45a715aef56ed1efd4830"
+  },
+  "benchmark": "cap-v2",
+  "captures": [
+    {
+      "attack_family": "DoS",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/1",
+      "role": "train",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+      "split": "test_01",
+      "vehicle": "car-a"
+    },
+    {
+      "attack_family": "fuzzing",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "excluded_reason": "duplicate",
+      "frames": 100,
+      "id": "ds-a/set_01/2",
+      "role": "excluded",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000002",
+      "split": "test_01",
+      "vehicle": "car-a"
+    },
+    {
+      "attack_family": "DoS",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/3",
+      "role": "test",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000003",
+      "split": "test_01",
+      "vehicle": "car-b"
+    },
+    {
+      "attack_family": "none",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/4",
+      "role": "test",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000004",
+      "split": "test_01",
+      "vehicle": "car-a"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ds-a",
+      "licence": "CC-BY-4.0",
+      "retrieved_at": "2026-10-01T10:00:00Z"
+    }
+  ],
+  "frozen_at": "2026-10-04",
+  "protocol": {
+    "grace_s": 2.0,
+    "seed": 1
+  }
+}

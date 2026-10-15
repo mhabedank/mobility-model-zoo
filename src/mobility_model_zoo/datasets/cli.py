@@ -178,3 +178,115 @@ def validate_cmd() -> None:
         say("datasets: ok")
 
     _run(fn)
+
+
+# ---- data overview (feature 017, specs/017-mlflow-data-transparency/contracts/cli.md) ----------
+
+
+@app.command("stats")
+def stats_cmd(
+    topic: list[str] = typer.Option(None, "--topic", help="only these topics"),
+    kind: list[str] = typer.Option(
+        None, "--kind", help="dataset, source-collection, training-set or benchmark"
+    ),
+    use: str | None = typer.Option(None, "--use", help="training_allowed or benchmark_only"),
+    include_rejected: bool = typer.Option(False, "--include-rejected", help="list rejected datasets"),
+    verify: bool = typer.Option(False, "--verify", help="also re-hash benchmark data where present"),
+    as_json: bool = typer.Option(False, "--json", help="rows as JSON"),
+    wide: bool = typer.Option(False, "--wide", help="licence, hash, lineage and users too"),
+) -> None:
+    """Every dataset, training set and benchmark version: size, counts, use, freeze date, changes.
+
+    Exit 7 when a frozen benchmark changed (constitution IX)."""
+
+    def fn() -> None:
+        from mobility_model_zoo.datasets.inventory import IntegrityFailed, collect
+        from mobility_model_zoo.datasets.inventory.render import stats_table
+
+        inv = collect(
+            kinds=kind or None,
+            topics=topic or None,
+            use=use,
+            include_rejected=include_rejected,
+            verify=verify,
+        )
+        if as_json:
+            print(json.dumps([r.to_dict() for r in inv.rows], indent=2, ensure_ascii=False))
+        else:
+            print(stats_table(inv.rows, inv.hidden, inv.notes, wide=wide))
+        if inv.failed:
+            raise IntegrityFailed(
+                "frozen benchmark changed: " + ", ".join(r.name for r in inv.failed)
+            )
+
+    _run(fn)
+
+
+@app.command("history")
+def history_cmd(
+    ref: str = typer.Argument(..., help="dataset id, family (can-ids), or version (can-ids-v2)"),
+    as_json: bool = typer.Option(False, "--json"),
+) -> None:
+    """Registration, register changes, freezes and lineage of a dataset or benchmark family."""
+
+    def fn() -> None:
+        from mobility_model_zoo.datasets.inventory import collect, find, history
+        from mobility_model_zoo.datasets.inventory.render import history_table
+        from mobility_model_zoo.edge.paths import repo_root
+
+        root = repo_root()
+        inv = collect(include_rejected=True, integrity=False)
+        rows = find(inv, ref)
+        if not rows:
+            raise UsageError(f"unknown dataset, training set or benchmark: {ref}")
+        events = []
+        for row in rows:
+            subject = f"{row.kind}:{row.name}"
+            if row.kind == "dataset" and history.in_git(root):
+                events += history.register_events(root, row.source, "datasets", subject, row.id)
+                if row.version != "register":
+                    events.append(history.HistoryEvent(row.version, None, subject, "retrieved"))
+            elif row.kind == "source-collection" and history.in_git(root):
+                for sha, date in history.file_log(root, row.source):
+                    events.append(history.HistoryEvent(date, sha, subject, "revised"))
+            elif row.kind == "benchmark":
+                events += history.manifest_events(root, row)
+            elif row.kind == "training-set" and row.frozen_at:
+                events.append(history.HistoryEvent(row.frozen_at, None, subject, "frozen"))
+        events.sort(key=lambda e: (e.date or "", e.subject))
+        lineage = [r.name for r in sorted(rows, key=lambda r: r.version)] if len(rows) > 1 else []
+        if as_json:
+            print(json.dumps([e.to_dict() for e in events], indent=2, ensure_ascii=False, default=str))
+        else:
+            incomplete = not history.in_git(root) or history.is_shallow(root)
+            print(history_table(events, lineage, incomplete))
+
+    _run(fn)
+
+
+@app.command("diff")
+def diff_cmd(
+    a: str = typer.Argument(..., help="first version, e.g. can-ids-v2"),
+    b: str = typer.Argument(..., help="second version, e.g. can-ids-v3"),
+    members: bool = typer.Option(False, "--members", help="list added, removed and changed members"),
+    as_json: bool = typer.Option(False, "--json"),
+) -> None:
+    """What changed between two versions of a training set or benchmark: counts, members, settings."""
+
+    def fn() -> None:
+        from mobility_model_zoo.datasets.inventory import collect, find
+        from mobility_model_zoo.datasets.inventory.diff import diff
+        from mobility_model_zoo.datasets.inventory.render import diff_table
+        from mobility_model_zoo.edge.paths import repo_root
+
+        inv = collect(include_rejected=True, integrity=False)
+        pair = []
+        for ref in (a, b):
+            found = find(inv, ref)
+            if len(found) != 1:
+                raise UsageError(f"{ref}: name exactly one version ({len(found)} match)")
+            pair.append(found[0])
+        d = diff(repo_root(), pair[0], pair[1], members=members)
+        print(json.dumps(d.to_dict(), indent=2, ensure_ascii=False) if as_json else diff_table(d))
+
+    _run(fn)

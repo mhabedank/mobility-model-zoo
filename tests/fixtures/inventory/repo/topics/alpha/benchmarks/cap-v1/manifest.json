@@ -1,0 +1,73 @@
+{
+  "benchmark": "cap-v1",
+  "captures": [
+    {
+      "attack_family": "DoS",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/1",
+      "role": "train",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+      "split": "test_01",
+      "vehicle": "car-a"
+    },
+    {
+      "attack_family": "fuzzing",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/2",
+      "role": "train",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000002",
+      "split": "test_01",
+      "vehicle": "car-a"
+    },
+    {
+      "attack_family": "DoS",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/3",
+      "role": "test",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000003",
+      "split": "test_01",
+      "vehicle": "car-b"
+    },
+    {
+      "attack_family": "none",
+      "attack_frames": 10,
+      "dataset": "ds-a",
+      "duration_s": 10.0,
+      "episodes": 1,
+      "frames": 100,
+      "id": "ds-a/set_01/4",
+      "role": "test",
+      "set": "set_01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000004",
+      "split": "test_01",
+      "vehicle": "car-a"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ds-a",
+      "licence": "CC-BY-4.0",
+      "retrieved_at": "2026-10-01T10:00:00Z"
+    }
+  ],
+  "frozen_at": "2026-10-03",
+  "protocol": {
+    "grace_s": 1.0,
+    "seed": 1
+  }
+}
