@@ -330,7 +330,7 @@ Single project:
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Integrate tracking into `span/train.py:train_candidate` (`src/mobility_model_zoo/productdev/jtbd/span/train.py`).
+- [X] T040 [US4] Integrate tracking into `span/train.py:train_candidate` (done: `train_candidate(on_epoch=…)`, the run lives in `span/commands.py:train_command`; the run id goes into the sidecar `<model dir>.tracking.json` next to the model directory, not into `span_config.json`, because the directory is staged and published as it is) (`src/mobility_model_zoo/productdev/jtbd/span/train.py`).
   - **Run**: wrap the training in `tracking.run(experiment="productdev/jtbd-span", name=<candidate name>, task="jtbd-span", config_path=<recipe path>, inputs=[data_ref("span-train", <dataset name from span_config meta>, "training")], out_dir=out, system_metrics=True)`.
   - **Per epoch**: call `log_step(epoch, entry)` with the `history` entry minus `epoch`.
   - **At the end**: call `log_final({"best_epoch": …, "score": …})`, then `log_artifact(out / "span_config.json")`. Set tags `mmz.candidate` and `mmz.training_set`.
@@ -338,14 +338,14 @@ Single project:
   - **Without a URI**: the output files must be byte-identical to today. Assert this in a test.
 
   **Principle IV go/no-go**: this task is followed by T041 before any other integration.
-- [ ] T041 [US4] **(Spark)** Owner task, following quickstart §5:
+- [ ] T041 [US4] **(Spark)** Owner task, following quickstart §5 (the `train_span.sh` change below is done; the Spark run, the outage test and the overhead measurement are open):
   - adapt `topics/productdev/scripts/spark/train_span.sh`: when `MLFLOW_TRACKING_URI_CONTAINER` is set in the sourced `.env`, add `--network mmz-tracking -e MLFLOW_TRACKING_URI="$MLFLOW_TRACKING_URI_CONTAINER"` to `docker run` (mind the quoting inside the `ssh` string) and install `"/work[jtbd,tracking]"`. The script must not contain the address itself (FR-010). Also fix the stale `scripts/spark/...` path in its header comment;
   - train one candidate; stop the server mid-run with `mlflow.sh down`; confirm the run finishes and `tracking.json` says `complete: false`;
   - measure epoch time with and without tracking, which must be under 2 % (SC-006);
   - confirm GPU utilisation shows in system metrics on GB10 (open item 3).
 
   Record the results in `specs/017-mlflow-data-transparency/research.md` under "Open items". **If the run is harmed or the overhead exceeds 2 %, stop here and report to the owner** (plan: kill criterion).
-- [ ] T042 [US4] Integrate tracking into `span/tune.py:tune_thresholds` (`src/mobility_model_zoo/productdev/jtbd/span/tune.py`):
+- [X] T042 [US4] Integrate tracking into `span/tune.py:tune_thresholds` (done in `span/commands.py:tune_command`; it continues the training run named in the sidecar) (`src/mobility_model_zoo/productdev/jtbd/span/tune.py`):
   - reopen the run from `span_config.json` `tracking.run_id` when present, else start a new run with `mmz.kind=tune`;
   - log thresholds as params and the tuning metrics from `threshold_tuning.validation`.
 - [ ] T043 [P] [US4] Implement the Keras callback `TrackingCallback(run)` in `src/mobility_model_zoo/tracking/keras.py`. `on_epoch_end(epoch, logs)` calls `run.log_step(epoch, logs)`. Import Keras lazily.

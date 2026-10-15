@@ -106,7 +106,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     # (tests/release/test_schemas.py), so a change to that copy runs the release tests.
     ("release-tests", ("specs/*/contracts/release/*",)),
     ("datasets-tests", ("tests/datasets/*", "tests/fixtures/inventory/*", "tests/inventory_helpers.py")),
-    ("tracking", (f"{SRC}/tracking/*", "tests/tracking/*")),
+    ("tracking", (f"{SRC}/tracking/*", "tests/tracking/*", "tests/tracking_helpers.py")),
     (
         "catalog",
         (

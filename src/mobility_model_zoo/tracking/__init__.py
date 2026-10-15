@@ -130,6 +130,7 @@ def run(
     config_path: str | Path | None = None,
     inputs: tuple[DataRef, ...] | list[DataRef] = (),
     out_dir: Path | None = None,
+    sidecar: Path | None = None,
     system_metrics: bool = False,
     tags: dict[str, Any] | None = None,
     topic: str | None = None,
@@ -143,6 +144,9 @@ def run(
     if not _enabled():
         yield tc.NoRun()
         return
+    # the sidecar: `tracking.json` in out_dir, or an explicit file (next to a model directory
+    # that is uploaded as it is)
+    side = Path(sidecar) if sidecar else (Path(out_dir) / "tracking.json" if out_dir else None)
     if experiment not in EXPERIMENTS:
         raise ValueError(f"unknown experiment {experiment} (add it to tracking.EXPERIMENTS)")
     import os
@@ -161,13 +165,13 @@ def run(
         try:
             yield tc.NoRun()
         finally:
-            if out_dir is not None:
-                tr = tc.TrackedRun(None, experiment, None, out_dir)
+            if side is not None:
+                tr = tc.TrackedRun(None, experiment, None, side)
                 tr.degraded = True
                 tr.warnings.append("server unreachable at start")
                 tr.write_sidecar()
         return
-    tr = tc.TrackedRun(cl, experiment, rid, out_dir)
+    tr = tc.TrackedRun(cl, experiment, rid, side)
     base_tags = {
         "mmz.task": task,
         "mmz.topic": topic or experiment.split("/")[0],

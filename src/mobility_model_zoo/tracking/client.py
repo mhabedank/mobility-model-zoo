@@ -47,11 +47,11 @@ def _scrub(value: Any) -> Any:
 class TrackedRun:
     """A run in the tracking store. Construct through `mobility_model_zoo.tracking.run()`."""
 
-    def __init__(self, client, experiment: str, run_id: str, out_dir: Path | None = None):
+    def __init__(self, client, experiment: str, run_id: str, sidecar: Path | None = None):
         self.client = client
         self.experiment = experiment
         self.run_id = run_id
-        self.out_dir = Path(out_dir) if out_dir else None
+        self.sidecar = Path(sidecar) if sidecar else None
         self.degraded = False
         self.dropped = 0
         self.warnings: list[str] = []
@@ -195,9 +195,9 @@ class TrackedRun:
             warn(f"run {self.run_id} is incomplete in the store ({self.dropped} value(s) dropped)")
 
     def write_sidecar(self) -> None:
-        if self.out_dir is None:
+        if self.sidecar is None:
             return
-        self.out_dir.mkdir(parents=True, exist_ok=True)
+        self.sidecar.parent.mkdir(parents=True, exist_ok=True)
         sidecar = {
             "tracking_uri_host": config.uri_host(),
             "experiment": self.experiment,
@@ -206,9 +206,15 @@ class TrackedRun:
             "dropped": self.dropped,
             "warnings": self.warnings,
         }
-        (self.out_dir / "tracking.json").write_text(
-            json.dumps(sidecar, indent=2) + "\n", encoding="utf-8"
-        )
+        self.sidecar.write_text(json.dumps(sidecar, indent=2) + "\n", encoding="utf-8")
+
+
+def sidecar_run_id(path: Path) -> str | None:
+    """The run id a sidecar recorded, to continue that run (e.g. `jtbd span tune`)."""
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8")).get("run_id")
+    except (OSError, ValueError):
+        return None
 
 
 class NoRun:
