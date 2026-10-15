@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "inventory"
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "inventory"
 
 
 def fixture_repo(tmp_path: Path) -> tuple[Path, Path]:

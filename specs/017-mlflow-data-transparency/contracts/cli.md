@@ -102,7 +102,7 @@ zoo tracking audit [--experiment NAME]... [--json]
 ```
 
 - **What it scans**: every param, tag and text artifact, with the publication scan's personal-identifier detectors, plus the guard rules applied after the fact.
-- **Exit codes**: 0 when clean, 7 with findings (one line per finding: experiment, run, key; never the value in full), 8.
+- **Exit codes**: 0 when clean, 7 with findings (one line per finding: experiment, run, key; a value at most as its first 12 characters, and never for personal data or source text), 8.
 
 ## Changes to existing commands
 

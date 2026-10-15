@@ -227,7 +227,7 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
 
 ## Open items carried into tasks (verify on the Spark)
 
-1. **Host check**: the `--allowed-hosts` syntax with `mlflow:5000`, and that the training container on `mmz-tracking` is accepted (R2).
-2. **Digest length**: the maximum length of the dataset digest in the SQLite store (R9).
+1. **Host check**: the `--allowed-hosts` syntax with `mlflow:5000`, and that the training container on `mmz-tracking` is accepted (R2). *Verified locally on 2026-10-15 against mlflow 3.17.1 (SQLite server): the option takes comma-separated `host[:port]` entries; a request with `Host: evil.example` gets 403 on the API and UI, `Host: mlflow:<port>` gets 200; `/health` is exempt from the check. The container path on the Spark itself is still to be confirmed (T039).*
+2. **Digest length**: the maximum length of the dataset digest in the SQLite store (R9). *Verified locally on 2026-10-15: a 16-character digest round-trips through a SQLite-backed server and the `datasets.name` filter finds the run (`tests/integration/test_tracking_server.py`).*
 3. **GPU metrics on GB10**: system metrics report GPU utilisation and power without errors (R7).
 4. **Logging overhead**: below 2 % on one span training epoch (SC-006).

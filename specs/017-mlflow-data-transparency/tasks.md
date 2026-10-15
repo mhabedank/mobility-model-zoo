@@ -228,7 +228,7 @@ Single project:
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Write `scripts/spark/mlflow/mlflow.sh` (bash, `set -euo pipefail`, SPDX header) with the subcommands from contracts/cli.md:
+- [X] T028 [P] [US3] Write `scripts/spark/mlflow/mlflow.sh` (bash, `set -euo pipefail`, SPDX header) with the subcommands from contracts/cli.md:
   - **`up`**:
     - create the network `mmz-tracking` if missing;
     - run the server:
@@ -251,25 +251,25 @@ Single project:
   - **`pull-backup`** (laptop): rsync the newest backup from `$SPARK_HOST` to `~/mlflow-backups/`.
   - **`tunnel`** (laptop): `ssh -N -L 5000:127.0.0.1:5000 "$SPARK_HOST"`.
   - **Environment**: read `SPARK_HOST` from `.env` the way `train_span.sh` does. Never configure an assistant, gateway or LLM key (research R10).
-- [ ] T029 [P] [US3] Write `scripts/spark/mlflow/README.md`:
+- [X] T029 [P] [US3] Write `scripts/spark/mlflow/README.md`:
   - one-time setup on the Spark, and the crontab line for the nightly `mlflow.sh backup`;
   - laptop tunnel and `.env`;
   - upgrade procedure, with "check https://osv.dev/list?ecosystem=PyPI&q=mlflow before upgrading";
   - restore drill.
-- [ ] T030 [P] [US3] Implement `src/mobility_model_zoo/tracking/config.py`.
+- [X] T030 [P] [US3] Implement `src/mobility_model_zoo/tracking/config.py`.
   - **URI lookup**: `tracking_uri()` returns `MLFLOW_TRACKING_URI` from `os.environ`. If unset, it reads only `MLFLOW_*` keys with `dotenv.dotenv_values` from `.env` in the cwd, then at the repository root. It never mutates `os.environ` except to copy the found `MLFLOW_*` keys.
   - **`enabled()`**: false when no URI is set or `mlflow` is not importable.
   - **Short retries**: `apply_client_defaults()` sets `MLFLOW_HTTP_REQUEST_MAX_RETRIES=2` and `MLFLOW_HTTP_REQUEST_TIMEOUT=10` only when they are unset (research R5).
   - **Display**: `uri_host()` returns only the host and port for sidecars and status.
   - **Lazy imports**: python-dotenv and mlflow are imported lazily.
-- [ ] T031 [P] [US3] Implement `src/mobility_model_zoo/tracking/guard.py` per [contracts/tracking.md](contracts/tracking.md):
+- [X] T031 [P] [US3] Implement `src/mobility_model_zoo/tracking/guard.py` per [contracts/tracking.md](contracts/tracking.md):
   - **Keys**: match `^[a-z0-9_./-]{1,120}$`.
   - **Tags**: only the `mmz.*` allow-list from the contract table, plus `mlflow.*` system tags. `mlflow.source.name` is reduced to a repo-relative path or dropped.
   - **Params**: numbers, booleans, or strings of at most 120 characters with no line break and at most three spaces. Home-directory paths are rewritten to repo-relative or `$MMZ_DATA/...`, or refused.
   - **Metrics**: finite numbers only.
   - **Artifacts**: only the allow-listed names and kinds (`profile.json`, `config/<name>.yaml` from `configs/`, `span_config.json` with `data/` paths reduced to file names, `report.json`, `summary.json`, `summary.md`, `quality.json`, `performance.json`), each at most 1 MB. Always refused: `*.safetensors`, `*.bin`, `*.joblib`, `*.tflite`, `*.npz`, `*.keras`, `*.h5`, `*.jsonl`, and anything under `data/` or `$MMZ_DATA` other than the allowed files.
   - **Outcome**: `check_*` functions return the cleaned value or raise `GuardRefused`. The module flag `STRICT` decides whether callers re-raise (tests) or drop with a warning (runtime).
-- [ ] T032 [US3] Implement `src/mobility_model_zoo/tracking/client.py`: a `TrackedRun` class built on `mlflow.tracking.MlflowClient`.
+- [X] T032 [US3] Implement `src/mobility_model_zoo/tracking/client.py`: a `TrackedRun` class built on `mlflow.tracking.MlflowClient`.
   - **Calls**: synchronous, one `log_batch` per `log_step`.
   - **Circuit breaker**: on the first `MlflowException`, `requests` connection error or timeout, set `degraded=True`, warn once, and turn every later call into a no-op.
   - **Counting**: count dropped values, from the guard and the breaker.
@@ -277,13 +277,13 @@ Single project:
   - **Sidecar**: write `tracking.json` to `out_dir` with `tracking_uri_host`, `experiment`, `run_id`, `complete`, `dropped`, `warnings`, as in data-model.md "TrackingSidecar".
   - **System metrics**: enable them through `mlflow.enable_system_metrics_logging` when `psutil` is importable and `MMZ_TRACKING_SYSTEM_METRICS` is not `0`.
   - **Inputs**: log a dataset input as `mlflow.entities.Dataset(name=f"{id}@{version}", digest=sha256[:16], source_type="zoo", source=<repo path>, profile=json.dumps({"counts":…, "distribution":…}))` with an `InputTag("mlflow.data.context", context)`.
-- [ ] T033 [US3] Implement the public API in `src/mobility_model_zoo/tracking/__init__.py`:
+- [X] T033 [US3] Implement the public API in `src/mobility_model_zoo/tracking/__init__.py`:
   - `EXPERIMENTS` (the eight names from contracts/tracking.md) and `STRICT = False`.
   - `run(experiment, name, task, config_path=None, inputs=(), out_dir=None, system_metrics=False, tags=None)`, a context manager.
     - **No tracking URI**: it yields a no-op object with the same methods (`log_step`, `log_final`, `log_params`, `log_artifact`, `set_tag`) and writes no sidecar.
     - **With a URI**: it sets `mmz.git_commit` (`git rev-parse HEAD`), `mmz.git_clean` (`git status --porcelain` empty), `mmz.hardware` (`MMZ_HARDWARE` env or the hostname mapped through a small table, e.g. `spark*` → `dgx-spark`), `mmz.task` and `mmz.topic`, and flattens `config_path` YAML into params with `.` separators.
   - `data_ref(id, version, context)` resolves the `InventoryRow` through `datasets.inventory.collect` (cached). When it cannot, it sets the tag `mmz.input_unresolved=<id>@<version>` and warns.
-- [ ] T034 [US3] Implement `src/mobility_model_zoo/tracking/publish.py` (`publish(rows, dry_run=False, profile=False)`):
+- [X] T034 [US3] Implement `src/mobility_model_zoo/tracking/publish.py` (`publish(rows, dry_run=False, profile=False)`):
   - **Lookup**: for each row, search the `datasets` experiment with `tags.mmz.id = '<id>' and tags.mmz.version = '<version>'`.
   - **Not found**: create a run with name `<id>@<version>`, the tags `mmz.kind`, `mmz.topic`, `mmz.id`, `mmz.version`, `mmz.sha256`, `mmz.frozen_at`, `mmz.permitted_use` and `mmz.licence`, the metrics `size_mb`, `files`, `count.<dimension>` and `dist.<dimension>.<value>` (values sanitised to the key pattern), and the dataset input with context `inventory`.
   - **Same `mmz.sha256`**: update the metrics of the existing run.
@@ -293,22 +293,22 @@ Single project:
   - **`profile=True`**: attach `profile.json` (counts and distributions only).
   - **Return**: one action (`create`, `update` or `supersede`) per row.
   - **Errors**: no circuit breaker here. Publishing is the command's purpose, so connection errors raise and map to exit 8.
-- [ ] T035 [US3] Add the `publish [--topic] [--kind] [--dry-run] [--profile]` command to `src/mobility_model_zoo/datasets/cli.py`. Create `src/mobility_model_zoo/tracking/cli.py` with `status` (URI host, server version from `/version`, experiments with run counts, client installed; exit 0 or 8) and `audit`. Mount the `tracking` group in `src/mobility_model_zoo/release/cli.py` next to `_mount_data`, as `_mount_tracking()`, importing lazily so `zoo --help` works without the extra.
-- [ ] T036 [US3] Implement `src/mobility_model_zoo/tracking/audit.py` (`zoo tracking audit [--experiment] [--json]`):
+- [X] T035 [US3] Add the `publish [--topic] [--kind] [--dry-run] [--profile]` command to `src/mobility_model_zoo/datasets/cli.py`. Create `src/mobility_model_zoo/tracking/cli.py` with `status` (URI host, server version from `/version`, experiments with run counts, client installed; exit 0 or 8) and `audit`. Mount the `tracking` group in `src/mobility_model_zoo/release/cli.py` next to `_mount_data`, as `_mount_tracking()`, importing lazily so `zoo --help` works without the extra.
+- [X] T036 [US3] Implement `src/mobility_model_zoo/tracking/audit.py` (`zoo tracking audit [--experiment] [--json]`):
   - **Scan**: iterate all runs of the given or all experiments; re-apply the guard rules to every param, tag and metric key. Download each text artifact (`.json`, `.yaml`, `.md`) into a temp dir and run, over params, tags and artifact text, the detectors that `compliance.release_checks.scan_publication` uses:
     - `compliance.scan.pii(text, allow)`, with `allow = compliance.release_checks.contact_allowlist(<register>.controller())`;
     - when the snapshot corpus is on this machine, `compliance.scan.overlap_spans(text, <CorpusIndex>, VERBATIM_MAX_WORDS)` to catch verbatim source text. Otherwise print "verbatim check skipped (no corpus here)".
   - **Principle XI**: flag any param or tag value containing `claude` (case-insensitive) under a key that names a labeler, teacher, judge or model.
   - **Output**: one line per finding (experiment, run id, key; value truncated to 20 characters).
   - **Exit codes**: 0 clean, 7 findings, 8 server.
-- [ ] T037 [P] [US3] Write tests with a fake transport (patch `MlflowClient` with an in-memory fake class in `tests/tracking/fakes.py`):
+- [X] T037 [P] [US3] Write tests with a fake transport (done with MLflow's in-process file store instead of a fake, `tests/tracking/tracking_helpers.py`: the real client API without a server; the breaker test patches the client to fail) (patch `MlflowClient` with an in-memory fake class in `tests/tracking/fakes.py`):
   - `tests/tracking/test_config_noop.py`: no URI → no mlflow import (`sys.modules` check), no sidecar; `.env` lookup reads only `MLFLOW_*`.
   - `tests/tracking/test_guard.py`: every allow and deny rule in contracts/tracking.md, including prose params, home paths, weight files, a 1.1 MB artifact and unknown tags.
   - `tests/tracking/test_client_breaker.py`: the fake raises on the third call → the run completes, the sidecar has `complete: false` and `dropped > 0`; `KeyboardInterrupt` → `KILLED`.
   - `tests/tracking/test_publish.py`: create, update, supersede and dry-run.
   - `tests/tracking/test_audit.py`: a seeded e-mail address in a tag and a `claude` teacher param are both found; a clean store exits 0.
   - `tests/tracking/test_import_boundary.py` (FR-025): import every module under `mobility_model_zoo.release` and `mobility_model_zoo.compliance`, then assert that neither `mobility_model_zoo.tracking.client` nor `mlflow` is in `sys.modules`. No gate may read the store.
-- [ ] T038 [US3] Write the slow integration test `tests/integration/test_tracking_server.py` (`@pytest.mark.slow`).
+- [X] T038 [US3] Write the slow integration test `tests/integration/test_tracking_server.py` (`@pytest.mark.slow`).
   - **Server**: start `uvx --from mlflow==3.17.1 mlflow server --host 127.0.0.1 --port <free> --backend-store-uri sqlite:///<tmp>/m.db --artifacts-destination <tmp>/a` and wait for `/health`.
   - **Steps**: `zoo data publish` on the T018 fixtures twice (creates, then updates); one `tracking.run` with three steps and a dataset input; search `datasets.name = '<id>@<version>'` finds the run; `zoo tracking audit` exits 0.
   - **Open item 2**: assert that a 16-character digest round-trips (research R9).

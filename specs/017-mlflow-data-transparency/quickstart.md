@@ -58,7 +58,7 @@ uv run zoo tracking status                       # exit 0, lists experiments
 
 Checks:
 - **No LAN exposure**: from another machine on the LAN, `curl http://<spark-ip>:5000` fails.
-- **Host header**: `curl -H 'Host: evil.example' http://127.0.0.1:5000/health` through the tunnel returns 403.
+- **Host header**: `curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' 'http://127.0.0.1:5000/api/2.0/mlflow/experiments/search?max_results=1'` through the tunnel returns 403. `/health` is exempt from the host check and always answers.
 - **Backup and restore**: `mlflow.sh backup`, then `mlflow.sh restore ~/mlflow-backups/<date>`. The UI shows the same runs. Time it: under 30 minutes (SC-009).
 
 ## 4. Data versions in MLflow (US3)

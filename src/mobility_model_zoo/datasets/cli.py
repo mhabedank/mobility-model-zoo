@@ -290,3 +290,28 @@ def diff_cmd(
         print(json.dumps(d.to_dict(), indent=2, ensure_ascii=False) if as_json else diff_table(d))
 
     _run(fn)
+
+
+@app.command("publish")
+def publish_cmd(
+    topic: list[str] = typer.Option(None, "--topic", help="only these topics"),
+    kind: list[str] = typer.Option(None, "--kind", help="only these kinds"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show create/update/supersede, write nothing"),
+    profile: bool = typer.Option(False, "--profile", help="attach profile.json (aggregates only)"),
+) -> None:
+    """The overview as the `datasets` experiment of the tracking server (exit 8 without one)."""
+
+    def fn() -> None:
+        from mobility_model_zoo.datasets.inventory import collect
+        from mobility_model_zoo.tracking.publish import publish
+
+        inv = collect(kinds=kind or None, topics=topic or None)
+        actions = publish(inv.rows, dry_run=dry_run, profile=profile)
+        for a in actions:
+            print(f"{a.action:9s} {a.row}" + (f"  ({a.note})" if a.note else ""))
+        kinds = ("create", "update", "supersede", "skip")
+        counts = {k: sum(1 for a in actions if a.action == k) for k in kinds}
+        summary = ", ".join(f"{n} {k}" for k, n in counts.items() if n)
+        say(("dry run: " if dry_run else "published: ") + summary)
+
+    _run(fn)
