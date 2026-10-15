@@ -229,6 +229,12 @@ When several candidates of one task have run (for example span-model candidates 
 - **SC-009**: Restoring the tracking store from backup is done once successfully and takes under 30 minutes.
 - **SC-010**: Cash cost of the feature is zero (local compute only).
 
+## Principles touched
+
+**Touched**: III (results name their frozen benchmark), IV (riskiest assumption: logging never harms a run, tested first), V (local only), VI (licence and permitted use visible; no data copied), VIII (comparisons filtered by benchmark version), IX (integrity of frozen benchmarks; release records stay authoritative), XI (no Claude anywhere in logged data work or on the server), Resources & Cost Discipline (no cash cost), Technical Spikes (own experiment, never benchmark results) and Development Workflow & Quality Gates. The plan's Constitution Check states how each is met.
+
+**Not touched**: I, II, VII and X (JTBD extraction behaviour).
+
 ## Assumptions
 
 - The owner is the only user; no multi-user permissions are needed. Access goes through the owner's existing SSH access to the Spark.
