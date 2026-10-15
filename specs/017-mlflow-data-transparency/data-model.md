@@ -13,7 +13,7 @@ One row of the overview (FR-001, FR-002). It is one version of one dataset, sour
 | `kind` | enum `dataset`, `source-collection`, `training-set`, `benchmark` | collector | |
 | `topic` | string | register path or manifest folder | `productdev`, `security`, `condition-monitoring` |
 | `id` | string | register `id`, benchmark family, training set name | e.g. `can-train-and-test`, `can-ids`, `span-train` |
-| `version` | string | benchmark folder (`can-ids-v3`), freeze file (`span-train-v1`), `SOURCE.json` `retrieved_at` date for datasets | A dataset's version is its retrieval date. |
+| `version` | string | benchmark folder (`can-ids-v3`), freeze file (`span-train-v1`), `SOURCE.json` `retrieved_at` date for datasets | A dataset's version is its retrieval date. A dataset that is not downloaded on this machine has version `register`. |
 | `status` | enum `active`, `rejected`, `broken_at_source`, `frozen`, `decided`, `building` | register `status`, manifest `state` | |
 | `licence` | string or null | register `licence`, manifest `datasets[].licence` | |
 | `permitted_use` | enum `training_allowed`, `benchmark_only`, null | register | Benchmarks inherit the strictest permitted use of their datasets. |
@@ -109,10 +109,11 @@ The wrapper's view of an MLflow run. Keys and allowed values are in [contracts/t
 - It ends as `FINISHED` when the command succeeds, `FAILED` on an exception, and `KILLED` on an interrupt.
 - A degraded run (server lost mid-run) keeps whatever state the server last saw. Its local `tracking.json` records `complete: false` (FR-020).
 
-**Data run lifecycle** (idempotent publish, FR-015):
+**Data run lifecycle** (idempotent publish, FR-015). The key is `(mmz.id, mmz.version)`:
 - not present → created
 - same `mmz.sha256` → metrics updated
 - new `mmz.sha256` → new run, old run tagged `mmz.superseded_by=<new run id>`
+- version `register` (no hash) → updated in place while it stays register-only. When a run with a real version of the same id is created, the `register` run is tagged `mmz.superseded_by`.
 
 ## TrackingSidecar (`tracking.json`)
 

@@ -16,7 +16,7 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - The server runs on the DGX Spark as a Docker container, started by `scripts/spark/mlflow/mlflow.sh up`.
   - Inside the container it listens on `0.0.0.0:5000`, but Docker publishes it only on `127.0.0.1:5000` of the Spark.
   - **Laptop**: reaches it through `ssh -N -L 5000:127.0.0.1:5000 $SPARK_HOST`, and its `.env` holds `MLFLOW_TRACKING_URI=http://127.0.0.1:5000`.
-  - **Training containers on the Spark**: they join a user-defined Docker network `mmz-tracking` and use `http://mlflow:5000`. The Spark scripts set this in the container environment.
+  - **Training containers on the Spark**: they join a user-defined Docker network `mmz-tracking` and use the address in `MLFLOW_TRACKING_URI_CONTAINER` (`http://mlflow:5000` in `.env.example`). The Spark scripts pass that value through as `MLFLOW_TRACKING_URI`; they never hard-code it (FR-010).
   - **Host check**: the server is started with `--allowed-hosts` naming `localhost`, `127.0.0.1` and `mlflow`. **verify**: exact list syntax with ports.
 - **Rationale**:
   - The image is multi-arch (linux/amd64 and linux/arm64), so it runs on the Spark's Grace CPU without a custom build.
@@ -49,7 +49,8 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
 - **Decision**:
   - The tracking layer reads `MLFLOW_TRACKING_URI` from the process environment. If it is unset, it reads only the `MLFLOW_*` keys from a `.env` file in the working directory or at the repository root, using `dotenv_values` with no side effects.
   - When nothing is set, the layer is a no-op that returns immediately. The `mlflow` import happens only when a URI is set.
-  - `.env.example` gets `MLFLOW_TRACKING_URI` and the missing `SPARK_HOST`, and `docs/credentials.md` lists both under "Other local settings".
+  - `.env.example` gets `MLFLOW_TRACKING_URI`, `MLFLOW_TRACKING_URI_CONTAINER` and the missing `SPARK_HOST`, and `docs/credentials.md` lists all three under "Other local settings".
+  - **Container address**: the laptop and the Spark host see the server at a different address than a container on the `mmz-tracking` network does. The second variable keeps both values in `.env`, so no script has to hard-code the container address.
 - **Rationale**:
   - `jtbd` already loads `.env`, but `zoo`, `zoo-security` and `condmon` do not (python-dotenv is only in the `jtbd` and `catalog` extras).
   - Reading only the tracking keys keeps the other commands' behaviour unchanged (FR-010, FR-011).
@@ -104,7 +105,9 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - **Param values** are numbers, booleans or strings of at most 120 characters, with no line break and at most three spaces, so no prose.
   - **Artifacts** come only from an allow-list of file kinds the zoo writes itself: the inventory profile JSON, a copy of the committed config file, `span_config.json` without paths into `data/`, the HIL `summary.json` and `summary.md`. Each is at most 1 MB.
   - A refused value raises in tests and is dropped with a warning at run time.
-  - **Audit**: `zoo tracking audit` downloads every param, tag and text artifact from the store and runs the existing publication scan for personal identifiers over them.
+  - **Audit**: `zoo tracking audit` downloads every param, tag and text artifact from the store and runs the same detectors as the release publication scan over them:
+    - `compliance.scan.pii(text, allow)` for personal identifiers, with the controller's contact allow-list from `compliance.release_checks.contact_allowlist`;
+    - `compliance.scan.overlap_spans` against a `CorpusIndex` of the snapshot corpus, when the corpus is on the machine, to catch verbatim source text.
 - **Rationale**: the spec forbids text, labels, payloads and personal data in the store. An allow-list is testable; a deny-list for "looks like text" is not.
 - **Alternatives considered**: trusting call sites. Rejected, because the store lives longer than any code review.
 

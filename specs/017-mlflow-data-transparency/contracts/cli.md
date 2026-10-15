@@ -8,7 +8,7 @@ New commands live under the existing `zoo` app: four under `zoo data` and a new 
 
 | Code | Meaning |
 |---|---|
-| 7 | integrity failure (`zoo data stats`, `zoo data history`) |
+| 7 | integrity failure (`zoo data stats`) or audit findings (`zoo tracking audit`) |
 | 8 | tracking server not configured or unreachable (only commands whose job is to talk to the server: `zoo data publish`, `zoo tracking …`) |
 
 **Output**: tables by default. `--json` prints the same rows as JSON, as a list of [InventoryRow](../data-model.md#inventoryrow) or the entity named per command.
@@ -64,7 +64,10 @@ Publishes the overview to the `datasets` experiment (US3). Publishing is idempot
 zoo data publish [--topic TOPIC]... [--kind ...]... [--dry-run] [--profile]
 ```
 
-- **`--dry-run`**: prints `create`, `update` or `supersede` per row without contacting the server. A tracking URI is still needed, so the run lookup is not skipped silently. Without one, it shows what would be created.
+- **`--dry-run`**: writes nothing.
+  - **With a tracking URI**: it looks up existing runs read-only and prints `create`, `update` or `supersede` per row.
+  - **Without one**: it prints every row as `create` and says that no server was asked. It exits 0.
+- **Register-only rows** (dataset not downloaded on this machine): published with version `register`, register metrics only (`approx_size_mb`) and no `mmz.sha256`. Once the dataset is downloaded and published from that machine, a run with the retrieval-date version is created, and the `register` run is tagged `mmz.superseded_by`.
 - **`--profile`**: attaches `profile.json` per version (aggregates only).
 - **Exit codes**: 0, or 8 without a tracking URI or with the server unreachable (FR-011: other commands are unaffected).
 
@@ -111,10 +114,11 @@ Each command below logs only when a tracking URI is set. Without one, its behavi
 | `jtbd span tune` | same run when the candidate's run id is in `span_config.json`, else a new run | thresholds as params, tuning metrics |
 | `jtbd score`, `jtbd perf --backend span`, `jtbd span results` | `productdev/jtbd-span` | evaluation metrics, benchmark input (`pilot-v2` or the named version) |
 | `jtbd cluster tune`, `jtbd cluster score` | `productdev/jtbd-cluster` | grid and scores, benchmark input (`cluster-v1`) |
-| `zoo-security can-ids evaluate` (and `evaluate_v2` through the forest and v2 entry points) | `security/can-ids` | per-detector metrics, benchmark input with `manifest_sha256` |
+| `zoo-security can-ids evaluate`, `zoo-security can-ids forest evaluate` (`forest.py:cmd_evaluate`) and `evaluate_v2` | `security/can-ids` | per-detector metrics, benchmark input with `manifest_sha256` |
+| `zoo-security can-ids forest export` (`forest.py:cmd_export`) and `zoo-security can-ids v2 export` (`release_export_v2.export`) | `security/can-ids` | training run: forest settings, training input (the benchmark's `train` and `calibration` roles), export metrics, `config.json` of the export as artifact; never the model files |
 | `zoo-security can-ids measure` | `security/can-ids` | performance metrics per board |
 | `zoo-security can-ids mlp train`, `condmon sound-anomaly train`, `condmon activity train` | `security/can-ids`, `condition-monitoring/sound-anomaly`, `condition-monitoring/activity` | Keras per-epoch metrics through a callback, export report metrics, dataset input (`SOURCE.json` hash) |
-| `edge run` and the HIL pytest plugin | `edge/hil-bench` | `summarize()` perf and accuracy per board and model, `summary.json` and `summary.md` artifacts |
+| `edge run` and the HIL pytest plugin | `edge/hil-bench` | measurement run (`mmz.kind=measure`): `summarize()` perf and accuracy per board and model, `summary.json` and `summary.md` artifacts, the hash of any evaluation file used |
 | `zoo release-verify` | none | prints `tracking.run_id` when the record has one |
 
 ## Spark scripts
@@ -131,6 +135,6 @@ mlflow.sh tunnel                # (laptop) ssh -N -L 5000:127.0.0.1:5000 $SPARK_
 ```
 
 `topics/productdev/scripts/spark/train_span.sh` changes:
-- When `MLFLOW_TRACKING_URI` is set in `.env`, it starts the training container on the `mmz-tracking` network with `-e MLFLOW_TRACKING_URI=http://mlflow:5000`.
+- When `MLFLOW_TRACKING_URI_CONTAINER` is set in `.env`, it starts the training container on the `mmz-tracking` network with `-e MLFLOW_TRACKING_URI="$MLFLOW_TRACKING_URI_CONTAINER"`. The value comes only from `.env` (FR-010).
 - It installs `/work[jtbd,tracking]`.
 - Without the variable it behaves as today.

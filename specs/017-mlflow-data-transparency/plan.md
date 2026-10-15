@@ -111,6 +111,7 @@ src/mobility_model_zoo/
 │   └── inventory/                 # NEW: overview, no MLflow import
 │       ├── __init__.py            # collect(root, data_root) -> list[InventoryRow]
 │       ├── rows.py                # InventoryRow, HistoryEvent, VersionDiff dataclasses
+│       ├── hashes.py              # dataset, manifest, source collection and training set hashes
 │       ├── third_party.py         # registry + SOURCE.json + measured size
 │       ├── sources.py             # productdev sources.yaml collection
 │       ├── benchmarks.py          # readers: jtbd pilot, jtbd cluster, can-ids
@@ -137,14 +138,14 @@ src/mobility_model_zoo/
 ├── productdev/jtbd/span/tune.py   # thresholds, tuning metrics
 ├── productdev/jtbd/{scoring.py, perf.py}, span/results.py   # evaluation runs
 ├── productdev/jtbd/cluster/{tune.py, score.py}
-├── security/can_ids/{evaluate.py, evaluate_v2.py, measure.py}
+├── security/can_ids/{evaluate.py, evaluate_v2.py, measure.py, forest.py, release_export_v2.py}
 ├── edge/int8/keras_export.py      # callback via fit_kwargs, report metrics
 └── edge/bench/results.py          # log summarize() at write_summary
 
 scripts/spark/mlflow/
 ├── mlflow.sh                      # up|down|status|logs|backup|restore|upgrade|pull-backup|tunnel
 └── README.md
-topics/productdev/scripts/spark/train_span.sh   # mmz-tracking network, -e MLFLOW_TRACKING_URI, [jtbd,tracking]
+topics/productdev/scripts/spark/train_span.sh   # mmz-tracking network, -e MLFLOW_TRACKING_URI from MLFLOW_TRACKING_URI_CONTAINER, [jtbd,tracking]
 
 compliance/decisions.yaml          # + D-tracking-store
 src/mobility_model_zoo/compliance/templates/record-of-processing.md.j2   # + store paragraph

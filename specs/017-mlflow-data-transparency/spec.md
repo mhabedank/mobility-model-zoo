@@ -138,7 +138,8 @@ When several candidates of one task have run (for example span-model candidates 
 
 ### Edge Cases
 
-- A dataset is registered in two topics, or one benchmark builds on another (`based_on`, `supersedes`): it is listed once per version, with the relation shown.
+- One benchmark builds on another (`based_on`, `supersedes`): each is listed once per version, with the relation shown.
+- The same dataset id appears in two topics: `zoo data validate` already refuses duplicate ids; if it happens anyway, the overview shows an error row for the id instead of two silent rows.
 - `$MMZ_DATA` points to a missing or partially downloaded folder: measured values are marked partial, register values still shown.
 - A benchmark manifest is malformed or a referenced file is missing: the row is reported as an error, the rest of the overview still prints.
 - A frozen benchmark's content no longer matches its recorded hash: reported as an integrity failure (constitution IX).
@@ -156,7 +157,7 @@ When several candidates of one task have run (for example span-model candidates 
 
 **Data and benchmark overview (Stories 1–2)**
 
-- **FR-001**: The zoo MUST provide one command that lists every registered third-party dataset of every topic, every frozen training set and every frozen benchmark version, one row per version.
+- **FR-001**: The zoo MUST provide one command that lists every active registered third-party dataset of every topic, every frozen training set and every frozen benchmark version, one row per version. Datasets with status `rejected` or `broken_at_source` MUST always be counted and MUST be listed on request.
 - **FR-002**: Each row MUST show topic, kind, identifier and version, licence, permitted use, redistribution, size in megabytes, file count, the item counts that fit the kind (rows, chunks, frames, episodes, captures, recordings), the class or label distribution where the source records one, freeze date, content hash, last change date and the models that use it.
 - **FR-003**: The overview MUST work from the repository alone; measured values that need downloaded data MUST be marked "not downloaded here" when the data is absent, never guessed.
 - **FR-004**: The overview MUST support filtering by topic, kind and permitted use, and MUST offer a machine-readable output with the same content.
@@ -168,7 +169,7 @@ When several candidates of one task have run (for example span-model candidates 
 **Tracking server and configuration (Story 3, all logging)**
 
 - **FR-009**: A private MLflow tracking server MUST run on the DGX Spark, reachable only through the owner's authenticated connection, not from the open network.
-- **FR-010**: The tracking location MUST be set only through the environment (the `.env` file); no code or configuration file in the repository may hard-code it.
+- **FR-010**: The tracking location MUST be set only through the environment (the `.env` file): `MLFLOW_TRACKING_URI` for processes on the laptop or the Spark host, and `MLFLOW_TRACKING_URI_CONTAINER` for training containers on the Spark. No code, script or configuration file in the repository may hard-code either value.
 - **FR-011**: Without a tracking location, every existing command MUST behave exactly as today; CI and the base install MUST NOT need the tracking software, which ships as a new optional extra.
 - **FR-012**: The tracking store MUST be backed up on a schedule, and a restore MUST be documented and tested once.
 - **FR-013**: Setting up, starting, stopping, updating and restoring the server MUST be documented as owner steps and scripted where possible.
@@ -183,7 +184,7 @@ When several candidates of one task have run (for example span-model candidates 
 
 - **FR-017**: The training, tuning and evaluation commands of every task (JTBD span model, JTBD clustering, CAN intrusion detection, sound anomaly, activity recognition) and the hardware-in-the-loop measurements MUST log to their task's experiment when a tracking location is set.
 - **FR-018**: Each run MUST record its configuration (file and values), code commit and whether the tree was clean, hardware, start and end time, status, metrics over time where the run produces them, and final metrics.
-- **FR-019**: Each training run MUST record the training set versions and hashes it used; each evaluation run MUST record the frozen benchmark version it was measured on.
+- **FR-019**: Each training run MUST record the training set versions and hashes it used; each evaluation run MUST record the frozen benchmark version it was measured on. Measurement runs (speed, memory, on-device checks) record the model version and hardware instead; when they use evaluation data, they also record its hash.
 - **FR-020**: Logging MUST never make a run fail or change its results: when the server is unreachable the run continues, its own result files stay complete, and it warns that tracking was incomplete.
 - **FR-021**: Logging MUST add no more than a small, measured overhead to run time (see SC-006).
 - **FR-022**: A release record MAY name the run a model version came from; the release gate MUST check the reference's form when present and MUST NOT require it.

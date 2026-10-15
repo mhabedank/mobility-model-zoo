@@ -33,7 +33,12 @@ Single project:
 
 - [ ] T001 Add the optional extra `tracking = ["mlflow-skinny>=3.17.1,<4", "numpy>=1.26", "python-dotenv>=1.0", "psutil>=7", "nvidia-ml-py>=12"]` to `pyproject.toml` (after `labeling-api`, with a comment "experiment tracking client, feature 017; server runs on the Spark"), then run `uv lock` and commit `uv.lock`.
 - [ ] T002 [P] Add `tracking` to `TRAINING_EXTRAS` in `tests/unit/test_dependency_layout.py` and assert that `tracking` does not include `mobility-model-zoo[text]` and that the base dependencies stay `{"huggingface-hub", "numpy"}`.
-- [ ] T003 [P] Add `SPARK_HOST=` and `MLFLOW_TRACKING_URI=` (commented: "http://127.0.0.1:5000 through `scripts/spark/mlflow/mlflow.sh tunnel`; leave empty to disable tracking") to `.env.example`. Add both to the "Other local settings in `.env` (not used by CI)" paragraph of `docs/credentials.md`.
+- [ ] T003 [P] Add three keys to `.env.example`:
+  - `SPARK_HOST=`
+  - `MLFLOW_TRACKING_URI=`, commented "http://127.0.0.1:5000 through `scripts/spark/mlflow/mlflow.sh tunnel`; leave empty to disable tracking"
+  - `MLFLOW_TRACKING_URI_CONTAINER=`, commented "address for training containers on the Spark's `mmz-tracking` network, usually http://mlflow:5000"
+
+  Add all three to the "Other local settings in `.env` (not used by CI)" paragraph of `docs/credentials.md`.
 - [ ] T004 [P] Create the package skeletons `src/mobility_model_zoo/datasets/inventory/__init__.py` and `src/mobility_model_zoo/tracking/__init__.py`, each with an SPDX header and module docstring, and empty test packages `tests/tracking/__init__.py`.
 - [ ] T005 [P] Add rules to `scripts/ci/select_tests.py` mapping `src/mobility_model_zoo/datasets/inventory/**` to the `datasets` area, `src/mobility_model_zoo/tracking/**` and `tests/tracking/**` to a new `tracking` area (`tests/tracking`), and `scripts/spark/mlflow/**` and `docs/tracking.md` to `docs`. Keep `tests/unit/test_ci_select.py` green.
 - [ ] T006 [P] Add `--extra tracking` to both `uv sync` lines of the `test` job in `.github/workflows/ci.yml`. Leave the `checks`, `edge-sim` and `qemu` jobs unchanged so the install size check is unaffected.
@@ -84,7 +89,8 @@ Single project:
     - set `sha256` via `dataset_hash`
     - measure `size_mb` and `files` by walking `$MMZ_DATA/<id>/`
     - set `availability` to `measured`
-  - **Otherwise**: `availability="register-only"`, `approx_size_mb` from the register, and the note "not downloaded here".
+  - **Otherwise**: `version="register"`, `availability="register-only"`, `sha256=None`, `approx_size_mb` from the register, and the note "not downloaded here".
+  - **Status**: rows with status `rejected` or `broken_at_source` are produced too. `collect()` filters them unless `include_rejected` is set, and always counts them.
   - Never open data files other than `SOURCE.json`; only `stat()` them (FR-008).
 - [ ] T011 [P] [US1] Implement the source collection collector for `topics/productdev/compliance/sources.yaml` in `src/mobility_model_zoo/datasets/inventory/sources.py`.
   - **Rows**: one row `kind=source-collection`, `id=productdev-sources`.
@@ -138,13 +144,14 @@ Single project:
   - register-only vs measured rows (`MMZ_DATA` set to the fixture or to an empty directory);
   - the strictest permitted use for benchmarks;
   - `used_by` from a fixture release record;
-  - an error row from a malformed manifest leaves the other rows intact.
+  - an error row from a malformed manifest leaves the other rows intact;
+  - the same dataset id in two topic registers yields one error row for that id, not two silent rows (spec edge case).
 - [ ] T020 [US1] Write CLI tests in `tests/datasets/test_inventory_cli.py` with `CliRunner` on the `zoo` app (`["data", "stats", ...]`):
   - table and `--json` output;
   - filters by topic, kind and use;
   - `--include-rejected`;
   - exit 0 without `MMZ_DATA` content;
-  - one test against the real repository asserting the `can-ids-v3` role counts from the Independent Test above and the cluster-v1 item counts (dev 3395, test 6967, holdout 2133).
+  - one test against the real repository asserting the `can-ids-v3` role counts from the Independent Test above and the cluster-v1 item counts (dev 3395, test 6967, holdout 2133), and that the command finishes in under 30 s (a generous bound for SC-001; the plan's target is 10 s).
 
 **Checkpoint**: `zoo data stats` answers "what do we have, how big, how many" in under one minute (SC-001, SC-002).
 
@@ -281,12 +288,16 @@ Single project:
   - **Not found**: create a run with name `<id>@<version>`, the tags `mmz.kind`, `mmz.topic`, `mmz.id`, `mmz.version`, `mmz.sha256`, `mmz.frozen_at`, `mmz.permitted_use` and `mmz.licence`, the metrics `size_mb`, `files`, `count.<dimension>` and `dist.<dimension>.<value>` (values sanitised to the key pattern), and the dataset input with context `inventory`.
   - **Same `mmz.sha256`**: update the metrics of the existing run.
   - **Different hash**: create a new run and tag the old run `mmz.superseded_by=<new run id>`.
+  - **Register-only rows** (`version="register"`, no hash): update the `register` run in place. When a row with a real version of the same id is created, tag the `register` run `mmz.superseded_by`.
+  - **Dry run**: with a URI, look up read-only; without one, print every row as `create` and say no server was asked (exit 0).
   - **`profile=True`**: attach `profile.json` (counts and distributions only).
   - **Return**: one action (`create`, `update` or `supersede`) per row.
   - **Errors**: no circuit breaker here. Publishing is the command's purpose, so connection errors raise and map to exit 8.
 - [ ] T035 [US3] Add the `publish [--topic] [--kind] [--dry-run] [--profile]` command to `src/mobility_model_zoo/datasets/cli.py`. Create `src/mobility_model_zoo/tracking/cli.py` with `status` (URI host, server version from `/version`, experiments with run counts, client installed; exit 0 or 8) and `audit`. Mount the `tracking` group in `src/mobility_model_zoo/release/cli.py` next to `_mount_data`, as `_mount_tracking()`, importing lazily so `zoo --help` works without the extra.
 - [ ] T036 [US3] Implement `src/mobility_model_zoo/tracking/audit.py` (`zoo tracking audit [--experiment] [--json]`):
-  - **Scan**: iterate all runs of the given or all experiments; re-apply the guard rules to every param, tag and metric key. Download each text artifact (`.json`, `.yaml`, `.md`) into a temp dir and run the compliance publication scan's personal-identifier detectors over params, tags and artifact text. Reuse the detector used for `<version>.publication-scan.json`; find it in `src/mobility_model_zoo/compliance/`.
+  - **Scan**: iterate all runs of the given or all experiments; re-apply the guard rules to every param, tag and metric key. Download each text artifact (`.json`, `.yaml`, `.md`) into a temp dir and run, over params, tags and artifact text, the detectors that `compliance.release_checks.scan_publication` uses:
+    - `compliance.scan.pii(text, allow)`, with `allow = compliance.release_checks.contact_allowlist(<register>.controller())`;
+    - when the snapshot corpus is on this machine, `compliance.scan.overlap_spans(text, <CorpusIndex>, VERBATIM_MAX_WORDS)` to catch verbatim source text. Otherwise print "verbatim check skipped (no corpus here)".
   - **Principle XI**: flag any param or tag value containing `claude` (case-insensitive) under a key that names a labeler, teacher, judge or model.
   - **Output**: one line per finding (experiment, run id, key; value truncated to 20 characters).
   - **Exit codes**: 0 clean, 7 findings, 8 server.
@@ -296,6 +307,7 @@ Single project:
   - `tests/tracking/test_client_breaker.py`: the fake raises on the third call → the run completes, the sidecar has `complete: false` and `dropped > 0`; `KeyboardInterrupt` → `KILLED`.
   - `tests/tracking/test_publish.py`: create, update, supersede and dry-run.
   - `tests/tracking/test_audit.py`: a seeded e-mail address in a tag and a `claude` teacher param are both found; a clean store exits 0.
+  - `tests/tracking/test_import_boundary.py` (FR-025): import every module under `mobility_model_zoo.release` and `mobility_model_zoo.compliance`, then assert that neither `mobility_model_zoo.tracking.client` nor `mlflow` is in `sys.modules`. No gate may read the store.
 - [ ] T038 [US3] Write the slow integration test `tests/integration/test_tracking_server.py` (`@pytest.mark.slow`).
   - **Server**: start `uvx --from mlflow==3.17.1 mlflow server --host 127.0.0.1 --port <free> --backend-store-uri sqlite:///<tmp>/m.db --artifacts-destination <tmp>/a` and wait for `/health`.
   - **Steps**: `zoo data publish` on the T018 fixtures twice (creates, then updates); one `tracking.run` with three steps and a dataset input; search `datasets.name = '<id>@<version>'` finds the run; `zoo tracking audit` exits 0.
@@ -327,7 +339,7 @@ Single project:
 
   **Principle IV go/no-go**: this task is followed by T041 before any other integration.
 - [ ] T041 [US4] **(Spark)** Owner task, following quickstart §5:
-  - adapt `topics/productdev/scripts/spark/train_span.sh`: when `MLFLOW_TRACKING_URI` is set in the sourced `.env`, add `--network mmz-tracking -e MLFLOW_TRACKING_URI=http://mlflow:5000` to `docker run` and install `"/work[jtbd,tracking]"`; also fix the stale `scripts/spark/...` path in its header comment;
+  - adapt `topics/productdev/scripts/spark/train_span.sh`: when `MLFLOW_TRACKING_URI_CONTAINER` is set in the sourced `.env`, add `--network mmz-tracking -e MLFLOW_TRACKING_URI="$MLFLOW_TRACKING_URI_CONTAINER"` to `docker run` (mind the quoting inside the `ssh` string) and install `"/work[jtbd,tracking]"`. The script must not contain the address itself (FR-010). Also fix the stale `scripts/spark/...` path in its header comment;
   - train one candidate; stop the server mid-run with `mlflow.sh down`; confirm the run finishes and `tracking.json` says `complete: false`;
   - measure epoch time with and without tracking, which must be under 2 % (SC-006);
   - confirm GPU utilisation shows in system metrics on GB10 (open item 3).
@@ -357,7 +369,7 @@ Single project:
 **Independent Test**: [quickstart.md](quickstart.md) §6.
 - `zoo tracking import` twice → the second time is all `exists`.
 - The imported metrics equal `zoo/models/*/results/<v>/quality.json`.
-- Filtering `datasets.name = 'can-ids-v3@can-ids-v3'` lists every can-ids evaluation.
+- Filtering `datasets.name = 'can-ids@can-ids-v3'` lists every can-ids training and evaluation run.
 - A sandbox release record with `tracking.run_id` validates; an invalid id fails rule 1.
 
 ### Implementation for User Story 5
@@ -370,15 +382,24 @@ Single project:
   - experiment `productdev/jtbd-cluster`;
   - the grid as params, the scores as metrics;
   - input `data_ref("cluster", <benchmark_version>, "evaluation")`.
-- [ ] T048 [P] [US5] Integrate the can-ids runs in `src/mobility_model_zoo/security/can_ids/evaluate.py` (`run`), `evaluate_v2.py` (the functions behind the forest and v2 entry points) and `measure.py` (`merge`):
+- [ ] T048 [P] [US5] Integrate the can-ids evaluation and measurement runs in `src/mobility_model_zoo/security/can_ids/evaluate.py` (`run`), `forest.py` (`cmd_evaluate`, behind `zoo-security can-ids forest evaluate`), `evaluate_v2.py` (the evaluation functions called by `release_export_v2`) and `measure.py` (`merge`):
   - experiment `security/can-ids`;
   - per-detector metrics prefixed `<detector>.`;
   - tags `mmz.benchmark` and `manifest_sha256` as `mmz.sha256` of the input;
   - input `data_ref("can-ids", <benchmark>, "evaluation")`;
-  - per-board performance metrics for `measure`.
+  - per-board performance metrics for `measure`, with `mmz.kind=measure`.
+- [ ] T061 [P] [US5] Integrate picket-forest *training* (FR-017, FR-019) in `src/mobility_model_zoo/security/can_ids/forest.py` (`cmd_export`, "train the final model and export C") and `src/mobility_model_zoo/security/can_ids/release_export_v2.py` (`export`, behind `zoo-security can-ids v2 export`):
+  - experiment `security/can-ids`, `mmz.kind=train`, `mmz.model=picket-forest`;
+  - forest settings from the command options and config as params;
+  - training input `data_ref("can-ids", <benchmark>, "training")` plus the tag `mmz.training_set=<benchmark>:train+calibration`;
+  - the export's scalar results as final metrics;
+  - the export's `config.json` (`benchmark`, `manifest_sha256`, `code_commit`) as artifact `export-config.json`.
+
+  Never the forest, C sources or test vectors (FR-023). Add a case to `tests/tracking/test_eval_integrations.py` that runs `cmd_export` on the existing small edge fixture with the fake transport and checks the training input and that no model file was logged.
 - [ ] T049 [P] [US5] Integrate the HIL bench in `src/mobility_model_zoo/edge/bench/results.py` (`write_summary`):
-  - experiment `edge/hil-bench`;
-  - `perf.<board>.<model>.us_avg` and similar metrics, accuracy metrics, `mmz.hardware=<board>`;
+  - experiment `edge/hil-bench`, `mmz.kind=measure` (no benchmark version; FR-019 measurement rule);
+  - `perf.<board>.<model>.us_avg` and similar metrics, accuracy metrics, `mmz.hardware=<board>`, `mmz.model` and `mmz.model_version` when known;
+  - when accuracy tests read an evaluation file (e.g. `<name>.eval.npz`), log its sha256 as a dataset input with context `evaluation`;
   - artifacts `summary.json` and `summary.md`;
   - logging only when a URI is set; the pytest plugin path in `bench/pytest_plugin.py` needs no change if `write_summary` is the single exit.
 - [ ] T050 [US5] Implement `src/mobility_model_zoo/tracking/importer.py` and the `zoo tracking import [--model] [--dry-run]` command in `src/mobility_model_zoo/tracking/cli.py` (research R13).
@@ -416,7 +437,7 @@ Single project:
 - [ ] T054 [US6] Add a consistency test `tests/tracking/test_tag_consistency.py`. For every integration (span train and tune, jtbd score and perf, cluster, can-ids evaluate and measure, Keras, HIL), run it with the fake transport and assert:
   - the same experiment name per task;
   - `mmz.task` and `mmz.topic` set;
-  - `mmz.benchmark` set on every evaluation run;
+  - `mmz.benchmark` set on every run with `mmz.kind=evaluate`; runs with `mmz.kind=measure` carry `mmz.hardware` instead;
   - `mmz.training_set` set on every training run;
   - metric names stable across two runs of the same command.
 - [ ] T055 [US6] Write the comparison guide section in `docs/tracking.md` ("Compare candidates"): the saved filter `tags.mmz.benchmark = 'pilot-v2'`, which columns to pin, and why runs on different benchmark versions must not be compared (constitution VIII).
@@ -500,7 +521,7 @@ Single project:
 - **US1**: T010, T011, T012, T013, T014, T018 in parallel; then T015 → T016 → T017; T019 and T020 last.
 - **US2**: T021, T022, T023 in parallel; T025 and T026 in parallel after them.
 - **US3**: T028, T029, T030, T031 in parallel, also in parallel with US1 and US2.
-- **US5**: T046, T047, T048, T049 in parallel after the go/no-go.
+- **US5**: T046, T047, T048, T049, T061 in parallel after the go/no-go.
 
 ## Parallel Example: User Story 1
 

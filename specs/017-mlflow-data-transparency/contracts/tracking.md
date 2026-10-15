@@ -89,6 +89,7 @@ The context tag is `inventory`, `training` or `evaluation`. A dataset input carr
 | `config/<name>.yaml` | copy of a committed file under `configs/` | 1 MB |
 | `span_config.json` | span training output, with any `data/` paths reduced to the file name | 1 MB |
 | `report.json` | Keras export report (`<model>.report.json`) | 1 MB |
+| `export-config.json` | `config.json` of a picket-forest export (`benchmark`, `manifest_sha256`, `code_commit`, forest settings) | 1 MB |
 | `summary.json`, `summary.md` | HIL bench | 1 MB |
 | `quality.json`, `performance.json` | import of `zoo/models/*/results/*` | 1 MB |
 

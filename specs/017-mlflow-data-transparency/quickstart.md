@@ -52,6 +52,7 @@ scripts/spark/mlflow/mlflow.sh status            # healthy, v3.17.1, listening o
 # on the laptop
 scripts/spark/mlflow/mlflow.sh tunnel &          # ssh -N -L 5000:127.0.0.1:5000 $SPARK_HOST
 echo 'MLFLOW_TRACKING_URI=http://127.0.0.1:5000' >> .env
+echo 'MLFLOW_TRACKING_URI_CONTAINER=http://mlflow:5000' >> .env   # for training containers on the Spark
 uv run zoo tracking status                       # exit 0, lists experiments
 ```
 
@@ -93,7 +94,7 @@ uv run zoo tracking import                       # second time: all "exists"
 
 - **Imported runs**: in `productdev/jtbd-span`, runs tagged `mmz.imported=true` exist for scout-large 0.1.0 to 0.1.3. In `security/can-ids` they exist for picket-forest 0.2.0 and 0.2.1. Their metrics equal `zoo/models/*/results/<v>/quality.json` exactly.
 - **Run → data**: a run shows its dataset inputs.
-- **Data → runs**: filter the run table with `datasets.name = 'can-ids-v3'`. It lists every evaluation on that benchmark.
+- **Data → runs**: filter the run table with `datasets.name = 'can-ids@can-ids-v3'`. It lists every training and evaluation run on that benchmark.
 - **Release link**: add `tracking: {run_id: <id>}` to a sandbox release record. `zoo validate --all` passes, and an invalid id fails rule 1.
 
 ## 7. Comparison (US6)
