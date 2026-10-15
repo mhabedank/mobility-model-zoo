@@ -30,6 +30,8 @@ Decisions taken with the owner on 2026-10-15:
 3. **The repository stays the source of truth.** Registers, frozen benchmarks, release records and gate rules are unchanged in authority. MLflow is the lab notebook: it shows, compares and links, it never decides.
 4. **Data overview first**: the overview of datasets and benchmarks is the first slice to ship, training-run logging follows.
 5. **Only numbers, hashes and metadata go into MLflow**: never dataset text, chunks, labels, frames or personal data.
+6. **Past results are imported** once as runs marked "imported" (final values only), so the history in MLflow starts with the first published model, not with this feature.
+7. **No committed overview file**: the command and MLflow are the two places to look; nothing extra is generated into the repository.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -196,11 +198,11 @@ When several candidates of one task have run (for example span-model candidates 
 
 **History of past work**
 
-- **FR-028**: Historical training and evaluation results that already exist in the repository [NEEDS CLARIFICATION: Should past results (scout-large 0.1.0–0.1.3, picket-forest 0.2.0–0.2.1, cluster-v1 runs) be imported into MLflow as runs marked "imported", or does tracking start with new runs only?]
+- **FR-028**: Historical training and evaluation results that already exist in the repository (`zoo/models/<name>/results/<version>/`, release records, and the run records of frozen benchmarks such as cluster-v1) MUST be importable once into their task's experiment as runs marked "imported". An imported run carries the final metrics, the model version, the benchmark and training set versions it names and the commit of its record; it has no metric curves. Importing again MUST NOT create duplicates. Values missing from a record are left empty, never reconstructed.
 
 **Visibility outside the terminal and MLflow**
 
-- **FR-029**: The overview [NEEDS CLARIFICATION: Should a generated overview file (for example `docs/data-inventory.md`) be committed and kept current by CI, like the compliance documents, or is the command plus MLflow enough?]
+- **FR-029**: The overview MUST be available through the command and in MLflow only. No generated overview file is committed to the repository and CI does not maintain one.
 
 ### Key Entities
 
@@ -220,6 +222,7 @@ When several candidates of one task have run (for example span-model candidates 
 - **SC-003**: For any benchmark family, the owner can name every version, its freeze date and how it differs from the previous one in under two minutes.
 - **SC-004**: The owner can follow a running training on the Spark from the laptop's browser without opening an SSH shell, with metrics no more than one minute behind.
 - **SC-005**: For every run logged after this feature, the training set and benchmark versions it used can be found in one step, in both directions.
+- **SC-005a**: Every model version with a results folder or release record appears in MLflow as an imported run, and its final metrics match the repository record exactly.
 - **SC-006**: Run-time overhead of logging stays below 2 % on a typical training run; a run with the server down completes with identical result files.
 - **SC-007**: A scan of the tracking store finds no dataset text, chunk, label or personal data.
 - **SC-008**: With no tracking location set, the full existing test suite and CI pass unchanged, and the base install size does not grow.

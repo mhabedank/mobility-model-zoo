@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -32,4 +32,4 @@
 ## Notes
 
 - MLflow, the DGX Spark and existing repository paths are named because the owner chose them (Context, decisions 1–5) and the registers are the subject of the feature; storage, schema and code structure are left to the plan.
-- Open: FR-028 (import of past results) and FR-029 (committed overview file). Resolve before `/speckit-plan`.
+- Resolved with the owner on 2026-10-15: FR-028 import past results once as "imported" runs (Q1: A); FR-029 no committed overview file (Q2: B).
