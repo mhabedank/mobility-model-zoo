@@ -1,10 +1,13 @@
-"""Render website imagery from a series file (feature 016, contracts/cli.md "Generator").
+"""Render website imagery from a series file (features 016 and 019, contracts/cli.md "Generator").
 
 Runs inside the `zoo-flux` container on the DGX Spark (see README.md). Reads a series file
-(`zoo/site/images/series/<name>.yaml`: style, negative, subjects per placement, draft and final
-model), writes `<out>/<placement>-<n>-<seed>.png` and `<out>/manifest.json` with one entry per
-image: the exact recipe `zoo site images add` copies into the image record. Existing files are
-skipped, so an interrupted run can be resumed.
+(`zoo/site/images/series/<name>.yaml`: style, negative, draft and final model, and `themes`:
+theme id → subjects with id, prompt, aspect), writes `<out>/<theme>--<subject>--<seed>.png` and
+`<out>/manifest.json` with one entry per image: the exact recipe `zoo site images pick` copies
+into the image record. Existing files are skipped, so an interrupted run can be resumed.
+
+Seeds: `seed_base + (97 * crc32("theme/subject")) % 1_000_000 + s`, so a subject keeps its seeds
+across runs and no two subjects share one; a second round uses `--seed-base 1000`.
 """
 
 from __future__ import annotations
@@ -17,13 +20,10 @@ import os
 import platform
 import sys
 import time
+import zlib
 from pathlib import Path
 
 SIZES = {"16:9": (1344, 768), "3:2": (1200, 800)}
-
-
-def aspect_of(placement: str) -> str:
-    return "16:9" if placement == "start-hero" else "3:2"
 
 
 def load_series(path: Path) -> dict:
@@ -33,6 +33,40 @@ def load_series(path: Path) -> dict:
     series["style"] = " ".join(series["style"].split())
     series["negative"] = " ".join(series.get("negative", "").split())
     return series
+
+
+def subjects(series: dict) -> list[dict]:
+    """Every subject as {key, theme, id, prompt, aspect, reserve} in series order."""
+    out = []
+    for theme, lst in (series.get("themes") or {}).items():
+        for s in lst or []:
+            out.append(
+                {
+                    "key": f"{theme}/{s['id']}",
+                    "theme": theme,
+                    "id": s["id"],
+                    "prompt": s["prompt"],
+                    "aspect": s.get("aspect", "3:2"),
+                    "reserve": bool(s.get("reserve")),
+                }
+            )
+    return out
+
+
+def seed_for(key: str, seed_base: int, s: int) -> int:
+    return seed_base + (97 * zlib.crc32(key.encode("utf-8"))) % 1_000_000 + s
+
+
+def selected(subs: list[dict], only: set[str], reserve: bool) -> list[dict]:
+    """`only` holds themes or theme/subject keys; empty means every non-reserve subject."""
+    out = []
+    for s in subs:
+        if only and s["theme"] not in only and s["key"] not in only:
+            continue
+        if s["reserve"] and not reserve and s["key"] not in only:
+            continue
+        out.append(s)
+    return out
 
 
 def hardware_class() -> str:
@@ -67,6 +101,20 @@ def build_pipeline(model: dict):
     return pipe, revision
 
 
+def plan(series: dict, a) -> list[dict]:
+    """The (subject, seed, file name) list of a run; separated from rendering for tests."""
+    only = {p.strip() for p in a.only.split(",") if p.strip()}
+    next_file = a.out / "next.txt"
+    if not only and next_file.exists():
+        only = {ln.strip() for ln in next_file.read_text(encoding="utf-8").splitlines() if ln.strip()}
+    jobs = []
+    for s in selected(subjects(series), only, a.reserve):
+        for i in range(a.seeds):
+            seed = seed_for(s["key"], a.seed_base, i)
+            jobs.append({**s, "seed": seed, "file": f"{s['theme']}--{s['id']}--{seed}.png"})
+    return jobs
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument(
@@ -74,18 +122,27 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--model", default="final", choices=("draft", "final"))
     ap.add_argument("--seeds", type=int, default=1, help="seeds per subject")
+    ap.add_argument("--seed-base", type=int, default=0, help="added to every seed (round 2: 1000)")
     ap.add_argument("--steps", type=int, default=0, help="0 = the model's default from the series file")
-    ap.add_argument("--only", default="", help="comma-separated placements")
+    ap.add_argument("--only", default="", help="comma-separated themes or theme/subject keys")
+    ap.add_argument("--reserve", action="store_true", help="include subjects marked reserve")
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument("--plan", action="store_true", help="print the jobs and exit (no GPU)")
     a = ap.parse_args(argv)
-
-    import torch
 
     series = load_series(a.series)
     model = series["models"][a.model]
     steps = a.steps or model["steps"]
     out = a.out
     out.mkdir(parents=True, exist_ok=True)
+    jobs = plan(series, a)
+    if a.plan:
+        for j in jobs:
+            print(j["file"])
+        return 0
+
+    import torch
+
     manifest_path = out / "manifest.json"
     manifest = (
         json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -93,62 +150,55 @@ def main(argv: list[str] | None = None) -> int:
         else {"series": series["name"], "model": model["id"], "images": []}
     )
     pipe, revision = build_pipeline(model)
-    only = {p for p in a.only.split(",") if p}
-    for placement, prompts in series["subjects"].items():
-        if only and placement not in only:
+    for j in jobs:
+        if (out / j["file"]).exists():
             continue
-        w, h = SIZES[aspect_of(placement)]
-        for i, subject in enumerate(prompts, 1):
-            for s in range(a.seeds):
-                seed = 1000 + i * 10 + s
-                name = f"{placement}-{i}-{seed}.png"
-                if (out / name).exists():
-                    continue
-                prompt = f"{subject}, {series['style']}"
-                kw = dict(
-                    prompt=prompt,
-                    num_inference_steps=steps,
-                    width=w,
-                    height=h,
-                    generator=torch.Generator("cuda").manual_seed(seed),
-                )
-                if "true_cfg_scale" in model:
-                    kw.update(true_cfg_scale=model["true_cfg_scale"], negative_prompt=series["negative"])
-                    guidance = model["true_cfg_scale"]
-                else:
-                    kw["guidance_scale"] = model["guidance"]
-                    guidance = model["guidance"]
-                t0 = time.time()
-                image = pipe(**kw).images[0]
-                image.save(out / name)
-                manifest["images"].append(
-                    {
-                        "file": name,
-                        "placement": placement,
-                        "subject": subject,
-                        "prompt": prompt,
-                        "negative_prompt": series["negative"] if "true_cfg_scale" in model else "",
-                        "seed": seed,
-                        "steps": steps,
-                        "guidance": guidance,
-                        "width": w,
-                        "height": h,
-                        "model": model["id"],
-                        "revision": revision,
-                        "model_licence": model["licence"],
-                        "model_card": model["card"],
-                        "pipeline": model["pipeline"],
-                        "series": series["name"],
-                        "generated": dt.date.today().isoformat(),
-                        "hardware": hardware_class(),
-                        "generator": generator_identity(),
-                        "seconds": round(time.time() - t0, 1),
-                    }
-                )
-                manifest_path.write_text(
-                    json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8"
-                )
-                print(f"{name} {time.time() - t0:.1f}s", flush=True)
+        w, h = SIZES[j["aspect"]]
+        prompt = f"{j['prompt']}, {series['style']}"
+        kw = dict(
+            prompt=prompt,
+            num_inference_steps=steps,
+            width=w,
+            height=h,
+            generator=torch.Generator("cuda").manual_seed(j["seed"]),
+        )
+        if "true_cfg_scale" in model:
+            kw.update(true_cfg_scale=model["true_cfg_scale"], negative_prompt=series["negative"])
+            guidance = model["true_cfg_scale"]
+        else:
+            kw["guidance_scale"] = model["guidance"]
+            guidance = model["guidance"]
+        t0 = time.time()
+        image = pipe(**kw).images[0]
+        image.save(out / j["file"])
+        manifest["images"].append(
+            {
+                "file": j["file"],
+                "theme": j["theme"],
+                "subject": j["id"],
+                "aspect": j["aspect"],
+                "seed_base": a.seed_base,
+                "prompt": prompt,
+                "negative_prompt": series["negative"] if "true_cfg_scale" in model else "",
+                "seed": j["seed"],
+                "steps": steps,
+                "guidance": guidance,
+                "width": w,
+                "height": h,
+                "model": model["id"],
+                "revision": revision,
+                "model_licence": model["licence"],
+                "model_card": model["card"],
+                "pipeline": model["pipeline"],
+                "series": series["name"],
+                "generated": dt.date.today().isoformat(),
+                "hardware": hardware_class(),
+                "generator": generator_identity(),
+                "seconds": round(time.time() - t0, 1),
+            }
+        )
+        manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
+        print(f"{j['file']} {time.time() - t0:.1f}s", flush=True)
     return 0
 
 

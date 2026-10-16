@@ -19,7 +19,7 @@ One generated scene. The directory also holds the source PNG `<id>.png` and the 
 | `alt` | string | One sentence, 40 to 160 characters, ending with "(AI-generated image)" |
 | `focal_point` | `[x, y]` | Fractions 0–1 of the source's width and height |
 | `aspect` | enum | `16:9` for `start-hero`, `3:2` otherwise |
-| `source` | object | `{file, width, height, sha256}` of the generator's PNG |
+| `source` | object | `{file, width, height, sha256}` of the generator's PNG; `file` is optional since feature 019 (library records keep the hash only) |
 | `derivatives` | map | width → `{file, bytes, sha256}` for 480, 960 and 1600 |
 | `checks` | object | See below |
 

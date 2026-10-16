@@ -3,6 +3,11 @@
 # screen-print colour fields, clean geometry, long diagonals. Sky, ground and buildings only in
 # deep navy, pale mint and warm cream; ONE warm orange-yellow accent reserved for the main vehicle
 # or machine. Every image record's prompt is one subject below followed by `style` (check I2).
+#
+# Feature 019: subjects live under `themes` (theme id -> subjects with id, prompt, aspect, scene,
+# alt); `palette` and `duplicate_max_bits` hold the thresholds of checks I6 and I7; `negative`
+# gained the AI-cliché terms and `negative_history` keeps the earlier text so the six 016 records
+# stay valid (research R2).
 name: siebdruck
 style: >-
   1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print texture,
@@ -13,7 +18,12 @@ style: >-
   people only as small simple silhouettes
 negative: >-
   text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic, glossy, 3d render,
-  neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange ground
+  neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange ground,
+  brain, glowing network, hologram, floating icons, circuit pattern
+negative_history:
+  - >-
+    text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic, glossy, 3d render,
+    neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange ground
 models:
   draft:
     id: black-forest-labs/FLUX.2-klein-4B
@@ -29,21 +39,518 @@ models:
     card: https://huggingface.co/Qwen/Qwen-Image-2512
     steps: 50
     true_cfg_scale: 4.0
-subjects:
-  start-hero:
-    - an orange-yellow tram gliding out of a stop on a wide boulevard at sunrise, one cyclist riding ahead into the light
-    - an orange-yellow regional train leaving a small station at dawn, empty platform, mist over flat fields
-    - a bike lane along a river at sunrise, two cyclists far ahead, an orange-yellow tram crossing a bridge in the distance, city skyline soft
-  topic-productdev:
-    - a bright empty tram interior in morning light, orange-yellow seats, sun streaks on the floor, city through the windows
-    - a quiet bus stop at sunrise, a single small figure from behind with a bicycle, an orange-yellow bus approaching
-  topic-security:
-    - a car dashboard and windshield at sunrise on an open road, round instruments with orange-yellow needles, road ahead empty
-    - a clean vehicle workshop bay at morning, an orange-yellow car with open hood, wiring harness and diagnostic cable, tall windows
-  topic-condition-monitoring:
-    - a large industrial fan with an orange-yellow electric motor on a test rig in a tall workshop hall, sunlight through high windows
-    - an orange-yellow railway wheelset, two wheels on one axle, resting on steel stands in a bright maintenance hall, a small figure from behind with a tablet
-  model-scout-large:
-    - a notebook and pen on a train table by a sunlit window, an orange-yellow train passing outside, landscape in soft bands
-  model-picket-forest:
-    - a small green circuit board on a workbench by a window, an orange-yellow automotive diagnostic plug and a thin wiring harness connected to it, an oscilloscope showing a square wave trace
+
+# Check I6 (feature 019, research R4). Anchors are CIELAB triples (L 0-100, a, b); `calibrated`
+# turns true once T025 has measured them on the six approved 016 images and tuned the thresholds.
+palette:
+  calibrated: true  # 2026-10-14 on the 016 renders: 78 approved renders (out6) vs 55 rejected
+  # (night-and-rain, photoreal); `other` separates them with margin (approved max 17.5%,
+  # rejected min 27.5%), see specs/019-mobility-image-library/validation.md
+  anchors:
+    accent: [57.0, 21.5, 53.9]
+    tone1: [11.9, 3.2, -21.2]
+    tone2: [29.1, -6.1, -14.9]
+    tone3: [53.1, -14.3, -2.4]
+    tone4: [81.9, -18.1, 7.1]
+    tone5: [92.2, -4.7, 14.7]
+  tolerance_de: 18
+  other_max: 0.22
+  accent_min: 0.0015
+  accent_max: 0.30
+  largest_min: 0.07
+  top_max: 0.15
+# Check I7 (research R5): pHash Hamming distance at or below this is a near-duplicate.
+duplicate_max_bits: 10
+
+themes:
+  rail:
+    - id: regional-dawn
+      aspect: "16:9"
+      prompt: an orange-yellow regional train leaving a small station at dawn, empty platform, mist over flat fields
+      scene: Regional train leaving a small station at dawn, mist over flat fields
+      alt: An orange-yellow regional train leaves a small station platform in warm morning light
+    - id: tram-interior
+      prompt: a bright empty tram interior in morning light, orange-yellow seats, sun streaks on the floor, city through the windows
+      scene: Empty tram interior in morning light with orange-yellow seats
+      alt: A bright, empty tram interior with orange-yellow seats and sun streaks on the floor
+    - id: wheelset-hall
+      prompt: an orange-yellow railway wheelset, two wheels on one axle, resting on steel stands in a bright maintenance hall, a small figure from behind with a tablet
+      scene: Railway wheelset on steel stands in a bright maintenance hall
+      alt: An orange-yellow railway wheelset rests on steel stands in a bright maintenance hall
+    - id: train-window-notebook
+      prompt: a notebook and pen on a train table by a sunlit window, an orange-yellow train passing outside, landscape in soft bands
+      scene: Notebook on a train table by a sunlit window, a train passing outside
+      alt: A notebook and pen on a train table by a sunlit window while an orange-yellow train passes outside
+    - id: tram-boulevard
+      aspect: "16:9"
+      prompt: an orange-yellow tram gliding out of a stop on a wide boulevard at sunrise, one cyclist riding ahead into the light
+      scene: Tram leaving a stop on a wide boulevard at sunrise, a cyclist ahead
+      alt: An orange-yellow tram glides out of a stop on a wide boulevard at sunrise while a cyclist rides ahead
+    - id: high-speed-viaduct
+      aspect: "16:9"
+      prompt: an orange-yellow high-speed train crossing a tall concrete viaduct above a misty valley at sunrise
+      scene: High-speed train crossing a tall viaduct above a misty valley at sunrise
+      alt: An orange-yellow high-speed train crosses a tall concrete viaduct above a misty valley
+    - id: metro-platform
+      prompt: an orange-yellow metro train arriving at an underground platform, long tiled wall, a few small figures waiting seen from behind
+      scene: Metro train arriving at an underground platform with a long tiled wall
+      alt: An orange-yellow metro train arrives at an underground platform where a few figures wait
+    - id: freight-containers
+      aspect: "16:9"
+      prompt: a long freight train with an orange-yellow locomotive pulling flat wagons loaded with containers through flat farmland at sunrise
+      scene: Freight train with containers crossing flat farmland at sunrise
+      alt: An orange-yellow locomotive pulls a long train of container wagons through flat farmland
+    - id: shunting-yard
+      prompt: an orange-yellow shunting locomotive in a wide marshalling yard, fans of tracks, low morning light
+      scene: Shunting locomotive in a wide marshalling yard in low morning light
+      alt: An orange-yellow shunting locomotive stands in a wide marshalling yard with fanning tracks
+    - id: mountain-rack
+      prompt: an orange-yellow rack railway car climbing a steep alpine slope above a valley, snow on the peaks
+      scene: Rack railway car climbing a steep alpine slope above a valley
+      alt: An orange-yellow rack railway car climbs a steep alpine slope above a valley with snowy peaks
+    - id: track-maintenance
+      prompt: an orange-yellow rail-mounted maintenance vehicle standing on the tracks of a closed line between tall trees, two small figures in silhouette with tools
+      scene: Track maintenance vehicle on a closed line between tall trees
+      alt: An orange-yellow track maintenance vehicle stands on a closed line between tall trees
+    - id: depot-hall
+      prompt: a railway depot hall with an orange-yellow train on the inspection pit road, tall windows, cables hanging from the ceiling
+      scene: Railway depot hall with a train on the inspection pit road
+      alt: An orange-yellow train stands on the inspection pit road of a tall railway depot hall
+    - id: level-crossing
+      prompt: a rural level crossing with lowered barrier arms and an orange-yellow regional train passing, a cyclist waiting seen from behind
+      scene: Rural level crossing with barriers down and a train passing
+      alt: An orange-yellow regional train passes a rural level crossing while a cyclist waits
+    - id: pantograph
+      prompt: close view of the roof of an orange-yellow train with a raised pantograph touching the overhead line against a pale morning sky
+      scene: Pantograph touching the overhead line against a pale morning sky
+      alt: An orange-yellow pantograph touches the overhead line against a pale morning sky
+    - id: night-train-morning
+      reserve: true
+      prompt: an orange-yellow sleeper train arriving at a terminus in early morning light, long platform roof
+      scene: Sleeper train arriving at a terminus in early morning light
+      alt: An orange-yellow sleeper train arrives under the long roof of a terminus in early morning light
+  public-road:
+    - id: bus-stop-sunrise
+      prompt: a quiet bus stop at sunrise, a single small figure from behind with a bicycle, an orange-yellow bus approaching
+      scene: Quiet bus stop at sunrise with a bus approaching
+      alt: An orange-yellow bus approaches a quiet stop at sunrise where a figure waits with a bicycle
+    - id: articulated-bus-lane
+      prompt: an orange-yellow articulated bus on a dedicated bus lane along a tree-lined avenue
+      scene: Articulated bus on a dedicated lane along a tree-lined avenue
+      alt: An orange-yellow articulated bus runs on its own lane along a tree-lined avenue
+    - id: coach-motorway
+      aspect: "16:9"
+      prompt: a long orange-yellow touring coach with a high passenger deck on an empty motorway at sunrise, rolling hills
+      scene: Coach on an empty motorway at sunrise between rolling hills
+      alt: An orange-yellow coach travels an empty motorway at sunrise between rolling hills
+    - id: trolleybus-wires
+      prompt: an orange-yellow trolleybus under a web of overhead wires on a quiet city street
+      scene: Trolleybus under overhead wires on a quiet city street
+      alt: An orange-yellow trolleybus runs under a web of overhead wires on a quiet city street
+    - id: bus-depot
+      prompt: a bus depot at dawn with rows of orange-yellow buses, one pulling out
+      scene: Bus depot at dawn with one bus pulling out
+      alt: Rows of orange-yellow buses stand in a depot at dawn while one pulls out
+    - id: village-minibus
+      prompt: an orange-yellow minibus at a small stop in a village square, a figure with a shopping bag seen from behind
+      scene: Minibus at a small stop in a village square
+      alt: An orange-yellow minibus waits at a small stop in a village square
+    - id: bus-charging
+      prompt: an orange-yellow electric bus under a pantograph charging mast at a terminus
+      scene: Electric bus charging under a pantograph mast at a terminus
+      alt: An orange-yellow electric bus charges under a pantograph mast at a terminus
+    - id: bus-station-roof
+      prompt: a bus station with a wide curved roof, orange-yellow buses in the bays, morning light
+      scene: Bus station with a wide curved roof and buses in the bays
+      alt: Orange-yellow buses stand in the bays of a bus station under a wide curved roof
+    - id: tram-wash
+      prompt: an orange-yellow tram in a washing hall between large brushes, water as flat shapes
+      scene: Tram in a washing hall between large brushes
+      alt: An orange-yellow tram passes between the large brushes of a washing hall
+    - id: ramp-boarding
+      reserve: true
+      prompt: a low-floor orange-yellow bus with its ramp folded out at a stop, a figure in a wheelchair seen from behind
+      scene: Low-floor bus with its ramp out at a stop
+      alt: A low-floor orange-yellow bus has its ramp folded out at a stop for a figure in a wheelchair
+  private-road:
+    - id: workshop-bay
+      prompt: a clean vehicle workshop bay at morning, an orange-yellow car with open hood, wiring harness and diagnostic cable, tall windows
+      scene: Vehicle workshop bay at morning with a car under diagnosis
+      alt: An orange-yellow car with an open hood and a diagnostic cable stands in a clean workshop bay
+    - id: car-open-road
+      aspect: "16:9"
+      prompt: an orange-yellow compact car on an open road winding through rolling fields at sunrise
+      scene: Compact car on an open road through rolling fields at sunrise
+      alt: An orange-yellow compact car follows an open road winding through rolling fields at sunrise
+    - id: car-charging
+      prompt: an orange-yellow car at a charging post in a quiet car park, cable plugged in, trees behind
+      scene: Car charging at a post in a quiet car park
+      alt: An orange-yellow car stands plugged in at a charging post in a quiet car park
+    - id: truck-river-bridge
+      aspect: "16:9"
+      prompt: an orange-yellow articulated truck on a motorway bridge over a river at sunrise
+      scene: Articulated truck on a motorway bridge over a river at sunrise
+      alt: An orange-yellow articulated truck crosses a motorway bridge over a river at sunrise
+    - id: delivery-van
+      prompt: an orange-yellow delivery van parked in a narrow old-town street, a courier seen from behind with a parcel
+      scene: Delivery van in a narrow old-town street
+      alt: An orange-yellow delivery van is parked in a narrow old-town street while a courier carries a parcel
+    - id: motorcycle-pass
+      prompt: an orange-yellow motorcycle on a mountain pass road with hairpin bends
+      scene: Motorcycle on a mountain pass road with hairpin bends
+      alt: An orange-yellow motorcycle rides a mountain pass road with hairpin bends
+    - id: tractor-rural
+      prompt: an orange-yellow tractor on a rural road between fields, dust in morning light
+      scene: Tractor on a rural road between fields in morning light
+      alt: An orange-yellow tractor drives a rural road between fields in morning light
+    - id: roundabout-above
+      prompt: a roundabout seen from above with one orange-yellow car entering, geometric road markings
+      scene: Roundabout seen from above with one car entering
+      alt: A roundabout seen from above with one orange-yellow car entering between geometric markings
+    - id: parking-deck
+      prompt: a multi-storey car park deck with one orange-yellow car, ramps and concrete lines
+      scene: Car park deck with one car between ramps and concrete lines
+      alt: One orange-yellow car stands on a multi-storey car park deck between ramps and concrete lines
+    - id: camper-coast
+      prompt: an orange-yellow camper van on a coastal road above the sea
+      scene: Camper van on a coastal road above the sea
+      alt: An orange-yellow camper van follows a coastal road high above the sea
+    - id: car-sharing-row
+      prompt: a row of parked car-sharing cars in navy and pale mint in a marked bay, a single orange-yellow car among them, a figure seen from behind with a key card
+      scene: Row of car-sharing cars in a marked bay
+      alt: A row of car-sharing cars waits in a marked bay, one of them orange-yellow
+    - id: taxi-rank
+      reserve: true
+      prompt: an orange-yellow taxi waiting first in a rank in front of a station, no signs
+      scene: Taxi waiting first in a rank in front of a station
+      alt: An orange-yellow taxi waits first in a rank in front of a station in morning light
+  active:
+    - id: riverside-cyclists
+      aspect: "16:9"
+      prompt: a bike lane along a river at sunrise, two cyclists far ahead, an orange-yellow tram crossing a bridge in the distance, city skyline soft
+      scene: Bike lane along a river at sunrise, a tram crossing a bridge in the distance
+      alt: Two cyclists ride a riverside lane at sunrise while an orange-yellow tram crosses a distant bridge
+    - id: winter-cyclist
+      prompt: a cyclist seen from behind on a snowy cycle path, an orange-yellow bicycle, bare trees
+      scene: Cyclist on a snowy cycle path between bare trees
+      alt: A cyclist seen from behind rides an orange-yellow bicycle along a snowy path between bare trees
+    - id: cargo-bike-canal
+      prompt: a figure seen from behind pushing an orange-yellow cargo bike with a child seat along a canal
+      scene: Cargo bike with a child seat pushed along a canal
+      alt: A figure seen from behind pushes an orange-yellow cargo bike with a child seat along a canal
+    - id: scooter-dock
+      prompt: a row of e-scooters in navy at a docking station, a single orange-yellow e-scooter among them, in front of a glass office building
+      scene: E-scooters at a docking station in front of an office building
+      alt: A row of e-scooters waits at a docking station in front of a glass office building
+    - id: pedestrian-street
+      prompt: a car-free pedestrian street at sunrise with long shadows, only walking figures seen from behind and a single orange-yellow bicycle leaning on a lamp post, no cars, no buses, no vans
+      scene: Wide pedestrian street at sunrise with long shadows
+      alt: A wide pedestrian street at sunrise with long shadows and an orange-yellow bicycle at a lamp post
+    - id: bike-parking-station
+      prompt: a bike parking hall with rows of racks, one orange-yellow bicycle, a station roof behind
+      scene: Bike parking hall with rows of racks beside a station
+      alt: Rows of racks fill a bike parking hall beside a station, one bicycle orange-yellow
+    - id: footbridge-tracks
+      prompt: a curved pedestrian footbridge over railway tracks, an orange-yellow train below, figures seen from behind above
+      scene: Curved footbridge over railway tracks with a train below
+      alt: Figures cross a curved footbridge over railway tracks while an orange-yellow train passes below
+    - id: cycle-highway
+      prompt: an elevated bicycle bridge curving between buildings, only bicycles on it, one orange-yellow cyclist seen from behind, no cars
+      scene: Elevated cycle highway curving between buildings
+      alt: An elevated cycle highway curves between buildings with one orange-yellow cyclist seen from behind
+    - id: walking-school
+      reserve: true
+      prompt: a group of small figures seen from behind walking along a path to a school, an orange-yellow bicycle beside them
+      scene: Small figures walking a path to a school in the morning
+      alt: A group of small figures walks a path to a school in the morning with an orange-yellow bicycle beside them
+  water:
+    - id: ferry-pier
+      prompt: an orange-yellow passenger ferry arriving at a wooden pier on a calm lake
+      scene: Passenger ferry arriving at a wooden pier on a calm lake
+      alt: An orange-yellow passenger ferry arrives at a wooden pier on a calm lake
+    - id: river-barge
+      prompt: an orange-yellow cargo barge on a wide river passing under an arch bridge
+      scene: Cargo barge on a wide river passing under an arch bridge
+      alt: An orange-yellow cargo barge passes under an arch bridge on a wide river
+    - id: container-terminal
+      prompt: tall gantry cranes at a container terminal, one orange-yellow straddle carrier, water in the morning
+      scene: Container terminal with tall gantry cranes in the morning
+      alt: Tall gantry cranes stand over a container terminal where an orange-yellow straddle carrier works
+    - id: lock-gate
+      prompt: a river lock with its gates opening, an orange-yellow push boat waiting
+      scene: River lock with its gates opening and a push boat waiting
+      alt: An orange-yellow push boat waits in a river lock as the gates open
+    - id: harbour-pilot
+      prompt: an orange-yellow pilot boat leaving a harbour mouth past a plain lighthouse
+      scene: Pilot boat leaving a harbour mouth past a lighthouse
+      alt: An orange-yellow pilot boat leaves a harbour mouth past a plain lighthouse
+    - id: car-ferry-ramp
+      prompt: an orange-yellow car ferry at a ramp, cars queuing seen from behind
+      scene: Car ferry at a ramp with cars queuing
+      alt: Cars queue at a ramp to board an orange-yellow car ferry in morning light
+    - id: ferry-deck
+      prompt: the open deck of a ferry with orange-yellow benches, a figure seen from behind at the railing, coast ahead
+      scene: Open ferry deck with benches and the coast ahead
+      alt: A figure stands at the railing of an open ferry deck with orange-yellow benches, the coast ahead
+    - id: canal-narrowboat
+      reserve: true
+      prompt: an orange-yellow narrowboat in a tree-lined canal, towpath with a cyclist seen from behind
+      scene: Narrowboat in a tree-lined canal beside a towpath
+      alt: An orange-yellow narrowboat moves along a tree-lined canal beside a towpath
+  air:
+    - id: regional-apron
+      prompt: an orange-yellow turboprop regional aircraft on an apron at dawn, a tug and small figures seen from behind
+      scene: Regional turboprop aircraft on an apron at dawn
+      alt: An orange-yellow turboprop regional aircraft stands on an apron at dawn beside a tug
+    - id: apron-bus
+      prompt: an orange-yellow apron bus beside a jet bridge, an aircraft tail above
+      scene: Apron bus beside a jet bridge under an aircraft tail
+      alt: An orange-yellow apron bus waits beside a jet bridge under an aircraft tail
+    - id: control-tower
+      prompt: an airport control tower against a pale morning sky, an orange-yellow aircraft taxiing below
+      scene: Airport control tower with an aircraft taxiing below
+      alt: An orange-yellow aircraft taxis below an airport control tower against a pale morning sky
+    - id: helipad-roof
+      prompt: an orange-yellow rescue helicopter on a hospital roof helipad at sunrise
+      scene: Rescue helicopter on a hospital roof helipad at sunrise
+      alt: An orange-yellow rescue helicopter stands on a hospital roof helipad at sunrise
+    - id: cargo-drone-field
+      prompt: a small orange-yellow quadcopter cargo drone with four rotors and a parcel box flying above a field, a farmhouse small in the distance
+      scene: Cargo drone above a field with a farmhouse in the distance
+      alt: An orange-yellow cargo drone flies above a field with a farmhouse small in the distance
+    - id: hangar-doors
+      prompt: an orange-yellow light aircraft in a hangar with the doors open to the morning
+      scene: Light aircraft in a hangar with the doors open
+      alt: An orange-yellow light aircraft stands in a hangar whose doors open to the morning
+    - id: glider-launch
+      reserve: true
+      prompt: an orange-yellow glider on a grass airfield at dawn, winch cable as a thin line
+      scene: Glider on a grass airfield at dawn before launch
+      alt: An orange-yellow glider waits on a grass airfield at dawn with the winch cable as a thin line
+  infrastructure:
+    - id: platform-canopy
+      prompt: an empty station platform under a long steel canopy, an orange-yellow train at the far end
+      scene: Empty station platform under a long steel canopy
+      alt: An empty station platform under a long steel canopy with an orange-yellow train at the far end
+    - id: motorway-bridge
+      aspect: "16:9"
+      prompt: a motorway bridge on tall piers spanning a valley, an orange-yellow truck crossing
+      scene: Motorway bridge on tall piers spanning a valley
+      alt: An orange-yellow truck crosses a motorway bridge on tall piers spanning a valley
+    - id: tunnel-portal
+      prompt: a tunnel portal in a hillside with an orange-yellow train emerging, catenary masts
+      scene: Tunnel portal in a hillside with a train emerging
+      alt: An orange-yellow train emerges from a tunnel portal in a hillside between catenary masts
+    - id: catenary-line
+      aspect: "16:9"
+      prompt: a row of catenary masts and overhead lines along a straight track, an orange-yellow maintenance car far away
+      scene: Catenary masts and overhead lines along a straight track
+      alt: Catenary masts and overhead lines run along a straight track with an orange-yellow maintenance car far away
+    - id: signal-cabinet
+      prompt: a grey metal signal cabinet with an open door beside the track, an orange-yellow railway signal head on a post, cables leading into the ground, no vehicles
+      scene: Signal cabinet beside the track with a signal head
+      alt: A grey signal cabinet beside the track carries an orange-yellow signal head, cables into the ground
+    - id: intersection-lights
+      prompt: an empty city intersection at sunrise with traffic lights, one orange-yellow tram crossing
+      scene: Empty city intersection at sunrise with a tram crossing
+      alt: An orange-yellow tram crosses an empty city intersection at sunrise under traffic lights
+    - id: charging-hub
+      prompt: a charging hub with a solar canopy, orange-yellow charging posts in a row
+      scene: Charging hub with a solar canopy and posts in a row
+      alt: Orange-yellow charging posts stand in a row under the solar canopy of a charging hub
+    - id: hydrogen-station
+      prompt: a hydrogen fuelling station with an orange-yellow bus at the dispenser
+      scene: Hydrogen fuelling station with a bus at the dispenser
+      alt: An orange-yellow bus stands at the dispenser of a hydrogen fuelling station
+    - id: spiral-ramp
+      prompt: the round spiral ramp of a multi-storey car park seen from outside, concrete, one orange-yellow car at the top
+      scene: Spiral car park ramp seen from outside
+      alt: A concrete spiral car park ramp seen from outside with one orange-yellow car at the top
+    - id: field-shelter
+      prompt: a glass bus shelter at the edge of a field, an orange-yellow bus approaching over a hill
+      scene: Glass bus shelter at the edge of a field with a bus approaching
+      alt: An orange-yellow bus approaches a glass shelter at the edge of a field over a hill
+    - id: port-crane
+      prompt: a large orange-yellow port crane over a quay at sunrise, a ship's hull in navy
+      scene: Port crane over a quay at sunrise beside a ship's hull
+      alt: A large orange-yellow port crane stands over a quay at sunrise beside a navy ship's hull
+    - id: road-works
+      prompt: a road works site with cones and an orange-yellow excavator, fresh lane markings
+      scene: Road works site with cones and an excavator
+      alt: An orange-yellow excavator works between cones on a road works site with fresh lane markings
+    - id: snow-plough
+      prompt: an orange-yellow snow plough truck on a mountain road at dawn, snow banks
+      scene: Snow plough truck on a mountain road at dawn
+      alt: An orange-yellow snow plough truck clears a mountain road at dawn between snow banks
+    - id: control-room
+      prompt: a traffic control room, a figure seen from behind at an orange-yellow desk console with buttons, a wall of abstract map screens, no vehicles
+      scene: Traffic control room with a wall of abstract map screens
+      alt: A figure seen from behind sits at an orange-yellow console in a traffic control room with map screens
+    - id: junction-above
+      aspect: "16:9"
+      prompt: a railway junction seen from above, fanning tracks, one orange-yellow train
+      scene: Railway junction seen from above with fanning tracks
+      alt: A railway junction seen from above with fanning tracks and one orange-yellow train
+    - id: weather-mast
+      prompt: an orange-yellow road weather station mast with sensor arms beside an empty motorway, sensors as simple shapes, no vehicles
+      scene: Road weather station mast beside a motorway
+      alt: An orange-yellow road weather station mast stands beside a motorway with sensors as simple shapes
+    - id: bridge-inspection
+      reserve: true
+      prompt: an orange-yellow inspection platform truck under a bridge deck, river below
+      scene: Inspection platform truck under a bridge deck
+      alt: An orange-yellow inspection platform truck reaches under a bridge deck above a river
+  workshop:
+    - id: circuit-bench
+      prompt: a small green circuit board on a workbench by a window, an orange-yellow automotive diagnostic plug and a thin wiring harness connected to it, an oscilloscope showing a square wave trace
+      scene: Circuit board on a workbench with a diagnostic plug and an oscilloscope
+      alt: A small circuit board on a workbench by a window, connected to an orange-yellow diagnostic plug and an oscilloscope
+    - id: rail-pit
+      prompt: a railcar standing over an inspection pit in a depot, the pit lit from below, a figure seen from behind down in the pit with a lamp, the railcar orange-yellow
+      scene: Inspection pit under a railcar with a figure holding a lamp
+      alt: A figure seen from behind holds a lamp in an inspection pit under an orange-yellow railcar
+    - id: bus-lift
+      prompt: an orange-yellow bus raised on column lifts in a workshop, tool trolleys
+      scene: Bus raised on column lifts in a workshop
+      alt: An orange-yellow bus stands raised on column lifts in a workshop beside tool trolleys
+    - id: brake-rig
+      prompt: an orange-yellow stationary brake test rig, a single railway wheel mounted in a steel frame and spinning, workshop hall, no vehicles
+      scene: Brake test rig with a spinning railway wheel in a workshop hall
+      alt: An orange-yellow brake test rig spins a railway wheel in a workshop hall
+    - id: battery-bench
+      prompt: an orange-yellow battery pack on a bench, cables to a measuring rack, window light
+      scene: Battery pack on a bench wired to a measuring rack
+      alt: An orange-yellow battery pack lies on a bench wired to a measuring rack in window light
+    - id: engine-stand
+      prompt: a bare engine block mounted on an orange-yellow wheeled test stand, exhaust pipes, round gauges without markings, workshop, no vehicles
+      scene: Engine on a test stand with an orange-yellow frame
+      alt: An engine sits on a test stand with an orange-yellow frame, exhaust pipes and round instruments
+    - id: tyre-drum
+      prompt: a tyre test machine with a large drum, an orange-yellow wheel pressed against it
+      scene: Tyre test machine with a wheel pressed against a large drum
+      alt: An orange-yellow wheel is pressed against the large drum of a tyre test machine
+    - id: dyno-cell
+      prompt: an orange-yellow car on dynamometer rollers in a test cell, cables and fans
+      scene: Car on dynamometer rollers in a test cell
+      alt: An orange-yellow car stands on dynamometer rollers in a test cell with cables and fans
+    - id: wind-tunnel
+      prompt: a wind tunnel test chamber with a toy-sized orange-yellow train model mounted on a pedestal in the centre, smoke streamlines as thin lines flowing around the model, no full-size train
+      scene: Scale model of a train in a wind tunnel
+      alt: An orange-yellow scale model of a train stands in a wind tunnel with smoke lines as thin streaks
+    - id: axle-press
+      prompt: a large orange-yellow hydraulic wheel press machine in a hall pressing a wheel onto a railway axle, a figure seen from behind
+      scene: Wheel press in a hall with an axle being pressed
+      alt: An orange-yellow wheel press holds an axle in a hall while a figure seen from behind watches
+    - id: paint-booth
+      reserve: true
+      prompt: an orange-yellow tram body in a paint booth, soft light, masking lines
+      scene: Tram body in a paint booth with masking lines
+      alt: An orange-yellow tram body stands in a paint booth in soft light with masking lines
+  iot:
+    - id: bearing-sensor
+      prompt: close view of a railway axle bearing housing with a small orange-yellow vibration sensor bolted on, a cable to a small box, a wheel behind, no whole train
+      scene: Vibration sensor bolted onto the bearing housing of a railway axle
+      alt: A small orange-yellow vibration sensor is bolted onto the bearing housing of a railway axle
+    - id: telematics-cab
+      prompt: a truck cab interior with an orange-yellow telematics box under the dashboard, road through the windshield
+      scene: Truck cab with a telematics box under the dashboard
+      alt: An orange-yellow telematics box sits under the dashboard of a truck cab, the road ahead through the windshield
+    - id: roof-antenna
+      prompt: close view of the roof of a train with a flat orange-yellow antenna dome and a small antenna array, overhead line above, pale sky
+      scene: Antenna array on the roof of a train under the overhead line
+      alt: An orange-yellow antenna array sits on the roof of a train under the overhead line
+    - id: cabinet-gateway
+      prompt: an open grey trackside cabinet with an orange-yellow gateway device inside, indicator lights as small dots, cables, track behind, no vehicles
+      scene: Open trackside cabinet with a gateway device
+      alt: An orange-yellow gateway device with small indicator lights sits in an open trackside cabinet
+    - id: gantry-camera
+      prompt: a camera in an orange-yellow housing mounted on a steel motorway gantry above empty lanes, no vehicles
+      scene: Camera on a motorway gantry above empty lanes
+      alt: A camera in an orange-yellow housing looks down from a motorway gantry onto empty lanes
+    - id: lidar-roof
+      prompt: an orange-yellow lidar unit on the roof of a car on a test track, cones
+      scene: Lidar unit on the roof of a car on a test track
+      alt: An orange-yellow lidar unit sits on the roof of a car on a test track between cones
+    - id: stop-air-sensor
+      prompt: an orange-yellow air quality sensor on a lamp post at a bus stop
+      scene: Air quality sensor on a lamp post at a bus stop
+      alt: An orange-yellow air quality sensor hangs on a lamp post at a bus stop
+    - id: bridge-strain
+      prompt: the underside of a steel bridge, strain sensors in small orange-yellow boxes bolted to the beams, cables, river below, no vehicles
+      scene: Strain sensors on the steel beams of a bridge
+      alt: Strain sensors in orange-yellow boxes sit on the steel beams of a bridge above a river
+    - id: hot-box-detector
+      prompt: an orange-yellow trackside sensor beside the rails, train wheels passing
+      scene: Trackside sensor beside the rails with train wheels passing
+      alt: An orange-yellow trackside sensor sits beside the rails while train wheels pass
+    - id: tyre-valve-sensor
+      prompt: close view of a car wheel in a workshop, an orange-yellow sensor on the tyre valve, workshop floor, no whole car
+      scene: Tyre pressure sensor on a wheel valve
+      alt: An orange-yellow tyre pressure sensor sits on a wheel valve above a workshop floor
+    - id: container-tracker
+      prompt: an orange-yellow tracking device on the door of a shipping container, port behind
+      scene: Tracking device on the door of a shipping container
+      alt: An orange-yellow tracking device is fixed to the door of a shipping container with the port behind
+    - id: charging-meter
+      prompt: an orange-yellow meter box on a charging post, a cable to a car, morning shadows
+      scene: Meter box on a charging post with a cable to a car
+      alt: An orange-yellow meter box on a charging post feeds a cable to a car in morning shadows
+    - id: rail-temperature
+      reserve: true
+      prompt: an orange-yellow rail temperature sensor clamped to a rail foot, ballast and sleepers
+      scene: Rail temperature sensor clamped to a rail foot
+      alt: An orange-yellow rail temperature sensor is clamped to a rail foot between ballast and sleepers
+  ai:
+    - id: edge-box-bus
+      prompt: an open equipment cabinet inside a bus with an orange-yellow edge computer with cooling fins and cables, close view, no bus exterior
+      scene: Edge computer in a bus's equipment cabinet
+      alt: An orange-yellow edge computer with cooling fins sits in the equipment cabinet of a bus
+    - id: depot-rack
+      prompt: a server rack with an orange-yellow front in a depot back office, a train through the window
+      scene: Server rack in a depot back office with a train outside
+      alt: A server rack with an orange-yellow front stands in a depot back office, a train through the window
+    - id: workstation-window
+      prompt: an orange-yellow workstation on a desk by a window, a screen with an abstract wave trace, a train yard outside
+      scene: Workstation by a window with a wave trace on screen and a train yard outside
+      alt: An orange-yellow workstation on a desk by a window shows an abstract wave trace, a train yard outside
+    - id: spectrogram-screen
+      prompt: a figure seen from behind at a desk with an orange-yellow monitor showing an abstract vibration spectrogram as colour bands, workshop behind glass, no vehicles
+      scene: Figure at a monitor showing a spectrogram, workshop behind glass
+      alt: A figure seen from behind studies an abstract spectrogram on a monitor with a workshop behind glass
+    - id: inspection-rig
+      prompt: an orange-yellow camera inspection rig above a train roof passing through a hall
+      scene: Camera inspection rig above a train roof in a hall
+      alt: An orange-yellow camera inspection rig scans a train roof passing through a hall
+    - id: windshield-assist
+      prompt: the view through a windshield at sunrise, an orange-yellow car ahead, lane markings as simple overlay lines
+      scene: View through a windshield at sunrise with a car ahead
+      alt: The view through a windshield at sunrise with an orange-yellow car ahead and simple lane lines
+    - id: tablet-trackside
+      prompt: a figure seen from behind holding a tablet with an abstract chart in front of an orange-yellow locomotive
+      scene: Figure with a tablet in front of a locomotive
+      alt: A figure seen from behind holds a tablet with an abstract chart in front of an orange-yellow locomotive
+    - id: test-track-cones
+      prompt: an orange-yellow car between cones on a test track, a camera mast
+      scene: Car between cones on a test track with a camera mast
+      alt: An orange-yellow car drives between cones on a test track beside a camera mast
+    - id: drone-yard
+      prompt: a small orange-yellow quadcopter drone with four rotors hovering above a marshalling yard with fanning tracks, simple overlay lines
+      scene: Drone hovering above a marshalling yard
+      alt: An orange-yellow drone hovers above a marshalling yard with simple overlay lines
+    - id: retrofit-bus
+      prompt: an orange-yellow bus in a hall with a sensor kit being fitted, figures seen from behind with cables
+      scene: Bus in a hall with a sensor kit being fitted
+      alt: Figures seen from behind fit a sensor kit with cables to an orange-yellow bus in a hall
+    - id: simulator-seat
+      prompt: a driving simulator with an orange-yellow seat in front of a curved screen showing an abstract road
+      scene: Driving simulator with a curved screen showing an abstract road
+      alt: A driving simulator with an orange-yellow seat faces a curved screen showing an abstract road
+    - id: compute-bench
+      prompt: a small orange-yellow compute box on a workbench beside a circuit board and a sensor, window light
+      scene: Compute box on a workbench beside a circuit board and a sensor
+      alt: A small orange-yellow compute box sits on a workbench beside a circuit board and a sensor
+    - id: camera-tram-front
+      reserve: true
+      prompt: the front of an orange-yellow tram with a camera module above the windshield, depot behind
+      scene: Front of a tram with a camera module above the windshield
+      alt: The front of an orange-yellow tram carries a camera module above the windshield, depot behind

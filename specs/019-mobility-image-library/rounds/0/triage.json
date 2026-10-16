@@ -1,0 +1,3316 @@
+{
+ "round": 0,
+ "series": "siebdruck",
+ "model": "mixed",
+ "container": "",
+ "generator": "unversioned",
+ "tools": {
+  "pillow": "12.3.0",
+  "opencv-python-headless": "5.0.0.93",
+  "rapidocr-onnxruntime": "1.4.4",
+  "onnxruntime": "1.31.0",
+  "yunet_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4"
+ },
+ "ran": "2026-10-14T09:52:37+00:00",
+ "summary": {
+  "candidates": 133,
+  "shown": 53,
+  "rejected": {
+   "I4 text": 10,
+   "I4 faces": 31,
+   "I7 duplicate": 12,
+   "I6 style": 27
+  },
+  "subjects": 26,
+  "subjects_without_candidate": [
+   "calib/rejected-night-model-picket-forest",
+   "calib/rejected-night-model-scout-large",
+   "calib/rejected-night-start-hero",
+   "calib/rejected-night-topic-condition-monitoring",
+   "calib/rejected-night-topic-productdev",
+   "calib/rejected-night-topic-security",
+   "calib/rejected-photoreal-model-picket-forest",
+   "calib/rejected-photoreal-model-scout-large",
+   "calib/rejected-photoreal-start-hero",
+   "calib/rejected-photoreal-topic-condition-monitoring",
+   "calib/rejected-photoreal-topic-productdev",
+   "calib/rejected-photoreal-topic-security"
+  ]
+ },
+ "candidates": [
+  {
+   "file": "calib--approved-qwen-start-hero--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0491,
+    "accent_share": 0.029,
+    "accent_largest_share": 0.7534,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.637,
+     0.538
+    ]
+   },
+   "phash": "697a6e4df9780303",
+   "focal_default": [
+    0.637,
+    0.538
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0558,
+    "accent_share": 0.0263,
+    "accent_largest_share": 0.748,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.39,
+     0.598
+    ]
+   },
+   "phash": "033b99462fb6ab29",
+   "focal_default": [
+    0.39,
+    0.598
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1012,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0466,
+    "accent_share": 0.0272,
+    "accent_largest_share": 0.6092,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.335,
+     0.665
+    ]
+   },
+   "phash": "40f1f04cdf364b4b",
+   "focal_default": [
+    0.335,
+    0.665
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['70']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1
+   },
+   "phash": "83b3f96c69368b09",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1020.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1020,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0473,
+    "accent_share": 0.0272,
+    "accent_largest_share": 0.2844,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.535,
+     0.59
+    ]
+   },
+   "phash": "819c3c674692dd3d",
+   "focal_default": [
+    0.535,
+    0.59
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1021.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.577, 'height_px': 21.8}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "9b6bcca7841a4b4b",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1022.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of hero-train-dawn (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0326,
+    "accent_share": 0.0355,
+    "accent_largest_share": 0.4434,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.494,
+     0.558
+    ]
+   },
+   "phash": "13666ca7961897cb",
+   "focal_default": [
+    0.494,
+    0.558
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1023.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1023,
+   "number": 5,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0296,
+    "accent_share": 0.0594,
+    "accent_largest_share": 0.7743,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.555,
+     0.543
+    ]
+   },
+   "phash": "39f1e68f1c583931",
+   "focal_default": [
+    0.555,
+    0.543
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1030.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1030,
+   "number": 6,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0731,
+    "accent_share": 0.0037,
+    "accent_largest_share": 0.2213,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.2,
+     0.406
+    ]
+   },
+   "phash": "628bdc80a7acabab",
+   "focal_default": [
+    0.2,
+    0.406
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1031.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1031,
+   "number": 7,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0251,
+    "accent_share": 0.0124,
+    "accent_largest_share": 0.5995,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.211,
+     0.599
+    ]
+   },
+   "phash": "93c9a4daed360bc1",
+   "focal_default": [
+    0.211,
+    0.599
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1032.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1032,
+   "number": 8,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0267,
+    "accent_share": 0.003,
+    "accent_largest_share": 0.3196,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.497,
+     0.417
+    ]
+   },
+   "phash": "e397da08375489ab",
+   "focal_default": [
+    0.497,
+    0.417
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-start-hero--1033.png",
+   "theme": "calib",
+   "subject": "approved-qwen-start-hero",
+   "seed": 1033,
+   "number": 9,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0154,
+    "accent_share": 0.0043,
+    "accent_largest_share": 0.3846,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.588,
+     0.427
+    ]
+   },
+   "phash": "0fb5c22ad45eeb21",
+   "focal_default": [
+    0.588,
+    0.427
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1752,
+    "accent_share": 0.0346,
+    "accent_largest_share": 0.1114,
+    "accent_top_share": 0.0241,
+    "accent_centroid": [
+     0.213,
+     0.673
+    ]
+   },
+   "phash": "984371924670fd7d",
+   "focal_default": [
+    0.213,
+    0.673
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of topic-productdev-interior (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0947,
+    "accent_share": 0.0794,
+    "accent_largest_share": 0.5108,
+    "accent_top_share": 0.042,
+    "accent_centroid": [
+     0.747,
+     0.585
+    ]
+   },
+   "phash": "66e718235c7817d3",
+   "focal_default": [
+    0.747,
+    0.585
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1012,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1297,
+    "accent_share": 0.0126,
+    "accent_largest_share": 0.1577,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.215,
+     0.632
+    ]
+   },
+   "phash": "9862399c4a2cd7db",
+   "focal_default": [
+    0.215,
+    0.632
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1013,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1244,
+    "accent_share": 0.0429,
+    "accent_largest_share": 0.1583,
+    "accent_top_share": 0.0703,
+    "accent_centroid": [
+     0.383,
+     0.537
+    ]
+   },
+   "phash": "0ccb1d7248f2dd53",
+   "focal_default": [
+    0.383,
+    0.537
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1020.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1020,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0351,
+    "accent_share": 0.0272,
+    "accent_largest_share": 0.3308,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.8,
+     0.667
+    ]
+   },
+   "phash": "087cf946078cfd71",
+   "focal_default": [
+    0.8,
+    0.667
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1021.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1021,
+   "number": 5,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0205,
+    "accent_share": 0.0125,
+    "accent_largest_share": 0.7077,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.714,
+     0.594
+    ]
+   },
+   "phash": "4e7858a6a7cc4f31",
+   "focal_default": [
+    0.714,
+    0.594
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1022.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1022,
+   "number": 6,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0227,
+    "accent_share": 0.0161,
+    "accent_largest_share": 0.637,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.763,
+     0.6
+    ]
+   },
+   "phash": "2c38f3e7030c7db1",
+   "focal_default": [
+    0.763,
+    0.6
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-productdev--1023.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-productdev",
+   "seed": 1023,
+   "number": 7,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0411,
+    "accent_share": 0.026,
+    "accent_largest_share": 0.476,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.73,
+     0.567
+    ]
+   },
+   "phash": "78f4f26e0f88c531",
+   "focal_default": [
+    0.73,
+    0.567
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['06', '100', '100']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "6d6a280c7e96d1f1",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['400', '30', '00']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "b6edac283c16d1d1",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['LD-', '200', 'DO']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "4e4c4a486ef6f1b1",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['20/', '00', '01', '100二', '103']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "e5a528186e46f1f9",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1020.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of topic-security-workshop (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.06,
+    "accent_share": 0.0457,
+    "accent_largest_share": 0.4361,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.723,
+     0.672
+    ]
+   },
+   "phash": "4e680ca67272db8f",
+   "focal_default": [
+    0.723,
+    0.672
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1021.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1021,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.083,
+    "accent_share": 0.0288,
+    "accent_largest_share": 0.7724,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.645,
+     0.586
+    ]
+   },
+   "phash": "12798ead1462ff83",
+   "focal_default": [
+    0.645,
+    0.586
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1022.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1022,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.081,
+    "accent_share": 0.0161,
+    "accent_largest_share": 0.4023,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.669,
+     0.608
+    ]
+   },
+   "phash": "93584fec34128fc7",
+   "focal_default": [
+    0.669,
+    0.608
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-security--1023.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-security",
+   "seed": 1023,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0529,
+    "accent_share": 0.0235,
+    "accent_largest_share": 0.7688,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.684,
+     0.602
+    ]
+   },
+   "phash": "7319c6e816787e83",
+   "focal_default": [
+    0.684,
+    0.602
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0459,
+    "accent_share": 0.0092,
+    "accent_largest_share": 0.161,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.62,
+     0.61
+    ]
+   },
+   "phash": "6156d9d614e4ad1d",
+   "focal_default": [
+    0.62,
+    0.61
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0387,
+    "accent_share": 0.0109,
+    "accent_largest_share": 0.4272,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.231,
+     0.614
+    ]
+   },
+   "phash": "2994fcce1cae2353",
+   "focal_default": [
+    0.231,
+    0.614
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1012,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0474,
+    "accent_share": 0.0153,
+    "accent_largest_share": 0.148,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.551,
+     0.537
+    ]
+   },
+   "phash": "f170399e0d569783",
+   "focal_default": [
+    0.551,
+    0.537
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1013,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0347,
+    "accent_share": 0.0127,
+    "accent_largest_share": 0.274,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.623,
+     0.679
+    ]
+   },
+   "phash": "2d1c5cd6362499f9",
+   "focal_default": [
+    0.623,
+    0.679
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1020.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1020,
+   "number": 5,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 2,
+    "other_share": 0.0953,
+    "accent_share": 0.0388,
+    "accent_largest_share": 0.3275,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.725,
+     0.346
+    ]
+   },
+   "phash": "5b1c997816a2cb57",
+   "focal_default": [
+    0.725,
+    0.346
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1021.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1021,
+   "number": 6,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1124,
+    "accent_share": 0.0236,
+    "accent_largest_share": 0.4055,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.508,
+     0.48
+    ]
+   },
+   "phash": "d0262cb6bcd24b3b",
+   "focal_default": [
+    0.508,
+    0.48
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1022.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.521, 'height_px': 17.1}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "91a489ee8c421fbf",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-topic-condition-monitoring--1023.png",
+   "theme": "calib",
+   "subject": "approved-qwen-topic-condition-monitoring",
+   "seed": 1023,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.613, 'height_px': 26.2}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "7358e4d8c4782f87",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-model-scout-large--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-scout-large",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0628,
+    "accent_share": 0.0052,
+    "accent_largest_share": 0.54,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.397,
+     0.406
+    ]
+   },
+   "phash": "6336d98cf666094b",
+   "focal_default": [
+    0.397,
+    0.406
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-model-scout-large--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-scout-large",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of model-scout-large-window (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0476,
+    "accent_share": 0.0054,
+    "accent_largest_share": 0.2464,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.55,
+     0.4
+    ]
+   },
+   "phash": "e39679a6f9088363",
+   "focal_default": [
+    0.55,
+    0.4
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-model-scout-large--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-scout-large",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['00035']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "c6bcf1aef8380343",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-model-scout-large--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-scout-large",
+   "seed": 1013,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0707,
+    "accent_share": 0.0058,
+    "accent_largest_share": 0.1964,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.505,
+     0.407
+    ]
+   },
+   "phash": "efde72861800e1f9",
+   "focal_default": [
+    0.505,
+    0.407
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-model-picket-forest--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-picket-forest",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['DDOO']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "bb6407be58d06723",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-qwen-model-picket-forest--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-picket-forest",
+   "seed": 1011,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0502,
+    "accent_share": 0.018,
+    "accent_largest_share": 0.2197,
+    "accent_top_share": 0.0145,
+    "accent_centroid": [
+     0.8,
+     0.396
+    ]
+   },
+   "phash": "31c51e14d932a77b",
+   "focal_default": [
+    0.8,
+    0.396
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-model-picket-forest--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-picket-forest",
+   "seed": 1012,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0315,
+    "accent_share": 0.0042,
+    "accent_largest_share": 0.4724,
+    "accent_top_share": 0.0368,
+    "accent_centroid": [
+     0.398,
+     0.572
+    ]
+   },
+   "phash": "f206c6b6c9b2272b",
+   "focal_default": [
+    0.398,
+    0.572
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-model-picket-forest--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-model-picket-forest",
+   "seed": 1013,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0328,
+    "accent_share": 0.0028,
+    "accent_largest_share": 0.1481,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.588,
+     0.525
+    ]
+   },
+   "phash": "383127b008d2fbfb",
+   "focal_default": [
+    0.588,
+    0.525
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-topic-condition-monitoring#1 (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0459,
+    "accent_share": 0.0092,
+    "accent_largest_share": 0.161,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.62,
+     0.61
+    ]
+   },
+   "phash": "6156d9d614e4ad1d",
+   "focal_default": [
+    0.62,
+    0.61
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-topic-condition-monitoring#2 (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0387,
+    "accent_share": 0.0109,
+    "accent_largest_share": 0.4272,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.231,
+     0.614
+    ]
+   },
+   "phash": "2994fcce1cae2353",
+   "focal_default": [
+    0.231,
+    0.614
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-topic-condition-monitoring#3 (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0474,
+    "accent_share": 0.0153,
+    "accent_largest_share": 0.148,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.551,
+     0.537
+    ]
+   },
+   "phash": "f170399e0d569783",
+   "focal_default": [
+    0.551,
+    0.537
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-topic-condition-monitoring#4 (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0347,
+    "accent_share": 0.0127,
+    "accent_largest_share": 0.274,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.623,
+     0.679
+    ]
+   },
+   "phash": "2d1c5cd6362499f9",
+   "focal_default": [
+    0.623,
+    0.679
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1020.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1020,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1356,
+    "accent_share": 0.0336,
+    "accent_largest_share": 0.1249,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.593,
+     0.449
+    ]
+   },
+   "phash": "62a4e77c164273b3",
+   "focal_default": [
+    0.593,
+    0.449
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1021.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of topic-condmon-wheelset (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.139,
+    "accent_share": 0.0271,
+    "accent_largest_share": 0.0913,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.742,
+     0.512
+    ]
+   },
+   "phash": "427f74b0d403a33f",
+   "focal_default": [
+    0.742,
+    0.512
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1022.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1022,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1136,
+    "accent_share": 0.0342,
+    "accent_largest_share": 0.279,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.289,
+     0.374
+    ]
+   },
+   "phash": "aa1754b2b2c2c3bd",
+   "focal_default": [
+    0.289,
+    0.374
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-topic-condition-monitoring--1023.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-topic-condition-monitoring",
+   "seed": 1023,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0909,
+    "accent_share": 0.0171,
+    "accent_largest_share": 0.084,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.375,
+     0.654
+    ]
+   },
+   "phash": "a25ce60676708fc7",
+   "focal_default": [
+    0.375,
+    0.654
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-model-picket-forest--1010.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-model-picket-forest",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0386,
+    "accent_share": 0.0053,
+    "accent_largest_share": 0.9314,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.248,
+     0.777
+    ]
+   },
+   "phash": "f1640fbcc832b723",
+   "focal_default": [
+    0.248,
+    0.777
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-model-picket-forest--1011.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-model-picket-forest",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of model-picket-forest-bench (0 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0318,
+    "accent_share": 0.0053,
+    "accent_largest_share": 0.7854,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.2,
+     0.727
+    ]
+   },
+   "phash": "23ed3e14d95233a3",
+   "focal_default": [
+    0.2,
+    0.727
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-model-picket-forest--1012.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-model-picket-forest",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-fix-model-picket-forest#1 (10 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0557,
+    "accent_share": 0.0076,
+    "accent_largest_share": 0.5119,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.257,
+     0.747
+    ]
+   },
+   "phash": "f04f1bbcc8322763",
+   "focal_default": [
+    0.257,
+    0.747
+   ]
+  },
+  {
+   "file": "calib--approved-qwen-fix-model-picket-forest--1013.png",
+   "theme": "calib",
+   "subject": "approved-qwen-fix-model-picket-forest",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of calib/approved-qwen-model-picket-forest#3 (8 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0461,
+    "accent_share": 0.0071,
+    "accent_largest_share": 0.5201,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.266,
+     0.669
+    ]
+   },
+   "phash": "80312fb00dc2fbfb",
+   "focal_default": [
+    0.266,
+    0.669
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 5,
+    "other_share": 0.0224,
+    "accent_share": 0.0363,
+    "accent_largest_share": 0.8124,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.542,
+     0.598
+    ]
+   },
+   "phash": "02b3d0795697a9e9",
+   "focal_default": [
+    0.542,
+    0.598
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0457,
+    "accent_share": 0.0224,
+    "accent_largest_share": 0.5619,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.393,
+     0.61
+    ]
+   },
+   "phash": "7a838c685657a9e9",
+   "focal_default": [
+    0.393,
+    0.61
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1020.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1020,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0476,
+    "accent_share": 0.0044,
+    "accent_largest_share": 0.1806,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.375,
+     0.544
+    ]
+   },
+   "phash": "36f3d40f2cf2034d",
+   "focal_default": [
+    0.375,
+    0.544
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1021.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1021,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0284,
+    "accent_share": 0.004,
+    "accent_largest_share": 0.2231,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.499,
+     0.573
+    ]
+   },
+   "phash": "4499b8674cba936d",
+   "focal_default": [
+    0.499,
+    0.573
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1030.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1030,
+   "number": 5,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0146,
+    "accent_share": 0.0022,
+    "accent_largest_share": 0.4167,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.732,
+     0.505
+    ]
+   },
+   "phash": "d209c4ba8c768bf9",
+   "focal_default": [
+    0.732,
+    0.505
+   ]
+  },
+  {
+   "file": "calib--approved-klein-start-hero--1031.png",
+   "theme": "calib",
+   "subject": "approved-klein-start-hero",
+   "seed": 1031,
+   "number": 6,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0149,
+    "accent_share": 0.0028,
+    "accent_largest_share": 0.1957,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.684,
+     0.585
+    ]
+   },
+   "phash": "b69b65138874837d",
+   "focal_default": [
+    0.684,
+    0.585
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-productdev--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-productdev",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1357,
+    "accent_share": 0.01,
+    "accent_largest_share": 0.4557,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.385,
+     0.568
+    ]
+   },
+   "phash": "5acd734b809a67d1",
+   "focal_default": [
+    0.385,
+    0.568
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-productdev--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-productdev",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['AT']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "d0a39939841c6fed",
+   "focal_default": null
+  },
+  {
+   "file": "calib--approved-klein-topic-productdev--1020.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-productdev",
+   "seed": 1020,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0576,
+    "accent_share": 0.0042,
+    "accent_largest_share": 0.1925,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.743,
+     0.595
+    ]
+   },
+   "phash": "7c39ae0706aca9f1",
+   "focal_default": [
+    0.743,
+    0.595
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-productdev--1021.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-productdev",
+   "seed": 1021,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0711,
+    "accent_share": 0.0127,
+    "accent_largest_share": 0.3142,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.609,
+     0.639
+    ]
+   },
+   "phash": "ca29f0f60f8da171",
+   "focal_default": [
+    0.609,
+    0.639
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-security--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-security",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0803,
+    "accent_share": 0.0085,
+    "accent_largest_share": 0.0831,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.649,
+     0.754
+    ]
+   },
+   "phash": "160be513d4f80bf5",
+   "focal_default": [
+    0.649,
+    0.754
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-security--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-security",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1308,
+    "accent_share": 0.0107,
+    "accent_largest_share": 0.1345,
+    "accent_top_share": 0.0024,
+    "accent_centroid": [
+     0.8,
+     0.8
+    ]
+   },
+   "phash": "d26e0d926cd4d369",
+   "focal_default": [
+    0.8,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-security--1020.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-security",
+   "seed": 1020,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0905,
+    "accent_share": 0.0127,
+    "accent_largest_share": 0.1191,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.603,
+     0.694
+    ]
+   },
+   "phash": "c66107ade0701ddf",
+   "focal_default": [
+    0.603,
+    0.694
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-security--1021.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-security",
+   "seed": 1021,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0967,
+    "accent_share": 0.0283,
+    "accent_largest_share": 0.3891,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.503,
+     0.74
+    ]
+   },
+   "phash": "ba58968e92563d0f",
+   "focal_default": [
+    0.503,
+    0.74
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-condition-monitoring--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-condition-monitoring",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0785,
+    "accent_share": 0.0128,
+    "accent_largest_share": 0.2505,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.49,
+     0.647
+    ]
+   },
+   "phash": "7e0f1299ac960b79",
+   "focal_default": [
+    0.49,
+    0.647
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-condition-monitoring--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-condition-monitoring",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0651,
+    "accent_share": 0.0066,
+    "accent_largest_share": 0.2353,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.484,
+     0.586
+    ]
+   },
+   "phash": "72719032645e5fe9",
+   "focal_default": [
+    0.484,
+    0.586
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-condition-monitoring--1020.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-condition-monitoring",
+   "seed": 1020,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.1903,
+    "accent_share": 0.0114,
+    "accent_largest_share": 0.0774,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.556,
+     0.637
+    ]
+   },
+   "phash": "1a7d3eb172d0d151",
+   "focal_default": [
+    0.556,
+    0.637
+   ]
+  },
+  {
+   "file": "calib--approved-klein-topic-condition-monitoring--1021.png",
+   "theme": "calib",
+   "subject": "approved-klein-topic-condition-monitoring",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 25.0% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.2496,
+    "accent_share": 0.0165,
+    "accent_largest_share": 0.1307,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.43,
+     0.593
+    ]
+   },
+   "phash": "2130fcff86747189",
+   "focal_default": [
+    0.43,
+    0.593
+   ]
+  },
+  {
+   "file": "calib--approved-klein-model-scout-large--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-model-scout-large",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0689,
+    "accent_share": 0.0058,
+    "accent_largest_share": 0.1071,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.2,
+     0.453
+    ]
+   },
+   "phash": "4c0df38dd4812b7b",
+   "focal_default": [
+    0.2,
+    0.453
+   ]
+  },
+  {
+   "file": "calib--approved-klein-model-scout-large--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-model-scout-large",
+   "seed": 1011,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0697,
+    "accent_share": 0.0098,
+    "accent_largest_share": 0.2739,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.8,
+     0.423
+    ]
+   },
+   "phash": "c9b66906a81cf5f1",
+   "focal_default": [
+    0.8,
+    0.423
+   ]
+  },
+  {
+   "file": "calib--approved-klein-model-picket-forest--1010.png",
+   "theme": "calib",
+   "subject": "approved-klein-model-picket-forest",
+   "seed": 1010,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1003,
+    "accent_share": 0.0118,
+    "accent_largest_share": 0.2093,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.59,
+     0.676
+    ]
+   },
+   "phash": "968d6227d4162b7b",
+   "focal_default": [
+    0.59,
+    0.676
+   ]
+  },
+  {
+   "file": "calib--approved-klein-model-picket-forest--1011.png",
+   "theme": "calib",
+   "subject": "approved-klein-model-picket-forest",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.54, 'height_px': 24.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "27328d87221cfbf1",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-night-start-hero--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-start-hero",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 33.9% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.3393,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "431cc5e38b7319b3",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-start-hero--1020.png",
+   "theme": "calib",
+   "subject": "rejected-night-start-hero",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 56.1% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.561,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "f43a3f5e47318521",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-start-hero--1030.png",
+   "theme": "calib",
+   "subject": "rejected-night-start-hero",
+   "seed": 1030,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.68, 'height_px': 229.0}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "b34f4ec6c390b853",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-night-topic-productdev--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-productdev",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.57, 'height_px': 81.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "1cece62686c4733b",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-night-topic-productdev--1020.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-productdev",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 73.7% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.7368,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "411459f935be3939",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-topic-security--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-security",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 63.5% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.6351,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "cccc6d8dcd193139",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-topic-security--1020.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-security",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.519, 'height_px': 233.1}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1
+   },
+   "phash": "445623299c9ae7e7",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-night-topic-condition-monitoring--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-condition-monitoring",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 27.5% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.2754,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "1de78c9c989279e1",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-topic-condition-monitoring--1020.png",
+   "theme": "calib",
+   "subject": "rejected-night-topic-condition-monitoring",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 38.5% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.3853,
+    "accent_share": 0.0,
+    "accent_largest_share": 0.0,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.5,
+     0.5
+    ]
+   },
+   "phash": "94e525ccc68af933",
+   "focal_default": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "file": "calib--rejected-night-model-scout-large--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-model-scout-large",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.687, 'height_px': 113.8}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "6c9669df0309437b",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-night-model-picket-forest--1010.png",
+   "theme": "calib",
+   "subject": "rejected-night-model-picket-forest",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 48.6% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.4857,
+    "accent_share": 0.0001,
+    "accent_largest_share": 0.6,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.412,
+     0.675
+    ]
+   },
+   "phash": "4c673b630d0971f3",
+   "focal_default": [
+    0.412,
+    0.675
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 56.1% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 2,
+    "other_share": 0.561,
+    "accent_share": 0.028,
+    "accent_largest_share": 0.2949,
+    "accent_top_share": 0.0076,
+    "accent_centroid": [
+     0.2,
+     0.294
+    ]
+   },
+   "phash": "2f2fec6c0d89e903",
+   "focal_default": [
+    0.2,
+    0.294
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.766, 'height_px': 42.1}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1
+   },
+   "phash": "3e0d9dc62727e309",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.509, 'height_px': 132.1}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 2
+   },
+   "phash": "838726a72d6b4b39",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 53.9% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.5393,
+    "accent_share": 0.0061,
+    "accent_largest_share": 0.8218,
+    "accent_top_share": 0.0198,
+    "accent_centroid": [
+     0.542,
+     0.38
+    ]
+   },
+   "phash": "8d0f4e47d7936189",
+   "focal_default": [
+    0.542,
+    0.38
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1020.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 62.1% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.6207,
+    "accent_share": 0.023,
+    "accent_largest_share": 0.4861,
+    "accent_top_share": 0.0145,
+    "accent_centroid": [
+     0.8,
+     0.8
+    ]
+   },
+   "phash": "8d6c2c36b2b3d30b",
+   "focal_default": [
+    0.8,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1021.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "2 face(s) [{'score': 0.502, 'height_px': 34.0}, {'score': 0.511, 'height_px': 30.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "25e6669d9a1be521",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1022.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 65.2% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.6523,
+    "accent_share": 0.0092,
+    "accent_largest_share": 0.3465,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.283,
+     0.773
+    ]
+   },
+   "phash": "2d6c8c36d2d3934b",
+   "focal_default": [
+    0.283,
+    0.773
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1023.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1023,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.603, 'height_px': 31.6}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "60c6e68d9c98fd61",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1030.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1030,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 59.7% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.5967,
+    "accent_share": 0.0152,
+    "accent_largest_share": 0.8343,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.452,
+     0.594
+    ]
+   },
+   "phash": "8f9db0a4a5a94b2b",
+   "focal_default": [
+    0.452,
+    0.594
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1031.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1031,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 68.2% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.6824,
+    "accent_share": 0.0001,
+    "accent_largest_share": 0.75,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.407,
+     0.543
+    ]
+   },
+   "phash": "1fb92006cd49d3db",
+   "focal_default": [
+    0.407,
+    0.543
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1032.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1032,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 54.6% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.5459,
+    "accent_share": 0.0094,
+    "accent_largest_share": 0.5968,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.8,
+     0.352
+    ]
+   },
+   "phash": "275f5010f595936b",
+   "focal_default": [
+    0.8,
+    0.352
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-start-hero--1033.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-start-hero",
+   "seed": 1033,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.505, 'height_px': 283.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "0f9880276f39d36b",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.526, 'height_px': 41.7}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "2b3a4c0bd6d0c577",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.545, 'height_px': 60.7}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "4064a9a9fe8837db",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "3 face(s) [{'score': 0.712, 'height_px': 27.8}, {'score': 0.635, 'height_px': 90.3}, {'score': 0.791, 'height_px': 26.5}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "0424e8a8eebcd757",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "4 face(s) [{'score': 0.635, 'height_px': 66.7}, {'score': 0.575, 'height_px': 48.5}, {'score': 0.561, 'height_px': 58.2}, {'score': 0.556, 'height_px': 49.2}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "2e4c4832d6d4d577",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1020.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.603, 'height_px': 48.0}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "b838223c5fc35793",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1021.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 67.8% > 22%; top 62% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.6783,
+    "accent_share": 0.018,
+    "accent_largest_share": 0.5072,
+    "accent_top_share": 0.6217,
+    "accent_centroid": [
+     0.367,
+     0.2
+    ]
+   },
+   "phash": "961e2c8cdde97911",
+   "focal_default": [
+    0.367,
+    0.2
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1022.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.579, 'height_px': 133.6}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1
+   },
+   "phash": "103818aefdcdbd31",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-productdev--1023.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-productdev",
+   "seed": 1023,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 64.1% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.641,
+    "accent_share": 0.0296,
+    "accent_largest_share": 0.3286,
+    "accent_top_share": 0.3357,
+    "accent_centroid": [
+     0.2,
+     0.284
+    ]
+   },
+   "phash": "2716de1cfd890971",
+   "focal_default": [
+    0.2,
+    0.284
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.514, 'height_px': 128.9}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "f160265aecf59919",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.517, 'height_px': 53.9}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 3
+   },
+   "phash": "7be46462c8acb3b1",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "4 face(s) [{'score': 0.758, 'height_px': 93.9}, {'score': 0.715, 'height_px': 74.3}, {'score': 0.83, 'height_px': 72.5}, {'score': 0.709, 'height_px': 87.2}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "12604497ce5cfb79",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.695, 'height_px': 110.0}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "33d9a732cac550d9",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1020.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 62.7% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.6273,
+    "accent_share": 0.0407,
+    "accent_largest_share": 0.9565,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.245,
+     0.434
+    ]
+   },
+   "phash": "25bcf2125afad303",
+   "focal_default": [
+    0.245,
+    0.434
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1021.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['100', '220']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1
+   },
+   "phash": "a5a5acb688ca5b1b",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1022.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 59.6% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.5958,
+    "accent_share": 0.0382,
+    "accent_largest_share": 0.7807,
+    "accent_top_share": 0.0054,
+    "accent_centroid": [
+     0.8,
+     0.491
+    ]
+   },
+   "phash": "b719c2aa9a9293b9",
+   "focal_default": [
+    0.8,
+    0.491
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-security--1023.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-security",
+   "seed": 1023,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 75.6% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.756,
+    "accent_share": 0.012,
+    "accent_largest_share": 0.2397,
+    "accent_top_share": 0.0283,
+    "accent_centroid": [
+     0.333,
+     0.575
+    ]
+   },
+   "phash": "2b44b4f6fc1e03c3",
+   "focal_default": [
+    0.333,
+    0.575
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.619, 'height_px': 108.5}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "6133d9ce366168d9",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "3 face(s) [{'score': 0.745, 'height_px': 109.7}, {'score': 0.784, 'height_px': 24.3}, {'score': 0.819, 'height_px': 89.8}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "448699c1ce4fe6d3",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 80.8% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.8084,
+    "accent_share": 0.0171,
+    "accent_largest_share": 0.3333,
+    "accent_top_share": 0.035,
+    "accent_centroid": [
+     0.205,
+     0.8
+    ]
+   },
+   "phash": "c723339b2e87cd11",
+   "focal_default": [
+    0.205,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "2 face(s) [{'score': 0.797, 'height_px': 87.0}, {'score': 0.654, 'height_px': 90.0}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 3
+   },
+   "phash": "3689dd46ce83a4d9",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1020.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1020,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 78.4% > 22%; accent_min 0.0% < 0.1%; top 39% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 4,
+    "other_share": 0.7842,
+    "accent_share": 0.0005,
+    "accent_largest_share": 0.5,
+    "accent_top_share": 0.3889,
+    "accent_centroid": [
+     0.8,
+     0.8
+    ]
+   },
+   "phash": "6629b51a32529bbd",
+   "focal_default": [
+    0.8,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1021.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1021,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 68.4% > 22%; top 59% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 4,
+    "other_share": 0.684,
+    "accent_share": 0.0018,
+    "accent_largest_share": 0.3824,
+    "accent_top_share": 0.5882,
+    "accent_centroid": [
+     0.605,
+     0.2
+    ]
+   },
+   "phash": "9a027e862667d3ad",
+   "focal_default": [
+    0.605,
+    0.2
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1022.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1022,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.589, 'height_px': 59.0}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 4
+   },
+   "phash": "ba2f2e1a06469bad",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-topic-condition-monitoring--1023.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-topic-condition-monitoring",
+   "seed": 1023,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 76.0% > 22%; accent_min 0.0% < 0.1%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 3,
+    "other_share": 0.7602,
+    "accent_share": 0.0002,
+    "accent_largest_share": 0.5714,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.375,
+     0.8
+    ]
+   },
+   "phash": "42655c081dbdb9e7",
+   "focal_default": [
+    0.375,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-model-scout-large--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-scout-large",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 77.9% > 22%; top 42% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.7794,
+    "accent_share": 0.0038,
+    "accent_largest_share": 0.3699,
+    "accent_top_share": 0.4178,
+    "accent_centroid": [
+     0.8,
+     0.2
+    ]
+   },
+   "phash": "cab4310e196567f3",
+   "focal_default": [
+    0.8,
+    0.2
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-model-scout-large--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-scout-large",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "2 face(s) [{'score': 0.577, 'height_px': 69.0}, {'score': 0.726, 'height_px': 41.6}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "72cc59e459710773",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-model-scout-large--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-scout-large",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 73.7% > 22%; top 52% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.7369,
+    "accent_share": 0.0022,
+    "accent_largest_share": 0.241,
+    "accent_top_share": 0.5181,
+    "accent_centroid": [
+     0.8,
+     0.2
+    ]
+   },
+   "phash": "d28c714e5b652733",
+   "focal_default": [
+    0.8,
+    0.2
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-model-scout-large--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-scout-large",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.618, 'height_px': 43.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "b6d825d60e614773",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-model-picket-forest--1010.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-picket-forest",
+   "seed": 1010,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "2 face(s) [{'score': 0.532, 'height_px': 23.1}, {'score': 0.563, 'height_px': 34.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "994b0f33452fb169",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-model-picket-forest--1011.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-picket-forest",
+   "seed": 1011,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['MMAA']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "f6e31ce9c94b4303",
+   "focal_default": null
+  },
+  {
+   "file": "calib--rejected-photoreal-model-picket-forest--1012.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-picket-forest",
+   "seed": 1012,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "other 66.9% > 22%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.6691,
+    "accent_share": 0.0666,
+    "accent_largest_share": 0.7559,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.781,
+     0.8
+    ]
+   },
+   "phash": "3c900ff509e5b723",
+   "focal_default": [
+    0.781,
+    0.8
+   ]
+  },
+  {
+   "file": "calib--rejected-photoreal-model-picket-forest--1013.png",
+   "theme": "calib",
+   "subject": "rejected-photoreal-model-picket-forest",
+   "seed": 1013,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.518, 'height_px': 44.5}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "31d94f9309e9d529",
+   "focal_default": null
+  }
+ ]
+}

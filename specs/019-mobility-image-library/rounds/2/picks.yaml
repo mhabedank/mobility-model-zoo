@@ -1,0 +1,34 @@
+round: 2
+picks:
+  rail/level-crossing: none
+  public-road/bus-charging: 3
+  public-road/tram-wash: none
+  private-road/car-charging: 4
+  private-road/motorcycle-pass: none
+  private-road/tractor-rural: 3
+  private-road/roundabout-above: none
+  private-road/taxi-rank: 2
+  active/cycle-highway: 3
+  infrastructure/signal-cabinet: none
+  infrastructure/spiral-ramp: none
+  infrastructure/field-shelter: 3
+  infrastructure/weather-mast: 2
+  infrastructure/bridge-inspection: 3
+  workshop/rail-pit: none
+  workshop/bus-lift: none
+  workshop/brake-rig: none
+  workshop/battery-bench: 3
+  workshop/tyre-drum: none
+  workshop/dyno-cell: 1
+  workshop/wind-tunnel: none
+  workshop/axle-press: none
+  workshop/paint-booth: 1
+  iot/roof-antenna: none
+  iot/gantry-camera: none
+  iot/lidar-roof: none
+  iot/stop-air-sensor: none
+  iot/rail-temperature: none
+  ai/edge-box-bus: 3
+  ai/inspection-rig: none
+  ai/retrofit-bus: none
+  ai/camera-tram-front: 2

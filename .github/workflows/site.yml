@@ -77,6 +77,8 @@ jobs:
               p = d / "image.yaml"
               if p.exists():
                   r = yaml.safe_load(p.read_text())
+                  if not r.get("placements"):
+                      continue  # pool records (feature 019) are not part of the site
                   print(f"| `{r['id']}` | {r['scene']} | {r['series']} | {r['generation']['model']} |")
           PY
             } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,81 @@
+id: ai-spectrogram-screen
+series: siebdruck
+theme: ai
+subject: spectrogram-screen
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a figure seen from behind at a desk with an orange-yellow monitor showing an abstract vibration
+    spectrogram as colour bands, workshop behind glass, no vehicles, 1970s modernist travel poster illustration,
+    flat colour fields with crisp edges, screen print texture, clean geometric forms, calm ordered composition
+    with long diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground,
+    the main vehicle or machine painted in a warm orange-yellow accent colour, everything else only navy,
+    mint and cream, early morning light as graphic shapes, quietly futurist and optimistic, West German
+    graphic design of the seventies, restrained, no text, no lettering, no logos, no faces, people only
+    as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 165258
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Figure at a monitor showing a spectrogram, workshop behind glass
+alt: A figure seen from behind studies an abstract spectrogram on a monitor with a workshop behind glass
+  (AI-generated image)
+focal_point:
+- 0.351
+- 0.469
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 3a76b75f5d8abc509336e542b83473bc3e71c78e837f800d5f0c13842ad9ff33
+derivatives:
+  '480':
+    file: ai-spectrogram-screen-480.webp
+    bytes: 12662
+    sha256: 77255303b9f5d0a849cafda4983cf2ea5ba048e87c65d82a5e76cf5df6d03e2e
+  '960':
+    file: ai-spectrogram-screen-960.webp
+    bytes: 29054
+    sha256: cbfcdb832302ad430ec15b89e14b7b6043e15ffd04dc5aec939966dd732ffdf7
+  '1600':
+    file: ai-spectrogram-screen-1600.webp
+    bytes: 47600
+    sha256: 51f62332d0dd17d501d823a360b9c9cfd1f1163b3e0acc859b13756b78a03bd1
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:38+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 29599d98d7e02b17
+    other_share: 0.0577
+    accent_share: 0.0321
+    accent_largest_share: 0.6407
+    accent_top_share: 0.0219
+    accent_centroid:
+    - 0.351
+    - 0.469
+round: 1

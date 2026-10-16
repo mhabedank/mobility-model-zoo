@@ -1,0 +1,80 @@
+id: infrastructure-port-crane
+series: siebdruck
+theme: infrastructure
+subject: port-crane
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a large orange-yellow port crane over a quay at sunrise, a ship's hull in navy, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 939593
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Port crane over a quay at sunrise beside a ship's hull
+alt: A large orange-yellow port crane stands over a quay at sunrise beside a navy ship's hull (AI-generated
+  image)
+focal_point:
+- 0.376
+- 0.366
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: cb9ae5a78abaeafab78d3121c3b2bf89eb73e669ba45e179f30c3e79ecf033eb
+derivatives:
+  '480':
+    file: infrastructure-port-crane-480.webp
+    bytes: 12976
+    sha256: 956a2b0c0baee527536ac4c0abfe345fbf169df4f693da5bc57cd01b2a2ff44a
+  '960':
+    file: infrastructure-port-crane-960.webp
+    bytes: 31050
+    sha256: d811a692954c220a54a4b6886b7f01b8f2b644fbec0004ebd6bc1fc0408f2ae1
+  '1600':
+    file: infrastructure-port-crane-1600.webp
+    bytes: 51886
+    sha256: ed6e403f34f15e8247cac4a4584c8a167f4ed0f0e25408be153cdff47c62585d
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:30+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: f15aa57817e0c917
+    other_share: 0.0518
+    accent_share: 0.0239
+    accent_largest_share: 0.1812
+    accent_top_share: 0.1092
+    accent_centroid:
+    - 0.376
+    - 0.366
+round: 1

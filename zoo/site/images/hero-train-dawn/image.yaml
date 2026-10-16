@@ -1,5 +1,7 @@
 id: hero-train-dawn
 series: siebdruck
+theme: rail
+subject: regional-dawn
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -48,8 +50,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 13666ca7961897cb
+    other_share: 0.0326
+    accent_share: 0.0355
+    accent_largest_share: 0.4434
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.494
+    - 0.558
 source:
-  file: hero-train-dawn.png
   width: 1344
   height: 768
   sha256: dda108414b851cbfa68c3fbb19907aecf049e63351654137dfa792bca52ae8d3

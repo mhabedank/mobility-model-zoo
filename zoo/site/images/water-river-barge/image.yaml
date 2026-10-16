@@ -1,0 +1,79 @@
+id: water-river-barge
+series: siebdruck
+theme: water
+subject: river-barge
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow cargo barge on a wide river passing under an arch bridge, 1970s modernist travel
+    poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric forms,
+    calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream, deep
+    navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 860223
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Cargo barge on a wide river passing under an arch bridge
+alt: An orange-yellow cargo barge passes under an arch bridge on a wide river (AI-generated image)
+focal_point:
+- 0.243
+- 0.649
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: ad55d7f09e15ced6224c3cc5ee4bd1818a1f0cd88f794979508d4ccbeb1b83f4
+derivatives:
+  '480':
+    file: water-river-barge-480.webp
+    bytes: 16230
+    sha256: 8ec4e964ab6ed46c7e901f0acab261d3b1cf297bc557a6d5f35ed8d631c9fc28
+  '960':
+    file: water-river-barge-960.webp
+    bytes: 38056
+    sha256: ded869173515cd2564359d0df17051523a34f4adac3ea5ce3bdf812d81ca9dc0
+  '1600':
+    file: water-river-barge-1600.webp
+    bytes: 62386
+    sha256: 64ecc91e445e00f6671418ff69648a23a79e2c936df14304098cc6c869b33b17
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:20+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 4758b0275bd7852b
+    other_share: 0.0872
+    accent_share: 0.0149
+    accent_largest_share: 0.2618
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.243
+    - 0.649
+round: 1

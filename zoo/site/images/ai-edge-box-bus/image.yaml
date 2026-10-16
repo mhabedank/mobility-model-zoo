@@ -1,0 +1,81 @@
+id: ai-edge-box-bus
+series: siebdruck
+theme: ai
+subject: edge-box-bus
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an open equipment cabinet inside a bus with an orange-yellow edge computer with cooling fins
+    and cables, close view, no bus exterior, 1970s modernist travel poster illustration, flat colour fields
+    with crisp edges, screen print texture, clean geometric forms, calm ordered composition with long
+    diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle
+    or machine painted in a warm orange-yellow accent colour, everything else only navy, mint and cream,
+    early morning light as graphic shapes, quietly futurist and optimistic, West German graphic design
+    of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small simple
+    silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 618914
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Edge computer in a bus's equipment cabinet
+alt: An orange-yellow edge computer with cooling fins sits in the equipment cabinet of a bus (AI-generated
+  image)
+focal_point:
+- 0.515
+- 0.431
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 00269c38e90a6db20f2edf5923380623fc8eefee9baef48d21520a1472662913
+derivatives:
+  '480':
+    file: ai-edge-box-bus-480.webp
+    bytes: 10096
+    sha256: ee5c81cfa2936405a6243374fa74d21e55c728070a929898ab1cc865a8e62c1d
+  '960':
+    file: ai-edge-box-bus-960.webp
+    bytes: 21314
+    sha256: f93b2546ee6151f254988222516ed9ba900cdd7e8c279966cea27b595a0731f5
+  '1600':
+    file: ai-edge-box-bus-1600.webp
+    bytes: 35696
+    sha256: 29686589db86b0014b62c32e3856aefcba5c5a209e2749651066e7d717e1f733
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:32+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: c7c89d983ba2035f
+    other_share: 0.0549
+    accent_share: 0.0106
+    accent_largest_share: 0.3627
+    accent_top_share: 0.223
+    accent_centroid:
+    - 0.515
+    - 0.431
+round: 2

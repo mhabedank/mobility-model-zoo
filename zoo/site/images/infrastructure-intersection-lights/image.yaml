@@ -1,0 +1,80 @@
+id: infrastructure-intersection-lights
+series: siebdruck
+theme: infrastructure
+subject: intersection-lights
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an empty city intersection at sunrise with traffic lights, one orange-yellow tram crossing,
+    1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print texture,
+    clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint
+    and warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 282855
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Empty city intersection at sunrise with a tram crossing
+alt: An orange-yellow tram crosses an empty city intersection at sunrise under traffic lights (AI-generated
+  image)
+focal_point:
+- 0.297
+- 0.598
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: ae537e56be278541b08e585f8c336770aea5c026b144fbb3c15239cb75b87407
+derivatives:
+  '480':
+    file: infrastructure-intersection-lights-480.webp
+    bytes: 19968
+    sha256: 0e0ac4e8769a3a678bc51bf1b4a23c4e41c984f0e0fe8365c90bd1467969541c
+  '960':
+    file: infrastructure-intersection-lights-960.webp
+    bytes: 46728
+    sha256: f55a2d435331caf768af392b4daaa99e3226a87f8fead6e5ab62bcd55b60f122
+  '1600':
+    file: infrastructure-intersection-lights-1600.webp
+    bytes: 74776
+    sha256: d5381936ac101b700b9d495ab8b41e0e4bb5c109a1e7491cc7fce4749a32e1bc
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:28+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 9c23e7d82f66091b
+    other_share: 0.0323
+    accent_share: 0.0093
+    accent_largest_share: 0.4022
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.297
+    - 0.598
+round: 1

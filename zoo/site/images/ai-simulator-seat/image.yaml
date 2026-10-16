@@ -1,0 +1,80 @@
+id: ai-simulator-seat
+series: siebdruck
+theme: ai
+subject: simulator-seat
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a driving simulator with an orange-yellow seat in front of a curved screen showing an abstract
+    road, 1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print
+    texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in
+    pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm
+    orange-yellow accent colour, everything else only navy, mint and cream, early morning light as graphic
+    shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 924047
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Driving simulator with a curved screen showing an abstract road
+alt: A driving simulator with an orange-yellow seat faces a curved screen showing an abstract road (AI-generated
+  image)
+focal_point:
+- 0.576
+- 0.671
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 315bfac6dbb63537708d65508b7c69b9285d11fdf4969955691aff0bc82d9d91
+derivatives:
+  '480':
+    file: ai-simulator-seat-480.webp
+    bytes: 10912
+    sha256: 0ae4fb2a0b211ee80407c3d93d9af265d9e85c8ff4d96277e0b178337b6988d1
+  '960':
+    file: ai-simulator-seat-960.webp
+    bytes: 23476
+    sha256: 3cb8331746b7326f8468fdf4d260e43839b4a974df6ed5def2d20d786ae9b39c
+  '1600':
+    file: ai-simulator-seat-1600.webp
+    bytes: 38892
+    sha256: 3d539c9aca6e94e70b6e86990f6862c258aea03d88122b7ed77a58d5ac72bde8
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:41+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: c65678f68c7c2383
+    other_share: 0.035
+    accent_share: 0.0226
+    accent_largest_share: 0.8377
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.576
+    - 0.671
+round: 1

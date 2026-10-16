@@ -1,0 +1,80 @@
+id: private-road-car-open-road
+series: siebdruck
+theme: private-road
+subject: car-open-road
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow compact car on an open road winding through rolling fields at sunrise, 1970s
+    modernist travel poster illustration, flat colour fields with crisp edges, screen print texture, clean
+    geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and
+    warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 373103
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Compact car on an open road through rolling fields at sunrise
+alt: An orange-yellow compact car follows an open road winding through rolling fields at sunrise (AI-generated
+  image)
+focal_point:
+- 0.583
+- 0.665
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: 8b923b809c7381ee8b57354b7c1481c3358838c926741a4c0f75753adf0d3bed
+derivatives:
+  '480':
+    file: private-road-car-open-road-480.webp
+    bytes: 13048
+    sha256: 03e1aaacdf408a97e74646685a9e1b21b1d04bfa0ba530e113abd8b296fe7811
+  '960':
+    file: private-road-car-open-road-960.webp
+    bytes: 30848
+    sha256: 4f975523448aaeafe07b3f2c8e27a349aab75dc932013b17c45e7ab9469bfd91
+  '1600':
+    file: private-road-car-open-road-1600.webp
+    bytes: 53570
+    sha256: 7fcd1406dd0b428d7993369b788e57b75ee2705d1a7c3d0ff188aef2714b5f56
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:12+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: efb14ac0a45ec3a9
+    other_share: 0.0976
+    accent_share: 0.0301
+    accent_largest_share: 0.5434
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.583
+    - 0.665
+round: 1
