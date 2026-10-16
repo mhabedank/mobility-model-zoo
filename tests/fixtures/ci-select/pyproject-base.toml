@@ -1,0 +1,26 @@
+[project]
+name = "mobility-model-zoo"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0"]
+
+[project.optional-dependencies]
+edge = ["esptool>=4.8"]
+edge-hw = ["platformio>=6.1"]
+jtbd = ["torch>=2.4", "transformers>=4.44"]
+catalog = ["pyyaml>=6.0"]
+
+[project.scripts]
+zoo = "mobility_model_zoo.cli:main"
+edge = "mobility_model_zoo.edge.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+site-check = ["playwright>=1.47"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
