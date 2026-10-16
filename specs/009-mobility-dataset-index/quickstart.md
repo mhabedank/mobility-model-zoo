@@ -37,7 +37,7 @@ Run `uv run pytest tests/catalog/test_catalog_rules.py tests/catalog/test_catalo
 
 Expected:
 - `CC-BY-4.0` with no signals and a free API route ends as `cleared` (rule U3).
-- `CC-BY-NC-4.0` ends as `benchmark_only` (rule U4) and `cleared`.
+- `CC-BY-NC-4.0` ends as `training_allowed` with `non_commercial: true` (rule U3) and `cleared`; `CC-BY-ND-4.0` ends as `benchmark_only` (rule U4).
 - `unknown` stays `verified` with `undetermined` (rule U2).
 - A `deny` signal gives `not_usable` (rule U1).
 - An unclassified proprietary licence gives the flag `owner_decision_needed` (rule U6).

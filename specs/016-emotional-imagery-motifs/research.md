@@ -76,7 +76,7 @@ Each entry gives the decision, the reasons for it, and the alternatives that wer
 
 **Decision**:
 - **Credits page** `/credits/`: every image is listed as "AI-generated with <model> (<licence>) on the project's own hardware, <date>", with its scene description and placements.
-- **Footer** on every page with images: "Images are AI-generated · Image credits".
+- **Footer** on every page with images: "Images are AI-generated · Image credits" (a per-page details block was tried and dropped by the owner as clutter).
 - **Alt text** ends with "(AI-generated image)".
 - **File metadata**: the IPTC digital source type marker (R3).
 - **Record of processing**: no personal data is involved; the entry only notes that the site contains synthetic imagery and where it is disclosed.

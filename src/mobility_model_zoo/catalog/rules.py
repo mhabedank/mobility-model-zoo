@@ -12,7 +12,7 @@ import yaml
 
 from mobility_model_zoo.catalog.validate import Finding
 
-CC_PORT = re.compile(r"^(CC-BY(?:-SA)?-\d\.\d)-[A-Z]{2,3}$")
+CC_PORT = re.compile(r"^(CC-BY(?:-NC)?(?:-SA)?-\d\.\d)-[A-Z]{2,3}$")
 
 RULES_FILE = Path(__file__).resolve().parent / "rules.yaml"
 SIGNALS = ("robots", "tdmrep", "x_robots", "meta_noai", "ai_txt", "content_signal", "content_usage")
@@ -31,6 +31,7 @@ def _usage(
     today: str,
     evidence: str | None,
     share_alike: bool = False,
+    non_commercial: bool = False,
 ) -> dict[str, Any]:
     out = {
         "permitted_use": use,
@@ -43,6 +44,8 @@ def _usage(
     }
     if share_alike:
         out["share_alike"] = True
+    if non_commercial:
+        out["non_commercial"] = True
     return out
 
 
@@ -77,27 +80,35 @@ def apply(
         return old, []
     if lid in ("unknown", "mixed"):
         return _usage("undetermined", "unclear", "U2", f"licence is {lid}", today, evidence), []
-    # the list also holds non-commercial licences (U4 decides them) and licences that never train
-    allowed = {
-        item["id"]: item
-        for item in allowlist
-        if item.get("trains", True) and not item.get("non_commercial")
-    }
+    flags = set((entry.get("status") or {}).get("flags") or [])
+    if flags & {"licence_conflict", "licence_unconfirmed"}:
+        why = (
+            "the evidence page reserves all rights"
+            if "licence_conflict" in flags
+            else "neither the evidence page nor the DOI registry states the licence"
+        )
+        return _usage("undetermined", "unclear", "U2", why, today, evidence), []
+    # licences that never train stay off; non-commercial ones train non-commercial models only
+    # (D-catalog-nc-training-2026-10, feature 011)
+    allowed = {item["id"]: item for item in allowlist if item.get("trains", True)}
     # a jurisdiction port counts as its listed Creative Commons version (D-catalog-licences-2026-10b)
     port = CC_PORT.match(lid)
     if lid not in allowed and port and port.group(1) in allowed:
         lid = port.group(1)
     if lid in allowed:
         sa = bool(allowed[lid].get("share_alike"))
-        why = f"{lid} is on the licence allow-list" + (" (share-alike)" if sa else "")
-        return _usage("training_allowed", "allowed", "U3", why, today, evidence, sa), []
+        nc = bool(allowed[lid].get("non_commercial"))
+        notes = [n for n, on in (("share-alike", sa), ("non-commercial models only", nc)) if on]
+        why = f"{lid} is on the licence allow-list" + (f" ({', '.join(notes)})" if notes else "")
+        return _usage("training_allowed", "allowed", "U3", why, today, evidence, sa, nc), []
     parts = lid.upper().split("-")
     if "NC" in parts or "ND" in parts:
+        what = "no-derivatives" if "ND" in parts else "a non-commercial licence not on the list"
         return _usage(
             "benchmark_only",
             "not_allowed",
             "U4",
-            f"{lid} is non-commercial or no-derivatives",
+            f"{lid} is {what}",
             today,
             evidence,
         ), []

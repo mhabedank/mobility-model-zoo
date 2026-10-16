@@ -1,17 +1,24 @@
 {% extends "base.html.j2" %}
 {% block main %}
-{# feature 016: the hero image is the emotional stage; text stays on the page surface (FR-004). #}
-<section class="hero" aria-labelledby="title"><div class="wrap{% if hero_image %} hero-start{% else %} stack{% endif %}" style="{% if not hero_image %}gap:20px;{% endif %}max-width:1200px">
-<div class="stack hero-copy" style="gap:20px">
+{# feature 016: the hero image is the emotional stage; text stays on a solid panel (FR-004). #}
+{% if hero_image %}
+<section class="hero hero-full" aria-labelledby="title">
+<div class="hero-panel scheme-dark"><div class="hero-panel-in stack" style="gap:20px">
+<div class="eyebrow">Vision</div>
+<h1 class="h-display" id="title">{{ site.tagline }}</h1>
+<p class="lead" style="max-width:640px">{{ site.lead }}</p>
+<div class="row"><a class="btn" href="#models">Browse the models</a><a class="btn btn-ghost" href="{{ root }}quickstart/">Try it in five minutes</a><a class="btn btn-ghost" href="#principles">Read the principles</a></div>
+</div></div>
+<figure class="hero-stage"><img data-image="{{ hero_image.id }}" src="{{ hero_image.src }}" srcset="{{ hero_image.srcset }}" sizes="(min-width: 860px) 55vw, 100vw" width="{{ hero_image.width }}" height="{{ hero_image.height }}" alt="{{ hero_image.alt }}" fetchpriority="high" decoding="async" style="object-position:{{ hero_image.position }}"></figure>
+</section>
+{% else %}
+<section class="hero" aria-labelledby="title"><div class="wrap stack" style="gap:20px;max-width:1200px">
 <div class="eyebrow">Vision</div>
 <h1 class="h-display" id="title" style="max-width:900px">{{ site.tagline }}</h1>
 <p class="lead muted" style="max-width:760px">{{ site.lead }}</p>
 <div class="row"><a class="btn" href="#models">Browse the models</a><a class="btn btn-ghost" href="{{ root }}quickstart/">Try it in five minutes</a><a class="btn btn-ghost" href="#principles">Read the principles</a></div>
-</div>
-{% if hero_image %}
-<figure class="hero-stage"><img data-image="{{ hero_image.id }}" src="{{ hero_image.src }}" srcset="{{ hero_image.srcset }}" sizes="(min-width: 860px) 50vw, 100vw" width="{{ hero_image.width }}" height="{{ hero_image.height }}" alt="{{ hero_image.alt }}" fetchpriority="high" decoding="async" style="object-position:{{ hero_image.position }}"></figure>
-{% endif %}
 </div></section>
+{% endif %}
 {% if site["values"] %}
 <section class="sec" aria-label="What every model has"><div class="wrap grid3">
 {% for v in site["values"] %}<div class="stack" style="gap:6px"><h2 class="h3">{{ v.title }}</h2><p class="muted small">{{ v.text }}</p></div>{% endfor %}
@@ -22,7 +29,9 @@
 <div class="grid3">
 {% for sm in models | rejectattr("status", "equalto", "in_progress") | sort(attribute="status", reverse=True) %}
 {% set topic = topics | selectattr("id", "equalto", sm.m.topic) | first %}
+{% set ti = model_images.get(sm.name) %}
 {% set inner %}
+{% if ti %}<figure class="tile-img"><img data-image="{{ ti.id }}" src="{{ ti.src }}" srcset="{{ ti.srcset }}" sizes="(min-width: 860px) 50vw, 100vw" width="{{ ti.width }}" height="{{ ti.height }}" alt="{{ ti.alt }}" loading="lazy" decoding="async" style="object-position:{{ ti.position }}"></figure>{% endif %}
 <div class="tile-top"><span class="tile-name">{{ motif(sm.motif, 64, plate=72) }}<span class="h3" style="font-size:20px">{{ sm.name }}</span></span>
 <span class="chip{% if sm.status == 'in_progress' %} wip{% elif sm.status == 'deprecated' %} deprecated{% endif %}"><i></i>{{ {"published": "published", "deprecated": "deprecated", "in_progress": "in progress"}[sm.status] }}</span></div>
 <p class="small">{{ sm.m.title }}</p>

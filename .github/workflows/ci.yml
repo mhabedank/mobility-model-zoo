@@ -1,12 +1,15 @@
 name: ci
 
-# Pull requests run only what their changes need (scripts/ci/select_tests.py): the checks job always,
-# the tests of the touched areas, torch only for the JTBD tests, the firmware jobs only for edge
-# changes. Pushes to main and manual runs run everything.
+# Pull requests and pushes to main run only what their changes need (scripts/ci/select_tests.py):
+# the checks job always, the tests of the touched areas, torch only for the JTBD tests, the firmware
+# jobs only when a change can affect them. The weekly schedule and manual runs run everything, as a
+# safety net for gaps in the selection rules (feature 017).
 on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: '17 3 * * 1'  # Monday 03:17 UTC
   workflow_dispatch:
 
 permissions:
@@ -30,13 +33,31 @@ jobs:
         with:
           fetch-depth: 2  # the pull request merge commit and its base
       - id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}  # push: the previous main head
         run: |
-          # On a pull request HEAD is the merge commit; its first parent is the base branch.
-          if [ "${{ github.event_name }}" = "pull_request" ] && git rev-parse -q --verify HEAD^2 >/dev/null; then
-            python3 scripts/ci/select_tests.py --diff HEAD^1 HEAD >> "$GITHUB_OUTPUT"
-          else
-            python3 scripts/ci/select_tests.py --all >> "$GITHUB_OUTPUT"
-          fi
+          case "$EVENT" in
+            pull_request)
+              # HEAD is the merge commit; its first parent is the base branch.
+              if git rev-parse -q --verify HEAD^2 >/dev/null; then
+                python3 scripts/ci/select_tests.py --diff HEAD^1 HEAD >> "$GITHUB_OUTPUT"
+              else
+                python3 scripts/ci/select_tests.py --all --reason "pull request without merge commit" >> "$GITHUB_OUTPUT"
+              fi ;;
+            push)
+              # All commits of the push. BEFORE is zeros for a new branch and may be unreachable
+              # after a force push; then everything runs.
+              if [ -n "${BEFORE//0/}" ] && git fetch -q --depth=1 origin "$BEFORE" \
+                && git cat-file -e "$BEFORE^{commit}"; then
+                python3 scripts/ci/select_tests.py --diff "$BEFORE" HEAD >> "$GITHUB_OUTPUT"
+              else
+                python3 scripts/ci/select_tests.py --all --reason "push without a comparable previous head" >> "$GITHUB_OUTPUT"
+              fi ;;
+            *)
+              # schedule (weekly safety net), workflow_dispatch
+              python3 scripts/ci/select_tests.py --all --reason "$EVENT" >> "$GITHUB_OUTPUT" ;;
+          esac
 
   # Every pull request: lint, repository-wide tests, registry validation and the compliance harness.
   checks:

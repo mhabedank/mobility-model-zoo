@@ -53,7 +53,7 @@ def test_proposed_records_validate_against_the_registers(catalog_dir):
         {"datasets": [data["proposed_record"] | FETCH_TIME]}, register_schema("datasets")
     )
     nc = by["br-podcast-mobilidade"]["proposed_record"]
-    assert nc["permitted_use"] == "benchmark_only" and nc["licence"] == "CC-BY-NC-4.0"
+    assert nc["permitted_use"] == "training_allowed" and nc["licence"] == "CC-BY-NC-4.0"
 
 
 def test_withdrawn_is_never_an_item(catalog_dir):

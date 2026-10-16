@@ -37,6 +37,7 @@ def test_hero_and_topic_images_with_srcset_and_lazy_loading(site_env):
     env = with_images(site_env)
     html = env.html("index.html")
     hero = img(html, "hero")
+    assert '<section class="hero hero-full"' in html and 'class="hero-panel scheme-dark"' in html
     assert hero["fetchpriority"] == "high" and "loading" not in hero
     assert hero["srcset"].split(", ") == [f"assets/images/hero-{w}.webp {w}w" for w in images.WIDTHS]
     assert (hero["width"], hero["height"]) == ("1600", "900") and hero["alt"].endswith(
@@ -45,7 +46,7 @@ def test_hero_and_topic_images_with_srcset_and_lazy_loading(site_env):
     assert hero["style"] == "object-position:50% 55%"
     pd = img(html, "pd")
     assert pd["loading"] == "lazy" and (pd["width"], pd["height"]) == ("300", "200")
-    assert html.count("data-image=") == 2
+    assert html.count("data-image=") == 3  # hero, topic, and the published model's tile band
     assert (env.out / "assets/images/hero-960.webp").exists()
     assert (env.out / "assets/images/set.json").exists()
 
@@ -54,7 +55,7 @@ def test_model_page_stage_and_fallback_to_the_topic(site_env):
     env = with_images(site_env)
     html = env.html(f"models/{MODEL}/index.html")
     assert '<figure class="stage"><img data-image="scout"' in html
-    assert 'class="plate plate-hero" data-motif="scout-large.svg"' in html
+    assert 'class="plate plate-badge" data-motif="scout-large.svg"' in html
     # without its own image the model falls back to its topic's image (FR-016, Story 3)
     import shutil
 
@@ -62,7 +63,7 @@ def test_model_page_stage_and_fallback_to_the_topic(site_env):
     env.build()
     html = env.html(f"models/{MODEL}/index.html")
     assert '<figure class="stage"><img data-image="pd"' in html
-    assert "credits/#pd" in html
+    assert "credits/" in html  # the footer links the credits page
 
 
 def test_warnings_name_the_missing_placements(site_env):
@@ -116,10 +117,8 @@ def test_credits_page_and_footer_disclosure(site_env):
     assert "CC0 1.0" in credits
     index = env.html("index.html")
     assert 'href="credits/">Images are AI-generated · Image credits</a>' in index
-    assert (
-        '<details class="credits wrap"><summary>Images on this page are AI-generated</summary>' in index
-    )
+    assert '<details class="credits' not in index  # the footer link is the per-page disclosure
     page = check.parse(env.out / "index.html")
     assert any("AI-generated" in t for t in page.footer_link_text)
     quick = env.html("quickstart/index.html")
-    assert "Images on this page" not in quick  # no images, no block (FR-007)
+    assert "data-image" not in quick  # no images on the quickstart page (FR-007)
