@@ -97,8 +97,27 @@ literal sense of Principle XI.
 | D. Owner decision and amendment | Record a decision (like `D-claude-risk-0.1.x`) and amend Principle XI with a narrow carve-out for the existing guideline v1/v2 and examples in pilot-v1, pilot-v2 and span-train-v1. | Cheapest. Weakens the "no deviation" rule the owner set on 2026-10-13; needs a constitution version bump and a card disclosure. |
 | E. Disclosure only (with any option) | Add the guideline provenance to the card and the 0.1.x compliance records. | Needed in every option except a full withdrawal; does not resolve the XI conflict on its own. |
 
-For cluster-v1, feature 018 already replaces the guideline and examples. The same rule as in
-point 5 applies: the cluster-v2 guideline should not be produced by rewriting the cluster-v1 text.
+For cluster-v1, feature 018 already replaces the guideline and examples. The owner decided on
+2026-10-16 that the rebuild rule of this report does not apply to cluster-v2: its Claude-drafted,
+owner-approved guideline package stays, under the carve-out of constitution 3.1.0 (see below).
+
+## Constitution 3.1.0 (amendment pending)
+
+Amendment 3.1.0 (owner decision of 2026-10-14 in feature 018, commit `f095572` on branch
+`claude/cairn-base-progress-7960a2`, not on `main` when this report was written) adds an
+"owner-approved labeling guideline" carve-out to Principle XI. Claude may draft the guideline,
+its fictional worked examples and the task instructions for the **non-Claude reference labelers
+of a benchmark**. The owner must approve them before any labeling run, and the approval (who,
+when, sha256 of each file) is recorded with the benchmark.
+
+The carve-out "never covers examples or instructions given to a teacher, a data generator or a
+model being trained". For scout-large this changes nothing:
+
+- The span-train-v1 teacher prompt is a teacher instruction, and no approval was recorded for
+  it, so the findings and the implications above stand under 3.1.0 as well.
+- In the option A rebuild, the JTBD pipeline gives the benchmark references and the teacher the
+  same guideline and examples. Those therefore stay Claude-free. A Claude draft under the
+  carve-out would be possible only for a guideline that no teacher ever reads.
 
 ## Owner decision (2026-10-14)
 
