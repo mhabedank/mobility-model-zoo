@@ -1,0 +1,80 @@
+id: infrastructure-field-shelter
+series: siebdruck
+theme: infrastructure
+subject: field-shelter
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a glass bus shelter at the edge of a field, an orange-yellow bus approaching over a hill, 1970s
+    modernist travel poster illustration, flat colour fields with crisp edges, screen print texture, clean
+    geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and
+    warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 670762
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Glass bus shelter at the edge of a field with a bus approaching
+alt: An orange-yellow bus approaches a glass shelter at the edge of a field over a hill (AI-generated
+  image)
+focal_point:
+- 0.367
+- 0.598
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 54d337aaec54dafb4129ffa1541555d9f258a72ac6bfc302e04a13bc27794f77
+derivatives:
+  '480':
+    file: infrastructure-field-shelter-480.webp
+    bytes: 8088
+    sha256: 0996af79e1d7ed27ebc93b65f214f1f64b1730fe69cb696e273894b528810856
+  '960':
+    file: infrastructure-field-shelter-960.webp
+    bytes: 17004
+    sha256: ab200f017413999d9731778faa804b4d97ddd17366926cf4b2e81d03437c7c4b
+  '1600':
+    file: infrastructure-field-shelter-1600.webp
+    bytes: 28306
+    sha256: f648663fb92b88bf77ac8c2646c2a3ac9939b0eb339686b8ddf3ba5d68233005
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:29+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 3f30d61f89e06517
+    other_share: 0.0104
+    accent_share: 0.0064
+    accent_largest_share: 0.3496
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.367
+    - 0.598
+round: 2

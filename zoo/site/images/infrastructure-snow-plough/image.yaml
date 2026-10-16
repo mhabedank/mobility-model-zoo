@@ -1,0 +1,80 @@
+id: infrastructure-snow-plough
+series: siebdruck
+theme: infrastructure
+subject: snow-plough
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow snow plough truck on a mountain road at dawn, snow banks, 1970s modernist travel
+    poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric forms,
+    calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream, deep
+    navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 467649
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Snow plough truck on a mountain road at dawn
+alt: An orange-yellow snow plough truck clears a mountain road at dawn between snow banks (AI-generated
+  image)
+focal_point:
+- 0.508
+- 0.593
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 3ae827279bac0284fbacfcec5ce7342c82859e4a9e4ba8ab511cce6814bd2c49
+derivatives:
+  '480':
+    file: infrastructure-snow-plough-480.webp
+    bytes: 19540
+    sha256: 4be322239629006ba613ef72668c11fbfe3362195650025e15a66092b191930b
+  '960':
+    file: infrastructure-snow-plough-960.webp
+    bytes: 44738
+    sha256: 69a1db58ab1d99e33229c759cf5287d29c430477f58c6637ffc56a64b4efd092
+  '1600':
+    file: infrastructure-snow-plough-1600.webp
+    bytes: 71650
+    sha256: 3752660847e193ce495b0396c8826fefd5f118857c54c95b2871b5356375e9cc
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:31+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: ad936a789789432d
+    other_share: 0.1121
+    accent_share: 0.0251
+    accent_largest_share: 0.1762
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.508
+    - 0.593
+round: 1

@@ -1,0 +1,80 @@
+id: rail-depot-hall
+series: siebdruck
+theme: rail
+subject: depot-hall
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a railway depot hall with an orange-yellow train on the inspection pit road, tall windows, cables
+    hanging from the ceiling, 1970s modernist travel poster illustration, flat colour fields with crisp
+    edges, screen print texture, clean geometric forms, calm ordered composition with long diagonals,
+    soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine
+    painted in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning
+    light as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies,
+    restrained, no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 462008
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Railway depot hall with a train on the inspection pit road
+alt: An orange-yellow train stands on the inspection pit road of a tall railway depot hall (AI-generated
+  image)
+focal_point:
+- 0.457
+- 0.544
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 35d00bd060e41f0860c5de573797cca2e06207022784be23a6b4d2913ff7ed15
+derivatives:
+  '480':
+    file: rail-depot-hall-480.webp
+    bytes: 18136
+    sha256: 2b622c83e8428baff0b80451b414f8cc55963717c3078276a752105ac1eb2003
+  '960':
+    file: rail-depot-hall-960.webp
+    bytes: 41236
+    sha256: b0c8abf50f6f8224dbe3d1caa47398ce9bede1ac450c81b5870d24af4cdc29a2
+  '1600':
+    file: rail-depot-hall-1600.webp
+    bytes: 66346
+    sha256: aef402276cef68009d549dfc3b538d6e1194db284734967782b30e9ce7195b90
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:07+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: f06473a0a8b6574f
+    other_share: 0.0279
+    accent_share: 0.0214
+    accent_largest_share: 0.7939
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.457
+    - 0.544
+round: 1

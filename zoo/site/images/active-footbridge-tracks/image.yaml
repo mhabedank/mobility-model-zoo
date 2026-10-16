@@ -1,0 +1,80 @@
+id: active-footbridge-tracks
+series: siebdruck
+theme: active
+subject: footbridge-tracks
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a curved pedestrian footbridge over railway tracks, an orange-yellow train below, figures seen
+    from behind above, 1970s modernist travel poster illustration, flat colour fields with crisp edges,
+    screen print texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient
+    sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted
+    in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning light
+    as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 384764
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Curved footbridge over railway tracks with a train below
+alt: Figures cross a curved footbridge over railway tracks while an orange-yellow train passes below (AI-generated
+  image)
+focal_point:
+- 0.636
+- 0.638
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: a97fd174e2ee436806faddfe9b0d49a96c7a3b104468b1285e6f269ad86ec358
+derivatives:
+  '480':
+    file: active-footbridge-tracks-480.webp
+    bytes: 16514
+    sha256: 88f6211a16f18d05cca9e58256b789c9e233e53a2ad0e0e659b8261d115651fe
+  '960':
+    file: active-footbridge-tracks-960.webp
+    bytes: 39028
+    sha256: e0809b9b8147a9ff00900689fc732880a1a51ae68cb7de70e0c6f067c1291357
+  '1600':
+    file: active-footbridge-tracks-1600.webp
+    bytes: 63364
+    sha256: 5c08e509ee9833bd1cc2dd634bc75336c918f61889df81876fd50bb2ab79e3b7
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:19+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 39e2c61e29d2156f
+    other_share: 0.0572
+    accent_share: 0.0106
+    accent_largest_share: 0.3735
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.636
+    - 0.638
+round: 1

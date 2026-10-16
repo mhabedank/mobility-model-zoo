@@ -1,0 +1,80 @@
+id: infrastructure-road-works
+series: siebdruck
+theme: infrastructure
+subject: road-works
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a road works site with cones and an orange-yellow excavator, fresh lane markings, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 124930
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Road works site with cones and an excavator
+alt: An orange-yellow excavator works between cones on a road works site with fresh lane markings (AI-generated
+  image)
+focal_point:
+- 0.403
+- 0.365
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: fd21cb65e1a61ce9056026fb5e9a149a487088f9cb95e1a22721d805e9cbde8f
+derivatives:
+  '480':
+    file: infrastructure-road-works-480.webp
+    bytes: 12448
+    sha256: bf9671fe07f4b687af5fbcc8eae476bff56a5841a0364ec60194c790fde0e275
+  '960':
+    file: infrastructure-road-works-960.webp
+    bytes: 28560
+    sha256: 97b67e504155214403e485a1a0cda48fa34da58aa7aecaf762901fdaffeff04f
+  '1600':
+    file: infrastructure-road-works-1600.webp
+    bytes: 48058
+    sha256: cdf8d76f409aa08a53c6a0d075b1b281cd515650b71ba7e5af56238f77f48838
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:30+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 7cc8073db8c2556d
+    other_share: 0.0383
+    accent_share: 0.0271
+    accent_largest_share: 0.4077
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.403
+    - 0.365
+round: 1

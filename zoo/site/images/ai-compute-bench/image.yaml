@@ -1,0 +1,80 @@
+id: ai-compute-bench
+series: siebdruck
+theme: ai
+subject: compute-bench
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a small orange-yellow compute box on a workbench beside a circuit board and a sensor, window
+    light, 1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print
+    texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in
+    pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm
+    orange-yellow accent colour, everything else only navy, mint and cream, early morning light as graphic
+    shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 71918
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Compute box on a workbench beside a circuit board and a sensor
+alt: A small orange-yellow compute box sits on a workbench beside a circuit board and a sensor (AI-generated
+  image)
+focal_point:
+- 0.684
+- 0.494
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 6359a07e6feee47b139dae9aaa1396d356a6e0cb03b4c28d14dd49e6040a2910
+derivatives:
+  '480':
+    file: ai-compute-bench-480.webp
+    bytes: 10382
+    sha256: f8fb38c32d644411d894fe2296d7704e9ffd6bff4d47deb6794103cc74658c58
+  '960':
+    file: ai-compute-bench-960.webp
+    bytes: 22234
+    sha256: 47989b1cc94742230967daf59ae10e7d821292d00a1a3f6e3b7b3ab06f8a91de
+  '1600':
+    file: ai-compute-bench-1600.webp
+    bytes: 36244
+    sha256: d8f9d76af7c8fe9b626e203c72fa054f084ffd5a4402ab72fcacacf617a97403
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:41+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 823e99e407666f33
+    other_share: 0.0964
+    accent_share: 0.037
+    accent_largest_share: 0.8317
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.684
+    - 0.494
+round: 1

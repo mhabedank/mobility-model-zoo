@@ -1,0 +1,81 @@
+id: air-cargo-drone-field
+series: siebdruck
+theme: air
+subject: cargo-drone-field
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a small orange-yellow quadcopter cargo drone with four rotors and a parcel box flying above
+    a field, a farmhouse small in the distance, 1970s modernist travel poster illustration, flat colour
+    fields with crisp edges, screen print texture, clean geometric forms, calm ordered composition with
+    long diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main
+    vehicle or machine painted in a warm orange-yellow accent colour, everything else only navy, mint
+    and cream, early morning light as graphic shapes, quietly futurist and optimistic, West German graphic
+    design of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small
+    simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 865685
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Cargo drone above a field with a farmhouse in the distance
+alt: An orange-yellow cargo drone flies above a field with a farmhouse small in the distance (AI-generated
+  image)
+focal_point:
+- 0.463
+- 0.269
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: d95d8cfc5ee2a478acae0597a80f6398cdb208c8344a5f0204599ea979be8873
+derivatives:
+  '480':
+    file: air-cargo-drone-field-480.webp
+    bytes: 11380
+    sha256: 5effbfcd0a456f2e357a0b0b2ebbd4a56a8c5c7494d6f17de9fb58a1aea7c7b2
+  '960':
+    file: air-cargo-drone-field-960.webp
+    bytes: 24570
+    sha256: 6aa300d1ae3a3e2b180eb68fbdb3e4263498ae7ceaa019d71ab7fcb96fd045b6
+  '1600':
+    file: air-cargo-drone-field-1600.webp
+    bytes: 40824
+    sha256: e9069ef5202f022033a23800137a4e84ec93992f5e9bcda1765e4e7291a7aa75
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:25+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 8cd744e513b86567
+    other_share: 0.0439
+    accent_share: 0.0078
+    accent_largest_share: 0.1376
+    accent_top_share: 0.0268
+    accent_centroid:
+    - 0.463
+    - 0.269
+round: 1

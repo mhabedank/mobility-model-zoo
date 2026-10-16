@@ -1,0 +1,79 @@
+id: air-helipad-roof
+series: siebdruck
+theme: air
+subject: helipad-roof
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow rescue helicopter on a hospital roof helipad at sunrise, 1970s modernist travel
+    poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric forms,
+    calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream, deep
+    navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 446592
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Rescue helicopter on a hospital roof helipad at sunrise
+alt: An orange-yellow rescue helicopter stands on a hospital roof helipad at sunrise (AI-generated image)
+focal_point:
+- 0.537
+- 0.468
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: a60efc8243f7658f19b9f0bd3f7b2f6826d6b2dbbaea02f667623c66f4eb253f
+derivatives:
+  '480':
+    file: air-helipad-roof-480.webp
+    bytes: 11510
+    sha256: 8aa16589fe44fa3920cb7694dbd8223c8aed23133234608ae75e8df7153b7eef
+  '960':
+    file: air-helipad-roof-960.webp
+    bytes: 26042
+    sha256: e98b7aee6535643e746fbaffc199a2d16341307b4bccfd2da54b28699a263cdd
+  '1600':
+    file: air-helipad-roof-1600.webp
+    bytes: 43244
+    sha256: 52d6d2f6d72de8df2dd27f0ccd28cc9fc698a0fb281d6fac3a4f29e016201c0a
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:24+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: a85bf7c40a70e58d
+    other_share: 0.0433
+    accent_share: 0.0089
+    accent_largest_share: 0.1026
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.537
+    - 0.468
+round: 1

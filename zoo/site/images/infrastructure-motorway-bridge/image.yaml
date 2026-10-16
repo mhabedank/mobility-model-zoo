@@ -1,0 +1,79 @@
+id: infrastructure-motorway-bridge
+series: siebdruck
+theme: infrastructure
+subject: motorway-bridge
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a motorway bridge on tall piers spanning a valley, an orange-yellow truck crossing, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 852757
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Motorway bridge on tall piers spanning a valley
+alt: An orange-yellow truck crosses a motorway bridge on tall piers spanning a valley (AI-generated image)
+focal_point:
+- 0.475
+- 0.394
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: 6372ff69481c3366ac2204d46785bcf29c49db6375c60115fa0db38eb62d1363
+derivatives:
+  '480':
+    file: infrastructure-motorway-bridge-480.webp
+    bytes: 10678
+    sha256: d14bbd6c7bd5ee5c0583cbcee888e2e9f43f82f35f6f97b13cf4b1cb40eefea6
+  '960':
+    file: infrastructure-motorway-bridge-960.webp
+    bytes: 24646
+    sha256: cbda1893813062d820f6b5561433c6dd6a7e3dd2508bb0ceed23765cf429dabe
+  '1600':
+    file: infrastructure-motorway-bridge-1600.webp
+    bytes: 41956
+    sha256: f6278ac11232ce9b1257d434dd5beaa87a7ad97e101d90cdbca9d42e9398484e
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:26+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 6969b246d9b06dc3
+    other_share: 0.0316
+    accent_share: 0.0212
+    accent_largest_share: 0.9857
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.475
+    - 0.394
+round: 1

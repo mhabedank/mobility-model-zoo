@@ -1,0 +1,80 @@
+id: iot-bridge-strain
+series: siebdruck
+theme: iot
+subject: bridge-strain
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: the underside of a steel bridge, strain sensors in small orange-yellow boxes bolted to the beams,
+    cables, river below, no vehicles, 1970s modernist travel poster illustration, flat colour fields with
+    crisp edges, screen print texture, clean geometric forms, calm ordered composition with long diagonals,
+    soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine
+    painted in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning
+    light as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies,
+    restrained, no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 214406
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Strain sensors on the steel beams of a bridge
+alt: Strain sensors in orange-yellow boxes sit on the steel beams of a bridge above a river (AI-generated
+  image)
+focal_point:
+- 0.675
+- 0.2
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 22be186d1832a3e5265a2631635441e5dddde76815b69dcb1559237119882afe
+derivatives:
+  '480':
+    file: iot-bridge-strain-480.webp
+    bytes: 15398
+    sha256: a3ebc30b4884442ce5e92c5847ea88719e18f9eff98e94b61e91aa52a1ba3571
+  '960':
+    file: iot-bridge-strain-960.webp
+    bytes: 34870
+    sha256: 8a6e8255cf245ff07c14ca09a9fb31237efc5706864141f028a65a6c59333084
+  '1600':
+    file: iot-bridge-strain-1600.webp
+    bytes: 56996
+    sha256: 99da37428f637faf26ef0409da39e7fbdffb115e43c5ae9dd69fac1601ae1dcb
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:34+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: c5d893963da0833f
+    other_share: 0.0168
+    accent_share: 0.0074
+    accent_largest_share: 0.5035
+    accent_top_share: 0.4085
+    accent_centroid:
+    - 0.675
+    - 0.2
+round: 1

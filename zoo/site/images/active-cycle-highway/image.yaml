@@ -1,0 +1,81 @@
+id: active-cycle-highway
+series: siebdruck
+theme: active
+subject: cycle-highway
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an elevated bicycle bridge curving between buildings, only bicycles on it, one orange-yellow
+    cyclist seen from behind, no cars, 1970s modernist travel poster illustration, flat colour fields
+    with crisp edges, screen print texture, clean geometric forms, calm ordered composition with long
+    diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle
+    or machine painted in a warm orange-yellow accent colour, everything else only navy, mint and cream,
+    early morning light as graphic shapes, quietly futurist and optimistic, West German graphic design
+    of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small simple
+    silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 3259
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Elevated cycle highway curving between buildings
+alt: An elevated cycle highway curves between buildings with one orange-yellow cyclist seen from behind
+  (AI-generated image)
+focal_point:
+- 0.681
+- 0.673
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 5c7d0349558bd2b822a68298e484602b0c015af86bc5f9390e00a020832cee4d
+derivatives:
+  '480':
+    file: active-cycle-highway-480.webp
+    bytes: 15742
+    sha256: 51862d54e4458033fee7e55c6ae9b60e14ad02808d7b49d17daa8c5244606e74
+  '960':
+    file: active-cycle-highway-960.webp
+    bytes: 35242
+    sha256: e46c9d7f1e4a99baacfa572f0a28eeccccb9a2be54e3a2eece887e96582adcd2
+  '1600':
+    file: active-cycle-highway-1600.webp
+    bytes: 57846
+    sha256: 5bae9c755bec0908d5cd5c6335d27344efa985bfcf1e25100f9521e859ed7754
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:29+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 89f19806f3fd2b03
+    other_share: 0.0139
+    accent_share: 0.0034
+    accent_largest_share: 0.5426
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.681
+    - 0.673
+round: 2

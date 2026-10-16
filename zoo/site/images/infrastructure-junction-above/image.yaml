@@ -1,0 +1,80 @@
+id: infrastructure-junction-above
+series: siebdruck
+theme: infrastructure
+subject: junction-above
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a railway junction seen from above, fanning tracks, one orange-yellow train, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 265810
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Railway junction seen from above with fanning tracks
+alt: A railway junction seen from above with fanning tracks and one orange-yellow train (AI-generated
+  image)
+focal_point:
+- 0.432
+- 0.702
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: 6b1e3f27bc95450890418bd2d1b2ed5b1ff942dde48a87ee0d7c911178d1a987
+derivatives:
+  '480':
+    file: infrastructure-junction-above-480.webp
+    bytes: 12998
+    sha256: 8830b567d4d634e86dda197ea39f3ee80d3bc9f3318d73e6ab979f3b4633addf
+  '960':
+    file: infrastructure-junction-above-960.webp
+    bytes: 38332
+    sha256: c8f68d502e1c84d18db6db731cbeb4ce27f84e34924ec79777260614fc630cd9
+  '1600':
+    file: infrastructure-junction-above-1600.webp
+    bytes: 71672
+    sha256: a956aba953ea1c06374650d5efba23e0009962bb6a3ea0746e07f082b2c44ea2
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:32+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: aa264cf231dd4f31
+    other_share: 0.0106
+    accent_share: 0.0029
+    accent_largest_share: 0.3085
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.432
+    - 0.702
+round: 1

@@ -1,0 +1,81 @@
+id: infrastructure-control-room
+series: siebdruck
+theme: infrastructure
+subject: control-room
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a traffic control room, a figure seen from behind at an orange-yellow desk console with buttons,
+    a wall of abstract map screens, no vehicles, 1970s modernist travel poster illustration, flat colour
+    fields with crisp edges, screen print texture, clean geometric forms, calm ordered composition with
+    long diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main
+    vehicle or machine painted in a warm orange-yellow accent colour, everything else only navy, mint
+    and cream, early morning light as graphic shapes, quietly futurist and optimistic, West German graphic
+    design of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small
+    simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 396849
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Traffic control room with a wall of abstract map screens
+alt: A figure seen from behind sits at an orange-yellow console in a traffic control room with map screens
+  (AI-generated image)
+focal_point:
+- 0.249
+- 0.617
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 0bd763e87fcefba8e1c0deb9554b34ff2c32587d58bf29369c037b0923afccaf
+derivatives:
+  '480':
+    file: infrastructure-control-room-480.webp
+    bytes: 9818
+    sha256: 635a3dbc93b1e23a26335f6347ffe35ac74b1001775430b797c60c3f2a3604fe
+  '960':
+    file: infrastructure-control-room-960.webp
+    bytes: 22040
+    sha256: 13ae4b231683828bcf07fd1ec91c7b127eb4ae0156459645abf03a513557ddcf
+  '1600':
+    file: infrastructure-control-room-1600.webp
+    bytes: 36182
+    sha256: bafebca518385a47a39c277fca11020e37d0471e52dd30ab2023c489a70ba9ae
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:31+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: c06d31b19c3c374f
+    other_share: 0.0622
+    accent_share: 0.01
+    accent_largest_share: 0.4543
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.249
+    - 0.617
+round: 1

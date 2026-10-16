@@ -1,0 +1,81 @@
+id: iot-cabinet-gateway
+series: siebdruck
+theme: iot
+subject: cabinet-gateway
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an open grey trackside cabinet with an orange-yellow gateway device inside, indicator lights
+    as small dots, cables, track behind, no vehicles, 1970s modernist travel poster illustration, flat
+    colour fields with crisp edges, screen print texture, clean geometric forms, calm ordered composition
+    with long diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground,
+    the main vehicle or machine painted in a warm orange-yellow accent colour, everything else only navy,
+    mint and cream, early morning light as graphic shapes, quietly futurist and optimistic, West German
+    graphic design of the seventies, restrained, no text, no lettering, no logos, no faces, people only
+    as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 118130
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Open trackside cabinet with a gateway device
+alt: An orange-yellow gateway device with small indicator lights sits in an open trackside cabinet (AI-generated
+  image)
+focal_point:
+- 0.415
+- 0.44
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 76357043d100b4be5ce6bc1780d3b46e84cfd7d523cbbee1bd7dafc2e8440846
+derivatives:
+  '480':
+    file: iot-cabinet-gateway-480.webp
+    bytes: 7726
+    sha256: ac75189ccebac06b9c55906848e79860072ae0aef6118cd6445ba41a8bb168e9
+  '960':
+    file: iot-cabinet-gateway-960.webp
+    bytes: 17526
+    sha256: ed2b2034079254e5fbce06234336d48ea1b9536fb7658ec17ec00fcef509e48e
+  '1600':
+    file: iot-cabinet-gateway-1600.webp
+    bytes: 30140
+    sha256: 4ec301cb45679d8da639f1b83a38e66df2f11d2acf17cf06f3af7799c327f240
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:34+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: e2c623714b19bda5
+    other_share: 0.0201
+    accent_share: 0.0135
+    accent_largest_share: 0.9788
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.415
+    - 0.44
+round: 1
