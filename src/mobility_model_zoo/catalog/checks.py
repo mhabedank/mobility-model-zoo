@@ -22,9 +22,21 @@ from urllib.parse import urlparse
 import httpx
 
 from mobility_model_zoo.catalog import rules, states
+from mobility_model_zoo.catalog.licence_text import (
+    conflicts,
+    match_licence,
+    registry_statement,
+    visible_text,
+)
 from mobility_model_zoo.catalog.model import Catalog, compliance_list, licence_allowlist
 from mobility_model_zoo.catalog.validate import Finding, k1, k2, k3, k9
 from mobility_model_zoo.compliance import signals
+
+# K5: the evidence page reserves all rights although the entry carries an open licence (audit 2026-10-14)
+LICENCE_CONFLICT = "evidence page reserves all rights"
+# K5: an OpenAlex licence that neither the evidence page nor the DOI registry states (owner decision
+# D-catalog-openalex-evidence-2026-10)
+LICENCE_UNCONFIRMED = "licence not confirmed by the evidence page or the DOI registry"
 
 MAX_HOSTS = 8
 PER_HOST_SECONDS = 1.0
@@ -228,21 +240,45 @@ def network_checks(
         else:
             digest = hashlib.sha256(ev_page.content).hexdigest()
             previous = _old(entry, "K5").get("previous") or {}
+            stored = str(lic.get("id"))
+            read = match_licence(visible_text(ev_page.text), lic["evidence_url"])
+            if conflicts(stored, read):
+                verdict, note = "warn", f"{LICENCE_CONFLICT}; "
+            elif _from_openalex(entry) and not _confirmed(entry, stored, read, client):
+                verdict, note = "warn", f"{LICENCE_UNCONFIRMED} (page: {read}); "
+            else:
+                verdict, note = "pass", ""
             results.append(
                 _result(
                     "K5",
-                    "pass",
-                    f"sha256={digest}",
+                    verdict,
+                    f"{note}sha256={digest}",
                     {
                         "evidence_sha256": digest,
                         "licence_id": lic.get("id"),
                         "before": previous.get("evidence_sha256"),
+                        "reading": read,
+                        "reading_before": previous.get("reading"),
                     },
                 )
             )
 
     results.append(_route_check(entry, client))
     return results, new_signals, reachable
+
+
+def _from_openalex(entry: dict[str, Any]) -> bool:
+    other = (entry.get("identifiers") or {}).get("other") or []
+    return any(str(x).startswith("openalex:") for x in other)
+
+
+def _confirmed(entry: dict[str, Any], stored: str, read: str, client: httpx.Client) -> bool:
+    """The evidence page or the DOI registry states the stored licence (D-catalog-openalex-evidence)."""
+    if read == stored:
+        return True
+    doi = (entry.get("identifiers") or {}).get("doi")
+    statement = registry_statement(doi, client) if doi else ""
+    return bool(statement) and match_licence(statement) == stored
 
 
 def _route_check(entry: dict[str, Any], client: httpx.Client) -> dict[str, Any]:
@@ -292,7 +328,8 @@ def select(
 def _changed(entry: dict[str, Any], before: dict[str, Any]) -> list[str]:
     out = []
     k5 = _old(entry, "K5").get("previous") or {}
-    if k5.get("before") and k5.get("evidence_sha256") and k5["before"] != k5["evidence_sha256"]:
+    # the licence read from the page, not its bytes: dynamic pages change on every request (2026-10-14)
+    if k5.get("reading_before") and k5.get("reading") and k5["reading_before"] != k5["reading"]:
         out.append("evidence")
     if before.get("licence") != (entry.get("licence") or {}).get("id"):
         out.append("licence")
@@ -384,6 +421,9 @@ def run(
             )
             if k4["result"] == "pass":
                 e.setdefault("provenance", {})["last_verified"] = today_s
+            k5 = str(next((r for r in net_results if r["check"] == "K5"), {}).get("detail", ""))
+            states.set_flag(e, "licence_conflict", k5.startswith(LICENCE_CONFLICT))
+            states.set_flag(e, "licence_unconfirmed", k5.startswith(LICENCE_UNCONFIRMED))
         else:  # keep earlier network results
             results += [c for c in e.get("checks") or [] if c["check"] in ("K4", "K5", "K6", "K7")]
         usage, flags = rules.apply(e, allowlist, today_s)

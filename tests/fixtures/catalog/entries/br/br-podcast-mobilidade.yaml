@@ -41,11 +41,12 @@ signals:
   content_usage: absent
   checked_at: '2026-10-11'
 usage:
-  permitted_use: benchmark_only
-  redistribution: not_allowed
-  rule: U4
-  rules_version: 1
-  rationale: CC-BY-NC-4.0 is non-commercial or no-derivatives
+  permitted_use: training_allowed
+  redistribution: allowed
+  non_commercial: true
+  rule: U3
+  rules_version: 2
+  rationale: CC-BY-NC-4.0 is on the licence allow-list (non-commercial models only)
   evidence_url: https://example.org/br-podcast-mobilidade/licence
   decided_at: '2026-10-11'
 personal_data:

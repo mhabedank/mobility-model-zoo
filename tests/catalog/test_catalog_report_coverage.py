@@ -17,9 +17,9 @@ def test_counts_and_gaps(catalog_dir):
     rep = reports.coverage(load(catalog_dir))
     assert rep["entries"] == 12
     assert rep["by_permitted_use"] == {
-        "benchmark_only": 2,
+        "benchmark_only": 1,
         "not_usable": 1,
-        "training_allowed": 6,
+        "training_allowed": 7,
         "undetermined": 3,
     }
     assert rep["licence_determined"] == {"entries": 11, "share": 0.9167}

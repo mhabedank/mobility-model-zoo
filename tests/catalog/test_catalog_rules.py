@@ -63,13 +63,13 @@ def test_u3_allowlist_and_share_alike(entry):
         "allowed",
         "U3",
     )
-    assert "share_alike" not in usage
+    assert "share_alike" not in usage and "non_commercial" not in usage
     entry["licence"]["id"] = "CC-BY-SA-4.0"
     assert _apply(entry)[0]["share_alike"] is True
 
 
-@pytest.mark.parametrize("lid", ["CC-BY-NC-4.0", "CC-BY-ND-4.0", "CC-BY-NC-SA-4.0"])
-def test_u4_nc_nd(entry, lid):
+@pytest.mark.parametrize("lid", ["CC-BY-ND-4.0", "CC-BY-NC-ND-4.0", "CC-BY-NC-1.0"])
+def test_u4_no_derivatives_and_unlisted_nc(entry, lid):
     entry["licence"]["id"] = lid
     usage, _ = _apply(entry)
     assert (usage["permitted_use"], usage["redistribution"], usage["rule"]) == (
@@ -77,6 +77,28 @@ def test_u4_nc_nd(entry, lid):
         "not_allowed",
         "U4",
     )
+
+
+@pytest.mark.parametrize(
+    ("lid", "share_alike"),
+    [
+        ("CC-BY-NC-4.0", False),
+        ("CC-BY-NC-SA-4.0", True),
+        ("CC-BY-NC-2.0", False),
+        ("CC-BY-NC-SA-2.5-ES", True),
+    ],
+)
+def test_u3_listed_nc_trains_non_commercial_models_only(entry, lid, share_alike):
+    """D-catalog-nc-training-2026-10: feature 011 lets NC inputs train NC models."""
+    entry["licence"]["id"] = lid
+    usage, _ = _apply(entry)
+    assert (usage["permitted_use"], usage["rule"], usage["non_commercial"]) == (
+        "training_allowed",
+        "U3",
+        True,
+    )
+    assert usage.get("share_alike", False) is share_alike
+    assert "non-commercial models only" in usage["rationale"]
 
 
 def test_u3_skips_licences_that_never_train(entry):
@@ -135,6 +157,13 @@ def test_owner_decision_survives_but_not_an_opt_out(entry):
 
 def test_k8_detects_stale_usage(entry):
     assert rules.k8(entry, ALLOW) == []
-    entry["licence"]["id"] = "CC-BY-NC-4.0"
+    entry["licence"]["id"] = "CC-BY-ND-4.0"
     [finding] = rules.k8(entry, ALLOW)
     assert finding.check == "K8" and "rules decide benchmark_only/not_allowed/U4" in finding.message
+
+
+@pytest.mark.parametrize("flag", ["licence_unconfirmed", "licence_conflict"])
+def test_u2_covers_licences_k5_could_not_confirm(entry, flag):
+    entry.setdefault("status", {})["flags"] = [flag]
+    usage, _ = _apply(entry)
+    assert (usage["permitted_use"], usage["rule"]) == ("undetermined", "U2")

@@ -353,6 +353,9 @@
         "share_alike": {
           "type": "boolean"
         },
+        "non_commercial": {
+          "type": "boolean"
+        },
         "rule": {
           "type": "string",
           "pattern": "^U[0-9]+$"
@@ -708,7 +711,9 @@
               "licence_changed",
               "mixed_licence_children_missing",
               "unreachable",
-              "personal_data_in_metadata"
+              "personal_data_in_metadata",
+              "licence_conflict",
+              "licence_unconfirmed"
             ]
           }
         }

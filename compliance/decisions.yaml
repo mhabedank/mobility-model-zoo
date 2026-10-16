@@ -236,6 +236,37 @@ decisions:
   review_by: '2027-04-11'
   decided_by: Martin Habedank
   supersedes: null
+- id: D-catalog-openalex-evidence-2026-10
+  date: '2026-10-14'
+  decision: A licence the resource index takes from OpenAlex clears an entry only if the evidence page or the DOI
+    registry (Crossref, else DataCite) states the same licence. Otherwise check K5 sets the blocking flag
+    licence_unconfirmed and the entry stays verified. An evidence page that reserves all rights against an open
+    stored licence sets the blocking flag licence_conflict for every entry.
+  rationale: The first audit (2026-10-14) found OpenAlex licences that neither the publisher page nor Crossref
+    states, and one paper listed as CC BY-NC whose publisher page reserves all rights; a cleared entry needs
+    evidence a reader can verify.
+  scope:
+  - src/mobility_model_zoo/catalog/checks.py
+  - catalog:entries (feature 009)
+  review_by: '2027-04-14'
+  decided_by: Martin Habedank
+  supersedes: null
+- id: D-catalog-nc-training-2026-10
+  date: '2026-10-13'
+  decision: In the resource index, a source under a listed non-commercial licence is training_allowed for
+    non-commercial models (usage.non_commercial true), as feature 011 allows for the register; rule U3 decides it and
+    rule U4 keeps no-derivatives licences and unlisted non-commercial licences benchmark_only. The older versions
+    CC BY-NC 2.0, 2.5 and 3.0 and CC BY-NC-SA 2.0, 2.5 and 3.0 go on compliance/lists/licence-allowlist.yaml as
+    non-commercial (the BY-NC-SA ones share-alike).
+  rationale: Constitution 2.1.0 and feature 011 let the zoo build and publish non-commercial models; about 600 index
+    entries under NC licences (mostly papers) were benchmark_only only because the catalog rules predated that.
+  scope:
+  - compliance/lists/licence-allowlist.yaml
+  - src/mobility_model_zoo/catalog/rules.yaml
+  - catalog:entries (feature 009)
+  review_by: '2027-04-13'
+  decided_by: Martin Habedank
+  supersedes: null
 - id: D-catalog-licences-2026-10b
   date: '2026-10-13'
   decision: Older Creative Commons versions and public domain marks found on Wikimedia Commons by the resource index

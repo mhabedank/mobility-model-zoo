@@ -3,7 +3,11 @@
 Two readers classify the licence evidence page of each sampled entry independently of the stored
 decision: a deterministic matcher over licence names, URLs and badges, and a local model of a
 different family than the discovery agent (DGX Spark, OpenAI-compatible endpoint at $OLLAMA_HOST).
-Page text is held in memory only. Results are reported as agreement, not accuracy (constitution III).
+Single-page applications are read through the portal's machine-readable record of the same resource
+(`licence_text.readable_url`), a DOI also through the licence its registry records (Crossref,
+DataCite), the model sees the passages around licence words, and reader answers are mapped to
+catalog licence ids before they are compared. Page text is held in memory only. Results are
+reported as agreement, not accuracy (constitution III).
 """
 
 from __future__ import annotations
@@ -22,6 +26,7 @@ import httpx
 
 from mobility_model_zoo.catalog import rules
 from mobility_model_zoo.catalog.checks import Throttle, make_client
+from mobility_model_zoo.catalog.licence_text import evidence_text, excerpt, match_licence, normalise
 from mobility_model_zoo.catalog.model import Catalog, licence_allowlist
 from mobility_model_zoo.catalog.validate import DedupeIndex
 
@@ -30,57 +35,23 @@ MAX_DUPLICATE_RATE = 0.02
 USABLE = ("training_allowed", "benchmark_only")
 TEXT_LIMIT = 6000
 
-CC_URL = re.compile(r"creativecommons\.org/(licenses|publicdomain)/([a-z-]+)/(\d\.\d)", re.I)
-CC_TEXT = re.compile(r"\bCC[\s-]?(BY(?:[\s-](?:NC|SA|ND)){0,2})[\s-]?(\d\.\d)\b", re.I)
-PATTERNS = [
-    (re.compile(r"\bCC0\b|creativecommons\.org/publicdomain/zero", re.I), "CC0-1.0"),
-    (re.compile(r"open government licence", re.I), "LicenseRef-OGL-UK-3.0"),
-    (re.compile(r"licence ouverte|etalab", re.I), "etalab-2.0"),
-    (re.compile(r"datenlizenz deutschland.{0,20}namensnennung", re.I), "DL-DE-BY-2.0"),
-    (re.compile(r"open data commons attribution|odc-by", re.I), "ODC-By-1.0"),
-    (re.compile(r"\bODbL\b|open database license", re.I), "ODbL-1.0"),
-    (
-        re.compile(
-            r"all rights reserved|todos los derechos reservados|wszelkie prawa zastrzeżone|無断転載",
-            re.I,
-        ),
-        "LicenseRef-proprietary",
-    ),
-]
-
-
-def match_licence(text: str) -> str:
-    """Deterministic reading of a licence page: an SPDX id, LicenseRef-proprietary or unknown."""
-    m = CC_URL.search(text)
-    if m and m.group(1).lower() == "licenses":
-        return f"CC-{m.group(2).upper()}-{m.group(3)}"
-    m = CC_TEXT.search(text)
-    if m:
-        parts = re.split(r"[\s-]+", m.group(1).upper())
-        return f"CC-{'-'.join(parts)}-{m.group(2)}"
-    for pattern, lid in PATTERNS:
-        if pattern.search(text):
-            return lid
-    return "unknown"
-
-
-def _visible_text(html: str) -> str:
-    html = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", html)
-    # keep link targets: licence badges are often only an <a href> to creativecommons.org
-    html = re.sub(r'(?i)href=["\']([^"\']+)["\']', r" \1 ", html)
-    return " ".join(re.sub(r"<[^>]+>", " ", html).split())
-
-
-def local_model_reader(model: str, host: str | None = None) -> Callable[[str], str]:
+def local_model_reader(
+    model: str, host: str | None = None, vocabulary: list[str] | None = None
+) -> Callable[[str], str]:
     """A reader that asks a local OpenAI-compatible model for the licence id."""
     base = (host or os.environ.get("OLLAMA_HOST") or "http://localhost:11434").rstrip("/")
+    named = ", ".join(sorted(v for v in vocabulary or [] if v.startswith("LicenseRef-")))
 
     def read(text: str) -> str:
         prompt = (
-            "Which licence does this web page state for the resource it describes? Answer with JSON "
+            "Which licence does this text state for the resource it describes? The text is a web page "
+            "or a JSON record of a data portal or DOI registry; a licence field or URL there counts. "
+            "Answer with JSON "
             '{"licence": "<SPDX id, or LicenseRef-proprietary if all rights are reserved, '
             'or unknown>"}. '
-            "Use unknown if the page states no licence.\n\nPAGE:\n" + text[:TEXT_LIMIT]
+            + (f"For these licences use the given id: {named}. " if named else "")
+            + "Use unknown if the page states no licence.\n\nPAGE:\n"
+            + excerpt(text, TEXT_LIMIT)
         )
         resp = httpx.post(
             f"{base}/v1/chat/completions",
@@ -102,10 +73,17 @@ def local_model_reader(model: str, host: str | None = None) -> Callable[[str], s
     return read
 
 
+# flags that record what K5 read on the evidence page: a reading replaces them, or agreement is circular
+READING_FLAGS = ("licence_conflict", "licence_unconfirmed")
+
+
 def _use_for(entry: dict[str, Any], licence_id: str, allowlist) -> str:
     probe = copy.deepcopy(entry)
     probe["licence"]["id"] = licence_id
     probe.pop("usage", None)
+    status = probe.get("status") or {}
+    if status.get("flags"):
+        status["flags"] = [f for f in status["flags"] if f not in READING_FLAGS]
     return rules.apply(probe, allowlist)[0]["permitted_use"]
 
 
@@ -135,23 +113,23 @@ def run(
         key=lambda e: e["id"],
     )
     picked = rng.sample(pool, min(sample, len(pool)))
+    known = {item["id"] for item in allowlist}
     if reader is None and model:
-        reader = local_model_reader(model)
+        reader = local_model_reader(model, vocabulary=sorted(known))
     client = make_client(transport, throttle or Throttle())
     rows = []
     try:
         for e in picked:
             row = {"id": e["id"], "stored": e["usage"]["permitted_use"], "status": e["status"]["value"]}
-            try:
-                page = client.get(e["licence"]["evidence_url"])
-                text = _visible_text(page.text) if page.status_code < 400 else ""
-            except httpx.HTTPError:
-                text = ""
-            matched = match_licence(text) if text else "unknown"
+            evidence = e["licence"]["evidence_url"]
+            text = evidence_text(evidence, client)
+            if not text:  # the evidence could not be fetched: no reading, reported apart
+                row["unread"] = True
+            matched = match_licence(text, evidence) if text else "unknown"
             row["matcher"] = {"licence": matched, "use": _use_for(e, matched, allowlist)}
             if reader is not None and text:
                 try:
-                    read = reader(text)
+                    read = normalise(reader(text), known)
                     row["model"] = {"licence": read, "use": _use_for(e, read, allowlist)}
                 except (httpx.HTTPError, KeyError, ValueError) as err:
                     row["model"] = {
@@ -165,8 +143,9 @@ def run(
 
     failures = []
     agreement: dict[str, float | None] = {}
+    unread = [r["id"] for r in rows if r.get("unread")]
     for name in ("matcher", "model"):
-        judged = [r for r in rows if name in r]
+        judged = [r for r in rows if name in r and not r.get("unread")]
         agreement[name] = (
             round(sum(r[name]["use"] == r["stored"] for r in judged) / len(judged), 4)
             if judged
@@ -178,7 +157,7 @@ def run(
         {
             r["id"]
             for r in rows
-            if r["status"] == "cleared"
+            if r["status"] == "cleared" and not r.get("unread")
             for name in ("matcher", "model")
             if name in r and r[name]["use"] not in USABLE
         }
@@ -210,6 +189,7 @@ def run(
         "rows": rows,
         "agreement": agreement,
         "unusable_cleared": unusable_cleared,
+        "unread": unread,
         "duplicate_audit": {"sample": len(dup_pick), "duplicates": duplicates, "rate": dup_rate},
         "passed": not failures,
         "failures": failures,
@@ -232,6 +212,8 @@ def render(rep: dict[str, Any]) -> str:
         f"- Deterministic matcher: {pct(rep['agreement']['matcher'])}",
         f"- Local model: {pct(rep['agreement']['model'])}",
         f"- Cleared entries not usable on re-check: {', '.join(rep['unusable_cleared']) or 'none'}",
+        "- Evidence not readable (left out of the agreement): "
+        + (", ".join(rep.get("unread") or []) or "none"),
         f"- Duplicates in {rep['duplicate_audit']['sample']} entries: "
         f"{len(rep['duplicate_audit']['duplicates'])} ({rep['duplicate_audit']['rate']:.1%})",
         "",
