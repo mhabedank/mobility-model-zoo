@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact sheet, round {{ triage.round }}</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 24px 24px 120px; background: #0A0F2E; color: #EEF1FF; font: 15px/1.45 system-ui, sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 36px 0 8px; border-top: 1px solid #2A3268; padding-top: 16px; }
+  h3 { font-size: 15px; margin: 18px 0 6px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+  .muted { color: #A7B0D8; }
+  .prompt { color: #A7B0D8; font-size: 13px; margin: 0 0 8px; max-width: 110ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; }
+  figure { margin: 0; width: 480px; max-width: 100%; cursor: pointer; border: 3px solid transparent; border-radius: 6px; }
+  figure.picked { border-color: #6FFFC8; }
+  figure img { display: block; width: 100%; height: auto; background: #111846; border-radius: 3px; }
+  figcaption { font-size: 13px; padding: 4px 4px; display: flex; justify-content: space-between; }
+  figcaption b { font-size: 16px; color: #6FFFC8; margin-right: 8px; }
+  figcaption a { color: #A7B0D8; }
+  details { font-size: 13px; color: #A7B0D8; margin-top: 4px; }
+  .needs { background: #1B2355; border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+  .needs li { margin: 2px 0; }
+  code { font-family: ui-monospace, monospace; font-size: 12px; }
+  button { font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid #2A3268; background: #1B2355; color: #EEF1FF; cursor: pointer; }
+  button.on { background: #6FFFC8; color: #0A0F2E; border-color: #6FFFC8; }
+  .subject.done h3 code { color: #6FFFC8; }
+  .subject.none h3 code { color: #FFB86B; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; background: #111846; border-top: 1px solid #2A3268; padding: 12px 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  #bar button.primary { background: #6FFFC8; color: #0A0F2E; border-color: #6FFFC8; font-weight: 600; }
+  .skip { opacity: .55; }
+  details.skipd { margin: 14px 0; }
+  details.skipd > summary { cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>Contact sheet, round {{ triage.round }}</h1>
+<p class="muted">{{ triage.summary.candidates }} candidates, {{ triage.summary.shown }} shown, {{ triage.summary.subjects }} subjects.
+Rejected: {% for check, n in triage.summary.rejected.items() %}{{ check }} {{ n }}{% if not loop.last %}, {% endif %}{% else %}none{% endfor %}.
+Click a picture to pick it for its subject, or "none of these". Your picks are kept in this browser; download <code>picks.yaml</code> when done.</p>
+{% if triage.summary.subjects_without_candidate %}
+<div class="needs"><b>Needs another round</b> (no candidate passed):
+<ul>{% for key in triage.summary.subjects_without_candidate %}<li><code>{{ key }}</code>
+{% for t in themes %}{% for s in t.subjects if s.key == key %}{% for c in s.rejected %} · seed {{ c.seed }}: {% for r in c.reasons %}{{ r.check }} {{ r.detail }}{% endfor %}{% endfor %}{% endfor %}{% endfor %}</li>{% endfor %}</ul></div>
+{% endif %}
+{% for t in themes %}
+<h2 id="{{ t.id }}">{{ t.id }}</h2>
+{% for s in t.subjects %}
+{% if s.key in taken %}<details class="skipd"><summary class="muted">already in the pool: <code>{{ s.key }}</code> (record <code>{{ taken[s.key] }}</code>); new renders for information only</summary>{% endif %}
+<section class="subject{% if s.key in taken %} skip{% endif %}" data-key="{{ s.key }}" id="{{ s.key | replace('/', '--') }}">
+<h3><code>{{ s.key }}</code>{% if s.shown and s.key not in taken %}<button type="button" class="none-btn">none of these</button>{% endif %}<span class="state muted"></span></h3>
+<p class="prompt">{{ s.prompt }}</p>
+<div class="row">
+{% for c in s.shown %}
+<figure data-number="{{ c.number }}">
+<img src="{{ thumbs }}/{{ stem(c.file) }}-480.webp" alt="{{ s.key }} candidate {{ c.number }}" loading="lazy" title="{% for k, v in c.measures.items() %}{{ k }}: {{ v }}&#10;{% endfor %}">
+<figcaption><span><b>#{{ c.number }}</b> seed {{ c.seed }}</span><a href="{{ c.file }}" target="_blank" rel="noopener">full size</a></figcaption>
+</figure>
+{% endfor %}
+</div>
+{% if s.rejected %}
+<details><summary>rejected: {{ s.rejected | length }}</summary>
+{% for c in s.rejected %}seed {{ c.seed }}: {% for r in c.reasons %}{{ r.check }} {{ r.detail }}{% endfor %}{% if not loop.last %} · {% endif %}{% endfor %}
+</details>
+{% endif %}
+</section>
+{% if s.key in taken %}</details>{% endif %}
+{% endfor %}
+{% endfor %}
+<div id="bar">
+<span id="count"></span>
+<button type="button" id="dl" class="primary">Download picks.yaml</button>
+<button type="button" id="copy">Copy YAML</button>
+<button type="button" id="first">Fill the rest with #1</button>
+<button type="button" id="clear">Clear</button>
+</div>
+<script>
+(function () {
+  var round = {{ triage.round }};
+  var storeKey = "picks-round-" + round;
+  var picks = {};
+  try { picks = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch (e) { picks = {}; }
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section.subject"));
+  var pickable = sections.filter(function (s) { return !s.classList.contains("skip") && s.querySelector("figure"); });
+  function save() { try { localStorage.setItem(storeKey, JSON.stringify(picks)); } catch (e) {} }
+  function render() {
+    var done = 0;
+    sections.forEach(function (s) {
+      var key = s.dataset.key, v = picks[key];
+      s.classList.toggle("done", v !== undefined && v !== "none");
+      s.classList.toggle("none", v === "none");
+      s.querySelectorAll("figure").forEach(function (f) { f.classList.toggle("picked", String(v) === f.dataset.number); });
+      var btn = s.querySelector(".none-btn"); if (btn) btn.classList.toggle("on", v === "none");
+      var st = s.querySelector(".state"); if (st) st.textContent = v === undefined ? "" : (v === "none" ? "none" : "#" + v);
+      if (v !== undefined && !s.classList.contains("skip")) done++;
+    });
+    document.getElementById("count").textContent = done + " of " + pickable.length + " subjects decided";
+  }
+  function yaml() {
+    var lines = ["round: " + round, "picks:"];
+    pickable.forEach(function (s) {
+      var key = s.dataset.key;
+      if (picks[key] !== undefined) lines.push("  " + key + ": " + picks[key]);
+    });
+    return lines.join("\n") + "\n";
+  }
+  sections.forEach(function (s) {
+    var key = s.dataset.key;
+    s.querySelectorAll("figure").forEach(function (f) {
+      f.addEventListener("click", function (e) {
+        if (e.target.tagName === "A") return;
+        if (s.classList.contains("skip")) return;
+        picks[key] = picks[key] === Number(f.dataset.number) ? undefined : Number(f.dataset.number);
+        if (picks[key] === undefined) delete picks[key];
+        save(); render();
+      });
+    });
+    var btn = s.querySelector(".none-btn");
+    if (btn) btn.addEventListener("click", function () {
+      if (picks[key] === "none") delete picks[key]; else picks[key] = "none";
+      save(); render();
+    });
+  });
+  document.getElementById("dl").addEventListener("click", function () {
+    var blob = new Blob([yaml()], { type: "text/yaml" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "picks.yaml"; document.body.appendChild(a); a.click(); a.remove();
+  });
+  document.getElementById("copy").addEventListener("click", function () {
+    navigator.clipboard.writeText(yaml()).then(function () { document.getElementById("count").textContent += " · copied"; });
+  });
+  document.getElementById("first").addEventListener("click", function () {
+    pickable.forEach(function (s) { if (picks[s.dataset.key] === undefined) picks[s.dataset.key] = 1; });
+    save(); render();
+  });
+  document.getElementById("clear").addEventListener("click", function () {
+    if (confirm("Clear every pick of round " + round + "?")) { picks = {}; save(); render(); }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

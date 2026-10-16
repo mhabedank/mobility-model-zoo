@@ -27,6 +27,36 @@ IPTC_MARKER = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmic
 ALT_SUFFIX = "(AI-generated image)"
 DISCLOSURE = "AI-generated"
 LICENCE_DEED = "https://creativecommons.org/publicdomain/zero/1.0/"
+# Feature 019: the library's themes with the spec's coverage table (FR-002), the pool budget
+# (FR-016) and where sources may be cached outside git (research R1).
+THEMES = (
+    "rail",
+    "public-road",
+    "private-road",
+    "active",
+    "water",
+    "air",
+    "infrastructure",
+    "workshop",
+    "iot",
+    "ai",
+)
+THEME_MINIMUMS = {
+    "rail": 10,
+    "public-road": 6,
+    "private-road": 8,
+    "active": 6,
+    "water": 5,
+    "air": 4,
+    "infrastructure": 14,
+    "workshop": 8,
+    "iot": 10,
+    "ai": 10,
+}
+THEME_CAP = 0.20
+LIBRARY_MIN = 100
+LIBRARY_MAX_BYTES = 40_000_000
+SOURCES_CACHE = ".cache/site/sources"
 
 
 @cache
@@ -71,11 +101,12 @@ def load_records(reg: Registry) -> tuple[list[dict[str, Any]], list[str]]:
             continue
         if rec["id"] != d.name:
             findings.append(f"I1 {d.name}: id {rec['id']} differs from the directory name")
-        src = d / rec["source"]["file"]
-        if not src.exists():
-            findings.append(f"I1 {d.name}: source {rec['source']['file']} is missing")
-        elif sha256(src) != rec["source"]["sha256"]:
-            findings.append(f"I1 {d.name}: source {rec['source']['file']} does not match its sha256")
+        if "file" in rec["source"]:  # library records keep only the hash (feature 019, FR-015)
+            src = d / rec["source"]["file"]
+            if not src.exists():
+                findings.append(f"I1 {d.name}: source {rec['source']['file']} is missing")
+            elif sha256(src) != rec["source"]["sha256"]:
+                findings.append(f"I1 {d.name}: source {rec['source']['file']} does not match its sha256")
         for w in WIDTHS:
             der = rec["derivatives"][str(w)]
             f = d / der["file"]
@@ -112,7 +143,7 @@ def placement_findings(reg: Registry, records: list[dict[str, Any]]) -> list[str
     return out
 
 
-# ---- series (I2) ------------------------------------------------------------------------------
+# ---- series (I2, I8) --------------------------------------------------------------------------
 def load_series(reg: Registry, name: str) -> dict[str, Any] | None:
     path = reg.root / SERIES_DIR / f"{name}.yaml"
     if not path.exists():
@@ -120,14 +151,30 @@ def load_series(reg: Registry, name: str) -> dict[str, Any] | None:
     series = load_yaml(path) or {}
     series["style"] = " ".join(str(series.get("style", "")).split())
     series["negative"] = " ".join(str(series.get("negative", "")).split())
+    series["negative_history"] = [" ".join(str(n).split()) for n in series.get("negative_history") or []]
     return series
 
 
+def subjects(series: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """`theme/id` → subject object of the series' `themes` (feature 019, data-model.md). A legacy
+    placement-keyed `subjects` map is folded in as `<placement>/<n>` with a prompt only."""
+    out: dict[str, dict[str, Any]] = {}
+    for theme, lst in (series.get("themes") or {}).items():
+        for s in lst or []:
+            out[f"{theme}/{s['id']}"] = {"theme": theme, **s}
+    for placement, lst in (series.get("subjects") or {}).items():
+        for n, prompt in enumerate(lst or [], 1):
+            out.setdefault(f"{placement}/{n}", {"theme": placement, "id": str(n), "prompt": prompt})
+    return out
+
+
 def series_findings(reg: Registry, records: list[dict[str, Any]]) -> list[str]:
-    """I2: prompt = subject + style, negative = series negative, model in the series, licence
-    accepted."""
+    """I2: prompt = subject + style, negative = the series' current or a historical negative,
+    model in the series, licence accepted. I8: the record's theme/subject exists in the series and
+    is used by one record only."""
     out = []
     cache_: dict[str, dict[str, Any] | None] = {}
+    used: dict[str, str] = {}
     for rec in records:
         g = rec.get("generation") or {}
         name = rec.get("series")
@@ -137,19 +184,96 @@ def series_findings(reg: Registry, records: list[dict[str, Any]]) -> list[str]:
         if series is None:
             out.append(f"I2 {rec['id']}: series {name} has no file under {SERIES_DIR}")
             continue
-        subjects = [s for lst in series.get("subjects", {}).values() for s in lst]
-        expected = [f"{s}, {series['style']}" for s in subjects]
+        subs = subjects(series)
+        expected = [f"{s['prompt']}, {series['style']}" for s in subs.values()]
         if g.get("prompt") not in expected:
             out.append(f"I2 {rec['id']}: prompt is not a subject of series {name} followed by its style")
         models = {m["id"]: m for m in series.get("models", {}).values()}
         if g.get("model") not in models:
             out.append(f"I2 {rec['id']}: model {g.get('model')} is not in series {name}")
-        elif g.get("negative_prompt", "") != (
-            "" if "true_cfg_scale" not in models[g["model"]] else series["negative"]
-        ):
-            out.append(f"I2 {rec['id']}: negative prompt differs from the series")
+        else:
+            accepted = (
+                {""}
+                if "true_cfg_scale" not in models[g["model"]]
+                else {series["negative"], *series["negative_history"]}
+            )
+            if g.get("negative_prompt", "") not in accepted:
+                out.append(f"I2 {rec['id']}: negative prompt differs from the series")
         if g.get("model_licence") not in ACCEPTED_MODEL_LICENCES:
             out.append(f"I2 {rec['id']}: model licence {g.get('model_licence')} is not accepted")
+        key = f"{rec.get('theme')}/{rec.get('subject')}"
+        if key not in subs or key.split("/")[0] not in (series.get("themes") or {}):
+            out.append(f"I8 {rec['id']}: theme/subject {key} is not in series {name}")
+        elif key in used:
+            out.append(f"I8 {rec['id']}: subject {key} is also used by {used[key]}")
+        else:
+            used[key] = rec["id"]
+    return out
+
+
+# ---- library (I7, L1, L2) ---------------------------------------------------------------------
+def coverage(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Per theme: count, minimum, share (feature 019, FR-002)."""
+    total = len(records)
+    out = {}
+    for theme in THEMES:
+        n = sum(1 for r in records if r.get("theme") == theme)
+        out[theme] = {
+            "count": n,
+            "minimum": THEME_MINIMUMS[theme],
+            "share": (n / total) if total else 0.0,
+        }
+    return out
+
+
+def coverage_findings(records: list[dict[str, Any]]) -> list[str]:
+    """L2: every theme at its minimum, none over the cap, at least LIBRARY_MIN records."""
+    out = []
+    if len(records) < LIBRARY_MIN:
+        out.append(f"L2 library: {len(records)} records, fewer than {LIBRARY_MIN}")
+    for theme, c in coverage(records).items():
+        if c["count"] < c["minimum"]:
+            out.append(f"L2 {theme}: {c['count']} records, fewer than the minimum {c['minimum']}")
+        if c["share"] > THEME_CAP:
+            out.append(f"L2 {theme}: {c['share']:.0%} of the library, more than {THEME_CAP:.0%}")
+    return out
+
+
+def phash_distance(a: str, b: str) -> int:
+    return bin(int(a, 16) ^ int(b, 16)).count("1")
+
+
+def library_findings(reg: Registry, records: list[dict[str, Any]]) -> list[str]:
+    """L1: derivative bytes ≤ LIBRARY_MAX_BYTES. I7: no two records within the series'
+    duplicate threshold (stored pHash, no image decoding)."""
+    out = []
+    sizes = sorted(
+        ((sum(d["bytes"] for d in r.get("derivatives", {}).values()), r["id"]) for r in records),
+        reverse=True,
+    )
+    total = sum(s for s, _ in sizes)
+    if total > LIBRARY_MAX_BYTES:
+        heaviest = ", ".join(f"{i} ({s} B)" for s, i in sizes[:3])
+        out.append(
+            f"L1 library: {total} bytes of derivatives, more than {LIBRARY_MAX_BYTES}; "
+            f"heaviest {heaviest}"
+        )
+    thresholds: dict[str, int] = {}
+    hashed = []
+    for r in records:
+        h = ((r.get("checks") or {}).get("measures") or {}).get("phash")
+        if not h:
+            continue
+        name = r.get("series") or ""
+        if name not in thresholds:
+            series = load_series(reg, name) if name else None
+            thresholds[name] = int((series or {}).get("duplicate_max_bits", 10))
+        hashed.append((r["id"], h, thresholds[name]))
+    for i, (ida, ha, ta) in enumerate(hashed):
+        for idb, hb, _ in hashed[:i]:
+            bits = phash_distance(ha, hb)
+            if bits <= ta:
+                out.append(f"I7 {ida}: near-duplicate of {idb} ({bits} bits)")
     return out
 
 

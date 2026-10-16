@@ -14,9 +14,9 @@ from mobility_model_zoo.site import check, images
 def with_images(site_env, model_image: bool = True):
     write_series(site_env.root)
     make_record(site_env.root, "hero", ("start-hero",))
-    make_record(site_env.root, "pd", ("topic:productdev",), "3:2")
+    make_record(site_env.root, "pd", ("topic:productdev",), "3:2", "private-road", "dashboard")
     if model_image:
-        make_record(site_env.root, "scout", (f"model:{MODEL}",), "3:2")
+        make_record(site_env.root, "scout", (f"model:{MODEL}",), "3:2", "private-road", "workshop")
     site_env.build()
     return site_env
 
@@ -72,9 +72,43 @@ def test_warnings_name_the_missing_placements(site_env):
     said = []
     write_series(site_env.root)
     make_record(site_env.root, "hero", ("start-hero",))
+    make_record(site_env.root, "pool", (), "3:2", "private-road", "workshop", source_file=False)
     build(site_env.reg, site_env.out, offline=True, say=said.append, images=False)
+    assert not any("pool" in s for s in said)  # an unplaced record is not a gap (FR-018)
     assert "warning: no image for topic:productdev" in said
     assert f"warning: no image for model:{MODEL}, motif only" in said
+
+
+def test_unplaced_records_stay_out_of_the_build(site_env):
+    """Feature 019 (FR-018, FR-020): the pool produces no files, no credit, no digest entry;
+    moving a placement swaps files, credit and digest."""
+    import json
+
+    write_series(site_env.root)
+    make_record(site_env.root, "hero", ("start-hero",))
+    make_record(site_env.root, "pool", (), "3:2", "private-road", "workshop", source_file=False)
+    site_env.build()
+    files = sorted(p.name for p in (site_env.out / "assets/images").iterdir())
+    assert files == ["hero-1600.webp", "hero-480.webp", "hero-960.webp", "set.json"]
+    digest = json.loads(site_env.html("assets/images/set.json"))
+    assert [i["id"] for i in digest["images"]] == ["hero"]
+    credits = site_env.html("credits/index.html")
+    assert 'id="hero"' in credits and 'id="pool"' not in credits
+    assert list(check.check_image_markup(site_env.reg, site_env.out)) == []
+    assert list(check.check_credits(site_env.reg, site_env.out)) == []
+    # a file of the unplaced record sneaking into the build is I3
+    (site_env.out / "assets/images/pool-480.webp").write_bytes(b"RIFF")
+    found = [f[2] for f in check.check_image_markup(site_env.reg, site_env.out)]
+    assert any("unplaced record pool" in x for x in found)
+    # move the placement: the pool image takes over the topic, the digest changes
+    site_env.edit_yaml(
+        f"{images.IMAGES_DIR}/pool/image.yaml", lambda d: d.update(placements=["topic:productdev"])
+    )
+    site_env.build()
+    files = sorted(p.name for p in (site_env.out / "assets/images").iterdir())
+    assert "pool-960.webp" in files and len(files) == 7
+    assert json.loads(site_env.html("assets/images/set.json"))["digest"] != digest["digest"]
+    assert 'id="pool"' in site_env.html("credits/index.html")
 
 
 def test_static_checks_pass_with_images(site_env):

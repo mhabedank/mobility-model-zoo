@@ -68,6 +68,40 @@ def test_face_detector_runs_and_passes_a_scene_without_faces(tmp_path):
     assert proc.tool_versions()["yunet_sha256"] == proc.YUNET_SHA256
 
 
+def test_detectors_accept_a_webp_and_the_deep_check_falls_back_to_the_derivative(
+    site_env, tmp_path, monkeypatch
+):
+    """Feature 019 (research R1): without a source PNG the deep check runs on the 1600 px file."""
+    from test_images_record import make_record
+    from test_images_series import write_series
+
+    from mobility_model_zoo.site import images_cli
+
+    png = flat_scene(tmp_path / "scene.png")
+    ders = proc.derivatives(png, "3:2", (0.5, 0.5), "Qwen/Qwen-Image-2512", "siebdruck")
+    webp = tmp_path / "scene-1600.webp"
+    webp.write_bytes(ders[1600])
+    assert proc.faces(webp)["pass"] and proc.text(webp)["pass"]
+    write_series(site_env.root)
+    d = make_record(site_env.root, "pool-a", (), "3:2", "rail", "tram", source_file=False)
+    (d / "pool-a-1600.webp").write_bytes(ders[1600])  # a real derivative for the detectors
+    rec = {
+        "_dir": d,
+        "id": "pool-a",
+        "source": {},
+        "derivatives": {"1600": {"file": "pool-a-1600.webp"}},
+    }
+    rec["source"] = {"width": 1200, "height": 800}
+    src, kind = images_cli._source_for(site_env.reg, rec)
+    assert kind == "1600 px derivative at source scale" and src.suffix == ".png"
+    with Image.open(src) as scaled:
+        assert scaled.width == 1200  # the detectors see the source's pixel size
+    cached = site_env.root / images.SOURCES_CACHE / "pool-a.png"
+    cached.parent.mkdir(parents=True)
+    cached.write_bytes(png.read_bytes())
+    assert images_cli._source_for(site_env.reg, rec) == (cached, "cached source")
+
+
 def test_phash_is_stable_and_separates_scenes(tmp_path):
     a = proc.phash(flat_scene(tmp_path / "a.png"))
     b = proc.phash(flat_scene(tmp_path / "b.png"))

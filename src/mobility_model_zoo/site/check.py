@@ -269,6 +269,8 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
 
     base = resources.files("mobility_model_zoo.site").joinpath("templates")
     for tpl in sorted(Path(str(base)).rglob("*.j2")):
+        if tpl.parent.name == "local":
+            continue  # feature 019: the contact sheet and pool overview are never deployed
         for n in literal_numbers(template_text(tpl.read_text(encoding="utf-8"))):
             yield Finding("F2", f"templates/{tpl.relative_to(Path(str(base)))}", f"literal number {n!r}")
 
@@ -689,7 +691,9 @@ def check_motifs(reg: Registry) -> Iterable[Finding]:
 def check_image_records(reg: Registry) -> Iterable[Finding]:
     """I1 records, files and placements; I2 recipe against the series."""
     records, findings = images.load_records(reg)
-    for line in findings + images.series_findings(reg, records):
+    findings += images.series_findings(reg, records)
+    findings += images.library_findings(reg, records)  # I7, I8, L1 (feature 019)
+    for line in findings:
         check_id, _, rest = line.partition(" ")
         name, _, detail = rest.partition(": ")
         yield Finding(check_id, name, detail)
@@ -697,8 +701,10 @@ def check_image_records(reg: Registry) -> Iterable[Finding]:
 
 def check_image_markup(reg: Registry, out: Path) -> Iterable[Finding]:
     """I3: every img[data-image] has a record, size, alt, srcset and lazy loading; images only on the
-    start, model and credits pages (FR-007); no orphan files; every derivative carries the marker."""
+    start, model and credits pages (FR-007); no orphan files and no file of an unplaced record
+    (feature 019, FR-018); every derivative carries the marker."""
     records, _ = images.load_records(reg)
+    records = [r for r in records if r.get("placements")]
     by_id = {r["id"]: r for r in records}
     used: set[str] = set()
     for path in pages(out):
@@ -725,8 +731,18 @@ def check_image_markup(reg: Registry, out: Path) -> Iterable[Finding]:
                     used.add(Path(ref).name)
     published = sorted((out / images.ASSETS).glob("*.webp")) if (out / images.ASSETS).is_dir() else []
     known = {name for _, name in images.asset_files(records)}
+    unplaced = {
+        name: r["id"]
+        for r in images.load_records(reg)[0]
+        if not r.get("placements")
+        for _, name in images.asset_files([r])
+    }
     for f in published:
-        if f.name not in known:
+        if f.name in unplaced:
+            yield Finding(
+                "I3", rel(out, f), f"image of unplaced record {unplaced[f.name]} is in the build"
+            )
+        elif f.name not in known:
             yield Finding("I3", rel(out, f), "orphan file: no record uses it")
         elif not _has_marker(f):
             yield Finding("I3", rel(out, f), "no IPTC trainedAlgorithmicMedia marker")
@@ -738,9 +754,10 @@ def _has_marker(path: Path) -> bool:
 
 
 def check_credits(reg: Registry, out: Path) -> Iterable[Finding]:
-    """C1: the credits page lists every record with its disclosure; every page with images links it
-    from the footer with the words "AI-generated"."""
+    """C1: the credits page lists every placed record with its disclosure; every page with images
+    links it from the footer with the words "AI-generated". Pool records have no credit (019)."""
     records, _ = images.load_records(reg)
+    records = [r for r in records if r.get("placements")]
     if not records:
         return
     credits = out / "credits" / "index.html"
