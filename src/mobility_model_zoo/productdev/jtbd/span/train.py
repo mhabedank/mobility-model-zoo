@@ -159,7 +159,10 @@ def train_candidate(
     meta: dict[str, Any] | None = None,
     max_epochs: int | None = None,
     log=print,
+    on_epoch=None,
 ) -> dict[str, Any]:
+    """Train one candidate; `on_epoch(epoch, metrics)` sees each epoch's loss, time and validation
+    metrics (experiment tracking, feature 017)."""
     from transformers import get_linear_schedule_with_warmup
 
     hp = recipe["training"]
@@ -248,7 +251,10 @@ def train_candidate(
             thresholds["relevance"],
         )
         history.append({"epoch": epoch, "loss": round(total, 4), **metrics})
-        log(f"epoch {epoch}: loss {total:.3f}, {time.time() - start:.0f}s, val {metrics}")
+        seconds = time.time() - start
+        log(f"epoch {epoch}: loss {total:.3f}, {seconds:.0f}s, val {metrics}")
+        if on_epoch is not None:
+            on_epoch(epoch, {"loss": total, "epoch_seconds": seconds, **metrics})
         if best is None or metrics["score"] > best["score"]:
             best = {**metrics, "epoch": epoch}
             extractor.config = {

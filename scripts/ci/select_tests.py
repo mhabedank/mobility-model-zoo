@@ -68,6 +68,8 @@ AREAS: dict[str, Area] = {
     "catalog": Area(("tests/catalog", "tests/compliance/test_signals.py")),
     # Website imagery (feature 016): records under zoo/site/images, the generator and its tests.
     "images": Area(("tests/website", "tests/imagery")),
+    # Experiment tracking client (feature 017); `zoo data publish` feeds it the datasets overview.
+    "tracking": Area(("tests/tracking", "tests/datasets")),
     # Covered by the checks every pull request runs (ruff, guards, zoo validate, compliance).
     "docs": Area(()),
 }
@@ -103,7 +105,8 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     # The packaged release schemas must equal the contract copy of the feature that owns the format
     # (tests/release/test_schemas.py), so a change to that copy runs the release tests.
     ("release-tests", ("specs/*/contracts/release/*",)),
-    ("datasets-tests", ("tests/datasets/*",)),
+    ("datasets-tests", ("tests/datasets/*", "tests/fixtures/inventory/*", "tests/inventory_helpers.py")),
+    ("tracking", (f"{SRC}/tracking/*", "tests/tracking/*", "tests/tracking_helpers.py")),
     (
         "catalog",
         (
@@ -194,6 +197,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "scripts/import/*",
             "scripts/hf_org_avatar.py",
             "scripts/setup-cloud.sh",
+            "scripts/spark/*",  # Spark deployment scripts (feature 017), run by the owner
             ".gitignore",
             ".gitattributes",
             ".gitleaksignore",  # the secret scan runs on every pull request

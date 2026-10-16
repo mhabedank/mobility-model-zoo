@@ -45,6 +45,17 @@ def test_release_schema_contract_runs_the_release_tests():
     assert s.tests == ("tests/release",)
 
 
+def test_tracking_change_runs_tracking_and_datasets_tests():
+    """Feature 017: `zoo data publish` hands the datasets overview to the tracking client."""
+    s = sel.select(["src/mobility_model_zoo/tracking/__init__.py"])
+    assert s.tests == ("tests/datasets", "tests/tracking")
+    assert not s.torch and not s.edge
+
+
+def test_spark_scripts_run_no_tests():
+    assert sel.select(["scripts/spark/mlflow/mlflow.sh"]).tests == ()
+
+
 def test_docs_change_runs_no_tests():
     s = sel.select(["README.md", "docs/website.md", "specs/008-zoo-website/spec.md",
                     "topics/security/research/notes.md"])

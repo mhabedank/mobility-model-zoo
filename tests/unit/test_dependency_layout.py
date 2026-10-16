@@ -43,7 +43,16 @@ def test_jtbd_extra_includes_the_text_extra():
     assert "mobility-model-zoo[text]" in EXTRAS["jtbd"]
 
 
-TRAINING_EXTRAS = {"jtbd", "edge-train", "labeling-api"}
+TRAINING_EXTRAS = {"jtbd", "edge-train", "labeling-api", "tracking"}
+
+
+def test_tracking_extra_is_a_client_only():
+    """The experiment tracking client (feature 017) needs neither the text stack nor the server."""
+    tracking = names(EXTRAS["tracking"])
+    assert "mlflow-skinny" in tracking
+    assert "mlflow" not in tracking, "the full mlflow package (server, UI) never goes into the package"
+    assert not tracking & TEXT_STACK
+    assert "mobility-model-zoo[text]" not in EXTRAS["tracking"]
 
 
 def test_cluster_extra_includes_the_text_extra():
