@@ -202,4 +202,4 @@ Any library image can be regenerated from its record, the project repository doe
 - Full-resolution sources stay on the project's machine and are regenerable; only the published derivatives live in the repository. If repository weight still exceeds the budget, the plan may reduce the number of derivative sizes for unplaced images.
 - The pool overview and the contact sheets are local artifacts (a generated page opened in a browser, or a sheet image); they are not deployed and need no accounts or scripts.
 - A separate publication of the library (a gallery page, a dataset release) was considered and declined by the owner on 2026-10-14; the pool is for the zoo's own use. Video, animation, photography, new house styles, the Hugging Face organisation card and new motifs are out of scope.
-- Depends on feature 016 (records, checks, series, credits page, compliance notices) and on 008/012/014/015 as 016 does.
+- Depends on feature 016 (records, checks, series, credits page, compliance notices) and on features 008, 012, 014 and 015 as 016 does.

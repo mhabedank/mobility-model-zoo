@@ -5024,7 +5024,7 @@
    "reasons": [
     {
      "check": "I4 text",
-     "detail": "readable text ['00000000000000']"
+     "detail": "readable text ['0' x 14]"
     }
    ],
    "measures": {
