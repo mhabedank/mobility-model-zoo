@@ -60,6 +60,7 @@ Package code lives in `src/mobility_model_zoo/` (one subpackage per topic plus t
   Step-by-step guide: [docs/adding-a-model.md](docs/adding-a-model.md). Commands and gate rules: [specs/003-model-zoo-hf-release/contracts/cli.md](specs/003-model-zoo-hf-release/contracts/cli.md).
 - Model names follow `<name>-<variant>`, for example `scout-large`; topic and task are tags, and each topic has a Hugging Face collection. Names never change after the first publication.
 - Datasets never go into git. They are declared per topic in `topics/<topic>/compliance/datasets.yaml` (licence, permitted use, redistribution, retention), downloaded with `zoo data download` into `$MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`) and used for training only when declared `training_allowed`. No dataset or training text is published unless its licence and terms allow redistribution; models, methods, prompts and evaluation results are published.
+- **Data and runs overview.** `zoo data stats|history|diff` shows every dataset, training set and benchmark version with size, licence, permitted use and history, from the repository alone. A private MLflow tracking server mirrors that overview and the training and evaluation runs as a lab notebook; it holds numbers, hashes and metadata only, and no gate reads from it. Guide: [docs/tracking.md](docs/tracking.md).
 - Microcontroller models (`runtime: mcu`) run on the zoo's int8 engine or as emlearn C code; the hardware-in-the-loop bench (`edge`) measures them on simulated, emulated and real boards ([docs/edge/hil-bench.md](docs/edge/hil-bench.md)).
 
 ## Compliance
@@ -81,13 +82,18 @@ uv run pytest
 uv run zoo --help
 ```
 
-The base package holds only what every model shares (`huggingface_hub`, `numpy`). Extras: `text` (torch, transformers: what the text models need at run time), `edge` (what the microcontroller models need at run time, plus bench, int8 engine and datasets), `jtbd` (JTBD measurement chain; includes `text`), `cluster` (deduplication and clustering of JTBD items, `jtbd cluster`; includes `text`), `release` (release tool), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend). A model user only needs the install line on the model card, which names `text` or `edge`; see [docs/quickstart.md](docs/quickstart.md). Credentials and where they live: [docs/credentials.md](docs/credentials.md).
+The base package holds only what every model shares (`huggingface_hub`, `numpy`). Extras: `text` (torch, transformers: what the text models need at run time), `edge` (what the microcontroller models need at run time, plus bench, int8 engine and datasets), `jtbd` (JTBD measurement chain; includes `text`), `cluster` (deduplication and clustering of JTBD items, `jtbd cluster`; includes `text`), `release` (release tool), `edge-hw` (PlatformIO, esptool, pytest-xdist for real boards), `edge-train` (TensorFlow, scikit-learn, emlearn for training the edge models), `labeling-api` (Anthropic API backend), `tracking` (MLflow client for the private tracking server). A model user only needs the install line on the model card, which names `text` or `edge`; see [docs/quickstart.md](docs/quickstart.md). Credentials and where they live: [docs/credentials.md](docs/credentials.md).
 
 Quick commands per topic:
 
 ```bash
 uv run jtbd doctor                              # productdev: JTBD measurement chain
 uv run zoo data list                            # declared datasets of all topics
+uv run zoo data stats                           # data overview: sizes, licences, uses, integrity
+uv run zoo data history can-ids                 # when and how a dataset or benchmark changed
+uv run zoo data diff can-ids-v2 can-ids-v3      # what changed between two versions
+uv run zoo data publish                         # the overview to the tracking server (docs/tracking.md)
+uv run zoo tracking status                      # tracking server, experiments; also import, audit
 uv run zoo-security can-ids --help              # security: picket-forest, picket-mlp
 uv run condmon sound-anomaly --help             # condition-monitoring: hum-fan
 uv run condmon activity --help                  # condition-monitoring: pace-cnn

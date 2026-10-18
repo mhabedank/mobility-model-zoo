@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 import typer
 
@@ -64,7 +65,7 @@ def status_cmd(as_json: bool = typer.Option(False, "--json")) -> None:
         except Exception as e:  # noqa: BLE001
             raise TrackingUnavailable(
                 f"server at {config.uri_host()} unreachable ({e.__class__.__name__}); "
-                "is the tunnel open? scripts/spark/mlflow/mlflow.sh tunnel"
+                "is it started? scripts/mlflow/mlflow.sh up"
             ) from None
         out = {"server": config.uri_host(), "version": version, "experiments": experiments}
         if as_json:
@@ -73,6 +74,58 @@ def status_cmd(as_json: bool = typer.Option(False, "--json")) -> None:
         print(f"server      {out['server']} (mlflow {version})")
         for name, n in sorted(experiments.items()):
             print(f"  {name:38s} {n:>6} run(s)")
+
+    _run(fn)
+
+
+@app.command("import")
+def import_cmd(
+    model: list[str] = typer.Option(
+        None, "--model", help="only this model (or the benchmark of a decision, e.g. cluster-v1)"
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show what would be created"),
+) -> None:
+    """Import past results once as runs marked imported (no value is reconstructed)."""
+
+    def fn() -> None:
+        from .importer import import_results
+
+        actions = import_results(models=model or None, dry_run=dry_run)
+        for a in actions:
+            print(f"{a.action:8s} {a.key}{'  ' + a.run_id if a.run_id else ''}")
+            if a.note:
+                say(f"  {a.note}")
+        say(
+            f"import: {sum(a.action == 'created' for a in actions)} created, "
+            f"{sum(a.action == 'exists' for a in actions)} existing"
+        )
+
+    _run(fn)
+
+
+@app.command("sync")
+def sync_cmd(
+    paths: list[Path] = typer.Argument(..., help="offline logs or folders to search (e.g. data/)"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show what would be written"),
+) -> None:
+    """Replay offline run logs (e.g. from the Spark) into the store, incrementally (exit 7 if one is
+    refused by the guard; nothing of that log is written)."""
+
+    def fn() -> None:
+        from .guard import GuardRefused
+        from .sync import sync
+
+        actions = sync(paths, dry_run=dry_run)
+        for a in actions:
+            count = f" {a.events}" if a.action in ("updated", "update") else ""
+            running = " running" if a.running and a.action != "refused" else ""
+            print(f"{a.action}{count}  {a.experiment} {a.name}  {a.path}{running}")
+            if a.note:
+                say(f"  {a.note}")
+        refused = [a for a in actions if a.action == "refused"]
+        say(f"sync: {len(actions)} log(s), {len(refused)} refused")
+        if refused:
+            raise GuardRefused(f"{len(refused)} offline log(s) refused")
 
     _run(fn)
 

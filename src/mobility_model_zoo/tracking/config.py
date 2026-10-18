@@ -1,8 +1,12 @@
-"""Where the tracking server is, from the environment only (FR-010, research R4).
+"""Where runs are tracked, from the environment only (FR-010, research R4).
 
-`MLFLOW_TRACKING_URI` from the process environment, else only the `MLFLOW_*` keys of a `.env` in the
-working directory or at the repository root. Nothing else of `.env` is loaded, so commands that do
-not load `.env` today keep behaving as before. Without a URI the tracking layer does nothing.
+Live: `MLFLOW_TRACKING_URI` from the process environment, else from the `MLFLOW_*` and
+`MMZ_TRACKING_*` keys of a `.env` in the working directory or at the repository root. Nothing else of
+`.env` is loaded, so commands that do not load `.env` today keep behaving as before.
+
+Offline: `MMZ_TRACKING_OFFLINE=1` without a URI (the Spark scripts set it in training containers);
+runs then write an offline log next to their sidecar (research R17). A URI wins. With neither, the
+tracking layer does nothing.
 """
 
 from __future__ import annotations
@@ -12,6 +16,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 URI = "MLFLOW_TRACKING_URI"
+OFFLINE = "MMZ_TRACKING_OFFLINE"
 # Client limits the layer sets only when the user has not (research R5): the defaults retry for
 # about four minutes and would stall a training run when the server is gone.
 CLIENT_DEFAULTS = {
@@ -31,7 +36,11 @@ def _dotenv_keys() -> dict[str, str]:
                 from dotenv import dotenv_values
             except ImportError:
                 return {}
-            return {k: v for k, v in dotenv_values(path).items() if k.startswith("MLFLOW_") and v}
+            return {
+                k: v
+                for k, v in dotenv_values(path).items()
+                if k.startswith(("MLFLOW_", "MMZ_TRACKING_")) and v
+            }
     return {}
 
 
@@ -41,7 +50,7 @@ def tracking_uri() -> str | None:
         return uri
     found = _dotenv_keys()
     for key, value in found.items():
-        os.environ.setdefault(key, value)  # only MLFLOW_* keys, never anything else
+        os.environ.setdefault(key, value)  # only MLFLOW_* and MMZ_TRACKING_* keys, nothing else
     return found.get(URI)
 
 
@@ -56,6 +65,11 @@ def client_installed() -> bool:
 
 def enabled() -> bool:
     return bool(tracking_uri()) and client_installed()
+
+
+def offline() -> bool:
+    """Offline run logs instead of a server: `MMZ_TRACKING_OFFLINE=1` and no tracking URI."""
+    return not tracking_uri() and os.environ.get(OFFLINE, "").strip() == "1"
 
 
 def apply_client_defaults() -> None:

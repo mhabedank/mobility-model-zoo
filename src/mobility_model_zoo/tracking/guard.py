@@ -42,6 +42,8 @@ TAGS = frozenset(
         "mmz.import_key",
         "mmz.spike",
         "mmz.input_unresolved",
+        "mmz.offline_id",
+        "mmz.offline_synced",
     }
 )
 # MLflow's own tags the client sets; `mlflow.source.name` is reduced to a repository path.
@@ -123,11 +125,7 @@ def check_artifact(path: Path, name: str | None = None) -> Path:
 
     path = Path(path)
     published = name or path.name
-    if path.suffix.lower() in NEVER or published.lower().endswith(NEVER):
-        raise GuardRefused(f"artifact {published}: model and data files never go into the store")
-    is_config = published.startswith("config/") and published.endswith((".yaml", ".yml"))
-    if published not in ARTIFACTS and not is_config:
-        raise GuardRefused(f"artifact {published} is not on the allow-list (contracts/tracking.md)")
+    is_config = _artifact_kind(path, published)
     resolved = path.resolve()
     if is_config:
         try:
@@ -141,6 +139,26 @@ def check_artifact(path: Path, name: str | None = None) -> Path:
             continue
         if published not in {"span_config.json", "report.json", "export-config.json", "summary.json"}:
             raise GuardRefused(f"artifact {published}: files under data/ or $MMZ_DATA are not stored")
+    if not path.is_file() or path.stat().st_size > MAX_ARTIFACT:
+        raise GuardRefused(f"artifact {published}: missing or larger than 1 MB")
+    return path
+
+
+def _artifact_kind(path: Path, published: str) -> bool:
+    """Name rules shared by writing and syncing; True for a `config/<name>.yaml` copy."""
+    if path.suffix.lower() in NEVER or published.lower().endswith(NEVER):
+        raise GuardRefused(f"artifact {published}: model and data files never go into the store")
+    is_config = published.startswith("config/") and published.endswith((".yaml", ".yml"))
+    if (published not in ARTIFACTS and not is_config) or ".." in published.split("/"):
+        raise GuardRefused(f"artifact {published} is not on the allow-list (contracts/tracking.md)")
+    return is_config
+
+
+def check_synced_artifact(path: Path, published: str) -> Path:
+    """An artifact copied into an offline log folder: name, kind and size (its origin was checked
+    when the run wrote it, research R17)."""
+    path = Path(path)
+    _artifact_kind(path, published)
     if not path.is_file() or path.stat().st_size > MAX_ARTIFACT:
         raise GuardRefused(f"artifact {published}: missing or larger than 1 MB")
     return path

@@ -8,17 +8,18 @@
 # ~/mobility-model-zoo on the Spark, then runs `jtbd span train` and `jtbd span tune` in the
 # NVIDIA PyTorch container. The repository is mounted read-only except data/.
 #
-# Experiment tracking (feature 017): when .env sets MLFLOW_TRACKING_URI_CONTAINER (usually
-# http://mlflow:5000), the container joins the Spark's `mmz-tracking` network, installs the
-# `tracking` extra and logs the run to the MLflow server (scripts/spark/mlflow/mlflow.sh). Without
-# it the run is as before. The sidecar data/models/span-xlmr-<candidate>.tracking.json says
-# whether the store holds everything.
+# Experiment tracking (feature 017): when .env sets MMZ_TRACKING_OFFLINE=1, the run writes an offline
+# log next to the model folder (data/models/span-xlmr-<candidate>.tracking/, never inside the folder,
+# which is staged as it is). Nothing else runs on the Spark and no tracking software is installed
+# there. Fetch and sync the log into the laptop's MLflow server, during or after the run:
+#   scripts/spark/tracking-pull.sh
+# Without the variable the run is as before.
 #
 # Follow: ssh "$SPARK_HOST" tail -f mobility-model-zoo/data/models/span-xlmr-<candidate>.train.log
 # Fetch:  rsync -a "$SPARK_HOST":mobility-model-zoo/data/models/span-xlmr-<candidate> data/models/
 set -euo pipefail
 cd "$(dirname "$0")/../../../.."
-CANDIDATE=${1:?usage: scripts/spark/train_span.sh <candidate>}
+CANDIDATE=${1:?usage: topics/productdev/scripts/spark/train_span.sh <candidate>}
 set -a
 # shellcheck disable=SC1091
 [ -f .env ] && . ./.env
@@ -30,9 +31,8 @@ CONFIG=configs/productdev/jtbd/span-train-v1.yaml
 IMAGE=nvcr.io/nvidia/pytorch:25.09-py3
 EXTRAS=jtbd
 TRACKING=""
-if [ -n "${MLFLOW_TRACKING_URI_CONTAINER:-}" ]; then
-  EXTRAS=jtbd,tracking
-  TRACKING="--network mmz-tracking -e MLFLOW_TRACKING_URI='$MLFLOW_TRACKING_URI_CONTAINER' -e MMZ_HARDWARE=dgx-spark"
+if [ "${MMZ_TRACKING_OFFLINE:-}" = "1" ]; then
+  TRACKING="-e MMZ_TRACKING_OFFLINE=1 -e MMZ_HARDWARE=dgx-spark"
 fi
 
 if [ -n "$(git status --porcelain -- src configs)" ]; then

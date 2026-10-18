@@ -831,6 +831,10 @@ class Gate:
         for number in sorted(self.results):
             status, reason = self.results[number]
             say(f"rule {number:>2} {TITLES[number]:<26} {status}{': ' + reason if reason else ''}")
+        # the run in the private tracking store (feature 017): evidence only, never on the card
+        tracking = self.record.get("tracking") if isinstance(self.record, dict) else None
+        if isinstance(tracking, dict) and tracking.get("run_id"):
+            say(f"tracking run {tracking['run_id']} ({tracking.get('experiment') or '-'})")
         failing = {n: f for n, f in failures.items() if f}
         if not failing:
             return

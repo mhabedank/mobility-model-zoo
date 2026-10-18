@@ -53,7 +53,12 @@ def test_tracking_change_runs_tracking_and_datasets_tests():
 
 
 def test_spark_scripts_run_no_tests():
-    assert sel.select(["scripts/spark/mlflow/mlflow.sh"]).tests == ()
+    assert sel.select(["scripts/spark/other.sh"]).tests == ()
+
+
+def test_tracking_scripts_run_tracking_tests():
+    for path in ("scripts/mlflow/mlflow.sh", "scripts/spark/tracking-pull.sh"):
+        assert sel.select([path]).tests == ("tests/datasets", "tests/tracking")
 
 
 def test_docs_change_runs_no_tests():

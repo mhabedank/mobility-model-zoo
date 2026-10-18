@@ -106,7 +106,17 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     # (tests/release/test_schemas.py), so a change to that copy runs the release tests.
     ("release-tests", ("specs/*/contracts/release/*",)),
     ("datasets-tests", ("tests/datasets/*", "tests/fixtures/inventory/*", "tests/inventory_helpers.py")),
-    ("tracking", (f"{SRC}/tracking/*", "tests/tracking/*", "tests/tracking_helpers.py")),
+    (
+        "tracking",
+        (
+            f"{SRC}/tracking/*",
+            "tests/tracking/*",
+            "tests/tracking_helpers.py",
+            # laptop server and Spark log fetch (feature 017); their syntax is checked in tests/tracking
+            "scripts/mlflow/*",
+            "scripts/spark/tracking-pull.sh",
+        ),
+    ),
     (
         "catalog",
         (
@@ -197,7 +207,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "scripts/import/*",
             "scripts/hf_org_avatar.py",
             "scripts/setup-cloud.sh",
-            "scripts/spark/*",  # Spark deployment scripts (feature 017), run by the owner
+            "scripts/spark/*",  # other Spark scripts, run by the owner
             ".gitignore",
             ".gitattributes",
             ".gitleaksignore",  # the secret scan runs on every pull request

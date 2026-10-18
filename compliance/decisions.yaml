@@ -273,3 +273,25 @@ decisions:
   - topics/productdev/deploy/railway-perf
   review_by: '2027-04-11'
   supersedes: null
+- id: D-tracking-store
+  date: '2026-10-16'
+  decision: The experiment tracking store of feature 017 (an MLflow server with a SQLite store and local artifacts)
+    runs on the owner's laptop in Germany and listens on its loopback interface only; it is started on demand and
+    reached by the owner alone. It holds metrics, hashes and metadata of datasets, training and evaluation runs
+    only; no personal data, no dataset content (texts, chunks, labels, frames, payloads) and no model weights. The
+    store is kept as long as the project; a backup is taken each time the server stops and the newest 14 are kept,
+    on the laptop or a drive of the owner's. Training runs on other machines, including the DGX Spark, write offline run logs with the same allow-listed content next to their training outputs,
+    which already live there; the owner fetches them over SSH and nothing runs as a service on those machines. No
+    assistant, gateway or language model is configured on the server (constitution XI).
+  rationale: The repository stays the source of truth and no gate reads the store, so it is a lab notebook, not a
+    processing system of its own. An allow-list guard checks every value before it is written, again when an
+    offline log is synced, and `zoo tracking audit` checks the store afterwards (research R8, R16, R17). There is no
+    new recipient and no personal data, so PRIVACY.md and the recipients list are unchanged.
+  scope:
+  - scripts/mlflow
+  - scripts/spark/tracking-pull.sh
+  - src/mobility_model_zoo/tracking
+  - specs/017-mlflow-data-transparency
+  review_by: '2027-04-16'
+  decided_by: Martin Habedank
+  supersedes: null

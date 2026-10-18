@@ -199,6 +199,7 @@ class TrackedRun:
             return
         self.sidecar.parent.mkdir(parents=True, exist_ok=True)
         sidecar = {
+            "mode": "live",
             "tracking_uri_host": config.uri_host(),
             "experiment": self.experiment,
             "run_id": self.run_id,
@@ -210,11 +211,15 @@ class TrackedRun:
 
 
 def sidecar_run_id(path: Path) -> str | None:
-    """The run id a sidecar recorded, to continue that run (e.g. `jtbd span tune`)."""
+    """The run a sidecar recorded, to continue it (e.g. `jtbd span tune`): its offline id in
+    offline mode, its live run id otherwise. A run of the other mode is not continued."""
     try:
-        return json.loads(Path(path).read_text(encoding="utf-8")).get("run_id")
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+    if config.offline():
+        return data.get("offline_id") if data.get("mode") == "offline" else None
+    return data.get("run_id") if data.get("mode", "live") != "offline" else None
 
 
 class NoRun:

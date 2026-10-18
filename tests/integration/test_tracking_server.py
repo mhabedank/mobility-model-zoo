@@ -1,8 +1,9 @@
 """A real MLflow server round trip (feature 017 T038, quickstart §3-§4, §8).
 
-Slow: starts `mlflow server` (the full package, through uvx) on a temporary SQLite store, publishes
-the data overview twice, logs a tracked run with a dataset input, finds it by dataset name, checks
-the host header guard and runs the audit. Needs network once to fetch the server package.
+Slow: starts `mlflow server` (the full package, through uvx) on a temporary SQLite store, as
+scripts/mlflow/mlflow.sh does on the laptop, publishes the data overview twice, logs a tracked run
+with a dataset input, finds it by dataset name, checks the host header guard, syncs an offline run
+log and runs the audit. Needs network once to fetch the server package.
 """
 
 import json
@@ -33,7 +34,6 @@ def server(tmp_path_factory):
     pytest.importorskip("mlflow")
     root = tmp_path_factory.mktemp("mlflow")
     port = _free_port()
-    hosts = f"localhost,127.0.0.1,127.0.0.1:{port},mlflow,mlflow:{port}"
     proc = subprocess.Popen(
         [
             "uvx",
@@ -49,9 +49,7 @@ def server(tmp_path_factory):
             f"sqlite:///{root}/mlflow.db",
             "--artifacts-destination",
             str(root / "artifacts"),
-            "--allowed-hosts",
-            hosts,
-        ],
+        ],  # default allowed hosts, as scripts/mlflow/mlflow.sh (research R2)
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -115,8 +113,43 @@ def test_round_trip(server, tmp_path, monkeypatch):
 
     port = server.rsplit(":", 1)[1]
     assert _status(server, "evil.example") == 403  # research R2, open item 1
-    assert _status(server, f"mlflow:{port}") == 200
+    assert _status(server, f"127.0.0.1:{port}") == 200
+    assert _status(server, f"mlflow:{port}") == 403  # no container host since 2026-10-16
 
     audit = runner.invoke(app, ["tracking", "audit"])
     assert audit.exit_code == 0, audit.output
     assert os.environ["MLFLOW_TRACKING_URI"] == server
+
+
+def test_offline_log_syncs_into_a_real_server(server, tmp_path, monkeypatch):
+    """A Spark-style offline run (FR-030, research R17) lands once, with its curve and status."""
+    from typer.testing import CliRunner
+
+    from mobility_model_zoo import tracking
+    from mobility_model_zoo.release.cli import app
+    from mobility_model_zoo.tracking import client as tc
+    from mobility_model_zoo.tracking import config
+
+    monkeypatch.setattr(config, "_dotenv_keys", lambda: {})
+    monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
+    monkeypatch.setenv("MMZ_TRACKING_OFFLINE", "1")
+    sidecar = tmp_path / "data/models/span-c9.tracking.json"
+    with tracking.run("productdev/jtbd-span", "span-c9", "jtbd-span", sidecar=sidecar) as r:
+        for epoch in range(3):
+            r.log_step(epoch, {"loss": 1.0 / (epoch + 1)})
+    monkeypatch.delenv("MMZ_TRACKING_OFFLINE")
+    monkeypatch.setenv("MLFLOW_TRACKING_URI", server)
+
+    runner = CliRunner()
+    first = runner.invoke(app, ["tracking", "sync", str(tmp_path / "data")])
+    assert first.exit_code == 0 and "created" in first.stdout, first.output
+    second = runner.invoke(app, ["tracking", "sync", str(tmp_path / "data")])
+    assert second.exit_code == 0 and "unchanged" in second.stdout, second.output
+
+    cl = tc.new_client()
+    exp = cl.get_experiment_by_name("productdev/jtbd-span").experiment_id
+    offline_id = json.loads(sidecar.read_text())["offline_id"]
+    [run] = cl.search_runs([exp], filter_string=f"tags.`mmz.offline_id` = '{offline_id}'")
+    assert run.info.status == "FINISHED"
+    assert [m.step for m in cl.get_metric_history(run.info.run_id, "loss")] == [0, 1, 2]
+    assert runner.invoke(app, ["tracking", "audit"]).exit_code == 0

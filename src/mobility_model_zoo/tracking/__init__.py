@@ -136,12 +136,15 @@ def run(
     topic: str | None = None,
     run_id: str | None = None,
 ) -> Iterator[Any]:
-    """A tracked run, or a no-op without a tracking URI. Never raises into the caller's work
-    because of tracking; exceptions of the caller's own code pass through unchanged."""
+    """A tracked run: live with a tracking URI, an offline log with `MMZ_TRACKING_OFFLINE=1`, else
+    a no-op. Never raises into the caller's work because of tracking; exceptions of the caller's
+    own code pass through unchanged. `run_id` continues a run (live id or offline id)."""
     from . import client as tc
     from .config import enabled as _enabled
+    from .config import offline as _offline
 
-    if not _enabled():
+    live = _enabled()
+    if not live and not _offline():
         yield tc.NoRun()
         return
     # the sidecar: `tracking.json` in out_dir, or an explicit file (next to a model directory
@@ -149,7 +152,24 @@ def run(
     side = Path(sidecar) if sidecar else (Path(out_dir) / "tracking.json" if out_dir else None)
     if experiment not in EXPERIMENTS:
         raise ValueError(f"unknown experiment {experiment} (add it to tracking.EXPERIMENTS)")
-    import os
+
+    if not live:
+        if side is None:
+            tc.warn("offline tracking needs an output folder; this run is not tracked")
+            yield tc.NoRun()
+            return
+        from .offline import OfflineRun
+
+        tr = OfflineRun.open(experiment, name, task, side, run_id)
+        continued = tr.offline_id == run_id
+        yield from _tracked(
+            tr,
+            None if continued else (task, topic, experiment, tags),
+            config_path,
+            inputs,
+            system_metrics,
+        )
+        return
 
     cl = None
     rid = None
@@ -172,16 +192,20 @@ def run(
                 tr.write_sidecar()
         return
     tr = tc.TrackedRun(cl, experiment, rid, side)
-    base_tags = {
-        "mmz.task": task,
-        "mmz.topic": topic or experiment.split("/")[0],
-        "mmz.git_commit": _git("rev-parse", "HEAD"),
-        "mmz.git_clean": "true" if _git("status", "--porcelain") == "" else "false",
-        "mmz.hardware": hardware(),
-        **(tags or {}),
-    }
-    if not run_id:
-        tr.set_tags(base_tags)
+    yield from _tracked(
+        tr, None if run_id else (task, topic, experiment, tags), config_path, inputs, system_metrics
+    )
+
+
+def _tracked(tr, new_run, config_path, inputs, system_metrics) -> Iterator[Any]:
+    """Shared by live and offline runs: base tags (new runs only), config, inputs, status."""
+    import os
+
+    from . import client as tc
+
+    if new_run is not None:
+        task, topic, experiment, tags = new_run
+        tr.set_tags(_base_tags(task, topic, experiment, tags))
     if config_path:
         _log_config(tr, Path(config_path))
     for ref in inputs:
@@ -203,6 +227,17 @@ def run(
         raise
     finally:
         tr.finish(status)
+
+
+def _base_tags(task: str, topic: str | None, experiment: str, tags: dict[str, Any] | None) -> dict:
+    return {
+        "mmz.task": task,
+        "mmz.topic": topic or experiment.split("/")[0],
+        "mmz.git_commit": _git("rev-parse", "HEAD"),
+        "mmz.git_clean": "true" if _git("status", "--porcelain") == "" else "false",
+        "mmz.hardware": hardware(),
+        **(tags or {}),
+    }
 
 
 def _log_config(tr, path: Path) -> None:
