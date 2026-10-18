@@ -304,3 +304,58 @@ decisions:
   - topics/productdev/deploy/railway-perf
   review_by: '2027-04-11'
   supersedes: null
+- id: D-xi-teacher-labels-0.1.x
+  date: '2026-10-14'
+  decision: Labels that a non-Claude teacher produced with a Claude-written prompt (guideline-v2 and examples-v2 as
+    the system prompt of teacher-or-mimo-v2.6-pro on span-train-v1), and the student trained on them, are not Claude
+    output in derived form under Principle XI. scout-large 0.1.x gets no deprecation notice because of this finding
+    and no interim card disclosure; the Claude-written prompt is replaced by a clean rebuild (new guideline and
+    examples without Claude, new benchmark version labeled without Claude, teacher relabeling, new scout-large
+    version).
+  rationale: Session transcripts showed on 2026-10-14 that claude-opus-5-5 wrote guideline-v1, examples, the R1-R6
+    lines of guideline-v2, examples-v2 and revisions.md (topics/productdev/compliance/2026-10-14-guideline-provenance-principle-xi.md).
+    The owner reads "derived form" as covering Claude output itself, not the outputs of another model conditioned
+    on it; the prompt, which is Claude output, is removed at the root by the rebuild.
+  scope:
+  - scout-large@0.1.0
+  - scout-large@0.1.1
+  - scout-large@0.1.2
+  - scout-large@0.1.3
+  - configs/productdev/jtbd/span-train-v1.yaml
+  - topics/productdev/guideline/guideline-v2.md
+  - topics/productdev/guideline/examples-v2
+  review_by: '2027-04-14'
+  decided_by: Martin Habedank
+  supersedes: null
+- id: D-xi-rewrite-requirements
+  date: '2026-10-14'
+  decision: The requirement lists of feature 001 (tasks T043 and T044, written with Claude as development assistant)
+    may be the starting point for the non-Claude rewrite of the labeling guideline and worked examples. The
+    existing Claude-written guideline texts, examples and revisions.md are not used as rewrite input.
+  rationale: The lists are part of a spec (development-assistant role under Principle XI) and state what the
+    guideline must cover, not how a model should label; paraphrasing the old texts would carry Claude output into
+    the new prompt.
+  scope:
+  - specs/001-jtbd-extraction-pilot/tasks.md
+  - topics/productdev/guideline
+  review_by: '2027-04-14'
+  decided_by: Martin Habedank
+  supersedes: null
+- id: D-xi-contested-input
+  date: '2026-10-14'
+  decision: The contested entries of pilot-v1 may inform the rewritten labeling guideline only through non-Claude
+    content. Allowed are the categories assigned by qwen3.8:27b (contested-review.csv), the source chunk texts and
+    the non-Claude side (GPT reference) of each contested pair. The Claude reference labels themselves (items,
+    quotes, values) are not read, quoted or used by the rewrite. Principle XI stays unchanged.
+  rationale: 'The contested set is the main evidence of where the guideline is ambiguous. Principle XI forbids
+    Claude output as a signal for prompt optimization and keeps the existing Claude reference labels only "in the
+    role they have" (frozen benchmark references), without deviation; narrowing the input keeps the rewrite inside
+    the principle. The qwen categories are output of another model and are treated like the teacher labels in
+    D-xi-teacher-labels-0.1.x.'
+  scope:
+  - benchmark:pilot-v1
+  - data/analysis/pilot-v1/contested-review.csv
+  - topics/productdev/guideline
+  review_by: '2027-04-14'
+  decided_by: Martin Habedank
+  supersedes: null
