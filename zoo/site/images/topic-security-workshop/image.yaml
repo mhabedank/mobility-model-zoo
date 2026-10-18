@@ -1,5 +1,7 @@
 id: topic-security-workshop
 series: siebdruck
+theme: private-road
+subject: workshop-bay
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -49,8 +51,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 4e680ca67272db8f
+    other_share: 0.06
+    accent_share: 0.0457
+    accent_largest_share: 0.4361
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.723
+    - 0.672
 source:
-  file: topic-security-workshop.png
   width: 1200
   height: 800
   sha256: 2f0a0e945a5adc1184bf88eeaf5ffe0014afd9571fd4f1f4ca3ac70dce68ee63

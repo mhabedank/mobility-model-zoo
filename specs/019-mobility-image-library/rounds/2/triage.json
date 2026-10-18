@@ -1,0 +1,3204 @@
+{
+ "round": 2,
+ "series": "siebdruck",
+ "model": "Qwen/Qwen-Image-2512",
+ "container": "sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc",
+ "generator": "unversioned",
+ "tools": {
+  "pillow": "12.3.0",
+  "opencv-python-headless": "5.0.0.93",
+  "rapidocr-onnxruntime": "1.4.4",
+  "onnxruntime": "1.31.0",
+  "yunet_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4"
+ },
+ "ran": "2026-10-16T16:30:19+00:00",
+ "summary": {
+  "candidates": 128,
+  "shown": 111,
+  "rejected": {
+   "I4 faces": 5,
+   "I4 text": 5,
+   "I6 style": 5,
+   "I7 duplicate": 2
+  },
+  "subjects": 32,
+  "subjects_without_candidate": []
+ },
+ "candidates": [
+  {
+   "file": "rail--level-crossing--432918.png",
+   "theme": "rail",
+   "subject": "level-crossing",
+   "seed": 432918,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0666,
+    "accent_share": 0.0346,
+    "accent_largest_share": 0.8805,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.472,
+     0.588
+    ]
+   },
+   "phash": "99fce24d26984f61",
+   "focal_default": [
+    0.472,
+    0.588
+   ]
+  },
+  {
+   "file": "rail--level-crossing--432919.png",
+   "theme": "rail",
+   "subject": "level-crossing",
+   "seed": 432919,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.071,
+    "accent_share": 0.0367,
+    "accent_largest_share": 0.3508,
+    "accent_top_share": 0.0007,
+    "accent_centroid": [
+     0.716,
+     0.543
+    ]
+   },
+   "phash": "cd12b1a6086cf7d3",
+   "focal_default": [
+    0.716,
+    0.543
+   ]
+  },
+  {
+   "file": "rail--level-crossing--432920.png",
+   "theme": "rail",
+   "subject": "level-crossing",
+   "seed": 432920,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0762,
+    "accent_share": 0.0157,
+    "accent_largest_share": 0.6429,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.448,
+     0.401
+    ]
+   },
+   "phash": "c648ad863a30cdef",
+   "focal_default": [
+    0.448,
+    0.401
+   ]
+  },
+  {
+   "file": "rail--level-crossing--432921.png",
+   "theme": "rail",
+   "subject": "level-crossing",
+   "seed": 432921,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1053,
+    "accent_share": 0.0179,
+    "accent_largest_share": 0.3348,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.364,
+     0.506
+    ]
+   },
+   "phash": "f34c0b06b0f35d8b",
+   "focal_default": [
+    0.364,
+    0.506
+   ]
+  },
+  {
+   "file": "public-road--bus-charging--593706.png",
+   "theme": "public-road",
+   "subject": "bus-charging",
+   "seed": 593706,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0909,
+    "accent_share": 0.0409,
+    "accent_largest_share": 0.4302,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.729,
+     0.624
+    ]
+   },
+   "phash": "1267d60c09a9f7d5",
+   "focal_default": [
+    0.729,
+    0.624
+   ]
+  },
+  {
+   "file": "public-road--bus-charging--593707.png",
+   "theme": "public-road",
+   "subject": "bus-charging",
+   "seed": 593707,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0922,
+    "accent_share": 0.0128,
+    "accent_largest_share": 0.1918,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.305,
+     0.662
+    ]
+   },
+   "phash": "f283385654726bab",
+   "focal_default": [
+    0.305,
+    0.662
+   ]
+  },
+  {
+   "file": "public-road--bus-charging--593708.png",
+   "theme": "public-road",
+   "subject": "bus-charging",
+   "seed": 593708,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0887,
+    "accent_share": 0.0141,
+    "accent_largest_share": 0.1349,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.46,
+     0.716
+    ]
+   },
+   "phash": "96d1f81417fae905",
+   "focal_default": [
+    0.46,
+    0.716
+   ]
+  },
+  {
+   "file": "public-road--bus-charging--593709.png",
+   "theme": "public-road",
+   "subject": "bus-charging",
+   "seed": 593709,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0845,
+    "accent_share": 0.018,
+    "accent_largest_share": 0.2254,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.299,
+     0.693
+    ]
+   },
+   "phash": "c6c3691e14e2e91f",
+   "focal_default": [
+    0.299,
+    0.693
+   ]
+  },
+  {
+   "file": "public-road--tram-wash--73240.png",
+   "theme": "public-road",
+   "subject": "tram-wash",
+   "seed": 73240,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0759,
+    "accent_share": 0.017,
+    "accent_largest_share": 0.4654,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.221,
+     0.674
+    ]
+   },
+   "phash": "7ab8c99e27524369",
+   "focal_default": [
+    0.221,
+    0.674
+   ]
+  },
+  {
+   "file": "public-road--tram-wash--73241.png",
+   "theme": "public-road",
+   "subject": "tram-wash",
+   "seed": 73241,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0906,
+    "accent_share": 0.0586,
+    "accent_largest_share": 0.2339,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.502,
+     0.662
+    ]
+   },
+   "phash": "2739a6b4525a33c7",
+   "focal_default": [
+    0.502,
+    0.662
+   ]
+  },
+  {
+   "file": "public-road--tram-wash--73242.png",
+   "theme": "public-road",
+   "subject": "tram-wash",
+   "seed": 73242,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0968,
+    "accent_share": 0.0416,
+    "accent_largest_share": 0.4327,
+    "accent_top_share": 0.0088,
+    "accent_centroid": [
+     0.663,
+     0.632
+    ]
+   },
+   "phash": "51b3b42c29c5cbab",
+   "focal_default": [
+    0.663,
+    0.632
+   ]
+  },
+  {
+   "file": "public-road--tram-wash--73243.png",
+   "theme": "public-road",
+   "subject": "tram-wash",
+   "seed": 73243,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1277,
+    "accent_share": 0.0841,
+    "accent_largest_share": 0.4884,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.296,
+     0.666
+    ]
+   },
+   "phash": "b48b749c52c24bbb",
+   "focal_default": [
+    0.296,
+    0.666
+   ]
+  },
+  {
+   "file": "private-road--car-charging--198729.png",
+   "theme": "private-road",
+   "subject": "car-charging",
+   "seed": 198729,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0819,
+    "accent_share": 0.0365,
+    "accent_largest_share": 0.7128,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.39,
+     0.611
+    ]
+   },
+   "phash": "1b3ccc6af6f07111",
+   "focal_default": [
+    0.39,
+    0.611
+   ]
+  },
+  {
+   "file": "private-road--car-charging--198730.png",
+   "theme": "private-road",
+   "subject": "car-charging",
+   "seed": 198730,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0453,
+    "accent_share": 0.0274,
+    "accent_largest_share": 0.673,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.429,
+     0.619
+    ]
+   },
+   "phash": "790ed34d87a5e981",
+   "focal_default": [
+    0.429,
+    0.619
+   ]
+  },
+  {
+   "file": "private-road--car-charging--198731.png",
+   "theme": "private-road",
+   "subject": "car-charging",
+   "seed": 198731,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0971,
+    "accent_share": 0.0227,
+    "accent_largest_share": 0.3162,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.355,
+     0.599
+    ]
+   },
+   "phash": "0b3970c8ed8f23b3",
+   "focal_default": [
+    0.355,
+    0.599
+   ]
+  },
+  {
+   "file": "private-road--car-charging--198732.png",
+   "theme": "private-road",
+   "subject": "car-charging",
+   "seed": 198732,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0689,
+    "accent_share": 0.0518,
+    "accent_largest_share": 0.8969,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.483,
+     0.61
+    ]
+   },
+   "phash": "5923574157f1a9a9",
+   "focal_default": [
+    0.483,
+    0.61
+   ]
+  },
+  {
+   "file": "private-road--motorcycle-pass--950725.png",
+   "theme": "private-road",
+   "subject": "motorcycle-pass",
+   "seed": 950725,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0691,
+    "accent_share": 0.0211,
+    "accent_largest_share": 0.241,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.756,
+     0.768
+    ]
+   },
+   "phash": "1764f8cc1b799343",
+   "focal_default": [
+    0.756,
+    0.768
+   ]
+  },
+  {
+   "file": "private-road--motorcycle-pass--950726.png",
+   "theme": "private-road",
+   "subject": "motorcycle-pass",
+   "seed": 950726,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0335,
+    "accent_share": 0.0037,
+    "accent_largest_share": 0.305,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.39,
+     0.687
+    ]
+   },
+   "phash": "a603d97c8e75b309",
+   "focal_default": [
+    0.39,
+    0.687
+   ]
+  },
+  {
+   "file": "private-road--motorcycle-pass--950727.png",
+   "theme": "private-road",
+   "subject": "motorcycle-pass",
+   "seed": 950727,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0169,
+    "accent_share": 0.0043,
+    "accent_largest_share": 0.4242,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.439,
+     0.589
+    ]
+   },
+   "phash": "b3fe685617b1a109",
+   "focal_default": [
+    0.439,
+    0.589
+   ]
+  },
+  {
+   "file": "private-road--motorcycle-pass--950728.png",
+   "theme": "private-road",
+   "subject": "motorcycle-pass",
+   "seed": 950728,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0137,
+    "accent_share": 0.0061,
+    "accent_largest_share": 0.5408,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.511,
+     0.561
+    ]
+   },
+   "phash": "d1d6f13c0f6d0b03",
+   "focal_default": [
+    0.511,
+    0.561
+   ]
+  },
+  {
+   "file": "private-road--tractor-rural--225801.png",
+   "theme": "private-road",
+   "subject": "tractor-rural",
+   "seed": 225801,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1291,
+    "accent_share": 0.0091,
+    "accent_largest_share": 0.0826,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.581,
+     0.692
+    ]
+   },
+   "phash": "22fccbc63872c1ad",
+   "focal_default": [
+    0.581,
+    0.692
+   ]
+  },
+  {
+   "file": "private-road--tractor-rural--225802.png",
+   "theme": "private-road",
+   "subject": "tractor-rural",
+   "seed": 225802,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "2 face(s) [{'score': 0.643, 'height_px': 140.9}, {'score': 0.682, 'height_px': 16.3}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "64cbed241678cb8d",
+   "focal_default": null
+  },
+  {
+   "file": "private-road--tractor-rural--225803.png",
+   "theme": "private-road",
+   "subject": "tractor-rural",
+   "seed": 225803,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1333,
+    "accent_share": 0.0114,
+    "accent_largest_share": 0.357,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.706,
+     0.481
+    ]
+   },
+   "phash": "a74dd32638d2c52d",
+   "focal_default": [
+    0.706,
+    0.481
+   ]
+  },
+  {
+   "file": "private-road--tractor-rural--225804.png",
+   "theme": "private-road",
+   "subject": "tractor-rural",
+   "seed": 225804,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0721,
+    "accent_share": 0.0072,
+    "accent_largest_share": 0.1978,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.566,
+     0.682
+    ]
+   },
+   "phash": "4d673986d21827e7",
+   "focal_default": [
+    0.566,
+    0.682
+   ]
+  },
+  {
+   "file": "private-road--roundabout-above--560959.png",
+   "theme": "private-road",
+   "subject": "roundabout-above",
+   "seed": 560959,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0157,
+    "accent_share": 0.0047,
+    "accent_largest_share": 0.5769,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.282,
+     0.704
+    ]
+   },
+   "phash": "86495ea6a1172ded",
+   "focal_default": [
+    0.282,
+    0.704
+   ]
+  },
+  {
+   "file": "private-road--roundabout-above--560960.png",
+   "theme": "private-road",
+   "subject": "roundabout-above",
+   "seed": 560960,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0187,
+    "accent_share": 0.002,
+    "accent_largest_share": 0.4359,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.433,
+     0.587
+    ]
+   },
+   "phash": "699136ed883629d7",
+   "focal_default": [
+    0.433,
+    0.587
+   ]
+  },
+  {
+   "file": "private-road--roundabout-above--560961.png",
+   "theme": "private-road",
+   "subject": "roundabout-above",
+   "seed": 560961,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0063,
+    "accent_share": 0.002,
+    "accent_largest_share": 0.6974,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.433,
+     0.494
+    ]
+   },
+   "phash": "40e603f54f09799f",
+   "focal_default": [
+    0.433,
+    0.494
+   ]
+  },
+  {
+   "file": "private-road--roundabout-above--560962.png",
+   "theme": "private-road",
+   "subject": "roundabout-above",
+   "seed": 560962,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0147,
+    "accent_share": 0.0028,
+    "accent_largest_share": 0.5701,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.61,
+     0.74
+    ]
+   },
+   "phash": "2fc370bc4239d729",
+   "focal_default": [
+    0.61,
+    0.74
+   ]
+  },
+  {
+   "file": "private-road--taxi-rank--979482.png",
+   "theme": "private-road",
+   "subject": "taxi-rank",
+   "seed": 979482,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.062,
+    "accent_share": 0.0349,
+    "accent_largest_share": 0.2849,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.453,
+     0.706
+    ]
+   },
+   "phash": "a2e5842da9e12bbb",
+   "focal_default": [
+    0.453,
+    0.706
+   ]
+  },
+  {
+   "file": "private-road--taxi-rank--979483.png",
+   "theme": "private-road",
+   "subject": "taxi-rank",
+   "seed": 979483,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['7AXI']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "4253967c79c1433f",
+   "focal_default": null
+  },
+  {
+   "file": "private-road--taxi-rank--979484.png",
+   "theme": "private-road",
+   "subject": "taxi-rank",
+   "seed": 979484,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['7AXI']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 2
+   },
+   "phash": "b2a5360da9e9a70b",
+   "focal_default": null
+  },
+  {
+   "file": "private-road--taxi-rank--979485.png",
+   "theme": "private-road",
+   "subject": "taxi-rank",
+   "seed": 979485,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0412,
+    "accent_share": 0.07,
+    "accent_largest_share": 0.7577,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.335,
+     0.632
+    ]
+   },
+   "phash": "49e7ec13238bf511",
+   "focal_default": [
+    0.335,
+    0.632
+   ]
+  },
+  {
+   "file": "active--cycle-highway--3257.png",
+   "theme": "active",
+   "subject": "cycle-highway",
+   "seed": 3257,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0115,
+    "accent_share": 0.004,
+    "accent_largest_share": 0.6299,
+    "accent_top_share": 0.1299,
+    "accent_centroid": [
+     0.567,
+     0.214
+    ]
+   },
+   "phash": "f9f2a74cb91503a1",
+   "focal_default": [
+    0.567,
+    0.214
+   ]
+  },
+  {
+   "file": "active--cycle-highway--3258.png",
+   "theme": "active",
+   "subject": "cycle-highway",
+   "seed": 3258,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0116,
+    "accent_share": 0.0089,
+    "accent_largest_share": 0.9,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.509,
+     0.698
+    ]
+   },
+   "phash": "788df31c86194be3",
+   "focal_default": [
+    0.509,
+    0.698
+   ]
+  },
+  {
+   "file": "active--cycle-highway--3259.png",
+   "theme": "active",
+   "subject": "cycle-highway",
+   "seed": 3259,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0139,
+    "accent_share": 0.0034,
+    "accent_largest_share": 0.5426,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.681,
+     0.673
+    ]
+   },
+   "phash": "89f19806f3fd2b03",
+   "focal_default": [
+    0.681,
+    0.673
+   ]
+  },
+  {
+   "file": "active--cycle-highway--3260.png",
+   "theme": "active",
+   "subject": "cycle-highway",
+   "seed": 3260,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0059,
+    "accent_share": 0.002,
+    "accent_largest_share": 0.5513,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.592,
+     0.314
+    ]
+   },
+   "phash": "a9d0d2de29bd032b",
+   "focal_default": [
+    0.592,
+    0.314
+   ]
+  },
+  {
+   "file": "infrastructure--signal-cabinet--428976.png",
+   "theme": "infrastructure",
+   "subject": "signal-cabinet",
+   "seed": 428976,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.016,
+    "accent_share": 0.0029,
+    "accent_largest_share": 0.2768,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.329,
+     0.394
+    ]
+   },
+   "phash": "5335585bc9c83537",
+   "focal_default": [
+    0.329,
+    0.394
+   ]
+  },
+  {
+   "file": "infrastructure--signal-cabinet--428977.png",
+   "theme": "infrastructure",
+   "subject": "signal-cabinet",
+   "seed": 428977,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0192,
+    "accent_share": 0.0018,
+    "accent_largest_share": 0.1429,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.433,
+     0.459
+    ]
+   },
+   "phash": "804e2d6de2b2979d",
+   "focal_default": [
+    0.433,
+    0.459
+   ]
+  },
+  {
+   "file": "infrastructure--signal-cabinet--428978.png",
+   "theme": "infrastructure",
+   "subject": "signal-cabinet",
+   "seed": 428978,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0213,
+    "accent_share": 0.0019,
+    "accent_largest_share": 0.4054,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.366,
+     0.41
+    ]
+   },
+   "phash": "7728181d69c8b737",
+   "focal_default": [
+    0.366,
+    0.41
+   ]
+  },
+  {
+   "file": "infrastructure--signal-cabinet--428979.png",
+   "theme": "infrastructure",
+   "subject": "signal-cabinet",
+   "seed": 428979,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0269,
+    "accent_share": 0.0043,
+    "accent_largest_share": 0.5,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.346,
+     0.487
+    ]
+   },
+   "phash": "3dc20c6dd2c22f3d",
+   "focal_default": [
+    0.346,
+    0.487
+   ]
+  },
+  {
+   "file": "infrastructure--spiral-ramp--888858.png",
+   "theme": "infrastructure",
+   "subject": "spiral-ramp",
+   "seed": 888858,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0128,
+    "accent_share": 0.0069,
+    "accent_largest_share": 0.7358,
+    "accent_top_share": 0.0906,
+    "accent_centroid": [
+     0.586,
+     0.225
+    ]
+   },
+   "phash": "4c23d3578b287d17",
+   "focal_default": [
+    0.586,
+    0.225
+   ]
+  },
+  {
+   "file": "infrastructure--spiral-ramp--888859.png",
+   "theme": "infrastructure",
+   "subject": "spiral-ramp",
+   "seed": 888859,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0092,
+    "accent_share": 0.0141,
+    "accent_largest_share": 1.0,
+    "accent_top_share": 0.8066,
+    "accent_centroid": [
+     0.558,
+     0.2
+    ]
+   },
+   "phash": "1e505c7909e9f517",
+   "focal_default": [
+    0.558,
+    0.2
+   ]
+  },
+  {
+   "file": "infrastructure--spiral-ramp--888860.png",
+   "theme": "infrastructure",
+   "subject": "spiral-ramp",
+   "seed": 888860,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0068,
+    "accent_share": 0.0021,
+    "accent_largest_share": 0.5,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.507,
+     0.302
+    ]
+   },
+   "phash": "b726d85a59b52549",
+   "focal_default": [
+    0.507,
+    0.302
+   ]
+  },
+  {
+   "file": "infrastructure--spiral-ramp--888861.png",
+   "theme": "infrastructure",
+   "subject": "spiral-ramp",
+   "seed": 888861,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0096,
+    "accent_share": 0.0049,
+    "accent_largest_share": 0.2632,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.593,
+     0.309
+    ]
+   },
+   "phash": "2d2ed2d4fc72038b",
+   "focal_default": [
+    0.593,
+    0.309
+   ]
+  },
+  {
+   "file": "infrastructure--field-shelter--670760.png",
+   "theme": "infrastructure",
+   "subject": "field-shelter",
+   "seed": 670760,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0602,
+    "accent_share": 0.0074,
+    "accent_largest_share": 0.3706,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.691,
+     0.688
+    ]
+   },
+   "phash": "6703d83d27c25d35",
+   "focal_default": [
+    0.691,
+    0.688
+   ]
+  },
+  {
+   "file": "infrastructure--field-shelter--670761.png",
+   "theme": "infrastructure",
+   "subject": "field-shelter",
+   "seed": 670761,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0643,
+    "accent_share": 0.0075,
+    "accent_largest_share": 0.3031,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.779,
+     0.64
+    ]
+   },
+   "phash": "636898b6664a9db5",
+   "focal_default": [
+    0.779,
+    0.64
+   ]
+  },
+  {
+   "file": "infrastructure--field-shelter--670762.png",
+   "theme": "infrastructure",
+   "subject": "field-shelter",
+   "seed": 670762,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0104,
+    "accent_share": 0.0064,
+    "accent_largest_share": 0.3496,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.367,
+     0.598
+    ]
+   },
+   "phash": "3f30d61f89e06517",
+   "focal_default": [
+    0.367,
+    0.598
+   ]
+  },
+  {
+   "file": "infrastructure--field-shelter--670763.png",
+   "theme": "infrastructure",
+   "subject": "field-shelter",
+   "seed": 670763,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.076,
+    "accent_share": 0.0046,
+    "accent_largest_share": 0.4943,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.59,
+     0.627
+    ]
+   },
+   "phash": "07e4783ca3ca5db1",
+   "focal_default": [
+    0.59,
+    0.627
+   ]
+  },
+  {
+   "file": "infrastructure--weather-mast--215397.png",
+   "theme": "infrastructure",
+   "subject": "weather-mast",
+   "seed": 215397,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "top 23% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0331,
+    "accent_share": 0.0065,
+    "accent_largest_share": 0.2823,
+    "accent_top_share": 0.2258,
+    "accent_centroid": [
+     0.338,
+     0.597
+    ]
+   },
+   "phash": "0372b54362dc6f99",
+   "focal_default": [
+    0.338,
+    0.597
+   ]
+  },
+  {
+   "file": "infrastructure--weather-mast--215398.png",
+   "theme": "infrastructure",
+   "subject": "weather-mast",
+   "seed": 215398,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0262,
+    "accent_share": 0.011,
+    "accent_largest_share": 0.2901,
+    "accent_top_share": 0.1486,
+    "accent_centroid": [
+     0.26,
+     0.525
+    ]
+   },
+   "phash": "52842dc396c43f7b",
+   "focal_default": [
+    0.26,
+    0.525
+   ]
+  },
+  {
+   "file": "infrastructure--weather-mast--215399.png",
+   "theme": "infrastructure",
+   "subject": "weather-mast",
+   "seed": 215399,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0318,
+    "accent_share": 0.0189,
+    "accent_largest_share": 0.6428,
+    "accent_top_share": 0.2331,
+    "accent_centroid": [
+     0.238,
+     0.57
+    ]
+   },
+   "phash": "3b12a56b82c43dbb",
+   "focal_default": [
+    0.238,
+    0.57
+   ]
+  },
+  {
+   "file": "infrastructure--weather-mast--215400.png",
+   "theme": "infrastructure",
+   "subject": "weather-mast",
+   "seed": 215400,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "top 27% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0451,
+    "accent_share": 0.0144,
+    "accent_largest_share": 0.1812,
+    "accent_top_share": 0.2681,
+    "accent_centroid": [
+     0.642,
+     0.325
+    ]
+   },
+   "phash": "48e46df34872b533",
+   "focal_default": [
+    0.642,
+    0.325
+   ]
+  },
+  {
+   "file": "infrastructure--bridge-inspection--862458.png",
+   "theme": "infrastructure",
+   "subject": "bridge-inspection",
+   "seed": 862458,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0357,
+    "accent_share": 0.0215,
+    "accent_largest_share": 0.568,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.404,
+     0.44
+    ]
+   },
+   "phash": "1bc0992e98d3cd2f",
+   "focal_default": [
+    0.404,
+    0.44
+   ]
+  },
+  {
+   "file": "infrastructure--bridge-inspection--862459.png",
+   "theme": "infrastructure",
+   "subject": "bridge-inspection",
+   "seed": 862459,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0284,
+    "accent_share": 0.0401,
+    "accent_largest_share": 0.7104,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.575,
+     0.353
+    ]
+   },
+   "phash": "52dc27ac72f11d23",
+   "focal_default": [
+    0.575,
+    0.353
+   ]
+  },
+  {
+   "file": "infrastructure--bridge-inspection--862460.png",
+   "theme": "infrastructure",
+   "subject": "bridge-inspection",
+   "seed": 862460,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0341,
+    "accent_share": 0.0496,
+    "accent_largest_share": 0.7743,
+    "accent_top_share": 0.021,
+    "accent_centroid": [
+     0.357,
+     0.322
+    ]
+   },
+   "phash": "a66c131ed9f1052f",
+   "focal_default": [
+    0.357,
+    0.322
+   ]
+  },
+  {
+   "file": "infrastructure--bridge-inspection--862461.png",
+   "theme": "infrastructure",
+   "subject": "bridge-inspection",
+   "seed": 862461,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0628,
+    "accent_share": 0.0228,
+    "accent_largest_share": 0.6021,
+    "accent_top_share": 0.0023,
+    "accent_centroid": [
+     0.522,
+     0.301
+    ]
+   },
+   "phash": "b6c5a90e58d3a50f",
+   "focal_default": [
+    0.522,
+    0.301
+   ]
+  },
+  {
+   "file": "workshop--rail-pit--75067.png",
+   "theme": "workshop",
+   "subject": "rail-pit",
+   "seed": 75067,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.506, 'height_px': 23.4}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "cd1b1b6c1940a7b7",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--rail-pit--75068.png",
+   "theme": "workshop",
+   "subject": "rail-pit",
+   "seed": 75068,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1227,
+    "accent_share": 0.0377,
+    "accent_largest_share": 0.4979,
+    "accent_top_share": 0.0415,
+    "accent_centroid": [
+     0.576,
+     0.368
+    ]
+   },
+   "phash": "a4044b7cf969aba3",
+   "focal_default": [
+    0.576,
+    0.368
+   ]
+  },
+  {
+   "file": "workshop--rail-pit--75069.png",
+   "theme": "workshop",
+   "subject": "rail-pit",
+   "seed": 75069,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['0.00']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "608a5f7698a1671f",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--rail-pit--75070.png",
+   "theme": "workshop",
+   "subject": "rail-pit",
+   "seed": 75070,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0857,
+    "accent_share": 0.0409,
+    "accent_largest_share": 0.9299,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.48,
+     0.388
+    ]
+   },
+   "phash": "5c3db18682c37d39",
+   "focal_default": [
+    0.48,
+    0.388
+   ]
+  },
+  {
+   "file": "workshop--bus-lift--810609.png",
+   "theme": "workshop",
+   "subject": "bus-lift",
+   "seed": 810609,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['HLL']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "358c4afc0c62ff07",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--bus-lift--810610.png",
+   "theme": "workshop",
+   "subject": "bus-lift",
+   "seed": 810610,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0668,
+    "accent_share": 0.0337,
+    "accent_largest_share": 0.2734,
+    "accent_top_share": 0.0456,
+    "accent_centroid": [
+     0.348,
+     0.567
+    ]
+   },
+   "phash": "664d82392871f7a7",
+   "focal_default": [
+    0.348,
+    0.567
+   ]
+  },
+  {
+   "file": "workshop--bus-lift--810611.png",
+   "theme": "workshop",
+   "subject": "bus-lift",
+   "seed": 810611,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0677,
+    "accent_share": 0.0816,
+    "accent_largest_share": 0.8186,
+    "accent_top_share": 0.0766,
+    "accent_centroid": [
+     0.578,
+     0.423
+    ]
+   },
+   "phash": "860373d6214abdaf",
+   "focal_default": [
+    0.578,
+    0.423
+   ]
+  },
+  {
+   "file": "workshop--bus-lift--810612.png",
+   "theme": "workshop",
+   "subject": "bus-lift",
+   "seed": 810612,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.527, 'height_px': 90.7}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "a78d5978a9405797",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--brake-rig--849373.png",
+   "theme": "workshop",
+   "subject": "brake-rig",
+   "seed": 849373,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0538,
+    "accent_share": 0.0422,
+    "accent_largest_share": 0.8563,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.592,
+     0.581
+    ]
+   },
+   "phash": "915c7dac8c7c2707",
+   "focal_default": [
+    0.592,
+    0.581
+   ]
+  },
+  {
+   "file": "workshop--brake-rig--849374.png",
+   "theme": "workshop",
+   "subject": "brake-rig",
+   "seed": 849374,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0799,
+    "accent_share": 0.0261,
+    "accent_largest_share": 0.1673,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.547,
+     0.593
+    ]
+   },
+   "phash": "5296581ebaf2a70d",
+   "focal_default": [
+    0.547,
+    0.593
+   ]
+  },
+  {
+   "file": "workshop--brake-rig--849375.png",
+   "theme": "workshop",
+   "subject": "brake-rig",
+   "seed": 849375,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.785, 'height_px': 251.6}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "41ec2f8ab8739387",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--brake-rig--849376.png",
+   "theme": "workshop",
+   "subject": "brake-rig",
+   "seed": 849376,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0874,
+    "accent_share": 0.0154,
+    "accent_largest_share": 0.1946,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.348,
+     0.614
+    ]
+   },
+   "phash": "93209ba63e56cda9",
+   "focal_default": [
+    0.348,
+    0.614
+   ]
+  },
+  {
+   "file": "workshop--battery-bench--346484.png",
+   "theme": "workshop",
+   "subject": "battery-bench",
+   "seed": 346484,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0609,
+    "accent_share": 0.0038,
+    "accent_largest_share": 0.8219,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.634,
+     0.526
+    ]
+   },
+   "phash": "a6110aed950afbf1",
+   "focal_default": [
+    0.634,
+    0.526
+   ]
+  },
+  {
+   "file": "workshop--battery-bench--346485.png",
+   "theme": "workshop",
+   "subject": "battery-bench",
+   "seed": 346485,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0386,
+    "accent_share": 0.0203,
+    "accent_largest_share": 0.8496,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.487,
+     0.618
+    ]
+   },
+   "phash": "60672eb8a4563be3",
+   "focal_default": [
+    0.487,
+    0.618
+   ]
+  },
+  {
+   "file": "workshop--battery-bench--346486.png",
+   "theme": "workshop",
+   "subject": "battery-bench",
+   "seed": 346486,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0625,
+    "accent_share": 0.0462,
+    "accent_largest_share": 0.5189,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.463,
+     0.611
+    ]
+   },
+   "phash": "d68c3ee8813d2b2b",
+   "focal_default": [
+    0.463,
+    0.611
+   ]
+  },
+  {
+   "file": "workshop--battery-bench--346487.png",
+   "theme": "workshop",
+   "subject": "battery-bench",
+   "seed": 346487,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0275,
+    "accent_share": 0.0092,
+    "accent_largest_share": 0.8,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.447,
+     0.591
+    ]
+   },
+   "phash": "2887ce690ca6e767",
+   "focal_default": [
+    0.447,
+    0.591
+   ]
+  },
+  {
+   "file": "workshop--tyre-drum--266671.png",
+   "theme": "workshop",
+   "subject": "tyre-drum",
+   "seed": 266671,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0585,
+    "accent_share": 0.0389,
+    "accent_largest_share": 0.3072,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.721,
+     0.447
+    ]
+   },
+   "phash": "c41e2cd973c9833d",
+   "focal_default": [
+    0.721,
+    0.447
+   ]
+  },
+  {
+   "file": "workshop--tyre-drum--266672.png",
+   "theme": "workshop",
+   "subject": "tyre-drum",
+   "seed": 266672,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0571,
+    "accent_share": 0.0405,
+    "accent_largest_share": 0.3179,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.686,
+     0.592
+    ]
+   },
+   "phash": "c80d167377c1895f",
+   "focal_default": [
+    0.686,
+    0.592
+   ]
+  },
+  {
+   "file": "workshop--tyre-drum--266673.png",
+   "theme": "workshop",
+   "subject": "tyre-drum",
+   "seed": 266673,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0588,
+    "accent_share": 0.0517,
+    "accent_largest_share": 0.3862,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.455,
+     0.548
+    ]
+   },
+   "phash": "4836377197c2e91d",
+   "focal_default": [
+    0.455,
+    0.548
+   ]
+  },
+  {
+   "file": "workshop--tyre-drum--266674.png",
+   "theme": "workshop",
+   "subject": "tyre-drum",
+   "seed": 266674,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of workshop/tyre-drum#3 (10 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0942,
+    "accent_share": 0.0274,
+    "accent_largest_share": 0.1406,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.41,
+     0.398
+    ]
+   },
+   "phash": "cc7027f19782c93d",
+   "focal_default": [
+    0.41,
+    0.398
+   ]
+  },
+  {
+   "file": "workshop--dyno-cell--706224.png",
+   "theme": "workshop",
+   "subject": "dyno-cell",
+   "seed": 706224,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0349,
+    "accent_share": 0.0211,
+    "accent_largest_share": 0.6143,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.643,
+     0.555
+    ]
+   },
+   "phash": "92865ca68ed2eda9",
+   "focal_default": [
+    0.643,
+    0.555
+   ]
+  },
+  {
+   "file": "workshop--dyno-cell--706225.png",
+   "theme": "workshop",
+   "subject": "dyno-cell",
+   "seed": 706225,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0604,
+    "accent_share": 0.0359,
+    "accent_largest_share": 0.6838,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.597,
+     0.558
+    ]
+   },
+   "phash": "58b66c563c5a87a9",
+   "focal_default": [
+    0.597,
+    0.558
+   ]
+  },
+  {
+   "file": "workshop--dyno-cell--706226.png",
+   "theme": "workshop",
+   "subject": "dyno-cell",
+   "seed": 706226,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0568,
+    "accent_share": 0.0302,
+    "accent_largest_share": 0.7884,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.621,
+     0.529
+    ]
+   },
+   "phash": "8d6e86f41ecae303",
+   "focal_default": [
+    0.621,
+    0.529
+   ]
+  },
+  {
+   "file": "workshop--dyno-cell--706227.png",
+   "theme": "workshop",
+   "subject": "dyno-cell",
+   "seed": 706227,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0355,
+    "accent_share": 0.0442,
+    "accent_largest_share": 0.9181,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.601,
+     0.536
+    ]
+   },
+   "phash": "f91ce6b616da2303",
+   "focal_default": [
+    0.601,
+    0.536
+   ]
+  },
+  {
+   "file": "workshop--wind-tunnel--762556.png",
+   "theme": "workshop",
+   "subject": "wind-tunnel",
+   "seed": 762556,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0336,
+    "accent_share": 0.0376,
+    "accent_largest_share": 0.9433,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.487,
+     0.5
+    ]
+   },
+   "phash": "e496d2198be035e7",
+   "focal_default": [
+    0.487,
+    0.5
+   ]
+  },
+  {
+   "file": "workshop--wind-tunnel--762557.png",
+   "theme": "workshop",
+   "subject": "wind-tunnel",
+   "seed": 762557,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0622,
+    "accent_share": 0.0222,
+    "accent_largest_share": 0.2321,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.476,
+     0.514
+    ]
+   },
+   "phash": "337e016f68c56587",
+   "focal_default": [
+    0.476,
+    0.514
+   ]
+  },
+  {
+   "file": "workshop--wind-tunnel--762558.png",
+   "theme": "workshop",
+   "subject": "wind-tunnel",
+   "seed": 762558,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0257,
+    "accent_share": 0.0188,
+    "accent_largest_share": 0.7787,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.514,
+     0.497
+    ]
+   },
+   "phash": "cf981b1839f1e507",
+   "focal_default": [
+    0.514,
+    0.497
+   ]
+  },
+  {
+   "file": "workshop--wind-tunnel--762559.png",
+   "theme": "workshop",
+   "subject": "wind-tunnel",
+   "seed": 762559,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0272,
+    "accent_share": 0.0117,
+    "accent_largest_share": 0.3756,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.59,
+     0.508
+    ]
+   },
+   "phash": "83989b1b797185c7",
+   "focal_default": [
+    0.59,
+    0.508
+   ]
+  },
+  {
+   "file": "workshop--axle-press--602917.png",
+   "theme": "workshop",
+   "subject": "axle-press",
+   "seed": 602917,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0887,
+    "accent_share": 0.0861,
+    "accent_largest_share": 0.6197,
+    "accent_top_share": 0.1052,
+    "accent_centroid": [
+     0.345,
+     0.468
+    ]
+   },
+   "phash": "2226647b36c2cf6d",
+   "focal_default": [
+    0.345,
+    0.468
+   ]
+  },
+  {
+   "file": "workshop--axle-press--602918.png",
+   "theme": "workshop",
+   "subject": "axle-press",
+   "seed": 602918,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1056,
+    "accent_share": 0.0464,
+    "accent_largest_share": 0.3998,
+    "accent_top_share": 0.2684,
+    "accent_centroid": [
+     0.564,
+     0.2
+    ]
+   },
+   "phash": "66b52c90b7d2432f",
+   "focal_default": [
+    0.564,
+    0.2
+   ]
+  },
+  {
+   "file": "workshop--axle-press--602919.png",
+   "theme": "workshop",
+   "subject": "axle-press",
+   "seed": 602919,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0955,
+    "accent_share": 0.0724,
+    "accent_largest_share": 0.6574,
+    "accent_top_share": 0.1878,
+    "accent_centroid": [
+     0.733,
+     0.276
+    ]
+   },
+   "phash": "5e744751486a2be7",
+   "focal_default": [
+    0.733,
+    0.276
+   ]
+  },
+  {
+   "file": "workshop--axle-press--602920.png",
+   "theme": "workshop",
+   "subject": "axle-press",
+   "seed": 602920,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 faces",
+     "detail": "1 face(s) [{'score': 0.658, 'height_px': 19.6}]"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "39302a7cd5383bc7",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--paint-booth--809752.png",
+   "theme": "workshop",
+   "subject": "paint-booth",
+   "seed": 809752,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1082,
+    "accent_share": 0.0796,
+    "accent_largest_share": 0.5777,
+    "accent_top_share": 0.0098,
+    "accent_centroid": [
+     0.711,
+     0.63
+    ]
+   },
+   "phash": "f0f8867cade08587",
+   "focal_default": [
+    0.711,
+    0.63
+   ]
+  },
+  {
+   "file": "workshop--paint-booth--809753.png",
+   "theme": "workshop",
+   "subject": "paint-booth",
+   "seed": 809753,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1201,
+    "accent_share": 0.0731,
+    "accent_largest_share": 0.4579,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.729,
+     0.638
+    ]
+   },
+   "phash": "6969e6fce96a0303",
+   "focal_default": [
+    0.729,
+    0.638
+   ]
+  },
+  {
+   "file": "workshop--paint-booth--809754.png",
+   "theme": "workshop",
+   "subject": "paint-booth",
+   "seed": 809754,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I4 text",
+     "detail": "readable text ['13']"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0
+   },
+   "phash": "990d5cc65642a7af",
+   "focal_default": null
+  },
+  {
+   "file": "workshop--paint-booth--809755.png",
+   "theme": "workshop",
+   "subject": "paint-booth",
+   "seed": 809755,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1207,
+    "accent_share": 0.0668,
+    "accent_largest_share": 0.5269,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.25,
+     0.64
+    ]
+   },
+   "phash": "5ad36cf68342a9a9",
+   "focal_default": [
+    0.25,
+    0.64
+   ]
+  },
+  {
+   "file": "iot--roof-antenna--165741.png",
+   "theme": "iot",
+   "subject": "roof-antenna",
+   "seed": 165741,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0183,
+    "accent_share": 0.0212,
+    "accent_largest_share": 0.6405,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.451,
+     0.514
+    ]
+   },
+   "phash": "f20479c25e3871cf",
+   "focal_default": [
+    0.451,
+    0.514
+   ]
+  },
+  {
+   "file": "iot--roof-antenna--165742.png",
+   "theme": "iot",
+   "subject": "roof-antenna",
+   "seed": 165742,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I7 duplicate",
+     "detail": "twin of iot/roof-antenna#1 (10 bits)"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0425,
+    "accent_share": 0.0118,
+    "accent_largest_share": 0.7345,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.389,
+     0.507
+    ]
+   },
+   "phash": "d304e9c21ef841ef",
+   "focal_default": [
+    0.389,
+    0.507
+   ]
+  },
+  {
+   "file": "iot--roof-antenna--165743.png",
+   "theme": "iot",
+   "subject": "roof-antenna",
+   "seed": 165743,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0504,
+    "accent_share": 0.0423,
+    "accent_largest_share": 0.6845,
+    "accent_top_share": 0.0776,
+    "accent_centroid": [
+     0.642,
+     0.241
+    ]
+   },
+   "phash": "660dbbe24bd8a127",
+   "focal_default": [
+    0.642,
+    0.241
+   ]
+  },
+  {
+   "file": "iot--roof-antenna--165744.png",
+   "theme": "iot",
+   "subject": "roof-antenna",
+   "seed": 165744,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0349,
+    "accent_share": 0.0057,
+    "accent_largest_share": 0.3455,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.547,
+     0.497
+    ]
+   },
+   "phash": "265af9847b18856f",
+   "focal_default": [
+    0.547,
+    0.497
+   ]
+  },
+  {
+   "file": "iot--gantry-camera--907493.png",
+   "theme": "iot",
+   "subject": "gantry-camera",
+   "seed": 907493,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0504,
+    "accent_share": 0.0115,
+    "accent_largest_share": 0.6182,
+    "accent_top_share": 0.0409,
+    "accent_centroid": [
+     0.526,
+     0.304
+    ]
+   },
+   "phash": "a3213637199cc5cf",
+   "focal_default": [
+    0.526,
+    0.304
+   ]
+  },
+  {
+   "file": "iot--gantry-camera--907494.png",
+   "theme": "iot",
+   "subject": "gantry-camera",
+   "seed": 907494,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0307,
+    "accent_share": 0.0347,
+    "accent_largest_share": 0.5435,
+    "accent_top_share": 0.4468,
+    "accent_centroid": [
+     0.424,
+     0.2
+    ]
+   },
+   "phash": "81c8def12936256f",
+   "focal_default": [
+    0.424,
+    0.2
+   ]
+  },
+  {
+   "file": "iot--gantry-camera--907495.png",
+   "theme": "iot",
+   "subject": "gantry-camera",
+   "seed": 907495,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0161,
+    "accent_share": 0.0158,
+    "accent_largest_share": 0.8149,
+    "accent_top_share": 0.6628,
+    "accent_centroid": [
+     0.533,
+     0.2
+    ]
+   },
+   "phash": "23143c9bb2844dff",
+   "focal_default": [
+    0.533,
+    0.2
+   ]
+  },
+  {
+   "file": "iot--gantry-camera--907496.png",
+   "theme": "iot",
+   "subject": "gantry-camera",
+   "seed": 907496,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0408,
+    "accent_share": 0.0073,
+    "accent_largest_share": 0.5426,
+    "accent_top_share": 0.0106,
+    "accent_centroid": [
+     0.513,
+     0.335
+    ]
+   },
+   "phash": "6d291696b950676b",
+   "focal_default": [
+    0.513,
+    0.335
+   ]
+  },
+  {
+   "file": "iot--lidar-roof--794726.png",
+   "theme": "iot",
+   "subject": "lidar-roof",
+   "seed": 794726,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0645,
+    "accent_share": 0.0454,
+    "accent_largest_share": 0.5471,
+    "accent_top_share": 0.0482,
+    "accent_centroid": [
+     0.591,
+     0.58
+    ]
+   },
+   "phash": "0b53a41a9e99676d",
+   "focal_default": [
+    0.591,
+    0.58
+   ]
+  },
+  {
+   "file": "iot--lidar-roof--794727.png",
+   "theme": "iot",
+   "subject": "lidar-roof",
+   "seed": 794727,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0807,
+    "accent_share": 0.0267,
+    "accent_largest_share": 0.3723,
+    "accent_top_share": 0.0302,
+    "accent_centroid": [
+     0.608,
+     0.276
+    ]
+   },
+   "phash": "a1718cf09ecb31a7",
+   "focal_default": [
+    0.608,
+    0.276
+   ]
+  },
+  {
+   "file": "iot--lidar-roof--794728.png",
+   "theme": "iot",
+   "subject": "lidar-roof",
+   "seed": 794728,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0847,
+    "accent_share": 0.0221,
+    "accent_largest_share": 0.2983,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.631,
+     0.36
+    ]
+   },
+   "phash": "a65838e7d4d86137",
+   "focal_default": [
+    0.631,
+    0.36
+   ]
+  },
+  {
+   "file": "iot--lidar-roof--794729.png",
+   "theme": "iot",
+   "subject": "lidar-roof",
+   "seed": 794729,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0349,
+    "accent_share": 0.0345,
+    "accent_largest_share": 0.6843,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.573,
+     0.588
+    ]
+   },
+   "phash": "9b1f61e09a9a6167",
+   "focal_default": [
+    0.573,
+    0.588
+   ]
+  },
+  {
+   "file": "iot--stop-air-sensor--593794.png",
+   "theme": "iot",
+   "subject": "stop-air-sensor",
+   "seed": 593794,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0199,
+    "accent_share": 0.0388,
+    "accent_largest_share": 0.5701,
+    "accent_top_share": 0.0007,
+    "accent_centroid": [
+     0.469,
+     0.631
+    ]
+   },
+   "phash": "3c3966ccc67c9383",
+   "focal_default": [
+    0.469,
+    0.631
+   ]
+  },
+  {
+   "file": "iot--stop-air-sensor--593795.png",
+   "theme": "iot",
+   "subject": "stop-air-sensor",
+   "seed": 593795,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0303,
+    "accent_share": 0.0489,
+    "accent_largest_share": 0.6791,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.619,
+     0.667
+    ]
+   },
+   "phash": "46392bdcc7081de7",
+   "focal_default": [
+    0.619,
+    0.667
+   ]
+  },
+  {
+   "file": "iot--stop-air-sensor--593796.png",
+   "theme": "iot",
+   "subject": "stop-air-sensor",
+   "seed": 593796,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0355,
+    "accent_share": 0.0397,
+    "accent_largest_share": 0.834,
+    "accent_top_share": 0.0125,
+    "accent_centroid": [
+     0.686,
+     0.663
+    ]
+   },
+   "phash": "235d88b8d70a39f5",
+   "focal_default": [
+    0.686,
+    0.663
+   ]
+  },
+  {
+   "file": "iot--stop-air-sensor--593797.png",
+   "theme": "iot",
+   "subject": "stop-air-sensor",
+   "seed": 593797,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "top 23% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0239,
+    "accent_share": 0.0068,
+    "accent_largest_share": 0.2624,
+    "accent_top_share": 0.2319,
+    "accent_centroid": [
+     0.62,
+     0.709
+    ]
+   },
+   "phash": "5b270810ecf2f5e9",
+   "focal_default": [
+    0.62,
+    0.709
+   ]
+  },
+  {
+   "file": "iot--rail-temperature--693252.png",
+   "theme": "iot",
+   "subject": "rail-temperature",
+   "seed": 693252,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.097,
+    "accent_share": 0.1151,
+    "accent_largest_share": 0.5447,
+    "accent_top_share": 0.4381,
+    "accent_centroid": [
+     0.651,
+     0.2
+    ]
+   },
+   "phash": "7110cf263879c7c7",
+   "focal_default": [
+    0.651,
+    0.2
+   ]
+  },
+  {
+   "file": "iot--rail-temperature--693253.png",
+   "theme": "iot",
+   "subject": "rail-temperature",
+   "seed": 693253,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0639,
+    "accent_share": 0.1161,
+    "accent_largest_share": 0.525,
+    "accent_top_share": 0.5896,
+    "accent_centroid": [
+     0.8,
+     0.2
+    ]
+   },
+   "phash": "9758b08f45388fc7",
+   "focal_default": [
+    0.8,
+    0.2
+   ]
+  },
+  {
+   "file": "iot--rail-temperature--693254.png",
+   "theme": "iot",
+   "subject": "rail-temperature",
+   "seed": 693254,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0836,
+    "accent_share": 0.1061,
+    "accent_largest_share": 0.4315,
+    "accent_top_share": 0.43,
+    "accent_centroid": [
+     0.505,
+     0.2
+    ]
+   },
+   "phash": "132928569fab3d35",
+   "focal_default": [
+    0.505,
+    0.2
+   ]
+  },
+  {
+   "file": "iot--rail-temperature--693255.png",
+   "theme": "iot",
+   "subject": "rail-temperature",
+   "seed": 693255,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "top 25% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0729,
+    "accent_share": 0.0108,
+    "accent_largest_share": 0.2222,
+    "accent_top_share": 0.2464,
+    "accent_centroid": [
+     0.303,
+     0.738
+    ]
+   },
+   "phash": "74863bc1e6823f39",
+   "focal_default": [
+    0.303,
+    0.738
+   ]
+  },
+  {
+   "file": "ai--edge-box-bus--618911.png",
+   "theme": "ai",
+   "subject": "edge-box-bus",
+   "seed": 618911,
+   "number": null,
+   "outcome": "rejected",
+   "reasons": [
+    {
+     "check": "I6 style",
+     "detail": "top 20% > 15%"
+    }
+   ],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0458,
+    "accent_share": 0.017,
+    "accent_largest_share": 0.3292,
+    "accent_top_share": 0.196,
+    "accent_centroid": [
+     0.656,
+     0.664
+    ]
+   },
+   "phash": "a42b3a993b62171f",
+   "focal_default": [
+    0.656,
+    0.664
+   ]
+  },
+  {
+   "file": "ai--edge-box-bus--618912.png",
+   "theme": "ai",
+   "subject": "edge-box-bus",
+   "seed": 618912,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0288,
+    "accent_share": 0.0138,
+    "accent_largest_share": 0.5292,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.308,
+     0.585
+    ]
+   },
+   "phash": "ad9de46e620387a3",
+   "focal_default": [
+    0.308,
+    0.585
+   ]
+  },
+  {
+   "file": "ai--edge-box-bus--618913.png",
+   "theme": "ai",
+   "subject": "edge-box-bus",
+   "seed": 618913,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.058,
+    "accent_share": 0.0585,
+    "accent_largest_share": 0.5552,
+    "accent_top_share": 0.1705,
+    "accent_centroid": [
+     0.8,
+     0.464
+    ]
+   },
+   "phash": "2e26aa8e8a50d7e7",
+   "focal_default": [
+    0.8,
+    0.464
+   ]
+  },
+  {
+   "file": "ai--edge-box-bus--618914.png",
+   "theme": "ai",
+   "subject": "edge-box-bus",
+   "seed": 618914,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0549,
+    "accent_share": 0.0106,
+    "accent_largest_share": 0.3627,
+    "accent_top_share": 0.223,
+    "accent_centroid": [
+     0.515,
+     0.431
+    ]
+   },
+   "phash": "c7c89d983ba2035f",
+   "focal_default": [
+    0.515,
+    0.431
+   ]
+  },
+  {
+   "file": "ai--inspection-rig--795168.png",
+   "theme": "ai",
+   "subject": "inspection-rig",
+   "seed": 795168,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0775,
+    "accent_share": 0.0472,
+    "accent_largest_share": 0.4479,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.577,
+     0.633
+    ]
+   },
+   "phash": "dc476c24b4d6c32b",
+   "focal_default": [
+    0.577,
+    0.633
+   ]
+  },
+  {
+   "file": "ai--inspection-rig--795169.png",
+   "theme": "ai",
+   "subject": "inspection-rig",
+   "seed": 795169,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.034,
+    "accent_share": 0.0512,
+    "accent_largest_share": 0.6943,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.359,
+     0.601
+    ]
+   },
+   "phash": "477f08a4b45653ab",
+   "focal_default": [
+    0.359,
+    0.601
+   ]
+  },
+  {
+   "file": "ai--inspection-rig--795170.png",
+   "theme": "ai",
+   "subject": "inspection-rig",
+   "seed": 795170,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.043,
+    "accent_share": 0.0149,
+    "accent_largest_share": 0.2692,
+    "accent_top_share": 0.3427,
+    "accent_centroid": [
+     0.37,
+     0.2
+    ]
+   },
+   "phash": "96434b6465f6730b",
+   "focal_default": [
+    0.37,
+    0.2
+   ]
+  },
+  {
+   "file": "ai--inspection-rig--795171.png",
+   "theme": "ai",
+   "subject": "inspection-rig",
+   "seed": 795171,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0303,
+    "accent_share": 0.0192,
+    "accent_largest_share": 0.8223,
+    "accent_top_share": 0.0393,
+    "accent_centroid": [
+     0.463,
+     0.421
+    ]
+   },
+   "phash": "68add3486476c78b",
+   "focal_default": [
+    0.463,
+    0.421
+   ]
+  },
+  {
+   "file": "ai--retrofit-bus--445392.png",
+   "theme": "ai",
+   "subject": "retrofit-bus",
+   "seed": 445392,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0723,
+    "accent_share": 0.0342,
+    "accent_largest_share": 0.3097,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.731,
+     0.659
+    ]
+   },
+   "phash": "c34606fcfce88955",
+   "focal_default": [
+    0.731,
+    0.659
+   ]
+  },
+  {
+   "file": "ai--retrofit-bus--445393.png",
+   "theme": "ai",
+   "subject": "retrofit-bus",
+   "seed": 445393,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.076,
+    "accent_share": 0.0342,
+    "accent_largest_share": 0.2117,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.37,
+     0.674
+    ]
+   },
+   "phash": "9b4dec8c66c28337",
+   "focal_default": [
+    0.37,
+    0.674
+   ]
+  },
+  {
+   "file": "ai--retrofit-bus--445394.png",
+   "theme": "ai",
+   "subject": "retrofit-bus",
+   "seed": 445394,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0974,
+    "accent_share": 0.0286,
+    "accent_largest_share": 0.1449,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.262,
+     0.738
+    ]
+   },
+   "phash": "587cfcdcf540092d",
+   "focal_default": [
+    0.262,
+    0.738
+   ]
+  },
+  {
+   "file": "ai--retrofit-bus--445395.png",
+   "theme": "ai",
+   "subject": "retrofit-bus",
+   "seed": 445395,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0573,
+    "accent_share": 0.081,
+    "accent_largest_share": 0.2506,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.641,
+     0.669
+    ]
+   },
+   "phash": "09edacb456028bbf",
+   "focal_default": [
+    0.641,
+    0.669
+   ]
+  },
+  {
+   "file": "ai--camera-tram-front--132602.png",
+   "theme": "ai",
+   "subject": "camera-tram-front",
+   "seed": 132602,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 1,
+    "other_share": 0.0787,
+    "accent_share": 0.0272,
+    "accent_largest_share": 0.2411,
+    "accent_top_share": 0.0057,
+    "accent_centroid": [
+     0.48,
+     0.683
+    ]
+   },
+   "phash": "26abb45059af6745",
+   "focal_default": [
+    0.48,
+    0.683
+   ]
+  },
+  {
+   "file": "ai--camera-tram-front--132603.png",
+   "theme": "ai",
+   "subject": "camera-tram-front",
+   "seed": 132603,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0792,
+    "accent_share": 0.0736,
+    "accent_largest_share": 0.555,
+    "accent_top_share": 0.0007,
+    "accent_centroid": [
+     0.628,
+     0.641
+    ]
+   },
+   "phash": "74e3a50c2979eb83",
+   "focal_default": [
+    0.628,
+    0.641
+   ]
+  },
+  {
+   "file": "ai--camera-tram-front--132604.png",
+   "theme": "ai",
+   "subject": "camera-tram-front",
+   "seed": 132604,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1022,
+    "accent_share": 0.0629,
+    "accent_largest_share": 0.3645,
+    "accent_top_share": 0.0157,
+    "accent_centroid": [
+     0.37,
+     0.67
+    ]
+   },
+   "phash": "2c9b2cd2d2ed0f0d",
+   "focal_default": [
+    0.37,
+    0.67
+   ]
+  },
+  {
+   "file": "ai--camera-tram-front--132605.png",
+   "theme": "ai",
+   "subject": "camera-tram-front",
+   "seed": 132605,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.1027,
+    "accent_share": 0.0595,
+    "accent_largest_share": 0.5707,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.65,
+     0.65
+    ]
+   },
+   "phash": "3449c64e49f12f37",
+   "focal_default": [
+    0.65,
+    0.65
+   ]
+  }
+ ]
+}

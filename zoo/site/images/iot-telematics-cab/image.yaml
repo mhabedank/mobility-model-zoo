@@ -1,0 +1,80 @@
+id: iot-telematics-cab
+series: siebdruck
+theme: iot
+subject: telematics-cab
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a truck cab interior with an orange-yellow telematics box under the dashboard, road through
+    the windshield, 1970s modernist travel poster illustration, flat colour fields with crisp edges, screen
+    print texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient
+    sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted
+    in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning light
+    as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 687312
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Truck cab with a telematics box under the dashboard
+alt: An orange-yellow telematics box sits under the dashboard of a truck cab, the road ahead through the
+  windshield (AI-generated image)
+focal_point:
+- 0.8
+- 0.456
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: be37d993d79c4ccf23d78f3205ddcc1948322a09393138dddeb77ac4f15206c4
+derivatives:
+  '480':
+    file: iot-telematics-cab-480.webp
+    bytes: 15850
+    sha256: aa91d804cc848e9dc22061b88f53b3e897e4f2d026df96e4af91654058c0e3c4
+  '960':
+    file: iot-telematics-cab-960.webp
+    bytes: 34808
+    sha256: d6254260ac94eb358a9b0630b59a13fd5bf50506a81f5af0332c39ea2dc7d05a
+  '1600':
+    file: iot-telematics-cab-1600.webp
+    bytes: 57170
+    sha256: bc114d38d397af83969039a5d42b453887cbd23154351834db514a62180081f2
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:33+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 74e6b2ec96a84369
+    other_share: 0.0347
+    accent_share: 0.0218
+    accent_largest_share: 0.4165
+    accent_top_share: 0.1384
+    accent_centroid:
+    - 0.8
+    - 0.456
+round: 1

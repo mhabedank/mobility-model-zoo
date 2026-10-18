@@ -14,8 +14,19 @@ from mobility_model_zoo.site import images
 MARKER = images.IPTC_MARKER.encode()
 
 
-def make_record(root: Path, rid: str = "hero-test", placements=("start-hero",), aspect="16:9") -> Path:
-    """A minimal valid record with fake files; the WebPs are tiny bytes that carry the marker."""
+def make_record(
+    root: Path,
+    rid: str = "hero-test",
+    placements=("start-hero",),
+    aspect="16:9",
+    theme: str = "rail",
+    subject: str = "tram",
+    source_file: bool = True,
+    phash: str = "",
+) -> Path:
+    """A minimal valid record with fake files; the WebPs are tiny bytes that carry the marker.
+    Feature 019: `theme`, `subject`, the style and duplicate checks; `source_file=False` writes
+    no PNG and omits `source.file`, as library records do."""
     d = root / images.IMAGES_DIR / rid
     d.mkdir(parents=True)
     src = d / f"{rid}.png"
@@ -29,6 +40,8 @@ def make_record(root: Path, rid: str = "hero-test", placements=("start-hero",), 
     rec = {
         "id": rid,
         "series": "siebdruck",
+        "theme": theme,
+        "subject": subject,
         "generation": {
             "model": "Qwen/Qwen-Image-2512",
             "revision": "a" * 40,
@@ -60,8 +73,14 @@ def make_record(root: Path, rid: str = "hero-test", placements=("start-hero",), 
             "faces": "pass",
             "text": "pass",
             "bytes": "pass",
+            "style": "pass",
+            "duplicate": "pass",
+            "measures": {"phash": phash or hashlib.sha256(rid.encode()).hexdigest()[:16]},
         },
     }
+    if not source_file:
+        src.unlink()
+        del rec["source"]["file"]
     (d / "image.yaml").write_text(dump_yaml(rec), encoding="utf-8")
     return d
 
@@ -96,6 +115,58 @@ def test_broken_records_are_i1(site_env, edit, word):
     _, findings = images.load_records(site_env.reg)
     assert findings and all(f.startswith("I1 hero-test") for f in findings)
     assert any(word in f for f in findings), findings
+
+
+def test_a_library_record_without_a_source_file_loads(site_env):
+    """Feature 019 (FR-015): library records keep only the source hash."""
+    d = make_record(site_env.root, "pool-a", (), "3:2", source_file=False)
+    assert not list(d.glob("*.png"))
+    records, findings = images.load_records(site_env.reg)
+    assert findings == [] and records[0]["placements"] == []
+    assert "file" not in records[0]["source"]
+
+
+@pytest.mark.parametrize(
+    ("edit", "word"),
+    [
+        (lambda r: r.pop("theme"), "theme"),
+        (lambda r: r.pop("subject"), "subject"),
+        (lambda r: r["checks"].pop("style"), "style"),
+        (lambda r: r["checks"].pop("measures"), "measures"),
+        (lambda r: r.update(theme="space"), "theme"),
+    ],
+)
+def test_missing_theme_subject_or_new_checks_is_i1(site_env, edit, word):
+    d = make_record(site_env.root)
+    rec = load_yaml(d / "image.yaml")
+    edit(rec)
+    (d / "image.yaml").write_text(dump_yaml(rec), encoding="utf-8")
+    _, findings = images.load_records(site_env.reg)
+    assert any(word in f for f in findings), findings
+
+
+def test_library_findings_l1_i7_and_coverage(site_env):
+    """L1, I7 and L2 of feature 019 (contracts/checks.md)."""
+    from test_images_series import write_series
+
+    write_series(site_env.root)
+    make_record(site_env.root, "a", (), "3:2", "rail", "tram", phash="0" * 16)
+    make_record(site_env.root, "b", (), "3:2", "private-road", "dashboard", phash="0" * 15 + "7")
+    make_record(site_env.root, "c", (), "3:2", "private-road", "workshop", phash="f" * 16)
+    records, findings = images.load_records(site_env.reg)
+    assert findings == []
+    out = images.library_findings(site_env.reg, records)
+    assert out == ["I7 b: near-duplicate of a (3 bits)"]
+    records[0]["derivatives"]["960"]["bytes"] = images.LIBRARY_MAX_BYTES
+    out = images.library_findings(site_env.reg, records)
+    assert any(f.startswith("L1 library:") and "heaviest a" in f for f in out)
+    cov = images.coverage(records)
+    assert cov["rail"]["count"] == 1 and cov["private-road"]["count"] == 2
+    assert round(cov["private-road"]["share"], 2) == 0.67
+    l2 = images.coverage_findings(records)
+    assert any("3 records, fewer than 100" in f for f in l2)
+    assert any("L2 water: 0 records, fewer than the minimum 5" in f for f in l2)
+    assert any("L2 private-road: 67% of the library, more than 20%" in f for f in l2)
 
 
 def test_byte_cap_is_i1(site_env):

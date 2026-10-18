@@ -1,5 +1,7 @@
 id: model-scout-large-window
 series: siebdruck
+theme: rail
+subject: train-window-notebook
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -48,8 +50,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: e39679a6f9088363
+    other_share: 0.0476
+    accent_share: 0.0054
+    accent_largest_share: 0.2464
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.55
+    - 0.4
 source:
-  file: model-scout-large-window.png
   width: 1200
   height: 800
   sha256: 6fc67f07010d17ae50434b20a7d4a8b79932bafa208c08bcd1cbe4f9082401f8

@@ -1,0 +1,80 @@
+id: workshop-paint-booth
+series: siebdruck
+theme: workshop
+subject: paint-booth
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow tram body in a paint booth, soft light, masking lines, 1970s modernist travel
+    poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric forms,
+    calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream, deep
+    navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 809752
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Tram body in a paint booth with masking lines
+alt: An orange-yellow tram body stands in a paint booth in soft light with masking lines (AI-generated
+  image)
+focal_point:
+- 0.711
+- 0.63
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: a972585f261cc74e80330a9e1bbe8616f23ab72f502c0ffccec319ebbae1532c
+derivatives:
+  '480':
+    file: workshop-paint-booth-480.webp
+    bytes: 18324
+    sha256: 8d7eefbe005a31861b4cee17c3efaf5eed775c1673744f6fdbde39241dc6e30c
+  '960':
+    file: workshop-paint-booth-960.webp
+    bytes: 41130
+    sha256: 3c54004292b15e357e2a0f99224a2c9b2833bf2438db89b83f27d73265fe5c8d
+  '1600':
+    file: workshop-paint-booth-1600.webp
+    bytes: 65778
+    sha256: cfc6b854d81a9802ca28c8ec7cf4dc0526b1fbac95818e6291994fcdfd51d586
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:32+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: f0f8867cade08587
+    other_share: 0.1082
+    accent_share: 0.0796
+    accent_largest_share: 0.5777
+    accent_top_share: 0.0098
+    accent_centroid:
+    - 0.711
+    - 0.63
+round: 2

@@ -1,0 +1,80 @@
+id: ai-camera-tram-front
+series: siebdruck
+theme: ai
+subject: camera-tram-front
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: the front of an orange-yellow tram with a camera module above the windshield, depot behind,
+    1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print texture,
+    clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint
+    and warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 132603
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Front of a tram with a camera module above the windshield
+alt: The front of an orange-yellow tram carries a camera module above the windshield, depot behind (AI-generated
+  image)
+focal_point:
+- 0.628
+- 0.641
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: d6f7141f2a8b37fae5152d9ca1bd106dd3db13bdf59a6786d8e791792dfe1633
+derivatives:
+  '480':
+    file: ai-camera-tram-front-480.webp
+    bytes: 15124
+    sha256: 55bf4e0686ab20ce89177bad635a001c4773a1f68f5d398517e0d9beb9955723
+  '960':
+    file: ai-camera-tram-front-960.webp
+    bytes: 33876
+    sha256: 1aa3a03a54cacd602ae7b98c99eda4a94e088857eea8655e1be8ee4ccda95895
+  '1600':
+    file: ai-camera-tram-front-1600.webp
+    bytes: 54728
+    sha256: 2348b2e55a0de825000eb884b86bf026141f4fb99bf68147508b04bed62c8bdc
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:33+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 74e3a50c2979eb83
+    other_share: 0.0792
+    accent_share: 0.0736
+    accent_largest_share: 0.555
+    accent_top_share: 0.0007
+    accent_centroid:
+    - 0.628
+    - 0.641
+round: 2

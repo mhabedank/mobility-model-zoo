@@ -1,0 +1,80 @@
+id: workshop-battery-bench
+series: siebdruck
+theme: workshop
+subject: battery-bench
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow battery pack on a bench, cables to a measuring rack, window light, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 346486
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Battery pack on a bench wired to a measuring rack
+alt: An orange-yellow battery pack lies on a bench wired to a measuring rack in window light (AI-generated
+  image)
+focal_point:
+- 0.463
+- 0.611
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: a50a3ba113dc3355f745049d6478b57a92769932458124405b0ad219961a9418
+derivatives:
+  '480':
+    file: workshop-battery-bench-480.webp
+    bytes: 10968
+    sha256: 870f93df79f09e95584a062a54af398ff5d1082b142d55b403b46a73b826104e
+  '960':
+    file: workshop-battery-bench-960.webp
+    bytes: 24302
+    sha256: 57f06a1810ede5a48ae9b8e47180b254213489af6b03c7d500e5956c8f9f73db
+  '1600':
+    file: workshop-battery-bench-1600.webp
+    bytes: 39752
+    sha256: 84ca8a05c424435d45260478492a0bdede3de8dcafc5d7a1cbc1bc4c411114ec
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:31+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: d68c3ee8813d2b2b
+    other_share: 0.0625
+    accent_share: 0.0462
+    accent_largest_share: 0.5189
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.463
+    - 0.611
+round: 2

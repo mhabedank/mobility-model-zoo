@@ -1,0 +1,79 @@
+id: private-road-tractor-rural
+series: siebdruck
+theme: private-road
+subject: tractor-rural
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow tractor on a rural road between fields, dust in morning light, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 225804
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Tractor on a rural road between fields in morning light
+alt: An orange-yellow tractor drives a rural road between fields in morning light (AI-generated image)
+focal_point:
+- 0.566
+- 0.682
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 2447fa774c89b385b5890bc3b8ead8176bff840f0259c7bc37e6567aa2de5e6d
+derivatives:
+  '480':
+    file: private-road-tractor-rural-480.webp
+    bytes: 14706
+    sha256: bca55d87dd14c6664434f4fb078dbfa0a1fbd478624bdc541c0ea4ef3cd5f32c
+  '960':
+    file: private-road-tractor-rural-960.webp
+    bytes: 36020
+    sha256: b5d41b7ddce43f9fb301ffd6120b1f345ff2101cd03699ef288133380e7bc9e8
+  '1600':
+    file: private-road-tractor-rural-1600.webp
+    bytes: 61242
+    sha256: 18ded6d76bb2ec152a2a9564f5d175333166d4cf2ea487cd37d178027c0576e2
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:28+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 4d673986d21827e7
+    other_share: 0.0721
+    accent_share: 0.0072
+    accent_largest_share: 0.1978
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.566
+    - 0.682
+round: 2

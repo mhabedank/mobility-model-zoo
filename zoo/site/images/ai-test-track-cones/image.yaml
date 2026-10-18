@@ -1,0 +1,79 @@
+id: ai-test-track-cones
+series: siebdruck
+theme: ai
+subject: test-track-cones
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow car between cones on a test track, a camera mast, 1970s modernist travel poster
+    illustration, flat colour fields with crisp edges, screen print texture, clean geometric forms, calm
+    ordered composition with long diagonals, soft gradient sky in pale mint and warm cream, deep navy
+    shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour, everything
+    else only navy, mint and cream, early morning light as graphic shapes, quietly futurist and optimistic,
+    West German graphic design of the seventies, restrained, no text, no lettering, no logos, no faces,
+    people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 443410
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Car between cones on a test track with a camera mast
+alt: An orange-yellow car drives between cones on a test track beside a camera mast (AI-generated image)
+focal_point:
+- 0.324
+- 0.614
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: c32634cafb530f2525d5bee9049c934201ae2d04ef433e1d0a871097fa50cf11
+derivatives:
+  '480':
+    file: ai-test-track-cones-480.webp
+    bytes: 10250
+    sha256: c7b1e8d78969c7ccfe23cc662515e0d0fb725af66d64091de1da3bafec9c76bf
+  '960':
+    file: ai-test-track-cones-960.webp
+    bytes: 23394
+    sha256: bbfb6711cfb0b9a45649901a202df189fc51ec9b11f4a2e3ebaef2f185e61b1e
+  '1600':
+    file: ai-test-track-cones-1600.webp
+    bytes: 38010
+    sha256: 2cd8d7a2a64b26c5bd89026585d317a975f9929cc288ad28bf8d44a858fc0992
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:40+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: f1a1ca0eb472c98f
+    other_share: 0.059
+    accent_share: 0.0424
+    accent_largest_share: 0.6566
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.324
+    - 0.614
+round: 1

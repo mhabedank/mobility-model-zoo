@@ -1,0 +1,80 @@
+id: rail-freight-containers
+series: siebdruck
+theme: rail
+subject: freight-containers
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a long freight train with an orange-yellow locomotive pulling flat wagons loaded with containers
+    through flat farmland at sunrise, 1970s modernist travel poster illustration, flat colour fields with
+    crisp edges, screen print texture, clean geometric forms, calm ordered composition with long diagonals,
+    soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine
+    painted in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning
+    light as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies,
+    restrained, no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 497121
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Freight train with containers crossing flat farmland at sunrise
+alt: An orange-yellow locomotive pulls a long train of container wagons through flat farmland (AI-generated
+  image)
+focal_point:
+- 0.583
+- 0.528
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: 3f83f258f5d8f21b772d13161d5d5f572e6c00136fe6e6b3fdb0a706f66c0b09
+derivatives:
+  '480':
+    file: rail-freight-containers-480.webp
+    bytes: 7432
+    sha256: 6a8b3de124abc069691fac9e3ce2fab847e7cef7e39c7a86a2c1d0a86438416d
+  '960':
+    file: rail-freight-containers-960.webp
+    bytes: 18992
+    sha256: 5755199b55af6201917928359f980347ac3ba676b0bb4ccfb8965abdeb153354
+  '1600':
+    file: rail-freight-containers-1600.webp
+    bytes: 33836
+    sha256: 38c6685e30d6d1259ded0028f7114fdc588490cea604702b8df9a5a28c5d92dd
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:05+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: d9da23b75c4801b7
+    other_share: 0.0435
+    accent_share: 0.0236
+    accent_largest_share: 0.4568
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.583
+    - 0.528
+round: 1

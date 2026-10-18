@@ -204,3 +204,129 @@ def phash(path: Path) -> int:
 
 def phash_distance(a: int, b: int) -> int:
     return bin(a ^ b).count("1")
+
+
+def phash_hex(path: Path) -> str:
+    """The pHash as 16 hex characters, the form stored in `checks.measures.phash` (feature 019)."""
+    return f"{phash(path):016x}"
+
+
+def duplicate_of(h: str, others: dict[str, str], max_bits: int) -> tuple[str, int] | None:
+    """The closest of `others` (id → hex pHash) within `max_bits`, as (id, bits); else None (I7)."""
+    best: tuple[str, int] | None = None
+    for other_id, oh in others.items():
+        bits = bin(int(h, 16) ^ int(oh, 16)).count("1")
+        if bits <= max_bits and (best is None or bits < best[1]):
+            best = (other_id, bits)
+    return best
+
+
+# ---- style check (I6, feature 019, research R4) ------------------------------------------------
+STYLE_LONG_SIDE = 240
+ACCENT = "accent"  # the one anchor that must sit on the vehicle or machine
+PALETTE_K = 6  # clusters measured on the approved images: the accent and five palette tones
+
+
+def _lab_pixels(path: Path, long_side: int = STYLE_LONG_SIDE):
+    """The image as float CIELAB (L 0-100, a and b centred) at `long_side` px, plus its shape."""
+    import cv2
+    import numpy as np
+
+    Image = _pil()
+    with Image.open(path) as img:
+        img = img.convert("RGB")
+        scale = long_side / max(img.width, img.height)
+        small = img.resize(
+            (max(1, round(img.width * scale)), max(1, round(img.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        rgb = np.asarray(small, dtype=np.uint8)
+    lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB).astype(np.float64)
+    lab[..., 0] *= 100.0 / 255.0
+    lab[..., 1:] -= 128.0
+    return lab
+
+
+def style(path: Path, palette: dict[str, Any]) -> dict[str, Any]:
+    """Palette and accent-location measurement against the series' anchors. Every pixel goes to
+    its nearest anchor within `tolerance_de` (CIE76), else to `other`. Rules: `other` share ≤
+    other_max; accent share within [accent_min, accent_max]; the largest 8-connected accent
+    region holds ≥ largest_min of accent pixels; accent in the top fifth ≤ top_max of accent
+    pixels unless the largest region reaches into the top fifth. Returns pass, reasons, measures;
+    the measures include the accent centroid (clamped to 0.2–0.8) as the default focal point."""
+    import cv2
+    import numpy as np
+
+    lab = _lab_pixels(path)
+    h, w = lab.shape[:2]
+    names = list(palette["anchors"])
+    accent_i, other_i = names.index(ACCENT), len(names)
+    anchors = np.array([palette["anchors"][n] for n in names], dtype=np.float64)
+    flat = lab.reshape(-1, 3)
+    d = np.sqrt(((flat[:, None, :] - anchors[None, :, :]) ** 2).sum(axis=2))
+    nearest = d.argmin(axis=1)
+    within = d[np.arange(len(flat)), nearest] <= float(palette["tolerance_de"])
+    labels = np.where(within, nearest, other_i)
+    n = len(flat)
+    other_share = float((labels == other_i).sum() / n)
+    accent_mask = (labels == accent_i).reshape(h, w).astype(np.uint8)
+    accent_px = int(accent_mask.sum())
+    accent_share = accent_px / n
+    largest_share, top_share, centroid, reaches_top = 0.0, 0.0, [0.5, 0.5], False
+    if accent_px:
+        count, comp, stats, cents = cv2.connectedComponentsWithStats(accent_mask, connectivity=8)
+        if count > 1:
+            areas = stats[1:, cv2.CC_STAT_AREA]
+            k = int(areas.argmax()) + 1
+            largest_share = float(areas.max() / accent_px)
+            cx, cy = cents[k]
+            centroid = [
+                round(min(0.8, max(0.2, float(cx) / w)), 3),
+                round(min(0.8, max(0.2, float(cy) / h)), 3),
+            ]
+            top_k = int(stats[k, cv2.CC_STAT_TOP])
+            bottom_k = top_k + int(stats[k, cv2.CC_STAT_HEIGHT])
+            # a tall machine may reach into the sky band; a region lying inside it is a sky
+            reaches_top = top_k < h / 5 < bottom_k
+        top_share = float(accent_mask[: max(1, h // 5), :].sum() / accent_px)
+    reasons = []
+    if other_share > palette["other_max"]:
+        reasons.append(f"other {other_share:.1%} > {palette['other_max']:.0%}")
+    if accent_share < palette["accent_min"]:
+        reasons.append(f"accent_min {accent_share:.1%} < {palette['accent_min']:.1%}")
+    if accent_share > palette["accent_max"]:
+        reasons.append(f"accent_max {accent_share:.1%} > {palette['accent_max']:.0%}")
+    if accent_px and largest_share < palette["largest_min"]:
+        reasons.append(f"largest {largest_share:.0%} < {palette['largest_min']:.0%}")
+    if accent_px and top_share > palette["top_max"] and not reaches_top:
+        reasons.append(f"top {top_share:.0%} > {palette['top_max']:.0%}")
+    return {
+        "pass": not reasons,
+        "reasons": reasons,
+        "measures": {
+            "other_share": round(other_share, 4),
+            "accent_share": round(accent_share, 4),
+            "accent_largest_share": round(largest_share, 4),
+            "accent_top_share": round(top_share, 4),
+            "accent_centroid": centroid,
+        },
+    }
+
+
+def measure_anchors(paths: list[Path], k: int = PALETTE_K) -> dict[str, list[float]]:
+    """k-means over the Lab pixels of approved images. The centre with the strongest yellow-red
+    (a + b) is the accent; the others are palette tones named by lightness, darkest first
+    (`tone1` …). Printed once into the series file (research R4, task T025)."""
+    import cv2
+    import numpy as np
+
+    pixels = np.concatenate([_lab_pixels(p, 160).reshape(-1, 3) for p in paths]).astype(np.float32)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 60, 0.5)
+    _, _, centres = cv2.kmeans(pixels, k, None, criteria, 5, cv2.KMEANS_PP_CENTERS)
+    centres = [[round(float(v), 1) for v in c] for c in centres]
+    accent = max(centres, key=lambda c: c[1] + c[2])
+    tones = sorted((c for c in centres if c is not accent), key=lambda c: c[0])
+    out = {ACCENT: accent}
+    for i, c in enumerate(tones, 1):
+        out[f"tone{i}"] = c
+    return out

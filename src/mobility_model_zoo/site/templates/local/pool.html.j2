@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image pool</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 24px; background: #0A0F2E; color: #EEF1FF; font: 15px/1.45 system-ui, sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 36px 0 8px; border-top: 1px solid #2A3268; padding-top: 16px; }
+  .muted { color: #A7B0D8; }
+  .short { color: #FFB86B; }
+  .over { color: #FF8C8C; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; }
+  figure { margin: 0; width: 320px; max-width: 100%; }
+  figure img { display: block; width: 100%; height: auto; background: #111846; }
+  figcaption { font-size: 13px; padding: 4px 2px; }
+  code { font-family: ui-monospace, monospace; font-size: 12px; }
+  .placed { color: #6FFFC8; }
+</style>
+</head>
+<body>
+<h1>Image pool</h1>
+<p class="muted">{{ total }} records (minimum {{ minimum }}); no theme above {{ (cap * 100) | round | int }}%. Placements are set in each record's <code>image.yaml</code>.</p>
+{% for t in themes %}
+<h2 id="{{ t.id }}">{{ t.id }} <span class="muted">{{ t.count }} of minimum {{ t.minimum }}, {{ (t.share * 100) | round | int }}%</span>
+{% if t.count < t.minimum %} <span class="short">· under minimum</span>{% endif %}
+{% if t.share > cap %} <span class="over">· over cap</span>{% endif %}</h2>
+<div class="row">
+{% for r in t.records %}
+<figure>
+<a href="{{ r.full }}"><img src="{{ r.thumb }}" alt="{{ r.scene }}" loading="lazy"></a>
+<figcaption><code>{{ r.id }}</code><br>{{ r.subject }} · {{ r.aspect }}{% if r.round %} · round {{ r.round }}{% endif %}
+{% if r.placements %}<br><span class="placed">{{ r.placements | join(', ') }}</span>{% endif %}</figcaption>
+</figure>
+{% else %}
+<p class="muted">no records yet</p>
+{% endfor %}
+</div>
+{% endfor %}
+</body>
+</html>

@@ -298,10 +298,14 @@ def build(
     # feature 016: image records (I1, I2) and motif coverage (M1) gate the build
     records, image_failures = image_records.load_records(reg)
     image_failures += image_records.series_findings(reg, records)
+    image_failures += image_records.library_findings(reg, records)
     failures += image_failures
     failures += motifs.coverage(reg, plan)
     failures += motifs.lint_all()
-    placed = image_records.by_placement(records)
+    # feature 019: the pool stays out of the build; only placed records produce files, credits
+    # and the set digest (FR-018)
+    placed_records = [r for r in records if r.get("placements")]
+    placed = image_records.by_placement(placed_records)
     warnings: list[str] = []
 
     def picture(
@@ -320,11 +324,15 @@ def build(
     (out / "assets").mkdir(parents=True)
     with resources.as_file(_static()) as static:
         shutil.copytree(static, out / "assets", dirs_exist_ok=True)
-    if records:
+    if placed_records:
         (out / image_records.ASSETS).mkdir(parents=True, exist_ok=True)
-        for src, name in image_records.asset_files(records):
+        for src, name in image_records.asset_files(placed_records):
             shutil.copyfile(src, out / image_records.ASSETS / name)
-    _write(out, image_records.SET_FILE, json.dumps(image_records.set_digest(records), indent=1) + "\n")
+    _write(
+        out,
+        image_records.SET_FILE,
+        json.dumps(image_records.set_digest(placed_records), indent=1) + "\n",
+    )
 
     formats = []
     for format_id in schema_doc.format_ids(reg):
@@ -422,16 +430,16 @@ def build(
         model_images=model_images,
         page_images=[i for i in [hero_image, *topic_images.values(), *model_images.values()] if i],
     )
-    if records:
+    if placed_records:
         render(
             "credits/index.html",
             "credits.html.j2",
             "../",
             "credits/",
-            entries=image_records.credits(records, {"start": "../"}),
+            entries=image_records.credits(placed_records, {"start": "../"}),
             licence_label="CC0 1.0",
-            thumbs={r["id"]: image_records.view(r, "../") for r in records},
-            page_images=[image_records.view(r, "../") for r in records],
+            thumbs={r["id"]: image_records.view(r, "../") for r in placed_records},
+            page_images=[image_records.view(r, "../") for r in placed_records],
         )
     for warning in sorted(set(warnings)):
         say(f"warning: {warning}")

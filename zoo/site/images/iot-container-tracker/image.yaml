@@ -1,0 +1,80 @@
+id: iot-container-tracker
+series: siebdruck
+theme: iot
+subject: container-tracker
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow tracking device on the door of a shipping container, port behind, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 123722
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Tracking device on the door of a shipping container
+alt: An orange-yellow tracking device is fixed to the door of a shipping container with the port behind
+  (AI-generated image)
+focal_point:
+- 0.464
+- 0.684
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 06ccf30f9ee9b0b20ca12b3908ad51ee20b80ede42536017581e03e0b20fc0f9
+derivatives:
+  '480':
+    file: iot-container-tracker-480.webp
+    bytes: 12390
+    sha256: 5a1803ec3f16ec7cc773cb4b8e53e1fa7d1eac955eac402ecddb87ee9a0ca2d0
+  '960':
+    file: iot-container-tracker-960.webp
+    bytes: 27678
+    sha256: 0a34474fb46009df3fd41a608e46f571381bb89bbaa97a964ff0a005f31e8665
+  '1600':
+    file: iot-container-tracker-1600.webp
+    bytes: 46014
+    sha256: 0f3c666093aa7687cca7055c67d9d15c7a55716acf7f01962f7fd00af1de4e5f
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:36+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 83d8435b61eba517
+    other_share: 0.0492
+    accent_share: 0.0312
+    accent_largest_share: 0.3361
+    accent_top_share: 0.0634
+    accent_centroid:
+    - 0.464
+    - 0.684
+round: 1

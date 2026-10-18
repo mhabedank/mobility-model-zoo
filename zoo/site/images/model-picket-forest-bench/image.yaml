@@ -1,5 +1,7 @@
 id: model-picket-forest-bench
 series: siebdruck
+theme: workshop
+subject: circuit-bench
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -49,8 +51,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 23ed3e14d95233a3
+    other_share: 0.0318
+    accent_share: 0.0053
+    accent_largest_share: 0.7854
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.2
+    - 0.727
 source:
-  file: model-picket-forest-bench.png
   width: 1200
   height: 800
   sha256: 78576979a7f030988362011c540f38e7fa9469df68601dd774dccebca6e30688
