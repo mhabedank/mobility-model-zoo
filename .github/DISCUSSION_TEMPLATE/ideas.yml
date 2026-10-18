@@ -1,0 +1,43 @@
+title: "Model request: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every model in the zoo starts with one concrete mobility problem. Tell us about yours.
+
+        **This thread is public.** Do not post personal data, and do not post anything your
+        employer treats as confidential. For anything about you as a person, write to
+        privacy@miskatonic-analytics.com instead.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What goes wrong or takes too long today? One real situation helps more than a general wish.
+    validations:
+      required: true
+  - type: input
+    id: who
+    attributes:
+      label: Who has this problem
+      description: For example fleet managers, ECU engineers, charging operators or transit planners.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: How it is solved today
+      description: By hand, with a tool, or not at all. If you know roughly what it costs in time or money, say so.
+  - type: dropdown
+    id: runs-on
+    attributes:
+      label: Where the model would have to run
+      options:
+        - Laptop or own server
+        - Control unit or microcontroller in the vehicle
+        - Cloud
+        - Not sure
+  - type: textarea
+    id: data
+    attributes:
+      label: Public data
+      description: Is there public data for this problem? Links are enough. Do not paste or upload confidential data.
