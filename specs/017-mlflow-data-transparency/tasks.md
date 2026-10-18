@@ -402,7 +402,7 @@ Single project:
   - when accuracy tests read an evaluation file (e.g. `<name>.eval.npz`), log its sha256 as a dataset input with context `evaluation`;
   - artifacts `summary.json` and `summary.md`;
   - logging only when a URI is set; the pytest plugin path in `bench/pytest_plugin.py` needs no change if `write_summary` is the single exit.
-- [ ] T050 [US5] Implement `src/mobility_model_zoo/tracking/importer.py` and the `zoo tracking import [--model] [--dry-run]` command in `src/mobility_model_zoo/tracking/cli.py` (research R13).
+- [X] T050 [US5] Implement `src/mobility_model_zoo/tracking/importer.py` and the `zoo tracking import [--model] [--dry-run]` command in `src/mobility_model_zoo/tracking/cli.py` (research R13).
   - **Sources**:
     - `zoo/models/*/results/<version>/{quality,performance}.json`; skip `sandbox-pipeline-tiny`;
     - the matching `releases/<version>.yaml`: `date`, `evaluation.benchmark`, `recipe.git_commit`, `usage`;
@@ -415,8 +415,8 @@ Single project:
     - the benchmark dataset input; `quality.json` and `performance.json` as artifacts.
   - **No reconstruction**: missing values stay missing.
   - **Idempotent**: search `tags.mmz.import_key` first and print `exists`.
-- [ ] T051 [US5] Copy `specs/017-mlflow-data-transparency/contracts/release/release-record.schema.json` over `src/mobility_model_zoo/release/schemas/release-record.schema.json` (byte-identical; it adds the optional `tracking` object with `run_id` pattern `^[0-9a-f]{32}$` and `experiment` pattern `^[a-z0-9_./-]{1,120}$`). Point `CONTRACTS` in `tests/release/test_schemas.py` at `specs/017-mlflow-data-transparency/contracts/release`, with the comment "latest owner of the format". Make `zoo release-verify` (and `zoo check` output) print `tracking.run_id` when present: find the evidence printout in `src/mobility_model_zoo/release/cli.py` or `gate.py`. The card and website must not show it.
-- [ ] T052 [P] [US5] Write tests:
+- [X] T051 [US5] Copy `specs/017-mlflow-data-transparency/contracts/release/release-record.schema.json` over `src/mobility_model_zoo/release/schemas/release-record.schema.json` (byte-identical; it adds the optional `tracking` object with `run_id` pattern `^[0-9a-f]{32}$` and `experiment` pattern `^[a-z0-9_./-]{1,120}$`). Point `CONTRACTS` in `tests/release/test_schemas.py` at `specs/017-mlflow-data-transparency/contracts/release`, with the comment "latest owner of the format". Make `zoo release-verify` (and `zoo check` output) print `tracking.run_id` when present: find the evidence printout in `src/mobility_model_zoo/release/cli.py` or `gate.py`. The card and website must not show it. (done: `zoo check` and thus `release-verify` print `tracking run: <id>` when the record has one)
+- [X] T052 [P] [US5] Write tests: (done: `tests/tracking/test_tracking_import.py`, `test_tracking_evaluations.py`, `tests/release/test_schemas.py`)
   - `tests/tracking/test_importer.py`: fixture results and release records → expected runs, tags and timestamps; a second import is all `exists`; `sandbox-pipeline-tiny` is skipped; metric values equal the JSON exactly (SC-005a).
   - `tests/release/test_schemas.py`: a record with a valid `tracking` passes; `run_id` of 31 hex characters fails rule 1; a record without `tracking` passes.
   - `tests/tracking/test_eval_integrations.py`: can-ids `run`, jtbd `score_run` and HIL `write_summary` log the benchmark input and tags with the fake transport.

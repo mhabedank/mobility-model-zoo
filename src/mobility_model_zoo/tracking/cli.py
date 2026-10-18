@@ -77,6 +77,34 @@ def status_cmd(as_json: bool = typer.Option(False, "--json")) -> None:
     _run(fn)
 
 
+@app.command("import")
+def import_cmd(
+    model: list[str] = typer.Option(None, "--model", help="only these models"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show what would be created"),
+) -> None:
+    """Import past results once as runs marked `imported` (no curves, nothing reconstructed)."""
+
+    def fn() -> None:
+        from .importer import import_all
+        from .publish import TrackingUnavailable
+
+        _require()
+        try:
+            results = import_all(models=model or None, dry_run=dry_run)
+        except Exception as e:  # noqa: BLE001
+            raise TrackingUnavailable(
+                f"tracking server: {e.__class__.__name__}: {str(e)[:200]}"
+            ) from None
+        for key, action in results:
+            print(f"{action:13s} {key}")
+        say(
+            f"import: {sum(a == 'created' for _, a in results)} created, "
+            f"{sum(a == 'exists' for _, a in results)} already there"
+        )
+
+    _run(fn)
+
+
 @app.command("audit")
 def audit_cmd(
     experiment: list[str] = typer.Option(None, "--experiment", help="only these experiments"),

@@ -34,6 +34,8 @@ EXPERIMENTS = (
     "edge/hil-bench",
     "spikes",
 )
+# A model's task id where its experiment has another name (the span model of task `jtbd`).
+TASK_EXPERIMENT = {"jtbd": "jtbd-span"}
 # Host names mapped to the hardware labels the zoo uses in task documents and results.
 HARDWARE = (
     ("spark", "dgx-spark"),
@@ -150,6 +152,7 @@ def model_experiment(model: str) -> tuple[str, str, str]:
     except OSError:
         return "spikes", "sandbox", model
     topic, task = str(rec.get("topic", "")), str(rec.get("task", ""))
+    task = TASK_EXPERIMENT.get(task, task)
     name = f"{topic}/{task}"
     return (name if name in EXPERIMENTS else "spikes"), topic, task
 

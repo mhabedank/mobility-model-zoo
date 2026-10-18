@@ -10,7 +10,7 @@ import pytest
 from mobility_model_zoo.release.registry import SCHEMAS, schema_errors
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACTS = ROOT / "specs/014-model-page-layout/contracts/release"  # latest owner of the format
+CONTRACTS = ROOT / "specs/017-mlflow-data-transparency/contracts/release"  # latest owner of the format
 PACKAGED = ROOT / "src/mobility_model_zoo/release/schemas"
 
 
@@ -96,3 +96,15 @@ def test_card_short_forms_validate(zoo_env):
 def test_card_short_forms_reject(zoo_env, mutate):
     model = zoo_env.reg.model_raw(zoo_env.model)
     assert _invalid("model", model, lambda m: mutate(m["card"])) != []
+
+
+def test_tracking_link_is_optional_and_checked(zoo_env):
+    """Feature 017: a release record may name its run in the private tracking store."""
+    record = copy.deepcopy(zoo_env.record())
+    assert "tracking" not in record and schema_errors("release-record", record) == []
+    record["tracking"] = {"run_id": "0123456789abcdef0123456789abcdef", "experiment": "security/can-ids"}
+    assert schema_errors("release-record", record) == []
+    record["tracking"]["run_id"] = "0123456789abcdef0123456789abcde"  # 31 characters
+    assert schema_errors("release-record", record) != []
+    record["tracking"] = {"experiment": "security/can-ids"}  # run id missing
+    assert schema_errors("release-record", record) != []

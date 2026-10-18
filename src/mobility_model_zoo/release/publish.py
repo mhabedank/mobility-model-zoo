@@ -210,6 +210,9 @@ def stage(reg: Registry, name: str, version: str, src: Path, hub: Any, say: Say)
 def check(reg: Registry, name: str, version: str, hub: Any, runner: Any, say: Say) -> Gate:
     gate = Gate(reg, name, version, hub=hub, runner=runner)
     gate.run(say)
+    tracked = (getattr(gate, "record", None) or {}).get("tracking") or {}
+    if tracked.get("run_id"):  # evidence only; the store is private, the card never shows it (017)
+        say(f"tracking run: {tracked['run_id']} ({tracked.get('experiment', '-')})")
     return gate
 
 
