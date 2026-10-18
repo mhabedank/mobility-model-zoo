@@ -467,7 +467,7 @@ Single project:
 
   Link it from `README.md` with a short "Data and runs overview" section under "How the zoo is organized".
 - [X] T058 [P] Add `zoo data stats|history|diff|publish` and `zoo tracking …` to the command lists in `README.md` ("Quick commands per topic") and to `docs/layout.md` where packages are listed (`datasets/inventory`, `tracking`).
-- [ ] T059 Run the full local checks:
+- [X] T059 Run the full local checks: (done 2026-10-18: ruff clean; 1622 passed, 41 skipped; slow server test passed; edge install 242 MB of 300; `zoo validate --all`, `zoo compliance check --ci`, `reuse lint` and `zoo roadmap check` pass)
   - `uv run ruff check . && uv run ruff format --check .`
   - `uv run pytest` (no `MLFLOW_TRACKING_URI`)
   - `uv run pytest -m slow tests/integration/test_tracking_server.py`
