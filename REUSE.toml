@@ -21,10 +21,394 @@ precedence = "override"
 SPDX-FileCopyrightText = "2015-2026 Deque Systems, Inc."
 SPDX-License-Identifier = "MPL-2.0"
 
+# Website image "Bike parking hall with rows of racks beside a station" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-bike-parking-station/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Cargo bike with a child seat pushed along a canal" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-cargo-bike-canal/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Elevated cycle highway curving between buildings" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-cycle-highway/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Curved footbridge over railway tracks with a train below" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-footbridge-tracks/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Wide pedestrian street at sunrise with long shadows" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-pedestrian-street/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Bike lane along a river at sunrise, a tram crossing a bridge in the distance" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-riverside-cyclists/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "E-scooters at a docking station in front of an office building" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-scooter-dock/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Cyclist on a snowy cycle path between bare trees" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/active-winter-cyclist/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Front of a tram with a camera module above the windshield" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-camera-tram-front/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Compute box on a workbench beside a circuit board and a sensor" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-compute-bench/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Server rack in a depot back office with a train outside" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-depot-rack/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Drone hovering above a marshalling yard" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-drone-yard/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Edge computer in a bus's equipment cabinet" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-edge-box-bus/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Driving simulator with a curved screen showing an abstract road" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-simulator-seat/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Figure at a monitor showing a spectrogram, workshop behind glass" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-spectrogram-screen/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Figure with a tablet in front of a locomotive" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-tablet-trackside/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Car between cones on a test track with a camera mast" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-test-track-cones/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "View through a windshield at sunrise with a car ahead" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-windshield-assist/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Workstation by a window with a wave trace on screen and a train yard outside" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/ai-workstation-window/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Apron bus beside a jet bridge under an aircraft tail" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-apron-bus/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Cargo drone above a field with a farmhouse in the distance" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-cargo-drone-field/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Airport control tower with an aircraft taxiing below" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-control-tower/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Light aircraft in a hangar with the doors open" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-hangar-doors/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Rescue helicopter on a hospital roof helipad at sunrise" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-helipad-roof/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Regional turboprop aircraft on an apron at dawn" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/air-regional-apron/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
 # Website image "Regional train leaving a small station at dawn, mist over the fields" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
 # on the project's own hardware; dedicated to the public domain.
 [[annotations]]
 path = "zoo/site/images/hero-train-dawn/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Inspection platform truck under a bridge deck" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-bridge-inspection/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Catenary masts and overhead lines along a straight track" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-catenary-line/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Charging hub with a solar canopy and posts in a row" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-charging-hub/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Traffic control room with a wall of abstract map screens" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-control-room/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Glass bus shelter at the edge of a field with a bus approaching" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-field-shelter/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Hydrogen fuelling station with a bus at the dispenser" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-hydrogen-station/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Empty city intersection at sunrise with a tram crossing" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-intersection-lights/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Railway junction seen from above with fanning tracks" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-junction-above/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Motorway bridge on tall piers spanning a valley" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-motorway-bridge/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Empty station platform under a long steel canopy" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-platform-canopy/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Port crane over a quay at sunrise beside a ship's hull" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-port-crane/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Road works site with cones and an excavator" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-road-works/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Snow plough truck on a mountain road at dawn" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-snow-plough/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tunnel portal in a hillside with a train emerging" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-tunnel-portal/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Road weather station mast beside a motorway" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/infrastructure-weather-mast/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Vibration sensor bolted onto the bearing housing of a railway axle" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-bearing-sensor/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Strain sensors on the steel beams of a bridge" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-bridge-strain/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Open trackside cabinet with a gateway device" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-cabinet-gateway/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Meter box on a charging post with a cable to a car" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-charging-meter/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tracking device on the door of a shipping container" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-container-tracker/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Trackside sensor beside the rails with train wheels passing" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-hot-box-detector/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Truck cab with a telematics box under the dashboard" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-telematics-cab/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tyre pressure sensor on a wheel valve" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/iot-tyre-valve-sensor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "NONE"
 SPDX-License-Identifier = "CC0-1.0"
@@ -41,6 +425,214 @@ SPDX-License-Identifier = "CC0-1.0"
 # on the project's own hardware; dedicated to the public domain.
 [[annotations]]
 path = "zoo/site/images/model-scout-large-window/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Camper van on a coastal road above the sea" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-camper-coast/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Car charging at a post in a quiet car park" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-car-charging/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Compact car on an open road through rolling fields at sunrise" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-car-open-road/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Row of car-sharing cars in a marked bay" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-car-sharing-row/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Delivery van in a narrow old-town street" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-delivery-van/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Car park deck with one car between ramps and concrete lines" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-parking-deck/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Taxi waiting first in a rank in front of a station" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-taxi-rank/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tractor on a rural road between fields in morning light" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-tractor-rural/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Articulated truck on a motorway bridge over a river at sunrise" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/private-road-truck-river-bridge/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Articulated bus on a dedicated lane along a tree-lined avenue" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-articulated-bus-lane/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Electric bus charging under a pantograph mast at a terminus" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-bus-charging/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Bus depot at dawn with one bus pulling out" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-bus-depot/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Bus station with a wide curved roof and buses in the bays" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-bus-station-roof/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Quiet bus stop at sunrise with a bus approaching" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-bus-stop-sunrise/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Coach on an empty motorway at sunrise between rolling hills" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-coach-motorway/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Trolleybus under overhead wires on a quiet city street" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-trolleybus-wires/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Minibus at a small stop in a village square" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/public-road-village-minibus/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Railway depot hall with a train on the inspection pit road" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-depot-hall/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Freight train with containers crossing flat farmland at sunrise" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-freight-containers/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "High-speed train crossing a tall viaduct above a misty valley at sunrise" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-high-speed-viaduct/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Metro train arriving at an underground platform with a long tiled wall" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-metro-platform/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Rack railway car climbing a steep alpine slope above a valley" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-mountain-rack/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Pantograph touching the overhead line against a pale morning sky" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-pantograph/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Shunting locomotive in a wide marshalling yard in low morning light" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-shunting-yard/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Track maintenance vehicle on a closed line between tall trees" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-track-maintenance/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tram leaving a stop on a wide boulevard at sunrise, a cyclist ahead" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/rail-tram-boulevard/**"
 precedence = "override"
 SPDX-FileCopyrightText = "NONE"
 SPDX-License-Identifier = "CC0-1.0"
@@ -65,6 +657,94 @@ SPDX-License-Identifier = "CC0-1.0"
 # on the project's own hardware; dedicated to the public domain.
 [[annotations]]
 path = "zoo/site/images/topic-security-workshop/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Car ferry at a ramp with cars queuing" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-car-ferry-ramp/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Container terminal with tall gantry cranes in the morning" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-container-terminal/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Open ferry deck with benches and the coast ahead" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-ferry-deck/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Passenger ferry arriving at a wooden pier on a calm lake" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-ferry-pier/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Pilot boat leaving a harbour mouth past a lighthouse" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-harbour-pilot/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "River lock with its gates opening and a push boat waiting" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-lock-gate/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Cargo barge on a wide river passing under an arch bridge" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/water-river-barge/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Battery pack on a bench wired to a measuring rack" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/workshop-battery-bench/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Car on dynamometer rollers in a test cell" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/workshop-dyno-cell/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Engine on a test stand with an orange-yellow frame" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/workshop-engine-stand/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Website image "Tram body in a paint booth with masking lines" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/workshop-paint-booth/**"
 precedence = "override"
 SPDX-FileCopyrightText = "NONE"
 SPDX-License-Identifier = "CC0-1.0"

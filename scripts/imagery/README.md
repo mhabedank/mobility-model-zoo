@@ -1,6 +1,6 @@
 # Website imagery: rendering on the DGX Spark
 
-The images of the zoo website (feature 016) are generated, never fetched. The recipe of every
+The images of the zoo website (features 016 and 019) are generated, never fetched. The recipe of every
 image lives in its record under `zoo/site/images/<id>/image.yaml`; the art direction is the
 series file `zoo/site/images/series/siebdruck.yaml`. This directory holds the generator and its
 container. Nothing here is part of the package, and `zoo site build` never needs it.
@@ -36,25 +36,37 @@ docker run --rm --gpus all --ipc=host \
   -e ZOO_GEN_COMMIT=$(git rev-parse --short HEAD) \
   -e ZOO_GEN_IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' zoo-flux 2>/dev/null || docker images --no-trunc -q zoo-flux) \
   -v ~/.cache/huggingface:/root/.cache/huggingface -v ~/zoo-imagery:/work zoo-flux \
-  python /work/gen.py --series /work/siebdruck.yaml --model final --seeds 4 --out /work/out/siebdruck
+  python /work/gen.py --series /work/siebdruck.yaml --model final --seeds 4 --out /work/rounds/1
 ```
 
-- `--model draft` renders with FLUX.2-klein-4B in about 4 s per image, for exploring subjects.
+- The series file lists subjects per theme (`themes`); files are named `<theme>--<subject>--<seed>.png`.
+- `--model draft` renders with FLUX.2-klein-4B in about 4 s per image, for checking subjects.
 - `--model final` renders with Qwen-Image-2512 (50 steps, about 3 min per image on the GB10).
-- `--only start-hero,topic:security` limits the run; existing files are skipped.
-- The output holds the PNGs and `manifest.json`, which `zoo site images add` reads.
+- `--only rail,water/lock-gate` limits the run to themes or subjects; `--reserve` adds the reserve subjects; a `next.txt` in the output directory (written by `zoo site images pick`) selects the subjects of a follow-up round; `--seed-base 1000` gives a second round new seeds. Existing files are skipped.
+- `--plan` prints the files a run would write, without touching the GPU.
+- The output holds the PNGs and `manifest.json`, which `zoo site images triage` and `pick` read.
 
-## 4. Import
+Long runs go in a detached script with a log (`nohup rounds/1/run.sh > rounds/1/render.log &`); a full round of about 105 subjects × 4 seeds takes a day.
 
-On the developer machine, with the output copied back:
+## 4. Triage, picks and import (feature 019)
+
+On the developer machine, with the round copied back:
 
 ```bash
 uv sync --extra release --extra images
-uv run zoo site images add out/siebdruck/start-hero-2-1021.png --manifest out/siebdruck/manifest.json \
-  --placement start-hero --focal 0.5,0.55 --scene "Regional train leaving a small station at dawn" \
-  --alt "An orange-yellow regional train leaves a small station platform in warm morning light"
+rsync -a dienstollama@10.123.47.52:zoo-imagery/rounds/1/ ~/zoo-imagery/rounds/1/
+uv run zoo site images triage ~/zoo-imagery/rounds/1      # faces, text, style, duplicates → sheet.html
+open ~/zoo-imagery/rounds/1/sheet.html                      # the owner picks by number
+uv run zoo site images pick ~/zoo-imagery/rounds/1 --dry-run
+uv run zoo site images pick ~/zoo-imagery/rounds/1          # records under zoo/site/images/, next.txt
 ```
 
-The import checks the recipe against the series, rejects faces and readable text, writes the
-record with three WebP derivatives, and refuses anything that fails. See
-[specs/016-emotional-imagery-motifs/contracts/cli.md](../../specs/016-emotional-imagery-motifs/contracts/cli.md).
+`picks.yaml` in the round directory maps `theme/subject` to a number or `none` (optionally
+`{number: 2, focal: [0.4, 0.6]}`). The import re-runs every check, copies scene and alt text from
+the series, keeps no source PNG, and writes nothing if any pick fails. Single images can still be
+imported with `zoo site images add <png> --manifest <manifest.json> --theme … --subject …
+[--placement …] [--no-source]`. See
+[specs/019-mobility-image-library/contracts/cli.md](../../specs/019-mobility-image-library/contracts/cli.md).
+
+`scripts/imagery/wrap_manifest.py` wraps older, placement-keyed outputs into a round (used once for
+the calibration of the style check).

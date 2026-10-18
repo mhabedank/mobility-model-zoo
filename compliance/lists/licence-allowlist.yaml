@@ -22,6 +22,13 @@ licences:
 - {id: CC-BY-SA-2.0, share_alike: true, release_licences: [CC-BY-SA-2.0, CC-BY-SA-2.5, CC-BY-SA-3.0, CC-BY-SA-4.0]}
 - {id: CC-BY-NC-4.0, non_commercial: true}
 - {id: CC-BY-NC-SA-4.0, non_commercial: true, share_alike: true, release_licences: [CC-BY-NC-SA-4.0]}
+# Owner decision D-catalog-nc-training-2026-10: older non-commercial versions train non-commercial models.
+- {id: CC-BY-NC-3.0, non_commercial: true}
+- {id: CC-BY-NC-2.5, non_commercial: true}
+- {id: CC-BY-NC-2.0, non_commercial: true}
+- {id: CC-BY-NC-SA-3.0, non_commercial: true, share_alike: true, release_licences: [CC-BY-NC-SA-3.0, CC-BY-NC-SA-4.0]}
+- {id: CC-BY-NC-SA-2.5, non_commercial: true, share_alike: true, release_licences: [CC-BY-NC-SA-2.5, CC-BY-NC-SA-3.0, CC-BY-NC-SA-4.0]}
+- {id: CC-BY-NC-SA-2.0, non_commercial: true, share_alike: true, release_licences: [CC-BY-NC-SA-2.0, CC-BY-NC-SA-2.5, CC-BY-NC-SA-3.0, CC-BY-NC-SA-4.0]}
 - {id: PDDL-1.0}
 - {id: ODC-By-1.0}
 - {id: MIT}

@@ -7,7 +7,13 @@ from typing import Any
 
 TERMINAL = ("rejected", "retired", "withdrawn")
 CLEARABLE_METHODS = ("direct_download", "bulk_dump", "api", "feed", "page_by_page")
-BLOCKING_FLAGS = ("unreachable", "personal_data_in_metadata", "owner_decision_needed")
+BLOCKING_FLAGS = (
+    "unreachable",
+    "personal_data_in_metadata",
+    "owner_decision_needed",
+    "licence_conflict",
+    "licence_unconfirmed",
+)
 RETIRE_AFTER = 3  # 404/410 answers …
 RETIRE_SPAN_DAYS = 7  # … at least this many days apart
 

@@ -1,0 +1,80 @@
+id: rail-high-speed-viaduct
+series: siebdruck
+theme: rail
+subject: high-speed-viaduct
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow high-speed train crossing a tall concrete viaduct above a misty valley at sunrise,
+    1970s modernist travel poster illustration, flat colour fields with crisp edges, screen print texture,
+    clean geometric forms, calm ordered composition with long diagonals, soft gradient sky in pale mint
+    and warm cream, deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow
+    accent colour, everything else only navy, mint and cream, early morning light as graphic shapes, quietly
+    futurist and optimistic, West German graphic design of the seventies, restrained, no text, no lettering,
+    no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 624533
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: High-speed train crossing a tall viaduct above a misty valley at sunrise
+alt: An orange-yellow high-speed train crosses a tall concrete viaduct above a misty valley (AI-generated
+  image)
+focal_point:
+- 0.619
+- 0.308
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: ed9f0e97d98fafeaaa33c9242842814222de662a0870141336c99d03d9b1c3ae
+derivatives:
+  '480':
+    file: rail-high-speed-viaduct-480.webp
+    bytes: 11496
+    sha256: 9f9d0a86b622e40f57d237c9671b42dabb1266efe1b88d440ff1d265c4cb18e3
+  '960':
+    file: rail-high-speed-viaduct-960.webp
+    bytes: 28168
+    sha256: 3f66aebbeddf215270410315e86698e2116633264b0ffdea26173f7754ad1a81
+  '1600':
+    file: rail-high-speed-viaduct-1600.webp
+    bytes: 50532
+    sha256: a58f642cc1a8ad6a449e092ce90b3371622a13d2ba5c11d8830f87732691123d
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:04+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: f296474c49b0b74b
+    other_share: 0.022
+    accent_share: 0.0116
+    accent_largest_share: 0.3107
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.619
+    - 0.308
+round: 1

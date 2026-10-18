@@ -2,6 +2,8 @@
 
 Extends [008 checks](../../008-zoo-website/contracts/checks.md) and the preview-card checks of [012](../../012-social-preview-images/contracts/checks.md). A check that is not listed here stays as it is. Each check names the requirements it enforces.
 
+> Feature 019 changes I1 to I5 and C1 (optional `source.file`, empty placements, placed-only credits and build, detector fallback to the 1600 px derivative) and adds I6, I7, I8, L1 and L2: see [019 checks](../../019-mobility-image-library/contracts/checks.md).
+
 ## New checks
 
 | Id | Kind | Rule | Requirement |

@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python3 scripts/ci/select_tests.py --all
+
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff check
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run pytest -q tests
+
+  # Native simulator.
+  edge-sim:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv sync --extra edge --no-install-package torch
+
+  # Emulated board.
+  edge-qemu:
+    runs-on: ubuntu-latest
+    env:
+      QEMU_RELEASE: esp-develop-9.2.2-20250817
+    steps:
+      - run: uv sync --extra edge --extra edge-hw --no-install-package torch

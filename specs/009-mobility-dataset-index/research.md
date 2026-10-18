@@ -105,8 +105,8 @@ wins:
 |---|---|---|---|
 | U1 | withdrawn, or opt-out signal present, or platform terms `ml_use: not_allowed` | not_usable | not_allowed |
 | U2 | licence `unknown` or `mixed` (at collection level) | undetermined | unclear |
-| U3 | licence on `compliance/lists/licence-allowlist.yaml` | training_allowed | allowed (share-alike carried as a flag) |
-| U4 | licence is NC or ND | benchmark_only | not_allowed |
+| U3 | licence on `compliance/lists/licence-allowlist.yaml` (not `trains: false`) | training_allowed | allowed (share-alike and non-commercial carried as flags; an NC entry trains non-commercial models only, D-catalog-nc-training-2026-10) |
+| U4 | licence is ND, or NC and not on the list | benchmark_only | not_allowed |
 | U5 | `LicenseRef-proprietary` and the kind of source has a source class with a recorded legal basis in a topic register | as that class decides | not_allowed |
 | U6 | anything else | undetermined, flagged for an owner decision | unclear |
 

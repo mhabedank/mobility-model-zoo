@@ -1,0 +1,79 @@
+id: public-road-bus-charging
+series: siebdruck
+theme: public-road
+subject: bus-charging
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow electric bus under a pantograph charging mast at a terminus, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 593708
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-16
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Electric bus charging under a pantograph mast at a terminus
+alt: An orange-yellow electric bus charges under a pantograph mast at a terminus (AI-generated image)
+focal_point:
+- 0.46
+- 0.716
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 49a930c72d00993694434298b30ffdfc2a2c981f39f3dcbf0cf0e03fe39d2775
+derivatives:
+  '480':
+    file: public-road-bus-charging-480.webp
+    bytes: 16298
+    sha256: be71032eaef0340bf3459e44ca74c1f0fb16b6570be017f9009cdbc1d3e9cd1e
+  '960':
+    file: public-road-bus-charging-960.webp
+    bytes: 38212
+    sha256: ea9f0fb9342a4394b3def59716ed0253ef6d90c1b2547bc03e75e0d1a726c5b9
+  '1600':
+    file: public-road-bus-charging-1600.webp
+    bytes: 62802
+    sha256: 39b8a89f1b4a4a30707f4978e5143c3e14518dbd9317e04b9da9f29f9b3918d5
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T16:35:27+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 96d1f81417fae905
+    other_share: 0.0887
+    accent_share: 0.0141
+    accent_largest_share: 0.1349
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.46
+    - 0.716
+round: 2

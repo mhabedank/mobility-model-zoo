@@ -1,0 +1,81 @@
+id: workshop-engine-stand
+series: siebdruck
+theme: workshop
+subject: engine-stand
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a bare engine block mounted on an orange-yellow wheeled test stand, exhaust pipes, round gauges
+    without markings, workshop, no vehicles, 1970s modernist travel poster illustration, flat colour fields
+    with crisp edges, screen print texture, clean geometric forms, calm ordered composition with long
+    diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle
+    or machine painted in a warm orange-yellow accent colour, everything else only navy, mint and cream,
+    early morning light as graphic shapes, quietly futurist and optimistic, West German graphic design
+    of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small simple
+    silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 761839
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-15
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Engine on a test stand with an orange-yellow frame
+alt: An engine sits on a test stand with an orange-yellow frame, exhaust pipes and round instruments (AI-generated
+  image)
+focal_point:
+- 0.643
+- 0.725
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 441d08e578baba785dc170c3f164403e0990074fa9c51b93a1d820984148f4a9
+derivatives:
+  '480':
+    file: workshop-engine-stand-480.webp
+    bytes: 15538
+    sha256: 8728df7c3fe91af20a016e11528a71012f13f12c58c3bfbc29fe88d0cb2981bd
+  '960':
+    file: workshop-engine-stand-960.webp
+    bytes: 37780
+    sha256: a8c85ae6f2a7390daef55d1bdbe72ba03a0b2be69d8a21f92925f0005f7cfdeb
+  '1600':
+    file: workshop-engine-stand-1600.webp
+    bytes: 62320
+    sha256: 521d48a73cabbb163b52e9b74024b0e713b951975f43c739bf0643a0e28ed489
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:32+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 2ca71a58719f8d27
+    other_share: 0.1314
+    accent_share: 0.0504
+    accent_largest_share: 0.1787
+    accent_top_share: 0.0145
+    accent_centroid:
+    - 0.643
+    - 0.725
+round: 1

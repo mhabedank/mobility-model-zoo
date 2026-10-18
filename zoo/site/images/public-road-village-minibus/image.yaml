@@ -1,0 +1,79 @@
+id: public-road-village-minibus
+series: siebdruck
+theme: public-road
+subject: village-minibus
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow minibus at a small stop in a village square, a figure with a shopping bag seen
+    from behind, 1970s modernist travel poster illustration, flat colour fields with crisp edges, screen
+    print texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient
+    sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted
+    in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning light
+    as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 312007
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Minibus at a small stop in a village square
+alt: An orange-yellow minibus waits at a small stop in a village square (AI-generated image)
+focal_point:
+- 0.54
+- 0.601
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 453b7e6f09c1a9cec5475eb1b0390dc210788b66f248e32eef6503d484a045e9
+derivatives:
+  '480':
+    file: public-road-village-minibus-480.webp
+    bytes: 13618
+    sha256: 6422747e71c73f63d5cb49a9c895a46f49149d1b4a2a26539a541871fd3c4516
+  '960':
+    file: public-road-village-minibus-960.webp
+    bytes: 29410
+    sha256: 2db5bb776c10d217e987f113c39ffc26ff468e3bf9661a85b35ed394499e5875
+  '1600':
+    file: public-road-village-minibus-1600.webp
+    bytes: 48282
+    sha256: d43069a3aae480f4d7931735cc19470a9cb960d57693300a34a63cc636c156c7
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:11+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 92f7b44d3dc50329
+    other_share: 0.0435
+    accent_share: 0.0772
+    accent_largest_share: 0.6841
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.54
+    - 0.601
+round: 1

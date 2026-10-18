@@ -123,9 +123,94 @@ Every image on the website is AI-generated on the project's own hardware (featur
 
 | Image | Model | Generated | Licence |
 |---|---|---|---|
+| Bike parking hall with rows of racks beside a station (`zoo/site/images/active-bike-parking-station/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Cargo bike with a child seat pushed along a canal (`zoo/site/images/active-cargo-bike-canal/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Elevated cycle highway curving between buildings (`zoo/site/images/active-cycle-highway/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Curved footbridge over railway tracks with a train below (`zoo/site/images/active-footbridge-tracks/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Wide pedestrian street at sunrise with long shadows (`zoo/site/images/active-pedestrian-street/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Bike lane along a river at sunrise, a tram crossing a bridge in the distance (`zoo/site/images/active-riverside-cyclists/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| E-scooters at a docking station in front of an office building (`zoo/site/images/active-scooter-dock/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Cyclist on a snowy cycle path between bare trees (`zoo/site/images/active-winter-cyclist/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Front of a tram with a camera module above the windshield (`zoo/site/images/ai-camera-tram-front/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Compute box on a workbench beside a circuit board and a sensor (`zoo/site/images/ai-compute-bench/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Server rack in a depot back office with a train outside (`zoo/site/images/ai-depot-rack/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Drone hovering above a marshalling yard (`zoo/site/images/ai-drone-yard/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Edge computer in a bus's equipment cabinet (`zoo/site/images/ai-edge-box-bus/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Driving simulator with a curved screen showing an abstract road (`zoo/site/images/ai-simulator-seat/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Figure at a monitor showing a spectrogram, workshop behind glass (`zoo/site/images/ai-spectrogram-screen/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Figure with a tablet in front of a locomotive (`zoo/site/images/ai-tablet-trackside/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Car between cones on a test track with a camera mast (`zoo/site/images/ai-test-track-cones/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| View through a windshield at sunrise with a car ahead (`zoo/site/images/ai-windshield-assist/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Workstation by a window with a wave trace on screen and a train yard outside (`zoo/site/images/ai-workstation-window/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Apron bus beside a jet bridge under an aircraft tail (`zoo/site/images/air-apron-bus/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Cargo drone above a field with a farmhouse in the distance (`zoo/site/images/air-cargo-drone-field/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Airport control tower with an aircraft taxiing below (`zoo/site/images/air-control-tower/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Light aircraft in a hangar with the doors open (`zoo/site/images/air-hangar-doors/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Rescue helicopter on a hospital roof helipad at sunrise (`zoo/site/images/air-helipad-roof/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Regional turboprop aircraft on an apron at dawn (`zoo/site/images/air-regional-apron/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
 | Regional train leaving a small station at dawn, mist over the fields (`zoo/site/images/hero-train-dawn/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Inspection platform truck under a bridge deck (`zoo/site/images/infrastructure-bridge-inspection/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Catenary masts and overhead lines along a straight track (`zoo/site/images/infrastructure-catenary-line/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Charging hub with a solar canopy and posts in a row (`zoo/site/images/infrastructure-charging-hub/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Traffic control room with a wall of abstract map screens (`zoo/site/images/infrastructure-control-room/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Glass bus shelter at the edge of a field with a bus approaching (`zoo/site/images/infrastructure-field-shelter/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Hydrogen fuelling station with a bus at the dispenser (`zoo/site/images/infrastructure-hydrogen-station/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Empty city intersection at sunrise with a tram crossing (`zoo/site/images/infrastructure-intersection-lights/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Railway junction seen from above with fanning tracks (`zoo/site/images/infrastructure-junction-above/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Motorway bridge on tall piers spanning a valley (`zoo/site/images/infrastructure-motorway-bridge/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Empty station platform under a long steel canopy (`zoo/site/images/infrastructure-platform-canopy/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Port crane over a quay at sunrise beside a ship's hull (`zoo/site/images/infrastructure-port-crane/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Road works site with cones and an excavator (`zoo/site/images/infrastructure-road-works/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Snow plough truck on a mountain road at dawn (`zoo/site/images/infrastructure-snow-plough/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Tunnel portal in a hillside with a train emerging (`zoo/site/images/infrastructure-tunnel-portal/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Road weather station mast beside a motorway (`zoo/site/images/infrastructure-weather-mast/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Vibration sensor bolted onto the bearing housing of a railway axle (`zoo/site/images/iot-bearing-sensor/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Strain sensors on the steel beams of a bridge (`zoo/site/images/iot-bridge-strain/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Open trackside cabinet with a gateway device (`zoo/site/images/iot-cabinet-gateway/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Meter box on a charging post with a cable to a car (`zoo/site/images/iot-charging-meter/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Tracking device on the door of a shipping container (`zoo/site/images/iot-container-tracker/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Trackside sensor beside the rails with train wheels passing (`zoo/site/images/iot-hot-box-detector/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Truck cab with a telematics box under the dashboard (`zoo/site/images/iot-telematics-cab/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Tyre pressure sensor on a wheel valve (`zoo/site/images/iot-tyre-valve-sensor/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
 | Circuit board with a diagnostic plug on a workbench by a window (`zoo/site/images/model-picket-forest-bench/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
 | Notebook on a train table, an orange train passing the window (`zoo/site/images/model-scout-large-window/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Camper van on a coastal road above the sea (`zoo/site/images/private-road-camper-coast/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Car charging at a post in a quiet car park (`zoo/site/images/private-road-car-charging/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Compact car on an open road through rolling fields at sunrise (`zoo/site/images/private-road-car-open-road/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Row of car-sharing cars in a marked bay (`zoo/site/images/private-road-car-sharing-row/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Delivery van in a narrow old-town street (`zoo/site/images/private-road-delivery-van/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Car park deck with one car between ramps and concrete lines (`zoo/site/images/private-road-parking-deck/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Taxi waiting first in a rank in front of a station (`zoo/site/images/private-road-taxi-rank/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Tractor on a rural road between fields in morning light (`zoo/site/images/private-road-tractor-rural/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Articulated truck on a motorway bridge over a river at sunrise (`zoo/site/images/private-road-truck-river-bridge/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Articulated bus on a dedicated lane along a tree-lined avenue (`zoo/site/images/public-road-articulated-bus-lane/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Electric bus charging under a pantograph mast at a terminus (`zoo/site/images/public-road-bus-charging/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Bus depot at dawn with one bus pulling out (`zoo/site/images/public-road-bus-depot/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Bus station with a wide curved roof and buses in the bays (`zoo/site/images/public-road-bus-station-roof/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Quiet bus stop at sunrise with a bus approaching (`zoo/site/images/public-road-bus-stop-sunrise/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Coach on an empty motorway at sunrise between rolling hills (`zoo/site/images/public-road-coach-motorway/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Trolleybus under overhead wires on a quiet city street (`zoo/site/images/public-road-trolleybus-wires/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Minibus at a small stop in a village square (`zoo/site/images/public-road-village-minibus/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Railway depot hall with a train on the inspection pit road (`zoo/site/images/rail-depot-hall/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Freight train with containers crossing flat farmland at sunrise (`zoo/site/images/rail-freight-containers/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| High-speed train crossing a tall viaduct above a misty valley at sunrise (`zoo/site/images/rail-high-speed-viaduct/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Metro train arriving at an underground platform with a long tiled wall (`zoo/site/images/rail-metro-platform/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Rack railway car climbing a steep alpine slope above a valley (`zoo/site/images/rail-mountain-rack/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Pantograph touching the overhead line against a pale morning sky (`zoo/site/images/rail-pantograph/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Shunting locomotive in a wide marshalling yard in low morning light (`zoo/site/images/rail-shunting-yard/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Track maintenance vehicle on a closed line between tall trees (`zoo/site/images/rail-track-maintenance/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Tram leaving a stop on a wide boulevard at sunrise, a cyclist ahead (`zoo/site/images/rail-tram-boulevard/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
 | Railway wheelset on stands in a bright maintenance hall (`zoo/site/images/topic-condmon-wheelset/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
 | Empty tram interior in morning light (`zoo/site/images/topic-productdev-interior/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
 | Workshop bay at morning with a car under an open hood (`zoo/site/images/topic-security-workshop/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
+| Car ferry at a ramp with cars queuing (`zoo/site/images/water-car-ferry-ramp/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Container terminal with tall gantry cranes in the morning (`zoo/site/images/water-container-terminal/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Open ferry deck with benches and the coast ahead (`zoo/site/images/water-ferry-deck/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Passenger ferry arriving at a wooden pier on a calm lake (`zoo/site/images/water-ferry-pier/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Pilot boat leaving a harbour mouth past a lighthouse (`zoo/site/images/water-harbour-pilot/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| River lock with its gates opening and a push boat waiting (`zoo/site/images/water-lock-gate/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Cargo barge on a wide river passing under an arch bridge (`zoo/site/images/water-river-barge/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
+| Battery pack on a bench wired to a measuring rack (`zoo/site/images/workshop-battery-bench/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Car on dynamometer rollers in a test cell (`zoo/site/images/workshop-dyno-cell/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |
+| Engine on a test stand with an orange-yellow frame (`zoo/site/images/workshop-engine-stand/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Tram body in a paint booth with masking lines (`zoo/site/images/workshop-paint-booth/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-16 | CC0-1.0 |

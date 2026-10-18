@@ -150,7 +150,18 @@ SPDX_ALIASES = {
     "ogl-uk-3.0": "LicenseRef-OGL-UK-3.0",
     "dl-de-by-2.0": "DL-DE-BY-2.0",
     "dl-de-zero-2.0": "DL-DE-ZERO-2.0",
+    # names of listed licences as publishers and readers write them (audit, 2026-10-14)
+    "licence-ouverte": "etalab-2.0",
+    "licence-ouverte-2.0": "etalab-2.0",
+    "open-licence-2.0": "etalab-2.0",
+    "pdl-1.0": "LicenseRef-Japan-PDL-1.0",
+    "public-data-license-1.0": "LicenseRef-Japan-PDL-1.0",
+    "公共データ利用規約": "LicenseRef-Japan-PDL-1.0",
+    "government-standard-terms-of-use-2.0": "LicenseRef-Japan-Gov-Standard-Terms-2.0",
+    "政府標準利用規約": "LicenseRef-Japan-Gov-Standard-Terms-2.0",
 }
+# EU authority form (CC_BY_4_0) once underscores are dashes
+CC_DASHED = re.compile(r"^cc-(by(?:-(?:nc|sa|nd)){0,2})-(\d)-(\d)$")
 
 
 # Licence pages without a standard id (owner decision D-catalog-licences-2026-10)
@@ -175,6 +186,9 @@ def spdx(value: str | None) -> str:
         # a jurisdiction port (by/2.1/jp) keeps its country: CC-BY-2.1-JP, decided by the owner (U6)
         return f"CC-{code.upper()}-{version}" + (f"-{port.upper()}" if port else "")
     key = text.lower().replace("_", "-").rstrip("/")
+    m = CC_DASHED.match(key)
+    if m:
+        return f"CC-{m.group(1).upper()}-{m.group(2)}.{m.group(3)}"
     return SPDX_ALIASES.get(key, SPDX_ALIASES.get(key.replace(" ", "-"), "unknown"))
 
 

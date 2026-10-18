@@ -1,0 +1,81 @@
+id: active-scooter-dock
+series: siebdruck
+theme: active
+subject: scooter-dock
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a row of e-scooters in navy at a docking station, a single orange-yellow e-scooter among them,
+    in front of a glass office building, 1970s modernist travel poster illustration, flat colour fields
+    with crisp edges, screen print texture, clean geometric forms, calm ordered composition with long
+    diagonals, soft gradient sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle
+    or machine painted in a warm orange-yellow accent colour, everything else only navy, mint and cream,
+    early morning light as graphic shapes, quietly futurist and optimistic, West German graphic design
+    of the seventies, restrained, no text, no lettering, no logos, no faces, people only as small simple
+    silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 752764
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: E-scooters at a docking station in front of an office building
+alt: A row of e-scooters waits at a docking station in front of a glass office building (AI-generated
+  image)
+focal_point:
+- 0.397
+- 0.681
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: b5b1fc394ca9e1b3296def7d251b2d90cd1c41f73865de59c04d5baf8f9a2d62
+derivatives:
+  '480':
+    file: active-scooter-dock-480.webp
+    bytes: 16770
+    sha256: aa86db53bc483b8ce3bc3f71f7c1db14db1deac50831de53881ea3da44ad431b
+  '960':
+    file: active-scooter-dock-960.webp
+    bytes: 40112
+    sha256: a2fff3c862ea84c8c393b8d5119677aaf634669c9b987c102f5bffb039ef3ffd
+  '1600':
+    file: active-scooter-dock-1600.webp
+    bytes: 65654
+    sha256: 711cbf95ba747a79baf425b2d0d4dad035215023046163d4f5c9312876004d95
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:17+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 8cb3d8d932238d75
+    other_share: 0.0152
+    accent_share: 0.011
+    accent_largest_share: 0.7678
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.397
+    - 0.681
+round: 1

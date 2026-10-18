@@ -1,0 +1,80 @@
+id: rail-tram-boulevard
+series: siebdruck
+theme: rail
+subject: tram-boulevard
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: an orange-yellow tram gliding out of a stop on a wide boulevard at sunrise, one cyclist riding
+    ahead into the light, 1970s modernist travel poster illustration, flat colour fields with crisp edges,
+    screen print texture, clean geometric forms, calm ordered composition with long diagonals, soft gradient
+    sky in pale mint and warm cream, deep navy shadows and ground, the main vehicle or machine painted
+    in a warm orange-yellow accent colour, everything else only navy, mint and cream, early morning light
+    as graphic shapes, quietly futurist and optimistic, West German graphic design of the seventies, restrained,
+    no text, no lettering, no logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 519723
+  steps: 50
+  guidance: 4.0
+  width: 1344
+  height: 768
+  generated: 2026-10-14
+  hardware: dgx-spark
+  generator:
+    commit: unversioned
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements: []
+scene: Tram leaving a stop on a wide boulevard at sunrise, a cyclist ahead
+alt: An orange-yellow tram glides out of a stop on a wide boulevard at sunrise while a cyclist rides ahead
+  (AI-generated image)
+focal_point:
+- 0.343
+- 0.634
+aspect: '16:9'
+source:
+  width: 1344
+  height: 768
+  sha256: 3d3b5479b269f1341382d8a8244ecbf1425c37abcf2de04c3a503a29524ce82e
+derivatives:
+  '480':
+    file: rail-tram-boulevard-480.webp
+    bytes: 15198
+    sha256: d657c58d9379ca3772d073900fc056ea3b7d276fe4d6ec52ff6c950ee7c27b9d
+  '960':
+    file: rail-tram-boulevard-960.webp
+    bytes: 34676
+    sha256: 958352aa4a60d49fefbbd850e080543b20b37f99d33c3db4be0fbc51287c8941
+  '1600':
+    file: rail-tram-boulevard-1600.webp
+    bytes: 60206
+    sha256: 209c8adf350fc9bc48091f509b488ca3c0d4e3199f2ac73810d73cd421e44ee7
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-16T00:53:04+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 06f1394e87b68ba9
+    other_share: 0.0455
+    accent_share: 0.0369
+    accent_largest_share: 0.7807
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.343
+    - 0.634
+round: 1

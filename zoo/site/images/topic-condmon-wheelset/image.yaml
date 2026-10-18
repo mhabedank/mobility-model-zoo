@@ -1,5 +1,7 @@
 id: topic-condmon-wheelset
 series: siebdruck
+theme: rail
+subject: wheelset-hall
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -49,8 +51,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 427f74b0d403a33f
+    other_share: 0.139
+    accent_share: 0.0271
+    accent_largest_share: 0.0913
+    accent_top_share: 0.0
+    accent_centroid:
+    - 0.742
+    - 0.512
 source:
-  file: topic-condmon-wheelset.png
   width: 1200
   height: 800
   sha256: a5712a16fd3918d943fd12144f4c50cb52cc0642b85f8b0a959e97f1e4a434fa

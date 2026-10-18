@@ -1,5 +1,7 @@
 id: topic-productdev-interior
 series: siebdruck
+theme: rail
+subject: tram-interior
 generation:
   model: Qwen/Qwen-Image-2512
   revision: 25468b98e3276ca6700de15c6628e51b7de54a26
@@ -48,8 +50,18 @@ checks:
   faces_below_threshold: 0
   text: pass
   bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: 66e718235c7817d3
+    other_share: 0.0947
+    accent_share: 0.0794
+    accent_largest_share: 0.5108
+    accent_top_share: 0.042
+    accent_centroid:
+    - 0.747
+    - 0.585
 source:
-  file: topic-productdev-interior.png
   width: 1200
   height: 800
   sha256: 229d7f34a8e73aacfaba2ba40471bd9c579ca8f07446a4c3dccc262c933a4f03

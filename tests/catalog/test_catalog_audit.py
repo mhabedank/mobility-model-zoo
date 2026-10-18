@@ -92,3 +92,27 @@ def test_cli_writes_report(catalog_dir, monkeypatch):
     assert res.exit_code == 0, res.output
     md = next((catalog_dir / "reports").glob("*-audit.md")).read_text()
     assert "Deterministic matcher: 100%" in md and "Local model: not run" in md
+
+
+def test_unreadable_evidence_is_reported_apart(catalog_dir):
+    """Audit 2026-10-14: a Zenodo record that did not answer counted as a disagreement."""
+    cat = load(catalog_dir)
+
+    def handler(req):
+        return httpx.Response(503)
+
+    rep = audit.run(cat, sample=30, seed=9, transport=httpx.MockTransport(handler), throttle=FAST)
+    assert rep["unread"] == rep["sample_ids"] and rep["agreement"]["matcher"] is None
+    assert rep["unusable_cleared"] == []
+    assert "Evidence not readable" in audit.render(rep)
+
+
+def test_a_reading_is_judged_without_the_flags_it_replaces(catalog_dir):
+    """Fifth audit run: a flagged entry agreed whatever the reader read."""
+    cat = load(catalog_dir)
+    e = cat.entries["pl-stat-transport-tables"]
+    e["status"]["flags"] = ["licence_unconfirmed"]
+    allow = audit.licence_allowlist()
+    assert audit._use_for(e, "CC-BY-4.0", allow) == "training_allowed"
+    assert audit._use_for(e, "CC-BY-ND-4.0", allow) == "benchmark_only"
+    assert e["status"]["flags"] == ["licence_unconfirmed"]  # the entry itself is untouched

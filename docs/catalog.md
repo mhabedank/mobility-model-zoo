@@ -91,11 +91,11 @@ zoo catalog check
 | Check | What it tests |
 |---|---|
 | K4 | landing page |
-| K5 | licence evidence, stored as a hash |
+| K5 | licence evidence, stored as a hash; a page that reserves all rights although the entry carries an open licence sets the blocking flag `licence_conflict`; a licence that only OpenAlex reports must be stated by the evidence page or the DOI registry (Crossref, DataCite), otherwise the blocking flag `licence_unconfirmed` is set |
 | K6 | opt-out signals: robots.txt with the AI agent list, TDMRep, `noai`, ai.txt, Cloudflare `Content-Signal` and IETF AIPREF `Content-Usage` |
 | K7 | access route |
 
-`check` then applies the licence rules U1–U6 of `rules.yaml` and the state machine. It fetches only landing, licence and robots pages, never the resource, at one request per second per host.
+`check` then applies the licence rules U1–U6 of `rules.yaml` and the state machine. An entry under a listed non-commercial licence is `training_allowed` with `usage.non_commercial: true`: it may train non-commercial models only (feature 011). No-derivatives licences stay `benchmark_only`. It fetches only landing, licence and robots pages, never the resource, at one request per second per host.
 
 An entry is cleared only when all of these hold (FR-018):
 
@@ -146,7 +146,7 @@ zoo catalog fetchlist spanish-video --lang es --modality video
 zoo catalog audit --sample 30 --dup-sample 50 --seed 9 --model <local model>
 ```
 
-The audit re-reads the licence pages of a seeded sample with two readers: a deterministic matcher and a local model of a different family than the discovery agent, served from `$OLLAMA_HOST`. It reports agreement with the stored decision, cleared entries that a reader finds not usable, and the duplicate rate (SC-005, SC-008).
+The audit re-reads the licence pages of a seeded sample with two readers: a deterministic matcher and a local model of a different family than the discovery agent, served from `$OLLAMA_HOST`. Single-page applications (data.europa.eu, Zenodo) are read through the portal's API record of the same resource, and reader answers are mapped to catalog licence ids before they are compared. It reports agreement with the stored decision, cleared entries that a reader finds not usable, and the duplicate rate (SC-005, SC-008).
 
 ## Pilot
 
