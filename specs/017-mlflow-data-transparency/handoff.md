@@ -29,6 +29,15 @@ Spec decision 2, FR-009, FR-010, FR-012, FR-020, the new FR-030 and SC-004 chang
 - **T039 (laptop)**: `mlflow.sh up`, check loopback and host check, `down` and `restore` once with timing, `zoo data publish --profile`.
 - **T041 (Spark + laptop, go/no-go)**: one span candidate offline, pulled mid-run and after; overhead under 2 %; GPU metrics; one laptop run with the server stopped mid-run.
 
+## Merged on 2026-10-18
+
+A second session built on the earlier Spark-server design and pushed four commits. They were merged with these owner decisions:
+
+- **Import of past results**: this session's importer stays (it links every imported result to its benchmark); the other one and its tests were dropped. The import keys are the same, so the store holds no duplicates.
+- **Run id of a release record**: printed with the gate results only (`zoo check`, `zoo build`, `release-verify`), not a second time after the check.
+- **Integrations T043 to T049 and T061** (Keras trainings, jtbd and cluster evaluations, can-ids evaluation, measurement and picket-forest training, HIL bench) stay. They log nothing without `MLFLOW_TRACKING_URI` or `MMZ_TRACKING_OFFLINE`; finished results without an output folder of their own log offline under `data/tracking/`, so they work on the Spark too.
+- **Store location, compliance decision, guide and tasks**: the laptop design.
+
 ## After T041 passes
 
-T043 to T049 and T061 (Keras callback, evaluation runs, picket-forest training), T052's integration tests, T053, US6 (T054, T055), then T059 and T060. If T041 fails, stop and keep the data overview, the import and the laptop server.
+T053, then T059 and T060. If T041 fails, leave both tracking settings out of `.env` (everything then runs as before) and report it.

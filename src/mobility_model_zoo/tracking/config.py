@@ -30,6 +30,9 @@ CLIENT_DEFAULTS = {
 def _dotenv_keys() -> dict[str, str]:
     from mobility_model_zoo.edge.paths import repo_root
 
+    if os.environ.get("MMZ_TRACKING_IGNORE_DOTENV") == "1":  # the test suite: never a real server
+        return {}
+
     for path in (Path.cwd() / ".env", repo_root() / ".env"):
         if path.is_file():
             try:

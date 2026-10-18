@@ -261,6 +261,9 @@ def cmd_evaluate(args) -> None:
             results[set_name][fs_name] = entry
         print(f"{set_name} done in {time.time() - t0:.0f}s", flush=True)
         (args.out / "protocol_results.json").write_text(json.dumps(results, indent=2))
+    from mobility_model_zoo.security.can_ids import track
+
+    track.protocol_evaluation(results, DATASET)
 
 
 EXPORT_FEATURES = "no_can_id"
@@ -465,6 +468,9 @@ def cmd_export(args) -> None:
         raise SystemExit(f"benchmark not frozen ({path}); run `zoo-security can-ids freeze` first")
     manifest = json.loads(path.read_text())
     config = export(args.out / "export", manifest, benchmark_sources(), args.out / "features")
+    from mobility_model_zoo.security.can_ids import track
+
+    track.training(config, manifest.get("benchmark", "can-ids-v1"), args.out / "export", None)
     print(
         json.dumps(
             {

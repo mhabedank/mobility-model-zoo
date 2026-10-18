@@ -82,6 +82,15 @@ Useful filters in the run table:
 - `datasets.name = 'can-ids@can-ids-v3'`: every run that trained or was evaluated on that version.
 - `tags.mmz.imported = 'true'`: results imported from the repository's results files.
 
+## Compare candidates
+
+1. Open the experiment of the task, for example `productdev/jtbd-span`.
+2. Filter to one benchmark version: `tags.mmz.benchmark = 'pilot-v2'`. Runs on different versions are not comparable (constitution VIII). Each evaluation run carries the version as a tag and as its dataset input.
+3. Select the runs and click Compare. Parameters (the committed configuration, flattened), final metrics and the per-epoch curves line up.
+4. Useful columns to pin: `mmz.candidate`, `mmz.git_commit`, `mmz.hardware`, and the task's main metrics.
+
+The formal decision still comes from the task's own tools (`jtbd span select`, `jtbd span pareto`, the release gate); the comparison view is for exploring.
+
 ## Privacy and security
 
 - **The server listens only on the laptop's 127.0.0.1.** Nothing on the network reaches it, and nothing listens on the Spark.

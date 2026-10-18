@@ -22,7 +22,7 @@ with tracking.run(
 ```
 
 - **No tracking URI and no offline mode**: `tracking.run(...)` returns a no-op object. Nothing is imported, nothing is written, and no sidecar is created.
-- **Offline mode** (`MMZ_TRACKING_OFFLINE=1`, no URI; revised 2026-10-16): the same calls write the guarded values to the offline run log next to the sidecar (research R17, [data-model.md](../data-model.md#offlinerunlog-idmmz-runjsonl-research-r17)). MLflow is not imported. `out_dir` or `sidecar` is required; without either the run is a no-op with one warning. `zoo tracking sync` replays the log into the store.
+- **Offline mode** (`MMZ_TRACKING_OFFLINE=1`, no URI; revised 2026-10-16): the same calls write the guarded values to the offline run log next to the sidecar (research R17, [data-model.md](../data-model.md#offlinerunlog-idmmz-runjsonl-research-r17)). MLflow is not imported. Without `out_dir` or `sidecar` (for example `tracking.record` for a finished evaluation) the sidecar and log go to `data/tracking/<name>-<time>.tracking.json`, which is not committed and which `scripts/spark/tracking-pull.sh` fetches. `zoo tracking sync` replays the log into the store.
 - **Errors**: never raised to the caller at run time. See the circuit breaker in research R5. Tests set `tracking.STRICT = True` so guard refusals raise.
 - **`data_ref(id, version, context)`**: resolves the [InventoryRow](../data-model.md#inventoryrow) and logs it as a dataset input. When the row cannot be resolved, it logs a tag `mmz.input_unresolved=<id>@<version>` and warns.
 

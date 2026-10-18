@@ -76,9 +76,13 @@ def to_int8_tflite(model, rep: np.ndarray) -> bytes:
     return conv.convert()
 
 
-def fit(task: Task, epochs: int) -> None:
+def fit(task: Task, epochs: int, callbacks: list | None = None) -> None:
+    """Train; `callbacks` (e.g. experiment tracking, feature 017) join the task's own."""
     t = tf()
     m = task.model
+    kwargs = dict(task.fit_kwargs)
+    if callbacks:
+        kwargs["callbacks"] = [*kwargs.get("callbacks", []), *callbacks]
     lr = t.keras.optimizers.schedules.CosineDecay(
         2e-3, decay_steps=max(1, epochs * int(np.ceil(len(task.x_train) / 128)))
     )
@@ -91,7 +95,7 @@ def fit(task: Task, epochs: int) -> None:
             epochs=epochs,
             batch_size=128,
             verbose=2,
-            **task.fit_kwargs,
+            **kwargs,
         )
         return
     m.compile(
@@ -106,7 +110,7 @@ def fit(task: Task, epochs: int) -> None:
         epochs=epochs,
         batch_size=128,
         verbose=2,
-        **task.fit_kwargs,
+        **kwargs,
     )
 
 
@@ -253,7 +257,15 @@ def train_main(
     opts = load_config(args.config, name, fixed or {}) if args.config else dict(TRAIN_DEFAULTS)
     opts.update({k: getattr(args, k) for k in TRAIN_DEFAULTS if getattr(args, k) is not None})
     return train(
-        make_task, name, datasets, opts["epochs"], opts["version"], opts["seed"], args.out, args.download
+        make_task,
+        name,
+        datasets,
+        opts["epochs"],
+        opts["version"],
+        opts["seed"],
+        args.out,
+        args.download,
+        config=args.config,
     )
 
 
@@ -266,7 +278,9 @@ def train(
     seed: int = 0,
     out: Path | None = None,
     download: bool = False,
+    config: Path | None = None,
 ) -> dict:
+    from mobility_model_zoo import tracking
     from mobility_model_zoo.datasets import require_training_allowed
 
     for ds in datasets:  # FR-017: only declared, training_allowed, active datasets
@@ -277,8 +291,34 @@ def train(
         for ds in datasets:
             fetch(ds)
     tf().keras.utils.set_random_seed(seed)
-    task = make_task(seed)
-    fit(task, epochs)
-    report = export(task, Path(out) if out else derived_dir(name), version, seed)
+    out = Path(out) if out else derived_dir(name)
+    experiment, topic, task_id = tracking.model_experiment(name)
+    with tracking.run(
+        experiment,
+        name=f"{name}-{version}",
+        task=task_id,
+        topic=topic,
+        config_path=config,
+        inputs=[tracking.dataset_ref(ds, "training") for ds in datasets],
+        sidecar=out.parent / f"{out.name}.tracking.json",  # the export folder stays as it is
+        system_metrics=True,
+        tags={
+            "mmz.kind": "train",
+            "mmz.model": name,
+            "mmz.model_version": version,
+            "mmz.training_set": ",".join(datasets),
+        },
+    ) as run:
+        run.log_params({"epochs": epochs, "seed": seed, "version": version})
+        task = make_task(seed)
+        callbacks = []
+        if run.run_id:
+            from mobility_model_zoo.tracking.keras import callback
+
+            callbacks.append(callback(run))
+        fit(task, epochs, callbacks)
+        report = export(task, out, version, seed)
+        run.log_final({k: v for k, v in report.items() if isinstance(v, int | float)})
+        run.log_artifact(out / f"{task.name}.report.json", "report.json")
     print(json.dumps({k: v for k, v in report.items() if k != "datasets"}, indent=2), flush=True)
     return report

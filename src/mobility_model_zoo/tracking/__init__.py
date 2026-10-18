@@ -34,6 +34,8 @@ EXPERIMENTS = (
     "edge/hil-bench",
     "spikes",
 )
+# A model's task id where its experiment has another name (the span model of task `jtbd`).
+TASK_EXPERIMENT = {"jtbd": "jtbd-span"}
 # Host names mapped to the hardware labels the zoo uses in task documents and results.
 HARDWARE = (
     ("spark", "dgx-spark"),
@@ -122,6 +124,39 @@ def data_ref(id_: str, version: str, context: str) -> DataRef:
     return DataRef(row.name, context, row.sha256, row.source, profile)
 
 
+def dataset_ref(id_: str, context: str) -> DataRef:
+    """A third-party dataset as a run input, in the version this machine holds (its retrieval
+    date), or unresolved when it is not downloaded here."""
+    from mobility_model_zoo.datasets.inventory import find
+
+    try:
+        rows = [r for r in find(_inventory(), id_) if r.kind == "dataset"]
+    except Exception:  # noqa: BLE001
+        rows = []
+    if len(rows) != 1 or not rows[0].sha256:
+        return DataRef(name=f"{id_}@register", context=context)
+    row = rows[0]
+    return DataRef(row.name, context, row.sha256, row.source, {"counts": row.counts})
+
+
+def model_experiment(model: str) -> tuple[str, str, str]:
+    """(experiment, topic, task) of a zoo model from `zoo/models/<model>/model.yaml`; models of a
+    task without its own experiment go to `spikes`."""
+    import yaml
+
+    from mobility_model_zoo.edge.paths import repo_root
+
+    path = repo_root() / "zoo" / "models" / model / "model.yaml"
+    try:
+        rec = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except OSError:
+        return "spikes", "sandbox", model
+    topic, task = str(rec.get("topic", "")), str(rec.get("task", ""))
+    task = TASK_EXPERIMENT.get(task, task)
+    name = f"{topic}/{task}"
+    return (name if name in EXPERIMENTS else "spikes"), topic, task
+
+
 @contextmanager
 def run(
     experiment: str,
@@ -155,9 +190,14 @@ def run(
 
     if not live:
         if side is None:
-            tc.warn("offline tracking needs an output folder; this run is not tracked")
-            yield tc.NoRun()
-            return
+            # a finished result without an output folder of its own (e.g. `tracking.record`): its
+            # log goes to data/tracking/, which is not committed and which tracking-pull.sh fetches
+            from mobility_model_zoo.edge.paths import repo_root
+
+            from .client import _now_ms
+            from .guard import sanitize_key
+
+            side = repo_root() / "data" / "tracking" / f"{sanitize_key(name)}-{_now_ms()}.tracking.json"
         from .offline import OfflineRun
 
         tr = OfflineRun.open(experiment, name, task, side, run_id)
@@ -265,3 +305,63 @@ def _log_config(tr, path: Path) -> None:
     tr.log_params(params)
     if full.is_relative_to(repo_root() / "configs"):
         tr.log_artifact(full, f"config/{full.name}")
+
+
+def numeric_leaves(data: Any, prefix: str = "", limit: int = 500) -> dict[str, float]:
+    """Every number in a nested result as a metric (`a.b.c`), at most `limit`; booleans and text
+    are left out (they are not metrics, and text never goes into the store)."""
+    from .guard import sanitize_key
+
+    out: dict[str, float] = {}
+
+    def walk(value: Any, key: str) -> None:
+        if len(out) >= limit:
+            return
+        if isinstance(value, dict):
+            for k, v in value.items():
+                walk(v, f"{key}.{sanitize_key(k)}" if key else sanitize_key(k))
+        elif isinstance(value, int | float) and not isinstance(value, bool):
+            if value == value and abs(value) != float("inf"):
+                out[key[:120]] = float(value)
+
+    walk(data, prefix)
+    return out
+
+
+def record(
+    experiment: str,
+    name: str,
+    task: str,
+    kind: str,
+    result: dict[str, Any],
+    *,
+    topic: str | None = None,
+    inputs: tuple[DataRef, ...] | list[DataRef] = (),
+    tags: dict[str, Any] | None = None,
+    params: dict[str, Any] | None = None,
+    artifacts: tuple[tuple[Path, str | None], ...] = (),
+    config_path: str | Path | None = None,
+) -> str | None:
+    """A finished result (evaluation, measurement, export) as one run: its numbers as metrics.
+    Live with a tracking URI, an offline log under data/tracking/ with `MMZ_TRACKING_OFFLINE=1`,
+    else a no-op; never raises because of the server."""
+    from .config import offline
+
+    if not enabled() and not offline():
+        return None
+    with run(
+        experiment,
+        name,
+        task,
+        config_path=config_path,
+        inputs=inputs,
+        topic=topic,
+        tags={"mmz.kind": kind, **(tags or {})},
+    ) as r:
+        if params:
+            r.log_params(params)
+        r.log_final(numeric_leaves(result))
+        for path, published in artifacts:
+            if Path(path).is_file():
+                r.log_artifact(Path(path), published)
+    return r.run_id

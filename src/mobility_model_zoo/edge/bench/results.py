@@ -180,7 +180,25 @@ def write_summary(run_dir: Path) -> dict:
     summary["run"] = Path(run_dir).name
     (Path(run_dir) / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     (Path(run_dir) / "summary.md").write_text(render_markdown(summary))
+    _track(Path(run_dir), summary)
     return summary
+
+
+def _track(run_dir: Path, summary: dict) -> None:
+    """The bench run as a measurement run (feature 017; no-op without a tracking URI). Only the
+    numbers of perf, accuracy and test outcomes; board details and failure texts stay local."""
+    from mobility_model_zoo import tracking
+
+    boards = sorted(summary.get("boards") or {})
+    tracking.record(
+        "edge/hil-bench",
+        f"hil-{run_dir.name}"[:120],
+        "hil-bench",
+        "measure",
+        {k: summary.get(k) or {} for k in ("perf", "accuracy", "tests")},
+        topic="edge",
+        tags={"mmz.hardware": ",".join(boards)[:120] or "none"},
+    )
 
 
 def compare_to_baseline(summary: dict, baseline: dict, tolerance: float = 0.2) -> list[str]:

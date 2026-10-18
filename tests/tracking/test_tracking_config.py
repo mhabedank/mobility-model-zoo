@@ -34,6 +34,7 @@ def test_no_uri_never_imports_mlflow(tmp_path):
 def test_dotenv_supplies_only_mlflow_keys(tmp_path, monkeypatch):
     monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
     monkeypatch.delenv("UNRELATED_SECRET", raising=False)
+    monkeypatch.delenv("MMZ_TRACKING_IGNORE_DOTENV")  # this test reads a .env on purpose
     (tmp_path / ".env").write_text(
         "MLFLOW_TRACKING_URI=http://127.0.0.1:5000\nUNRELATED_SECRET=keep-out\n"
     )

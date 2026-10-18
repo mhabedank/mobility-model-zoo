@@ -96,10 +96,16 @@ def test_modes_do_not_continue_each_other(offline, tmp_path):
     assert tc.sidecar_run_id(sidecar) is None
 
 
-def test_no_output_folder_means_no_tracking(offline, capsys):
-    with tracking.run("productdev/jtbd-span", "c1", "jtbd-span") as r:
-        assert isinstance(r, tc.NoRun)
-    assert "needs an output folder" in capsys.readouterr().err
+def test_a_run_without_folder_logs_under_data_tracking(offline, tmp_path, monkeypatch):
+    import mobility_model_zoo.edge.paths as paths
+
+    monkeypatch.setattr(paths, "repo_root", lambda: tmp_path)
+    tracking.record("security/can-ids", "eval c1", "can-ids", "evaluate", {"f1": {"median": 0.9}})
+    [sidecar] = (tmp_path / "data/tracking").glob("*.tracking.json")
+    assert sidecar.name.startswith("eval_c1-")
+    side, events = _events(sidecar)
+    assert side["mode"] == "offline"
+    assert [e["values"] for e in events if e["type"] == "metrics"] == [{"f1.median": 0.9}]
 
 
 def test_system_metrics_sampler(offline, tmp_path, monkeypatch):

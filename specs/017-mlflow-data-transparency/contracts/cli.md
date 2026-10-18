@@ -131,7 +131,7 @@ Each command below logs only when a tracking URI is set. Without one, its behavi
 | `zoo-security can-ids forest export` (`forest.py:cmd_export`) and `zoo-security can-ids v2 export` (`release_export_v2.export`) | `security/can-ids` | training run: forest settings, training input (the benchmark's `train` and `calibration` roles), export metrics, `config.json` of the export as artifact; never the model files |
 | `zoo-security can-ids measure` | `security/can-ids` | performance metrics per board |
 | `zoo-security can-ids mlp train`, `condmon sound-anomaly train`, `condmon activity train` | `security/can-ids`, `condition-monitoring/sound-anomaly`, `condition-monitoring/activity` | Keras per-epoch metrics through a callback, export report metrics, dataset input (`SOURCE.json` hash) |
-| `edge run` and the HIL pytest plugin | `edge/hil-bench` | measurement run (`mmz.kind=measure`): `summarize()` perf and accuracy per board and model, `summary.json` and `summary.md` artifacts, the hash of any evaluation file used |
+| `edge run` and the HIL pytest plugin | `edge/hil-bench` | measurement run (`mmz.kind=measure`): `summarize()` perf, accuracy and test outcome counts per board and model; `summary.json` and `summary.md` stay local because they hold board details and failure texts |
 | `zoo release-verify` | none | prints `tracking.run_id` when the record has one |
 
 ## Scripts (revised 2026-10-16)
