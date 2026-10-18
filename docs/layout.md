@@ -8,9 +8,10 @@ configs/<topic>/<task>/          configuration of each task
 docs/                            shared guides (adding a model, layout, compliance, edge bench)
 firmware/                        microcontroller firmware: bench/ (HIL bench), components/, per-model builds
 hil/                             board inventory and targets of the hardware-in-the-loop bench
-scripts/                         shared scripts (HF org avatar, cloud setup, history import)
+scripts/                         shared scripts (HF org avatar, cloud setup, history import, spark/mlflow)
 specs/NNN-feature/               feature specs, plans, tasks
-src/mobility_model_zoo/          the package: release/, compliance/, datasets/, catalog/, edge/, <topic>/<task>/
+src/mobility_model_zoo/          the package: release/, compliance/, datasets/, catalog/, edge/, tracking/,
+                                 <topic>/<task>/
 tests/                           tests
 topics/<topic>/                  README.md, research/, tasks/, compliance/ (source classes, sources, datasets),
                                  reports/, recipes/, plus topic-specific folders
@@ -31,6 +32,7 @@ zoo/                             topics.yaml, MODELS.md, models/<name>/ (model, 
 | Reports and recipes | `topics/<topic>/reports/`, `topics/<topic>/recipes/` |
 | Firmware | `firmware/<model>/` |
 | Models and releases | `zoo/models/<name>/` |
+| Data overview and experiment tracking | overview: `src/mobility_model_zoo/datasets/inventory/` (`zoo data stats`); tracking: `src/mobility_model_zoo/tracking/`, server `scripts/spark/mlflow/` (`docs/tracking.md`) |
 | Resource index (mobility resources in every language and modality) | code, schemas, vocabularies: `src/mobility_model_zoo/catalog/`; entries: the private repository `mobility-model-zoo-catalog`, never this one (`docs/catalog.md`) |
 
 `zoo validate --all` checks that every public topic has `README.md` and `compliance/datasets.yaml`. Collected data (`data/`) and build outputs are never committed.

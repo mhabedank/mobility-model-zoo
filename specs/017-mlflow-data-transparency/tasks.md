@@ -434,13 +434,13 @@ Single project:
 
 ### Implementation for User Story 6
 
-- [ ] T054 [US6] Add a consistency test `tests/tracking/test_tag_consistency.py`. For every integration (span train and tune, jtbd score and perf, cluster, can-ids evaluate and measure, Keras, HIL), run it with the fake transport and assert:
+- [X] T054 [US6] Add a consistency test `tests/tracking/test_tag_consistency.py`. For every integration (span train and tune, jtbd score and perf, cluster, can-ids evaluate and measure, Keras, HIL), run it with the fake transport and assert: (done: `tests/tracking/test_tracking_consistency.py`)
   - the same experiment name per task;
   - `mmz.task` and `mmz.topic` set;
   - `mmz.benchmark` set on every run with `mmz.kind=evaluate`; runs with `mmz.kind=measure` carry `mmz.hardware` instead;
   - `mmz.training_set` set on every training run;
   - metric names stable across two runs of the same command.
-- [ ] T055 [US6] Write the comparison guide section in `docs/tracking.md` ("Compare candidates"): the saved filter `tags.mmz.benchmark = 'pilot-v2'`, which columns to pin, and why runs on different benchmark versions must not be compared (constitution VIII).
+- [X] T055 [US6] Write the comparison guide section in `docs/tracking.md` ("Compare candidates"): the saved filter `tags.mmz.benchmark = 'pilot-v2'`, which columns to pin, and why runs on different benchmark versions must not be compared (constitution VIII).
 
 **Checkpoint**: all user stories are functional.
 
@@ -448,7 +448,7 @@ Single project:
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T056 [P] Add the owner decision `D-tracking-store` to `compliance/decisions.yaml`, following the existing entry format:
+- [X] T056 [P] Add the owner decision `D-tracking-store` to `compliance/decisions.yaml`, following the existing entry format:
   - **Location**: the owner's DGX Spark, DE.
   - **Content**: metrics, hashes and metadata; no personal data, no dataset content.
   - **Access**: owner only, via SSH.
@@ -456,7 +456,7 @@ Single project:
   - **Principle XI**: no assistant or LLM on the server.
 
   Add one paragraph on the tracking store to the "Technical and organisational measures" text of `src/mobility_model_zoo/compliance/templates/record-of-processing.md.j2`. Run `uv run zoo compliance render` and commit the re-rendered `docs/compliance/record-of-processing.md`, so that `zoo compliance check --ci` passes.
-- [ ] T057 [P] Write `docs/tracking.md` (owner guide, plain English):
+- [X] T057 [P] Write `docs/tracking.md` (owner guide, plain English):
   - what lives where (repository = truth, MLflow = lab notebook);
   - tunnel and `.env`;
   - the commands from contracts/cli.md with one example each;
@@ -466,7 +466,7 @@ Single project:
   - the "Compare candidates" section from T055.
 
   Link it from `README.md` with a short "Data and runs overview" section under "How the zoo is organized".
-- [ ] T058 [P] Add `zoo data stats|history|diff|publish` and `zoo tracking …` to the command lists in `README.md` ("Quick commands per topic") and to `docs/layout.md` where packages are listed (`datasets/inventory`, `tracking`).
+- [X] T058 [P] Add `zoo data stats|history|diff|publish` and `zoo tracking …` to the command lists in `README.md` ("Quick commands per topic") and to `docs/layout.md` where packages are listed (`datasets/inventory`, `tracking`).
 - [ ] T059 Run the full local checks:
   - `uv run ruff check . && uv run ruff format --check .`
   - `uv run pytest` (no `MLFLOW_TRACKING_URI`)

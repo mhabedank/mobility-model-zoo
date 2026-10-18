@@ -60,6 +60,7 @@ Package code lives in `src/mobility_model_zoo/` (one subpackage per topic plus t
   Step-by-step guide: [docs/adding-a-model.md](docs/adding-a-model.md). Commands and gate rules: [specs/003-model-zoo-hf-release/contracts/cli.md](specs/003-model-zoo-hf-release/contracts/cli.md).
 - Model names follow `<name>-<variant>`, for example `scout-large`; topic and task are tags, and each topic has a Hugging Face collection. Names never change after the first publication.
 - Datasets never go into git. They are declared per topic in `topics/<topic>/compliance/datasets.yaml` (licence, permitted use, redistribution, retention), downloaded with `zoo data download` into `$MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`) and used for training only when declared `training_allowed`. No dataset or training text is published unless its licence and terms allow redistribution; models, methods, prompts and evaluation results are published.
+- **Data and runs overview** (feature 017). `zoo data stats`, `zoo data history` and `zoo data diff` show every dataset, training set and benchmark version with size, counts, licence, permitted use, freeze date, changes and the models using it, computed from the registers and git and checked against changed frozen benchmarks. Trainings and evaluations log to a private MLflow server on the DGX Spark when `MLFLOW_TRACKING_URI` is set: numbers, hashes and metadata only, never data or weights. The repository stays the source of truth. Guide: [docs/tracking.md](docs/tracking.md).
 - Microcontroller models (`runtime: mcu`) run on the zoo's int8 engine or as emlearn C code; the hardware-in-the-loop bench (`edge`) measures them on simulated, emulated and real boards ([docs/edge/hil-bench.md](docs/edge/hil-bench.md)).
 
 ## Compliance
@@ -88,6 +89,7 @@ Quick commands per topic:
 ```bash
 uv run jtbd doctor                              # productdev: JTBD measurement chain
 uv run zoo data list                            # declared datasets of all topics
+uv run zoo data stats                           # every dataset, training set and benchmark version
 uv run zoo-security can-ids --help              # security: picket-forest, picket-mlp
 uv run condmon sound-anomaly --help             # condition-monitoring: hum-fan
 uv run condmon activity --help                  # condition-monitoring: pace-cnn

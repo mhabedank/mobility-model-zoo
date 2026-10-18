@@ -273,3 +273,16 @@ decisions:
   - topics/productdev/deploy/railway-perf
   review_by: '2027-04-11'
   supersedes: null
+- id: D-tracking-store
+  date: '2026-10-15'
+  decision: Experiment tracking runs on a private MLflow server on the controller's DGX Spark (DE), reachable only
+    through the owner's SSH connection. The store holds numbers, hashes and metadata of data versions and runs; no
+    dataset text, chunk, label, frame, personal data or model weight. The repository stays the source of truth. No
+    assistant, gateway or language model is configured on the server. Backups are kept 14 days.
+  rationale: Feature 017 (transparency over training data, benchmarks and runs). Keeping content out of the store keeps
+    it out of the processing record; an allow-list guard and `zoo tracking audit` enforce this.
+  scope:
+  - src/mobility_model_zoo/tracking
+  - scripts/spark/mlflow
+  review_by: '2027-04-15'
+  decided_by: Martin Habedank

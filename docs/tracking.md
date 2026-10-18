@@ -41,6 +41,25 @@ uv run zoo tracking audit                      # anything in the store that shou
 - **Training containers on the Spark** reach the server as `MLFLOW_TRACKING_URI_CONTAINER` (usually `http://mlflow:5000`). The Spark scripts pass it in.
 - **If the server is unreachable**, a run continues without tracking. Its output folder gets `tracking.json` with `complete: false`, and the log shows one warning.
 
+## Past results and release records
+
+```bash
+uv run zoo tracking import --dry-run           # what would be created
+uv run zoo tracking import                     # once; a second run reports "exists"
+```
+
+Every model version with results files in `zoo/models/<model>/results/`, the cluster-v1 decision and the condition-monitoring research reports become runs tagged `mmz.imported=true`, dated to their record, with exactly the repository's numbers and no invented curves.
+
+A release record may name the run its model came from:
+
+```yaml
+tracking:
+  run_id: 0123456789abcdef0123456789abcdef
+  experiment: security/can-ids
+```
+
+Gate rule 1 checks the form. `zoo check` (and so `release-verify`) prints it as evidence; the model card and the website never show it.
+
 ## Experiments
 
 `datasets`, `productdev/jtbd-span`, `productdev/jtbd-cluster`, `security/can-ids`, `condition-monitoring/sound-anomaly`, `condition-monitoring/activity`, `edge/hil-bench`, `spikes`. Spike runs carry `mmz.spike=true` and are never benchmark results.
@@ -50,6 +69,15 @@ Useful filters in the run table:
 - `tags.mmz.benchmark = 'pilot-v2'`: every result on one frozen benchmark version. Compare runs only within one benchmark version (constitution VIII).
 - `datasets.name = 'can-ids@can-ids-v3'`: every run that trained or was evaluated on that version.
 - `tags.mmz.imported = 'true'`: results imported from the repository's results files.
+
+## Compare candidates
+
+1. Open the experiment of the task, for example `productdev/jtbd-span`.
+2. Filter to one benchmark version: `tags.mmz.benchmark = 'pilot-v2'`. Runs on different versions are not comparable (constitution VIII). Each evaluation run carries the version as a tag and as its dataset input.
+3. Select the runs and click Compare. Parameters (the committed configuration, flattened), final metrics and the per-epoch curves line up.
+4. Useful columns to pin: `mmz.candidate`, `mmz.git_commit`, `mmz.hardware`, and the task's main metrics.
+
+The formal decision still comes from the task's own tools (`jtbd span select`, `jtbd span pareto`, the release gate); the comparison view is for exploring.
 
 ## Privacy and security
 
