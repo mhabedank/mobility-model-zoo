@@ -2,59 +2,57 @@
 
 **Feature**: 017 | **Date**: 2026-10-15 | **Spec**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md)
 
-Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry, the v3.17.1 source tag and OSV, and by running mlflow 3.17.1 (SQLite server on 127.0.0.1, mlflow-skinny client) on Python 3.12. Facts about the repository come from the current `main` (`8aebe7e`). Items marked **verify** were not tested on the DGX Spark itself and become explicit checks in the tasks.
+Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry, the v3.17.1 source tag and OSV, and by running mlflow 3.17.1 (SQLite server on 127.0.0.1, mlflow-skinny client) on Python 3.12. Facts about the repository come from the current `main` (`8aebe7e`). Items marked **verify** were not tested on the target machine and become explicit checks in the tasks. **Revision 2026-10-16**: R2, R3, R4, R7, R10 and R16 changed and R17 is new (spec decision 2).
 
 ## R1. MLflow version and client package
 
-- **Decision**: Server `ghcr.io/mlflow/mlflow:v3.17.1` (pinned tag). Client: a new optional extra `tracking` with `mlflow-skinny>=3.17.1,<4`, `numpy`, `python-dotenv`, `psutil`, `nvidia-ml-py`.
+- **Decision**: Server `mlflow==3.17.1` through `uvx` on the laptop (R2; the pinned container image `ghcr.io/mlflow/mlflow:v3.17.1` was the choice while the server was planned for the Spark). Client: a new optional extra `tracking` with `mlflow-skinny>=3.17.1,<4`, `numpy`, `python-dotenv`, `psutil`, `nvidia-ml-py`.
 - **Rationale**: 3.17.1 (PyPI 2026-10-13) is the latest stable release and closes about a dozen advisories fixed in 3.17.0 (see R10). `mlflow-skinny` is about 69 MB installed against about 610 MB for full `mlflow`. It has no server, no UI and no SQL store, but it logs params, metrics, tags, artifacts (proxied upload) and dataset inputs to a remote server; all of these were tested. `mlflow.data.meta_dataset` needs numpy, so numpy is listed explicitly. `psutil` (manylinux aarch64 wheels exist since 7.x) and `nvidia-ml-py` enable system metrics (R7).
 - **Alternatives considered**: full `mlflow` as the client (rejected: ten times larger, pulls pandas, scipy, scikit-learn, pyarrow and Flask into every training environment); `mlflow-tracing` (GenAI tracing only); W&B or other hosted trackers (rejected by the owner: cloud, cost, data leaves the house; constitution cost order).
 
-## R2. Where the server runs and how it is reached
+## R2. Where the server runs and how it is reached (revised 2026-10-16)
 
 - **Decision**:
-  - The server runs on the DGX Spark as a Docker container, started by `scripts/spark/mlflow/mlflow.sh up`.
-  - Inside the container it listens on `0.0.0.0:5000`, but Docker publishes it only on `127.0.0.1:5000` of the Spark.
-  - **Laptop**: reaches it through `ssh -N -L 5000:127.0.0.1:5000 $SPARK_HOST`, and its `.env` holds `MLFLOW_TRACKING_URI=http://127.0.0.1:5000`.
-  - **Training containers on the Spark**: they join a user-defined Docker network `mmz-tracking` and use the address in `MLFLOW_TRACKING_URI_CONTAINER` (`http://mlflow:5000` in `.env.example`). The Spark scripts pass that value through as `MLFLOW_TRACKING_URI`; they never hard-code it (FR-010).
-  - **Host check**: the server is started with `--allowed-hosts` naming `localhost`, `127.0.0.1` and `mlflow`. **verify**: exact list syntax with ports.
+  - The server runs on the owner's laptop, started on demand by `scripts/mlflow/mlflow.sh up` as a background process: `uvx --from mlflow==3.17.1 mlflow server --host 127.0.0.1 --port 5000 --backend-store-uri sqlite:///$MMZ_TRACKING_HOME/mlflow.db --artifacts-destination $MMZ_TRACKING_HOME/artifacts`. `MMZ_TRACKING_HOME` defaults to `~/.local/share/mobility-model-zoo/mlflow`.
+  - It listens on the laptop's loopback interface only. The laptop's `.env` holds `MLFLOW_TRACKING_URI=http://127.0.0.1:5000`. There is no tunnel and no Docker.
+  - **Training on the Spark** does not talk to the server at all. Its containers run in offline mode (`MMZ_TRACKING_OFFLINE=1`) and write an offline run log next to the run's sidecar (R17). `scripts/spark/tracking-pull.sh` fetches only these logs over SSH, and `zoo tracking sync` puts them into the store.
+  - **Host check**: the server's default allowed hosts (localhost and loopback) suffice; no extra host name is configured.
 - **Rationale**:
-  - The image is multi-arch (linux/amd64 and linux/arm64), so it runs on the Spark's Grace CPU without a custom build.
-  - Publishing on loopback only means nothing on the LAN can reach it. SSH is the only door, and it is already the owner's way onto the Spark.
-  - The Host-header middleware is on by default with uvicorn. It defaults to localhost and private IPs, so the Docker service name `mlflow` must be added explicitly.
-  - Keeping training containers on a named network avoids exposing the port on the Docker bridge.
+  - Offline logs need nothing on the Spark beyond the training run itself, which already runs there: no service, no Docker network, no port.
+  - `uvx` with a pinned version is already how the slow integration test starts a real server; it needs no Docker on the laptop and keeps full `mlflow` out of the project environment (R15).
+  - Long trainings still never depend on the laptop being awake: the offline log is written on the Spark and fetched whenever the laptop is on.
 - **Alternatives considered**:
-  - **Laptop-local store**: discussed with the owner and rejected, because long trainings must not depend on the laptop being awake.
-  - **The Spark logs to a local store that is copied back afterwards**: no live view, and two stores to merge.
-  - **`--network host` for training containers**: works, but gives every training container the host network. Rejected.
-  - **Basic auth (`--app-name basic-auth`)**: not needed for one user behind SSH. It needs an admin password and a Flask secret key since 3.17. It can be switched on later without code changes.
+  - **Server on the Spark behind an SSH tunnel**: the original design, replaced on 2026-10-16 (spec decision 2).
+  - **Reverse tunnel from the laptop into Spark containers** (`ssh -R`): runs would stall or degrade whenever the laptop sleeps.
+  - **MLflow's file store as the offline format**: deprecated since 3.6, the server refuses it since 3.13, and the client needs `MLFLOW_ALLOW_FILE_STORE`; it would also need MLflow inside every training container. Rejected for an own, versioned log format (R17).
+  - **Basic auth**: not needed for a loopback-only, single-user server.
 
-## R3. Backend store, artifacts and backup
+## R3. Backend store, artifacts and backup (revised 2026-10-16)
 
 - **Decision**:
-  - **Store**: SQLite at `~/mlflow/mlflow.db` on the Spark, with artifacts in `~/mlflow/artifacts` served through the server (`--artifacts-destination`; `--serve-artifacts` is the default).
-  - **Nightly backup**: `mlflow.sh backup` runs from the owner's crontab on the Spark. It makes an online SQLite backup with the `sqlite3` backup API inside the container and a tar of the artifact directory, written to `~/mlflow-backups/<date>/`. It keeps 14 backups.
-  - **Offsite copy**: `mlflow.sh pull-backup` copies the latest backup to the laptop.
+  - **Store**: SQLite at `$MMZ_TRACKING_HOME/mlflow.db` on the laptop, with artifacts in `$MMZ_TRACKING_HOME/artifacts` served through the server (`--artifacts-destination`).
+  - **Automatic backup**: `mlflow.sh down` and `mlflow.sh upgrade` first run `mlflow.sh backup`. It makes an online SQLite backup with Python's `sqlite3` backup API and a tar of the artifact directory, written to `$MMZ_TRACKING_BACKUP/<date-time>/` (default `~/mlflow-backups`, which the owner may point at an external drive). It keeps the newest 14.
+  - **Second copy of Spark runs**: the offline logs stay in the run folders on the Spark and in the fetched copy on the laptop; a lost store can be rebuilt from them with `zoo tracking sync`.
   - **Restore**: `mlflow.sh restore <dir>` stops the server, replaces the store and starts again. It is tested once (SC-009).
-  - **Upgrades**: `mlflow.sh upgrade <tag>` takes a backup, stops the server, runs `mlflow db upgrade` and starts the new tag.
+  - **Upgrades**: `mlflow.sh upgrade <version>` takes a backup, stops the server, runs `mlflow db upgrade` with the new version and starts it.
 - **Rationale**:
   - SQLite has been the default backend since 3.7. The file store is deprecated (3.6) and refuses to start since 3.13.
-  - The project has no official MLflow backup guide. The MLflow docs say to back up before `mlflow db upgrade`, stop all writers, and not mix versions; 3.17.0 carries a schema migration. The SQLite online backup API is the standard way to copy a live database.
+  - A laptop is not always on, so a nightly schedule would miss days; backing up whenever the server stops covers every session in which the store changed. The MLflow docs say to back up before `mlflow db upgrade`.
 - **Alternatives considered**:
-  - **PostgreSQL**: a second container to run, for no gain at single-user scale.
-  - **mlflow-export-import**: maintained only on GitHub, and its PyPI release is legacy. Kept as a fallback for a move to another server, not used for backup.
+  - **PostgreSQL**: a second service to run, for no gain at single-user scale.
+  - **A launchd schedule**: possible later; it adds nothing while the store changes only while the server runs.
+  - **mlflow-export-import**: kept as a fallback for a move to another machine, not used for backup.
 
-## R4. Configuration: one environment variable
+## R4. Configuration: environment only (revised 2026-10-16)
 
 - **Decision**:
-  - The tracking layer reads `MLFLOW_TRACKING_URI` from the process environment. If it is unset, it reads only the `MLFLOW_*` keys from a `.env` file in the working directory or at the repository root, using `dotenv_values` with no side effects.
-  - When nothing is set, the layer is a no-op that returns immediately. The `mlflow` import happens only when a URI is set.
-  - `.env.example` gets `MLFLOW_TRACKING_URI`, `MLFLOW_TRACKING_URI_CONTAINER` and the missing `SPARK_HOST`, and `docs/credentials.md` lists all three under "Other local settings".
-  - **Container address**: the laptop and the Spark host see the server at a different address than a container on the `mmz-tracking` network does. The second variable keeps both values in `.env`, so no script has to hard-code the container address.
+  - **Live mode**: the tracking layer reads `MLFLOW_TRACKING_URI` from the process environment. If it is unset, it reads only the `MLFLOW_*` and `MMZ_TRACKING_*` keys from a `.env` file in the working directory or at the repository root, using `dotenv_values` with no side effects.
+  - **Offline mode**: `MMZ_TRACKING_OFFLINE=1` without a tracking URI. The Spark scripts set it with `-e` on their training containers (the container installs the package non-editably, so `.env` is not found there). A URI wins over offline mode.
+  - When neither is set, the layer is a no-op that returns immediately. The `mlflow` import happens only in live mode; offline mode imports no tracking software.
+  - `.env.example` gets `MLFLOW_TRACKING_URI`, `MMZ_TRACKING_HOME`, `MMZ_TRACKING_BACKUP` and the missing `SPARK_HOST`; `docs/credentials.md` lists them under "Other local settings". `MLFLOW_TRACKING_URI_CONTAINER` is removed.
 - **Rationale**:
-  - `jtbd` already loads `.env`, but `zoo`, `zoo-security` and `condmon` do not (python-dotenv is only in the `jtbd` and `catalog` extras).
-  - Reading only the tracking keys keeps the other commands' behaviour unchanged (FR-010, FR-011).
-  - The Spark training container installs the package non-editably, so `load_dotenv()` would search site-packages, not `/work`. The Spark scripts therefore pass the variable explicitly with `-e`.
+  - `jtbd` already loads `.env`, but `zoo`, `zoo-security` and `condmon` do not (python-dotenv is only in the `jtbd` and `catalog` extras). Reading only the tracking keys keeps the other commands' behaviour unchanged (FR-010, FR-011).
+  - One switch for the Spark scripts keeps any address out of the repository and out of the containers.
 - **Alternatives considered**:
   - **Calling `load_dotenv()` globally in every CLI**: it changes behaviour for every other variable. Rejected.
   - **A config file in `configs/`**: forbidden by FR-010.
@@ -72,7 +70,7 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - Epochs take minutes, so one synchronous batch per epoch adds negligible time (SC-006 is measured, not assumed).
 - **Alternatives considered**:
   - **Async logging**: silent loss.
-  - **A local spool with later replay**: more code for a case the run's own result files already cover. Kept as a possible follow-up if the server proves flaky.
+  - **A local spool with later replay**: originally deferred. Since 2026-10-16 it exists as offline mode for machines without the server (R17); a live run that loses the laptop's server still degrades as described here rather than switching to offline mid-run, because one run would then live in two places.
 
 ## R6. No autologging; explicit, allow-listed logging
 
@@ -88,14 +86,15 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - Explicit logging keeps the privacy guard (R8) in one place.
 - **Alternatives considered**: autolog with `log_models=False, log_datasets=False, checkpoint=False`. Rejected: implicit behaviour that can change between MLflow versions, and it does not cover the main task.
 
-## R7. System metrics on the Spark
+## R7. System metrics (revised 2026-10-16)
 
 - **Decision**:
-  - Training runs enable MLflow system metrics when `psutil` is importable (CPU, memory, disk, network; GPU utilisation and power through NVML).
-  - `MMZ_TRACKING_SYSTEM_METRICS=0` switches them off.
-  - **verify** on the Spark: NVML memory queries return "Not Supported" on GB10 (NVIDIA known issue). MLflow catches this and keeps utilisation and power.
-- **Rationale**: answers "is the GPU busy, is the run stuck" without SSH (US4).
-- **Alternatives considered**: none worth keeping. `nvidia-smi` over SSH is the status quo the owner wants to leave.
+  - **Live mode** (laptop): training runs enable MLflow system metrics when `psutil` is importable.
+  - **Offline mode** (Spark): a small sampler thread in the tracking layer records, every 10 s, CPU and memory through `psutil` when importable, and GPU utilisation and power through `nvidia-smi --query-gpu=utilization.gpu,power.draw --format=csv,noheader,nounits` when that command exists. It writes them as metrics under MLflow's own names (`system/cpu_utilization_percentage`, `system/system_memory_usage_megabytes`, `system/gpu_0_utilization_percentage`, `system/gpu_0_power_watts`), so synced and live runs chart alike.
+  - `MMZ_TRACKING_SYSTEM_METRICS=0` switches both off.
+  - **verify** on the Spark: `nvidia-smi` in the NGC container reports utilisation and power on GB10 (memory queries are "Not Supported" there, a known NVIDIA issue, and are not sampled).
+- **Rationale**: answers "is the GPU busy, is the run stuck" without a shell on the Spark (US4). MLflow's own monitor needs MLflow in the container, which offline mode avoids.
+- **Alternatives considered**: installing the `tracking` extra in the container only for system metrics (rejected: 70 MB more per container for four numbers).
 
 ## R8. Privacy guard (FR-024, SC-007)
 
@@ -126,25 +125,16 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - Search by tag and by dataset fields works; this was tested.
 - **Alternatives considered**: MLflow's GenAI "evaluation datasets", which store records. Rejected: they are for content, which must not be stored.
 
-## R10. Server security
+## R10. Server security (revised 2026-10-16)
 
 - **Decision**:
-  - Pin `v3.17.1` or newer.
-  - Loopback publish only, with the Host-header check.
+  - Pin `3.17.1` or newer.
+  - Loopback only (`--host 127.0.0.1`), with the default Host-header check.
   - No AI assistant, gateway or LLM keys are configured on the server.
   - `mlflow.sh upgrade` is the documented path for new versions, and `docs/tracking.md` says to check OSV before upgrading.
-  - Close the SSH tunnel when it is not in use.
-- **Rationale**: 2025–2026 advisories include:
-  - DNS rebinding (CVE-2025-14279, fixed in 3.5.0).
-  - Unauthenticated file read (CVE-2026-2614, fixed in 3.10.0).
-  - Assistant origin validation (CVE-2026-2611, fixed in 3.10.0).
-  - Unauthenticated SSRF via the webhook test endpoint (GHSA-7gwp-5pfp-969j, fixed in 3.15.0).
-  - About 12 more advisories fixed in 3.17.0.
-
-  A loopback-only server behind SSH limits these to the owner's own browser. An open tunnel plus a malicious web page is the residual risk, and the Host and CORS checks address it.
-
-  Not configuring an assistant also keeps Principle XI trivially true on the server.
-- **Alternatives considered**: a reverse proxy with TLS. That is more to run, and SSH already encrypts.
+  - Stop the server (`mlflow.sh down`) when it is not in use; that also backs it up.
+- **Rationale**: 2025–2026 advisories include DNS rebinding (CVE-2025-14279, fixed in 3.5.0), unauthenticated file read (CVE-2026-2614, fixed in 3.10.0), assistant origin validation (CVE-2026-2611, fixed in 3.10.0), unauthenticated SSRF via the webhook test endpoint (GHSA-7gwp-5pfp-969j, fixed in 3.15.0) and about 12 more fixed in 3.17.0. A loopback-only server limits these to the owner's own browser; a malicious web page open while the server runs is the residual risk, which the Host and CORS checks address. Nothing listens on the Spark. Not configuring an assistant keeps Principle XI trivially true.
+- **Alternatives considered**: a reverse proxy with TLS. Not needed on loopback.
 
 ## R11. Overview sources and how counts are found
 
@@ -217,17 +207,30 @@ Facts about MLflow were checked on 2026-10-15 against PyPI, the ghcr.io registry
   - skinny cannot host a SQL store, so a real server needs full `mlflow`. That is fine for a slow, local test and too heavy for every CI run.
 - **Alternatives considered**: a mocked `mlflow` module everywhere. Rejected: it would not catch API drift between versions.
 
-## R16. Compliance register
+## R16. Compliance register (revised 2026-10-16)
 
 - **Decision**:
-  - A new owner decision `D-tracking-store` in `compliance/decisions.yaml` records the store: its location (the owner's DGX Spark, DE), its content (metrics, hashes, metadata; no personal data, no dataset content), access (owner only, via SSH), retention (kept with the project, backups 14 days) and the Principle XI note (no assistant or LLM on the server).
+  - A new owner decision `D-tracking-store` in `compliance/decisions.yaml` records the store: its location (the owner's laptop, DE), its content (metrics, hashes, metadata; no personal data, no dataset content), access (owner only), retention (kept with the project, backups the newest 14), the offline logs (the same allow-listed content, written next to run outputs on the training machine, including the DGX Spark, where training outputs already live) and the Principle XI note (no assistant or LLM on the server).
   - The "Technical and organisational measures" text of `compliance/templates/record-of-processing.md.j2` gets one paragraph for the store. `zoo compliance render` then updates `docs/compliance/record-of-processing.md`, and the C-N3 drift check covers it.
   - `PRIVACY.md` and recipients are unchanged: there is no new recipient and no personal data.
 - **Rationale**: FR-027. The register has no structured list of processing systems, and adding one for a single store would be more structure than content.
 
+## R17. Offline run log and sync (FR-030, new 2026-10-16)
+
+- **Decision**:
+  - **Where**: next to the run's sidecar, never inside a staged or published folder. For a sidecar `<dir>/tracking.json` the log is `<dir>/tracking/<id>.mmz-run.jsonl`; for an explicit sidecar such as `data/models/span-xlmr-c1.tracking.json` it is `data/models/span-xlmr-c1.tracking/<id>.mmz-run.jsonl`. Allow-listed artifacts are copied to `<same folder>/<id>.mmz-run/<published name>`. `<id>` is a random 32-hex id, recorded in the sidecar (`mode: offline`, `offline_id`, `log`).
+  - **Format** (`mmz-run/1`): one JSON object per line, appended and flushed per event: `{"seq": n, "t": <epoch ms>, "type": …}` with types `start` (format, experiment, name, task), `params`, `tags`, `metrics` (step and values), `input` (name, digest, source, profile, context), `artifact` (published name), `end` (status). Values pass the same guard (R8) before they are written; refused values are dropped and counted as in live mode.
+  - **Continuing a run**: a later command that continues the run (e.g. `jtbd span tune`) finds the `offline_id` in the sidecar and appends to the same log.
+  - **Sync**: `zoo tracking sync PATH... [--dry-run]` finds `*.mmz-run.jsonl` under the paths. Per log it searches `tags.mmz.offline_id`; it creates the run with the log's start time if missing, then replays only events with `seq` above the run's `mmz.offline_synced` tag, setting that tag after each batch. Metrics keep their step and timestamp. An `end` event sets the final status and end time. An incomplete last line is ignored until the next sync. Every value passes the guard again; artifacts are checked by name, size and the never-list (origin was checked when written). Output: one line per log, `created`, `updated` (with the number of new events) or `unchanged`; exit 0, or 8 when the server cannot be reached.
+  - **Fetch**: `scripts/spark/tracking-pull.sh` runs `rsync -am` over SSH from the Spark's `mobility-model-zoo/data/` with includes for `*/`, `*.mmz-run.jsonl`, `*.mmz-run/***` and `*.tracking.json` and excludes everything else, into the laptop's `data/`, then runs `zoo tracking sync data/`.
+- **Rationale**:
+  - Append-only events with a sequence number make sync idempotent and incremental, which gives a near-live view by syncing again during training (SC-004) without anything running on the Spark.
+  - An own small format is stable against MLflow's store changes, needs no MLflow in the training container, and the guard runs before anything is written on the Spark.
+- **Alternatives considered**: MLflow file store (R2); mlflow-export-import (meant for whole servers, legacy on PyPI); copying the sidecar only (no curves).
+
 ## Open items carried into tasks (verify on the Spark)
 
-1. **Host check**: the `--allowed-hosts` syntax with `mlflow:5000`, and that the training container on `mmz-tracking` is accepted (R2). *Verified locally on 2026-10-15 against mlflow 3.17.1 (SQLite server): the option takes comma-separated `host[:port]` entries; a request with `Host: evil.example` gets 403 on the API and UI, `Host: mlflow:<port>` gets 200; `/health` is exempt from the check. The container path on the Spark itself is still to be confirmed (T039).*
+1. **Host check**: *Verified locally on 2026-10-15 against mlflow 3.17.1 (SQLite server): a request with `Host: evil.example` gets 403 on the API and UI; `/health` is exempt from the check.* Since 2026-10-16 the server runs on the laptop with the default allowed hosts; the container path is gone.
 2. **Digest length**: the maximum length of the dataset digest in the SQLite store (R9). *Verified locally on 2026-10-15: a 16-character digest round-trips through a SQLite-backed server and the `datasets.name` filter finds the run (`tests/integration/test_tracking_server.py`).*
-3. **GPU metrics on GB10**: system metrics report GPU utilisation and power without errors (R7).
-4. **Logging overhead**: below 2 % on one span training epoch (SC-006).
+3. **GPU metrics on GB10**: the offline sampler's `nvidia-smi` query reports utilisation and power in the NGC container (R7).
+4. **Logging overhead**: below 2 % on one span training epoch in offline mode on the Spark, and in live mode on the laptop (SC-006).

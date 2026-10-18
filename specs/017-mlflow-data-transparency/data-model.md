@@ -99,7 +99,7 @@ The wrapper's view of an MLflow run. Keys and allowed values are in [contracts/t
 | `experiment` | `datasets`, `<topic>/<task>` (e.g. `productdev/jtbd-span`, `security/can-ids`, `condition-monitoring/sound-anomaly`, `edge/hil-bench`) or `spikes` |
 | `run_name` | `<id>@<version>` for data runs, `<model-or-candidate>-<short commit>` for runs |
 | `status` | MLflow status: `RUNNING`, `FINISHED`, `FAILED`, `KILLED` |
-| `tags` | `mmz.*` allow-list: kind, task, topic, git commit, clean tree, hardware, benchmark, training set, model, model version, imported, import key, spike, superseded_by |
+| `tags` | `mmz.*` allow-list: kind, task, topic, git commit, clean tree, hardware, benchmark, training set, model, model version, imported, import key, spike, superseded_by, offline id, offline synced |
 | `params` | flattened committed config values (guarded, R8) |
 | `metrics` | per step (epoch or eval step) and final; data runs: sizes, counts, distributions |
 | `inputs` | `Dataset(name=<id>@<version>, digest=<sha256[:16]>, source_type=zoo, source=<repo path>, profile=<aggregate JSON>)` with context `training`, `evaluation` or `inventory` |
@@ -109,6 +109,11 @@ The wrapper's view of an MLflow run. Keys and allowed values are in [contracts/t
 - A run starts as `RUNNING`.
 - It ends as `FINISHED` when the command succeeds, `FAILED` on an exception, and `KILLED` on an interrupt.
 - A degraded run (server lost mid-run) keeps whatever state the server last saw. Its local `tracking.json` records `complete: false` (FR-020).
+- A synced offline run stays `RUNNING` until a sync replays its `end` event, then takes that status and end time.
+
+**Offline run lifecycle** (sync, FR-030). The key is `mmz.offline_id`:
+- not present → created with the log's start time, then all complete events replayed
+- present → only events with `seq` above `mmz.offline_synced` replayed; nothing new → unchanged
 
 **Data run lifecycle** (idempotent publish, FR-015). The key is `(mmz.id, mmz.version)`:
 - not present → created
@@ -118,16 +123,37 @@ The wrapper's view of an MLflow run. Keys and allowed values are in [contracts/t
 
 ## TrackingSidecar (`tracking.json`)
 
-Written next to a run's own outputs when tracking was attempted.
+Written next to a run's own outputs when tracking was attempted (live or offline).
 
 | Field | Type |
 |---|---|
-| `tracking_uri_host` | string (host and port only, no credentials) |
+| `mode` | `live` or `offline` |
+| `tracking_uri_host` | string (host and port only, no credentials); `-` in offline mode |
 | `experiment` | string |
-| `run_id` | 32-hex or null |
+| `run_id` | 32-hex or null (live mode) |
+| `offline_id` | 32-hex (offline mode) |
+| `log` | path of the offline log relative to the sidecar (offline mode) |
 | `complete` | bool |
 | `dropped` | int (values refused by the guard or lost to the circuit breaker) |
 | `warnings` | list of short strings |
+
+## OfflineRunLog (`<id>.mmz-run.jsonl`, research R17)
+
+Append-only, one JSON object per line, written next to the sidecar in offline mode. Artifacts sit in the folder `<id>.mmz-run/` beside it.
+
+| Field | Type | Notes |
+|---|---|---|
+| `seq` | int | 0, 1, 2, … per log; sync replays only `seq` above `mmz.offline_synced` |
+| `t` | int | epoch milliseconds when the event was written |
+| `type` | `start`, `params`, `tags`, `metrics`, `input`, `artifact`, `end` | |
+| `start` | `format` (`mmz-run/1`), `experiment`, `name`, `task` | always `seq` 0 |
+| `params`, `tags` | `values`: object | guarded before writing (R8) |
+| `metrics` | `step`: int, `values`: object of finite numbers | |
+| `input` | `name`, `digest`, `source`, `profile`, `context` | as the dataset input of a live run |
+| `artifact` | `name`: allow-listed published name | the file is in `<id>.mmz-run/<name>` |
+| `end` | `status`: `FINISHED`, `FAILED` or `KILLED` | at most once, last |
+
+A line that is not complete JSON is the end of what has been written so far.
 
 ## ReleaseRecord.tracking (optional)
 
@@ -147,4 +173,5 @@ Dataset (register) ──built_from──▶ Training set ──used_by──▶
                          ▲                                                    │
                          └──────────────── measured_on ───────────────────────┘
 Release record ──tracking.run_id──▶ Run (optional)
+Offline run log ──synced into (mmz.offline_id)──▶ Run
 ```

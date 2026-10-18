@@ -21,7 +21,7 @@
 Single project:
 - **Code**: `src/mobility_model_zoo/`
 - **Tests**: `tests/`
-- **Spark scripts**: `scripts/spark/mlflow/`
+- **Scripts**: `scripts/mlflow/` (laptop server), `scripts/spark/tracking-pull.sh` (revised 2026-10-16; `scripts/spark/mlflow/` is removed by T062)
 - **Owner docs**: `docs/`
 - **Data**: lives in `$MMZ_DATA` (default `~/.cache/mobility-model-zoo/datasets`) and in the gitignored `data/`, never in git.
 
@@ -218,17 +218,17 @@ Single project:
 
 ## Phase 5: User Story 3 - Browse data versions in MLflow (Priority: P2)
 
-**Goal**: a private MLflow server on the Spark, the tracking core (config, guard, client) and `zoo data publish` mirroring the overview into the `datasets` experiment idempotently.
+**Goal**: a private MLflow server on the owner's laptop (revised 2026-10-16, research R2), the tracking core (config, guard, client) and `zoo data publish` mirroring the overview into the `datasets` experiment idempotently.
 
 **Independent Test**: [quickstart.md](quickstart.md) §3, §4, §8.
-- `zoo tracking status` exits 0 through the tunnel.
+- `zoo tracking status` exits 0 against the laptop server.
 - `zoo data publish` twice yields only `update` the second time.
 - `zoo tracking audit` exits 0.
-- The server is unreachable from the LAN.
+- The server listens on 127.0.0.1 only.
 
 ### Implementation for User Story 3
 
-- [X] T028 [P] [US3] Write `scripts/spark/mlflow/mlflow.sh` (bash, `set -euo pipefail`, SPDX header) with the subcommands from contracts/cli.md:
+- [X] T028 [P] [US3] (superseded 2026-10-16 by T062; the Spark server is not used) Write `scripts/spark/mlflow/mlflow.sh` (bash, `set -euo pipefail`, SPDX header) with the subcommands from contracts/cli.md:
   - **`up`**:
     - create the network `mmz-tracking` if missing;
     - run the server:
@@ -251,7 +251,7 @@ Single project:
   - **`pull-backup`** (laptop): rsync the newest backup from `$SPARK_HOST` to `~/mlflow-backups/`.
   - **`tunnel`** (laptop): `ssh -N -L 5000:127.0.0.1:5000 "$SPARK_HOST"`.
   - **Environment**: read `SPARK_HOST` from `.env` the way `train_span.sh` does. Never configure an assistant, gateway or LLM key (research R10).
-- [X] T029 [P] [US3] Write `scripts/spark/mlflow/README.md`:
+- [X] T029 [P] [US3] (superseded 2026-10-16 by T062) Write `scripts/spark/mlflow/README.md`:
   - one-time setup on the Spark, and the crontab line for the nightly `mlflow.sh backup`;
   - laptop tunnel and `.env`;
   - upgrade procedure, with "check https://osv.dev/list?ecosystem=PyPI&q=mlflow before upgrading";
@@ -312,21 +312,28 @@ Single project:
   - **Server**: start `uvx --from mlflow==3.17.1 mlflow server --host 127.0.0.1 --port <free> --backend-store-uri sqlite:///<tmp>/m.db --artifacts-destination <tmp>/a` and wait for `/health`.
   - **Steps**: `zoo data publish` on the T018 fixtures twice (creates, then updates); one `tracking.run` with three steps and a dataset input; search `datasets.name = '<id>@<version>'` finds the run; `zoo tracking audit` exits 0.
   - **Open item 2**: assert that a 16-character digest round-trips (research R9).
-- [ ] T039 [US3] **(Spark)** Owner task, following quickstart §3:
-  - run `mlflow.sh up` and confirm the network and host checks: LAN `curl` fails; `Host: evil.example` gets 403; the `mlflow` host from a container on `mmz-tracking` is accepted (open item 1);
-  - install the crontab backup;
-  - run `mlflow.sh backup` and `mlflow.sh restore` once and record the time in `scripts/spark/mlflow/README.md` (SC-009);
-  - run `zoo data publish --profile` from the laptop.
-
+- [X] T062 [US3] Replace `scripts/spark/mlflow/` with `scripts/mlflow/mlflow.sh` and `scripts/mlflow/README.md` for the laptop (contracts/cli.md "Scripts", research R2, R3):
+  - **`up`**: `uvx --from "mlflow==${MLFLOW_VERSION:-3.17.1}" mlflow server --host 127.0.0.1 --port "${MMZ_TRACKING_PORT:-5000}" --backend-store-uri "sqlite:///$MMZ_TRACKING_HOME/mlflow.db" --artifacts-destination "$MMZ_TRACKING_HOME/artifacts"` in the background with `nohup`, a pid file and a log file in `$MMZ_TRACKING_HOME`; wait for `/health`.
+  - **`down`**: `backup`, then stop by pid. **`status`**, **`logs`** as before.
+  - **`backup`**: online SQLite backup with `python3 -c 'import sqlite3, sys; …backup(…)'` plus a tar of `artifacts/` into `$MMZ_TRACKING_BACKUP/$(date +%F-%H%M)/`; keep the newest 14.
+  - **`restore DIR`**, **`upgrade VERSION`** as in research R3.
+  - **Environment**: read only `MMZ_TRACKING_*` and `MLFLOW_VERSION` from `.env`; defaults from research R3. Never configure an assistant, gateway or LLM key.
+  - Delete `scripts/spark/mlflow/`; move its README content (upgrade with the OSV check, restore drill) to `scripts/mlflow/README.md`. Point `scripts/ci/select_tests.py` at `scripts/mlflow`.
+- [X] T063 [US3] Offline mode in `src/mobility_model_zoo/tracking/config.py`: `offline()` is true when `MMZ_TRACKING_OFFLINE=1` and no tracking URI is set; the `.env` lookup also reads `MMZ_TRACKING_*` keys. Update `.env.example` (`MLFLOW_TRACKING_URI`, `MMZ_TRACKING_OFFLINE`, `MMZ_TRACKING_HOME`, `MMZ_TRACKING_BACKUP`, `SPARK_HOST`; remove `MLFLOW_TRACKING_URI_CONTAINER`) and `docs/credentials.md`.
+- [X] T064 [P] [US3] Add `mmz.offline_id` and `mmz.offline_synced` to the tag allow-list in `src/mobility_model_zoo/tracking/guard.py` (contracts/tracking.md), with tests.
+- [X] T039 [US3] **(laptop)** Owner task, following quickstart §3 (revised 2026-10-16; done 2026-10-16: loopback only, host check 403, backup and restore in 8 s, store filled with `zoo data publish --profile` and `zoo tracking import`, audit clean):
+  - run `scripts/mlflow/mlflow.sh up` and confirm it listens on 127.0.0.1 only and that `Host: evil.example` gets 403;
+  - run `mlflow.sh down` (backup) and `mlflow.sh restore` once and record the time in `scripts/mlflow/README.md` (SC-009);
+  - run `zoo data publish --profile`.
 **Checkpoint**: the server runs, data versions are browsable in MLflow, and the store audit is clean.
 
 ---
 
-## Phase 6: User Story 4 - Follow a training run live (Priority: P2)
+## Phase 6: User Story 4 - Follow a training run (Priority: P2)
 
-**Goal**: training runs on the Spark appear live with config, metrics per epoch, system metrics and final status. A lost server never harms a run.
+**Goal** (revised 2026-10-16): training runs on the Spark write an offline log that one laptop command fetches and syncs, with config, metrics per epoch, system metrics and final status; runs on the laptop appear live. Neither a lost server nor offline logging ever harms a run.
 
-**Independent Test**: [quickstart.md](quickstart.md) §5. A span candidate trains on the Spark with metrics visible in the browser. Stopping the server mid-run still finishes training with a complete `span_config.json` and `tracking.json` `complete: false`. The overhead is under 2 %.
+**Independent Test**: [quickstart.md](quickstart.md) §5. A span candidate trains on the Spark offline; two pulls show the epochs so far and then the finished run, without duplicates. A laptop run with the server stopped mid-run still finishes with complete result files and `tracking.json` `complete: false`. The overhead is under 2 %.
 
 ### Implementation for User Story 4
 
@@ -338,13 +345,32 @@ Single project:
   - **Without a URI**: the output files must be byte-identical to today. Assert this in a test.
 
   **Principle IV go/no-go**: this task is followed by T041 before any other integration.
-- [ ] T041 [US4] **(Spark)** Owner task, following quickstart §5 (the `train_span.sh` change below is done; the Spark run, the outage test and the overhead measurement are open):
-  - adapt `topics/productdev/scripts/spark/train_span.sh`: when `MLFLOW_TRACKING_URI_CONTAINER` is set in the sourced `.env`, add `--network mmz-tracking -e MLFLOW_TRACKING_URI="$MLFLOW_TRACKING_URI_CONTAINER"` to `docker run` (mind the quoting inside the `ssh` string) and install `"/work[jtbd,tracking]"`. The script must not contain the address itself (FR-010). Also fix the stale `scripts/spark/...` path in its header comment;
-  - train one candidate; stop the server mid-run with `mlflow.sh down`; confirm the run finishes and `tracking.json` says `complete: false`;
-  - measure epoch time with and without tracking, which must be under 2 % (SC-006);
-  - confirm GPU utilisation shows in system metrics on GB10 (open item 3).
+- [X] T065 [US4] Implement the offline writer `src/mobility_model_zoo/tracking/offline.py` and wire it into `tracking.run()` (research R17, R7; data-model "OfflineRunLog"):
+  - an `OfflineRun` with the `TrackedRun` methods (`log_params`, `set_tags`, `log_metrics`, `log_step`, `log_final`, `log_artifact`, `log_input`, `finish`); every value passes the same guard; one flushed line per event; artifacts copied into `<id>.mmz-run/`;
+  - the log goes next to the sidecar (`<dir>/tracking/` for `out_dir`, `<stem>.tracking/` for an explicit `…tracking.json` sidecar), never into a staged folder; the sidecar gets `mode`, `offline_id` and `log`;
+  - `run_id=` given with an offline sidecar (`jtbd span tune`, T042) appends to the same log;
+  - system metrics: a sampler thread every 10 s (`psutil` when importable, `nvidia-smi` when present), MLflow's metric names, off with `MMZ_TRACKING_SYSTEM_METRICS=0`;
+  - no `mlflow` import anywhere in offline mode; without `out_dir`/`sidecar` the run is a no-op with one warning.
+- [X] T066 [US4] Implement `src/mobility_model_zoo/tracking/sync.py` and `zoo tracking sync PATH... [--dry-run]` in `tracking/cli.py` (contracts/cli.md):
+  - find `*.mmz-run.jsonl`; key `mmz.offline_id`; create with the start event's time; replay events with `seq` above `mmz.offline_synced` in batches (metrics with their step and timestamp, params once, tags, inputs, artifacts by name/size/never-list); set `mmz.offline_synced` after each batch; `end` sets status and end time;
+  - ignore an incomplete last line; re-apply the guard and report refused values; print `created`, `updated N` or `unchanged` per log, plus `running` when there is no `end`;
+  - exit 0, 7 (a log fails the guard), 8 (server).
+- [X] T067 [US4] Spark side, SSH only:
+  - `topics/productdev/scripts/spark/train_span.sh`: replace the `MLFLOW_TRACKING_URI_CONTAINER` branch by `MMZ_TRACKING_OFFLINE=1` → `-e MMZ_TRACKING_OFFLINE=1 -e MMZ_HARDWARE=dgx-spark`, no network option, install `/work[jtbd]`; update the header comment (fetch with `scripts/spark/tracking-pull.sh`);
+  - new `scripts/spark/tracking-pull.sh [REMOTE_DATA_DIR]`: `rsync -am` from `$SPARK_HOST:mobility-model-zoo/data/` with includes `*/`, `*.mmz-run.jsonl`, `*.mmz-run/***`, `*.tracking.json` and `--exclude='*'` into `data/`, then `uv run zoo tracking sync data/`; `set -euo pipefail`, SPDX header, `SPARK_HOST` from `.env` as `train_span.sh` reads it.
+- [X] T068 [P] [US4] Tests:
+  - `tests/tracking/test_offline.py`: no `mlflow` in `sys.modules` in offline mode; the log next to the sidecar and nothing in the model folder; guard drops are counted; the sampler is off with `MMZ_TRACKING_SYSTEM_METRICS=0`; a continued run appends;
+  - `tests/tracking/test_sync.py` (in-process store): created → unchanged on a second sync; a log grown by two epochs → `updated 2` and no duplicate metric points; an incomplete last line is skipped and picked up later; start and end times and steps preserved; a hand-edited prose param → refused and reported;
+  - extend `tests/integration/test_tracking_server.py` (slow) with one offline run synced into the real server;
+  - a shell syntax check of both new scripts and `train_span.sh` (`bash -n`) in `tests/tracking/test_scripts.py`, which also asserts that nothing points at a server on the Spark.
+  - (done 2026-10-16; the slow test's server now starts with the default allowed hosts, as the laptop script does.)
+- [ ] T041 [US4] **(Spark + laptop)** Owner task, following quickstart §5 (revised 2026-10-16; needs T062 to T068):
+  - set `MMZ_TRACKING_OFFLINE=1` in `.env`; train one candidate with `train_span.sh`; run `scripts/spark/tracking-pull.sh` mid-run and after the end; confirm the epochs so far, then `FINISHED`, then `unchanged`, and no tracking file inside the model folder;
+  - measure epoch time with and without offline mode, which must be under 2 % (SC-006);
+  - confirm GPU utilisation in the synced system metrics (open item 3);
+  - on the laptop, run one short training live and stop the server mid-run: the run finishes and `tracking.json` says `complete: false`.
 
-  Record the results in `specs/017-mlflow-data-transparency/research.md` under "Open items". **If the run is harmed or the overhead exceeds 2 %, stop here and report to the owner** (plan: kill criterion).
+  Record the results in `specs/017-mlflow-data-transparency/research.md` under "Open items". **If a run is harmed or the overhead exceeds 2 %, stop here and report to the owner** (plan: kill criterion).
 - [X] T042 [US4] Integrate tracking into `span/tune.py:tune_thresholds` (done in `span/commands.py:tune_command`; it continues the training run named in the sidecar) (`src/mobility_model_zoo/productdev/jtbd/span/tune.py`):
   - reopen the run from `span_config.json` `tracking.run_id` when present, else start a new run with `mmz.kind=tune`;
   - log thresholds as params and the tuning metrics from `threshold_tuning.validation`.
@@ -358,7 +384,7 @@ Single project:
   - `tests/tracking/test_span_integration.py`: the tiny span model from `tests/span_helpers.py` with the fake transport; one step per epoch; the dataset input; `span_config.json` gets `tracking.run_id`; without a URI the outputs are byte-identical to a run on the unchanged code path.
   - `tests/tracking/test_keras_callback.py`: a fake run receives `on_epoch_end`. Skip it when TensorFlow is not installed.
 
-**Checkpoint**: training is visible live and is robust to server loss.
+**Checkpoint**: Spark training is visible after one pull, laptop training live, and both are robust to server loss.
 
 ---
 
@@ -402,7 +428,7 @@ Single project:
   - when accuracy tests read an evaluation file (e.g. `<name>.eval.npz`), log its sha256 as a dataset input with context `evaluation`;
   - artifacts `summary.json` and `summary.md`;
   - logging only when a URI is set; the pytest plugin path in `bench/pytest_plugin.py` needs no change if `write_summary` is the single exit.
-- [ ] T050 [US5] Implement `src/mobility_model_zoo/tracking/importer.py` and the `zoo tracking import [--model] [--dry-run]` command in `src/mobility_model_zoo/tracking/cli.py` (research R13).
+- [X] T050 [US5] Implement `src/mobility_model_zoo/tracking/importer.py` and the `zoo tracking import [--model] [--dry-run]` command in `src/mobility_model_zoo/tracking/cli.py` (research R13).
   - **Sources**:
     - `zoo/models/*/results/<version>/{quality,performance}.json`; skip `sandbox-pipeline-tiny`;
     - the matching `releases/<version>.yaml`: `date`, `evaluation.benchmark`, `recipe.git_commit`, `usage`;
@@ -415,8 +441,8 @@ Single project:
     - the benchmark dataset input; `quality.json` and `performance.json` as artifacts.
   - **No reconstruction**: missing values stay missing.
   - **Idempotent**: search `tags.mmz.import_key` first and print `exists`.
-- [ ] T051 [US5] Copy `specs/017-mlflow-data-transparency/contracts/release/release-record.schema.json` over `src/mobility_model_zoo/release/schemas/release-record.schema.json` (byte-identical; it adds the optional `tracking` object with `run_id` pattern `^[0-9a-f]{32}$` and `experiment` pattern `^[a-z0-9_./-]{1,120}$`). Point `CONTRACTS` in `tests/release/test_schemas.py` at `specs/017-mlflow-data-transparency/contracts/release`, with the comment "latest owner of the format". Make `zoo release-verify` (and `zoo check` output) print `tracking.run_id` when present: find the evidence printout in `src/mobility_model_zoo/release/cli.py` or `gate.py`. The card and website must not show it.
-- [ ] T052 [P] [US5] Write tests:
+- [X] T051 [US5] Copy `specs/017-mlflow-data-transparency/contracts/release/release-record.schema.json` over `src/mobility_model_zoo/release/schemas/release-record.schema.json` (byte-identical; it adds the optional `tracking` object with `run_id` pattern `^[0-9a-f]{32}$` and `experiment` pattern `^[a-z0-9_./-]{1,120}$`). Point `CONTRACTS` in `tests/release/test_schemas.py` at `specs/017-mlflow-data-transparency/contracts/release`, with the comment "latest owner of the format". Make `zoo release-verify` (and `zoo check` output) print `tracking.run_id` when present: find the evidence printout in `src/mobility_model_zoo/release/cli.py` or `gate.py`. The card and website must not show it.
+- [ ] T052 [P] [US5] Write tests (2026-10-16: `test_importer.py` and the `test_schemas.py` cases are done; `test_eval_integrations.py` waits for T046, T048 and T049):
   - `tests/tracking/test_importer.py`: fixture results and release records → expected runs, tags and timestamps; a second import is all `exists`; `sandbox-pipeline-tiny` is skipped; metric values equal the JSON exactly (SC-005a).
   - `tests/release/test_schemas.py`: a record with a valid `tracking` passes; `run_id` of 31 hex characters fails rule 1; a record without `tracking` passes.
   - `tests/tracking/test_eval_integrations.py`: can-ids `run`, jtbd `score_run` and HIL `write_summary` log the benchmark input and tags with the fake transport.
@@ -448,15 +474,15 @@ Single project:
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T056 [P] Add the owner decision `D-tracking-store` to `compliance/decisions.yaml`, following the existing entry format:
-  - **Location**: the owner's DGX Spark, DE.
+- [X] T056 [P] Add the owner decision `D-tracking-store` to `compliance/decisions.yaml`, following the existing entry format:
+  - **Location**: the owner's laptop, DE (revised 2026-10-16); offline logs with the same allow-listed content also sit next to run outputs on the training machine, including the DGX Spark.
   - **Content**: metrics, hashes and metadata; no personal data, no dataset content.
-  - **Access**: owner only, via SSH.
-  - **Retention**: kept with the project; backups 14 days.
+  - **Access**: owner only; the server listens on the laptop's loopback interface.
+  - **Retention**: kept with the project; the newest 14 backups.
   - **Principle XI**: no assistant or LLM on the server.
 
   Add one paragraph on the tracking store to the "Technical and organisational measures" text of `src/mobility_model_zoo/compliance/templates/record-of-processing.md.j2`. Run `uv run zoo compliance render` and commit the re-rendered `docs/compliance/record-of-processing.md`, so that `zoo compliance check --ci` passes.
-- [ ] T057 [P] Write `docs/tracking.md` (owner guide, plain English):
+- [X] T057 [P] Write `docs/tracking.md` (owner guide, plain English; done 2026-10-16 except the "Compare candidates" section, which T055 adds after the integrations; the server and Spark parts are rewritten by T069):
   - what lives where (repository = truth, MLflow = lab notebook);
   - tunnel and `.env`;
   - the commands from contracts/cli.md with one example each;
@@ -466,10 +492,11 @@ Single project:
   - the "Compare candidates" section from T055.
 
   Link it from `README.md` with a short "Data and runs overview" section under "How the zoo is organized".
-- [ ] T058 [P] Add `zoo data stats|history|diff|publish` and `zoo tracking …` to the command lists in `README.md` ("Quick commands per topic") and to `docs/layout.md` where packages are listed (`datasets/inventory`, `tracking`).
+- [X] T058 [P] Add `zoo data stats|history|diff|publish` and `zoo tracking …` to the command lists in `README.md` ("Quick commands per topic") and to `docs/layout.md` where packages are listed (`datasets/inventory`, `tracking`).
+- [X] T069 [P] Rewrite the server and Spark parts of `docs/tracking.md` for the laptop store: start and stop with `scripts/mlflow/mlflow.sh`, offline mode and `scripts/spark/tracking-pull.sh` with `zoo tracking sync`, backups on `down`, no tunnel; keep the security notes (loopback, OSV before upgrading, no assistant). Update the `tracking` lines in `README.md` if they name the Spark.
 - [ ] T059 Run the full local checks:
   - `uv run ruff check . && uv run ruff format --check .`
-  - `uv run pytest` (no `MLFLOW_TRACKING_URI`)
+  - `uv run pytest` (no `MLFLOW_TRACKING_URI`, no `MMZ_TRACKING_OFFLINE`)
   - `uv run pytest -m slow tests/integration/test_tracking_server.py`
   - `./scripts/check_install_size.sh`
   - `uv run zoo validate --all`
@@ -477,7 +504,7 @@ Single project:
   - `uv run reuse lint`
 
   Fix every finding (SC-008).
-- [ ] T060 **(Spark)** Final owner pass:
+- [ ] T060 **(laptop)** Final owner pass:
   - run `zoo tracking audit` against the real store; it must exit 0 (SC-007);
   - walk through [quickstart.md](quickstart.md) §1 to §8 and tick off SC-001 to SC-010;
   - note any deviation in `specs/017-mlflow-data-transparency/research.md`.
@@ -494,18 +521,19 @@ Single project:
 - **US2 (Phase 4)**: depends on T015 (collect) and T017 (stats command) from US1.
 - **US3 (Phase 5)**:
   - T028 to T033 (server and tracking core) depend only on Phase 1 and can run in parallel with US1 and US2;
-  - T034 to T036 (publish, CLI, audit) need T015 from US1.
-- **US4 (Phase 6)**: depends on T030 to T033. T041 (Spark go/no-go) blocks T042 to T044 and all of US5's integrations.
+  - T034 to T036 (publish, CLI, audit) need T015 from US1;
+  - T062 to T064 (laptop server, offline config, tags; revised 2026-10-16) need T030 and T031; T039 needs T062.
+- **US4 (Phase 6)**: depends on T030 to T033. T065 needs T063 and T064; T066 needs T065; T067 needs T065 and T066; T068 covers T065 to T067. T041 (go/no-go) needs T062 to T068 and blocks T043, T044 and all of US5's integrations.
 - **US5 (Phase 7)**: depends on T041 passing; T050 and T051 need only T033 and T030.
 - **US6 (Phase 8)**: depends on US4 and US5 integrations.
-- **Polish (Phase 9)**: T056 to T058 any time after US3; T059 and T060 last.
+- **Polish (Phase 9)**: T056 to T058 and T069 any time after T062; T059 and T060 last.
 
 ### User Story Dependencies
 
 - **US1**: independent; this is the MVP.
 - **US2**: extends US1's rows with history and integrity.
 - **US3**: independent of US2. It needs US1's `collect()` only for publishing.
-- **US4**: needs US3's tracking core and server.
+- **US4**: needs US3's tracking core and server, and the offline mode (T065 to T067).
 - **US5**: needs US3's core and US4's go/no-go.
 - **US6**: needs US4 and US5.
 
@@ -537,7 +565,7 @@ Task: "T018 [US1] fixtures under tests/fixtures/inventory/"
 ## Parallel Example: User Story 3 (alongside US1)
 
 ```text
-Task: "T028 [US3] scripts/spark/mlflow/mlflow.sh"
+Task: "T062 [US3] scripts/mlflow/mlflow.sh (laptop)"
 Task: "T030 [US3] src/mobility_model_zoo/tracking/config.py"
 Task: "T031 [US3] src/mobility_model_zoo/tracking/guard.py"
 ```
@@ -549,13 +577,13 @@ Task: "T031 [US3] src/mobility_model_zoo/tracking/guard.py"
 1. Phase 1 and Phase 2.
 2. US1: `zoo data stats`. **Stop and validate** with quickstart §1. This already answers the owner's main question.
 3. US2: history, diff and integrity. Validate with quickstart §2.
-4. Merge-ready on its own. Nothing needs the Spark.
+4. Merge-ready on its own. Nothing needs the Spark or a server.
 
 ### Incremental Delivery
 
 1. **MVP**: the overview (US1 + US2).
-2. **US3**: the server and the `datasets` experiment. The owner sees the data in the browser.
-3. **US4**: span training live → **go/no-go T041** → Keras tasks.
+2. **US3**: the laptop server and the `datasets` experiment. The owner sees the data in the browser.
+3. **US4**: offline mode, sync and pull → span training on the Spark → **go/no-go T041** → Keras tasks.
 4. **US5**: evaluations, import, release link.
 5. **US6**: consistency and the guide.
 
@@ -565,5 +593,5 @@ Each step leaves `main` working, and CI stays green with tracking off.
 
 - Never edit a frozen manifest to make an integrity check pass (constitution IX). Report it instead.
 - No test or command may put dataset content into output or the store (FR-008, FR-024).
-- Without `MLFLOW_TRACKING_URI` every existing command must behave byte-identically (SC-008).
+- Without `MLFLOW_TRACKING_URI` and `MMZ_TRACKING_OFFLINE` every existing command must behave byte-identically (SC-008).
 - Commit after each task or logical group, with messages prefixed `017:`.

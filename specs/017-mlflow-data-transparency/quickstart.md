@@ -6,7 +6,7 @@ How to prove each user story works. Commands follow [contracts/cli.md](contracts
 
 - Python 3.12, `uv`, a checkout of this repository.
 - **Stories 1 and 2**: nothing else. A populated `$MMZ_DATA` makes the measured columns appear.
-- **Stories 3 to 6**: SSH access to the DGX Spark (`SPARK_HOST` in `.env`) and Docker on the Spark.
+- **Stories 3 to 6**: `uv` on the laptop (the server runs there through `uvx`). For Spark runs: SSH access to the DGX Spark (`SPARK_HOST` in `.env`), as for training today. Nothing is installed or started on the Spark besides the training run.
 
 ```bash
 uv sync --extra release --extra edge            # overview only
@@ -43,23 +43,19 @@ Expected:
 
 **Integrity check**: in a scratch copy, change one value in `topics/security/benchmarks/can-ids-v2/manifest.json`. `zoo data stats` now exits 7 and reports `mismatch` on `can-ids-v3` (`based_on` hash) and `changed-after-freeze` on `can-ids-v2`.
 
-## 3. Server on the Spark (setup for US3 to US6, SC-009)
+## 3. Server on the laptop (setup for US3 to US6, SC-009)
 
 ```bash
-# on the Spark
-scripts/spark/mlflow/mlflow.sh up
-scripts/spark/mlflow/mlflow.sh status            # healthy, v3.17.1, listening on 127.0.0.1:5000 only
-# on the laptop
-scripts/spark/mlflow/mlflow.sh tunnel &          # ssh -N -L 5000:127.0.0.1:5000 $SPARK_HOST
+scripts/mlflow/mlflow.sh up
+scripts/mlflow/mlflow.sh status                  # healthy, 3.17.1, listening on 127.0.0.1:5000 only
 echo 'MLFLOW_TRACKING_URI=http://127.0.0.1:5000' >> .env
-echo 'MLFLOW_TRACKING_URI_CONTAINER=http://mlflow:5000' >> .env   # for training containers on the Spark
 uv run zoo tracking status                       # exit 0, lists experiments
 ```
 
 Checks:
-- **No LAN exposure**: from another machine on the LAN, `curl http://<spark-ip>:5000` fails.
-- **Host header**: `curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' 'http://127.0.0.1:5000/api/2.0/mlflow/experiments/search?max_results=1'` through the tunnel returns 403. `/health` is exempt from the host check and always answers.
-- **Backup and restore**: `mlflow.sh backup`, then `mlflow.sh restore ~/mlflow-backups/<date>`. The UI shows the same runs. Time it: under 30 minutes (SC-009).
+- **No network exposure**: `lsof -nP -iTCP:5000 -sTCP:LISTEN` shows only `127.0.0.1:5000`.
+- **Host header**: `curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' 'http://127.0.0.1:5000/api/2.0/mlflow/experiments/search?max_results=1'` returns 403. `/health` is exempt from the host check and always answers.
+- **Backup and restore**: `mlflow.sh down` writes a backup to `$MMZ_TRACKING_BACKUP`; `mlflow.sh restore <that dir>` brings the same runs back in the UI. Time it: under 30 minutes (SC-009).
 
 ## 4. Data versions in MLflow (US3)
 
@@ -74,15 +70,22 @@ Then open `http://127.0.0.1:5000`, experiment `datasets`:
 - **Sorting**: possible by `size_mb` and `count.captures`.
 - **Changed hash**: add a test row in a scratch branch with a changed manifest and publish. A new run appears and the old one carries `mmz.superseded_by`.
 
-## 5. Live training (US4, SC-004, SC-006)
+## 5. Training runs (US4, SC-004, SC-006)
+
+**On the Spark, offline** (`MMZ_TRACKING_OFFLINE=1` in the laptop's `.env`, which `train_span.sh` passes into the container):
 
 ```bash
 topics/productdev/scripts/spark/train_span.sh c1
+scripts/spark/tracking-pull.sh                   # after one or two epochs
+scripts/spark/tracking-pull.sh                   # again after the run ends
 ```
 
-- **Browser**: in `productdev/jtbd-span`, the run appears within a minute with config params, `mmz.git_commit` and `mmz.training_set=span-train-v1`. Epoch metrics update after each epoch, and system metrics show GPU utilisation.
-- **Server outage**: `mlflow.sh down` mid-run. The training finishes, `span_config.json` is complete, and `tracking.json` says `complete: false` with one warning in the log. Then `mlflow.sh up`.
-- **Overhead**: compare epoch time with and without `MLFLOW_TRACKING_URI` on the same candidate. The difference must be under 2 % (SC-006).
+- **First sync**: in `productdev/jtbd-span`, the run appears as `RUNNING` with config params, `mmz.git_commit`, `mmz.training_set=span-train-v1`, `mmz.hardware=dgx-spark`, the epochs so far and system metrics with GPU utilisation (open item 3). The pull plus sync take under two minutes (SC-004).
+- **Second sync**: `updated N` with only the new epochs; the run is `FINISHED` with the run's own end time. A third sync prints `unchanged`.
+- **Files**: `data/models/span-xlmr-c1/` on the Spark contains no tracking file; the log sits in `data/models/span-xlmr-c1.tracking/`.
+- **Overhead**: compare epoch time with and without `MMZ_TRACKING_OFFLINE` on the same candidate. The difference must be under 2 % (SC-006).
+
+**On the laptop, live** (a tiny span run or any short training with `MLFLOW_TRACKING_URI` set): metrics appear within a minute. Stop the server mid-run with `mlflow.sh down`: the training finishes, its result files are complete, and `tracking.json` says `complete: false` with one warning in the log.
 
 ## 6. Run ↔ data links and import (US5, FR-028, SC-005, SC-005a)
 
@@ -105,7 +108,7 @@ In the browser, select two or more `productdev/jtbd-span` runs and click Compare
 
 ```bash
 uv run zoo tracking audit                        # exit 0, no findings
-unset MLFLOW_TRACKING_URI && uv run pytest       # full suite unchanged
+unset MLFLOW_TRACKING_URI MMZ_TRACKING_OFFLINE && uv run pytest   # full suite unchanged
 ./scripts/check_install_size.sh                  # edge install size unchanged
 uv run pytest -m slow tests/integration/test_tracking_server.py   # real server round trip
 ```

@@ -1,6 +1,6 @@
 # CLI contract: feature 017
 
-New commands live under the existing `zoo` app: four under `zoo data` and a new group `zoo tracking`. The training and evaluation commands of each task keep their interface. They only gain logging when `MLFLOW_TRACKING_URI` is set.
+New commands live under the existing `zoo` app: four under `zoo data` and a new group `zoo tracking`. The training and evaluation commands of each task keep their interface. They only gain logging when `MLFLOW_TRACKING_URI` (live, laptop) or `MMZ_TRACKING_OFFLINE=1` (offline log, Spark) is set.
 
 ## Shared behaviour
 
@@ -9,7 +9,7 @@ New commands live under the existing `zoo` app: four under `zoo data` and a new 
 | Code | Meaning |
 |---|---|
 | 7 | integrity failure (`zoo data stats`) or audit findings (`zoo tracking audit`) |
-| 8 | tracking server not configured or unreachable (only commands whose job is to talk to the server: `zoo data publish`, `zoo tracking …`) |
+| 8 | tracking server not configured or unreachable (only commands whose job is to talk to the server: `zoo data publish`, `zoo tracking …`); on the laptop, start it with `scripts/mlflow/mlflow.sh up` |
 
 **Output**: tables by default. `--json` prints the same rows as JSON, as a list of [InventoryRow](../data-model.md#inventoryrow) or the entity named per command.
 
@@ -73,7 +73,7 @@ zoo data publish [--topic TOPIC]... [--kind ...]... [--dry-run] [--profile]
 
 ## `zoo tracking status`
 
-Reports the configured URI host, server version, the experiments with run counts, and whether the client extra is installed. It is the first thing to run after setting up the tunnel.
+Reports the configured URI host, server version, the experiments with run counts, and whether the client extra is installed. It is the first thing to run after `scripts/mlflow/mlflow.sh up`.
 
 ```text
 zoo tracking status [--json]
@@ -92,6 +92,19 @@ zoo tracking import [--model NAME]... [--dry-run]
 - **Output**: one line per source record, `created` or `exists`, with the import key.
 - **Values**: no value is reconstructed.
 - **Exit codes**: 0, 8.
+
+## `zoo tracking sync`
+
+Replays offline run logs into the store (FR-030, research R17).
+
+```text
+zoo tracking sync PATH... [--dry-run]
+```
+
+- **Finds**: every `*.mmz-run.jsonl` under the given paths.
+- **Per log**: `created` (new run), `updated N` (N new events replayed) or `unchanged`, with the experiment, the run name and `running` when the log has no `end` yet.
+- **Rules**: idempotent and incremental through `mmz.offline_id` and `mmz.offline_synced`; an incomplete last line waits for the next sync; every value passes the guard again; a refused value is reported and skipped.
+- **Exit codes**: 0, 7 (a log fails the guard and nothing of it was written), 8.
 
 ## `zoo tracking audit`
 
@@ -121,20 +134,24 @@ Each command below logs only when a tracking URI is set. Without one, its behavi
 | `edge run` and the HIL pytest plugin | `edge/hil-bench` | measurement run (`mmz.kind=measure`): `summarize()` perf and accuracy per board and model, `summary.json` and `summary.md` artifacts, the hash of any evaluation file used |
 | `zoo release-verify` | none | prints `tracking.run_id` when the record has one |
 
-## Spark scripts
+## Scripts (revised 2026-10-16)
 
-`scripts/spark/mlflow/mlflow.sh` runs on the Spark. It needs `SPARK_HOST` only for `pull-backup`, run from the laptop.
+`scripts/mlflow/mlflow.sh` runs on the laptop. It replaces `scripts/spark/mlflow/`; nothing runs as a service on the Spark.
 
 ```text
-mlflow.sh up | down | status | logs
-mlflow.sh backup                # online SQLite backup + artifacts tar → ~/mlflow-backups/<date>/, keep 14
+mlflow.sh up                    # uvx mlflow==${MLFLOW_VERSION:-3.17.1} server on 127.0.0.1:5000, in the background
+mlflow.sh down                  # backup, then stop
+mlflow.sh status | logs
+mlflow.sh backup                # online SQLite backup + artifacts tar → $MMZ_TRACKING_BACKUP/<date-time>/, keep 14
 mlflow.sh restore DIR           # stop, replace store, start
-mlflow.sh upgrade TAG           # backup, stop, db upgrade, start TAG
-mlflow.sh pull-backup           # (laptop) rsync the latest backup from $SPARK_HOST
-mlflow.sh tunnel                # (laptop) ssh -N -L 5000:127.0.0.1:5000 $SPARK_HOST
+mlflow.sh upgrade VERSION       # backup, stop, mlflow db upgrade, start VERSION
 ```
 
+Paths come from `MMZ_TRACKING_HOME` and `MMZ_TRACKING_BACKUP` (`.env` or environment, with the defaults in research R3). The script never configures an assistant, gateway or LLM key.
+
+`scripts/spark/tracking-pull.sh [REMOTE_DATA_DIR]` (laptop): rsync over `$SPARK_HOST` of only `*.mmz-run.jsonl`, `*.mmz-run/` and `*.tracking.json` from `mobility-model-zoo/data/` (or the given directory) into `data/`, then `uv run zoo tracking sync data/`. It needs SSH only.
+
 `topics/productdev/scripts/spark/train_span.sh` changes:
-- When `MLFLOW_TRACKING_URI_CONTAINER` is set in `.env`, it starts the training container on the `mmz-tracking` network with `-e MLFLOW_TRACKING_URI="$MLFLOW_TRACKING_URI_CONTAINER"`. The value comes only from `.env` (FR-010).
-- It installs `/work[jtbd,tracking]`.
+- When `.env` sets `MMZ_TRACKING_OFFLINE=1`, it starts the training container with `-e MMZ_TRACKING_OFFLINE=1 -e MMZ_HARDWARE=dgx-spark`. No network option, no address, no `tracking` extra (`/work[jtbd]` as before).
+- Its header says how to fetch and sync the log (`scripts/spark/tracking-pull.sh`).
 - Without the variable it behaves as today.

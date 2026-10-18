@@ -1,53 +1,34 @@
 # Handoff: feature 017, state on 2026-10-16
 
-Branch `claude/mlflow-data-transparency`, pull request #39. Tasks: [tasks.md](tasks.md) (40 done, 21 open).
+Branch `claude/mlflow-data-transparency`, pull request #39. Tasks: [tasks.md](tasks.md).
+
+## Revision 2026-10-16: the store moves to the laptop
+
+Nothing of the tracking feature runs as a service on the DGX Spark:
+
+- the MLflow server runs on the owner's laptop, on 127.0.0.1 only, started with `scripts/mlflow/mlflow.sh up` (T062);
+- training on the Spark writes an offline run log next to its sidecar (`MMZ_TRACKING_OFFLINE=1`, T065);
+- `scripts/spark/tracking-pull.sh` fetches only these logs over SSH and `zoo tracking sync` replays them into the store, incrementally (T066, T067).
+
+Spec decision 2, FR-009, FR-010, FR-012, FR-020, the new FR-030 and SC-004 changed; research R2, R3, R4, R7, R10 and R16 are revised and R17 is new. The compliance decision `D-tracking-store` (T056) now names the laptop.
 
 ## Done
 
 - **US1 and US2 (data overview)**: `zoo data stats`, `zoo data history` and `zoo data diff`, with integrity checks of frozen benchmarks.
-- **US3 (tracking)**:
-  - The tracking server script `scripts/spark/mlflow/mlflow.sh`.
-  - The tracking package `src/mobility_model_zoo/tracking/`.
-  - The commands `zoo data publish`, `zoo tracking status` and `zoo tracking audit`.
-- **T040 and T042**: span training and tuning log to the tracking server. `topics/productdev/scripts/spark/train_span.sh` passes the server address into the training container.
+- **US3 (tracking core)**: the tracking package `src/mobility_model_zoo/tracking/`, `zoo data publish`, `zoo tracking status` and `zoo tracking audit`. The Spark server script `scripts/spark/mlflow/` is superseded and removed by T062.
+- **T040 and T042**: span training and tuning log through `tracking.run()`; T065 makes the same calls work offline.
+- **T050 and T051**: `zoo tracking import` of past results, and the optional `tracking` link in release records, printed by the gate and never on the card.
+- **T057 and T058**: owner guide and command lists; the server parts of `docs/tracking.md` are rewritten by T069.
 
-## Next: two owner steps on the DGX Spark
+- **T062 to T068** (2026-10-16): `scripts/mlflow/mlflow.sh` on the laptop (tested end to end: up, loopback only, backup on down, restore), offline mode in `tracking.run()` (`tracking/offline.py`), `zoo tracking sync` (`tracking/sync.py`), `scripts/spark/tracking-pull.sh`, `train_span.sh` in offline mode, tests including a sync into a real server.
 
-### T039: start the tracking server
+- **T069 and T056** (2026-10-16): `docs/tracking.md` describes the laptop server and Spark pull and sync; `D-tracking-store` in `compliance/decisions.yaml` names the laptop, and the record of processing is re-rendered.
 
-Follow [scripts/spark/mlflow/README.md](../../scripts/spark/mlflow/README.md).
+## Next: two owner steps
 
-1. On the Spark:
-
-   ```bash
-   scripts/spark/mlflow/mlflow.sh up
-   scripts/spark/mlflow/mlflow.sh status
-   ```
-
-2. From another machine on the network, `curl http://<spark-ip>:5000` must fail.
-3. Add the nightly backup line to the crontab. Run `mlflow.sh backup`, then `mlflow.sh restore ~/mlflow-backups/<date>`, and write the duration into the table in the README.
-4. On the laptop:
-   - put `MLFLOW_TRACKING_URI=http://127.0.0.1:5000` and `MLFLOW_TRACKING_URI_CONTAINER=http://mlflow:5000` into `.env`;
-   - run `scripts/spark/mlflow/mlflow.sh tunnel`, then `uv run zoo tracking status`, then `uv run zoo data publish --profile`.
-
-### T041: robustness check of training with tracking
-
-This decides whether the remaining integrations go ahead (plan: Principle IV).
-
-1. Run `topics/productdev/scripts/spark/train_span.sh c1` and watch the run in the browser: one point per epoch.
-2. During a second run, run `mlflow.sh down` once and then `mlflow.sh up` again. The training must finish normally, and `data/models/span-xlmr-c1.tracking.json` must show `"complete": false`.
-3. Compare the epoch time with and without `MLFLOW_TRACKING_URI_CONTAINER`. The difference must be below 2 %.
-4. Check whether GPU utilisation appears under system metrics.
-
-Write the results into [research.md](research.md) under "Open items".
+- **T039 (laptop)**: `mlflow.sh up`, check loopback and host check, `down` and `restore` once with timing, `zoo data publish --profile`.
+- **T041 (Spark + laptop, go/no-go)**: one span candidate offline, pulled mid-run and after; overhead under 2 %; GPU metrics; one laptop run with the server stopped mid-run.
 
 ## After T041 passes
 
-Continue with:
-
-- **T043 and T044**: Keras callback for the condition-monitoring and MLP training.
-- **US5**: T046 to T053 and T061 (evaluation runs, picket-forest training, import of past results, release-record link).
-- **US6**: T054 and T055.
-- **Polish**: T056 to T060.
-
-If T041 fails, stop and keep only the data overview and the tracking server.
+T043 to T049 and T061 (Keras callback, evaluation runs, picket-forest training), T052's integration tests, T053, US6 (T054, T055), then T059 and T060. If T041 fails, stop and keep the data overview, the import and the laptop server.

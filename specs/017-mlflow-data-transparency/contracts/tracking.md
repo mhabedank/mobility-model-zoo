@@ -21,7 +21,8 @@ with tracking.run(
     r.log_artifact(out / "span_config.json")  # allow-listed kinds only
 ```
 
-- **No tracking URI**: `tracking.run(...)` returns a no-op object. Nothing is imported, nothing is written, and no sidecar is created.
+- **No tracking URI and no offline mode**: `tracking.run(...)` returns a no-op object. Nothing is imported, nothing is written, and no sidecar is created.
+- **Offline mode** (`MMZ_TRACKING_OFFLINE=1`, no URI; revised 2026-10-16): the same calls write the guarded values to the offline run log next to the sidecar (research R17, [data-model.md](../data-model.md#offlinerunlog-idmmz-runjsonl-research-r17)). MLflow is not imported. `out_dir` or `sidecar` is required; without either the run is a no-op with one warning. `zoo tracking sync` replays the log into the store.
 - **Errors**: never raised to the caller at run time. See the circuit breaker in research R5. Tests set `tracking.STRICT = True` so guard refusals raise.
 - **`data_ref(id, version, context)`**: resolves the [InventoryRow](../data-model.md#inventoryrow) and logs it as a dataset input. When the row cannot be resolved, it logs a tag `mmz.input_unresolved=<id>@<version>` and warns.
 
@@ -53,6 +54,8 @@ with tracking.run(
 | `mmz.import_key` | `<model>@<version>` or `<benchmark>/decision` | imported runs |
 | `mmz.spike` | `true` | spike runs (never benchmark results) |
 | `mmz.input_unresolved` | `<id>@<version>` | runs |
+| `mmz.offline_id` | 32-hex id of the offline log | synced offline runs |
+| `mmz.offline_synced` | highest replayed `seq` | synced offline runs |
 
 MLflow's own system tags (`mlflow.*`) are left as the client sets them. The guard removes `mlflow.source.name` when it points to a path outside the repository, and keeps only the repo-relative script.
 
@@ -98,5 +101,5 @@ Never allowed: model weights (`*.safetensors`, `*.bin`, `*.joblib`, `*.tflite`, 
 ## Principle XI
 
 - The store never receives labels, teacher outputs or judgements from Claude, because no logged task uses Claude.
-- No MLflow assistant, gateway or LLM judge is configured on the server or called by the wrapper.
+- No MLflow assistant, gateway or LLM judge is configured on the server or called by the wrapper, the offline writer or sync.
 - `zoo tracking audit` flags any param or tag value containing `claude` in a labeler, teacher or judge position, for review.
