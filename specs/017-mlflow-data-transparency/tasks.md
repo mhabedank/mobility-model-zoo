@@ -348,13 +348,13 @@ Single project:
 - [X] T042 [US4] Integrate tracking into `span/tune.py:tune_thresholds` (done in `span/commands.py:tune_command`; it continues the training run named in the sidecar) (`src/mobility_model_zoo/productdev/jtbd/span/tune.py`):
   - reopen the run from `span_config.json` `tracking.run_id` when present, else start a new run with `mmz.kind=tune`;
   - log thresholds as params and the tuning metrics from `threshold_tuning.validation`.
-- [ ] T043 [P] [US4] Implement the Keras callback `TrackingCallback(run)` in `src/mobility_model_zoo/tracking/keras.py`. `on_epoch_end(epoch, logs)` calls `run.log_step(epoch, logs)`. Import Keras lazily.
-- [ ] T044 [US4] Integrate tracking into `edge/int8/keras_export.py`:
+- [X] T043 [P] [US4] Implement the Keras callback `TrackingCallback(run)` in `src/mobility_model_zoo/tracking/keras.py`. `on_epoch_end(epoch, logs)` calls `run.log_step(epoch, logs)`. Import Keras lazily.
+- [X] T044 [US4] Integrate tracking into `edge/int8/keras_export.py`: (done: experiment from `zoo/models/<model>/model.yaml`; the sidecar sits next to the export folder)
   - **Run**: in `train_main`/`train()`, open `tracking.run(experiment=<task experiment>, name=<model>-<version>, task=<task>, config_path=<config>, inputs=[data_ref(<dataset id>, <retrieved_at>, "training")], out_dir=<out>)`.
   - **Experiments**: `condition-monitoring/sound-anomaly` and `condition-monitoring/activity` for condmon, `security/can-ids` for `zoo-security can-ids mlp train`.
   - **Training**: add `TrackingCallback` to `fit_kwargs["callbacks"]` without replacing existing callbacks.
   - **After `export()`**: log the scalar fields of `<name>.report.json` as final metrics, and the report as an artifact.
-- [ ] T045 [P] [US4] Write tests:
+- [X] T045 [P] [US4] Write tests: (done: `tests/unit/span/test_train_tracking.py`, `tests/tracking/test_tracking_keras.py` with a stand-in TensorFlow module)
   - `tests/tracking/test_span_integration.py`: the tiny span model from `tests/span_helpers.py` with the fake transport; one step per epoch; the dataset input; `span_config.json` gets `tracking.run_id`; without a URI the outputs are byte-identical to a run on the unchanged code path.
   - `tests/tracking/test_keras_callback.py`: a fake run receives `on_epoch_end`. Skip it when TensorFlow is not installed.
 
@@ -374,21 +374,21 @@ Single project:
 
 ### Implementation for User Story 5
 
-- [ ] T046 [P] [US5] Integrate the evaluation runs of jtbd in `src/mobility_model_zoo/productdev/jtbd/scoring.py` (`score_run`), `src/mobility_model_zoo/productdev/jtbd/perf.py` (`perf_span`) and `src/mobility_model_zoo/productdev/jtbd/span/results.py` (`write_results`):
+- [X] T046 [P] [US5] Integrate the evaluation runs of jtbd in `src/mobility_model_zoo/productdev/jtbd/scoring.py` (`score_run`), `src/mobility_model_zoo/productdev/jtbd/perf.py` (`perf_span`) and `src/mobility_model_zoo/productdev/jtbd/span/results.py` (`write_results`): (done through `tracking.record()` at the end of `score_run` and both perf functions; `write_results` is not logged, its numbers come from score and perf and are imported by T050)
   - experiment `productdev/jtbd-span`, `mmz.kind=evaluate` or `measure`;
   - tag `mmz.benchmark=<settings benchmark version>` and input `data_ref(<family>, <version>, "evaluation")`;
   - scores and perf numbers as final metrics.
-- [ ] T047 [P] [US5] Integrate the cluster runs in `src/mobility_model_zoo/productdev/jtbd/cluster/tune.py` (`tune`) and `src/mobility_model_zoo/productdev/jtbd/cluster/score.py` (`score`):
+- [X] T047 [P] [US5] Integrate the cluster runs in `src/mobility_model_zoo/productdev/jtbd/cluster/tune.py` (`tune`) and `src/mobility_model_zoo/productdev/jtbd/cluster/score.py` (`score`):
   - experiment `productdev/jtbd-cluster`;
   - the grid as params, the scores as metrics;
   - input `data_ref("cluster", <benchmark_version>, "evaluation")`.
-- [ ] T048 [P] [US5] Integrate the can-ids evaluation and measurement runs in `src/mobility_model_zoo/security/can_ids/evaluate.py` (`run`), `forest.py` (`cmd_evaluate`, behind `zoo-security can-ids forest evaluate`), `evaluate_v2.py` (the evaluation functions called by `release_export_v2`) and `measure.py` (`merge`):
+- [X] T048 [P] [US5] Integrate the can-ids evaluation and measurement runs in `src/mobility_model_zoo/security/can_ids/evaluate.py` (`run`), `forest.py` (`cmd_evaluate`, behind `zoo-security can-ids forest evaluate`), `evaluate_v2.py` (the evaluation functions called by `release_export_v2`) and `measure.py` (`merge`): (done in `security/can_ids/track.py`, called from `zoo-security can-ids evaluate` and `measure`; `forest evaluate` is a pre-benchmark protocol evaluation and goes to `spikes`)
   - experiment `security/can-ids`;
   - per-detector metrics prefixed `<detector>.`;
   - tags `mmz.benchmark` and `manifest_sha256` as `mmz.sha256` of the input;
   - input `data_ref("can-ids", <benchmark>, "evaluation")`;
   - per-board performance metrics for `measure`, with `mmz.kind=measure`.
-- [ ] T061 [P] [US5] Integrate picket-forest *training* (FR-017, FR-019) in `src/mobility_model_zoo/security/can_ids/forest.py` (`cmd_export`, "train the final model and export C") and `src/mobility_model_zoo/security/can_ids/release_export_v2.py` (`export`, behind `zoo-security can-ids v2 export`):
+- [X] T061 [P] [US5] Integrate picket-forest *training* (FR-017, FR-019) in `src/mobility_model_zoo/security/can_ids/forest.py` (`cmd_export`, "train the final model and export C") and `src/mobility_model_zoo/security/can_ids/release_export_v2.py` (`export`, behind `zoo-security can-ids v2 export`): (done: `forest export` and `v2 export` via `track.training`)
   - experiment `security/can-ids`, `mmz.kind=train`, `mmz.model=picket-forest`;
   - forest settings from the command options and config as params;
   - training input `data_ref("can-ids", <benchmark>, "training")` plus the tag `mmz.training_set=<benchmark>:train+calibration`;
@@ -396,7 +396,7 @@ Single project:
   - the export's `config.json` (`benchmark`, `manifest_sha256`, `code_commit`) as artifact `export-config.json`.
 
   Never the forest, C sources or test vectors (FR-023). Add a case to `tests/tracking/test_eval_integrations.py` that runs `cmd_export` on the existing small edge fixture with the fake transport and checks the training input and that no model file was logged.
-- [ ] T049 [P] [US5] Integrate the HIL bench in `src/mobility_model_zoo/edge/bench/results.py` (`write_summary`):
+- [X] T049 [P] [US5] Integrate the HIL bench in `src/mobility_model_zoo/edge/bench/results.py` (`write_summary`): (done: numbers only; `summary.json`/`summary.md` stay local because they hold board details and failure texts)
   - experiment `edge/hil-bench`, `mmz.kind=measure` (no benchmark version; FR-019 measurement rule);
   - `perf.<board>.<model>.us_avg` and similar metrics, accuracy metrics, `mmz.hardware=<board>`, `mmz.model` and `mmz.model_version` when known;
   - when accuracy tests read an evaluation file (e.g. `<name>.eval.npz`), log its sha256 as a dataset input with context `evaluation`;

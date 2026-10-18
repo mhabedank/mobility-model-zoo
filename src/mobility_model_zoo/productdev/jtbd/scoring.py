@@ -286,4 +286,23 @@ def score_run(settings: Settings, run_id: str) -> dict[str, Any]:
             "value": comparison_composite(dims, names),
         }
     write_json(settings.analysis_dir / "scores" / f"{run_id}.json", result)
+    _track_score(result)
     return result
+
+
+def _track_score(result: dict[str, Any]) -> None:
+    """The score as an evaluation run on its frozen benchmark (feature 017; no-op without a URI)."""
+    from mobility_model_zoo import tracking
+
+    version = result["benchmark_version"]
+    tracking.record(
+        "productdev/jtbd-span",
+        f"score-{result['run_id']}"[:120],
+        "jtbd-span",
+        "evaluate",
+        {k: v for k, v in result.items() if k not in ("neutral_contested_hits",)},
+        topic="productdev",
+        inputs=[tracking.data_ref("pilot", version, "evaluation")],
+        tags={"mmz.benchmark": version, "mmz.candidate": result.get("model_id")},
+        params={"role": result.get("role"), "family": result.get("family")},
+    )
