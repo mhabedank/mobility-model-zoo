@@ -4,12 +4,16 @@ Pipeline per model: features -> Keras model -> full-integer int8 TFLite ->
 `tflite_import` (bit-exact with the TFLite reference kernels) -> metrics of the *device
 arithmetic* (the int8 host reference) on the held-out test split.
 
-Outputs go to `out` (default `$MMZ_DATA/derived/<model>/`), never into the repository:
+Outputs go to `out` (default `$MMZ_DATA/derived/<model>/`, or `.../<model>/seed-<n>/` for tasks
+with seed folders), never into the repository:
 
     <model>.npz          quantized model (parameters only, no data)
     <model>.tflite       int8 TFLite flatbuffer
-    <model>.report.json  metrics, dataset provenance, licence
+    <model>.report.json  metrics, dataset provenance, licence, run provenance
     <model>.eval.npz     held-out quantized inputs for the HIL accuracy tests
+
+Tasks with a pre-registration (`Prereg`, feature 021) refuse to train (exit 3) unless the benchmark
+is frozen and the criteria record is committed unchanged, and record both in the run report.
 
 Needs the `edge-train` extra (TensorFlow).
 """
@@ -17,8 +21,12 @@ Needs the `edge-train` extra (TensorFlow).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import platform
+import subprocess
+import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -29,6 +37,89 @@ import numpy as np
 from mobility_model_zoo.edge.paths import derived_dir
 
 Metrics = Callable[["Task", object, np.ndarray], tuple[dict, dict]]
+
+REFUSED = 3  # exit code: frozen benchmark or pre-registration violated (specs/021 contracts/cli.md)
+
+
+@dataclass
+class Prereg:
+    """Pre-registration of a task (feature 021, research R2): the committed criteria record and
+    the frozen benchmark manifest that every run must name."""
+
+    criteria: Path
+    manifest: Path
+    benchmark: str
+
+
+def file_sha256(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def weights_sha256(npz_path: Path) -> str:
+    """SHA-256 of a QModel file without its `meta` block (which holds the training time), so two
+    runs with identical parameters give the same value (reproduction check, research R4)."""
+    with np.load(npz_path) as z:
+        header = json.loads(bytes(z["header"]).decode())
+        header.pop("meta", None)
+        h = hashlib.sha256(json.dumps(header, sort_keys=True).encode())
+        for key in sorted(k for k in z.files if k != "header"):
+            h.update(key.encode())
+            h.update(np.ascontiguousarray(z[key]).tobytes())
+    return h.hexdigest()
+
+
+def _git(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+
+
+def _refuse(message: str) -> None:
+    print(f"refused: {message}", file=sys.stderr)
+    raise SystemExit(REFUSED)
+
+
+def check_prereg(p: Prereg, seed: int) -> dict:
+    """Refuse a run outside the pre-registration; return the fields the run report records."""
+    import yaml
+
+    if not Path(p.manifest).exists():
+        _refuse(f"benchmark {p.benchmark} is not frozen ({p.manifest} missing)")
+    crit = Path(p.criteria)
+    if not crit.exists():
+        _refuse(f"criteria record {crit} is missing")
+    cwd = crit.parent
+    if _git(["ls-files", "--error-unmatch", crit.name], cwd).returncode != 0:
+        _refuse(f"{crit.name} is not committed; commit it before the first run (FR-007)")
+    if _git(["diff", "--quiet", "HEAD", "--", crit.name], cwd).returncode != 0:
+        _refuse(f"{crit.name} differs from HEAD; amend it as a new version and commit it")
+    data = yaml.safe_load(crit.read_text(encoding="utf-8"))
+    if data.get("benchmark") != p.benchmark:
+        _refuse(f"{crit.name} names benchmark {data.get('benchmark')!r}, not {p.benchmark!r}")
+    seeds = [data["seeds"]["candidate"], *data["seeds"]["spread"]]
+    if seed not in seeds:
+        _refuse(f"seed {seed} is not pre-registered (seeds {seeds})")
+    return {
+        "benchmark": p.benchmark,
+        "manifest_sha256": file_sha256(p.manifest),
+        "criteria_version": data["version"],
+        "criteria_sha256": file_sha256(crit),
+        "criteria_commit": _git(["log", "-1", "--format=%H", "--", crit.name], cwd).stdout.strip(),
+    }
+
+
+def run_environment() -> dict:
+    """Code and library versions of a run (research R4)."""
+    from mobility_model_zoo.edge.paths import repo_root
+
+    t = tf()
+    root = repo_root()
+    status = _git(["status", "--porcelain", "--untracked-files=no"], root)
+    return {
+        "git_commit": _git(["rev-parse", "HEAD"], root).stdout.strip(),
+        "dirty": bool(status.stdout.strip()),
+        "tensorflow": t.__version__,
+        "keras": t.keras.__version__,
+        "platform": platform.platform(),
+    }
 
 
 @dataclass
@@ -136,6 +227,24 @@ def classification_metrics(task: Task, qm, out: np.ndarray) -> tuple[dict, dict]
     }, {}
 
 
+def validation_metrics(task: Task, qm) -> dict:
+    """Float and int8 results on the validation split (informative; nothing is selected on them)."""
+    from mobility_model_zoo.edge.int8.quant import quantize
+    from mobility_model_zoo.edge.int8.reference import run_batch
+
+    n = max(len(task.labels), int(task.y_val.max()) + 1)
+    pred_float = task.model.predict(task.x_val, verbose=0).argmax(-1)
+    xq = quantize(task.x_val.reshape(len(task.x_val), -1), qm.input_scale, qm.input_zp)
+    pred = run_batch(qm, xq).argmax(1)
+    return {
+        "float_accuracy": float((pred_float == task.y_val).mean()),
+        "float_macro_f1": macro_f1(task.y_val, pred_float, n),
+        "int8_accuracy": float((pred == task.y_val).mean()),
+        "int8_macro_f1": macro_f1(task.y_val, pred, n),
+        "samples": int(len(task.y_val)),
+    }
+
+
 def provenance(datasets: list[str]) -> list[dict]:
     from mobility_model_zoo.datasets.download import dataset_dir
     from mobility_model_zoo.datasets.registry import SOURCES
@@ -158,7 +267,7 @@ def provenance(datasets: list[str]) -> list[dict]:
     return rows
 
 
-def export(task: Task, out: Path, version: str, seed: int = 0) -> dict:
+def export(task: Task, out: Path, version: str, seed: int = 0, report_extra: dict | None = None) -> dict:
     from mobility_model_zoo.edge.int8.quant import quantize
     from mobility_model_zoo.edge.int8.reference import run_batch
     from mobility_model_zoo.edge.int8.tflite_import import load_tflite, verify_with_interpreter
@@ -168,9 +277,9 @@ def export(task: Task, out: Path, version: str, seed: int = 0) -> dict:
     tfl_path.write_bytes(to_int8_tflite(task.model, task.x_train))
 
     qm = load_tflite(str(tfl_path), task.name, task.description, seed=seed)
-    mismatches = verify_with_interpreter(str(tfl_path), qm, n=32)
-
     xq = quantize(task.x_test.reshape(len(task.x_test), -1), qm.input_scale, qm.input_zp)
+    # Deterministic check over every held-out window, not a sample (feature 021, FR-011).
+    mismatches = verify_with_interpreter(str(tfl_path), qm, inputs=xq)
     y_int8 = run_batch(qm, xq)
     metrics, extra_meta = (task.metrics or classification_metrics)(task, qm, y_int8)
     metrics["tflite_interpreter_mismatches"] = int(mismatches)
@@ -196,11 +305,17 @@ def export(task: Task, out: Path, version: str, seed: int = 0) -> dict:
     report = {
         "name": task.name,
         "version": version,
+        "seed": seed,
         "description": task.description,
         "labels": task.labels,
         "summary": qm.summary(),
         **metrics,
+        "validation": validation_metrics(task, qm) if task.kind == "classification" else None,
         "datasets": sources,
+        **(report_extra or {}),
+        "trained_at": qm.meta["trained_at"],
+        "npz_sha256": file_sha256(out / f"{task.name}.npz"),
+        "weights_sha256": weights_sha256(out / f"{task.name}.npz"),
     }
     (out / f"{task.name}.report.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
@@ -240,20 +355,47 @@ def train_main(
     argv=None,
     doc: str = "",
     fixed: dict | None = None,
+    *,
+    prereg: Prereg | None = None,
+    config: Path | None = None,
+    allow_epochs: bool = True,
+    per_seed_out: bool = False,
 ) -> dict:
-    """Shared command line of the task training modules: train, export, report."""
+    """Shared command line of the task training modules: train, export, report.
+
+    `config` is the default task config (epochs and seed come from it); `allow_epochs=False`
+    removes `--epochs` so the recipe config decides; `per_seed_out` writes each run to
+    `$MMZ_DATA/derived/<name>/seed-<n>/`; `prereg` enforces the pre-registration (feature 021).
+    """
     ap = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", type=Path, help="task config; command-line options override it")
-    ap.add_argument("--epochs", type=int)
+    if allow_epochs:
+        ap.add_argument("--epochs", type=int)
     ap.add_argument("--version")
     ap.add_argument("--seed", type=int)
-    ap.add_argument("--out", type=Path, default=None, help=f"default $MMZ_DATA/derived/{name}/")
+    default_out = f"$MMZ_DATA/derived/{name}/" + ("seed-<n>/" if per_seed_out else "")
+    ap.add_argument("--out", type=Path, default=None, help=f"default {default_out}")
     ap.add_argument("--download", action="store_true", help="download the datasets first")
     args = ap.parse_args(argv)
-    opts = load_config(args.config, name, fixed or {}) if args.config else dict(TRAIN_DEFAULTS)
-    opts.update({k: getattr(args, k) for k in TRAIN_DEFAULTS if getattr(args, k) is not None})
+    if prereg and not Path(prereg.manifest).exists():  # refuse before reading anything else
+        _refuse(f"benchmark {prereg.benchmark} is not frozen ({prereg.manifest} missing)")
+    cfg = args.config or config
+    opts = load_config(cfg, name, fixed or {}) if cfg else dict(TRAIN_DEFAULTS)
+    opts.update({k: getattr(args, k) for k in TRAIN_DEFAULTS if getattr(args, k, None) is not None})
+    extra = check_prereg(prereg, opts["seed"]) if prereg else {}
+    out = args.out
+    if out is None and per_seed_out:
+        out = derived_dir(name) / f"seed-{opts['seed']}"
     return train(
-        make_task, name, datasets, opts["epochs"], opts["version"], opts["seed"], args.out, args.download
+        make_task,
+        name,
+        datasets,
+        opts["epochs"],
+        opts["version"],
+        opts["seed"],
+        out,
+        args.download,
+        report_extra=extra,
     )
 
 
@@ -266,6 +408,7 @@ def train(
     seed: int = 0,
     out: Path | None = None,
     download: bool = False,
+    report_extra: dict | None = None,
 ) -> dict:
     from mobility_model_zoo.datasets import require_training_allowed
 
@@ -276,9 +419,13 @@ def train(
 
         for ds in datasets:
             fetch(ds)
-    tf().keras.utils.set_random_seed(seed)
+    t = tf()
+    t.keras.utils.set_random_seed(seed)
+    t.config.experimental.enable_op_determinism()  # research R4
+    # The code state is recorded when the run starts, so edits during training do not change it.
+    extra = {**(report_extra or {}), **run_environment(), "epochs": epochs}
     task = make_task(seed)
     fit(task, epochs)
-    report = export(task, Path(out) if out else derived_dir(name), version, seed)
+    report = export(task, Path(out) if out else derived_dir(name), version, seed, extra)
     print(json.dumps({k: v for k, v in report.items() if k != "datasets"}, indent=2), flush=True)
     return report

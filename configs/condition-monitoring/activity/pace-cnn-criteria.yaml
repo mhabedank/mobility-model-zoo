@@ -1,0 +1,27 @@
+# Pre-registration of pace-cnn on benchmark uci-har-v1 (feature 021, research R2; contracts/records.md).
+# Committed before the first training run. `condmon activity train` refuses to run if this file is
+# untracked or differs from HEAD, and every run report records its commit and SHA-256. An amendment
+# after any result has been seen is a new `version` with a rationale (`amends`); this version stays
+# in git and the evaluation report names the version it used.
+version: 1
+date: 2026-10-20
+rationale: Owner decisions of 2026-10-18 (spec 021, Clarifications).
+benchmark: uci-har-v1
+recipe: configs/condition-monitoring/activity/pace-cnn.yaml
+seeds: {candidate: 0, spread: [1, 2, 3, 4]}
+selection: none (model after the last epoch of the candidate seed)
+success:
+  - {id: S1, metric: int8_macro_f1, op: ">=", value: 0.90}
+  - {id: S2, metric: int8_accuracy, op: ">=", value: 0.90}
+  - {id: S3, metric: int8_f1_min_class, op: ">=", value: 0.80}
+  - {id: S4, budgets_on_reference_board: true}
+  - {id: S5, fact: transfer_tested, value: true}   # false for 0.1.0, so 0.1.0 is experimental
+kill:
+  - {id: K1, metric: int8_macro_f1, op: "<", value: 0.80}
+  - {id: K2, difference: float_macro_f1 - int8_macro_f1, op: ">", value: 0.03}
+  - {id: K3, budgets_exceeded_on_reference_board: true}
+budgets:
+  flash_kb: 128
+  ram_kb: 32
+  latency_us: 100000
+  reference_hardware: ESP32 (esp32-1, LilyGO LoRa32)

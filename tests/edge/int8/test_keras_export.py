@@ -63,3 +63,57 @@ def test_macro_f1():
     assert macro_f1(y, y, 3) == 1.0
     # class 2 never predicted: F1 0 for it; classes 0 and 1 have one error each
     assert abs(macro_f1(y, np.array([0, 0, 1, 1, 0, 1]), 3) - (0.8 + 0.8 + 0) / 3) < 1e-9
+
+
+def test_run_report_records_provenance_and_checks_every_test_window(tmp_path, monkeypatch):
+    """Feature 021, T011: the run report fields of data-model.md and the interpreter check over
+    every held-out window."""
+    from mobility_model_zoo.edge.int8 import keras_export as ke
+    from mobility_model_zoo.edge.int8 import tflite_import
+
+    seen = {}
+    real = tflite_import.verify_with_interpreter
+
+    def spy(path, qm, n=32, seed=1, inputs=None):
+        seen["n_inputs"] = None if inputs is None else len(inputs)
+        return real(path, qm, n, seed, inputs)
+
+    monkeypatch.setattr(tflite_import, "verify_with_interpreter", spy)
+    task = _task()
+    fit(task, epochs=5)
+    extra = {
+        "benchmark": "b-v1",
+        "manifest_sha256": "m" * 64,
+        "criteria_version": 1,
+        "criteria_sha256": "c" * 64,
+        "criteria_commit": "d" * 40,
+    }
+    report = export(task, tmp_path, "0.1.0", seed=3, report_extra=extra)
+    assert seen["n_inputs"] == len(task.y_test)
+    assert report["tflite_interpreter_mismatches"] == 0
+    assert report["seed"] == 3 and report["benchmark"] == "b-v1"
+    assert report["criteria_commit"] == "d" * 40
+    assert report["npz_sha256"] == ke.file_sha256(tmp_path / "tiny-net.npz")
+    assert len(report["weights_sha256"]) == 64 and report["trained_at"]
+    assert set(report["validation"]) >= {"float_macro_f1", "int8_macro_f1", "int8_accuracy"}
+
+
+def test_weights_hash_ignores_the_meta_block(tmp_path):
+    from mobility_model_zoo.edge.int8 import keras_export as ke
+
+    task = _task()
+    fit(task, epochs=2)
+    export(task, tmp_path / "a", "0.1.0")
+    qm = QModel.load(tmp_path / "a" / "tiny-net.npz")
+    qm.meta["trained_at"] = "2000-01-01T00:00:00Z"
+    qm.save(tmp_path / "b.npz")
+    assert ke.file_sha256(tmp_path / "a" / "tiny-net.npz") != ke.file_sha256(tmp_path / "b.npz")
+    assert ke.weights_sha256(tmp_path / "a" / "tiny-net.npz") == ke.weights_sha256(tmp_path / "b.npz")
+
+
+def test_run_environment_names_the_libraries():
+    from mobility_model_zoo.edge.int8 import keras_export as ke
+
+    env = ke.run_environment()
+    assert set(env) == {"git_commit", "dirty", "tensorflow", "keras", "platform"}
+    assert env["tensorflow"] == tf().__version__

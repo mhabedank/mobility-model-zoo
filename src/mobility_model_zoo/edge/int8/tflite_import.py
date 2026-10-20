@@ -263,9 +263,14 @@ def load_tflite(
     return qm
 
 
-def verify_with_interpreter(path: str, qm: QModel, n: int = 32, seed: int = 1) -> int:
+def verify_with_interpreter(
+    path: str, qm: QModel, n: int = 32, seed: int = 1, inputs: np.ndarray | None = None
+) -> int:
     """Compare against the TFLite interpreter (needs tensorflow or ai-edge-litert).
-    Returns the number of mismatching outputs. Compares before a dropped SOFTMAX."""
+    Returns the number of mismatching outputs. Compares before a dropped SOFTMAX.
+
+    `inputs` (int8, one row per input) checks exactly those inputs, for example every quantized
+    test window (feature 021, FR-011); without it, `n` random int8 inputs are checked."""
     try:
         from ai_edge_litert.interpreter import Interpreter, OpResolverType
     except ImportError:
@@ -287,9 +292,10 @@ def verify_with_interpreter(path: str, qm: QModel, n: int = 32, seed: int = 1) -
     keep = [o for o in ops if o["op_name"] not in ("DEQUANTIZE", "SOFTMAX")]
     out_idx = keep[-1]["outputs"][0]
     rng = np.random.default_rng(seed)
+    if inputs is None:
+        inputs = rng.integers(-128, 128, (n, qm.in_size), dtype=np.int16).astype(np.int8)
     bad = 0
-    for _ in range(n):
-        x = rng.integers(-128, 128, qm.in_size, dtype=np.int16).astype(np.int8)
+    for x in np.asarray(inputs, np.int8).reshape(len(inputs), qm.in_size):
         if inp["dtype"] == np.int8:
             feed = x.reshape(inp["shape"])
         else:  # float input with QUANTIZE op

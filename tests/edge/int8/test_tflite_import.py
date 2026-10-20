@@ -93,3 +93,16 @@ def test_imported_model_runs_bit_exact_in_firmware(tmp_path):
             for x, y in zip(exp["inputs"][:16], exp["outputs"][:16], strict=False):
                 out, _ = dev.infer(qm.name, x)
                 assert np.array_equal(out, y.astype(np.int8))
+
+
+def test_interpreter_check_takes_explicit_inputs():
+    """Feature 021, T011: the check runs exactly the given int8 inputs."""
+    pytest.importorskip("tensorflow")
+    from mobility_model_zoo.edge.int8.tflite_import import verify_with_interpreter
+
+    path = str(DATA / "cnn.tflite")
+    qm = load_tflite(path, "cnn")
+    rng = np.random.default_rng(5)
+    xs = rng.integers(-128, 128, (7, qm.in_size), dtype=np.int16).astype(np.int8)
+    assert verify_with_interpreter(path, qm, inputs=xs) == 0
+    assert verify_with_interpreter(path, qm, inputs=xs[:0]) == 0
