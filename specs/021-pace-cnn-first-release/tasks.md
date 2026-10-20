@@ -116,7 +116,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `verify_with_interpreter` accepts explicit inputs and counts mismatches over all of them.
   - The run report has the fields of data-model.md "Run report": `seed`, `benchmark`, `manifest_sha256`, `criteria_*`, `git_commit`, `dirty`, `tensorflow`, `keras`, `platform`, `npz_sha256`, `validation` and `tflite_interpreter_mismatches` over all test windows.
   - The default output folder is `derived/pace-cnn/seed-<n>/`.
-- [ ] T012 [P] [US1] Write `tests/condition_monitoring/test_prepare.py` for the input preparation host reference. It covers:
+- [X] T012 [P] [US1] Write `tests/condition_monitoring/test_prepare.py` for the input preparation host reference. It covers:
   - output windows are int8, shape 128 × 9, with 50 % overlap;
   - the channel order equals `SIGNALS`;
   - quantisation uses the model's input scale and zero point;
@@ -156,8 +156,8 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - check `data_sha256` of every split with `verify_split`;
   - normalise with the manifest's `normalisation` (training subjects only);
   - pass the test subjects on to the export only for the interpreter check.
-- [ ] T019 [US1] Run `uv run condmon activity freeze` twice (quickstart V1). Expect 18/3/9 subjects and 2,947 test windows, and the second run must change nothing. Check that `grep` finds no subject list in `topics/condition-monitoring/benchmarks/uci-har-v1/manifest.json`. Commit the manifest together with T006 and T007.
-- [ ] T020 [US1] Write `configs/condition-monitoring/activity/pace-cnn-criteria.yaml` exactly as in contracts/records.md "Criteria record":
+- [X] T019 [US1] Run `uv run condmon activity freeze` twice (quickstart V1). Expect 18/3/9 subjects and 2,947 test windows, and the second run must change nothing. Check that `grep` finds no subject list in `topics/condition-monitoring/benchmarks/uci-har-v1/manifest.json`. Commit the manifest together with T006 and T007.
+- [X] T020 [US1] Write `configs/condition-monitoring/activity/pace-cnn-criteria.yaml` exactly as in contracts/records.md "Criteria record":
   - `version: 1`, `date` = the commit date (before the first run), `benchmark: uci-har-v1`;
   - `seeds: {candidate: 0, spread: [1, 2, 3, 4]}`;
   - `selection: none (model after the last epoch of the candidate seed)`;
@@ -181,8 +181,8 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
   Keep `pace-cnn.eval.npz` local; it is never uploaded.
 - [X] T023 [P] [US1] Change `verify_with_interpreter` in `src/mobility_model_zoo/edge/int8/tflite_import.py:266` to take explicit int8 inputs. `export` in `keras_export.py` passes all quantised test windows (2,947) instead of `n=32` random inputs (R5, FR-011). Leave the QModel `test_inputs` as 8 synthetic vectors, so the `.npz` holds no dataset content.
-- [ ] T024 [US1] Validate the pre-registration (quickstart V2): with an uncommitted change to the criteria file, `uv run condmon activity train --seed 0` exits 3; revert the change. Then run exactly `for s in 0 1 2 3 4; do uv run condmon activity train --seed $s; done` (V3). Expect five `seed-<n>` folders under `$MMZ_DATA/derived/pace-cnn/`, each with `tflite_interpreter_mismatches: 0`. Do not look at the metrics to decide anything. If any run reports a mismatch, stop: it is a defect that blocks the release, not a status question.
-- [ ] T025 [US1] Create `src/mobility_model_zoo/condition_monitoring/activity/prepare.py`, the host reference of the input preparation (R11, FR-021). It turns a continuous raw stream (accelerometer, gyroscope, 50 Hz, units from T003) into int8 windows of 128 × 9 with 50 % overlap. The steps, all streaming:
+- [X] T024 [US1] Validate the pre-registration (quickstart V2): with an uncommitted change to the criteria file, `uv run condmon activity train --seed 0` exits 3; revert the change. Then run exactly `for s in 0 1 2 3 4; do uv run condmon activity train --seed $s; done` (V3). Expect five `seed-<n>` folders under `$MMZ_DATA/derived/pace-cnn/`, each with `tflite_interpreter_mismatches: 0`. Do not look at the metrics to decide anything. If any run reports a mismatch, stop: it is a defect that blocks the release, not a status question.
+- [X] T025 [US1] Create `src/mobility_model_zoo/condition_monitoring/activity/prepare.py`, the host reference of the input preparation (R11, FR-021). It turns a continuous raw stream (accelerometer, gyroscope, 50 Hz, units from T003) into int8 windows of 128 × 9 with 50 % overlap. The steps, all streaming:
   - the dataset's noise filters (T003);
   - gravity separation with a Butterworth low-pass at 0.3 Hz, order fixed in T003;
   - per-channel normalisation with the manifest constants;
@@ -204,7 +204,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `zoo/models/pace-cnn/results/<version>/quality.json`, with rows in the order of data-model.md.
 - [X] T027 [US1] Make `condmon activity evaluate [--version 0.1.0]` real in `src/mobility_model_zoo/condition_monitoring/cli.py`. It prints the derived status and every missed criterion. Exits: 0 when the report is written, whatever the status; 3 when a run used another manifest or criteria version; 4 when the deterministic check reports a mismatch.
 - [X] T028 [US1] Add `condmon activity reproduce` in `src/mobility_model_zoo/condition_monitoring/cli.py`, with its logic in `evaluate.py`. It retrains the candidate seed into a temporary folder and compares the `.npz` SHA-256. If the hashes differ, it compares the int8 metrics. The result (`identical`, or the deviation per metric) goes to `evaluation.json` under `reproduction` (FR-013). Exit 0 in both cases.
-- [ ] T029 [US1] Run `uv run condmon activity evaluate --version 0.1.0` twice (V4) and confirm identical files. Then run `uv run condmon activity reproduce` (V5) and run `evaluate` again so `evaluation.json` holds `reproduction`. Commit the reports and `quality.json`. If K1 or K2 fired, report the kill outcome to the owner: the quality claims it concerns are blocked, an `experimental` release stays possible, and a new iteration would need criteria `version: 2` with a rationale.
+- [X] T029 [US1] Run `uv run condmon activity evaluate --version 0.1.0` twice (V4) and confirm identical files. Then run `uv run condmon activity reproduce` (V5) and run `evaluate` again so `evaluation.json` holds `reproduction`. Commit the reports and `quality.json`. If K1 or K2 fired, report the kill outcome to the owner: the quality claims it concerns are blocked, an `experimental` release stays possible, and a new iteration would need criteria `version: 2` with a rationale.
 
 **Checkpoint**: The owner sees the first honest result (int8 headline metrics, per-class, worst subject, seed spread, verdict `experimental`). US1 is complete and testable on its own (SC-001, SC-008).
 

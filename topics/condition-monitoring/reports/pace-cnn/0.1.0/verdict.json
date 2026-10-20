@@ -1,0 +1,63 @@
+{
+ "criteria_version": 1,
+ "criteria": [
+  {
+   "id": "S1",
+   "measured": 0.9229102032456694,
+   "threshold": "int8_macro_f1 >= 0.9",
+   "met": true
+  },
+  {
+   "id": "S2",
+   "measured": 0.9229725144214456,
+   "threshold": "int8_accuracy >= 0.9",
+   "met": true
+  },
+  {
+   "id": "S3",
+   "measured": 0.8099891422366993,
+   "threshold": "int8_f1_min_class >= 0.8",
+   "met": true
+  },
+  {
+   "id": "S4",
+   "measured": null,
+   "threshold": "flash_kb <= 128, ram_kb <= 32, latency_us <= 100000 on ESP32 (esp32-1, LilyGO LoRa32)",
+   "met": false,
+   "note": "not measured"
+  },
+  {
+   "id": "S5",
+   "measured": false,
+   "threshold": "transfer_tested = True",
+   "met": false
+  }
+ ],
+ "kill": {
+  "fired": [],
+  "outcome": "none"
+ },
+ "kill_checks": [
+  {
+   "id": "K1",
+   "measured": 0.9229102032456694,
+   "fired": false
+  },
+  {
+   "id": "K2",
+   "measured": -0.0005030192295234492,
+   "fired": false
+  },
+  {
+   "id": "K3",
+   "measured": null,
+   "fired": false,
+   "note": "not measured"
+  }
+ ],
+ "status": "experimental",
+ "reasons": [
+  "S4 budgets on the reference board: not measured",
+  "S5 transfer tested: False (UCI HAR only)"
+ ]
+}
