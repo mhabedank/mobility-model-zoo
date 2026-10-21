@@ -178,6 +178,7 @@ Every image on the website is AI-generated on the project's own hardware (featur
 | Trackside sensor beside the rails with train wheels passing (`zoo/site/images/iot-hot-box-detector/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
 | Truck cab with a telematics box under the dashboard (`zoo/site/images/iot-telematics-cab/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
 | Tyre pressure sensor on a wheel valve (`zoo/site/images/iot-tyre-valve-sensor/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-15 | CC0-1.0 |
+| Wide station staircase with figures walking up and down, standing and sitting (`zoo/site/images/model-pace-cnn-stairs/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-21 | CC0-1.0 |
 | Circuit board with a diagnostic plug on a workbench by a window (`zoo/site/images/model-picket-forest-bench/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
 | Notebook on a train table, an orange train passing the window (`zoo/site/images/model-scout-large-window/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-13 | CC0-1.0 |
 | Camper van on a coastal road above the sea (`zoo/site/images/private-road-camper-coast/`) | Qwen/Qwen-Image-2512 @ 25468b98e327 | 2026-10-14 | CC0-1.0 |
