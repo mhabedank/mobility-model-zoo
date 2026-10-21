@@ -368,10 +368,10 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 - [X] T073 [US3] Run `uv run zoo compliance scan-publish --model pace-cnn --version 0.1.0` (V10). It must pass without a text snapshot for `uci-har` and record the exemption reason. Check the rendered card for the UCI HAR attribution and the privacy note. **Owner** runs `zoo compliance signoff --model pace-cnn --version 0.1.0`. Then run `uv run zoo check pace-cnn 0.1.0 --offline` again: rule 16 must now pass.
 - [X] T074 [US3] **Owner** gives the go. Then run `uv run zoo init-model pace-cnn`, which creates the Hub repos and the private `condition-monitoring` collection and writes its slug into `zoo/topics.yaml`. **Owner** adds `mobility-model-zoo/pace-cnn-staging` to the repo list of `HF_STAGING_TOKEN` (R18).
 - [X] T075 [US3] Run `uv run zoo stage pace-cnn 0.1.0 --from /tmp/pace-cnn-0.1.0` and the full `uv run zoo check pace-cnn 0.1.0` (V11 steps 2–3). All 18 rules must pass, including the fresh-environment run of the card's host example (rule 12, FR-025). If a check fails after staging, fix the cause and stage again; nothing is published until the gate passes.
-- [ ] T076 [US3] Open the PR from `021-pace-cnn-first-release`. **Owner** merges it and pushes the tag `pace-cnn/v0.1.0`. release-verify builds the preview, and the card's topic link must point to the collection. **Owner** reviews the preview and starts release-publish (V11 steps 4–5, FR-024).
-- [ ] T077 [US3] After publication, edit the manual rows in `README.md` and `topics/condition-monitoring/README.md`: pace-cnn is published, with a link to the `condition-monitoring` collection. Confirm that `zoo/MODELS.md` was updated by the publish step (R15).
-- [ ] T078 [US3] Fresh-environment walkthrough (V12, SC-004): in a new folder, create a Python 3.12 venv with `uv`, run only the card's install line and host example, and time it. Six int8 scores must appear in at most 5 minutes without any step that is not on the card. Write the time into the PR or a follow-up note.
-- [ ] T079 [US3] Check the public surfaces (V13, SC-005, SC-007):
+- [X] T076 [US3] Open the PR from `021-pace-cnn-first-release`. **Owner** merges it and pushes the tag `pace-cnn/v0.1.0`. release-verify builds the preview, and the card's topic link must point to the collection. **Owner** reviews the preview and starts release-publish (V11 steps 4–5, FR-024).
+- [X] T077 [US3] After publication, edit the manual rows in `README.md` and `topics/condition-monitoring/README.md`: pace-cnn is published, with a link to the `condition-monitoring` collection. Confirm that `zoo/MODELS.md` was updated by the publish step (R15).
+- [X] T078 [US3] Fresh-environment walkthrough (V12, SC-004): in a new folder, create a Python 3.12 venv with `uv`, run only the card's install line and host example, and time it. Six int8 scores must appear in at most 5 minutes without any step that is not on the card. Write the time into the PR or a follow-up note.
+- [X] T079 [US3] Check the public surfaces (V13, SC-005, SC-007):
   - the website model page shows `experimental`, the missed criteria and device values labelled with board and origin;
   - the roadmap entry `pace-cnn` shows delivered with `published_at` on or before 2026-12-31;
   - the collection is public and lists pace-cnn;
@@ -395,7 +395,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - in `specs/021-pace-cnn-first-release/data-model.md`, `card_privacy_note` lives in the compliance record (T071), not in `model.yaml`;
   - note the example generator decision of T044 in research R10;
   - note the source-class field chosen in T060 in research R13.
-- [ ] T084 Walk through `specs/021-pace-cnn-first-release/quickstart.md` V1–V13 and mark each scenario passed, or give its finding in the PR description. List the plan's follow-ups (picket-forest attribution patch, SAMD21 bench support, 6-channel candidate, `edge-qemu` regression test from the public repo, the "14 rules" help text) for the owner. Do not open issues without the owner's go.
+- [X] T084 Walk through `specs/021-pace-cnn-first-release/quickstart.md` V1–V13 and mark each scenario passed, or give its finding in the PR description. List the plan's follow-ups (picket-forest attribution patch, SAMD21 bench support, 6-channel candidate, `edge-qemu` regression test from the public repo, the "14 rules" help text) for the owner. Do not open issues without the owner's go.
 
 ---
 

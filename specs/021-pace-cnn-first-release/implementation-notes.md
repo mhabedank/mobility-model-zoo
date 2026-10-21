@@ -63,3 +63,27 @@ Environment: `uv sync --extra edge --extra edge-train --extra edge-hw` (TensorFl
 - **Verdict (T050)**: S1–S4 met, S5 missed (transfer not tested), no kill criterion; status experimental. The card lists only S5; its note was shortened to meet gate rule 18 (at most 15 words).
 - **Compliance (T071/T073)**: `zoo compliance render` added the UCI HAR attribution to THIRD_PARTY_NOTICES.md and wrote the pace-cnn AI Act and training-data documents; `scan-publish` passed (8 files, 0 overlap, 0 PII hits, uci-har exempt as motion_sensor). Offline gate: everything passes except rules 1, 5, 12 (staging, Hub) and rule 16 at its last stage, the owner's signoff.
 - **Full HIL suite on esp32-1 (T048)**: 37 passed, 3 failed. All three failures are exceptions inside a device request (no answer, or a reboot), not output comparisons, and the device log of the run holds 14 `POWERON_RESET`s: the board's supply drops repeatedly. The pace-cnn checks that completed all passed: golden vectors, weight CRC, edge-case inputs, and the latency budget test (55.02 ms average against 100 ms). The full eval set (1,024 windows) did not finish on esp32-1 because of the resets; it is bit-exact on esp8266-1 (real board) and on the ESP32 emulator. Follow-up: check the LoRa32's power path (battery, AXP, USB supply) before the next bench run.
+
+## Release and quickstart walkthrough (T073–T084, 2026-10-21)
+
+- **Release**: owner signoff (run by Claude on the owner's instruction), `init-model` (private staging repo and collection), staged at 5def893, full gate 18/18, PR #45 merged (d5ced65), tag `pace-cnn/v0.1.0` pushed by the owner, release-verify passed, card preview reviewed by the owner, release-publish started on the owner's "let's go": public repo `mobility-model-zoo/pace-cnn` with tag `v0.1.0` (fd939b2), collection public, record published 2026-10-21T09:52:21Z.
+- **Two problems after publication, fixed in PR #46**: the site rebuild failed on F3 (no "accuracy" on any page, now allowed on ground-truth model pages) and on F4 (numbers in exponent form not read from the card). Neither showed before publication, because the site renders a model page only once the model is published.
+- **V1–V5** freeze, pre-registration, five runs, evaluation, reproduction: passed.
+- **V6** bench: sim and QEMU passed (one transient emulator stall, rerun passed); esp8266-1 passed 40/40; esp32-1 passed 37/40, with three long runs cut off by supply drops.
+- **V7** footprint and performance file: passed.
+- **V8** standalone C sources: passed (examples bit-exact on the host build).
+- **V9–V10** gates and compliance: passed.
+- **V11** pipeline: passed (collection public and listing pace-cnn; Hub tag v0.1.0; MODELS.md row).
+- **V12** fresh environment: card install line and host example in 25 s (uv venv, Python 3.12); six int8 scores; output equals the example's expected scores.
+- **V13** public surfaces: model page live with experimental status, the missed S5 and device values labelled real board. Roadmap: delivered on 2026-10-21, planned 2026-Q4 (on time); delivered entries leave the "what comes next" page by design. Every card number traces to quality.json or performance.json (gate rule 9).
+
+### Follow-ups for the owner (no issues opened)
+
+- **picket-forest patch**: `used_by` and the dataset attribution block on the card (R13). The card fixes of this feature already apply to its next render.
+- **esp32-1 power path**: battery, AXP and USB supply. Several `POWERON_RESET`s cut long bench runs short.
+- **README security row**: still says "not yet published", although picket-forest is published and the security collection exists.
+- **SAMD21 bench support** (R16), then an informative SAMD21 measurement.
+- **A 6-channel pace-cnn candidate** without the gravity filter (R11).
+- **edge-qemu regression of pace-cnn** in CI from the public repo at its pinned revision.
+- **`release/cli.py` help text** still says "all 14 rules".
+- **Emulator latency** (QEMU) is not representative of real hardware (2.7 ms against 55 ms); consider leaving emulator latency out of future cards.
