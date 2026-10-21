@@ -367,7 +367,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   Rules 7 (with "no Claude inputs"), 9 (with the benchmark trace), 13, 15, 17 and 18 and card lint C-C2 must pass. Fix the cause and do not weaken a check.
 - [X] T073 [US3] Run `uv run zoo compliance scan-publish --model pace-cnn --version 0.1.0` (V10). It must pass without a text snapshot for `uci-har` and record the exemption reason. Check the rendered card for the UCI HAR attribution and the privacy note. **Owner** runs `zoo compliance signoff --model pace-cnn --version 0.1.0`. Then run `uv run zoo check pace-cnn 0.1.0 --offline` again: rule 16 must now pass.
 - [X] T074 [US3] **Owner** gives the go. Then run `uv run zoo init-model pace-cnn`, which creates the Hub repos and the private `condition-monitoring` collection and writes its slug into `zoo/topics.yaml`. **Owner** adds `mobility-model-zoo/pace-cnn-staging` to the repo list of `HF_STAGING_TOKEN` (R18).
-- [ ] T075 [US3] Run `uv run zoo stage pace-cnn 0.1.0 --from /tmp/pace-cnn-0.1.0` and the full `uv run zoo check pace-cnn 0.1.0` (V11 steps 2–3). All 18 rules must pass, including the fresh-environment run of the card's host example (rule 12, FR-025). If a check fails after staging, fix the cause and stage again; nothing is published until the gate passes.
+- [X] T075 [US3] Run `uv run zoo stage pace-cnn 0.1.0 --from /tmp/pace-cnn-0.1.0` and the full `uv run zoo check pace-cnn 0.1.0` (V11 steps 2–3). All 18 rules must pass, including the fresh-environment run of the card's host example (rule 12, FR-025). If a check fails after staging, fix the cause and stage again; nothing is published until the gate passes.
 - [ ] T076 [US3] Open the PR from `021-pace-cnn-first-release`. **Owner** merges it and pushes the tag `pace-cnn/v0.1.0`. release-verify builds the preview, and the card's topic link must point to the collection. **Owner** reviews the preview and starts release-publish (V11 steps 4–5, FR-024).
 - [ ] T077 [US3] After publication, edit the manual rows in `README.md` and `topics/condition-monitoring/README.md`: pace-cnn is published, with a link to the `condition-monitoring` collection. Confirm that `zoo/MODELS.md` was updated by the publish step (R15).
 - [ ] T078 [US3] Fresh-environment walkthrough (V12, SC-004): in a new folder, create a Python 3.12 venv with `uv`, run only the card's install line and host example, and time it. Six int8 scores must appear in at most 5 minutes without any step that is not on the card. Write the time into the PR or a follow-up note.
@@ -383,8 +383,8 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T080 [P] Run `uv run ruff check` and `uv run ruff format --check` on all changed Python files, and fix the findings.
-- [ ] T081 Run `uv run python scripts/ci/select_tests.py` on the branch diff and run the selected test areas (condmon, edge, release, compliance, security for `release/sbom.py`). Confirm that:
+- [X] T080 [P] Run `uv run ruff check` and `uv run ruff format --check` on all changed Python files, and fix the findings.
+- [X] T081 Run `uv run python scripts/ci/select_tests.py` on the branch diff and run the selected test areas (condmon, edge, release, compliance, security for `release/sbom.py`). Confirm that:
   - the CI jobs `edge-sim` and `edge-qemu` are selected for the firmware change;
   - the change to `release/gate.py` selects the release tests of all models.
 - [X] T082 [P] Run a privacy and provenance sweep over the branch diff and the upload folder:
