@@ -220,43 +220,43 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T030 [P] [US2] Extend `tests/edge/bench/test_models_zoo.py`. `load_eval(name)` finds `<name>.eval.npz` next to a model given in `MMZ_EDGE_MODELS` and in `derived/<name>/<name>.eval.npz`. The HIL catalogue helper returns the same models as `bench_models()`, including `MMZ_EDGE_MODELS`.
-- [ ] T031 [P] [US2] Write `tests/edge/bench/test_footprint.py` on a captured `nm --size-sort -S` text fixture. It checks the model footprint of contracts/records.md "Model footprint":
+- [X] T030 [P] [US2] Extend `tests/edge/bench/test_models_zoo.py`. `load_eval(name)` finds `<name>.eval.npz` next to a model given in `MMZ_EDGE_MODELS` and in `derived/<name>/<name>.eval.npz`. The HIL catalogue helper returns the same models as `bench_models()`, including `MMZ_EDGE_MODELS`.
+- [X] T031 [P] [US2] Write `tests/edge/bench/test_footprint.py` on a captured `nm --size-sort -S` text fixture. It checks the model footprint of contracts/records.md "Model footprint":
   - **flash** = `mi_model_pace_cnn` with its referenced arrays, plus the engine functions reachable from `mi_invoke`;
   - **RAM** = the QModel `arena_bytes` + 1,152 B input + 6 B output + the engine's `.data`/`.bss`;
   - "`flash_kb` and `ram_kb` are the sums divided by 1,024 and rounded up to 0.1 KB";
   - the whole image is reported under `flash_kb_image_*` and `ram_kb_image_*`.
-- [ ] T032 [P] [US2] Write `tests/edge/bench/test_performance_merge.py` for `edge performance`. It checks:
+- [X] T032 [P] [US2] Write `tests/edge/bench/test_performance_merge.py` for `edge performance`. It checks:
   - the reference file gives the plain names `flash_kb`, `ram_kb` and `latency_us`;
   - each `--extra` gives suffixed names (`latency_us_esp32_qemu`, `latency_us_esp8266`, `latency_us_host`, `flash_kb_image_esp32`, `ram_kb_image_esp32`);
   - `device_bit_exact_vectors` comes from the reference board;
   - exit 4 when the reference origin is not `real_board` and `--allow-substitute` is not given; with it, the plain rows carry the substitute's origin;
   - the output validates against `results.schema.json` (`kind: performance`).
-- [ ] T033 [P] [US2] Write `tests/edge/int8/test_release_export.py` for the generic int8 exporter on a small QModel. It checks:
+- [X] T033 [P] [US2] Write `tests/edge/int8/test_release_export.py` for the generic int8 exporter on a small QModel. It checks:
   - the folder matches the allow-list of contracts/release-files.md exactly;
   - no `*.eval.npz` and no dataset window is in it;
   - `config.json` has `labels`, `input`, `normalisation`, `quantisation`, `preparation` and `format: pace-cnn-v1`;
   - there are at least three examples with `source: synthetic`, `input` of "1,152 int8 values, row-major 128 × 9" and `expected` of "6 int8 scores in class order", each validating against `pace-cnn-v1.schema.json`;
   - exit 4 when a file outside the allow-list would be written or an example does not reproduce.
-- [ ] T034 [P] [US2] Write `tests/edge/int8/test_release_c_sources.py`. Compile the exported `c/*.c` with the host C compiler and a small test driver (skip if no compiler is found), feed every `examples/*.json` input and compare with `expected` bit for bit (V8).
-- [ ] T035 [P] [US2] Write `tests/release/test_sbom.py`. `mobility_model_zoo.release.sbom.sbom(dir)` returns the same CycloneDX document as the old `security/can_ids/release_export.sbom` for a fixture folder, and it lists every shipped file except `sbom.cdx.json`.
+- [X] T034 [P] [US2] Write `tests/edge/int8/test_release_c_sources.py`. Compile the exported `c/*.c` with the host C compiler and a small test driver (skip if no compiler is found), feed every `examples/*.json` input and compare with `expected` bit for bit (V8).
+- [X] T035 [P] [US2] Write `tests/release/test_sbom.py`. `mobility_model_zoo.release.sbom.sbom(dir)` returns the same CycloneDX document as the old `security/can_ids/release_export.sbom` for a fixture folder, and it lists every shipped file except `sbom.cdx.json`.
 
 ### Implementation for User Story 2
 
-- [ ] T036 [P] [US2] Build the model catalogue of `tests/edge/hil/test_inference.py`, `tests/edge/hil/test_models.py` and `tests/edge/hil/test_robustness.py` from `bench_models()`, the same function that `pytest_plugin.py:168` uses for the parameters. Replace the `load_zoo()` catalogue (R8), keyed by model name.
-- [ ] T037 [P] [US2] Fix `load_eval` in `src/mobility_model_zoo/edge/bench/reference_models.py:149`. It looks next to each `.npz` in `MMZ_EDGE_MODELS`, then in `derived/<name>/<name>.eval.npz`, then in the current places (R8).
-- [ ] T038 [P] [US2] Raise the serial receive buffer from 2048 to 4096 bytes for ESP32 and ESP8266 in `firmware/bench/src/hal_arduino.cpp:56`, so a pace-cnn INFER line of about 2.3 KB fits (R8). Check that `BENCH_LINE_MAX` in `firmware/bench/lib/benchapp/src/benchapp.c:16` covers `2 × 1152 + 96`.
-- [ ] T039 [P] [US2] Add `budgets: {pace-cnn: 100000}` to the `esp32` target in `hil/targets.yaml`. `edge/bench/config.py:47` already reads `budgets`, and `tests/edge/hil/test_performance.py:22` enforces it.
-- [ ] T040 [US2] Add `--footprint model|image` (default `image`) to `edge measure` in `src/mobility_model_zoo/edge/bench/cli.py` and `src/mobility_model_zoo/edge/bench/measure.py`. `model` reads the symbol sizes of the ELF built for the board's target with the toolchain's `nm` and computes `flash_kb` and `ram_kb` as in T031. It also reports the whole-image values under `*_image` names. Latency and origin stay unchanged (`origin_of`, `hardware_of`). Add the share of self-test vectors equal to the host reference to the output, if it is not there yet.
-- [ ] T041 [US2] Create `src/mobility_model_zoo/edge/bench/performance.py` and the command `edge performance --model M --version V --reference FILE [--extra FILE ...] [--allow-substitute]` in `src/mobility_model_zoo/edge/bench/cli.py`. It writes `zoo/models/<model>/results/<version>/performance.json` following T032 and the picket-forest 0.2.0 layout that gate rule 15 accepts (R9).
-- [ ] T042 [P] [US2] Move the SBOM generator from `src/mobility_model_zoo/security/can_ids/release_export.py:48` to `src/mobility_model_zoo/release/sbom.py` (R10). Make `release_export.py` and `release_export_v2.py:186` import it from there. In `scripts/ci/select_tests.py`, make a change to `src/mobility_model_zoo/release/sbom.py` also select `tests/security` (plan, Structure Decision). Confirm with `uv run python scripts/ci/select_tests.py` on that path.
-- [ ] T043 [P] [US2] Create `src/mobility_model_zoo/condition_monitoring/activity/pace-cnn-v1.schema.json` for the example format of contracts/records.md:
+- [X] T036 [P] [US2] Build the model catalogue of `tests/edge/hil/test_inference.py`, `tests/edge/hil/test_models.py` and `tests/edge/hil/test_robustness.py` from `bench_models()`, the same function that `pytest_plugin.py:168` uses for the parameters. Replace the `load_zoo()` catalogue (R8), keyed by model name.
+- [X] T037 [P] [US2] Fix `load_eval` in `src/mobility_model_zoo/edge/bench/reference_models.py:149`. It looks next to each `.npz` in `MMZ_EDGE_MODELS`, then in `derived/<name>/<name>.eval.npz`, then in the current places (R8).
+- [X] T038 [P] [US2] Raise the serial receive buffer from 2048 to 4096 bytes for ESP32 and ESP8266 in `firmware/bench/src/hal_arduino.cpp:56`, so a pace-cnn INFER line of about 2.3 KB fits (R8). Check that `BENCH_LINE_MAX` in `firmware/bench/lib/benchapp/src/benchapp.c:16` covers `2 × 1152 + 96`.
+- [X] T039 [P] [US2] Add `budgets: {pace-cnn: 100000}` to the `esp32` target in `hil/targets.yaml`. `edge/bench/config.py:47` already reads `budgets`, and `tests/edge/hil/test_performance.py:22` enforces it.
+- [X] T040 [US2] Add `--footprint model|image` (default `image`) to `edge measure` in `src/mobility_model_zoo/edge/bench/cli.py` and `src/mobility_model_zoo/edge/bench/measure.py`. `model` reads the symbol sizes of the ELF built for the board's target with the toolchain's `nm` and computes `flash_kb` and `ram_kb` as in T031. It also reports the whole-image values under `*_image` names. Latency and origin stay unchanged (`origin_of`, `hardware_of`). Add the share of self-test vectors equal to the host reference to the output, if it is not there yet.
+- [X] T041 [US2] Create `src/mobility_model_zoo/edge/bench/performance.py` and the command `edge performance --model M --version V --reference FILE [--extra FILE ...] [--allow-substitute]` in `src/mobility_model_zoo/edge/bench/cli.py`. It writes `zoo/models/<model>/results/<version>/performance.json` following T032 and the picket-forest 0.2.0 layout that gate rule 15 accepts (R9).
+- [X] T042 [P] [US2] Move the SBOM generator from `src/mobility_model_zoo/security/can_ids/release_export.py:48` to `src/mobility_model_zoo/release/sbom.py` (R10). Make `release_export.py` and `release_export_v2.py:186` import it from there. In `scripts/ci/select_tests.py`, make a change to `src/mobility_model_zoo/release/sbom.py` also select `tests/security` (plan, Structure Decision). Confirm with `uv run python scripts/ci/select_tests.py` on that path.
+- [X] T043 [P] [US2] Create `src/mobility_model_zoo/condition_monitoring/activity/pace-cnn-v1.schema.json` for the example format of contracts/records.md:
   - `format` is `pace-cnn-v1` and `source` is `synthetic`;
   - `generator` has `name`, `version` and `seed`;
   - `input` holds exactly 1,152 integers in −128…127;
   - `expected` holds exactly 6 integers in −128…127;
   - no extra keys.
-- [ ] T044 [US2] Create `src/mobility_model_zoo/edge/int8/release_export.py`, the generic int8 release exporter that `hum-fan` can reuse (R10). It writes the allow-list of contracts/release-files.md:
+- [X] T044 [US2] Create `src/mobility_model_zoo/edge/int8/release_export.py`, the generic int8 release exporter that `hum-fan` can reuse (R10). It writes the allow-list of contracts/release-files.md:
   - `<model>.npz` and `<model>.tflite`;
   - `c/<model>_model.c` and `c/<model>_model.h`, the model alone, generated with `edge/int8/codegen.py`;
   - `c/microinfer.c` and `c/microinfer.h`, copied from `firmware/bench/lib/microinfer/src/`;
@@ -265,8 +265,8 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `sbom.cdx.json` via `release/sbom.py`.
 
   It refuses (exit 4) on any extra file or on an example that does not reproduce.
-- [ ] T045 [US2] Add `condmon activity export --version 0.1.0 --out DIR` in `src/mobility_model_zoo/condition_monitoring/cli.py`. It calls `release_export.py` with the seed-0 run and fills `config.json` from the manifest normalisation, the QModel quantisation and the `prepare.py` steps (channel names and units, 50 Hz, window 128, overlap 0.5, the filter coefficients of T025).
-- [ ] T046 [US2] Run `uv run condmon activity export --version 0.1.0 --out /tmp/pace-cnn-0.1.0` (V8). Copy the three examples into `zoo/models/pace-cnn/examples/` and add `zoo/models/pace-cnn/examples/SOURCES.yaml` stating `synthetic`, as `zoo/models/picket-forest/examples/SOURCES.yaml` does. Confirm T034 passes on the real export.
+- [X] T045 [US2] Add `condmon activity export --version 0.1.0 --out DIR` in `src/mobility_model_zoo/condition_monitoring/cli.py`. It calls `release_export.py` with the seed-0 run and fills `config.json` from the manifest normalisation, the QModel quantisation and the `prepare.py` steps (channel names and units, 50 Hz, window 128, overlap 0.5, the filter coefficients of T025).
+- [X] T046 [US2] Run `uv run condmon activity export --version 0.1.0 --out /tmp/pace-cnn-0.1.0` (V8). Copy the three examples into `zoo/models/pace-cnn/examples/` and add `zoo/models/pace-cnn/examples/SOURCES.yaml` stating `synthetic`, as `zoo/models/picket-forest/examples/SOURCES.yaml` does. Confirm T034 passes on the real export.
 - [ ] T047 [US2] Run the bench on the simulator and the emulator (V6 steps 1–2):
   - `MMZ_EDGE_MODELS=$MMZ_DATA/derived/pace-cnn/seed-0/pace-cnn.npz uv run edge run -b sim`;
   - `… uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --require-all`.
@@ -290,20 +290,20 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T051 [P] [US3] Write `tests/release/test_collection.py` and extend `tests/release/fakehub.py` with collection visibility. It checks:
+- [X] T051 [P] [US3] Write `tests/release/test_collection.py` and extend `tests/release/fakehub.py` with collection visibility. It checks:
   - `init_model` creates a private collection from the topic's title and description when `hf_collection` is null, and writes the slug into `topics.yaml`;
   - nothing changes when the collection exists;
   - `publish` makes a private topic collection public when it adds the first public model.
-- [ ] T052 [P] [US3] Write `tests/compliance/test_scan_publish_nontext.py`. A dataset whose source class is not text (for example `imu-activity-datasets`) and that has `used_by` is exempt from the corpus-overlap scan, and the exemption and its reason are recorded in the publication-scan report. A text source without a snapshot still fails with "the scan needs the snapshots under data/snapshots" (plan, Risks).
-- [ ] T053 [P] [US3] Write `tests/release/test_card_dataset_attribution.py`. For a release whose training source is a declared dataset, the card section "Training data and attribution" shows the dataset's `attribution_text` and its licence, and it does not speak of "published documents" or "training texts". The privacy section shows `card_privacy_note`.
-- [ ] T054 [P] [US3] Write `tests/condition_monitoring/test_card_verdict.py`. Every missed criterion in `topics/condition-monitoring/reports/pace-cnn/0.1.0/verdict.json` appears in `zoo/models/pace-cnn/model.yaml` `card.unmet_criteria` with its measured value (R6). "Rule 18 allows at most five items for `unmet_criteria` and `limits_short` together."
-- [ ] T055 [P] [US3] Write `tests/release/test_no_claude_inputs.py` for the new check of gate rule 7 (R21, FR-027), on fixture registries. Rule 7 fails when any of these belongs to the Claude family:
+- [X] T052 [P] [US3] Write `tests/compliance/test_scan_publish_nontext.py`. A dataset whose source class is not text (for example `imu-activity-datasets`) and that has `used_by` is exempt from the corpus-overlap scan, and the exemption and its reason are recorded in the publication-scan report. A text source without a snapshot still fails with "the scan needs the snapshots under data/snapshots" (plan, Risks).
+- [X] T053 [P] [US3] Write `tests/release/test_card_dataset_attribution.py`. For a release whose training source is a declared dataset, the card section "Training data and attribution" shows the dataset's `attribution_text` and its licence, and it does not speak of "published documents" or "training texts". The privacy section shows `card_privacy_note`.
+- [X] T054 [P] [US3] Write `tests/condition_monitoring/test_card_verdict.py`. Every missed criterion in `topics/condition-monitoring/reports/pace-cnn/0.1.0/verdict.json` appears in `zoo/models/pace-cnn/model.yaml` `card.unmet_criteria` with its measured value (R6). "Rule 18 allows at most five items for `unmet_criteria` and `limits_short` together."
+- [X] T055 [P] [US3] Write `tests/release/test_no_claude_inputs.py` for the new check of gate rule 7 (R21, FR-027), on fixture registries. Rule 7 fails when any of these belongs to the Claude family:
   - a teacher in `provenance.teachers`;
   - a route the compliance register links to the release;
   - a labeling, data-generation or evaluation run recorded for it.
 
   Membership is decided by `model_family: claude` or, for entries without the field, by `claude` or `anthropic` in the model id or hosting provider. The check passes, and says so in its output, for a release without teachers or routes like pace-cnn. A frozen reference that Principle XI keeps (pilot-v1, pilot-v2, cluster-v1, spike-v2) passes only in the role of benchmark reference, never as a training source or teacher.
-- [ ] T056 [P] [US3] Write `tests/release/test_rule9_benchmark_trace.py` for the new benchmark trace of gate rule 9 (R22), on a fixture topic with a manifest and an evaluation report. It covers:
+- [X] T056 [P] [US3] Write `tests/release/test_rule9_benchmark_trace.py` for the new benchmark trace of gate rule 9 (R22), on a fixture topic with a manifest and an evaluation report. It covers:
   - rule 9 fails when a run in `evaluation.json` names another manifest SHA-256;
   - rule 9 fails when a criteria commit is not in the history, or is newer than the earliest `trained_at`;
   - rule 9 passes when everything matches;
@@ -317,20 +317,20 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 ### Implementation for User Story 3
 
-- [ ] T058 [US3] In `src/mobility_model_zoo/release/hub.py:183`, give `create_collection` a `private` flag and add a method that makes a collection public, via `huggingface_hub`'s collection update; check the current signature with context7. Mirror both in `tests/release/fakehub.py`.
-- [ ] T059 [US3] In `src/mobility_model_zoo/release/publish.py`, make `init_model` (line 49) ensure the topic collection: create it private and write the slug into `zoo/topics.yaml` (R12). In `add_to_collection` (line 349), make a private collection public when it adds the first public model. Update the `init-model` and `publish` help texts in `src/mobility_model_zoo/release/cli.py`.
-- [ ] T060 [P] [US3] Add the non-text exemption to `scan-publish` in `src/mobility_model_zoo/compliance/cli.py` (lines 258–296 and `_corpus_texts` at line 230), following T052. First look for an existing field that marks a source class as text. If there is none, add a `modality` field to the source-class schema in `src/mobility_model_zoo/compliance/schemas/` and set it in `topics/*/compliance/source-classes.yaml`. Record each exempt dataset and its reason in the report written by `release_checks.report_path`.
-- [ ] T061 [P] [US3] Fix the card in `src/mobility_model_zoo/release/templates/model_card.md.j2` and its context in `src/mobility_model_zoo/release/card.py` (`compliance_context`):
+- [X] T058 [US3] In `src/mobility_model_zoo/release/hub.py:183`, give `create_collection` a `private` flag and add a method that makes a collection public, via `huggingface_hub`'s collection update; check the current signature with context7. Mirror both in `tests/release/fakehub.py`.
+- [X] T059 [US3] In `src/mobility_model_zoo/release/publish.py`, make `init_model` (line 49) ensure the topic collection: create it private and write the slug into `zoo/topics.yaml` (R12). In `add_to_collection` (line 349), make a private collection public when it adds the first public model. Update the `init-model` and `publish` help texts in `src/mobility_model_zoo/release/cli.py`.
+- [X] T060 [P] [US3] Add the non-text exemption to `scan-publish` in `src/mobility_model_zoo/compliance/cli.py` (lines 258–296 and `_corpus_texts` at line 230), following T052. First look for an existing field that marks a source class as text. If there is none, add a `modality` field to the source-class schema in `src/mobility_model_zoo/compliance/schemas/` and set it in `topics/*/compliance/source-classes.yaml`. Record each exempt dataset and its reason in the report written by `release_checks.report_path`.
+- [X] T061 [P] [US3] Fix the card in `src/mobility_model_zoo/release/templates/model_card.md.j2` and its context in `src/mobility_model_zoo/release/card.py` (`compliance_context`):
   - **Training data and attribution** (line 177): for dataset sources, render title, creators, DOI, licence, the declaration's `attribution_text` and `modifications`, with dataset wording instead of "published documents" and "training texts" (R13, FR-020);
   - **FR-020 items**: add whatever the template does not yet render for T057, such as quality rows beyond the headline or budget rows with origin.
 
   Re-check the golden cards in `tests/release/fixtures/golden/` and update them only where the change is intended.
-- [ ] T062 [P] [US3] Add the field `model_family` to every route in `compliance/providers.yaml` and to its schema in `src/mobility_model_zoo/compliance/schemas/` (R21). `claude-api` and `claude-consumer-cli` get `claude`, every other route its own family. A route without the field is reported by `zoo validate --all`.
-- [ ] T063 [US3] Implement the check for no Claude inputs in gate rule 7 (`rule_7` in `src/mobility_model_zoo/release/gate.py:449`) following T055 and R21. It reads the teachers of the release record and the routes and recorded runs that the compliance register links to the release. The exception for the frozen references that Principle XI keeps comes from decision D-claude-risk-0.1.x in `compliance/decisions.yaml`, not from a list in code. The rule's output states "no Claude inputs" when it passes.
-- [ ] T064 [US3] Implement the benchmark trace in gate rule 9 (`rule_9` in `src/mobility_model_zoo/release/gate.py:733`) following T056 and R22. It reads `topics/<topic>/benchmarks/<benchmark>/manifest.json` and `topics/<topic>/reports/<model>/<version>/evaluation.json`. Use `git merge-base --is-ancestor` and the commit date for the criteria commits. Releases without a manifest skip the trace with a note.
-- [ ] T065 [US3] Regression check of the new rules 7 and 9: run `uv run zoo check <model> <version> --offline` for every published release (at least scout-large 0.1.3 and picket-forest 0.2.1) and `uv run zoo validate --all`. They must pass as before. If a published release now fails rule 7, stop and report it to the owner instead of widening the exception.
-- [ ] T066 [US3] Set `used_by: [pace-cnn@0.1.0]` for `uci-har` in `topics/condition-monitoring/compliance/datasets.yaml`, after T060 (FR-005). `redistribution` stays `unclear`, because no dataset content is published.
-- [ ] T067 [US3] Rewrite the `card` block of `zoo/models/pace-cnn/model.yaml` (data-model.md, R14):
+- [X] T062 [P] [US3] Add the field `model_family` to every route in `compliance/providers.yaml` and to its schema in `src/mobility_model_zoo/compliance/schemas/` (R21). `claude-api` and `claude-consumer-cli` get `claude`, every other route its own family. A route without the field is reported by `zoo validate --all`.
+- [X] T063 [US3] Implement the check for no Claude inputs in gate rule 7 (`rule_7` in `src/mobility_model_zoo/release/gate.py:449`) following T055 and R21. It reads the teachers of the release record and the routes and recorded runs that the compliance register links to the release. The exception for the frozen references that Principle XI keeps comes from decision D-claude-risk-0.1.x in `compliance/decisions.yaml`, not from a list in code. The rule's output states "no Claude inputs" when it passes.
+- [X] T064 [US3] Implement the benchmark trace in gate rule 9 (`rule_9` in `src/mobility_model_zoo/release/gate.py:733`) following T056 and R22. It reads `topics/<topic>/benchmarks/<benchmark>/manifest.json` and `topics/<topic>/reports/<model>/<version>/evaluation.json`. Use `git merge-base --is-ancestor` and the commit date for the criteria commits. Releases without a manifest skip the trace with a note.
+- [X] T065 [US3] Regression check of the new rules 7 and 9: run `uv run zoo check <model> <version> --offline` for every published release (at least scout-large 0.1.3 and picket-forest 0.2.1) and `uv run zoo validate --all`. They must pass as before. If a published release now fails rule 7, stop and report it to the owner instead of widening the exception.
+- [X] T066 [US3] Set `used_by: [pace-cnn@0.1.0]` for `uci-har` in `topics/condition-monitoring/compliance/datasets.yaml`, after T060 (FR-005). `redistribution` stays `unclear`, because no dataset content is published.
+- [X] T067 [US3] Rewrite the `card` block of `zoo/models/pace-cnn/model.yaml` (data-model.md, R14):
   - `intended_use`;
   - `out_of_scope` and `not_for`, worded so card lint C-C2 passes, in plain words: monitoring or evaluating persons at work; decisions on access to insurance, credit or services from a person's movement; identifying or profiling persons; fall detection as a safety function; transport-mode or vehicle classes;
   - `input_output`, the input contract of R11 with units, 50 Hz, 128 samples, 50 % overlap, gravity separation, normalisation constants and a pointer to `config.json`;
@@ -340,21 +340,21 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `unmet_criteria` from `verdict.json`: S5 "Transfer to mobility data tested: not tested (UCI HAR only)", plus every other miss with its value, grouped so that `unmet_criteria` and `limits_short` together hold at most five items.
 
   Take every number from `quality.json` or `performance.json` (FR-022).
-- [ ] T068 [P] [US3] Create `zoo/models/pace-cnn/site.yaml` following `zoo/models/picket-forest/site.yaml` and `src/mobility_model_zoo/site/schemas/site.schema.json`:
+- [X] T068 [P] [US3] Create `zoo/models/pace-cnn/site.yaml` following `zoo/models/picket-forest/site.yaml` and `src/mobility_model_zoo/site/schemas/site.schema.json`:
   - tagline, share_line, an audience of at most 25 words, and 3–4 differentiators (titles at most 5 words, texts at most 20);
   - numbers only as `{metric:quality.…}` or `{metric:performance.…}` placeholders, and no release status;
   - `quickstart_example: example-1.json`, a hardware note, and metric cards for `quality.int8_macro_f1`, `quality.int8_accuracy`, `performance.flash_kb` and `performance.latency_us`.
 
   Every metric card label and differentiator that names a device value states the board and the origin of `performance.json` (for example "Latency per window (ESP32, real board)", or "(ESP32, emulator)" if the substitute was used) (Principle V).
-- [ ] T069 [P] [US3] Create `zoo/formats/pace-cnn-v1.yaml` with the field meanings of the example format for the website, following `zoo/formats/picket-forest-v2.yaml`. Point it to `src/mobility_model_zoo/condition_monitoring/activity/pace-cnn-v1.schema.json` (check B5 needs both).
-- [ ] T070 [US3] Update `zoo/models/pace-cnn/releases/0.1.0.yaml`:
+- [X] T069 [P] [US3] Create `zoo/formats/pace-cnn-v1.yaml` with the field meanings of the example format for the website, following `zoo/formats/picket-forest-v2.yaml`. Point it to `src/mobility_model_zoo/condition_monitoring/activity/pace-cnn-v1.schema.json` (check B5 needs both).
+- [X] T070 [US3] Update `zoo/models/pace-cnn/releases/0.1.0.yaml`:
   - `date`;
   - `changes`, the first-release text;
   - `recipe.git_commit`, the commit holding the freeze, criteria and recipe;
   - `provenance.sources[0].count`, the number of training windows from the manifest.
 
   Keep `status: experimental`, `evaluation.benchmark: uci-har-v1`, `evaluation.reference_kind: ground_truth`, `usage.class: commercial` and `licence: Apache-2.0`. `files[]` and `staging.revision` are filled by `zoo stage`.
-- [ ] T071 [US3] Create `zoo/models/pace-cnn/releases/0.1.0.compliance.yaml` with the compliance harness, following `zoo/models/picket-forest/releases/0.2.0.compliance.yaml`:
+- [X] T071 [US3] Create `zoo/models/pace-cnn/releases/0.1.0.compliance.yaml` with the compliance harness, following `zoo/models/picket-forest/releases/0.2.0.compliance.yaml`:
   - `runtime: mcu`, `sbom: sbom.cdx.json`;
   - `intended_purpose`, `out_of_scope`, `annex_iii_match`;
   - `card_privacy_note`: trained on motion signals of 30 volunteers, published under numbers by the dataset authors; no data or subject number is in the release.
@@ -387,11 +387,11 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 - [ ] T081 Run `uv run python scripts/ci/select_tests.py` on the branch diff and run the selected test areas (condmon, edge, release, compliance, security for `release/sbom.py`). Confirm that:
   - the CI jobs `edge-sim` and `edge-qemu` are selected for the firmware change;
   - the change to `release/gate.py` selects the release tests of all models.
-- [ ] T082 [P] Run a privacy and provenance sweep over the branch diff and the upload folder:
+- [X] T082 [P] Run a privacy and provenance sweep over the branch diff and the upload folder:
   - no subject numbers or lists in `topics/condition-monitoring/benchmarks/`, `topics/condition-monitoring/reports/pace-cnn/0.1.0/`, `zoo/models/pace-cnn/` or `/tmp/pace-cnn-0.1.0`;
   - no `*.eval.npz` and no local paths;
   - no pre-zoo report numbers on the card or the site text (FR-023, FR-028, SC-007).
-- [ ] T083 [P] Align the feature docs with what was built:
+- [X] T083 [P] Align the feature docs with what was built:
   - in `specs/021-pace-cnn-first-release/data-model.md`, `card_privacy_note` lives in the compliance record (T071), not in `model.yaml`;
   - note the example generator decision of T044 in research R10;
   - note the source-class field chosen in T060 in research R13.

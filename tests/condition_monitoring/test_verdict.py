@@ -89,3 +89,13 @@ def test_reasons_name_every_missed_criterion_with_its_value():
     ids = [r.split(" ", 1)[0] for r in v["reasons"]]
     assert ids == ["S2", "S3", "S4", "S5"]
     assert "0.88" in v["reasons"][0] and "0.71" in v["reasons"][1]
+
+
+def test_budget_uses_the_mean_latency_when_measured():
+    perf = _perf(latency=90000.0)
+    perf["metrics"].append(
+        {"name": "latency_mean_us", "value": 120000.0, "origin": "real_board", "hardware": "ESP32"}
+    )
+    v = ev.derive_verdict(CRITERIA, GOOD, perf, {"transfer_tested": False})
+    assert _by_id(v)["S4"]["measured"]["latency_us"] == 120000.0
+    assert v["kill"]["fired"] == ["K3"]

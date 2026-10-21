@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator
 from mobility_model_zoo.compliance.register import SCHEMA_DIR, schema
 
 REPO = Path(__file__).resolve().parents[2]
-CONTRACT = REPO / "specs" / "011-usage-class-nc" / "contracts" / "compliance"  # latest owner
+CONTRACT = REPO / "specs" / "021-pace-cnn-first-release" / "contracts" / "compliance"  # latest owner
 
 
 def errors(stem, data):

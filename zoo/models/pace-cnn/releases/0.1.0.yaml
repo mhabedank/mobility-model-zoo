@@ -1,9 +1,11 @@
 model: pace-cnn
 version: 0.1.0
-date: 2026-10-08
+date: 2026-10-20
 status: experimental
 change_type: initial
-changes: 'Draft of the first release (feature 005): registered, not trained on the frozen benchmark yet.'
+changes: 'First release (feature 021): trained on the frozen benchmark uci-har-v1 with pre-registered
+  criteria and five seeds; int8 results on the bit-exact host reference; experimental because the transfer
+  to mobility data is not tested.'
 output_format_version: pace-cnn-v1
 sandbox: false
 files: []
@@ -11,7 +13,7 @@ staging:
   repo: mobility-model-zoo/pace-cnn-staging
   revision: ''
 recipe:
-  git_commit: 9a6ad6e347ec1ef72efcccca2be4192fea7d8017
+  git_commit: f359d5064df0927a3ab4f9e30253a8c0a10f591b
   config: configs/condition-monitoring/activity/pace-cnn.yaml
   doc: topics/condition-monitoring/tasks/activity.md
 provenance:
@@ -19,7 +21,7 @@ provenance:
   - origin: dataset uci-har (topics/*/compliance/datasets.yaml)
     license: CC-BY-4.0
     permitted_use: training_allowed
-    count: 0
+    count: 6288
     dataset: uci-har
   teachers: []
   spike_data: false
@@ -29,11 +31,11 @@ evaluation:
   reference_kind: ground_truth
   results: results/0.1.0/quality.json
 performance:
-  hardware: ESP32-S3 (HIL bench)
+  hardware: ESP32 (LilyGO LoRa32, HIL bench)
   budget:
     ram_kb: 32
     flash_kb: 128
-    target: ESP32-S3
+    target: ESP32
   results: results/0.1.0/performance.json
 usage:
   class: commercial

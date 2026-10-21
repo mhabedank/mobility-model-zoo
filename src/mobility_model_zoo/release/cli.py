@@ -172,7 +172,8 @@ def validate_cmd(
 
 @app.command("init-model")
 def init_model_cmd(model: str) -> None:
-    """Create the model's private staging repo (HF_RELEASE_TOKEN)."""
+    """Create the model's private staging repo and, if missing, its topic's private collection
+    (HF_RELEASE_TOKEN)."""
     _run(lambda: ops.init_model(_registry(), model, _hub("HF_RELEASE_TOKEN"), say))
 
 
@@ -228,7 +229,8 @@ def preview_cmd(model: str, version: str, build: Path = typer.Option(..., "--bui
 
 @app.command("publish")
 def publish_cmd(model: str, version: str, confirm: str = typer.Option(..., "--confirm")) -> None:
-    """Publish the reviewed preview. Starting this is the owner's approval."""
+    """Publish the reviewed preview and add it to its topic collection (a private collection
+    becomes public with its first model). Starting this is the owner's approval."""
     _run(lambda: ops.publish(_registry(), model, version, confirm, _hub("HF_RELEASE_TOKEN"), say))
 
 

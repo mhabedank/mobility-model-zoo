@@ -277,7 +277,9 @@ def scan_publish_cmd(
             if f"{model}@{version}" in s.get("used_by", [])
             or any(u.startswith("benchmark:") for u in s.get("used_by", []))
         ]
-        full_texts, restricted_texts = _corpus_texts(reg, sources)
+        classes = {c["id"]: c for c in reg.records("source-classes")}
+        text_sources, exempt = release_checks.split_text_sources(classes, sources)
+        full_texts, restricted_texts = _corpus_texts(reg, text_sources)
         full, restricted = CorpusIndex.build(full_texts), CorpusIndex.build(restricted_texts)
         full.save(reg.root / "data" / "compliance" / "corpus-index")
         card = cards.render(
@@ -285,12 +287,14 @@ def scan_publish_cmd(
         )
         ctx = checks.Context(reg, model=model, version=version, extra={"card": card})
         report = release_checks.scan_publication(ctx, full, restricted)
+        report["exempt_sources"] = exempt
         path = release_checks.report_path(reg.root, model, version)
         path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         worst = max((f["overlap_max_words"] for f in report["files"]), default=0)
         pii_hits = sum(f["pii_hits"] for f in report["files"])
         say(
-            f"scan: {len(report['files'])} files, {len(sources)} sources; longest restricted overlap "
+            f"scan: {len(report['files'])} files, {len(sources)} sources "
+            f"({len(exempt)} without text, exempt from the overlap scan); longest restricted overlap "
             f"{worst} words, PII hits {pii_hits}; report {path.relative_to(reg.root)}"
         )
 

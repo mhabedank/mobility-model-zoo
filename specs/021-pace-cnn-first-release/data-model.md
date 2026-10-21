@@ -130,8 +130,9 @@ The `card` block changes:
 - `how_to_run`, with a synthetic example and a stated purpose;
 - `device_usage`, matching the shipped `c/` headers;
 - `limitations` and `limits_short`;
-- `unmet_criteria`, taken from `verdict.json`;
-- `card_privacy_note`.
+- `unmet_criteria`, taken from `verdict.json`.
+
+The privacy note (`card_privacy_note`) is not in `model.yaml`: the card template reads it from the compliance record `releases/0.1.0.compliance.yaml` (implementation, T071).
 
 Rule 18 allows at most five items for `unmet_criteria` and `limits_short` together.
 

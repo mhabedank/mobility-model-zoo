@@ -19,10 +19,12 @@ needs_cc = pytest.mark.skipif(
 
 METRICS = {
     "latency_us": "us",
+    "latency_mean_us": "us",
     "latency_p99_us": "us",
     "flash_kb": "KiB",
     "ram_kb": "KiB",
     "arena_bytes": "bytes",
+    "device_bit_exact_vectors": "share",
 }
 
 
@@ -59,6 +61,7 @@ def _check(path, model):
         assert m["hardware"].startswith("host simulator")
         assert m["description"] and m["date"]
     assert by_name["arena_bytes"]["value"] == model.arena_size()
+    assert by_name["device_bit_exact_vectors"]["value"] == 1.0  # golden vectors on the device
     assert by_name["latency_p99_us"]["value"] >= by_name["latency_us"]["value"]
     return data
 

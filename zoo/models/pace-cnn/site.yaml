@@ -1,0 +1,37 @@
+# Website text of pace-cnn (feature 021, T068; features 010, 014). Schema:
+# src/mobility_model_zoo/site/schemas/site.schema.json. Numbers only as {metric:<kind>.<name>}
+# placeholders (checks B2, F2; gate rule 17). Device values name the board and where they were
+# measured (Principle V): the labels below must match the `origin` in performance.json.
+tagline: Activity recognition from a waist-worn IMU, small enough for an ESP32 and bit-exact on it.
+share_line: Int8 activity recognition from IMU windows, measured on a real ESP32.
+audience: >-
+  For researchers, students and embedded engineers who want an open, measured baseline for motion
+  classification on a microcontroller.
+differentiators:
+  - title: Runs on an ESP32
+    text: >-
+      Plain C int8 engine: {metric:performance.flash_kb} of flash and {metric:performance.ram_kb} of
+      memory on a real ESP32.
+  - title: Same answers on the board
+    text: >-
+      The board's outputs equal the host reference bit for bit on every published test vector.
+  - title: Honest, pre-registered numbers
+    text: >-
+      Criteria fixed before training; int8 macro-F1 {metric:quality.int8_macro_f1} on unseen test
+      subjects of UCI HAR.
+  - title: Open and reproducible
+    text: >-
+      Frozen benchmark, five pre-registered seeds and the full evaluation report are public.
+quickstart_example: example-1.json
+hardware_note: >-
+  Needs a host with Python to prepare windows from raw readings, and an ESP32-class microcontroller
+  (or the host) to run the int8 model. Trained on a waist-worn sensor: other placements are untested.
+metric_cards:
+  - label: Macro-F1, int8, unseen test subjects
+    metric: quality.int8_macro_f1
+  - label: Accuracy, int8, unseen test subjects
+    metric: quality.int8_accuracy
+  - label: Flash (ESP32, real board)
+    metric: performance.flash_kb
+  - label: Latency per window (ESP32, real board)
+    metric: performance.latency_mean_us

@@ -126,6 +126,8 @@ def _budgets(criteria: dict, performance: dict | None) -> dict[str, Any]:
     if any(n not in rows for n in BUDGET_METRICS):
         return {"threshold": threshold, "measured": None, "note": "not measured"}
     measured = {n: rows[n]["value"] for n in BUDGET_METRICS}
+    if "latency_mean_us" in rows:  # FR-014 budgets the average time per window; latency_us is the median
+        measured["latency_us"] = rows["latency_mean_us"]["value"]
     origins = sorted({rows[n].get("origin", "unknown") for n in BUDGET_METRICS})
     within = all(measured[n] <= b[n] for n in BUDGET_METRICS)
     out = {"threshold": threshold, "measured": {**measured, "origin": ", ".join(origins)}}

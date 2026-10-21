@@ -114,6 +114,7 @@ class Gate:
     how_to_run_output: str | None = None  # what how_to_run printed in the fresh environment (mcu)
     model: dict[str, Any] = field(default_factory=dict)
     record: dict[str, Any] = field(default_factory=dict)
+    notes: dict[int, str] = field(default_factory=dict)  # what a passing rule confirms
 
     def __post_init__(self) -> None:
         if self.git is None:
@@ -461,6 +462,36 @@ class Gate:
                 continue
             if synthetic and not sandbox:
                 failures.append(f"{kind} results are synthetic outside the sandbox topic")
+        return failures + self._claude_failures()
+
+    def _claude_failures(self) -> list[str]:
+        """No Claude inputs behind the release (Principle XI, feature 021 R21)."""
+        from mobility_model_zoo.release.claude_check import claude_findings
+
+        creg = self._compliance()
+        routes, roles, decisions, provider_routes = [], {}, [], []
+        if creg is not None:
+            rc = creg.release(self.name, self.version) or {}
+            provider_routes = creg.records("providers")
+            routes = [
+                creg.route(rid) or {"id": rid, "model_id": rid}
+                for rid in (rc.get("provenance") or {}).get("routes", [])
+            ]
+            for rec in creg.records("recipients"):
+                roles.setdefault(rec["route_id"], set()).update(rec.get("roles", []))
+            decisions = creg.records("decisions")
+        failures, note = claude_findings(
+            model=self.name,
+            version=self.version,
+            teachers=self.record["provenance"]["teachers"],
+            routes=routes,
+            roles=roles,
+            decisions=decisions,
+            evaluation_reference=str(self.record.get("evaluation", {}).get("reference", "")),
+            provider_routes=provider_routes,
+        )
+        if not failures:
+            self.notes[7] = note
         return failures
 
     def rule_8(self) -> list[str]:
@@ -751,7 +782,23 @@ class Gate:
                 failures.append(f"{kind}.json kind, model or version does not match")
         if failures:
             return failures
-        return failures + traceability(self.reg, self.name, self.version, self._card())
+        failures = traceability(self.reg, self.name, self.version, self._card())
+        return failures + self._benchmark_trace()
+
+    def _benchmark_trace(self) -> list[str]:
+        """The runs used the frozen benchmark and the pre-registered criteria (feature 021, R22)."""
+        from mobility_model_zoo.release.benchmark_trace import trace_findings
+
+        found, note = trace_findings(
+            self.reg.zoo.parent,
+            self.model["topic"],
+            self.name,
+            self.version,
+            str(self.record["evaluation"].get("benchmark", "")),
+        )
+        if not found:
+            self.notes[9] = note
+        return found
 
     def rule_10(self) -> list[str]:
         card = self._card()
@@ -827,7 +874,10 @@ class Gate:
             except Exception as e:  # a rule must never crash the gate silently
                 found = [f"rule crashed: {type(e).__name__}: {e}"]
             failures[number] = found
-            self.results[number] = ("FAIL", "; ".join(found)) if found else ("PASS", "")
+            if found:
+                self.results[number] = ("FAIL", "; ".join(found))
+            else:
+                self.results[number] = ("PASS", self.notes.get(number, ""))
         for number in sorted(self.results):
             status, reason = self.results[number]
             say(f"rule {number:>2} {TITLES[number]:<26} {status}{': ' + reason if reason else ''}")

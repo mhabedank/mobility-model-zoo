@@ -143,7 +143,7 @@ Source: {{ ex.source }}{% if ex.attack %} ({{ ex.attack }} attack){% endif %}. {
 
 The full example with the expected score of every frame is `examples/{{ ex.name }}` in the repository; the release gate reproduces every score and alarm bit-exactly with the C code of this release.
 {% else %}
-Source: {{ ex.source }}. Input ({{ ex.n_in }} int8 values):
+Source: {{ ex.source }}. Input ({{ ex.n_in }} int8 values{% if ex.input_note %}; {{ ex.input_note }}{% endif %}):
 
 ```json
 {{ ex.input }}
@@ -176,13 +176,32 @@ Output:
 {% if c %}
 ## Training data and attribution
 
-{{ m.name }} {{ c.rc.version }} was trained on {{ c.sources | length }} published documents. Each is credited below with title, creators, source and licence. All of them were modified in the same way: {{ c.sources[0].modifications if c.sources else "" }} The training texts are not published or redistributed; see the [copyright policy]({{ repo_url }}/blob/main/COPYRIGHT_POLICY.md).
+{% set ds = c.sources | selectattr("is_dataset") | list %}
+{% set docs = c.sources | rejectattr("is_dataset") | list %}
+{% if ds %}
+{{ m.name }} {{ c.rc.version }} was trained on {{ ds | length }} published dataset{{ "" if ds | length == 1 else "s" }}, credited below as {{ "its licence requires" if ds | length == 1 else "their licences require" }}.
+
+| Dataset | Creators | Source | DOI | Licence |
+|---------|----------|--------|-----|---------|
+{% for s in ds %}| {{ s.title | replace("|", "/") }} | {{ s.creators | join(", ") if s.creators is not string else "unknown" }} | {{ s.origin_url }} | {% if s.doi %}[{{ s.doi }}](https://doi.org/{{ s.doi }}){% endif %} | {% if s.licence_url %}[{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}]({{ s.licence_url }}){% else %}{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}{% endif %} |
+{% endfor %}
+
+{% for s in ds %}
+- **Attribution:** {{ s.attribution_text }}{% if s.modifications %} **Modifications:** {{ s.modifications }}{% endif %}
+
+{% endfor %}
+The datasets are not published or redistributed with the model; download them from their providers. Their licences and attribution apply to them (project constitution, Principle VI); see the [copyright policy]({{ repo_url }}/blob/main/COPYRIGHT_POLICY.md).
+
+{% endif %}
+{% if docs or not ds %}
+{{ m.name }} {{ c.rc.version }} was trained on {{ docs | length }} published documents. Each is credited below with title, creators, source and licence. All of them were modified in the same way: {{ docs[0].modifications if docs else "" }} The training texts are not published or redistributed; see the [copyright policy]({{ repo_url }}/blob/main/COPYRIGHT_POLICY.md).
 
 | Title | Creators | Source | Licence |
 |-------|----------|--------|---------|
-{% for s in c.sources %}| {{ s.title | replace("|", "/") }} | {{ s.creators | join(", ") if s.creators is not string else "unknown" }} | {{ s.origin_url }} | {% if s.licence_url %}[{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}]({{ s.licence_url }}){% else %}{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}{% endif %} |
+{% for s in docs %}| {{ s.title | replace("|", "/") }} | {{ s.creators | join(", ") if s.creators is not string else "unknown" }} | {{ s.origin_url }} | {% if s.licence_url %}[{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}]({{ s.licence_url }}){% else %}{{ s.licence | replace("LicenseRef-", "") | replace("-", " ") }}{% endif %} |
 {% endfor %}
 
+{% endif %}
 {% if c.base_notice %}
 Base model: [{{ c.base_notice.name }}]({{ c.base_notice.url }}), {{ c.base_notice.licence }}. {{ c.base_notice.copyright }}
 
@@ -191,10 +210,14 @@ Base model: [{{ c.base_notice.name }}]({{ c.base_notice.url }}), {{ c.base_notic
 
 ## Teacher and labeling models
 
+{% if c.routes %}
 | Route | Model | Hosting provider | Region | Role | Terms checked |
 |-------|-------|------------------|--------|------|---------------|
 {% for t in c.routes %}| `{{ t.id }}` | {{ t.model_version | default(t.model_id) }} | {{ t.hosting_provider }} | {{ t.region | default("unknown") }} | {{ t.roles | join(", ") }} | {{ t.terms_checked_at | default("unknown") }} |
 {% endfor %}
+{% else %}
+None. The model learned only from {{ "the labels of its training dataset" if ds and not docs else "its training data" }}; no teacher or labeling model was used.
+{% endif %}
 
 {% for d in c.decisions %}
 Owner decision {{ d.id }} ({{ d.date }}): {{ d.decision }}
@@ -208,7 +231,7 @@ Owner decision {{ d.id }} ({{ d.date }}): {{ d.decision }}
 
 ## Privacy and personal data
 
-{% if c.rc.card_privacy_note is defined %}{{ c.rc.card_privacy_note | trim }}{% else %}The training texts were collected under the copyright and privacy rules of the project: opt-out signals were honoured, personal identifiers such as e-mail addresses, phone numbers and user handles were removed before labeling, and special categories of personal data were excluded except where a recorded decision allows them.{% endif %} The model labels passages of the text you give it and does not return stored training text. How texts are processed, who received them and how to object: [privacy notice]({{ repo_url }}/blob/main/PRIVACY.md). AI Act classification: [{{ m.name }} {{ c.rc.version }}]({{ repo_url }}/blob/{{ m.name }}/v{{ c.rc.version }}/zoo/models/{{ m.name }}/releases/{{ c.rc.version }}.ai-act.md). Contact: {{ c.controller.privacy_contact }}.
+{% if c.rc.card_privacy_note is defined %}{{ c.rc.card_privacy_note | trim }}{% else %}The training texts were collected under the copyright and privacy rules of the project: opt-out signals were honoured, personal identifiers such as e-mail addresses, phone numbers and user handles were removed before labeling, and special categories of personal data were excluded except where a recorded decision allows them.{% endif %} {% if docs %}The model labels passages of the text you give it and does not return stored training text. How texts are processed, who received them and how to object{% else %}The model returns scores for the inputs you give it and contains no training data. How the training data were processed and how to object{% endif %}: [privacy notice]({{ repo_url }}/blob/main/PRIVACY.md). AI Act classification: [{{ m.name }} {{ c.rc.version }}]({{ repo_url }}/blob/{{ m.name }}/v{{ c.rc.version }}/zoo/models/{{ m.name }}/releases/{{ c.rc.version }}.ai-act.md). Contact: {{ c.controller.privacy_contact }}.
 
 {% else %}
 ## Training data provenance

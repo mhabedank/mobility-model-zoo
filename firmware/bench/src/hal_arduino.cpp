@@ -53,7 +53,8 @@ static void track_heap(uint32_t free_now)
 void hal_arduino_begin(uint32_t baud)
 {
 #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
-    Serial.setRxBufferSize(2048);
+    /* 4096: a pace-cnn INFER line (128 x 9 int8 as hex) is about 2.3 KB (feature 021, R8). */
+    Serial.setRxBufferSize(4096);
 #endif
     Serial.begin(baud);
 

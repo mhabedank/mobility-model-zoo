@@ -168,5 +168,13 @@ def export(
     out: Path = typer.Option(..., "--out", help="upload folder to write"),
 ) -> None:
     """Write the upload folder of a release (model files, C sources, config, examples, SBOM)."""
-    say("export: not implemented yet (feature 021, T044/T045)")
-    raise typer.Exit(NOT_FROZEN)
+    from mobility_model_zoo.condition_monitoring.activity import release
+
+    try:
+        result = release.export(version, out)
+    except release.ExportRefused as e:
+        say(f"export refused: {e}")
+        raise typer.Exit(CHECK_FAILED) from None
+    for name in result["files"]:
+        print(name)
+    say(f"wrote {len(result['files'])} files to {out}")

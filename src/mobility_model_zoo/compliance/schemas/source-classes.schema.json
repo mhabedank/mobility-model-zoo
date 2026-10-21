@@ -101,6 +101,15 @@
               "object",
               "null"
             ]
+          },
+          "modality": {
+            "enum": [
+              "text",
+              "audio",
+              "motion_sensor",
+              "can_frames"
+            ],
+            "description": "What the sources of the class hold. Missing means text. Only text sources are scanned for corpus overlap and need a text snapshot (feature 021, research R13)."
           }
         },
         "required": [

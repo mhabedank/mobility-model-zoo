@@ -91,7 +91,9 @@ Feature 021, 2026-10-18. Every decision below follows from the spec ([spec.md](s
   - `examples/*.json`: at least three synthetic inputs with expected int8 outputs, `source: synthetic`;
   - `sbom.cdx.json`: the SBOM generator moves from `security/can_ids/release_export.py` to `release/sbom.py`, because the int8 exporter is its second user.
 
-  `pace-cnn.eval.npz` is never in the folder (rule 11 forbids it anyway). `card.device_usage` is updated to the shipped headers. A test compiles the shipped `c/` files with the host compiler and checks the examples bit-exactly.
+  `pace-cnn.eval.npz` is never in the folder (rule 11 forbids it anyway).
+
+  **As built (T044)**: the examples are the first three QModel test vectors (generator `uniform-int8`, version 1, the training seed), so the board's SELFTEST checks exactly the published examples. The C sources are standalone (`codegen.model_sources`): `c/pace_cnn_model.h` defines `PACE_CNN_IN_SIZE`, `PACE_CNN_OUT_SIZE` and `PACE_CNN_ARENA_SIZE`. `card.device_usage` is updated to the shipped headers. A test compiles the shipped `c/` files with the host compiler and checks the examples bit-exactly.
 - **Rationale**: A developer can use the model on a device without the zoo's bench firmware, which is the point of US2. Publishing no dataset windows satisfies FR-023 without a redistribution check.
 - **Alternatives considered**: Documenting `uv run edge build` as the way to get sources (today's snippet) was rejected: it builds the bench firmware, not standalone sources. Real UCI HAR windows as examples were rejected because they would need `redistribution: allowed` for data of volunteers, which contradicts data minimisation.
 
@@ -125,6 +127,7 @@ Feature 021, 2026-10-18. Every decision below follows from the spec ([spec.md](s
   - **Privacy**: `card_privacy_note` states that the model was trained on motion signals of 30 volunteers, published under numbers by the dataset authors, and that no data or subject number is in the release.
   - **Card wording**: `not_for` and `out_of_scope` are reworded for card lint C-C2 and name the EU AI Act high-risk uses of FR-020.
   - **Compliance record**: `releases/0.1.0.compliance.yaml` is written and rendered; `scan-publish` runs; the owner signs off.
+- **As built (T060)**: the source-class schema had no field for the kind of data, so an optional `modality` (`text`, `audio`, `motion_sensor`, `can_frames`) was added; a missing value counts as text. `imu-activity-datasets`, `machine-sound-datasets` and `can-bus-datasets` declare their modality. `scan-publish` records each exempt dataset and its reason under `exempt_sources`.
 - **Follow-up outside this feature**: picket-forest's published cards show an empty attribution table for the same reason. A patch release is listed in the plan's follow-ups.
 - **AI Act wording**: The card names the uses (monitoring or evaluating persons at work, decisions on insurance, credit or services from a person's movement, identifying or profiling persons) in plain words without quoting the regulation. The exact Annex III wording is checked by the compliance review before signoff, not by this plan.
 

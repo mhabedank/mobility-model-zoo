@@ -118,11 +118,20 @@ class FakeHub:
     def validate_yaml(self, readme: str) -> dict[str, list[str]]:
         return {k: list(v) for k, v in self.validation.items()}
 
-    def create_collection(self, namespace: str, title: str, description: str) -> str:
+    def create_collection(
+        self, namespace: str, title: str, description: str, private: bool = False
+    ) -> str:
         slug = f"{namespace}/{title.lower().replace(' ', '-')}-{len(self.collections) + 1}"
-        self.collections[slug] = {"title": title, "items": []}
-        self.writes.append(f"collection {slug}")
+        self.collections[slug] = {"title": title, "items": [], "private": private}
+        self.writes.append(f"collection {slug}" + (" (private)" if private else ""))
         return slug
+
+    def collection_private(self, slug: str) -> bool:
+        return self.collections[slug].get("private", False)
+
+    def make_collection_public(self, slug: str) -> None:
+        self.collections[slug]["private"] = False
+        self.writes.append(f"collection-public {slug}")
 
     def add_collection_item(self, slug: str, repo: str, note: str) -> None:
         self.collections[slug]["items"].append((repo, note))
