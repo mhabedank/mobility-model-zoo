@@ -93,7 +93,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 > Write these tests first and confirm they fail before the implementation.
 
-- [X] T008 [P] [US1] Write `tests/condition_monitoring/test_benchmark.py` on the T004 fixture. It covers:
+- [X] T008 [P] [US1] Write `tests/condition_monitoring/test_activity_benchmark.py` on the T004 fixture. It covers:
   - the first freeze writes `manifest.json` with 18/3/9 subjects and the fields of contracts/records.md;
   - a second freeze leaves the file byte-identical, exit 0;
   - with `BENCHMARK["validation_seed"]` patched by `monkeypatch`, a new freeze raises `FrozenChanged`, CLI exit 3, and prints the differing fields (quickstart V1);
@@ -129,7 +129,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - S4 without `performance.json` gives `"measured": null, "met": false, "note": "not measured"`;
   - K1 (int8 macro-F1 < 0.80), K2 (float minus int8 macro-F1 > 0.03) and K3 fire correctly;
   - `reasons` lists every missed criterion with its value.
-- [X] T014 [P] [US1] Write `tests/condition_monitoring/test_evaluate.py` on fake run folders. Build small QModels without TensorFlow, as in the existing edge int8 tests. It covers:
+- [X] T014 [P] [US1] Write `tests/condition_monitoring/test_activity_evaluate.py` on fake run folders. Build small QModels without TensorFlow, as in the existing edge int8 tests. It covers:
   - `quality.json` validates against `src/mobility_model_zoo/release/schemas/results.schema.json` (`kind: quality`);
   - the metric rows appear in the order of data-model.md, and every row carries `reference: labels of the uci-har dataset`, `benchmark: uci-har-v1`, `n_items`, `hardware` and `date`;
   - per-subject results are a list sorted ascending, without subject numbers;
@@ -232,7 +232,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `device_bit_exact_vectors` comes from the reference board;
   - exit 4 when the reference origin is not `real_board` and `--allow-substitute` is not given; with it, the plain rows carry the substitute's origin;
   - the output validates against `results.schema.json` (`kind: performance`).
-- [X] T033 [P] [US2] Write `tests/edge/int8/test_release_export.py` for the generic int8 exporter on a small QModel. It checks:
+- [X] T033 [P] [US2] Write `tests/edge/int8/test_int8_release_export.py` for the generic int8 exporter on a small QModel. It checks:
   - the folder matches the allow-list of contracts/release-files.md exactly;
   - no `*.eval.npz` and no dataset window is in it;
   - `config.json` has `labels`, `input`, `normalisation`, `quantisation`, `preparation` and `format: pace-cnn-v1`;
@@ -456,11 +456,11 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
 
 ```bash
 # Tests of US1 together:
-Task: "Benchmark freeze tests in tests/condition_monitoring/test_benchmark.py"
+Task: "Benchmark freeze tests in tests/condition_monitoring/test_activity_benchmark.py"
 Task: "Subject split tests in tests/condition_monitoring/test_subject_split.py"
 Task: "Pre-registration refusal tests in tests/condition_monitoring/test_criteria.py"
 Task: "Verdict rule tests in tests/condition_monitoring/test_verdict.py"
-Task: "Evaluate tests in tests/condition_monitoring/test_evaluate.py"
+Task: "Evaluate tests in tests/condition_monitoring/test_activity_evaluate.py"
 Task: "Input preparation tests in tests/condition_monitoring/test_prepare.py"
 ```
 

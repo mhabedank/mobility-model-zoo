@@ -15,7 +15,7 @@ Runnable scenarios that prove feature 021 end to end. Commands and formats are i
 **V1. Freeze the benchmark.**
 
 1. Run `uv run condmon activity freeze`, then run it a second time.
-2. Run `uv run pytest tests/condition_monitoring/test_benchmark.py`, which patches the benchmark constant's `validation_seed` and freezes again.
+2. Run `uv run pytest tests/condition_monitoring/test_activity_benchmark.py`, which patches the benchmark constant's `validation_seed` and freezes again.
 
 Expected:
 
