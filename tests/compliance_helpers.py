@@ -89,6 +89,7 @@ def route(**over: Any) -> dict[str, Any]:
     rec = {
         "id": "local-model",
         "model_id": "local-model",
+        "model_family": "local-test",
         "access_path": "local",
         "hosting_provider": "self",
         "region": "DE",

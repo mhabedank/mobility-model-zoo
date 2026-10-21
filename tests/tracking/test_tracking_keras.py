@@ -20,6 +20,11 @@ def _fake_tensorflow(monkeypatch):
     )
     module = types.ModuleType("tensorflow")
     module.keras = keras
+    module.__version__ = keras.__version__ = "0.0-fake"  # run_environment (feature 021)
+    # deterministic training (feature 021): `tf.config.experimental.enable_op_determinism()`
+    module.config = types.SimpleNamespace(
+        experimental=types.SimpleNamespace(enable_op_determinism=lambda: None)
+    )
     monkeypatch.setitem(sys.modules, "tensorflow", module)
     monkeypatch.setattr(keras_export, "tf", lambda: module)
 
@@ -44,7 +49,7 @@ def test_keras_training_is_one_tracked_run(store, tmp_path, monkeypatch):  # noq
             for cb in callbacks or []:
                 cb.on_epoch_end(epoch, {"loss": 1.0 / (epoch + 1), "val_loss": 1.1 / (epoch + 1)})
 
-    def fake_export(task, out, version, seed):
+    def fake_export(task, out, version, seed, report_extra=None):
         out.mkdir(parents=True, exist_ok=True)
         report = {
             "name": task.name,

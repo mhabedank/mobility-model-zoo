@@ -1,0 +1,73 @@
+{
+  "model": "pace-cnn",
+  "version": "0.1.0",
+  "threshold_words": 30,
+  "index_fingerprint": "7e9681d0548ca5cf732bbaa4847f3fd36beb591359c6362bc9c4313830198d50",
+  "restricted_fingerprint": "81dfb3e2b04c1d0eced824138bab662aa3b6bf213784ac333de5e092d2ed9142",
+  "files": [
+    {
+      "path": "README.md (model card)",
+      "sha256": "39ba8df4bb8c1a1549e1ef0f94ca9fd6bc99989a0cce16785b22d4113513fd8d",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/examples/example-1.json",
+      "sha256": "0359ebc4d14eaa9cc7a6f6eafb3a702f5bcd48fb759693660052cee9f59b5683",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/examples/example-2.json",
+      "sha256": "a30376ce81781c3787ec35275bd2cc8d5fb85f45d2bfd00e95130ca7b2a3240e",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/examples/example-3.json",
+      "sha256": "98bd34892ed5ceb92a02a549eeb5f3b97f82bf8785246c09ebbf66a97fac38ae",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/results/0.1.0/performance.json",
+      "sha256": "a7384a131c790e6738bbc5202393b6a30c32701548a870b71f2b374baea8d2a9",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/results/0.1.0/quality.json",
+      "sha256": "36db3e5c0c7fdbe22d4a11ff6bed54c819c0f5d2059227efbdffd9a978959a5f",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/releases/0.1.0.ai-act.md",
+      "sha256": "ac356324ef50b47c851010c54c36066d53871151ff5fa14af956e25478c23256",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    },
+    {
+      "path": "zoo/models/pace-cnn/releases/0.1.0.training-data-summary.md",
+      "sha256": "c81c1b8fde3ce20730d8fce1f30070d3c9c65e2401897380199822265ccccea9",
+      "overlap_max_words": 0,
+      "allowed_quote_words": 0,
+      "pii_hits": 0
+    }
+  ],
+  "exempt_sources": [
+    {
+      "id": "uci-har",
+      "class": "imu-activity-datasets",
+      "modality": "motion_sensor",
+      "reason": "motion sensor data, not text: the corpus-overlap scan compares published text with the texts of the training sources, and a motion sensor dataset has no text snapshot to compare with (feature 021, research R13). The personal-data scan of the published files still runs."
+    }
+  ]
+}

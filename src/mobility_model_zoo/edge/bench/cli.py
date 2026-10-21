@@ -14,6 +14,8 @@
   edge zoo                       rebuild the reference model zoo + firmware sources
   edge import-tflite M.tflite    add your own int8 TFLite model to all boards
   edge measure M.npz -b BOARD --out F.json   latency/size of one int8 model (zoo results format)
+  edge performance --model M --version V --reference F.json [--extra F.json ...]
+                                              merge measurements into the release's performance.json
 
 Datasets: `zoo data`; training: the topic tools (`security`, `condmon`); publishing: `zoo`.
 """
@@ -408,6 +410,33 @@ def cmd_import_tflite(args):
     return 0
 
 
+def cmd_performance(args):
+    from .performance import PerformanceRefused, merge, write
+
+    def load(path):
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+
+    try:
+        merged = merge(
+            args.model,
+            args.version,
+            load(args.reference),
+            [load(p) for p in args.extra],
+            allow_substitute=args.allow_substitute,
+        )
+    except PerformanceRefused as e:
+        print(f"refused: {e}", file=sys.stderr)
+        return 4
+    path = write(REPO_ROOT, merged)
+    for m in merged["metrics"]:
+        print(
+            f"  {m['name']:28s} {m['value']:>12} {m.get('unit') or '':5s} ({m.get('origin')})",
+            file=sys.stderr,
+        )
+    print(f"wrote {path.relative_to(REPO_ROOT)}", file=sys.stderr)
+    return 0
+
+
 def cmd_measure(args):
     from .measure import MeasureError, MeasureOptions, ModelMissing, measure
 
@@ -420,6 +449,7 @@ def cmd_measure(args):
         model_name=args.model_name,
         version=args.model_version,
         synthetic=args.synthetic,
+        footprint=args.footprint,
     )
     try:
         result = measure(lab, board, Path(args.model), opts, log=lambda m: print(m, file=sys.stderr))
@@ -536,7 +566,27 @@ def main(argv=None):
     p.add_argument("--model-name", help="zoo model name in the results file (default: QModel name)")
     p.add_argument("--model-version", help="version in the results file (default: meta or 0.0.0)")
     p.add_argument("--synthetic", action="store_true", help="mark the results as synthetic")
+    p.add_argument(
+        "--footprint",
+        choices=("image", "model"),
+        default="image",
+        help="flash/RAM of the whole image (default) or of the model from the ELF symbols",
+    )
     p.set_defaults(fn=cmd_measure)
+
+    p = sub.add_parser(
+        "performance", help="merge edge measure outputs into zoo/models/<m>/results/<v>/performance.json"
+    )
+    p.add_argument("--model", required=True)
+    p.add_argument("--version", required=True)
+    p.add_argument("--reference", required=True, help="edge measure output of the reference hardware")
+    p.add_argument("--extra", action="append", default=[], help="further edge measure outputs")
+    p.add_argument(
+        "--allow-substitute",
+        action="store_true",
+        help="accept a reference that is not a real board (its origin stays on every row)",
+    )
+    p.set_defaults(fn=cmd_performance)
 
     args = ap.parse_args(argv)
     try:

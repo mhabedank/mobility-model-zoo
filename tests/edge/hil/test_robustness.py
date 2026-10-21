@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pytest
 
-from mobility_model_zoo.edge.bench.reference_models import load_zoo
+from mobility_model_zoo.edge.bench.reference_models import bench_catalogue
 from mobility_model_zoo.edge.int8.reference import run_model
 
 
@@ -35,7 +35,7 @@ def test_hardware_reset(dut):
 def test_soak_no_unexpected_reboot(dut):
     """Hammer the device with inferences; any watchdog/exception reboot fails the test."""
     duration = 10 if dut.quick else 60
-    zoo = load_zoo()
+    zoo = bench_catalogue()
     names = [n for n in dut.models() if n in zoo]
     rng = np.random.default_rng(7)
     uptime0 = dut.device.ping()["uptime_ms"]

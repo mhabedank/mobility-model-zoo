@@ -180,9 +180,21 @@ class Hub:
 
     # ---- collections ---------------------------------------------------------------------------
     @_wrap
-    def create_collection(self, namespace: str, title: str, description: str) -> str:
-        coll = self._api.create_collection(title, namespace=namespace, description=description)
+    def create_collection(
+        self, namespace: str, title: str, description: str, private: bool = False
+    ) -> str:
+        coll = self._api.create_collection(
+            title, namespace=namespace, description=description, private=private
+        )
         return coll.slug
+
+    @_wrap
+    def collection_private(self, slug: str) -> bool:
+        return bool(self._api.get_collection(slug).private)
+
+    @_wrap
+    def make_collection_public(self, slug: str) -> None:
+        self._api.update_collection_metadata(slug, private=False)
 
     @_wrap
     def add_collection_item(self, slug: str, repo: str, note: str) -> None:

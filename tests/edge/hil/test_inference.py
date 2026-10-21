@@ -3,11 +3,11 @@
 import numpy as np
 import pytest
 
-from mobility_model_zoo.edge.bench.reference_models import load_eval, load_zoo
+from mobility_model_zoo.edge.bench.reference_models import bench_catalogue, load_eval
 from mobility_model_zoo.edge.int8.quant import dequantize
 from mobility_model_zoo.edge.int8.reference import run_batch, run_model
 
-ZOO = load_zoo()
+ZOO = bench_catalogue()  # same set as the `model_name` parameters
 
 
 def _compare(dut, model, inputs):

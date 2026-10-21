@@ -1,0 +1,196 @@
+{
+ "kind": "quality",
+ "model": "pace-cnn",
+ "version": "0.1.0",
+ "synthetic": false,
+ "source_run": "condmon activity evaluate, seeds [0, 1, 2, 3, 4], criteria v1, benchmark uci-har-v1",
+ "metrics": [
+  {
+   "name": "int8_macro_f1",
+   "value": 0.9229102032456694,
+   "unit": null,
+   "description": "int8 macro-F1 over the six activities, test subjects",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_accuracy",
+   "value": 0.9229725144214456,
+   "unit": null,
+   "description": "int8 accuracy, test subjects",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_min_class",
+   "value": 0.8099891422366993,
+   "unit": null,
+   "description": "lowest int8 F1 of the six activities",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_walking",
+   "value": 0.9867211440245148,
+   "unit": null,
+   "description": "int8 F1 of activity walking",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_walking_upstairs",
+   "value": 0.9333333333333333,
+   "unit": null,
+   "description": "int8 F1 of activity walking upstairs",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_walking_downstairs",
+   "value": 0.958904109589041,
+   "unit": null,
+   "description": "int8 F1 of activity walking downstairs",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_sitting",
+   "value": 0.8099891422366993,
+   "unit": null,
+   "description": "int8 F1 of activity sitting",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_standing",
+   "value": 0.8636363636363636,
+   "unit": null,
+   "description": "int8 F1 of activity standing",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_f1_laying",
+   "value": 0.9848771266540642,
+   "unit": null,
+   "description": "int8 F1 of activity laying",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_macro_f1_worst_subject",
+   "value": 0.6670756673644701,
+   "unit": null,
+   "description": "int8 macro-F1 of the worst test subject",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 9,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_macro_f1_subject_range",
+   "value": 0.3329243326355299,
+   "unit": null,
+   "description": "best minus worst test subject, int8 macro-F1",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 9,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_macro_f1_seed_min",
+   "value": 0.9156290617000943,
+   "unit": null,
+   "description": "lowest int8 macro-F1 over the five seeds",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 5,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_macro_f1_seed_mean",
+   "value": 0.9250073863408013,
+   "unit": null,
+   "description": "mean int8 macro-F1 over the five seeds",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 5,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "int8_macro_f1_seed_max",
+   "value": 0.9299792331181592,
+   "unit": null,
+   "description": "highest int8 macro-F1 over the five seeds",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 5,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "float_macro_f1",
+   "value": 0.922407184016146,
+   "unit": null,
+   "description": "float macro-F1 of the same model before quantisation (informative)",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (float32 Keras model, informative)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "float_accuracy",
+   "value": 0.9226331862911435,
+   "unit": null,
+   "description": "float accuracy before quantisation (informative)",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (float32 Keras model, informative)",
+   "date": "2026-10-20"
+  },
+  {
+   "name": "tflite_interpreter_mismatches",
+   "value": 0,
+   "unit": "windows",
+   "description": "test windows where the int8 host reference and the TFLite reference interpreter disagree (deterministic check)",
+   "reference": "labels of the uci-har dataset",
+   "benchmark": "uci-har-v1",
+   "n_items": 2947,
+   "hardware": "host (bit-exact int8 reference)",
+   "date": "2026-10-20"
+  }
+ ]
+}

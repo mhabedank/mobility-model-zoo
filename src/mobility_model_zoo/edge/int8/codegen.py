@@ -146,3 +146,31 @@ def write_zoo_sources(models: list[QModel], out_dir: Path) -> None:
     h, c = zoo_sources(models)
     (out_dir / "model_zoo.h").write_text(h)
     (out_dir / "model_zoo.c").write_text(c)
+
+
+def model_sources(model: QModel) -> tuple[str, str]:
+    """Standalone C sources of one model for a release (`<id>_model.h`, `<id>_model.c`), without the
+    bench's model table: buffer sizes are this model's own (feature 021, research R10).
+
+        static int8_t arena[PACE_CNN_ARENA_SIZE];
+        mi_invoke(&mi_model_pace_cnn, window, scores, arena, sizeof arena);
+    """
+    for lyr in model.layers:
+        if lyr.op not in OPS:
+            raise ValueError(f"{model.name}: unsupported op {lyr.op}")
+    m = _ident(model.name)
+    up = m.upper()
+    guard = f"{up}_MODEL_H"
+    h = (
+        f'{HEADER}#ifndef {guard}\n#define {guard}\n\n#include "microinfer.h"\n\n'
+        '#ifdef __cplusplus\nextern "C" {\n#endif\n\n'
+        f"/* {model.name}: {model.in_size} int8 inputs, {model.out_size} int8 outputs. */\n"
+        f"#define {up}_IN_SIZE {model.in_size}u\n"
+        f"#define {up}_OUT_SIZE {model.out_size}u\n"
+        f"#define {up}_ARENA_SIZE {model.arena_size()}u\n\n"
+        f"extern const mi_model_t mi_model_{m};\n\n"
+        "#ifdef __cplusplus\n}\n#endif\n\n"
+        f"#endif /* {guard} */\n"
+    )
+    c = f'{HEADER}#include "{m}_model.h"\n\n#include <stddef.h>\n\n{model_to_c(model)}'
+    return h, c

@@ -1,0 +1,154 @@
+{
+ "kind": "performance",
+ "model": "pace-cnn",
+ "version": "0.1.0",
+ "synthetic": false,
+ "source_run": "edge measure pace-cnn.npz -b esp32-1 (build 1bd69255, fw 0.1.0, picket-forest/v0.2.0-171-gf049fb2-dirty); edge measure pace-cnn.npz -b esp32-qemu (build 3714246c, fw 0.1.0, picket-forest/v0.2.0-171-gf049fb2); edge measure pace-cnn.npz -b esp8266-1 (build d070eef4, fw 0.1.0, picket-forest/v0.2.0-171-gf049fb2-dirty); edge measure pace-cnn.npz -b sim (build 3436de58, fw 0.1.0, picket-forest/v0.2.0-170-g1219282-dirty)",
+ "metrics": [
+  {
+   "name": "latency_us",
+   "value": 55034.0,
+   "unit": "us",
+   "description": "Median latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board",
+   "n_items": 100
+  },
+  {
+   "name": "latency_mean_us",
+   "value": 55033.93,
+   "unit": "us",
+   "description": "Mean latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board",
+   "n_items": 100
+  },
+  {
+   "name": "latency_p99_us",
+   "value": 55041.0,
+   "unit": "us",
+   "description": "99th percentile latency per inference over 100 samples (device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board",
+   "n_items": 100
+  },
+  {
+   "name": "flash_kb",
+   "value": 18.0,
+   "unit": "KiB",
+   "description": "Model footprint in flash from the ELF symbols: model constant data (17018 B: weights, bias, multipliers, shifts, layer table, self-test vectors) plus int8 engine code (1399 B)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board"
+  },
+  {
+   "name": "ram_kb",
+   "value": 5.2,
+   "unit": "KiB",
+   "description": "Model footprint in RAM: tensor arena (4096 B), input (1152 B) and output (6 B) buffers, engine static data (0 B)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board"
+  },
+  {
+   "name": "arena_bytes",
+   "value": 4096,
+   "unit": "bytes",
+   "description": "Tensor arena of the model (two ping-pong buffers, QModel.arena_size)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board"
+  },
+  {
+   "name": "device_bit_exact_vectors",
+   "value": 1.0,
+   "unit": "share",
+   "description": "Share of the model's golden vectors whose device output equals the bit-exact host reference (device SELFTEST)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board",
+   "n_items": 8
+  },
+  {
+   "name": "flash_kb_image_esp32",
+   "value": 312.142,
+   "unit": "KiB",
+   "description": "Flash used by the whole firmware image (bench app, inference engine and all bench models incl. this one), from the PlatformIO build",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board"
+  },
+  {
+   "name": "ram_kb_image_esp32",
+   "value": 28.809,
+   "unit": "KiB",
+   "description": "Static RAM used by the whole firmware image (data + bss, incl. the shared tensor arena), from the PlatformIO build",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6-V3 rev3 cores=2, 240 MHz (target esp32, board esp32-1)",
+   "origin": "real_board"
+  },
+  {
+   "name": "latency_us_esp32_qemu",
+   "value": 2689.5,
+   "unit": "us",
+   "description": "Median latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6 rev0 cores=2, 240 MHz in QEMU (emulator, target esp32)",
+   "origin": "emulator",
+   "n_items": 100
+  },
+  {
+   "name": "latency_mean_us_esp32_qemu",
+   "value": 2704.62,
+   "unit": "us",
+   "description": "Mean latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP32-D0WDQ6 rev0 cores=2, 240 MHz in QEMU (emulator, target esp32)",
+   "origin": "emulator",
+   "n_items": 100
+  },
+  {
+   "name": "latency_us_esp8266",
+   "value": 159315.0,
+   "unit": "us",
+   "description": "Median latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP8266 flash=4096KB, 80 MHz (target esp8266, board esp8266-1)",
+   "origin": "real_board",
+   "n_items": 100
+  },
+  {
+   "name": "latency_mean_us_esp8266",
+   "value": 159315.49,
+   "unit": "us",
+   "description": "Mean latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-21",
+   "hardware": "ESP8266 flash=4096KB, 80 MHz (target esp8266, board esp8266-1)",
+   "origin": "real_board",
+   "n_items": 100
+  },
+  {
+   "name": "latency_us_host",
+   "value": 106.0,
+   "unit": "us",
+   "description": "Median latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-20",
+   "hardware": "host simulator (native build, Darwin arm64)",
+   "origin": "simulator",
+   "n_items": 100
+  },
+  {
+   "name": "latency_mean_us_host",
+   "value": 163.73,
+   "unit": "us",
+   "description": "Mean latency per inference over 100 samples (100 inferences, device BENCH timer)",
+   "date": "2026-10-20",
+   "hardware": "host simulator (native build, Darwin arm64)",
+   "origin": "simulator",
+   "n_items": 100
+  }
+ ]
+}

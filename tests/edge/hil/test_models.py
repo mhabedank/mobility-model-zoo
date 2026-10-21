@@ -1,10 +1,11 @@
-"""The models compiled into the firmware are exactly the host's reference models."""
+"""The models compiled into the firmware are exactly the host's bench models (reference models,
+CUSTOM_DIR and $MMZ_EDGE_MODELS)."""
 
-from mobility_model_zoo.edge.bench.reference_models import load_zoo
+from mobility_model_zoo.edge.bench.reference_models import bench_catalogue
 
 
 def test_model_catalogue_matches_host(dut):
-    zoo = load_zoo()
+    zoo = bench_catalogue()
     device_models = dut.models()
     expected = {n for n in zoo if n not in dut.target.excluded_models}
     assert set(device_models) == expected

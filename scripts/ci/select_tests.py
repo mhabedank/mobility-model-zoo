@@ -123,6 +123,8 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     # The packaged release schemas must equal the contract copy of the feature that owns the format
     # (tests/release/test_schemas.py), so a change to that copy runs the release tests.
     ("release-tests", ("specs/*/contracts/release/*",)),
+    # The same for the compliance register schemas (tests/compliance/test_register_schemas.py).
+    ("compliance-tests", ("specs/*/contracts/compliance/*",)),
     ("datasets-tests", ("tests/datasets/*", "tests/fixtures/inventory/*", "tests/inventory_helpers.py")),
     (
         "tracking",

@@ -2,6 +2,7 @@
 # LIA = legitimate-interest assessment (Art. 6(1)(f) GDPR), one per class (D10).
 classes:
 - id: can-bus-datasets
+  modality: can_frames
   description: Published CAN bus and vehicle-network recordings from research datasets (frame logs of
     test vehicles, simulated V2X messages, GNSS receiver features), downloaded from the publishers.
   copyright_basis: licence

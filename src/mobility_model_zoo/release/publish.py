@@ -58,7 +58,25 @@ def init_model(reg: Registry, name: str, hub: Any, say: Say) -> str:
     else:
         say(f"staging repo {repo} already exists (private)")
     say(f"add {repo} to the repo list of HF_STAGING_TOKEN (write access) on the Hub")
+    if model["topic"] != "sandbox":
+        ensure_topic_collection(reg, model, hub, say)
     return repo
+
+
+def ensure_topic_collection(reg: Registry, model: dict[str, Any], hub: Any, say: Say) -> str:
+    """The model's topic collection exists before the first card is rendered, so the card links to
+    it (feature 021, research R12). A new collection is private until its first model is
+    published (`add_to_collection` makes it public)."""
+    topics = reg.topics()
+    topic = next(t for t in topics if t["id"] == model["topic"])
+    if topic.get("hf_collection"):
+        say(f"topic collection {topic['hf_collection']} exists")
+        return topic["hf_collection"]
+    slug = hub.create_collection(ORG, topic["title"], topic["description"], private=True)
+    topic["hf_collection"] = slug
+    reg.write_topics(topics)
+    say(f"created private collection {slug}; commit zoo/topics.yaml")
+    return slug
 
 
 # ---- stage -------------------------------------------------------------------------------------
@@ -353,7 +371,11 @@ def add_to_collection(reg: Registry, model: dict[str, Any], hub: Any, say: Say) 
         topic["hf_collection"] = hub.create_collection(ORG, topic["title"], topic["description"])
         reg.write_topics(topics)
         say(f"created collection {topic['hf_collection']}")
-    hub.add_collection_item(topic["hf_collection"], model["repos"]["public"], model["summary"])
+    slug = topic["hf_collection"]
+    hub.add_collection_item(slug, model["repos"]["public"], model["summary"])
+    if hub.collection_private(slug):  # created private by init-model; public with its first model
+        hub.make_collection_public(slug)
+        say(f"collection {slug} is now public")
 
 
 # ---- deprecate ---------------------------------------------------------------------------------

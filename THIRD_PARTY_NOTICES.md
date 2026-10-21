@@ -3,6 +3,12 @@
 
 Attribution of the third-party works used to train the published models (title, creator, source, licence, modifications). The texts themselves are not redistributed.
 
+## pace-cnn 0.1.0
+
+| Title | Creators | Source | Licence | Modifications |
+|---|---|---|---|---|
+| Human Activity Recognition Using Smartphones | J. Reyes-Ortiz, D. Anguita, A. Ghio, L. Oneto, X. Parra | https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Converted to the common frame or feature format for training; not redistributed. |
+
 ## picket-forest 0.2.1
 
 | Title | Creators | Source | Licence | Modifications |

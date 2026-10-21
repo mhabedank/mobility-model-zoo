@@ -6,6 +6,7 @@
 # every hosted route has allowed_for: [] (owner decision item, see specs/006-compliance-harness/validation.md).
 routes:
 - id: local-spark-ollama
+  model_family: 'open-weight (local, several)'
   model_id: local open-weight models via Ollama on the owner's DGX Spark
   access_path: local
   hosting_provider: local:spark
@@ -34,6 +35,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: claude-consumer-cli
+  model_family: claude
   model_id: claude-reference
   model_version: claude-opus-5-5
   access_path: consumer_cli
@@ -59,6 +61,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: claude-api
+  model_family: claude
   model_id: claude (future reference labeler)
   access_path: api
   hosting_provider: Anthropic (Commercial Terms)
@@ -81,6 +84,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: gpt-mini-openrouter-openai
+  model_family: gpt
   openrouter_provider: OpenAI
   model_id: gpt-mini-reference
   model_version: openai/gpt-5.4-mini
@@ -107,6 +111,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: mimo-openrouter-deepinfra
+  model_family: mimo
   openrouter_provider: DeepInfra
   model_id: teacher-or-mimo-v2.6-pro
   model_version: xiaomi/mimo-v2.6-pro
@@ -134,6 +139,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: mimo-openrouter-unrecorded
+  model_family: mimo
   model_id: teacher-or-mimo-v2.6-pro
   model_version: xiaomi/mimo-v2.6-pro
   access_path: openrouter
@@ -157,6 +163,7 @@ routes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: wafer-openrouter
+  model_family: 'open-weight (deepseek, glm)'
   openrouter_provider: Wafer
   model_id: teacher candidates (deepseek-v4.1-flash, glm-5.3-flash)
   access_path: openrouter

@@ -122,7 +122,8 @@ datasets:
     anonymisation: Subjects identified only by number by the publishers.
   storage: $MMZ_DATA/uci-har (local cache outside git)
   retention_until: '2027-10-08'
-  used_by: []
+  used_by:
+  - pace-cnn@0.1.0
   status: active
   reason: null
   class: imu-activity-datasets

@@ -97,3 +97,36 @@ def test_reference_build_is_deterministic(tmp_path):
             for k in za.files:
                 assert np.array_equal(za[k], zb[k]), (f, k)
     assert (a / "manifest.json").read_bytes() == (b / "manifest.json").read_bytes()
+
+
+def test_load_eval_finds_the_eval_set_next_to_an_edge_model(tmp_path, monkeypatch):
+    """Feature 021, T030: a trained model brings its eval set; `derived/<name>/` is searched too."""
+    npz = tmp_path / "run" / "my_net.npz"
+    npz.parent.mkdir()
+    npz.write_bytes(b"")
+    np.savez(npz.with_name("my_net.eval.npz"), inputs=np.zeros((2, 3), np.int8))
+    monkeypatch.setenv("MMZ_EDGE_MODELS", str(npz))
+    assert load_eval("my_net")["inputs"].shape == (2, 3)
+
+    monkeypatch.delenv("MMZ_EDGE_MODELS")
+    monkeypatch.setenv("MMZ_DATA", str(tmp_path / "data"))
+    derived = tmp_path / "data" / "derived" / "other_net"
+    derived.mkdir(parents=True)
+    np.savez(derived / "other_net.eval.npz", inputs=np.ones((1, 3), np.int8))
+    assert load_eval("other_net")["inputs"].shape == (1, 3)
+    assert load_eval("nobody") is None
+
+
+def test_bench_catalogue_includes_edge_models(tmp_path, monkeypatch):
+    import copy
+
+    from mobility_model_zoo.edge.bench.reference_models import bench_catalogue, bench_models
+
+    qm = copy.deepcopy(ZOO["can_ids_mlp"])  # ZOO is shared by the other tests
+    qm.name = "catalogue_test_net"
+    npz = tmp_path / "catalogue_test_net.npz"
+    qm.save(npz)
+    monkeypatch.setenv("MMZ_EDGE_MODELS", str(npz))
+    cat = bench_catalogue()
+    assert "catalogue_test_net" in cat
+    assert list(cat) == [m.name for m in bench_models()]

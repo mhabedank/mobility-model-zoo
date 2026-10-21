@@ -53,6 +53,8 @@ esp32:
   usb_ids: ["10c4:ea60", "1a86:7523", "1a86:55d4", "0403:6001", "0403:6015"]
   probe_match: "ESP32(?!-[SCHP][0-9])"
   chip_match: "^ESP32(?!-[SCHP][0-9])"
+  # pace-cnn: at most 100 ms average per 2.56 s window on the reference board (feature 021, FR-014)
+  budgets: {pace-cnn: 100000}
 
 esp32s3:
   description: ESP32-S3 - dual Xtensa LX7 @ 240 MHz with vector extensions (UART port)

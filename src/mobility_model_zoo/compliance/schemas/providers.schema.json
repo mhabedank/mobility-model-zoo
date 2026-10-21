@@ -182,6 +182,11 @@
               "string",
               "null"
             ]
+          },
+          "model_family": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Model family behind the route, for example claude, gpt, mimo. The release gate refuses Claude inputs by this field (Principle XI; feature 021, research R21)."
           }
         },
         "required": [
@@ -200,7 +205,8 @@
           "allowed_for",
           "owner",
           "last_reviewed",
-          "next_review"
+          "next_review",
+          "model_family"
         ],
         "allOf": [
           {

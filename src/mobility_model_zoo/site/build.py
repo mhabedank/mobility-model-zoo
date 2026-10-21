@@ -53,6 +53,18 @@ _QUICKSTART_FIELD = re.compile(r"\{(install|snippet|output):([a-z0-9-]+)\}")
 NO_OUTPUT = "(the model page shows what the program prints)"
 
 
+def site_topic(reg, topic: dict) -> dict:
+    """The topic as the website shows it: its Hugging Face collection is linked only once a model of
+    the topic is published. `zoo init-model` creates a new topic's collection private, and it turns
+    public with the first published model (feature 021, research R12); a link before that would
+    answer 401 and fail the site's link check."""
+    published = any(
+        reg.model_raw(n).get("topic") == topic["id"] and reg.published_versions(n)
+        for n in reg.model_names()
+    )
+    return topic if published else {**topic, "hf_collection": None}
+
+
 def _static() -> Any:
     return resources.files(PACKAGE).joinpath("static")
 
@@ -187,7 +199,7 @@ def model_page(
             f.add(page, f"checks:{metric_name}", resolved["value"], resolved["source"], metric_name)
             checks.append(resolved)
     recipe = f"topics/{m['topic']}/recipes/{name}.md"
-    topic = reg.topic(m["topic"]) or {"id": m["topic"], "title": m["topic"]}
+    topic = site_topic(reg, reg.topic(m["topic"]) or {"id": m["topic"], "title": m["topic"]})
     return {
         "name": name,
         "m": m,
@@ -407,7 +419,7 @@ def build(
             render("quickstart/index.html", "quickstart.html.j2", "../", "quickstart/", body=body)
     if plan:
         render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=ahead)
-    topics = [t for t in reg.topics() if t["id"] != "sandbox"]
+    topics = [site_topic(reg, t) for t in reg.topics() if t["id"] != "sandbox"]
     hero_image = picture("start-hero", None, "", eager=True)
     topic_images = {t["id"]: picture(f"topic:{t['id']}", None, "") for t in topics}
     model_images = {
