@@ -38,7 +38,7 @@ Then copy the program from the [model card](https://huggingface.co/mobility-mode
 |-------|-------|------------|------------------|
 | `productdev` | Product development | [Product development](https://huggingface.co/collections/mobility-model-zoo/product-development-6ac6269f0468c62fefb874a8) | `jtbd`: [`scout-large`](https://huggingface.co/mobility-model-zoo/scout-large); `jtbd-cluster`: none yet (training-free baseline, feature 009) |
 | `security` | Automotive security | not yet published | `can-ids`: `picket-forest` (evaluated, not released), `picket-mlp` (registered, not released) |
-| `condition-monitoring` | Condition monitoring | not yet published | `sound-anomaly`: `hum-fan`; `activity`: `pace-cnn` (registered, not released) |
+| `condition-monitoring` | Condition monitoring | [Condition monitoring](https://huggingface.co/collections/mobility-model-zoo/condition-monitoring-6ad880c640d8a30e6bf21dd4) | `sound-anomaly`: `hum-fan` (registered, not released); `activity`: [`pace-cnn`](https://huggingface.co/mobility-model-zoo/pace-cnn) (0.1.0, experimental) |
 
 Topics are listed in [zoo/topics.yaml](zoo/topics.yaml); one topic is one Hugging Face collection and one folder `topics/<topic>/` (research, reports, recipes, task documents, compliance records). A test topic `sandbox` holds pipeline test models, which are never public.
 
@@ -142,7 +142,7 @@ The benchmark `cluster-v1` and its reference labels are built with `jtbd --confi
 Merged from the former repository `mhabedank/mobility-security-ml` with its history (feature 005; merge log: [topics/security/research/merge-log.md](topics/security/research/merge-log.md)).
 
 - **`can-ids`** ([task document](topics/security/tasks/can-ids.md)): `picket-forest` (random forest exported to C with emlearn, streaming features in `firmware/components/can_features/`, device build in `firmware/picket-forest/`) and `picket-mlp` (int8 MLP). Tool: `uv run zoo-security can-ids frames|forest …|mlp train|evaluate|freeze`.
-- **`sound-anomaly`** ([task document](topics/condition-monitoring/tasks/sound-anomaly.md)): `hum-fan`, an int8 autoencoder on MIMII fan sounds. **`activity`** ([task document](topics/condition-monitoring/tasks/activity.md)): `pace-cnn`, an int8 CNN on UCI HAR. Tool: `uv run condmon sound-anomaly|activity train|evaluate|freeze`.
+- **`sound-anomaly`** ([task document](topics/condition-monitoring/tasks/sound-anomaly.md)): `hum-fan`, an int8 autoencoder on MIMII fan sounds. **`activity`** ([task document](topics/condition-monitoring/tasks/activity.md)): [`pace-cnn`](https://huggingface.co/mobility-model-zoo/pace-cnn), an int8 CNN on UCI HAR, published as 0.1.0 (experimental; measured on a real ESP32). Tools: `uv run condmon sound-anomaly train|evaluate|freeze` and `uv run condmon activity freeze|train|evaluate|reproduce|export`.
 - Training reads the task configs (`configs/security/…`, `configs/condition-monitoring/…`, `--config`) and writes to `$MMZ_DATA/derived/<model>/`, never into the repository. `edge measure MODEL.npz -b BOARD` records latency, flash and RAM with the board and whether it was a real board, an emulator or the simulator.
 - The research of the former repository is in `topics/security/research/`; its results are kept in `topics/*/reports/<model>/` as pre-zoo research results, not benchmark results.
 

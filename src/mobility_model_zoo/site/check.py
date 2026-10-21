@@ -275,9 +275,28 @@ def check_literal_numbers(reg: Registry) -> Iterable[Finding]:
             yield Finding("F2", f"templates/{tpl.relative_to(Path(str(base)))}", f"literal number {n!r}")
 
 
-def check_wording(out: Path) -> Iterable[Finding]:
-    """F3: agreement with reference models is never called accuracy."""
+def ground_truth_models(reg: Registry) -> set[str]:
+    """Models whose latest version is evaluated against ground truth (dataset labels): for them
+    "accuracy" is the honest name of a metric (constitution III, gate rule 10; feature 021)."""
+    found = set()
+    for name in reg.model_names():
+        versions = reg.published_versions(name) or reg.versions(name)
+        if not versions:
+            continue
+        record = reg.record_raw(name, versions[-1])
+        if (record.get("evaluation") or {}).get("reference_kind") == "ground_truth":
+            found.add(name)
+    return found
+
+
+def check_wording(out: Path, reg: Registry | None = None) -> Iterable[Finding]:
+    """F3: agreement with reference models is never called accuracy. Pages of models evaluated
+    against ground truth (`reg` given) may use the word, as their accuracy is against dataset
+    labels."""
+    allowed = tuple(f"models/{n}/" for n in ground_truth_models(reg)) if reg is not None else ()
     for path in pages(out):
+        if allowed and rel(out, path).startswith(allowed):
+            continue
         page = parse(path)
         for chunk in page.text:
             for m in re.finditer(r"\baccuracy\b", chunk, re.I):
@@ -289,6 +308,17 @@ def check_wording(out: Path) -> Iterable[Finding]:
                     rel(out, path),
                     f"uses 'accuracy': …{chunk[max(0, m.start() - 40) : m.end() + 20]}…",
                 )
+
+
+# Numbers that `cards.num` prints in exponent form ({:.4g}), for example 5.503e+04 us.
+EXPONENT_NUMBER = re.compile(r"(?<![\w.,-])\d+(?:\.\d+)?e[+-]\d+(?![\w.])")
+
+
+def card_numbers(card: str) -> set[str]:
+    """Every number printed on a card, including the exponent form of large values (feature 021)."""
+    return {m.group(0) for m in NUMBER.finditer(card)} | {
+        m.group(0) for m in EXPONENT_NUMBER.finditer(card)
+    }
 
 
 def check_card_parity(reg: Registry, out: Path) -> Iterable[Finding]:
@@ -316,7 +346,7 @@ def check_card_parity(reg: Registry, out: Path) -> Iterable[Finding]:
         except Exception as e:  # a registry without compliance data cannot render the full card
             yield Finding("F4", page, f"card could not be rendered: {type(e).__name__}: {e}")
             continue
-        on_card = {m.group(0) for m in NUMBER.finditer(card)}
+        on_card = card_numbers(card)
         for row in rows:
             if row["page"] == page and row["value"] not in on_card:
                 yield Finding("F4", page, f"{row['key']} = {row['value']} is not on the model card")
@@ -821,7 +851,7 @@ def run_checks(
     checks: list[tuple[str, Callable[[], Iterable[Finding]]]] = [
         ("F1", lambda: check_facts(reg, out)),
         ("F2", lambda: check_literal_numbers(reg)),
-        ("F3", lambda: check_wording(out)),
+        ("F3", lambda: check_wording(out, reg)),
         ("F4", lambda: check_card_parity(reg, out)),
         ("L1", lambda: check_links(out)),
         ("L3", lambda: check_legal(site, out, reg.root)),

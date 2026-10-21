@@ -75,3 +75,20 @@ def test_missing_card_and_wrong_count_are_rm9(built):
     found = [f[2] for f in check.check_roadmap_pages(built.reg, built.out)]
     assert any(d.startswith("Coming next shows") for d in found)
     assert any("heading says 1 published and 3 coming next" in d for d in found)
+
+
+def test_accuracy_is_allowed_on_pages_of_ground_truth_models(built, monkeypatch):
+    """Feature 021: accuracy against dataset labels is honest; agreement models keep F3."""
+    monkeypatch.setattr(check, "ground_truth_models", lambda reg: {"gt-model"})
+    for name in ("gt-model", "agreement-model"):
+        page = built.out / "models" / name / "index.html"
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("<html><body><main><p>int8 accuracy, test subjects</p></main></body></html>")
+    found = [f[1] for f in check.check_wording(built.out, built.reg)]
+    assert found == ["models/agreement-model/index.html"]
+    assert len(list(check.check_wording(built.out))) == 2  # without a registry nothing is exempt
+
+
+def test_card_numbers_include_the_exponent_form():
+    numbers = check.card_numbers("| `latency_mean_us` | 5.503e+04 | us | flash 18.0 KiB, 1.593e+05 |")
+    assert {"5.503e+04", "1.593e+05", "18.0"} <= numbers
