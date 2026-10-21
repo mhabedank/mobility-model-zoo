@@ -1,0 +1,12 @@
+# Where each example comes from (check C-U4). Examples are published with the model card.
+# They check the int8 arithmetic, not an activity: the inputs are not sensor data.
+examples:
+- file: example-1.json
+  source: synthetic
+  note: Uniform int8 values (generator uniform-int8, seed 0, index 0), the model's first self-test vector; no dataset window.
+- file: example-2.json
+  source: synthetic
+  note: Uniform int8 values (generator uniform-int8, seed 0, index 1), the model's second self-test vector; no dataset window.
+- file: example-3.json
+  source: synthetic
+  note: Uniform int8 values (generator uniform-int8, seed 0, index 2), the model's third self-test vector; no dataset window.

@@ -50,6 +50,9 @@ class MeasureOptions:
     model_name: str | None = None  # zoo model name for the results file (default: QModel name)
     version: str | None = None
     synthetic: bool = False
+    # "image": flash/RAM of the whole firmware image (default); "model": the model's own
+    # footprint from the ELF symbols, with the image values as *_image rows (feature 021, R7)
+    footprint: str = "image"
 
 
 def origin_of(board: Board) -> str:
@@ -125,6 +128,28 @@ def _sizes(model: QModel, manifest: dict) -> tuple[float, str, float, str]:
     )
 
 
+def _model_sizes(model: QModel, fw, board: Board) -> tuple[float, str, float, str]:
+    """The model's own flash and RAM from the ELF symbols, or the parameter estimate if this build
+    has no ELF with a supported toolchain (for example the host simulator)."""
+    from .footprint import elf_footprint
+
+    elf = fw.dir / fw.manifest.get("files", {}).get("elf", "firmware.elf")
+    fp = elf_footprint(elf, board.target.pio_env, model)
+    if fp is None:
+        est = _sizes(model, {})
+        return est[0], est[1], est[2], est[3]
+    p = fp["parts"]
+    return (
+        fp["flash_kb"],
+        f"Model footprint in flash from the ELF symbols: model constant data "
+        f"({p['model_constant_data']} B: weights, bias, multipliers, shifts, layer table, "
+        f"self-test vectors) plus int8 engine code ({p['engine_code']} B)",
+        fp["ram_kb"],
+        f"Model footprint in RAM: tensor arena ({p['arena']} B), input ({p['input']} B) and output "
+        f"({p['output']} B) buffers, engine static data ({p['engine_static_data']} B)",
+    )
+
+
 def measure(lab: Lab, board: Board, model_path: Path, opts: MeasureOptions, log=print) -> dict:
     model_path = Path(model_path)
     if not model_path.is_file():
@@ -135,6 +160,8 @@ def measure(lab: Lab, board: Board, model_path: Path, opts: MeasureOptions, log=
         raise MeasureError(f"{model_path}: not a QModel .npz ({type(e).__name__}: {e})") from e
     if opts.n < 1 or (opts.batch is not None and opts.batch < 1) or opts.warmup < 0:
         raise MeasureError("-n and --batch must be >= 1, --warmup >= 0")
+    if opts.footprint not in ("image", "model"):
+        raise MeasureError("--footprint must be image or model")
     if model.name in board.target.excluded_models:
         raise ModelMissing(f"model {model.name} is excluded on target {board.target.name}")
 
@@ -176,11 +203,22 @@ def measure(lab: Lab, board: Board, model_path: Path, opts: MeasureOptions, log=
             samples.append(r["us_total"] / r["n"])
         if not stable:
             raise MeasureError(f"{model.name}: output changed between identical runs on {board.id}")
+        selftest = s.device.selftest(model.name)  # golden vectors vs the host reference
 
     arr = np.asarray(samples, dtype=np.float64)
     median = float(np.median(arr))
+    mean = float(np.mean(arr))
     p99 = float(np.percentile(arr, 99))
     flash_kb, flash_desc, ram_kb, ram_desc = _sizes(model, fw.manifest)
+    size_rows = []
+    if opts.footprint == "model":
+        image = (flash_kb, flash_desc, ram_kb, ram_desc) if fw.manifest.get("flash_used") else None
+        flash_kb, flash_desc, ram_kb, ram_desc = _model_sizes(model, fw, board)
+        if image is not None:
+            size_rows = [
+                ("flash_kb_image", image[0], "KiB", image[1]),
+                ("ram_kb_image", image[2], "KiB", image[3]),
+            ]
     hardware = hardware_of(board, info, origin)
     today = time.strftime("%Y-%m-%d")
     per = "per inference" if batch == 1 else f"per inference (each sample: mean of {batch} runs)"
@@ -209,6 +247,13 @@ def measure(lab: Lab, board: Board, model_path: Path, opts: MeasureOptions, log=
             opts.n,
         ),
         metric(
+            "latency_mean_us",
+            mean,
+            "us",
+            f"Mean latency {per} over {opts.n} samples ({n_runs} inferences, device BENCH timer)",
+            opts.n,
+        ),
+        metric(
             "latency_p99_us",
             p99,
             "us",
@@ -217,11 +262,20 @@ def measure(lab: Lab, board: Board, model_path: Path, opts: MeasureOptions, log=
         ),
         metric("flash_kb", flash_kb, "KiB", flash_desc),
         metric("ram_kb", ram_kb, "KiB", ram_desc),
+        *(metric(n, v, u, d) for n, v, u, d in size_rows),
         metric(
             "arena_bytes",
             model.arena_size(),
             "bytes",
             "Tensor arena of the model (two ping-pong buffers, QModel.arena_size)",
+        ),
+        metric(
+            "device_bit_exact_vectors",
+            selftest["passed"] / max(selftest["total"], 1),
+            "share",
+            "Share of the model's golden vectors whose device output equals the bit-exact host "
+            "reference (device SELFTEST)",
+            selftest["total"],
         ),
     ]
     return {

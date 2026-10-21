@@ -177,6 +177,35 @@ def publication_files(ctx) -> dict[str, str]:
     return files
 
 
+NON_TEXT_REASON = (
+    "{modality} data, not text: the corpus-overlap scan compares published text with the texts of "
+    "the training sources, and a {modality} dataset has no text snapshot to compare with "
+    "(feature 021, research R13). The personal-data scan of the published files still runs."
+)
+
+
+def split_text_sources(
+    classes: dict[str, dict[str, Any]], sources: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """(text sources, exemptions) of a release: a source whose class declares a non-text
+    `modality` is exempt from the corpus-overlap scan; a missing modality counts as text."""
+    texts, exempt = [], []
+    for s in sources:
+        modality = classes.get(s.get("class", ""), {}).get("modality", "text")
+        if modality == "text":
+            texts.append(s)
+        else:
+            exempt.append(
+                {
+                    "id": s["id"],
+                    "class": s["class"],
+                    "modality": modality,
+                    "reason": NON_TEXT_REASON.format(modality=modality.replace("_", " ")),
+                }
+            )
+    return texts, exempt
+
+
 def scan_publication(ctx, full: CorpusIndex, restricted: CorpusIndex) -> dict[str, Any]:
     allow = contact_allowlist(ctx.reg.controller())
     out = []

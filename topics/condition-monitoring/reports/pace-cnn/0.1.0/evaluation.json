@@ -1,0 +1,230 @@
+{
+ "model": "pace-cnn",
+ "version": "0.1.0",
+ "benchmark": "uci-har-v1",
+ "reference": "labels of the uci-har dataset",
+ "criteria_version": 1,
+ "model_sha256": "cd98a1c2fd3c6ef5b2d932946fe51f0cc193d0e90ab5769cd293bfe16ef094c9",
+ "weights_sha256": "b57ed51883d81a8a1cdc579c923409aaf4c4678e5bad3160107ec7c918bf0622",
+ "runs": [
+  {
+   "seed": 0,
+   "manifest_sha256": "8335587dadd5adbf64055a699cd1aa1af13821346079e7f74d359b327701c034",
+   "criteria_version": 1,
+   "criteria_commit": "f359d5064df0927a3ab4f9e30253a8c0a10f591b",
+   "npz_sha256": "cd98a1c2fd3c6ef5b2d932946fe51f0cc193d0e90ab5769cd293bfe16ef094c9",
+   "weights_sha256": "b57ed51883d81a8a1cdc579c923409aaf4c4678e5bad3160107ec7c918bf0622",
+   "trained_at": "2026-10-20T08:45:23Z",
+   "int8_macro_f1": 0.9229102032456694,
+   "tflite_interpreter_mismatches": 0
+  },
+  {
+   "seed": 1,
+   "manifest_sha256": "8335587dadd5adbf64055a699cd1aa1af13821346079e7f74d359b327701c034",
+   "criteria_version": 1,
+   "criteria_commit": "f359d5064df0927a3ab4f9e30253a8c0a10f591b",
+   "npz_sha256": "284a307df050437d280a4a1d90c8e04eb61c6e6b4d68de97e638972b1ca70ad0",
+   "weights_sha256": "bc1480a7170d2e172b5bdf42f86cb9b72b9152f99a16cc4a234cced7f204d4a6",
+   "trained_at": "2026-10-20T08:45:43Z",
+   "int8_macro_f1": 0.9285444692426998,
+   "tflite_interpreter_mismatches": 0
+  },
+  {
+   "seed": 2,
+   "manifest_sha256": "8335587dadd5adbf64055a699cd1aa1af13821346079e7f74d359b327701c034",
+   "criteria_version": 1,
+   "criteria_commit": "f359d5064df0927a3ab4f9e30253a8c0a10f591b",
+   "npz_sha256": "608bf677432e73dc9b7da3303a4d8ce28496ec5f8f264b6a82c71241ed5bbe1e",
+   "weights_sha256": "4f71f0eef93516c2434757b257692bc7ecda298e026b6f85596fc59ba19b9c78",
+   "trained_at": "2026-10-20T08:45:57Z",
+   "int8_macro_f1": 0.9299792331181592,
+   "tflite_interpreter_mismatches": 0
+  },
+  {
+   "seed": 3,
+   "manifest_sha256": "8335587dadd5adbf64055a699cd1aa1af13821346079e7f74d359b327701c034",
+   "criteria_version": 1,
+   "criteria_commit": "f359d5064df0927a3ab4f9e30253a8c0a10f591b",
+   "npz_sha256": "5d24610db01006b7fb80b2ba9d2e27b8821f56577a43258b07f1d1797fafbc79",
+   "weights_sha256": "dd7736c04419a7e8388de9d524915c1fbd14c56618086a051504511874469eed",
+   "trained_at": "2026-10-20T08:46:10Z",
+   "int8_macro_f1": 0.9156290617000943,
+   "tflite_interpreter_mismatches": 0
+  },
+  {
+   "seed": 4,
+   "manifest_sha256": "8335587dadd5adbf64055a699cd1aa1af13821346079e7f74d359b327701c034",
+   "criteria_version": 1,
+   "criteria_commit": "f359d5064df0927a3ab4f9e30253a8c0a10f591b",
+   "npz_sha256": "9e65ffdbae53582c825d56ead5591c25a00067638a66b11f22007baa930df599",
+   "weights_sha256": "431e6f86364993d338e33e715cc89720f6953c8468210619c981237517ac98f8",
+   "trained_at": "2026-10-20T08:46:24Z",
+   "int8_macro_f1": 0.9279739643973833,
+   "tflite_interpreter_mismatches": 0
+  }
+ ],
+ "test": {
+  "windows": 2947,
+  "subjects": 9
+ },
+ "metrics": {
+  "int8_macro_f1": 0.9229102032456694,
+  "int8_accuracy": 0.9229725144214456,
+  "int8_f1_min_class": 0.8099891422366993,
+  "int8_f1_walking": 0.9867211440245148,
+  "int8_f1_walking_upstairs": 0.9333333333333333,
+  "int8_f1_walking_downstairs": 0.958904109589041,
+  "int8_f1_sitting": 0.8099891422366993,
+  "int8_f1_standing": 0.8636363636363636,
+  "int8_f1_laying": 0.9848771266540642,
+  "int8_macro_f1_worst_subject": 0.6670756673644701,
+  "int8_macro_f1_subject_range": 0.3329243326355299,
+  "int8_macro_f1_seed_min": 0.9156290617000943,
+  "int8_macro_f1_seed_mean": 0.9250073863408013,
+  "int8_macro_f1_seed_max": 0.9299792331181592,
+  "float_macro_f1": 0.922407184016146,
+  "float_accuracy": 0.9226331862911435,
+  "tflite_interpreter_mismatches": 0
+ },
+ "per_class": [
+  {
+   "class": "walking",
+   "f1": 0.9867211440245148,
+   "support": 496
+  },
+  {
+   "class": "walking_upstairs",
+   "f1": 0.9333333333333333,
+   "support": 471
+  },
+  {
+   "class": "walking_downstairs",
+   "f1": 0.958904109589041,
+   "support": 420
+  },
+  {
+   "class": "sitting",
+   "f1": 0.8099891422366993,
+   "support": 491
+  },
+  {
+   "class": "standing",
+   "f1": 0.8636363636363636,
+   "support": 532
+  },
+  {
+   "class": "laying",
+   "f1": 0.9848771266540642,
+   "support": 537
+  }
+ ],
+ "confusion_matrix": {
+  "labels": [
+   "walking",
+   "walking_upstairs",
+   "walking_downstairs",
+   "sitting",
+   "standing",
+   "laying"
+  ],
+  "rows": "dataset label",
+  "columns": "int8 prediction",
+  "counts": [
+   [
+    483,
+    0,
+    13,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    448,
+    23,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    420,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    25,
+    0,
+    373,
+    93,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    57,
+    475,
+    0
+   ],
+   [
+    0,
+    16,
+    0,
+    0,
+    0,
+    521
+   ]
+  ]
+ },
+ "per_subject_macro_f1": [
+  0.6670756673644701,
+  0.8400995915850672,
+  0.8623927472883276,
+  0.9528259902091678,
+  0.9605505889030793,
+  0.9677339290146438,
+  0.9709509454645109,
+  1.0,
+  1.0
+ ],
+ "validation": {
+  "float_accuracy": 0.9859022556390977,
+  "float_macro_f1": 0.9862262080448027,
+  "int8_accuracy": 0.9877819548872181,
+  "int8_macro_f1": 0.9880692146911031,
+  "samples": 1064
+ },
+ "fidelity": {
+  "method": "causal gravity separation (prepare.py) of total_acc vs the dataset's body_acc, training subjects, continuous recordings rebuilt from the windows, first 128 samples of each recording skipped",
+  "recordings": 510,
+  "samples_per_axis": 369728,
+  "axes": {
+   "x": {
+    "rmse_g": 0.0029071961383891863,
+    "correlation": 0.9998798607751942
+   },
+   "y": {
+    "rmse_g": 0.00239633204806696,
+    "correlation": 0.9997934608439749
+   },
+   "z": {
+    "rmse_g": 0.0022817469441768477,
+    "correlation": 0.9997664350365495
+   }
+  },
+  "note": "informative; never changes a filter parameter (research R11)"
+ },
+ "reproduction": {
+  "seed": 0,
+  "identical": true,
+  "compared": "weights_sha256: model parameters without the meta block, which holds the training time",
+  "checked_at": "2026-10-20T08:50:14Z",
+  "tensorflow": "2.21.0",
+  "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O"
+ },
+ "date": "2026-10-20"
+}

@@ -1,17 +1,52 @@
 model: pace-cnn
 version: 0.1.0
-date: 2026-10-08
+date: 2026-10-20
 status: experimental
 change_type: initial
-changes: 'Draft of the first release (feature 005): registered, not trained on the frozen benchmark yet.'
+changes: 'First release (feature 021): trained on the frozen benchmark uci-har-v1 with pre-registered
+  criteria and five seeds; int8 results on the bit-exact host reference; experimental because the transfer
+  to mobility data is not tested.'
 output_format_version: pace-cnn-v1
 sandbox: false
-files: []
+files:
+- path: c/microinfer.c
+  sha256: ee16b7a3708ea852b0f15412bb11ea5e6c848c94b7f19e12cb9864a5ba236823
+  size_bytes: 10504
+- path: c/microinfer.h
+  sha256: 54e93372d11807d8c9a101720f87fece3fd80ce9b0075de529c88fb4315532c8
+  size_bytes: 3803
+- path: c/pace_cnn_model.c
+  sha256: d235c4ecd7693851b819437d8b8a66ff7764a4b865b2f87224283d6315bee40d
+  size_bytes: 79592
+- path: c/pace_cnn_model.h
+  sha256: 6066d81346cb94e81c5375a6a6c213f88b9011527fa15a6e02e86fa503ee6e3c
+  size_bytes: 440
+- path: config.json
+  sha256: 5f6c2adb055d1ebb895e949d9d2f047bbcbebfe09877b41919ea54de27282add
+  size_bytes: 3737
+- path: examples/example-1.json
+  sha256: 0359ebc4d14eaa9cc7a6f6eafb3a702f5bcd48fb759693660052cee9f59b5683
+  size_bytes: 5548
+- path: examples/example-2.json
+  sha256: a30376ce81781c3787ec35275bd2cc8d5fb85f45d2bfd00e95130ca7b2a3240e
+  size_bytes: 5488
+- path: examples/example-3.json
+  sha256: 98bd34892ed5ceb92a02a549eeb5f3b97f82bf8785246c09ebbf66a97fac38ae
+  size_bytes: 5523
+- path: pace-cnn.npz
+  sha256: cd98a1c2fd3c6ef5b2d932946fe51f0cc193d0e90ab5769cd293bfe16ef094c9
+  size_bytes: 21585
+- path: pace-cnn.tflite
+  sha256: 23949c986d9f096f37189cb408bd95aef791012d807aacbdef4c63bac3af22a2
+  size_bytes: 14472
+- path: sbom.cdx.json
+  sha256: e35273b8e8e30fa0db97627520c4c0e9590d32a876088c1ae569532e36cbf4db
+  size_bytes: 1466
 staging:
   repo: mobility-model-zoo/pace-cnn-staging
-  revision: ''
+  revision: 5def89381c9434532fc28eb920d3945f0ecf1236
 recipe:
-  git_commit: 9a6ad6e347ec1ef72efcccca2be4192fea7d8017
+  git_commit: f359d5064df0927a3ab4f9e30253a8c0a10f591b
   config: configs/condition-monitoring/activity/pace-cnn.yaml
   doc: topics/condition-monitoring/tasks/activity.md
 provenance:
@@ -19,7 +54,7 @@ provenance:
   - origin: dataset uci-har (topics/*/compliance/datasets.yaml)
     license: CC-BY-4.0
     permitted_use: training_allowed
-    count: 0
+    count: 6288
     dataset: uci-har
   teachers: []
   spike_data: false
@@ -29,11 +64,11 @@ evaluation:
   reference_kind: ground_truth
   results: results/0.1.0/quality.json
 performance:
-  hardware: ESP32-S3 (HIL bench)
+  hardware: ESP32 (LilyGO LoRa32, HIL bench)
   budget:
     ram_kb: 32
     flash_kb: 128
-    target: ESP32-S3
+    target: ESP32
   results: results/0.1.0/performance.json
 usage:
   class: commercial

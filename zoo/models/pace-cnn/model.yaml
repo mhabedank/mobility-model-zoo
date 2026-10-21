@@ -4,7 +4,9 @@ task: activity
 variant: cnn
 runtime: mcu
 title: 'Pace (CNN): activity recognition from IMU windows on a microcontroller'
-summary: A small int8 convolutional network that classifies 2.56-second windows of accelerometer and gyroscope signals into six activities (walking, walking upstairs, walking downstairs, sitting, standing, lying). It runs on the zoo's int8 engine on microcontrollers.
+summary: A small int8 convolutional network that classifies 2.56-second windows of accelerometer and gyroscope
+  signals into six activities (walking, walking upstairs, walking downstairs, sitting, standing, lying).
+  It runs on the zoo's int8 engine on microcontrollers.
 license: Apache-2.0
 usage_class: commercial
 license_exception: null
@@ -13,52 +15,139 @@ base_model_license: null
 languages: []
 pipeline_tag: other
 library_name: litert
-tags: [time-series-classification, imu, activity-recognition, tinyml, int8]
+tags:
+- time-series-classification
+- imu
+- activity-recognition
+- tinyml
+- int8
 repos:
   public: mobility-model-zoo/pace-cnn
   staging: mobility-model-zoo/pace-cnn-staging
 card:
-  intended_use: |
-    A research baseline for classifying IMU windows on microcontrollers, as a first step towards pedestrian, micromobility and manoeuvre detection with the same pipeline.
-  out_of_scope: |
-    Transport-mode or vehicle classes (the training data has none); fall detection as a safety function; identifying or profiling persons.
+  intended_use: 'A research and teaching baseline for classifying windows of a waist-worn accelerometer
+    and gyroscope into six activities on a microcontroller, and a first step towards pedestrian, micromobility
+    and manoeuvre detection with the same int8 pipeline. Use it to study motion classification on small
+    devices, to test an IMU pipeline end to end, or as a measured reference for your own models.
+
+    '
+  out_of_scope: '- Monitoring or evaluating persons at work, or decisions about access to insurance, credit
+    or services based on a person''s movement.
+
+    - Identifying or profiling persons from their movement.
+
+    - Fall detection or any other use that people rely on for their safety; the model was not developed
+    or tested for that.
+
+    - Transport-mode or vehicle classes (car, bus, bicycle, e-scooter): the training data has none.
+
+    - Sensors worn elsewhere than the waist, other sample rates or units without the preparation of the
+    input contract.
+
+    '
   not_for:
-    - Transport-mode or vehicle classes
-    - Fall detection as a safety function
-    - Identifying or profiling persons
-  input_output: |
-    Input: a window of 128 samples x 9 channels (body acceleration, gyroscope, total acceleration; 50 Hz) normalised per channel and quantized to int8. Output: six int8 class scores.
+  - Monitoring, evaluating or profiling persons
+  - Fall detection or other uses people rely on for their safety
+  - Transport-mode or vehicle classes
+  input_output: '**Input:** one window of 2.56 s of a 6-axis IMU worn at the waist, sampled at 50 Hz:
+    128 samples x 9 channels in the order body_acc xyz, body_gyro xyz, total_acc xyz, as 1,152 int8 values
+    (row-major, sample t then channel c). Acceleration is in g (1 g = 9.80665 m/s²), angular velocity
+    in rad/s. Consecutive windows overlap by 50 % (step 64 samples).
+
+
+    **Preparation from raw readings** (host reference `mobility_model_zoo.condition_monitoring.activity.prepare`,
+    coefficients in `config.json`):
+
+
+    1. a causal median filter over 3 samples, per axis;
+
+    2. a causal 3rd-order Butterworth low-pass at 20 Hz, per axis (noise filter, as the dataset documents);
+
+    3. gravity separation of the acceleration with a causal 3rd-order Butterworth low-pass at 0.3 Hz;
+    body_acc = total_acc - gravity;
+
+    4. per-channel normalisation with the mean and std of the training subjects (`config.json`, `normalisation`);
+
+    5. int8 quantisation with the model''s input scale and zero point (`config.json`, `quantisation`).
+
+
+    The median length, the order of the gravity filter and causal filtering are not stated by the dataset;
+    the zoo chose them. The model itself was trained on the dataset''s own preparation.
+
+
+    **Output:** six int8 scores in the label order walking, walking upstairs, walking downstairs, sitting,
+    standing, laying (lying); the highest score is the predicted activity.
+
+    '
   install: pip install "mobility-model-zoo[edge] @ git+https://github.com/mhabedank/mobility-model-zoo@<tag>"
-  how_to_run: |
+  how_to_run: 'import json
+
+
+    import numpy as np
+
     from huggingface_hub import hf_hub_download
 
+
     from mobility_model_zoo.edge.int8.model import QModel
+
     from mobility_model_zoo.edge.int8.reference import run_model
 
-    model = QModel.load(hf_hub_download("{repo_id}", "pace-cnn.npz", revision="{revision}"))
-    print(run_model(model, model.test_inputs[0]).tolist())  # int8 scores of the six activities
-  device_usage: |
-    /* Sources generated from {repo_id} at {revision}: `uv run edge build`. */
-    #include "model_zoo.h"
 
-    static int8_t arena[MI_ZOO_ARENA_SIZE];
-    int8_t window[1152], scores[6];
+    repo, revision = "{repo_id}", "{revision}"
+
+    model = QModel.load(hf_hub_download(repo, "pace-cnn.npz", revision=revision))
+
+    example = json.load(open(hf_hub_download(repo, "examples/example-1.json", revision=revision)))
+
+    scores = run_model(model, np.asarray(example["input"], dtype=np.int8))
+
+    # The example input is synthetic: it checks the int8 arithmetic, not an activity.
+
+    print(scores.tolist(), scores.tolist() == example["expected"])
+
+    '
+  device_usage: '/* Sources from {repo_id} at {revision}: c/pace_cnn_model.c and c/microinfer.c with their
+    headers. */
+
+    #include "pace_cnn_model.h"
+
+
+    static int8_t arena[PACE_CNN_ARENA_SIZE];
+
+    int8_t window[PACE_CNN_IN_SIZE];  /* 128 x 9 int8, prepared as config.json describes */
+
+    int8_t scores[PACE_CNN_OUT_SIZE]; /* six int8 scores in label order */
+
     mi_invoke(&mi_model_pace_cnn, window, scores, arena, sizeof arena);
-  limitations: |
-    - No vehicle or transport-mode classes; the sensor was worn on the belt. Manoeuvre or transport-mode recognition needs other data with the same pipeline.
-    - Trained on 30 volunteers of UCI HAR; other placements, sensors and populations are untested.
-    - Sitting and standing are the classes most often confused in this dataset.
+
+    '
+  limitations: '- Trained and measured on UCI HAR only: a smartphone worn at the waist by the volunteers
+    of one study. Other placements, sensors, sample rates and populations are untested, and the model
+    cannot detect a wrong input; it always returns six scores.
+
+    - No vehicle or transport-mode classes. Whether waist-worn activity windows are a useful base for
+    micromobility and manoeuvre detection (the task''s riskiest assumption) is not tested, which keeps
+    this release experimental.
+
+    - Sitting and standing are the classes most often confused: int8 F1 0.81 for sitting and 0.8636 for
+    standing.
+
+    - Results vary between persons: the worst test subject reaches an int8 macro-F1 of 0.6671, against
+    0.9229 over all test subjects.
+
+    - The input preparation values the dataset leaves open (median length, gravity filter order, causal
+    filtering) were chosen by the zoo; windows prepared differently can change the results.
+
+    - Energy use was not measured; emulator and host values in the speed table are informative only.
+
+    '
   limits_short:
-    - No vehicle or transport-mode classes; the sensor was worn on the belt.
-    - Trained on volunteers of one dataset; other placements, sensors and populations are untested.
-    - Sitting and standing are the classes most often confused.
+  - Waist-worn sensor only; no vehicle or transport-mode classes.
+  - Sitting and standing are often confused (int8 F1 {metric:quality.int8_f1_sitting} and {metric:quality.int8_f1_standing}).
+  - 'Results vary between persons: worst test subject macro-F1 {metric:quality.int8_macro_f1_worst_subject}.'
   unmet_criteria:
-    - criterion: Trained and measured on the frozen benchmark
-      note: not done yet; this is the draft of the first release
-  citation: |
-    @misc{mobility-model-zoo-pace-cnn,
-      title  = {Pace (CNN): activity recognition from IMU windows on a microcontroller, mobility-model-zoo},
-      author = {Habedank, Martin},
-      year   = {2026},
-      url    = {https://huggingface.co/mobility-model-zoo/pace-cnn}
-    }
+  - criterion: S5 Transfer to mobility data tested
+    note: 'not tested: trained and measured on UCI HAR only'
+  citation: "@misc{mobility-model-zoo-pace-cnn,\n  title  = {Pace (CNN): activity recognition from IMU\
+    \ windows on a microcontroller, mobility-model-zoo},\n  author = {Habedank, Martin},\n  year   = {2026},\n\
+    \  url    = {https://huggingface.co/mobility-model-zoo/pace-cnn}\n}\n"

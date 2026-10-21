@@ -2,6 +2,7 @@
 # source-classes.schema.json). LIA = legitimate-interest assessment (Art. 6(1)(f) GDPR).
 classes:
 - id: machine-sound-datasets
+  modality: audio
   description: Published recordings of machine sounds (fans, pumps, valves, slide rails) from research
     datasets, downloaded from the publishers.
   copyright_basis: licence
@@ -21,6 +22,7 @@ classes:
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
 - id: imu-activity-datasets
+  modality: motion_sensor
   description: Published motion-sensor recordings of volunteers (accelerometer and gyroscope windows,
     subjects identified only by number) from research datasets, downloaded from the publishers.
   copyright_basis: licence

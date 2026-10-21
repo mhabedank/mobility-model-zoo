@@ -1,0 +1,91 @@
+model: pace-cnn
+version: 0.1.0
+state: signed_off
+ai_system:
+  is_system: true
+  rationale: The int8 weights are published together with the C engine and the input preparation, so the
+    release is usable as a machine-based system that infers an activity class from motion-sensor windows
+    (Art. 3(1)).
+gpai:
+  is_gpai: false
+  generative: false
+  params: 7000.0
+  training_compute_flop: 300000000000.0
+  base_model_compute_flop: unknown
+  method: 'Own upper estimate: about 354,000 multiply-accumulates per window (QModel), 6,288 training
+    windows, 20 epochs, forward and backward pass (factor 3) and 2 FLOP per multiply-accumulate: about
+    2.7e11 FLOP, rounded up to 3e11. No base model.'
+  rationale: A small task-specific classifier for six activities; it does not generate content and is
+    not capable of a wide range of distinct tasks; compute many orders of magnitude below the indicative
+    10^23 FLOP of the Commission GPAI guidelines (July 2025).
+exclusion_basis: art2_12
+monetisation: none
+intended_purpose: 'Research, teaching and bench testing of activity recognition on microcontrollers: the
+  model classifies 2.56-second windows of a waist-worn accelerometer and gyroscope into six activities
+  (walking, walking upstairs, walking downstairs, sitting, standing, lying), as a baseline for pedestrian
+  and micromobility sensing. Status: experimental, not ready for production use.'
+out_of_scope:
+- Monitoring or evaluating persons at work; decisions on access to insurance, credit or services from
+  a person's movement; identifying or profiling persons; fall detection or any other safety function;
+  transport-mode or vehicle classification; sensor placements other than the waist.
+annex_iii_match: none (no use in biometrics, critical infrastructure management, employment, education,
+  essential services, law enforcement, migration or justice is intended; the card names the employment
+  and essential-services uses as out of scope)
+annex_i:
+  legislation: none
+  safety_component: false
+  rationale: A research baseline on a test bench; not placed on the market as a component of a product
+    under Union harmonisation legislation and not a safety component; fall detection as a safety function
+    is out of scope.
+art50_trigger: none (no interaction with natural persons, no generated content)
+legal_references:
+  ai_act: Regulation (EU) 2024/1689 as amended by the digital omnibus (in force 2026-07-27)
+  guidelines:
+  - Commission guidelines on the definition of an AI system (Feb 2025)
+  - Commission guidelines on general-purpose AI models (July 2025)
+  checked_at: '2026-10-20'
+export:
+  self_classification: not listed (Regulation (EU) 2021/821, Annex I)
+  rationale: An activity classifier for inertial sensor windows; no cryptography, no intrusion software,
+    no surveillance function.
+licences:
+  weights: Apache-2.0
+  code: Apache-2.0
+  base_model: null
+  notices:
+  - Human Activity Recognition Using Smartphones by J. Reyes-Ortiz, D. Anguita, A. Ghio, L. Oneto, X.
+    Parra, UCI Machine Learning Repository, doi:10.24432/C54S4K (CC BY 4.0) - training and evaluation
+    data
+  - TensorFlow and Keras (Apache-2.0) - training and full-int8 conversion
+  share_alike_inputs: false
+  gated: false
+provenance:
+  sources: []
+  benchmark_sources: []
+  datasets:
+  - uci-har
+  routes: []
+  recipients_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+scans:
+  redaction_recall: null
+  art9_counts: null
+  memorisation:
+    status: not_applicable
+    rationale: No dataset window and no subject number is published; the examples and self-test vectors
+      are synthetic uniform int8 values (seed 0). The model holds about 7,000 int8 parameters of three
+      convolution blocks and one dense layer, not records.
+  publication_scan: null
+decisions:
+- No labeling recipients (no model or service labeled data for this release); the labels are the dataset's
+  own ground truth, and recipients_sha256 is the hash of an empty recipient list.
+- 'Release status experimental by rule (spec 021, FR-019): the transfer to mobility data is not tested,
+  and the budgets count only once measured on the real reference board.'
+- Input preparation values that the dataset leaves open (median length 3, gravity filter order 3, causal
+  filtering) were fixed by the owner on 2026-10-20 before the preparation code was written.
+signed_off_by: m.habedank
+signed_off_at: '2026-10-21'
+runtime: mcu
+sbom: sbom.cdx.json
+card_privacy_note: The model was trained on motion signals (accelerometer and gyroscope) of 30 volunteers
+  that the dataset authors published under numbers only. No data, no window and no subject number is part
+  of this release, and per-subject results are reported by rank only, never under a subject number.

@@ -147,14 +147,28 @@ def load_zoo(
 
 
 def load_eval(name: str, zoo_dir: str | Path = ZOO_DIR) -> dict | None:
+    """The labelled evaluation set of a bench model, or None.
+
+    Looked up next to the model's `.npz` in $MMZ_EDGE_MODELS first (a trained model brings its
+    `<name>.eval.npz` along, feature 021 R8), then in the reference zoo, CUSTOM_DIR and the
+    derived files of real datasets ($MMZ_DATA/derived/<name>/, then $MMZ_DATA/derived/).
+    """
+    import os
+
     from mobility_model_zoo.edge.paths import data_root
 
-    p = Path(zoo_dir) / f"{name}.eval.npz"
-    if not p.exists():
-        p = CUSTOM_DIR / f"{name}.eval.npz"
-    if not p.exists():  # held-out features of real datasets live outside the repo
-        p = data_root() / "derived" / f"{name}.eval.npz"
-    if not p.exists():
+    candidates = [
+        Path(path).with_name(f"{name}.eval.npz")
+        for path in filter(None, os.environ.get("MMZ_EDGE_MODELS", "").split(os.pathsep))
+    ]
+    candidates += [
+        Path(zoo_dir) / f"{name}.eval.npz",
+        CUSTOM_DIR / f"{name}.eval.npz",
+        data_root() / "derived" / name / f"{name}.eval.npz",  # outside the repo
+        data_root() / "derived" / f"{name}.eval.npz",
+    ]
+    p = next((c for c in candidates if c.exists()), None)
+    if p is None:
         return None
     with np.load(p) as z:
         return {k: z[k] for k in z.files}
@@ -197,6 +211,12 @@ def bench_models(out: Path = ZOO_DIR) -> list[QModel]:
             raise ValueError(f"model {m.name} from MMZ_EDGE_MODELS clashes with a bench model")
         models.append(m)
     return models
+
+
+def bench_catalogue(out: Path = ZOO_DIR) -> dict[str, QModel]:
+    """The firmware models by name: the same set the HIL tests are parametrised with
+    (`bench_models`), including models from $MMZ_EDGE_MODELS (feature 021, R8)."""
+    return {m.name: m for m in bench_models(out)}
 
 
 def main(argv=None):

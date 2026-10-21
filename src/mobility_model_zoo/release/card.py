@@ -292,11 +292,25 @@ def device_examples(reg: Registry, name: str) -> list[dict[str, Any]]:
                 "name": n,
                 "source": ex.get("source", ""),
                 "n_in": len(ex.get("input", [])),
-                "input": json.dumps(ex.get("input", [])),
+                "input": _short_vector(ex.get("input", []), n)[0],
+                "input_note": _short_vector(ex.get("input", []), n)[1],
                 "expected": json.dumps(ex.get("expected", [])),
             }
         )
     return out
+
+
+CARD_VECTOR_MAX = 64  # longer example inputs are shortened on the card (pace-cnn: 1,152 values)
+
+
+def _short_vector(values: list, file_name: str) -> tuple[str, str]:
+    """(JSON shown on the card, note): a long example input is shortened to its first 24 values;
+    the full vector stays in the example file."""
+    if len(values) <= CARD_VECTOR_MAX:
+        return json.dumps(values), ""
+    return json.dumps(values[:24]), (
+        f"the first 24 of {len(values):,} are shown; the full input is `examples/{file_name}`"
+    )
 
 
 def dataset_rows(reg: Registry, record: dict[str, Any]) -> list[dict[str, Any]]:
@@ -338,8 +352,13 @@ def compliance_context(reg: Registry, name: str, version: str) -> dict[str, Any]
     if rc is None:
         return None
     model = reg.model(name)
+    dataset_ids = {d["id"] for d in creg.records("datasets")}
     sources = sorted(
-        (s for s in creg.sources_for(name, version) if s["permitted_use"] == "training_allowed"),
+        (
+            {**s, "is_dataset": s["id"] in dataset_ids}  # datasets get their own attribution block
+            for s in creg.sources_for(name, version)
+            if s["permitted_use"] == "training_allowed"
+        ),
         key=lambda s: (s["class"], s["title"]),
     )
     roles: dict[str, set[str]] = {}

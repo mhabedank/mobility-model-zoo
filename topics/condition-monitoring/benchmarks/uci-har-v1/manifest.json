@@ -1,0 +1,72 @@
+{
+ "benchmark": "uci-har-v1",
+ "datasets": [
+  {
+   "id": "uci-har",
+   "licence": "CC-BY-4.0",
+   "retrieved_at": "2026-10-20T06:26:17Z",
+   "archive_sha256": "c00b803081a5c797cd5e4b83700a9810b38d53d9d84e01917e090e1fdbc81031"
+  }
+ ],
+ "protocol": {
+  "test": "official UCI HAR test split",
+  "validation": "3 of the 21 training subjects, drawn with validation_seed",
+  "validation_seed": 2026,
+  "normalisation": "per channel, mean and std of the training subjects (validation excluded)",
+  "window": {
+   "samples": 128,
+   "channels": 9,
+   "rate_hz": 50,
+   "overlap": 0.5
+  },
+  "headline_metrics": [
+   "int8_macro_f1",
+   "int8_accuracy"
+  ]
+ },
+ "splits": {
+  "train": {
+   "subjects": 18,
+   "windows": 6288,
+   "subjects_sha256": "a12bd59fd7c8ff87cb7875191369dbd868545edfbd2ea47b34b616ee615fddac",
+   "data_sha256": "288364fa7d33ace725c96a57f4ce7354c2bea6741ab72bd9ec7e4461132185c9"
+  },
+  "validation": {
+   "subjects": 3,
+   "windows": 1064,
+   "subjects_sha256": "98e9f8979de3ed820093e2816c12499d770c8b5e8614a619880824d93eb4452c",
+   "data_sha256": "625d11ad88477edde9a5873b4d416663e0b12dd37feea9cb162d7027690ec1dc"
+  },
+  "test": {
+   "subjects": 9,
+   "windows": 2947,
+   "subjects_sha256": "dc39201e9809743838633e34b645ba7dcd74b7d2c8cfa367bd8a4f35fc2ca551",
+   "data_sha256": "9cf806e4dbf51fee31af6f22030b2d90ca0c76faf5186d724f4f0247bb60d605"
+  }
+ },
+ "normalisation": {
+  "mean": [
+   -0.0004951871815137565,
+   -0.00032817694591358304,
+   -0.00021286075934767723,
+   0.0005902921548113227,
+   -0.0004714796377811581,
+   -0.00026790332049131393,
+   0.8028175234794617,
+   0.02752470225095749,
+   0.081498883664608
+  ],
+  "std": [
+   0.19266846776008606,
+   0.1205918937921524,
+   0.10867609083652496,
+   0.4066708981990814,
+   0.3769063949584961,
+   0.25676658749580383,
+   0.410501092672348,
+   0.382828027009964,
+   0.373470276594162
+  ]
+ },
+ "frozen_at": "2026-10-20T06:40:09Z"
+}

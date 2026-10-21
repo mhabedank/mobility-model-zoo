@@ -46,50 +46,23 @@ def _alarm(cal: dict) -> dict:
 
 
 def sbom(out_dir: Path) -> dict:
+    """The SBOM of picket-forest's device code (generator shared in release/sbom.py)."""
     import sklearn
 
-    emlearn = forest._import_emlearn()  # keeps the numpy error state
+    from mobility_model_zoo.release.sbom import library
+    from mobility_model_zoo.release.sbom import sbom as build_sbom
 
-    files = sorted(p for p in out_dir.rglob("*") if p.is_file() and p.name != "sbom.cdx.json")
-    components = [
-        {
-            "type": "file",
-            "name": p.relative_to(out_dir).as_posix(),
-            "hashes": [{"alg": "SHA-256", "content": hashlib.sha256(p.read_bytes()).hexdigest()}],
-        }
-        for p in files
-        if p.suffix in (".c", ".h")
-    ]
-    components += [
-        {
-            "type": "library",
-            "name": "emlearn",
-            "version": emlearn.__version__,
-            "purl": f"pkg:pypi/emlearn@{emlearn.__version__}",
-            "description": "C code generator of the forest",
-        },
-        {
-            "type": "library",
-            "name": "scikit-learn",
-            "version": sklearn.__version__,
-            "purl": f"pkg:pypi/scikit-learn@{sklearn.__version__}",
-            "description": "training of the forest",
-        },
-    ]
-    return {
-        "bomFormat": "CycloneDX",
-        "specVersion": "1.5",
-        "version": 1,
-        "metadata": {
-            "component": {
-                "type": "firmware",
-                "name": "picket-forest",
-                "description": "CAN intrusion detector for microcontrollers (C99)",
-            },
-            "tools": [{"name": "mobility_model_zoo.security.can_ids.release_export"}],
-        },
-        "components": components,
-    }
+    emlearn = forest._import_emlearn()  # keeps the numpy error state
+    return build_sbom(
+        out_dir,
+        name="picket-forest",
+        description="CAN intrusion detector for microcontrollers (C99)",
+        libraries=[
+            library("emlearn", emlearn.__version__, "C code generator of the forest"),
+            library("scikit-learn", sklearn.__version__, "training of the forest"),
+        ],
+        tool="mobility_model_zoo.security.can_ids.release_export",
+    )
 
 
 def export(
