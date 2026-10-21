@@ -147,9 +147,7 @@ card:
   - 'Results vary between persons: worst test subject macro-F1 {metric:quality.int8_macro_f1_worst_subject}.'
   unmet_criteria:
   - criterion: S5 Transfer to mobility data tested
-    note: 'not tested: this version is trained and measured on UCI HAR only, so it stays experimental'
-  - criterion: S4 Budgets met on the real reference board (ESP32)
-    note: not measured yet
+    note: 'not tested: trained and measured on UCI HAR only'
   citation: "@misc{mobility-model-zoo-pace-cnn,\n  title  = {Pace (CNN): activity recognition from IMU\
     \ windows on a microcontroller, mobility-model-zoo},\n  author = {Habedank, Martin},\n  year   = {2026},\n\
     \  url    = {https://huggingface.co/mobility-model-zoo/pace-cnn}\n}\n"

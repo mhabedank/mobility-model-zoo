@@ -55,6 +55,9 @@ boards:
   - id: esp32-1
     target: esp32
     match: {vid_pid: "1a86:55d4"}
+    # The USB socket has a loose contact (2026-10-21): the link drops after 20-40 s and flashing at
+    # 921600 baud failed. A lower flash rate needs fewer retries on a marginal link.
+    flasher_options: {baud: 115200}
     tags: [esp, xtensa, fpu]
 
   # Further boards - uncomment / adapt as you add hardware:

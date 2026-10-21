@@ -21,10 +21,14 @@
   },
   {
    "id": "S4",
-   "measured": null,
+   "measured": {
+    "flash_kb": 18.0,
+    "ram_kb": 5.2,
+    "latency_us": 55033.93,
+    "origin": "real_board"
+   },
    "threshold": "flash_kb <= 128, ram_kb <= 32, latency_us <= 100000 on ESP32 (esp32-1, LilyGO LoRa32)",
-   "met": false,
-   "note": "not measured"
+   "met": true
   },
   {
    "id": "S5",
@@ -50,14 +54,17 @@
   },
   {
    "id": "K3",
-   "measured": null,
-   "fired": false,
-   "note": "not measured"
+   "measured": {
+    "flash_kb": 18.0,
+    "ram_kb": 5.2,
+    "latency_us": 55033.93,
+    "origin": "real_board"
+   },
+   "fired": false
   }
  ],
  "status": "experimental",
  "reasons": [
-  "S4 budgets on the reference board: not measured",
   "S5 transfer tested: False (UCI HAR only)"
  ]
 }

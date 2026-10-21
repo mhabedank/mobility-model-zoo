@@ -267,14 +267,14 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   It refuses (exit 4) on any extra file or on an example that does not reproduce.
 - [X] T045 [US2] Add `condmon activity export --version 0.1.0 --out DIR` in `src/mobility_model_zoo/condition_monitoring/cli.py`. It calls `release_export.py` with the seed-0 run and fills `config.json` from the manifest normalisation, the QModel quantisation and the `prepare.py` steps (channel names and units, 50 Hz, window 128, overlap 0.5, the filter coefficients of T025).
 - [X] T046 [US2] Run `uv run condmon activity export --version 0.1.0 --out /tmp/pace-cnn-0.1.0` (V8). Copy the three examples into `zoo/models/pace-cnn/examples/` and add `zoo/models/pace-cnn/examples/SOURCES.yaml` stating `synthetic`, as `zoo/models/picket-forest/examples/SOURCES.yaml` does. Confirm T034 passes on the real export.
-- [ ] T047 [US2] Run the bench on the simulator and the emulator (V6 steps 1–2):
+- [X] T047 [US2] Run the bench on the simulator and the emulator (V6 steps 1–2):
   - `MMZ_EDGE_MODELS=$MMZ_DATA/derived/pace-cnn/seed-0/pace-cnn.npz uv run edge run -b sim`;
   - `… uv run edge --boards hil/qemu-boards.yaml run -b esp32-qemu --require-all`.
 
   All HIL tests must pass with pace-cnn in the catalogue before the real board is used.
-- [ ] T048 [US2] **Owner** connects esp32-1 (press PWR if it does not answer, `hil/boards.yaml`) and esp8266-1 to the Mac. Then run `edge run -b esp32-1` and `edge run -b esp8266-1` with the same `MMZ_EDGE_MODELS` (V6 steps 3–4). On esp32-1, every self-test vector and example must equal the host reference (SC-003, FR-016); any mismatch blocks the release. If esp32-1 stays unreachable, continue with the emulator as substitute (T049 `--allow-substitute`) and record "budgets on the real reference board: not measured".
-- [ ] T049 [US2] Run `uv run edge measure $MMZ_DATA/derived/pace-cnn/seed-0/pace-cnn.npz -b <board> --footprint model --model-version 0.1.0 --out <board>.json` for esp32-1, esp32-qemu, esp8266-1 and sim. Then run `uv run edge performance --model pace-cnn --version 0.1.0 --reference esp32.json --extra qemu.json --extra esp8266.json --extra sim.json` (V7). Keep the per-board JSON files outside git.
-- [ ] T050 [US2] Set `performance.hardware: ESP32 (LilyGO LoRa32, HIL bench)` and `performance.budget.target: ESP32` in `zoo/models/pace-cnn/releases/0.1.0.yaml` (FR-015, R16). Re-run `uv run condmon activity evaluate --version 0.1.0` so S4 and K3 are decided from `performance.json`; this is a deterministic recomputation, not a new evaluation (FR-004). Commit `performance.json`, the updated reports and the record.
+- [X] T048 [US2] **Owner** connects esp32-1 (press PWR if it does not answer, `hil/boards.yaml`) and esp8266-1 to the Mac. Then run `edge run -b esp32-1` and `edge run -b esp8266-1` with the same `MMZ_EDGE_MODELS` (V6 steps 3–4). On esp32-1, every self-test vector and example must equal the host reference (SC-003, FR-016); any mismatch blocks the release. If esp32-1 stays unreachable, continue with the emulator as substitute (T049 `--allow-substitute`) and record "budgets on the real reference board: not measured".
+- [X] T049 [US2] Run `uv run edge measure $MMZ_DATA/derived/pace-cnn/seed-0/pace-cnn.npz -b <board> --footprint model --model-version 0.1.0 --out <board>.json` for esp32-1, esp32-qemu, esp8266-1 and sim. Then run `uv run edge performance --model pace-cnn --version 0.1.0 --reference esp32.json --extra qemu.json --extra esp8266.json --extra sim.json` (V7). Keep the per-board JSON files outside git.
+- [X] T050 [US2] Set `performance.hardware: ESP32 (LilyGO LoRa32, HIL bench)` and `performance.budget.target: ESP32` in `zoo/models/pace-cnn/releases/0.1.0.yaml` (FR-015, R16). Re-run `uv run condmon activity evaluate --version 0.1.0` so S4 and K3 are decided from `performance.json`; this is a deterministic recomputation, not a new evaluation (FR-004). Commit `performance.json`, the updated reports and the record.
 
 **Checkpoint**: Flash, RAM and latency on esp32-1 with origin, bit-exact board outputs, and standalone C sources exist. US2 is testable on its own (SC-002, SC-003).
 
@@ -308,7 +308,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - rule 9 fails when a criteria commit is not in the history, or is newer than the earliest `trained_at`;
   - rule 9 passes when everything matches;
   - a release without a manifest skips the trace with a note.
-- [ ] T057 [P] [US3] Write `tests/condition_monitoring/test_card_contents.py`. Render the pace-cnn card with `release/card.py` and check that it contains every item FR-020 names:
+- [X] T057 [P] [US3] Write `tests/condition_monitoring/test_card_contents.py`. Render the pace-cnn card with `release/card.py` and check that it contains every item FR-020 names:
   - status, usage class `commercial` and licence Apache-2.0;
   - intended use, every out-of-scope use including the AI Act uses, and the limitations;
   - the headline metrics with their reference, the per-class F1 rows, the worst test subject and the seed spread;
@@ -360,7 +360,7 @@ Single Python package. Source code is in `src/mobility_model_zoo/`, tests in `te
   - `card_privacy_note`: trained on motion signals of 30 volunteers, published under numbers by the dataset authors; no data or subject number is in the release.
 
   The card template reads `card_privacy_note` from the compliance record, not from `model.yaml`. Then run `uv run zoo compliance render`.
-- [ ] T072 [US3] Run `uv run zoo check pace-cnn 0.1.0 --offline` (V9). Open may stay only:
+- [X] T072 [US3] Run `uv run zoo check pace-cnn 0.1.0 --offline` (V9). Open may stay only:
   - the rules that need staging or the Hub (1, 5, 12);
   - rule 16, because its compliance stages include the owner's signoff (`compliance/checks.py:212`, `RELEASE_STAGES`).
 
