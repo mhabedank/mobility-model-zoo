@@ -28,4 +28,4 @@ Small models that watch machines and movement through sensors, built to run on m
 | Model | Task | Latest version | Status | Hugging Face |
 |-------|------|----------------|--------|--------------|
 | `hum-fan` | sound-anomaly | – | not published | [mobility-model-zoo/hum-fan](https://huggingface.co/mobility-model-zoo/hum-fan) |
-| `pace-cnn` | activity | – | not published | [mobility-model-zoo/pace-cnn](https://huggingface.co/mobility-model-zoo/pace-cnn) |
+| `pace-cnn` | activity | 0.1.0 | experimental | [mobility-model-zoo/pace-cnn](https://huggingface.co/mobility-model-zoo/pace-cnn) |
