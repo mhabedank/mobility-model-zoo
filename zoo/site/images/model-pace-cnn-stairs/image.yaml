@@ -1,0 +1,83 @@
+id: model-pace-cnn-stairs
+series: siebdruck
+theme: active
+subject: station-stairs
+generation:
+  model: Qwen/Qwen-Image-2512
+  revision: 25468b98e3276ca6700de15c6628e51b7de54a26
+  model_licence: Apache-2.0
+  model_card: https://huggingface.co/Qwen/Qwen-Image-2512
+  pipeline: QwenImagePipeline
+  prompt: a wide open-air station staircase in morning light, small figures seen from behind, some walking
+    up the stairs, some walking down, one standing still at the top, one sitting on a bench at the foot
+    of the stairs, one walking figure in an orange-yellow coat, a platform canopy above, 1970s modernist
+    travel poster illustration, flat colour fields with crisp edges, screen print texture, clean geometric
+    forms, calm ordered composition with long diagonals, soft gradient sky in pale mint and warm cream,
+    deep navy shadows and ground, the main vehicle or machine painted in a warm orange-yellow accent colour,
+    everything else only navy, mint and cream, early morning light as graphic shapes, quietly futurist
+    and optimistic, West German graphic design of the seventies, restrained, no text, no lettering, no
+    logos, no faces, people only as small simple silhouettes
+  negative_prompt: text, letters, words, watermark, logo, signature, face, portrait, photo, photorealistic,
+    glossy, 3d render, neon, chrome, robot, spaceship, retro kitsch, cluttered, blurry, orange sky, orange
+    ground, brain, glowing network, hologram, floating icons, circuit pattern
+  seed: 50051
+  steps: 50
+  guidance: 4.0
+  width: 1200
+  height: 800
+  generated: 2026-10-21
+  hardware: dgx-spark
+  generator:
+    commit: c2fbd8e
+    image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
+licence: CC0-1.0
+placements:
+- model:pace-cnn
+scene: Wide station staircase with figures walking up and down, standing and sitting
+alt: Small figures walk up and down a wide station staircase, one stands at the top, one sits on a bench,
+  one wears an orange-yellow coat (AI-generated image)
+focal_point:
+- 0.59
+- 0.367
+aspect: '3:2'
+source:
+  width: 1200
+  height: 800
+  sha256: 7e64c851a5e0b2faff88346249ff321d951eca73a46a5a44efbc05f982a59597
+derivatives:
+  '480':
+    file: model-pace-cnn-stairs-480.webp
+    bytes: 12828
+    sha256: 6ffb2b7e70c86875851c6cdc5a9c973f3f6bf76acce456164783c15ec7149a94
+  '960':
+    file: model-pace-cnn-stairs-960.webp
+    bytes: 30562
+    sha256: 6a6d0f4eba76db5558248277605849c30dbc6d37462e6fa45f548024c157cc0a
+  '1600':
+    file: model-pace-cnn-stairs-1600.webp
+    bytes: 52288
+    sha256: a44c0d41555ddd7fb6e0110332d0b9724b34fe2d91941149957423cd5b55cd5a
+checks:
+  tools:
+    pillow: 12.3.0
+    opencv-python-headless: 5.0.0.93
+    rapidocr-onnxruntime: 1.4.4
+    onnxruntime: 1.31.0
+    yunet_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  ran: 2026-10-21T12:18:30+00:00
+  faces: pass
+  faces_below_threshold: 0
+  text: pass
+  bytes: pass
+  style: pass
+  duplicate: pass
+  measures:
+    phash: a9b36128a8dd17b5
+    other_share: 0.0357
+    accent_share: 0.0084
+    accent_largest_share: 0.4012
+    accent_top_share: 0.1235
+    accent_centroid:
+    - 0.59
+    - 0.367
+round: 3

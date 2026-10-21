@@ -413,6 +413,14 @@ precedence = "override"
 SPDX-FileCopyrightText = "NONE"
 SPDX-License-Identifier = "CC0-1.0"
 
+# Website image "Wide station staircase with figures walking up and down, standing and sitting" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
+# on the project's own hardware; dedicated to the public domain.
+[[annotations]]
+path = "zoo/site/images/model-pace-cnn-stairs/**"
+precedence = "override"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
+
 # Website image "Circuit board with a diagnostic plug on a workbench by a window" (feature 016): AI-generated with Qwen/Qwen-Image-2512 (revision 25468b98e3276ca6700de15c6628e51b7de54a26)
 # on the project's own hardware; dedicated to the public domain.
 [[annotations]]

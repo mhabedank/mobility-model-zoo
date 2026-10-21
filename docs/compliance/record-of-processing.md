@@ -44,5 +44,5 @@ Controller: Martin Habedank (private person), privacy@miskatonic-analytics.com. 
 - **Transfers to third countries:** United States; GitHub states that it complies with the EU-U.S. Data Privacy Framework.
 - **Retention:** by GitHub under its privacy statement; the controller receives and stores no visitor data.
 - **Technical and organisational measures:** static pages only; no cookies, analytics, tracking or third-party resources, checked automatically before every deployment (`zoo site check`, checks P1 and P2).
-- **Synthetic imagery:** the website carries 91 AI-generated images rendered on the controller's own hardware; they depict no real person, place or vehicle, so no personal data is processed. Their synthetic origin is disclosed on the credits page, in page footers, in alt texts and in the files' metadata (feature 016).
+- **Synthetic imagery:** the website carries 92 AI-generated images rendered on the controller's own hardware; they depict no real person, place or vehicle, so no personal data is processed. Their synthetic origin is disclosed on the credits page, in page footers, in alt texts and in the files' metadata (feature 016).
 

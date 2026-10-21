@@ -258,6 +258,11 @@ themes:
       prompt: an elevated bicycle bridge curving between buildings, only bicycles on it, one orange-yellow cyclist seen from behind, no cars
       scene: Elevated cycle highway curving between buildings
       alt: An elevated cycle highway curves between buildings with one orange-yellow cyclist seen from behind
+    # Model image of pace-cnn (activity recognition): the activities it tells apart (owner, 2026-10-21).
+    - id: station-stairs
+      prompt: a wide open-air station staircase in morning light, small figures seen from behind, some walking up the stairs, some walking down, one standing still at the top, one sitting on a bench at the foot of the stairs, one walking figure in an orange-yellow coat, a platform canopy above
+      scene: Wide station staircase with figures walking up and down, standing and sitting
+      alt: Small figures walk up and down a wide station staircase, one stands at the top, one sits on a bench, one wears an orange-yellow coat
     - id: walking-school
       reserve: true
       prompt: a group of small figures seen from behind walking along a path to a school, an orange-yellow bicycle beside them
