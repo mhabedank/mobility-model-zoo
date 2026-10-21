@@ -1,0 +1,124 @@
+{
+ "round": 3,
+ "series": "siebdruck",
+ "model": "Qwen/Qwen-Image-2512",
+ "container": "sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc",
+ "generator": "c2fbd8e",
+ "tools": {
+  "pillow": "12.3.0",
+  "opencv-python-headless": "5.0.0.93",
+  "rapidocr-onnxruntime": "1.4.4",
+  "onnxruntime": "1.31.0",
+  "yunet_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4"
+ },
+ "ran": "2026-10-21T10:39:33+00:00",
+ "summary": {
+  "candidates": 4,
+  "shown": 4,
+  "rejected": {},
+  "subjects": 1,
+  "subjects_without_candidate": []
+ },
+ "candidates": [
+  {
+   "file": "active--station-stairs--50048.png",
+   "theme": "active",
+   "subject": "station-stairs",
+   "seed": 50048,
+   "number": 1,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0153,
+    "accent_share": 0.0099,
+    "accent_largest_share": 0.3905,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.523,
+     0.4
+    ]
+   },
+   "phash": "3b057994193da763",
+   "focal_default": [
+    0.523,
+    0.4
+   ]
+  },
+  {
+   "file": "active--station-stairs--50049.png",
+   "theme": "active",
+   "subject": "station-stairs",
+   "seed": 50049,
+   "number": 2,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 4,
+    "other_share": 0.0121,
+    "accent_share": 0.0052,
+    "accent_largest_share": 0.4826,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.8,
+     0.718
+    ]
+   },
+   "phash": "0730e25ed68f91d3",
+   "focal_default": [
+    0.8,
+    0.718
+   ]
+  },
+  {
+   "file": "active--station-stairs--50050.png",
+   "theme": "active",
+   "subject": "station-stairs",
+   "seed": 50050,
+   "number": 3,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 2,
+    "other_share": 0.0137,
+    "accent_share": 0.0038,
+    "accent_largest_share": 0.5068,
+    "accent_top_share": 0.0,
+    "accent_centroid": [
+     0.381,
+     0.377
+    ]
+   },
+   "phash": "2686cd2899faeb07",
+   "focal_default": [
+    0.381,
+    0.377
+   ]
+  },
+  {
+   "file": "active--station-stairs--50051.png",
+   "theme": "active",
+   "subject": "station-stairs",
+   "seed": 50051,
+   "number": 4,
+   "outcome": "shown",
+   "reasons": [],
+   "measures": {
+    "faces_below_threshold": 0,
+    "other_share": 0.0357,
+    "accent_share": 0.0084,
+    "accent_largest_share": 0.4012,
+    "accent_top_share": 0.1235,
+    "accent_centroid": [
+     0.59,
+     0.367
+    ]
+   },
+   "phash": "a9b36128a8dd17b5",
+   "focal_default": [
+    0.59,
+    0.367
+   ]
+  }
+ ]
+}
