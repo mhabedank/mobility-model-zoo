@@ -11,9 +11,10 @@ parts:
   text: An opportunity without a place is hard to act on, and the first question was not which
     journey to map but whose.
 - part: 2
+  slug: how-big-is-the-question
   title: How big is the question?
-  text: Strategic, tactical and operational, the same three bands for every actor. Pain is felt
-    where it is not caused.
+  text: Strategic, tactical and operational looked like a second axis. The texts only say what
+    something is for, and pain is felt where it is not caused.
 - part: 3
   title: What follows what?
   text: Knowing the place is not knowing the order. A transition seen only across texts is a

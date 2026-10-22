@@ -157,4 +157,4 @@ for years. They are not only three different parties. They are working at three 
 sizes of question, and the smallest one is the only one anybody ever writes a forum post
 about.
 
-That is the next part.
+That is [the next part](../how-big-is-the-question/).
