@@ -208,6 +208,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "*.md",
             "docs/*",
             "specs/*",
+            "drafts/*",  # design and post drafts, not package code
             ".specify/*",
             ".claude/*",
             ".github/*",  # the other workflows filter their own paths

@@ -150,12 +150,14 @@ line-length = 105
 target-version = "py312"
 # Golden model cards must stay byte-exact (ruff would format their code blocks), and so must the
 # quickstart whose code blocks hold {snippet:<model>} fields (feature 013); the firmware build
-# scripts run inside PlatformIO's SCons environment (Import/env globals).
+# scripts run inside PlatformIO's SCons environment (Import/env globals). drafts/ holds throwaway
+# design and post scripts, not package code.
 extend-exclude = [
     "tests/release/fixtures",
     "tests/website/fixtures",
     "docs/quickstart.md",
     "firmware/**/scripts/*.py",
+    "drafts",
 ]
 
 [tool.ruff.lint]
