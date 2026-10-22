@@ -65,7 +65,7 @@
     "placements": {
       "type": "array",
       "uniqueItems": true,
-      "items": {"type": "string", "pattern": "^(start-hero|topic:[a-z0-9-]+|model:[a-z0-9-]+)$"}
+      "items": {"type": "string", "pattern": "^(start-hero|topic:[a-z0-9-]+|model:[a-z0-9-]+|note:[a-z0-9-]+)$"}
     },
     "scene": {"type": "string", "minLength": 20, "maxLength": 120},
     "alt": {"type": "string", "minLength": 40, "maxLength": 160, "pattern": "\\(AI-generated image\\)$"},
