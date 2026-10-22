@@ -29,7 +29,8 @@ generation:
     commit: unversioned
     image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
 licence: CC0-1.0
-placements: []
+placements:
+- note:how-big-is-the-question
 scene: Railway junction seen from above with fanning tracks
 alt: A railway junction seen from above with fanning tracks and one orange-yellow train (AI-generated
   image)
