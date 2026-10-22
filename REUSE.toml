@@ -14,6 +14,14 @@ precedence = "override"
 SPDX-FileCopyrightText = ["2022 The Figtree Project Authors", "2020 The JetBrains Mono Project Authors"]
 SPDX-License-Identifier = "OFL-1.1"
 
+# Field notes (feature 022): the prose and the drawings are the owner's own work and are published
+# so they may be reused with attribution, unlike the code around them.
+[[annotations]]
+path = "zoo/notes/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Martin Habedank"
+SPDX-License-Identifier = "CC-BY-4.0"
+
 # axe-core, vendored for the accessibility check of the website; never deployed.
 [[annotations]]
 path = "src/mobility_model_zoo/site/checks_vendor/**"
