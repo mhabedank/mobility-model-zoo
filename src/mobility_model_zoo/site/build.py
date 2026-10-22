@@ -361,7 +361,7 @@ def build(
             continue
         formats.append(fmt)
 
-    share = og.cards(reg, site, models, formats)
+    share = og.cards(reg, site, models, formats, placed)
     failures += og.card_errors(share)
     renderer = og.renderer_id(reg.root)
     for card in share:

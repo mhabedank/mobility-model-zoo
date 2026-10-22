@@ -2,8 +2,12 @@
 name to its motif, the coverage check M1 and the grammar lint M2.
 
 A motif is a hand-authored SVG in `static/img/motifs/<name>.svg`: a 96-unit grid, one group leaning
-`skewX(-8)`, round caps, strokes of 4.5 or 5 (ink), 8 (greys) and 12 or 16 (the one mint
+`skewX(-8)`, cut caps, strokes of 4.5 or 5 (ink), 8 (greys) and 12 or 16 (the one accent
 element), colours only from the tokens, no text. Every model the site shows must have one.
+
+Feature 023: the caps are cut (`square`), not round, so the motifs are printed in the same hand as
+the website imagery. `square` rather than `butt` because a square cap covers exactly what the round
+one covered, which keeps every motif's footprint and the zero-length runs that draw as dots.
 """
 
 from __future__ import annotations
@@ -111,16 +115,16 @@ def lint(path: Path) -> list[str]:
     attrs = _ATTR.findall(text)
     if sum(1 for k, v in attrs if k == "transform" and "skewX(-8)" in v) != 1:
         out.append(f"M2 {name}: needs exactly one group with skewX(-8)")
-    if not any(k == "stroke-linecap" and v == "round" for k, v in attrs):
-        out.append(f"M2 {name}: strokes are not round-capped")
+    if not any(k == "stroke-linecap" and v == "square" for k, v in attrs):
+        out.append(f"M2 {name}: strokes are not cut-capped (stroke-linecap square)")
     for k, v in attrs:
         if k == "stroke-width" and v not in STROKE_WIDTHS:
             out.append(f"M2 {name}: stroke-width {v} is not one of {sorted(STROKE_WIDTHS)}")
         if k in ("stroke", "fill") and v not in COLOURS | {"none"}:
             out.append(f"M2 {name}: colour {v} is not a token")
-    mint = sum(1 for k, v in attrs if k in ("stroke", "fill") and v == "var(--mark)")
-    if mint != 1:
-        out.append(f"M2 {name}: {mint} mint elements, needs exactly one")
+    accent = sum(1 for k, v in attrs if k in ("stroke", "fill") and v == "var(--mark)")
+    if accent != 1:
+        out.append(f"M2 {name}: {accent} accent elements, needs exactly one")
     return out
 
 

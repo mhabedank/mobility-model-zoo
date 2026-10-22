@@ -41,7 +41,12 @@ RESOURCE_ATTRS = {
 CSS_URL = re.compile(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)|@import\s+['"]([^'"]+)['"]""")
 # Advertising wording beyond the repository-wide markers of the compliance harness (FUNDING).
 ADVERTISING = re.compile(r"\b(sponsor|donate|donation|hire us|book a call)\b", re.I)
-MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 300_000
+MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 320_000
+# feature 023: the site-wide total is a guard against creeping growth, not a load-time one:
+# no visitor loads the whole site. Load time is guarded per page by S2 (LCP under Fast 3G),
+# S4 (bytes transferred) and MAX_PAGE_BYTES. The identity swap needs a wider token set than
+# the old one, and the total had 190 bytes of headroom left, so the total moves to 320 KB
+# while S2 keeps measuring the promise of SC-007 itself.
 # feature 022: notes grow with every post, so they leave the site-wide total and carry their own
 # budget (research R1 and R2). The stylesheet only they load is budgeted with them.
 MAX_NOTE_BYTES = 40_000
@@ -664,6 +669,19 @@ def check_og_layout(out: Path) -> Iterable[Finding]:
                 yield Finding("O2", name, f"{block} lies outside the {og.MARGIN} px margins")
             if block in ("mark", "title") and (x < lo - 0.5 or x + w > hi + 0.5):
                 yield Finding("O2", name, f"{block} lies outside the centre square x {lo}-{hi}")
+        # feature 023: the fitter shrinks the title to the available width, so nothing notices when
+        # a block runs into the one below it. `mark` sits inside `brand` by design; the rest are
+        # siblings and must never meet.
+        siblings = [(b, box) for b, box in layout["boxes"].items() if b != "mark" and box]
+        for i, (first, a) in enumerate(siblings):
+            for second, b in siblings[i + 1 :]:
+                if (
+                    a[0] < b[0] + b[2]
+                    and b[0] < a[0] + a[2]
+                    and a[1] < b[1] + b[3] - 0.5
+                    and b[1] < a[1] + a[3] - 0.5
+                ):
+                    yield Finding("O2", name, f"{first} and {second} overlap")
 
 
 def check_og_parity(reg: Registry, out: Path) -> Iterable[Finding]:

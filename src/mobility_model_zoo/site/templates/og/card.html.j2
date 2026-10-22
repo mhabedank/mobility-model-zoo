@@ -8,7 +8,8 @@
 <link rel="stylesheet" href="{{ root }}css/tokens.css">
 <link rel="stylesheet" href="{{ root }}css/og.css">
 </head>
-<body class="og og-{{ card.kind }}">
+<body class="og og-{{ card.kind }}{% if card.image %} og-illustrated{% endif %}">
+{% if card.image %}<img class="og-shot" src="{{ card.image.src }}" alt="" style="object-position: {{ card.image.position }}">{% endif %}
 <main class="og-stack">
 {% if card.motif %}<div class="og-motif" data-og="motif">{{ motif(card.motif, 96, plate="og") }}</div>{% endif %}
 <div class="og-brand" data-og="brand"><span class="og-mark" data-og="mark">{{ mark(88 if card.kind == "zoo" else 56) }}</span>{% if card.kind != "zoo" %}<span class="og-wordmark">Mobility Model Zoo</span>{% endif %}</div>

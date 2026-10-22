@@ -22,7 +22,11 @@ from mobility_model_zoo.release.errors import GateFailed, UsageError
 from mobility_model_zoo.site.facts import PLACEHOLDER, literal_numbers
 
 WIDTH, HEIGHT = 1200, 630
-MAX_BYTES = 300_000
+MAX_BYTES = 450_000
+# feature 023: the cards are illustrated, and a flat-colour illustration costs about 350 KB
+# as a PNG at this size. These bytes are not on a reader's path: check.py keeps assets/og/
+# out of the site total because link-preview crawlers fetch them, not visitors, and the
+# platforms accept megabytes. The headroom covers a more detailed model image later.
 MAX_LINE = 90
 MAX_LINES = 3
 TITLE_SIZES = (76, 60, 48)
@@ -31,7 +35,7 @@ SAFE_X = (285, 915)
 OG_DIR = "assets/og"
 CARD_DIR = "_build/og"
 MANIFEST = "_build/og.json"
-# The code points the shipped Figtree subset draws (research R7), read from its cmap; control
+# The code points the shipped Archivo subset draws (research R7), read from its cmap; control
 # characters are included because they are never drawn. tests/website/test_og_fonts.py
 # checks this list against the font file.
 LATIN_RANGES = (
@@ -65,7 +69,9 @@ NO_BROWSER = (
     "uv run playwright install chromium (or pass --no-images)"
 )
 ROADMAP_TITLE, ROADMAP_LINE = "What comes next", "What the zoo plans to release next."
-ASSET_REF = re.compile(r"""<link[^>]+href="([^"]+)"|url\(\s*['"]?([^'")]+)['"]?\s*\)""")
+ASSET_REF = re.compile(
+    r"""<link[^>]+href="([^"]+)"|url\(\s*['"]?([^'")]+)['"]?\s*\)|<img[^>]+src="([^"]+)\x22"""
+)
 
 
 # ---- the share line (B6) ----------------------------------------------------------------------
@@ -97,6 +103,25 @@ def share_line_errors(owner: str, text: str, from_tagline: bool = False) -> list
 
 
 # ---- cards ------------------------------------------------------------------------------------
+def _picture(placed: dict[str, Any] | None, placement: str, topic: str | None = None) -> Any:
+    """The card's illustration, through the page placements (feature 023). None keeps the
+    typographic card, so a page without an image is not a broken one."""
+    if not placed:
+        return None
+    from mobility_model_zoo.site import images as image_records
+
+    rec, _ = image_records.resolve(placed, placement, topic)
+    if not rec:
+        return None
+    # the card page sits two levels below the site root; its `root` points at assets/
+    return {
+        # the 1600 derivative: drawn at 1200 px it is downscaled, which keeps the flat colour
+        # fields flat. Upscaling the 960 one interpolates and costs a third more in PNG (O1).
+        "src": f"../../{image_records.ASSETS}/{rec['derivatives']['1600']['file']}",
+        "position": "{}% {}%".format(*(round(v * 100) for v in rec["focal_point"])),
+    }
+
+
 def _card(page: str, kind: str, slug: str, title: str, line: str, **extra: Any) -> dict[str, Any]:
     labels = extra.pop("labels", [])
     lead = f"Output format {title}" if kind == "format" else title
@@ -111,6 +136,7 @@ def _card(page: str, kind: str, slug: str, title: str, line: str, **extra: Any) 
         "alt": alt,
         "eyebrow": extra.pop("eyebrow", ""),
         "motif": extra.pop("motif", None),
+        "image": extra.pop("image", None),
         "owner": extra.pop("owner"),
         "from_tagline": extra.pop("from_tagline", False),
     }
@@ -136,11 +162,18 @@ def _motif_of(reg: Any, name: str) -> str | None:
 
 
 def cards(
-    reg: Any, site: dict[str, Any], models: list[dict[str, Any]], formats: list[dict[str, Any]]
+    reg: Any,
+    site: dict[str, Any],
+    models: list[dict[str, Any]],
+    formats: list[dict[str, Any]],
+    placed: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """One card per shareable page: the zoo, the roadmap, every published model, every output format."""
     line, from_tagline = share_line(site)
-    out = [_card("", "zoo", "zoo", site["title"], line, owner="zoo", from_tagline=from_tagline)]
+    out = [
+        _card("", "zoo", "zoo", site["title"], line, owner="zoo", from_tagline=from_tagline,
+              image=_picture(placed, "start-hero"))
+    ]
     # feature 015: the roadmap page; its line comes from zoo/site.yaml roadmap.share_line
     plan = " ".join(str((site.get("roadmap") or {}).get("share_line") or ROADMAP_LINE).split())
     out.append(
@@ -161,6 +194,7 @@ def cards(
                 labels=labels(sm),
                 eyebrow=topic["title"],
                 motif=_motif_of(reg, sm["name"]),
+                image=_picture(placed, f"model:{sm['name']}", sm["m"]["topic"]),
                 owner=sm["name"],
                 from_tagline=from_tagline,
             )
@@ -174,6 +208,7 @@ def cards(
                 fmt["id"],
                 " ".join(fmt["title"].split()),
                 eyebrow="Output format",
+                image=_picture(placed, f"model:{(fmt['produced_by'] or [{}])[0].get('name', '')}"),
                 owner=f"format {fmt['id']}",
             )
         )
@@ -190,6 +225,8 @@ def site_cards(reg: Any) -> list[dict[str, Any]]:
 
     formats = [schema_doc.output_format(reg, i) for i in schema_doc.format_ids(reg)]
     return cards(reg, context.load_site_config(reg), context.site_models(reg), [f for f in formats if f])
+    # note: no placements here on purpose - O4 compares title, line, labels and alt only, and the
+    # picture is covered by the card hash (O5) through the asset bytes it reads.
 
 
 # ---- card pages and their addresses -----------------------------------------------------------
@@ -200,7 +237,7 @@ def card_html(env: Any, card: dict[str, Any]) -> str:
 def assets(html: str, base: Path) -> list[Path]:
     """Files a card page loads: its style sheets and what they load in turn (fonts)."""
     found: list[Path] = []
-    todo = [(m[0] or m[1], base) for m in ASSET_REF.findall(html)]
+    todo = [(m[0] or m[1] or m[2], base) for m in ASSET_REF.findall(html)]
     while todo:
         ref, at = todo.pop()
         path = (at / ref).resolve()
@@ -209,7 +246,7 @@ def assets(html: str, base: Path) -> list[Path]:
         found.append(path)
         if path.suffix == ".css":
             css = path.read_text(encoding="utf-8")
-            todo += [(m[0] or m[1], path.parent) for m in ASSET_REF.findall(css)]
+            todo += [(m[0] or m[1] or m[2], path.parent) for m in ASSET_REF.findall(css)]
     return sorted(found)
 
 

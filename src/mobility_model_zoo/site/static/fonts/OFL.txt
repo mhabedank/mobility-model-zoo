@@ -1,8 +1,10 @@
-Copyright 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree)
+Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
 Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 
 Both fonts are licensed under the SIL Open Font License, Version 1.1. The files here are the
-variable Latin subsets (Figtree 2.002, JetBrains Mono 2.211), unmodified apart from subsetting.
+variable Latin subsets (Archivo, JetBrains Mono 2.211). Archivo keeps its weight and width
+axes, trimmed to 400-800 and 78-100 percent; otherwise both are unmodified apart from
+subsetting to the code points the site draws.
 
 SIL OPEN FONT LICENSE
 

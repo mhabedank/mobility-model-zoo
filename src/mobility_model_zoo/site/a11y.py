@@ -85,7 +85,8 @@ MASK_JS = """data => new Promise(resolve => {
 MOTIF_COLOURS_JS = """() => [...document.querySelectorAll('.plate')].slice(0, 1).map(p => {
   const s = getComputedStyle(p);
   return {plate: s.backgroundColor, text: s.getPropertyValue('--text').trim(),
-          grey: s.getPropertyValue('--border-strong').trim(), mint: s.getPropertyValue('--mark').trim()};
+          grey: s.getPropertyValue('--border-strong').trim(),
+          accent: s.getPropertyValue('--mark').trim()};
 })"""
 
 FOCUS_JS = """() => {
@@ -482,7 +483,7 @@ def motif_checks(browser, base: str, rels: list[str], out: Path) -> list[Finding
                 findings.append(Finding("M4", where, f"{scheme} {width}px: hero motif not visible"))
             if scheme == "light" and rel == "":
                 for c in page.evaluate(MOTIF_COLOURS_JS):
-                    for name in ("text", "grey", "mint"):
+                    for name in ("text", "grey", "accent"):
                         ratio = contrast_ratio(c[name], c["plate"])
                         if ratio is not None and ratio < MOTIF_MIN_CONTRAST:
                             findings.append(
@@ -505,8 +506,8 @@ def motif_distinctness(browser, out: Path) -> list[Finding]:
     page = browser.new_page(viewport={"width": 120, "height": 120}, color_scheme="dark")
     # the plate colours inline (set_content cannot load file: stylesheets); same values as .plate
     style = (
-        "body{margin:0;background:#fff}.plate{--text:#EEF1FF;--border-strong:#6F7DC4;--mark:#6FFFC8;"
-        "display:inline-grid;place-items:center;background:#111846}"
+        "body{margin:0;background:#fff}.plate{--text:#FBEED0;--border-strong:#A5DBC6;--mark:#ED9B20;"
+        "display:inline-grid;place-items:center;background:#062544}"
     )
     raster: dict[str, bytes] = {}
     for name, path in files.items():
