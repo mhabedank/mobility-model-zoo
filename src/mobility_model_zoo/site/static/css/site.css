@@ -6,7 +6,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  font-family: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 17px;
   line-height: 1.6;
   color: var(--text);
@@ -30,9 +30,14 @@ img, svg { max-width: 100%; }
   white-space: nowrap; }
 
 /* ---- type ------------------------------------------------------------------------------------ */
-.h-display { font-size: clamp(34px, 5.4vw, 52px); line-height: 1.08; font-weight: 700; letter-spacing: -.025em; }
-.h1 { font-size: clamp(30px, 4vw, 38px); line-height: 1.15; font-weight: 700; letter-spacing: -.02em; }
-.h2 { font-size: clamp(24px, 3vw, 30px); line-height: 1.2; font-weight: 700; letter-spacing: -.015em; }
+/* Feature 023: headlines are set narrow over Archivo's width axis, the way the poster headlines
+   of the period were. Body copy stays at full width, where the narrow cut would cost legibility. */
+.h-display { font-size: clamp(34px, 5.4vw, 52px); line-height: 1.08; font-weight: 700; letter-spacing: -.025em;
+  font-stretch: 80%; }
+.h1 { font-size: clamp(30px, 4vw, 38px); line-height: 1.15; font-weight: 700; letter-spacing: -.02em;
+  font-stretch: 80%; }
+.h2 { font-size: clamp(24px, 3vw, 30px); line-height: 1.2; font-weight: 700; letter-spacing: -.015em;
+  font-stretch: 82%; }
 .h3 { font-size: 22px; line-height: 1.3; font-weight: 650; letter-spacing: -.01em; }
 .lead { font-size: 20px; line-height: 1.55; }
 .small { font-size: 15px; line-height: 1.5; }
@@ -60,7 +65,7 @@ img, svg { max-width: 100%; }
 .hd-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px;
   padding: 8px 0; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none;
-  font-weight: 700; font-size: 18px; letter-spacing: -.01em; min-height: 44px; }
+  font-weight: 700; font-size: 18px; letter-spacing: -.01em; min-height: 44px; font-stretch: 92%; }
 .brand:hover { color: var(--text); }
 .nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
 .nav a { color: var(--text); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center;
@@ -185,7 +190,7 @@ details > .tw, details > .code { border: 0; border-radius: 0 0 10px 10px; }
 
 /* ---- charts ---------------------------------------------------------------------------------- */
 .ch { width: 100%; max-width: 560px; height: auto; }
-.ch text { fill: var(--text); font-family: "Figtree", system-ui, sans-serif; font-size: 13px; }
+.ch text { fill: var(--text); font-family: "Archivo", system-ui, sans-serif; font-size: 13px; }
 .ch .mut { fill: var(--muted); font-size: 12px; }
 .ch .ax { stroke: var(--border-strong); stroke-width: 1.5; fill: none; }
 .ch .gr { stroke: var(--border); stroke-width: 1; fill: none; }
@@ -287,8 +292,12 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 
 /* ---- feature 016: motif plates, image stages, credits ----------------------------------------- */
 /* A plate is the dark surface every motif sits on, in both colour schemes (research R9): the motif
-   colours keep at least 3:1 against it, which mint cannot on white. Tokens are re-declared locally. */
-.plate { --bg: #111846; --surface: #111846; --text: #EEF1FF; --border-strong: #6F7DC4; --mark: #6FFFC8;
+   colours keep at least 3:1 against it, which mint cannot on white. Tokens are re-declared locally.
+   Feature 023: the plate prints in the screenprint palette of the imagery, so a motif and a photo
+   of the same page share one set of inks. The single `--mark` element is the one warm accent the
+   art direction reserves for the vehicle or machine (zoo/site/images/series/siebdruck.yaml). */
+.plate { --bg: var(--poster-navy); --surface: var(--poster-navy); --text: var(--poster-cream);
+  --border-strong: var(--poster-mint); --mark: var(--poster-orange);
   display: inline-grid; place-items: center; flex: none; background: var(--surface); border-radius: 14px; }
 .plate svg { display: block; }
 .plate-72 { width: 72px; height: 72px; border-radius: 16px; }
@@ -302,9 +311,10 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 .mini .plate { margin-bottom: 4px; }
 
 /* Image stages: text never sits on an image (FR-004); the only overlap is the plate (X1). */
-.scheme-dark { --bg: #0A0F2E; --surface: #111846; --surface-2: #19235C; --text: #EEF1FF; --muted: #A7B1DE;
-  --border: #2F3C86; --border-strong: #6F7DC4; --link: #A3B5FF; --link-hover: #D2DBFF; --focus: #6FFFC8;
-  --accent: #6FFFC8; --on-accent: #0A0F2E; --mark: #6FFFC8; color: var(--text); background: var(--bg); }
+/* Sections that are dark in both colour schemes. CSS cannot reuse the media query's values,
+   so the night print is repeated here; both sets are generated from one source (feature 023). */
+.scheme-dark { --bg: #041C33; --surface: #062544; --surface-2: #0B3050; --text: #EDF3EF; --muted: #A3B5AD; --border: #17496F; --border-strong: #6C928C; --link: #8FC8E8; --link-hover: #CDE8F6; --focus: #ED9B20; --accent: #ED9B20; --on-accent: #062544; --mark: #ED9B20; --code-bg: #041C33; --job-bg: #0E3C5C; --job-ink: #9FD0EA; --pain-bg: #6B3A0E; --pain-ink: #F5C07A; --gain-bg: #14452F; --gain-ink: #9BD4A6; --s-a: #86B6D8; --s-b: #A5DBC6; --s-c: #ED9B20;
+  color: var(--text); background: var(--bg); }
 /* The start hero: full-bleed, a navy text panel hard against the image, poster-like (research R9). */
 .hero-full { display: grid; grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); padding: 0;
   min-height: min(72vh, 760px); }

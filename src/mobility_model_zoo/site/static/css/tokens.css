@@ -2,10 +2,14 @@
    (specs/008-zoo-website/design/source/identity-system.html). Light by default, dark when the
    system asks for it. Swapping the identity means changing this file only (FR-024). */
 
+/* Feature 023: a grotesque in the line of the 1957 Swiss faces, in place of the rounded
+   geometric Figtree. Both axes are kept: the width axis sets the poster headlines narrow.
+   Subset to the code points Figtree covered, so the drawable character set is unchanged. */
 @font-face {
-  font-family: "Figtree";
-  src: url("../fonts/Figtree-variable-latin.woff2") format("woff2");
-  font-weight: 300 900;
+  font-family: "Archivo";
+  src: url("../fonts/Archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-stretch: 78% 100%;
   font-style: normal;
   font-display: swap;
 }
@@ -19,57 +23,73 @@
 
 :root {
   color-scheme: light dark;
-  --bg:#F7F8FC;
-  --surface:#FFFFFF;
-  --surface-2:#EDF0FA;
-  --text:#0E1330;
-  --muted:#4B5478;
-  --border:#C9D0E8;
-  --border-strong:#6F7AA6;
-  --link:#1B3BD8;
-  --link-hover:#1228A6;
-  --focus:#1B3BD8;
-  --accent:#1B3BD8;
-  --on-accent:#FFFFFF;
-  --mark:#6FFFC8;
-  --code-bg:#EDF0FA;
-  --job-bg:#D6E0FF;
-  --job-ink:#1B3BD8;
-  --pain-bg:#FFDDBD;
-  --pain-ink:#A84A07;
-  --gain-bg:#B5F3D8;
-  --gain-ink:#0A6E4E;
-  --s-a:#1B3BD8;
-  --s-b:#6F7AA6;
-  --s-c:#A84A07;
-  --brand-blue: #1B3BD8;
-  --brand-mint: #6FFFC8;
+  /* Feature 023: one identity, taken from the website imagery. The page takes its light
+     from the sky of the illustrations, not from paper: in these images cream is a
+     highlight, never a surface, and as a surface it reads yellowed. The same light tone
+     returns as the ink of the night print. The warm accent stays rare so that it keeps
+     meaning 'this matters'; links are a deep blue-green instead. */
+  --bg:#EDF3EF;
+  --surface:#FBFDFA;
+  --surface-2:#E0EAE3;
+  --text:#062544;
+  --muted:#44564D;
+  --border:#C8D6CB;
+  --border-strong:#738678;
+  --link:#0B4A70;
+  --link-hover:#062544;
+  --focus:#A8500C;
+  --accent:#062544;
+  --on-accent:#EDF3EF;
+  --mark:#CA6A0A;
+  --code-bg:#E0EAE3;
+  --job-bg:#DCE9F2;
+  --job-ink:#0B4A70;
+  --pain-bg:#F9E3C4;
+  --pain-ink:#8A4310;
+  --gain-bg:#D8ECDC;
+  --gain-ink:#1C5E3F;
+  --s-a:#0B4A70;
+  --s-b:#5F8E8A;
+  --s-c:#A8500C;
+  /* The inks of the screenprint, shared by both schemes: plates and the mark are
+     printed surfaces, not page surfaces, and do not turn over with the scheme. */
+  --poster-navy: #062544;
+  --poster-cream: #FBEED0;
+  --poster-mint: #A5DBC6;
+  --poster-orange: #ED9B20;
+  /* The mark does turn over: dark ground on paper, paper ground on dark. */
+  --mark-ground: var(--poster-navy);
+  --mark-ink: var(--poster-cream);
+  --mark-accent: var(--poster-orange);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:#0A0F2E;
-    --surface:#111846;
-    --surface-2:#19235C;
-    --text:#EEF1FF;
-    --muted:#A7B1DE;
-    --border:#2F3C86;
-    --border-strong:#6F7DC4;
-    --link:#A3B5FF;
-    --link-hover:#D2DBFF;
-    --focus:#6FFFC8;
-    --accent:#6FFFC8;
-    --on-accent:#0A0F2E;
-    --mark:#6FFFC8;
-    --code-bg:#0D1338;
-    --job-bg:#2B41B0;
-    --job-ink:#A3B5FF;
-    --pain-bg:#8A4310;
-    --pain-ink:#FFB27A;
-    --gain-bg:#0B6148;
-    --gain-ink:#6FFFC8;
-    --s-a:#6FFFC8;
-    --s-b:#A7B1DE;
-    --s-c:#FFB27A;
+    /* Night print: the same inks, the paper turned over. */
+    --bg:#041C33;
+    --surface:#062544;
+    --surface-2:#0B3050;
+    --text:#EDF3EF;
+    --muted:#A3B5AD;
+    --border:#17496F;
+    --border-strong:#6C928C;
+    --link:#8FC8E8;
+    --link-hover:#CDE8F6;
+    --focus:#ED9B20;
+    --accent:#ED9B20;
+    --on-accent:#062544;
+    --mark:#ED9B20;
+    --code-bg:#041C33;
+    --job-bg:#0E3C5C;
+    --job-ink:#9FD0EA;
+    --pain-bg:#6B3A0E;
+    --pain-ink:#F5C07A;
+    --gain-bg:#14452F;
+    --gain-ink:#9BD4A6;
+    --s-a:#86B6D8;
+    --s-b:#A5DBC6;
+    --s-c:#ED9B20;
+    --mark-ground: var(--poster-cream);
+    --mark-ink: var(--poster-navy);
   }
 }

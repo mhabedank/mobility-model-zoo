@@ -9,7 +9,7 @@ Extends [008 checks](../../008-zoo-website/contracts/checks.md) and the preview-
 | Id | Kind | Rule | Requirement |
 |----|------|------|-------------|
 | **M1** | static | Every model the site shows (start tiles, roadmap entries, "Coming next" cards, model pages, preview cards) resolves to a motif through `motifs.resolve`. The finding names the model. | FR-019, FR-021, FR-025 |
-| **M2** | static | Every motif file follows the grammar: viewBox `0 0 96 96`; one group with `skewX(-8)`; round caps; stroke widths only 4.5, 5, 8, 12 or 16; colours only `var(--text)`, `var(--border-strong)` and `var(--mark)`; exactly one `var(--mark)` element; no `<text>`, gradient or raster image; at most 1.5 KB. | FR-019 |
+| **M2** | static | Every motif file follows the grammar: viewBox `0 0 96 96`; one group with `skewX(-8)`; cut caps (`stroke-linecap="square"`, feature 023); stroke widths only 4.5, 5, 8, 12 or 16; colours only `var(--text)`, `var(--border-strong)` and `var(--mark)`; exactly one `var(--mark)` element; no `<text>`, gradient or raster image; at most 1.5 KB. | FR-019 |
 | **M3** | browser | Each motif is rasterised at 96 px on its plate. For every pair, the ink masks overlap by at most half (Jaccard distance ≥ 0.5), so near-duplicates are caught while thin, different motifs pass. | FR-020 |
 | **M4** | browser | On start tiles the motif is at least 64 px tall, on roadmap entries and "Coming next" cards at least 40 px, in the model hero it is visible at 390 px width. | FR-022, FR-023 |
 | **M5** | browser | Motif strokes reach at least 3:1 contrast against the plate in light and dark mode. | FR-024 |

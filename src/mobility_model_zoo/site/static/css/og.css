@@ -4,7 +4,7 @@
 html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
 body.og {
   background: var(--bg); color: var(--text);
-  font-family: "Figtree", system-ui, sans-serif;
+  font-family: "Archivo", system-ui, sans-serif;
   display: flex; align-items: center; justify-content: center;
   position: relative; box-sizing: border-box; padding: 48px;
 }

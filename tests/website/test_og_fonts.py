@@ -15,7 +15,7 @@ pytest.importorskip("brotli")  # woff2 needs it
 
 def test_figtree_covers_the_allowed_ranges():
     path = resources.files("mobility_model_zoo.site").joinpath(
-        "static/fonts/Figtree-variable-latin.woff2"
+        "static/fonts/Archivo-variable-latin.woff2"
     )
     with resources.as_file(path) as font_file:
         cmap = ttLib.TTFont(font_file).getBestCmap()

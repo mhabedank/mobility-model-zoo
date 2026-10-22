@@ -31,7 +31,7 @@ SAFE_X = (285, 915)
 OG_DIR = "assets/og"
 CARD_DIR = "_build/og"
 MANIFEST = "_build/og.json"
-# The code points the shipped Figtree subset draws (research R7), read from its cmap; control
+# The code points the shipped Archivo subset draws (research R7), read from its cmap; control
 # characters are included because they are never drawn. tests/website/test_og_fonts.py
 # checks this list against the font file.
 LATIN_RANGES = (
