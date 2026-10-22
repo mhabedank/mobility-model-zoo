@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 # Trains one span-model candidate on the DGX Spark (feature 004, research R9, T033).
 #
-# Usage: scripts/spark/train_span.sh <candidate>          e.g. scripts/spark/train_span.sh c1
+# Usage: topics/productdev/scripts/spark/train_span.sh <candidate>   e.g. ... train_span.sh c1
 #
 # Needs SPARK_HOST=user@host in .env. Copies the committed repository (with .git, so the training
 # gates can check the release-bar commit), the frozen training data and the pilot's decision to
 # ~/mobility-model-zoo on the Spark, then runs `jtbd span train` and `jtbd span tune` in the
 # NVIDIA PyTorch container. The repository is mounted read-only except data/.
 #
+# Experiment tracking (feature 017): when .env sets MMZ_TRACKING_OFFLINE=1, the run writes an offline
+# log next to the model folder (data/models/span-xlmr-<candidate>.tracking/, never inside the folder,
+# which is staged as it is). Nothing else runs on the Spark and no tracking software is installed
+# there. Fetch and sync the log into the laptop's MLflow server, during or after the run:
+#   scripts/spark/tracking-pull.sh
+# Without the variable the run is as before.
+#
 # Follow: ssh "$SPARK_HOST" tail -f mobility-model-zoo/data/models/span-xlmr-<candidate>.train.log
 # Fetch:  rsync -a "$SPARK_HOST":mobility-model-zoo/data/models/span-xlmr-<candidate> data/models/
 set -euo pipefail
 cd "$(dirname "$0")/../../../.."
-CANDIDATE=${1:?usage: scripts/spark/train_span.sh <candidate>}
+CANDIDATE=${1:?usage: topics/productdev/scripts/spark/train_span.sh <candidate>}
 set -a
 # shellcheck disable=SC1091
 [ -f .env ] && . ./.env
@@ -22,6 +29,11 @@ REMOTE=mobility-model-zoo
 NAME=span-xlmr-$CANDIDATE
 CONFIG=configs/productdev/jtbd/span-train-v1.yaml
 IMAGE=nvcr.io/nvidia/pytorch:25.09-py3
+EXTRAS=jtbd
+TRACKING=""
+if [ "${MMZ_TRACKING_OFFLINE:-}" = "1" ]; then
+  TRACKING="-e MMZ_TRACKING_OFFLINE=1 -e MMZ_HARDWARE=dgx-spark"
+fi
 
 if [ -n "$(git status --porcelain -- src configs)" ]; then
   echo "uncommitted changes under src/ or configs/; commit them first" >&2
@@ -38,10 +50,10 @@ rsync -a --relative data/span-train-v1/chunks data/span-train-v1/rows \
   data/span-train-v1/frozen.json $(ls data/analysis/*/decision.json) "$SPARK:$REMOTE/"
 
 ssh "$SPARK" "docker rm -f $NAME >/dev/null 2>&1 || true; docker run -d --name $NAME --gpus all \
-  --ipc=host -e PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True -e GIT_OPTIONAL_LOCKS=0 \
+  --ipc=host -e PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True -e GIT_OPTIONAL_LOCKS=0 $TRACKING \
   -v \$HOME/$REMOTE:/work:ro -v \$HOME/$REMOTE/data:/work/data \
   -v \$HOME/.cache/huggingface:/root/.cache/huggingface $IMAGE bash -c 'cd /work && { \
-  git config --global --add safe.directory /work && pip install -q \"/work[jtbd]\" \
+  git config --global --add safe.directory /work && pip install -q \"/work[$EXTRAS]\" \
   && jtbd --config $CONFIG span train --out data/models/$NAME --device cuda \
   && jtbd --config $CONFIG span tune --model-dir data/models/$NAME; \
   } > data/models/$NAME.train.log 2>&1; echo \"exit \$?\" >> data/models/$NAME.train.log; \

@@ -86,6 +86,8 @@ AREAS: dict[str, Area] = {
     "catalog": Area(("tests/catalog", "tests/compliance/test_signals.py")),
     # Website imagery (feature 016): records under zoo/site/images, the generator and its tests.
     "images": Area(("tests/website", "tests/imagery")),
+    # Experiment tracking client (feature 017); `zoo data publish` feeds it the datasets overview.
+    "tracking": Area(("tests/tracking", "tests/datasets")),
     # The selector and its fixtures: its tests are a guard every pull request runs (GUARDS).
     "ci-select": Area(()),
     # Covered by the checks every pull request runs (ruff, guards, zoo validate, compliance).
@@ -123,7 +125,18 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
     ("release-tests", ("specs/*/contracts/release/*",)),
     # The same for the compliance register schemas (tests/compliance/test_register_schemas.py).
     ("compliance-tests", ("specs/*/contracts/compliance/*",)),
-    ("datasets-tests", ("tests/datasets/*",)),
+    ("datasets-tests", ("tests/datasets/*", "tests/fixtures/inventory/*", "tests/inventory_helpers.py")),
+    (
+        "tracking",
+        (
+            f"{SRC}/tracking/*",
+            "tests/tracking/*",
+            "tests/tracking_helpers.py",
+            # laptop server and Spark log fetch (feature 017); their syntax is checked in tests/tracking
+            "scripts/mlflow/*",
+            "scripts/spark/tracking-pull.sh",
+        ),
+    ),
     (
         "catalog",
         (
@@ -214,6 +227,7 @@ RULES: list[tuple[str, tuple[str, ...]]] = [
             "scripts/import/*",
             "scripts/hf_org_avatar.py",
             "scripts/setup-cloud.sh",
+            "scripts/spark/*",  # other Spark scripts, run by the owner
             ".gitignore",
             ".gitattributes",
             ".gitleaksignore",  # the secret scan runs on every pull request
