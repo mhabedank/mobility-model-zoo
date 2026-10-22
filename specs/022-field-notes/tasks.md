@@ -163,7 +163,7 @@ terms.
 - [X] T042 Run the full gate, not only the site checks: `uv run ruff check`, the guard tests from `scripts/ci/select_tests.py --guards`, `uv run zoo validate --all`, `uv run zoo roadmap check`, `uv run zoo compliance check --ci`, then `uv run zoo site build --offline` and `uv run --group site-check zoo site check --a11y`. The site checks alone are not the gate: this feature's first pull request went red on the linter while every site check was green
 - [X] T043 Run `uv run zoo site check --only L2` and confirm it passes with the references in `zoo/notes/01-whose-journey.md`, with no DOI travelling as a link rather than as text (contract L2)
 - [X] T044 Read part one end to end at `/notes/whose-journey/` on a phone and a desktop in both colour modes before publishing, as the last human check of SC-001
-- [ ] T045 Publish: open the pull request for `022-field-notes`, merge it, and confirm the deployed site serves the note, lists it on the index and shows the navigation entry (FR-017)
+- [X] T045 Publish: open the pull request for `022-field-notes`, merge it, and confirm the deployed site serves the note, lists it on the index and shows the navigation entry (FR-017)
 
 ---
 
