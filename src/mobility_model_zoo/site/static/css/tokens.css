@@ -1,6 +1,7 @@
-/* Design tokens of the zoo website (feature 008), from the Claude Design identity sheet
-   (specs/008-zoo-website/design/source/identity-system.html). Light by default, dark when the
-   system asks for it. Swapping the identity means changing this file only (FR-024). */
+/* Design tokens of the zoo website. Since feature 023 the identity is taken from the website
+   imagery, not from the 008 identity sheet, which that feature supersedes. Light by default,
+   dark when the system asks for it. Swapping the identity is this file plus the `.scheme-dark`
+   copy in site.css, which CSS cannot avoid; both are generated from one source. */
 
 /* Feature 023: a grotesque with a width axis; headlines are set narrow. */
 @font-face {

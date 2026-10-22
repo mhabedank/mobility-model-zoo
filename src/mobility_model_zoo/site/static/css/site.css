@@ -1,5 +1,6 @@
-/* Components of the zoo website (feature 008), after the Claude Design identity sheet
-   (specs/008-zoo-website/design/source/identity-system.html). Colours come from tokens.css only.
+/* Components of the zoo website. Since feature 023 the look follows the screenprint imagery,
+   not the 008 identity sheet. Colours come from tokens.css only, with one exception CSS forces:
+   `.scheme-dark` repeats the night print for sections that are dark in both schemes.
    Flat and quiet: borders instead of shadows; the focus ring is never removed. */
 
 *, *::before, *::after { box-sizing: border-box; }
