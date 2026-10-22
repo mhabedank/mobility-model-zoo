@@ -41,16 +41,16 @@ RESOURCE_ATTRS = {
 CSS_URL = re.compile(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)|@import\s+['"]([^'"]+)['"]""")
 # Advertising wording beyond the repository-wide markers of the compliance harness (FUNDING).
 ADVERTISING = re.compile(r"\b(sponsor|donate|donation|hire us|book a call)\b", re.I)
-MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 320_000
-# feature 023: the site-wide total is a guard against creeping growth, not a load-time one:
-# no visitor loads the whole site. Load time is guarded per page by S2 (LCP under Fast 3G),
-# S4 (bytes transferred) and MAX_PAGE_BYTES. The identity swap needs a wider token set than
-# the old one, and the total had 190 bytes of headroom left, so the total moves to 320 KB
-# while S2 keeps measuring the promise of SC-007 itself.
+MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 300_000
+# The site-wide total is a guard against creeping growth, not a load-time one: no visitor loads
+# the whole site. Load time is guarded per page by S2 (LCP under Fast 3G), S4 (bytes transferred)
+# and MAX_PAGE_BYTES. Feature 023 raised the total to 320 KB; feature 024 puts it back, because
+# model pages left it (see `grows_with_content`).
 # feature 022: notes grow with every post, so they leave the site-wide total and carry their own
 # budget (research R1 and R2). The stylesheet only they load is budgeted with them.
 MAX_NOTE_BYTES = 40_000
 NOTE_PAGES = re.compile(r"^notes/(index\.html|[^/]+/index\.html)$")
+MODEL_PAGES = re.compile(r"^models/[^/]+/index\.html$")  # feature 024
 NOTE_CSS = "assets/css/notes.css"
 
 
@@ -478,6 +478,21 @@ def is_note(where: str) -> bool:
     return bool(NOTE_PAGES.match(where)) or where == NOTE_CSS
 
 
+def grows_with_content(where: str) -> bool:
+    """A page the site-wide total cannot govern, because the catalogue adds more of them.
+
+    Feature 022 took the notes out for this reason: they grow with every post. Model pages grow
+    with every model and again with every release, and what makes them heavy is the record
+    itself - the metrics tables and the release history with its change descriptions. Measured at
+    three models they averaged 51 KB, so the eleven on the roadmap would put the total near
+    870 KB and the limit would move every second model, which is not a limit.
+
+    They keep MAX_PAGE_BYTES, which is what a reader actually waits for; the heaviest model page
+    is at 60 KB of 150 KB (feature 024).
+    """
+    return bool(MODEL_PAGES.match(where)) or is_note(where)
+
+
 def check_size(out: Path) -> Iterable[Finding]:
     """S1: page weight and deferred scripts, for the pages the site-wide budget still governs."""
     total = sum(
@@ -491,7 +506,7 @@ def check_size(out: Path) -> Iterable[Finding]:
         and not rel(out, p).startswith(
             images.ASSETS + "/"
         )  # one page loads only its own (feature 016, S4)
-        and not is_note(rel(out, p))  # budgeted by N4 (feature 022)
+        and not grows_with_content(rel(out, p))  # N4 (feature 022), S1 per page (024)
     )
     if total > MAX_TOTAL_BYTES:
         yield Finding("S1", "(site)", f"{total} bytes without fonts, more than {MAX_TOTAL_BYTES}")
