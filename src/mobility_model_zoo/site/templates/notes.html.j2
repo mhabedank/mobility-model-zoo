@@ -1,0 +1,42 @@
+{% extends "base.html.j2" %}
+{% block title %}Field notes · {{ site.title }}{% endblock %}
+{% block description %}Working notes on how the models in the zoo are built, and on the decisions behind them.{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ root }}assets/css/notes.css">{% endblock %}
+{% block main %}
+<section class="sec note-index"><div class="wrap">
+<header class="note-index-head">
+<span class="eyebrow">Field notes</span>
+<h1 class="h-display">How this gets built</h1>
+<p class="note-lede">Working notes on the thinking behind the models: what was decided, what was rejected, and where it does not hold yet.</p>
+</header>
+{% if series %}
+<div class="note-series">
+{% if hero %}
+<figure class="note-series-hero">
+<img data-image="{{ hero.id }}" src="{{ hero.src }}" srcset="{{ hero.srcset }}" sizes="(min-width: 860px) 744px, 100vw" width="{{ hero.width }}" height="{{ hero.height }}" alt="{{ hero.alt }}" fetchpriority="high" decoding="async" style="object-position:{{ hero.position }}">
+</figure>
+{% endif %}
+<div class="note-series-head">
+<span class="eyebrow">The series so far</span>
+<h2 class="note-series-title">{{ series.title }}</h2>
+<p class="note-series-intro">{{ series.intro }}</p>
+</div>
+<ol class="note-series-list">
+{% for p in series.parts %}
+<li class="note-item{{ ' note-planned' if not p.published }}">
+<div class="note-item-main">
+<span class="note-item-num">Part {{ p.part }}</span>
+<h3 class="note-item-title">{% if p.published %}<a href="{{ root }}{{ p.href }}">{{ p.title }}</a>{% else %}{{ p.title }}{% endif %}</h3>
+<p class="note-item-text">{{ p.text }}</p>
+<p class="note-item-meta">{% if p.published %}<time datetime="{{ p.date }}">{{ p.date }}</time>{% else %}<span class="chip note-chip">Planned</span>{% endif %}</p>
+</div>
+{% if p.image %}
+<div class="note-item-thumb"><img data-image="{{ p.image.id }}" src="{{ p.image.src }}" srcset="{{ p.image.srcset }}" sizes="200px" width="{{ p.image.width }}" height="{{ p.image.height }}" alt="{{ p.image.alt }}" loading="lazy" decoding="async" style="object-position:{{ p.image.position }}"></div>
+{% endif %}
+</li>
+{% endfor %}
+</ol>
+</div>
+{% endif %}
+</div></section>
+{% endblock %}

@@ -39,6 +39,7 @@ from mobility_model_zoo.site import (
     examples,
     facts,
     motifs,
+    notes as note_content,
     og,
     roadmap,
     schema_doc,
@@ -369,7 +370,8 @@ def build(
         card["file"] = og.card_file(card, card["inputs_sha256"])
     by_page = {c["page"]: c for c in share}
 
-    common = {"site": site, "has_images": bool(records)}
+    notes = note_content.posts(reg.root)
+    common = {"site": site, "has_images": bool(records), "has_notes": bool(notes)}
     pages = 0
 
     def render(rel: str, template: str, root: str, path: str, **ctx: Any) -> None:
@@ -419,6 +421,39 @@ def build(
             render("quickstart/index.html", "quickstart.html.j2", "../", "quickstart/", body=body)
     if plan:
         render("roadmap/index.html", "roadmap.html.j2", "../", "roadmap/", r=ahead)
+    # feature 022: the field notes, one page per note plus the series index
+    for note in notes:
+        lead = picture(note["lead_image"], None, "../../") if note.get("lead_image") else None
+        render(
+            f"notes/{note['slug']}/index.html",
+            "note.html.j2",
+            "../../",
+            note["path"],
+            post=note,
+            lead=lead,
+            page_images=[lead] if lead else [],
+        )
+    if notes:
+        overview = note_content.series(reg.root, notes)
+        thumbs = []
+        if overview:
+            by_slug = {n["slug"]: n for n in notes}
+            for part in overview.get("parts") or []:
+                post = by_slug.get(part.get("slug") or "")
+                part["image"] = picture(post["lead_image"], None, "../") if post else None
+                if part["image"]:
+                    thumbs.append(part["image"])
+        hero = picture("note:series", None, "../")
+        render(
+            "notes/index.html",
+            "notes.html.j2",
+            "../",
+            "notes/",
+            notes=notes,
+            series=overview,
+            hero=hero,
+            page_images=([hero] if hero else []) + thumbs,
+        )
     topics = [site_topic(reg, t) for t in reg.topics() if t["id"] != "sandbox"]
     hero_image = picture("start-hero", None, "", eager=True)
     topic_images = {t["id"]: picture(f"topic:{t['id']}", None, "") for t in topics}
@@ -448,7 +483,11 @@ def build(
             "credits.html.j2",
             "../",
             "credits/",
-            entries=image_records.credits(placed_records, {"start": "../"}),
+            entries=image_records.credits(
+                placed_records,
+                {"start": "../"},
+                {n["slug"]: n["title"] for n in notes},
+            ),
             licence_label="CC0 1.0",
             thumbs={r["id"]: image_records.view(r, "../") for r in placed_records},
             page_images=[image_records.view(r, "../") for r in placed_records],

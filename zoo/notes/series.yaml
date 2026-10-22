@@ -1,0 +1,28 @@
+# The field note series (proof of concept). Parts without a published post show as planned.
+id: mapping-the-mobility-experience
+title: Mapping the mobility experience
+intro: >-
+  Five notes written while trying to build a model that reads customer journeys out of text.
+  Each one ends at the question the next one had to answer.
+parts:
+- part: 1
+  slug: whose-journey
+  title: Whose journey?
+  text: An opportunity without a place is hard to act on, and the first question was not which
+    journey to map but whose.
+- part: 2
+  title: How big is the question?
+  text: Strategic, tactical and operational, the same three bands for every actor. Pain is felt
+    where it is not caused.
+- part: 3
+  title: What follows what?
+  text: Knowing the place is not knowing the order. A transition seen only across texts is a
+    hypothesis, not evidence.
+- part: 4
+  title: The gaps
+  text: Three kinds of hole in a map, and why letting a model fill the third one is
+    confabulation with an ontology as an alibi.
+- part: 5
+  title: What the map has to earn
+  text: The test is which decision falls out differently. A map is an instrument of
+    exploitation, not exploration.

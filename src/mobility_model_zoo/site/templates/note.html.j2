@@ -1,0 +1,34 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ post.title }} · {{ site.title }}{% endblock %}
+{% block description %}{{ post.description }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ root }}assets/css/notes.css">{% endblock %}
+{% block main %}
+<article class="sec note-page"><div class="wrap">
+<header class="note-head stack" style="gap:14px">
+{% if post.get("series") %}<span class="eyebrow">{{ post.series }} · Part {{ post.part }} of {{ post.parts }}</span>{% endif %}
+<h1 class="h-display">{{ post.title }}</h1>
+<p class="lead">{{ post.description }}</p>
+<p class="cap">By {{ post.author }} · <time datetime="{{ post.date }}">{{ post.date }}</time></p>
+</header>
+{% if lead %}
+<figure class="note-lead">
+<img data-image="{{ lead.id }}" src="{{ lead.src }}" srcset="{{ lead.srcset }}" sizes="(min-width: 860px) 760px, 100vw" width="{{ lead.width }}" height="{{ lead.height }}" alt="{{ lead.alt }}" fetchpriority="high" decoding="async" style="object-position:{{ lead.position }}">
+</figure>
+<p class="cap note-credit">{{ post.lead_caption }} <a href="{{ root }}credits/">Image credits</a>.</p>
+{% endif %}
+<div class="note-body">{{ post.body }}</div>
+{% if post.references %}
+<section class="note-refs" aria-labelledby="refs-h">
+<h2 class="h3" id="refs-h">References</h2>
+<ol>
+{% for r in post.references %}
+<li id="ref-{{ r.id }}">{{ r.text }}{% if r.get('url') %} <a href="{{ r.url }}">{{ r.link_label }}</a>{% endif %} <a class="note-cite-back" href="#cite-{{ r.id }}" aria-label="Back to where this is cited">&#8617;</a></li>
+{% endfor %}
+</ol>
+</section>
+{% endif %}
+<footer class="note-foot">
+<p class="cap">Text and diagrams on this page: © {{ post.date[:4] }} {{ post.author }}, published under <a href="{{ post.licence_url }}">{{ post.licence_label }}</a>. Reuse them anywhere, including commercially, as long as you name the author and link back to this page.</p>
+</footer>
+</div></article>
+{% endblock %}
