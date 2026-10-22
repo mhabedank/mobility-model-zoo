@@ -85,7 +85,8 @@ MASK_JS = """data => new Promise(resolve => {
 MOTIF_COLOURS_JS = """() => [...document.querySelectorAll('.plate')].slice(0, 1).map(p => {
   const s = getComputedStyle(p);
   return {plate: s.backgroundColor, text: s.getPropertyValue('--text').trim(),
-          grey: s.getPropertyValue('--border-strong').trim(), accent: s.getPropertyValue('--mark').trim()};
+          grey: s.getPropertyValue('--border-strong').trim(),
+          accent: s.getPropertyValue('--mark').trim()};
 })"""
 
 FOCUS_JS = """() => {
