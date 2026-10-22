@@ -115,7 +115,7 @@ The project website (`zoo site`) bundles these works. They are not part of any m
 
 | Work | Copyright | Licence | Where |
 |---|---|---|---|
-| Figtree 2.002 (variable, Latin subset) | 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
+| Archivo (variable, Latin subset, axes trimmed) | 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
 | JetBrains Mono 2.211 (variable, Latin subset) | 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | OFL-1.1 | `src/mobility_model_zoo/site/static/fonts/` |
 | axe-core 4.14.0 (only used by the accessibility check, not deployed) | 2015-2026 Deque Systems, Inc. | MPL-2.0 | `src/mobility_model_zoo/site/checks_vendor/` |
 
