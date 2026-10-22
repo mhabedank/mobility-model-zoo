@@ -29,7 +29,8 @@ generation:
     commit: unversioned
     image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
 licence: CC0-1.0
-placements: []
+placements:
+- note:whose-journey
 scene: Empty station platform under a long steel canopy
 alt: An empty station platform under a long steel canopy with an orange-yellow train at the far end (AI-generated
   image)

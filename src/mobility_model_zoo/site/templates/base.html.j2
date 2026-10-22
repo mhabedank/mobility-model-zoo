@@ -25,6 +25,7 @@
 <link rel="preload" href="{{ root }}assets/fonts/JetBrainsMono-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ root }}assets/css/tokens.css">
 <link rel="stylesheet" href="{{ root }}assets/css/site.css">
+{% block page_css %}{% endblock %}
 <script src="{{ root }}assets/js/site.js" defer></script>
 </head>
 <body>
@@ -35,6 +36,7 @@
 <nav class="nav" aria-label="Main">
 <a href="{{ root }}#models">Models</a>
 <a href="{{ root }}roadmap/">Roadmap</a>
+{% if has_notes %}<a href="{{ root }}notes/">Field notes</a>{% endif %}
 <a href="{{ root }}#topics">Topics</a>
 <a href="{{ root }}#principles">Principles</a>
 <a href="{{ site.hf_org }}">Hugging Face</a>

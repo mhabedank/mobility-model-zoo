@@ -313,7 +313,11 @@ def view(rec: dict[str, Any], root: str, eager: bool = False) -> dict[str, Any]:
     }
 
 
-def credits(records: list[dict[str, Any]], pages: dict[str, str]) -> list[dict[str, Any]]:
+def credits(
+    records: list[dict[str, Any]],
+    pages: dict[str, str],
+    note_titles: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
     """Entries of /credits/ (data-model.md "Credits entry"): one per record, in id order."""
     out = []
     for rec in sorted(records, key=lambda r: r["id"]):
@@ -327,6 +331,11 @@ def credits(records: list[dict[str, Any]], pages: dict[str, str]) -> list[dict[s
                 used.append({"label": f"Topic {target}", "href": pages["start"] + "#topics"})
             elif kind == "model":
                 used.append({"label": target, "href": f"{pages['start']}models/{target}/"})
+            elif kind == "note" and target == "series":
+                used.append({"label": "Field notes", "href": f"{pages['start']}notes/"})
+            elif kind == "note":
+                title = (note_titles or {}).get(target, target)
+                used.append({"label": title, "href": f"{pages['start']}notes/{target}/"})
         out.append(
             {
                 "id": rec["id"],

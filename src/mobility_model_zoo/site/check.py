@@ -42,6 +42,11 @@ CSS_URL = re.compile(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)|@import\s+['"]([^'"]+)
 # Advertising wording beyond the repository-wide markers of the compliance harness (FUNDING).
 ADVERTISING = re.compile(r"\b(sponsor|donate|donation|hire us|book a call)\b", re.I)
 MAX_PAGE_BYTES, MAX_TOTAL_BYTES = 150_000, 300_000
+# feature 022: notes grow with every post, so they leave the site-wide total and carry their own
+# budget (research R1 and R2). The stylesheet only they load is budgeted with them.
+MAX_NOTE_BYTES = 40_000
+NOTE_PAGES = re.compile(r"^notes/(index\.html|[^/]+/index\.html)$")
+NOTE_CSS = "assets/css/notes.css"
 
 
 class Finding(tuple):
@@ -463,8 +468,13 @@ def check_branding(site: dict, out: Path) -> Iterable[Finding]:
                 yield Finding("P3", rel(out, path), f"advertising wording {m.group(0)!r}")
 
 
+def is_note(where: str) -> bool:
+    """A page or asset governed by the note budget instead of the site-wide one (feature 022)."""
+    return bool(NOTE_PAGES.match(where)) or where == NOTE_CSS
+
+
 def check_size(out: Path) -> Iterable[Finding]:
-    """S1: page weight and deferred scripts."""
+    """S1: page weight and deferred scripts, for the pages the site-wide budget still governs."""
     total = sum(
         p.stat().st_size
         for p in out.rglob("*")
@@ -476,16 +486,73 @@ def check_size(out: Path) -> Iterable[Finding]:
         and not rel(out, p).startswith(
             images.ASSETS + "/"
         )  # one page loads only its own (feature 016, S4)
+        and not is_note(rel(out, p))  # budgeted by N4 (feature 022)
     )
     if total > MAX_TOTAL_BYTES:
         yield Finding("S1", "(site)", f"{total} bytes without fonts, more than {MAX_TOTAL_BYTES}")
     for path in pages(out):
         size = path.stat().st_size
-        if size > MAX_PAGE_BYTES:
+        if size > MAX_PAGE_BYTES and not is_note(rel(out, path)):
             yield Finding("S1", rel(out, path), f"{size} bytes, more than {MAX_PAGE_BYTES}")
         for script in parse(path).scripts:
             if script.get("src") and "defer" not in script:
                 yield Finding("S1", rel(out, path), f"script {script['src']} is not deferred")
+
+
+# ---- field notes (feature 022, specs/022-field-notes/contracts/checks.md) ----------------------
+_SVG_PAINT = re.compile(r'\b(fill|stroke|stop-color|color)="([^"]*)"')
+_SVG_BANNED = ("<linearGradient", "<radialGradient", "<pattern", "<image", "<foreignObject", "href=")
+_PAINT_OK = re.compile(r"^(none|currentColor|var\(--[a-z0-9-]+\))$")
+
+
+def check_note_diagrams(reg: Registry) -> Iterable[Finding]:
+    """N3: a drawing takes colour only from the site's tokens, so one file serves both modes."""
+    from mobility_model_zoo.site import notes as note_content
+
+    folder = reg.root / note_content.DIR / note_content.DIAGRAMS
+    for path in sorted(folder.glob("*.svg")) if folder.is_dir() else []:
+        where = f"{note_content.DIR}/{note_content.DIAGRAMS}/{path.name}"
+        svg = path.read_text(encoding="utf-8")
+        for name, value in _SVG_PAINT.findall(svg):
+            if not _PAINT_OK.match(value.strip()):
+                yield Finding("N3", where, f"{name}={value!r} is not a colour token")
+        for banned in _SVG_BANNED:
+            if banned in svg:
+                yield Finding("N3", where, f"contains {banned!r}")
+        for needed in ("<title", "<desc"):
+            if needed not in svg:
+                yield Finding("N3", where, f"has no {needed}> for screen readers")
+
+
+def check_note_series(reg: Registry, out: Path) -> Iterable[Finding]:
+    """N6: a series part is either a published note or marked planned, and never a dead link."""
+    from mobility_model_zoo.site import notes as note_content
+
+    found = note_content.posts(reg.root)
+    overview = note_content.series(reg.root, found)
+    if overview is None:
+        return
+    where = f"{note_content.DIR}/{note_content.SERIES}"
+    for part in overview.get("parts") or []:
+        label = f"part {part.get('part')}"
+        if part.get("published"):
+            target = out / "notes" / (part.get("slug") or "") / "index.html"
+            if not target.is_file():
+                yield Finding("N6", where, f"{label} links to {target.name}, which is not built")
+        elif part.get("href"):
+            yield Finding("N6", where, f"{label} is not published but carries a link")
+        elif not part.get("title") or not part.get("text"):
+            yield Finding("N6", where, f"{label} is planned but says nothing about itself")
+
+
+def check_note_size(out: Path) -> Iterable[Finding]:
+    """N4: a note page is at most MAX_NOTE_BYTES without fonts and images."""
+    for path in pages(out):
+        where = rel(out, path)
+        if NOTE_PAGES.match(where):
+            size = path.stat().st_size
+            if size > MAX_NOTE_BYTES:
+                yield Finding("N4", where, f"{size} bytes, more than {MAX_NOTE_BYTES}")
 
 
 # ---- preview images (feature 012, specs/012-social-preview-images/contracts/checks.md) ---------
@@ -701,7 +768,10 @@ def check_roadmap_pages(reg: Registry, out: Path) -> Iterable[Finding]:
 
 
 # ---- feature 016: motifs (M1, M2) and images (I1-I3, C1, X1) ----------------------------------
-IMAGE_PAGES = re.compile(r"^(index\.html|models/[^/]+/index\.html|credits/index\.html)$")
+IMAGE_PAGES = re.compile(
+    r"^(index\.html|models/[^/]+/index\.html|credits/index\.html"
+    r"|notes/index\.html|notes/[^/]+/index\.html)$"
+)
 
 
 def check_motifs(reg: Registry) -> Iterable[Finding]:
@@ -858,6 +928,9 @@ def run_checks(
         ("P1", lambda: check_resources(out)),
         ("P3", lambda: check_branding(site, out)),
         ("S1", lambda: check_size(out)),
+        ("N3", lambda: check_note_diagrams(reg)),
+        ("N4", lambda: check_note_size(out)),
+        ("N6", lambda: check_note_series(reg, out)),
         ("E1", lambda: check_language(out)),
         ("O1", lambda: check_og_files(site, out)),
         ("O2", lambda: check_og_layout(out)),

@@ -12,10 +12,57 @@ The website at https://mhabedank.github.io/mobility-model-zoo/ is a set of stati
 | Model page `/models/<name>/` | six layers of increasing depth (feature 014): overview, quality and speed, limits and status, quickstart, reference (interface and worked examples), details and documents (all metrics, provenance, versions, citation) | `model.yaml` (including the card short forms), `zoo/models/<name>/site.yaml`, release records, `results/<version>/*.json`, `examples/`, the published model card |
 | Output format `/formats/<id>/` | every field with type, allowed values and meaning | the format's JSON schema and `zoo/formats/<id>.yaml` |
 | Image credits `/credits/` | every image on the site with its AI-generated disclosure, model, date and placements (feature 016) | `zoo/site/images/<id>/image.yaml` |
+| Field notes `/notes/` and `/notes/<slug>/` | the series index and one page per long-form note on how the models are built (feature 022) | `zoo/notes/*.md`, `zoo/notes/series.yaml`, `zoo/notes/diagrams/*.svg` |
 
 The layers and what each may contain are in [page-layers.md](../specs/014-model-page-layout/contracts/page-layers.md). The overview shows the release status from the release record (with "Experimental: not ready for production use." for experimental releases), the usage class, the licence and the `card.not_for` points; the limits layer opens with the unmet criteria and `card.limits_short` before any code. The depth budgets (words and items per layer) are one table in `src/mobility_model_zoo/site/budgets.py`, shared by the release gate and the site checks.
 
 Only published models get a page; unpublished models appear on the start page as "Coming next" cards from the roadmap. Format pages are never removed, so the documentation of an old format stays reachable. The data model is in [data-model.md](../specs/008-zoo-website/data-model.md).
+
+## Field notes (feature 022)
+
+Long-form working notes about the thinking behind the models. They are opinion pieces, not product
+material: no model card, no release record, and none of the gates that govern a model applies to
+them. What they do have is their own licence and their own byte budget.
+
+A note is `zoo/notes/<NN>-<slug>.md`: a YAML front matter block, then CommonMark. `<NN>` orders the
+files, `<slug>` becomes the address. Required in the header are `title`, `description`, `date`,
+`author`, and `licence` with `licence_label` and `licence_url`, which carry the version so no
+number sits in a template (check F2). Optional are `series`, `part`, `parts`, `lead_image`,
+`lead_caption`, `diagrams` and `references`. The fields are described in
+[data-model.md](../specs/022-field-notes/data-model.md).
+
+Two markers are resolved while the site is built:
+
+- A line that is only `[diagram:<name>]` is replaced by `zoo/notes/diagrams/<name>.svg`, written
+  into the page rather than linked. That is what lets a drawing use the site's colour tokens and
+  follow light and dark mode from one file; an SVG referenced through `<img>` cannot see them.
+  Check N3 keeps the drawings to tokens and requires a `<title>` and a `<desc>`.
+- `[ref:<id>]` becomes a numbered link into the reference list built from the header. Numbers
+  follow first use. A citation without an entry, or an entry never cited, stops the build, so a
+  reference list cannot drift away from the text it claims to support.
+
+A note takes its lead image from the image library through the placement `note:<slug>`; the index
+uses `note:series`. The credits page names the note by its title as the place the picture is used.
+
+The index is built from `zoo/notes/series.yaml`, which lists every part of a series with a title
+and one line, whether or not it is written. A part gains a `slug` when its note is published; until
+then it shows as planned and never produces a link (check N6). A note that belongs to no series
+builds its page but has no entry on the index, because an index of mixed content is not built yet.
+
+Styles live in `static/css/notes.css`, loaded only by these pages. Every class carries the `note-`
+prefix. This is not cosmetic: an earlier draft used the class `notes`, which already exists for the
+annotation lists on model pages, and the index silently inherited 13 px type and a 900 px width.
+
+Prose and drawings under `zoo/notes/` are published under CC-BY-4.0 while the rest of the
+repository stays Apache-2.0, so a passage reused elsewhere has to name the author. The annotation
+is generated from `src/mobility_model_zoo/compliance/templates/REUSE.toml.j2`; `REUSE.toml` itself
+is never edited by hand.
+
+Two limits are known and deliberate. The diagrams are laid out for a desktop column and their
+labels become too small to read on a phone; serving both widths needs a second, narrower variant
+swapped by a media query. And the visual style of the diagrams is provisional: the logo and the
+model motifs are being reworked to sit better with the Siebdruck imagery, and the diagrams have to
+follow that rework rather than set their own direction.
 
 ## Roadmap and pace review (feature 015)
 
