@@ -23,21 +23,24 @@
 :root {
   color-scheme: light dark;
   /* Feature 023: the page takes its light from the sky of the imagery, not from paper;
-     the same tone returns as the ink of the night print. Orange stays rare (spec 023). */
-  --bg:#EDF3EF;
-  --surface:#FBFDFA;
-  --surface-2:#E0EAE3;
+     the same tone returns as the ink of the night print. Orange stays rare (spec 023).
+     Feature 025: at the sky's own saturation the whole neutral ramp cast the page green - a
+     tint that reads as fresh on a swatch becomes a cast over a full page. The ramp is half
+     desaturated; ink, links and the accent keep their hue, being small and meaning-carrying. */
+  --bg:#EFF2F0;
+  --surface:#FCFCFB;
+  --surface-2:#E4E8E5;
   --text:#062544;
-  --muted:#44564D;
-  --border:#C8D6CB;
-  --border-strong:#738678;
+  --muted:#4B5450;
+  --border:#CDD4CE;
+  --border-strong:#7A847C;
   --link:#0B4A70;
   --link-hover:#062544;
   --focus:#A8500C;
   --accent:#062544;
-  --on-accent:#EDF3EF;
+  --on-accent:#EFF2F0;
   --mark:#CA6A0A;
-  --code-bg:#E0EAE3;
+  --code-bg:#E4E8E5;
   --job-bg:#DCE9F2;
   --job-ink:#0B4A70;
   --pain-bg:#F9E3C4;
@@ -63,7 +66,7 @@
     --bg:#041C33;
     --surface:#062544;
     --surface-2:#0B3050;
-    --text:#EDF3EF;
+    --text:#EFF2F0;
     --muted:#A3B5AD;
     --border:#17496F;
     --border-strong:#6C928C;

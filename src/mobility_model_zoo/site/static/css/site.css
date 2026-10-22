@@ -310,7 +310,7 @@ a.mini:hover { border-color: var(--accent); border-left-color: var(--mark); colo
 
 /* Image stages: text never sits on an image (FR-004); the only overlap is the plate (X1). */
 /* Dark in both schemes. CSS cannot reuse the media query, so the night print repeats here. */
-.scheme-dark { --bg: #041C33; --surface: #062544; --surface-2: #0B3050; --text: #EDF3EF; --muted: #A3B5AD; --border: #17496F; --border-strong: #6C928C; --link: #8FC8E8; --link-hover: #CDE8F6; --focus: #ED9B20; --accent: #ED9B20; --on-accent: #062544; --mark: #ED9B20; --code-bg: #041C33; --job-bg: #0E3C5C; --job-ink: #9FD0EA; --pain-bg: #6B3A0E; --pain-ink: #F5C07A; --gain-bg: #14452F; --gain-ink: #9BD4A6; --s-a: #86B6D8; --s-b: #A5DBC6; --s-c: #ED9B20;
+.scheme-dark { --bg: #041C33; --surface: #062544; --surface-2: #0B3050; --text: #EFF2F0; --muted: #A3B5AD; --border: #17496F; --border-strong: #6C928C; --link: #8FC8E8; --link-hover: #CDE8F6; --focus: #ED9B20; --accent: #ED9B20; --on-accent: #062544; --mark: #ED9B20; --code-bg: #041C33; --job-bg: #0E3C5C; --job-ink: #9FD0EA; --pain-bg: #6B3A0E; --pain-ink: #F5C07A; --gain-bg: #14452F; --gain-ink: #9BD4A6; --s-a: #86B6D8; --s-b: #A5DBC6; --s-c: #ED9B20;
   color: var(--text); background: var(--bg); }
 /* The start hero: full-bleed, a navy text panel hard against the image, poster-like (research R9). */
 .hero-full { display: grid; grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); padding: 0;
