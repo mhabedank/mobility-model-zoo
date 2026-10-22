@@ -669,6 +669,19 @@ def check_og_layout(out: Path) -> Iterable[Finding]:
                 yield Finding("O2", name, f"{block} lies outside the {og.MARGIN} px margins")
             if block in ("mark", "title") and (x < lo - 0.5 or x + w > hi + 0.5):
                 yield Finding("O2", name, f"{block} lies outside the centre square x {lo}-{hi}")
+        # feature 023: the fitter shrinks the title to the available width, so nothing notices when
+        # a block runs into the one below it. `mark` sits inside `brand` by design; the rest are
+        # siblings and must never meet.
+        siblings = [(b, box) for b, box in layout["boxes"].items() if b != "mark" and box]
+        for i, (first, a) in enumerate(siblings):
+            for second, b in siblings[i + 1 :]:
+                if (
+                    a[0] < b[0] + b[2]
+                    and b[0] < a[0] + a[2]
+                    and a[1] < b[1] + b[3] - 0.5
+                    and b[1] < a[1] + a[3] - 0.5
+                ):
+                    yield Finding("O2", name, f"{first} and {second} overlap")
 
 
 def check_og_parity(reg: Registry, out: Path) -> Iterable[Finding]:

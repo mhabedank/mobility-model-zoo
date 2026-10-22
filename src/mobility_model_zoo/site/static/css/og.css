@@ -29,3 +29,25 @@ body.og {
 .og-motif { display: inline-flex; }
 .og-motif .plate { width: 120px; height: 120px; border-radius: 26px; }
 .og-stack { gap: 18px; }
+
+/* feature 023: the illustration carries the card, the text sits on a solid panel below it. The
+   stack stays centred, so mark and title keep to the centre square O2 guards, and the panel keeps
+   the contrast O3 measures independent of what the picture happens to show. */
+body.og-illustrated { padding: 0; display: block; }
+.og-shot { display: block; width: 1200px; height: 300px; object-fit: cover; }
+body.og-illustrated .og-stack {
+  /* the body padding is gone so the picture can bleed, so the stack carries the 48 px margins
+     O2 measures on all four sides, the bottom one included */
+  height: 330px; justify-content: center; gap: 12px;
+  padding: 16px 48px 48px; box-sizing: border-box; background: var(--bg);
+}
+/* the picture takes half the card, so the stack has 330 px minus its margins to fit brand,
+   eyebrow, title, line and labels. Sizes are cut to fit that height: the fitter only shrinks the
+   title to the available width, it cannot know about the height. */
+body.og-illustrated .og-brand { font-size: 24px; gap: 12px; }
+body.og-illustrated .og-mark svg { width: 44px; height: 44px; border-radius: 10px; }
+body.og-illustrated .og-eyebrow { font-size: 20px; }
+body.og-illustrated .og-title { font-size: 54px; }
+body.og-illustrated .og-line { font-size: 26px; max-width: 1020px; }
+body.og-illustrated .og-labels li { font-size: 18px; padding: 4px 13px; border-width: 2px; }
+body.og-illustrated .og-motif { display: none; }
