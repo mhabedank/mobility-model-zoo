@@ -768,7 +768,10 @@ def check_roadmap_pages(reg: Registry, out: Path) -> Iterable[Finding]:
 
 
 # ---- feature 016: motifs (M1, M2) and images (I1-I3, C1, X1) ----------------------------------
-IMAGE_PAGES = re.compile(r"^(index\.html|models/[^/]+/index\.html|credits/index\.html|notes/index\.html|notes/[^/]+/index\.html)$")
+IMAGE_PAGES = re.compile(
+    r"^(index\.html|models/[^/]+/index\.html|credits/index\.html"
+    r"|notes/index\.html|notes/[^/]+/index\.html)$"
+)
 
 
 def check_motifs(reg: Registry) -> Iterable[Finding]:

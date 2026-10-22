@@ -39,12 +39,14 @@ from mobility_model_zoo.site import (
     examples,
     facts,
     motifs,
-    notes as note_content,
     og,
     roadmap,
     schema_doc,
 )
 from mobility_model_zoo.site import images as image_records
+from mobility_model_zoo.site import (
+    notes as note_content,
+)
 from mobility_model_zoo.site.markdown import md
 
 PACKAGE = "mobility_model_zoo.site"
