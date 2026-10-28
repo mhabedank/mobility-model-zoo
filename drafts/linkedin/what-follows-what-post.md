@@ -1,38 +1,38 @@
-# LinkedIn: What follows what? (Field note, part 3)
+# LinkedIn: What follows what? (Field note, part 3, English)
 
 Bild: drafts/linkedin/what-follows-what-linkedin.png
 Bildnachweis: River lock with its gates opening and a push boat waiting (AI-generated, CC0)
 
 ## Post
 
-Planen, Ticket kaufen, zum Gleis, warten, einsteigen, umsteigen, ankommen.
+Plan the trip, buy a ticket, walk to the platform, wait, board, change, arrive.
 
-Diese Reihenfolge kann jeder aus dem Kopf aufschreiben. Genau deshalb hielt ich sie für den einfachen Teil.
+Anyone can write that order down from memory. That is exactly why I thought it was the easy part.
 
-Ich baue an einem Modell, das Customer Journeys aus Texten rekonstruiert: Beschwerden, Forenbeiträge, Interviews. Wer betroffen ist und wozu etwas dient, steht oft in einem einzigen Satz. Die Reihenfolge fast nie.
+I am building a model that reconstructs customer journeys from text: complaints, forum posts, interviews. Who is affected, and what something is for, often sits in a single sentence. The order almost never does.
 
-Der Grund ist banal. Eine Beschwerde beschreibt meist einen Moment.
-„Der Automat hat meine Karte nicht genommen."
-„Gleiswechsel, keine Durchsage."
-Ein Schritt, ein Zitat, kein Davor und kein Danach.
+The reason is mundane. A complaint usually describes one moment.
+"The machine would not take my card."
+"Platform changed, no announcement."
+One step, one quote, no before and no after.
 
-Die Reihenfolge entsteht erst, wenn ich vier solcher Texte nebeneinanderlege. Und dann kommt sie nicht aus den Texten, sondern von mir. Weil ich weiß, wie eine Bahnfahrt geht.
+The order only appears once I put four of those texts side by side. And then it does not come from the texts. It comes from me, because I know how a train journey goes.
 
-Im Process Mining wäre das ein Event-Log ohne Case-ID: lauter Ereignisse, aber nichts sagt, welche zur selben Fahrt gehören. Heraus kommt die Reihenfolge, die man hineingesteckt hat.
+In process mining terms, that is an event log without a case ID: plenty of events, but nothing says which ones belong to the same trip. What comes out is the order you put in.
 
-Dazu kommt ein zweiter Effekt. Wer eine Abfolge erzählt, tut das meist, weil etwas schiefging. Die Übergänge mit Beleg sind die gescheiterten. Der glatte Pfad, um den jede Journey Map gebaut ist, steht kaum in den Daten.
+There is a second effect. People tell a sequence mostly when something went wrong. The transitions with evidence behind them are the ones that failed. The smooth path that every journey map is built around is barely in the data.
 
-Meine Konsequenz: Das Modell speichert eine Reihenfolge nur, wenn ein einzelner Text sie selbst erzählt, mit Zitat. Was erst über mehrere Texte entsteht, ist eine Hypothese und wird so markiert.
+So the model now stores an order only when a single text tells it, with a quote. Anything that only appears across texts is a hypothesis, and it is marked as one.
 
-Offen ist für mich, wie man diese Hypothesen sauber prüft. Wer Journeys aus Interviews oder Beschwerden baut: Woher kommt bei euch die Reihenfolge, und wie trennt ihr sie von dem, was ihr vorher schon wusstet?
+What I have not solved is how to test those hypotheses properly. If you build journeys from interviews or complaints: where does your order come from, and how do you keep it apart from what you already knew?
 
-#CustomerJourney #ServiceDesign #ProcessMining #ÖPNV
+#CustomerJourney #ServiceDesign #ProcessMining #PublicTransport
 
-## Erster Kommentar
+## First comment
 
-Den stärksten Einwand gegen meinen eigenen Post habe ich selbst: Ein gut geführtes Interview ist keine Beschwerde. Da werden ganze Abläufe erzählt, mit Davor und Danach. Wie oft das in meinen Texten tatsächlich vorkommt, habe ich noch nicht gezählt. Das ist der nächste Schritt.
+The strongest objection to this post is one I have myself: a well-run interview is not a complaint. People tell whole sequences there, with a before and an after. How often that happens in my texts, I have not counted yet. That is the next step.
 
-Zwei Dinge, die im Post keinen Platz hatten: Viele Übergänge sind gar kein „danach", sondern ein „während" („Ich hing die ganze Wartezeit in der Hotline-Schleife"). Und in manchen Netzen kauft man das Ticket vor dem Einsteigen, in anderen im Bus. Eine Zeile von links nach rechts bildet beides nicht ab.
+Two things that did not fit in the post. Many transitions are not "after" at all, they are "during" ("I was on hold to the hotline the whole time I waited"). And in some networks you buy the ticket before you board, in others on the bus. A row from left to right can show neither.
 
-Ausgeschrieben, mit Quellen (Schank & Abelson, Labov & Waletzky, Allen, van der Aalst):
+Written out, with sources (Schank & Abelson, Labov & Waletzky, Allen, van der Aalst):
 https://mhabedank.github.io/mobility-model-zoo/notes/what-follows-what/
