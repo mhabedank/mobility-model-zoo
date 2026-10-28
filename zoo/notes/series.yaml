@@ -16,9 +16,10 @@ parts:
   text: Strategic, tactical and operational looked like a second axis. The texts only say what
     something is for, and pain is felt where it is not caused.
 - part: 3
+  slug: what-follows-what
   title: What follows what?
-  text: Knowing the place is not knowing the order. A transition seen only across texts is a
-    hypothesis, not evidence.
+  text: Knowing the place is not knowing the order. Most texts describe one moment, and a
+    transition seen only across texts is a hypothesis, not evidence.
 - part: 4
   title: The gaps
   text: Three kinds of hole in a map, and why letting a model fill the third one is
