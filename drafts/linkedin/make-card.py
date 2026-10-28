@@ -38,6 +38,7 @@ def main() -> int:
     p.add_argument("--foot", default="Field note")
     p.add_argument("--out", required=True)
     p.add_argument("--size", type=int, default=1200)
+    p.add_argument("--top", action="store_true", help="set the headline in the sky at the top")
     a = p.parse_args()
 
     folder = ROOT / "zoo/site/images" / a.image
@@ -54,6 +55,7 @@ def main() -> int:
         .replace("{{TITLE}}", a.title)
         .replace("{{SUB}}", a.sub)
         .replace("{{FOOT}}", a.foot)
+        .replace("{{LAYOUT}}", "top" if a.top else "")
     )
     page = HERE / ".card.html"
     page.write_text(html, encoding="utf-8")
