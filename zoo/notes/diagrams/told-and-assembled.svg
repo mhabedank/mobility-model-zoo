@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340" width="700" height="340" role="img" aria-labelledby="d-told-and-assembled-t d-told-and-assembled-d">
+<title id="d-told-and-assembled-t">An order told in one text, and an order assembled across four</title>
+<desc id="d-told-and-assembled-d">Above, three steps from a single text, joined by solid arrows: buy the ticket at the machine, then get on, then realise two stops later that it was the wrong zone. The quote they come from is printed underneath. Below, four steps from four different texts, labelled text A to text D: no trains shown in the app, a queue at the machine, the platform changed, the connection missed. They are joined by dashed, highlighted arrows marked with a question mark. A note says every step has a quote behind it, but the order between them has none.</desc>
+<g fill="none" stroke-linecap="round" font-family="inherit">
+<g transform="translate(0,0)">
+<text x="0" y="16" font-size="15.5" font-weight="600" fill="var(--text)" stroke="none">Told in one text</text>
+<line x1="132" y1="64" x2="334" y2="64" stroke="var(--border-strong)" stroke-width="2"/>
+<path d="M 328 59 L 334 64 L 328 69" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="233" y="54" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">then</text>
+<line x1="362" y1="64" x2="564" y2="64" stroke="var(--border-strong)" stroke-width="2"/>
+<path d="M 558 59 L 564 64 L 558 69" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="463" y="54" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">only at the second stop</text>
+<circle cx="120" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="120" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Buy at the machine</text>
+<circle cx="350" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="350" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Get on</text>
+<circle cx="580" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="580" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Realise: wrong zone</text>
+<path d="M 350 102 v 10" stroke="var(--border-strong)" stroke-width="1.5"/>
+<text x="350" y="128" font-size="12.5" text-anchor="middle" fill="var(--text)" stroke="none">“I bought it at the machine, got on, and only at the second stop realised…”</text>
+</g>
+<g transform="translate(0,180)">
+<text x="0" y="16" font-size="15.5" font-weight="600" fill="var(--text)" stroke="none">Assembled across texts</text>
+<path d="M 90 64 L 246 64" stroke="var(--mark)" stroke-width="2" stroke-dasharray="6 5"/>
+<path d="M 240 59 L 246 64 L 240 69" stroke="var(--mark)" stroke-width="2"/>
+<text x="171" y="56" font-size="13" font-weight="600" text-anchor="middle" fill="var(--text)" stroke="none">?</text>
+<path d="M 276 64 L 432 64" stroke="var(--mark)" stroke-width="2" stroke-dasharray="6 5"/>
+<path d="M 426 59 L 432 64 L 426 69" stroke="var(--mark)" stroke-width="2"/>
+<text x="357" y="56" font-size="13" font-weight="600" text-anchor="middle" fill="var(--text)" stroke="none">?</text>
+<path d="M 462 64 L 608 64" stroke="var(--mark)" stroke-width="2" stroke-dasharray="6 5"/>
+<path d="M 602 59 L 608 64 L 602 69" stroke="var(--mark)" stroke-width="2"/>
+<text x="538" y="56" font-size="13" font-weight="600" text-anchor="middle" fill="var(--text)" stroke="none">?</text>
+<text x="78" y="40" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">text A</text>
+<circle cx="78" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="78" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">No trains in the app</text>
+<text x="264" y="40" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">text B</text>
+<circle cx="264" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="264" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Queue at the machine</text>
+<text x="450" y="40" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">text C</text>
+<circle cx="450" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="450" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Platform changed</text>
+<text x="626" y="40" font-size="12" text-anchor="middle" fill="var(--muted)" stroke="none">text D</text>
+<circle cx="626" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="626" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" stroke="none">Connection missed</text>
+<path d="M 350 102 v 10" stroke="var(--border-strong)" stroke-width="1.5"/>
+<text x="350" y="128" font-size="12.5" text-anchor="middle" fill="var(--muted)" stroke="none">every step has a quote behind it, the order between them has none</text>
+</g>
+</g>
+</svg>

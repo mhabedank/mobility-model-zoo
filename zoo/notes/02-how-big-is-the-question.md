@@ -146,4 +146,4 @@ what they did before it, or what had to happen first, and a journey is mostly th
 after another. Order turns out to be harder to read out of text than height, for a reason
 that has to do with how many texts it takes to see it at all.
 
-That is the next part.
+That is [the next part](../what-follows-what/).

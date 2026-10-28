@@ -29,7 +29,8 @@ generation:
     commit: unversioned
     image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
 licence: CC0-1.0
-placements: []
+placements:
+- note:what-follows-what
 scene: River lock with its gates opening and a push boat waiting
 alt: An orange-yellow push boat waits in a river lock as the gates open (AI-generated image)
 focal_point:
