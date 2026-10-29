@@ -11,7 +11,7 @@ body.og {
 .og-stack { display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; width: 100%; }
 .og-brand { display: flex; align-items: center; gap: 16px; font-size: 30px; font-weight: 700; }
 .og-mark { display: inline-flex; }
-.og-mark svg { border-radius: 14px; }
+.og-mark svg { border-radius: 4px; }
 .og-wordmark { color: var(--text); }
 .og-eyebrow { margin: 0; font-size: 24px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
 .og-title {
@@ -27,7 +27,7 @@ body.og {
 }
 /* feature 016: the model motif as the main figure, centred on its plate inside the safe area. */
 .og-motif { display: inline-flex; }
-.og-motif .plate { width: 120px; height: 120px; border-radius: 26px; }
+.og-motif .plate { width: 120px; height: 120px; border-radius: 4px; }
 .og-stack { gap: 18px; }
 
 /* feature 023: the illustration carries the card, the text sits on a solid panel below it. The
@@ -45,7 +45,7 @@ body.og-illustrated .og-stack {
    eyebrow, title, line and labels. Sizes are cut to fit that height: the fitter only shrinks the
    title to the available width, it cannot know about the height. */
 body.og-illustrated .og-brand { font-size: 24px; gap: 12px; }
-body.og-illustrated .og-mark svg { width: 44px; height: 44px; border-radius: 10px; }
+body.og-illustrated .og-mark svg { width: 44px; height: 44px; border-radius: 4px; }
 body.og-illustrated .og-eyebrow { font-size: 20px; }
 body.og-illustrated .og-title { font-size: 54px; }
 body.og-illustrated .og-line { font-size: 26px; max-width: 1020px; }

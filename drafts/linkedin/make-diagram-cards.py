@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render 4:5 diagram cards for the field notes: headline, a diagram drawn for phone size,
-what the model does now, and a band of the note's lead image at the bottom.
+what the model does now, under a strip of the note's lead image (the layout of make-card.py).
 
     uv run --group site-check python drafts/linkedin/make-diagram-cards.py [slug ...]
 
@@ -156,38 +156,38 @@ CARDS = {
 }
 
 PAGE = """<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-:root{{--bg:#041C33;--text:#EFF2F0;--muted:#A3B5AD;--line:#6C928C;--mark:#ED9B20}}
+/* Night print, as make-card.py: the picture sits above a solid panel with a straight cut, so no
+   text ever sits on it. Cream type, orange only for the one thing that matters in the drawing. */
+:root{{--bg:#041C33;--text:#FBEED0;--muted:#A3B5AD;--line:#6C928C;--rule:#0B3050;--mark:#ED9B20}}
 @font-face{{font-family:Archivo;src:url("{font}") format("woff2");font-weight:400 800;font-stretch:78% 100%}}
 *{{box-sizing:border-box;margin:0}}
 body{{width:{w}px;height:{h}px;background:var(--bg);font-family:Archivo,sans-serif;position:relative;
   overflow:hidden;color:var(--text)}}
-.main{{position:absolute;left:76px;right:76px;top:70px}}
-.eyebrow{{font-size:22px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-stretch:92%}}
-h1{{font-size:88px;line-height:1;letter-spacing:-.025em;font-weight:700;font-stretch:80%;margin-top:22px}}
+.pic{{position:absolute;left:0;top:0;width:100%;height:200px;object-fit:cover;object-position:{focal};display:block}}
+.main{{position:absolute;left:72px;right:72px;top:248px;bottom:64px;display:flex;flex-direction:column}}
+.eyebrow{{font-size:22px;line-height:28px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}}
+h1{{font-size:88px;line-height:88px;letter-spacing:-.025em;font-weight:700;font-stretch:80%;
+  font-variation-settings:"wdth" 80;margin-top:16px}}
 h1 em{{font-style:normal;color:var(--mark)}}
-.sub{{font-size:32px;line-height:1.3;color:var(--muted);margin-top:18px;max-width:30ch;font-stretch:92%}}
-svg{{display:block;margin-top:56px;font-family:Archivo,sans-serif;font-stretch:92%}}
-.now{{margin-top:44px}}
-.now b{{display:block;font-size:21px;letter-spacing:.09em;text-transform:uppercase;color:var(--mark);
-  font-weight:700;font-stretch:92%}}
-.now p{{font-size:33px;line-height:1.28;margin-top:10px;font-stretch:92%;max-width:34ch}}
-.band{{position:absolute;left:0;right:0;bottom:0;height:250px}}
-.band img{{width:100%;height:100%;object-fit:cover;object-position:{focal}}}
-.band:before{{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,
-  rgba(4,28,51,1) 0%,rgba(4,28,51,.2) 40%,rgba(4,28,51,.35) 60%,rgba(4,28,51,.88) 80%,rgba(4,28,51,1) 100%)}}
-.foot{{position:absolute;left:76px;right:76px;bottom:40px;display:flex;justify-content:space-between;
-  font-size:22px;color:var(--text);font-stretch:92%}}
-.foot b{{color:var(--mark)}}
+.sub{{font-size:32px;line-height:40px;font-weight:500;color:var(--muted);margin-top:16px;max-width:30ch}}
+svg{{display:block;margin-top:44px;font-family:Archivo,sans-serif;font-stretch:92%}}
+.now{{margin-top:36px}}
+.now b{{display:block;font-size:21px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650}}
+.now p{{font-size:33px;line-height:42px;font-weight:500;margin-top:10px;max-width:34ch}}
+.foot{{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:auto;padding-top:22px;
+  border-top:2px solid var(--rule);font-size:22px;line-height:28px;font-weight:500;color:var(--muted)}}
+.brand{{display:inline-flex;align-items:center;gap:14px;color:var(--text);font-weight:650}}
+.brand svg{{width:40px;height:40px;margin:0}}
 </style></head><body>
+<img class="pic" src="{image}" alt="">
 <div class="main">
 <div class="eyebrow">Building a model that reads customer journeys from text</div>
 <h1>{title}</h1><p class="sub">{sub}</p>
-<svg xmlns="http://www.w3.org/2000/svg" width="1048" height="{dh}" viewBox="0 0 1048 {dh}">
+<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="{dh}" viewBox="0 0 1048 {dh}">
 <g fill="none" stroke-linecap="round">{diagram}</g></svg>
 <div class="now"><b>What the model does now</b><p>{now}</p></div>
+<div class="foot"><span class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" fill="#FBEED0"/><path d="M260.5 244.3 L243.1 345 L296.9 345 L328.9 160 L266 160 L216.3 214.2 L183.1 160 L125.1 160 L93.1 345 L146.9 345 L166.1 233.8 L207.7 301.8 Z" fill="#062544"/><circle cx="376" cy="301" r="44" fill="#ED9B20"/></svg>Mobility Model Zoo</span><span>Field note</span></div>
 </div>
-<div class="band"><img src="{image}"></div>
-<div class="foot"><span>Field note · open models, open notes</span><b>mobility model zoo</b></div>
 </body></html>"""
 
 
