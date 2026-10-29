@@ -1,0 +1,2 @@
+{"dataset": "train-v1", "frozen_at": "2026-10-02T08:00:00+00:00", "chunk_count": 4,
+ "chunks": {"c1": "11", "c2": "22", "c3": "33", "c4": "44"}, "rows_sha256": "ab", "sha256": "f00d"}

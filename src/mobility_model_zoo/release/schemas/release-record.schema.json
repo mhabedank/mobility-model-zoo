@@ -409,6 +409,24 @@
           }
         }
       }
+    },
+    "tracking": {
+      "type": "object",
+      "description": "Optional link to the run in the private tracking store this version came from (feature 017). Never shown on the model card or website.",
+      "required": [
+        "run_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "experiment": {
+          "type": "string",
+          "pattern": "^[a-z0-9_./-]{1,120}$"
+        }
+      }
     }
   }
 }

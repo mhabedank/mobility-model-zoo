@@ -1,0 +1,5 @@
+benchmark_version: train-v1
+paths:
+  data: data/train-v1
+span_train:
+  dataset: train-v1
