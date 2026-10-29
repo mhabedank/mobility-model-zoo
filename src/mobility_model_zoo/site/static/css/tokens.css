@@ -73,7 +73,10 @@
     --link:#8FC8E8;
     --link-hover:#CDE8F6;
     --focus:#ED9B20;
-    --accent:#ED9B20;
+    /* Mint, not the warm ink: the orange belongs to the subject of the picture, and an orange
+       button beside the orange train of the hero competed with it. Caravan made the same
+       change first (feature 010, FR-029). 10.0:1 against the navy label. */
+    --accent:#A5DBC6;
     --on-accent:#062544;
     --mark:#ED9B20;
     --code-bg:#041C33;

@@ -5,7 +5,7 @@
 .note-page .wrap, .note-index .wrap { max-width: calc(var(--col) + 64px); margin-inline: auto; }
 .note-head { max-width: var(--col); }
 .note-lead { margin: 32px 0 0; max-width: var(--col); }
-.note-lead img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px;
+.note-lead img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 0;
   display: block; }
 .note-credit, .note-diagram figcaption { margin-top: 10px; max-width: var(--col); }
 .note-body { max-width: var(--col); margin-top: 34px; font-size: 18px; line-height: 1.7; }
@@ -30,7 +30,7 @@
 .note-series { margin-top: 44px; }
 .note-series-hero { margin: 0 0 36px; }
 .note-series-hero img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
-  border-radius: 16px; display: block; }
+  border-radius: 0; display: block; }
 .note-series-head { max-width: var(--col); }
 .note-series-title { margin: 8px 0 10px; font-size: 27px; line-height: 1.22; letter-spacing: -0.015em; }
 .note-series-intro { font-size: 18px;
@@ -47,7 +47,7 @@
   line-height: 1.55; color: var(--muted); }
 .note-item-meta { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
 .note-item-thumb img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
-  border-radius: 10px; display: block; }
+  border-radius: 0; display: block; }
 .note-item.note-planned { grid-template-columns: 1fr; }
 .note-item.note-planned .note-item-title { color: var(--muted); }
 .note-chip { background: var(--surface-2); border-color: var(--border); font-size: 12px; }

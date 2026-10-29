@@ -1,37 +1,43 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><title>{{TITLE}}</title><style>
 /* Field note social card. Night print of the screenprint identity (feature 023):
-   the same inks as the site, the paper turned over. The warm accent stays rare,
-   so it keeps meaning "this matters" — here only the question mark and the wordmark. */
+   the same inks as the site, the paper turned over. The picture sits above a solid panel with a
+   straight cut between them, as the site's own link previews do: text never sits on the picture,
+   so its contrast never depends on what the picture shows. The warm accent stays rare: the
+   picture brings its own, the panel adds at most one glyph of the headline. */
 :root{
-  --bg:#041C33;        /* night print ground */
-  --text:#EDF3EF;
-  --muted:#A3B5AD;
+  --bg:#041C33;        /* night print ground, poster-navy-deep */
+  --text:#FBEED0;      /* poster cream, 15.0:1 on the ground */
+  --muted:#A3B5AD;     /* 8.0:1 on the ground */
+  --rule:#0B3050;      /* poster-navy-lift */
+  --navy:#062544;
   --accent:#ED9B20;    /* poster orange, the same ink as the vehicles in the imagery */
 }
 @font-face{font-family:Archivo;src:url("{{FONT}}") format("woff2");
   font-weight:400 800;font-stretch:78% 100%;font-style:normal}
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:1200px;background:var(--bg);font-family:Archivo,sans-serif;
+body{width:{{W}}px;height:{{H}}px;background:var(--bg);font-family:Archivo,sans-serif;
   position:relative;overflow:hidden}
-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  object-position:{{FOCAL}}}
-/* The scrim carries the type without covering the picture: opaque only where the words are. */
-.scrim{position:absolute;inset:0;background:linear-gradient(to top,
-  rgba(4,28,51,.97) 0%, rgba(4,28,51,.93) 30%, rgba(4,28,51,.55) 50%,
-  rgba(4,28,51,.12) 68%, rgba(4,28,51,0) 100%)}
-.t{position:absolute;left:76px;right:76px;bottom:64px;color:var(--text)}
+img{position:absolute;left:0;top:0;width:100%;height:{{PIC}}px;object-fit:cover;
+  object-position:{{FOCAL}};display:block}
+.panel{position:absolute;left:0;right:0;top:{{PIC}}px;bottom:0;background:var(--bg);
+  padding:56px 72px 72px;display:flex;flex-direction:column;color:var(--text)}
+.eyebrow{font-size:24px;line-height:30px;font-weight:650;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
 /* Same settings as .h-display on the site: narrow width axis, weight 700. */
-h1{font-size:96px;line-height:.98;letter-spacing:-.025em;font-weight:700;font-stretch:80%}
+h1{font-size:104px;line-height:100px;letter-spacing:-.025em;font-weight:700;font-stretch:80%;
+  font-variation-settings:"wdth" 80;margin-top:18px}
 h1 em{font-style:normal;color:var(--accent)}
-p{font-size:31px;line-height:1.3;color:var(--muted);margin-top:26px;max-width:24ch;font-stretch:92%}
-.foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:40px;
-  font-size:21px;color:var(--muted);border-top:1px solid rgba(237,243,239,.2);
-  padding-top:20px;font-stretch:92%}
-.foot b{color:var(--accent);font-weight:700}
+p{font-size:36px;line-height:46px;font-weight:500;color:var(--muted);margin-top:24px;max-width:24ch}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:auto;
+  padding-top:24px;border-top:2px solid var(--rule);font-size:24px;line-height:30px;
+  font-weight:500;color:var(--muted)}
+.brand{display:inline-flex;align-items:center;gap:14px;color:var(--text);font-weight:650}
+.brand svg{width:44px;height:44px;display:block}
 </style></head><body>
-<img src="{{IMAGE}}"><div class="scrim"></div>
-<div class="t">
+<img src="{{IMAGE}}" alt="">
+<div class="panel">
+<div class="eyebrow">{{EYEBROW}}</div>
 <h1>{{TITLE}}</h1>
 <p>{{SUB}}</p>
-<div class="foot"><span>{{FOOT}}</span><span><b>mobility model zoo</b></span></div>
+<div class="foot"><span class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" fill="#FBEED0"/><path d="M260.5 244.3 L243.1 345 L296.9 345 L328.9 160 L266 160 L216.3 214.2 L183.1 160 L125.1 160 L93.1 345 L146.9 345 L166.1 233.8 L207.7 301.8 Z" fill="#062544"/><circle cx="376" cy="301" r="44" fill="#ED9B20"/></svg>Mobility Model Zoo</span><span>{{FOOT}}</span></div>
 </div></body></html>

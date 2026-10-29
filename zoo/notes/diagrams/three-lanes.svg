@@ -1,48 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="700" height="460" role="img" aria-labelledby="d-three-lanes-t d-three-lanes-d">
-<title id="d-three-lanes-t">The same counter scene drawn three times, once per actor</title>
-<desc id="d-three-lanes-d">Three stacked journeys of four steps each. In every one the counter step is highlighted, and a note under it says that the other two actors are collapsed into that single step.</desc>
-<g fill="none" stroke-linecap="round" font-family="inherit">
-<g transform="translate(0,0)">
-<text x="0" y="16" font-size="15.5" font-weight="600" fill="var(--text)" stroke="none">Drawn as the traveller's journey</text>
-<line x1="40" y1="64" x2="660" y2="64" stroke="var(--border-strong)" stroke-width="2"/>
-<circle cx="78" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="78" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Plan the trip</text>
-<circle cx="264" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="264" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Walk in</text>
-<circle cx="450" cy="64" r="9" fill="var(--mark)" stroke="var(--text)" stroke-width="2"/>
-<text x="450" y="92" font-size="13" text-anchor="middle" fill="var(--text)" font-weight="600" stroke="none">Counter</text>
-<circle cx="626" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="626" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Board</text>
-<path d="M 450 100 v 10" stroke="var(--border-strong)" stroke-width="1.5"/>
-<text x="450" y="124" font-size="12.5" text-anchor="middle" fill="var(--muted)" stroke="none">the employee and the operator sit in here, as one box</text>
-</g>
-<g transform="translate(0,160)">
-<text x="0" y="16" font-size="15.5" font-weight="600" fill="var(--text)" stroke="none">Drawn as the employee's journey</text>
-<line x1="40" y1="64" x2="660" y2="64" stroke="var(--border-strong)" stroke-width="2"/>
-<circle cx="78" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="78" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Shift starts</text>
-<circle cx="264" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="264" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Queue builds</text>
-<circle cx="450" cy="64" r="9" fill="var(--mark)" stroke="var(--text)" stroke-width="2"/>
-<text x="450" y="92" font-size="13" text-anchor="middle" fill="var(--text)" font-weight="600" stroke="none">This customer</text>
-<circle cx="626" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="626" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Next in line</text>
-<path d="M 450 100 v 10" stroke="var(--border-strong)" stroke-width="1.5"/>
-<text x="450" y="124" font-size="12.5" text-anchor="middle" fill="var(--muted)" stroke="none">the traveller is “a customer”, the operator is a rule</text>
-</g>
-<g transform="translate(0,320)">
-<text x="0" y="16" font-size="15.5" font-weight="600" fill="var(--text)" stroke="none">Drawn as the operator's journey</text>
-<line x1="40" y1="64" x2="660" y2="64" stroke="var(--border-strong)" stroke-width="2"/>
-<circle cx="78" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="78" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Budget round</text>
-<circle cx="264" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="264" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Staffing plan</text>
-<circle cx="450" cy="64" r="9" fill="var(--mark)" stroke="var(--text)" stroke-width="2"/>
-<text x="450" y="92" font-size="13" text-anchor="middle" fill="var(--text)" font-weight="600" stroke="none">This counter</text>
-<circle cx="626" cy="64" r="9" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
-<text x="626" y="92" font-size="13" text-anchor="middle" fill="var(--muted)" font-weight="400" stroke="none">Review</text>
-<path d="M 450 100 v 10" stroke="var(--border-strong)" stroke-width="1.5"/>
-<text x="450" y="124" font-size="12.5" text-anchor="middle" fill="var(--muted)" stroke="none">both of the others are numbers in here</text>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 392" width="700" height="392" role="img" aria-labelledby="d-three-lanes-t d-three-lanes-d">
+<title id="d-three-lanes-t">One counter, three journeys</title>
+<desc id="d-three-lanes-d">Three lines run left to right: the employee&#x27;s above, measured in one shift; the traveller&#x27;s in the middle, measured in minutes; the operator&#x27;s below, measured in a budget year. The employee&#x27;s and the operator&#x27;s lines bend into the traveller&#x27;s line at one station, the counter, inside a field marked two square metres. The counter is the only highlighted station. Underneath, one line per journey says what it makes of the other two: drawn as the employee&#x27;s, the traveller is a customer and the operator a rule; drawn as the traveller&#x27;s, the employee and the operator are one box at the counter; drawn as the operator&#x27;s, both of the others are numbers.</desc>
+<g font-family="inherit">
+<rect x="382" y="26" width="52" height="260" fill="var(--surface-2)"/>
+<text x="408" y="16" font-size="10.5" font-weight="650" fill="var(--muted)" text-anchor="middle" letter-spacing="1.05">TWO SQUARE METRES</text>
+<path d="M104,244 L304,244 Q318,244 327.9,234.1 L398.1,163.9 Q408,154 417.9,163.9 L488.1,234.1 Q498,244 512,244 L620,244" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linejoin="round"/>
+<path d="M104,244 L304,244 Q318,244 327.9,234.1 L398.1,163.9 Q408,154 417.9,163.9 L488.1,234.1 Q498,244 512,244 L620,244" fill="none" stroke="var(--bg)" stroke-width="3" stroke-linejoin="round"/>
+<path d="M104,64 L304,64 Q318,64 327.9,73.9 L398.1,144.1 Q408,154 417.9,144.1 L488.1,73.9 Q498,64 512,64 L620,64" fill="none" stroke="var(--border-strong)" stroke-width="4" stroke-linejoin="round"/>
+<path d="M104,154 L620,154" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="180" cy="64" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="180" y="48" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Shift starts</text>
+<circle cx="262" cy="64" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="262" y="48" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Queue builds</text>
+<circle cx="572" cy="64" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="572" y="48" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Next in line</text>
+<circle cx="180" cy="154" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="180" y="176" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Plan the trip</text>
+<circle cx="290" cy="154" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="290" y="176" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Walk in</text>
+<circle cx="572" cy="154" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="572" y="176" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Board</text>
+<circle cx="180" cy="244" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="180" y="268" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Budget round</text>
+<circle cx="262" cy="244" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="262" y="268" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Staffing plan</text>
+<circle cx="572" cy="244" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="572" y="268" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">Review</text>
+<circle cx="408" cy="154" r="14" fill="var(--bg)"/>
+<circle cx="408" cy="154" r="9" fill="var(--mark)" stroke="var(--text)" stroke-width="2"/>
+<text x="408" y="120" font-size="13" font-weight="600" fill="var(--text)" text-anchor="middle">Counter</text>
+<text x="0" y="63" font-size="13" font-weight="600" fill="var(--text)">Employee</text>
+<text x="0" y="78" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">one shift</text>
+<text x="0" y="153" font-size="13" font-weight="600" fill="var(--text)">Traveller</text>
+<text x="0" y="168" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">minutes</text>
+<text x="0" y="243" font-size="13" font-weight="600" fill="var(--text)">Operator</text>
+<text x="0" y="258" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">a budget year</text>
+<text x="408" y="306" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">one station on three lines</text>
+<path d="M0,332 L28,332" fill="none" stroke="var(--border-strong)" stroke-width="4" stroke-linejoin="round"/>
+<text x="40" y="336" font-size="12" font-weight="400" fill="var(--muted)">Drawn as the employee&#x27;s journey: the traveller is “a customer”, the operator is a rule.</text>
+<path d="M0,354 L28,354" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+<text x="40" y="358" font-size="12" font-weight="400" fill="var(--muted)">Drawn as the traveller&#x27;s journey: the employee and the operator sit in the counter, as one box.</text>
+<path d="M0,376 L28,376" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linejoin="round"/>
+<path d="M0,376 L28,376" fill="none" stroke="var(--bg)" stroke-width="3" stroke-linejoin="round"/>
+<text x="40" y="380" font-size="12" font-weight="400" fill="var(--muted)">Drawn as the operator&#x27;s journey: both of the others are numbers in here.</text>
 </g>
 </svg>
