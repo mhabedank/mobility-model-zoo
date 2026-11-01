@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 330" width="700" height="330" role="img" aria-labelledby="d-three-holes-t d-three-holes-d">
+<title id="d-three-holes-t">Three empty places on one trip, and what closes each</title>
+<desc id="d-three-holes-d">Above, in a field marked on the map, one line with two told steps and three empty, dashed stations that look alike. Below, one card under each empty station. Not read: written down, but in documents I have not read; it closes when I read other sources. Not said: it happened and nothing went wrong, so nobody wrote about it; it closes only when I ask or count. Not there: the frame expects a step that this trip did not have; it is left empty and no model fills it. The third card has a dashed border because nothing is stored for it.</desc>
+<g font-family="inherit">
+<rect x="0" y="0" width="700" height="130" rx="2" fill="var(--surface-2)"/>
+<text x="16" y="24" font-size="10.5" font-weight="650" fill="var(--muted)" letter-spacing="1.05">ON THE MAP</text>
+<path d="M30,70 L670,70" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="50" cy="70" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="50" y="98" font-size="13" font-weight="500" fill="var(--text)" text-anchor="middle">Told</text>
+<circle cx="150" cy="70" r="11" fill="var(--bg)" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="150" y="75" font-size="13" font-weight="700" fill="var(--text)" text-anchor="middle">?</text>
+<circle cx="265" cy="70" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<text x="265" y="98" font-size="13" font-weight="500" fill="var(--text)" text-anchor="middle">Told</text>
+<circle cx="380" cy="70" r="11" fill="var(--bg)" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="380" y="75" font-size="13" font-weight="700" fill="var(--text)" text-anchor="middle">?</text>
+<circle cx="600" cy="70" r="11" fill="var(--bg)" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="600" y="75" font-size="13" font-weight="700" fill="var(--text)" text-anchor="middle">?</text>
+<text x="350" y="122" font-size="12" font-weight="400" fill="var(--muted)" text-anchor="middle">three empty places, and on the map they look the same</text>
+<path d="M150,81 L150,166" fill="none" stroke="var(--border-strong)" stroke-width="1"/>
+<path d="M380,81 L380,166" fill="none" stroke="var(--border-strong)" stroke-width="1"/>
+<path d="M600,81 L600,166" fill="none" stroke="var(--border-strong)" stroke-width="1"/>
+<rect x="0" y="150" width="700" height="180" rx="2" fill="var(--surface-2)"/>
+<text x="16" y="174" font-size="10.5" font-weight="650" fill="var(--muted)" letter-spacing="1.05">WHY IT IS EMPTY</text>
+<rect x="60" y="188" width="180" height="120" rx="2" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1"/>
+<text x="76" y="212" font-size="14" font-weight="700" fill="var(--text)">Not read</text>
+<text x="76" y="236" font-size="13" font-weight="500" fill="var(--text)">Written down, but in</text>
+<text x="76" y="253" font-size="13" font-weight="500" fill="var(--text)">documents I do not have</text>
+<text x="76" y="290" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">read other sources</text>
+<rect x="290" y="188" width="180" height="120" rx="2" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1"/>
+<text x="306" y="212" font-size="14" font-weight="700" fill="var(--text)">Not said</text>
+<text x="306" y="236" font-size="13" font-weight="500" fill="var(--text)">It happened, nothing</text>
+<text x="306" y="253" font-size="13" font-weight="500" fill="var(--text)">went wrong, nobody wrote</text>
+<text x="306" y="290" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">ask, or count trips</text>
+<rect x="510" y="188" width="180" height="120" rx="2" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="526" y="212" font-size="14" font-weight="700" fill="var(--text)">Not there</text>
+<text x="526" y="236" font-size="13" font-weight="500" fill="var(--text)">The frame expects a step</text>
+<text x="526" y="253" font-size="13" font-weight="500" fill="var(--text)">this trip did not have</text>
+<text x="526" y="290" font-size="11" font-weight="400" fill="var(--muted)" font-family="'JetBrains Mono', ui-monospace, monospace">leave it empty</text>
+</g>
+</svg>

@@ -21,9 +21,10 @@ parts:
   text: Knowing the place is not knowing the order. Most texts describe one moment, and a
     transition seen only across texts is a hypothesis, not evidence.
 - part: 4
+  slug: the-gaps
   title: The gaps
   text: Three kinds of hole in a map, and why letting a model fill the third one is
-    confabulation with an ontology as an alibi.
+    confabulation with the map's own frame as an alibi.
 - part: 5
   title: What the map has to earn
   text: The test is which decision falls out differently. A map is an instrument of
