@@ -220,4 +220,18 @@ def tune(settings: Settings, settings_path: Path, split: str, out: Path | None =
     target.write_text("# Tuned on the development split by `jtbd cluster tune` (tasks T032, "
                       "T043).\n" + yaml.safe_dump(tuned, sort_keys=False, allow_unicode=True),
                       encoding="utf-8")
+    from mobility_model_zoo import tracking
+
+    tracking.record(  # the tuning as a run on the dev split (feature 017; no-op without a URI)
+        "productdev/jtbd-cluster",
+        tuned["name"][:120],
+        "jtbd-cluster",
+        "tune",
+        {"chosen": record["chosen"], "f1": best["f1"], "pairs": len(pairs)},
+        topic="productdev",
+        inputs=[tracking.data_ref("cluster", settings.benchmark_version, "evaluation")],
+        tags={"mmz.benchmark": settings.benchmark_version},
+        params={"split": "dev", "base_settings_sha256": digest[:16]},
+        config_path=settings_path,
+    )
     return {"settings": str(target), **record["chosen"], "f1": best["f1"], "pairs": len(pairs)}

@@ -87,6 +87,19 @@ def score(settings: Settings, settings_path: Path, encoder: Encoder | None = Non
         "deterministic_checks": result["checks"]["results"],
     }
     write_json(out / f"score-{name}.json", report)
+    from mobility_model_zoo import tracking
+
+    tracking.record(  # the test-split score as an evaluation run (feature 017; no-op without a URI)
+        "productdev/jtbd-cluster",
+        f"score-{name}"[:120],
+        "jtbd-cluster",
+        "evaluate",
+        {k: v for k, v in report.items() if k not in ("deterministic_checks", "statement")},
+        topic="productdev",
+        inputs=[tracking.data_ref("cluster", settings.benchmark_version, "evaluation")],
+        tags={"mmz.benchmark": settings.benchmark_version, "mmz.candidate": name},
+        config_path=settings_path,
+    )
     return {"score": str(out / f"score-{name}.json"),
             "duplicate": scores["levels"]["duplicate"],
             "consensus_pairs": scores["consensus_pairs"], "contested_pairs": scores["contested_pairs"]}

@@ -1,0 +1,349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model.schema.json",
+  "title": "Model (zoo/models/<name>/model.yaml)",
+  "type": "object",
+  "required": [
+    "name",
+    "topic",
+    "task",
+    "variant",
+    "title",
+    "summary",
+    "license",
+    "usage_class",
+    "license_exception",
+    "base_model",
+    "base_model_license",
+    "languages",
+    "pipeline_tag",
+    "library_name",
+    "tags",
+    "repos",
+    "card"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$",
+      "maxLength": 80
+    },
+    "topic": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "maxLength": 24
+    },
+    "task": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "variant": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX id"
+    },
+    "usage_class": {
+      "enum": [
+        "commercial",
+        "commercial-share-alike",
+        "non-commercial",
+        "non-commercial-share-alike"
+      ],
+      "description": "Declared usage class (constitution 2.1.0, Principle VI); non-commercial models are named <name>-<variant>-nc"
+    },
+    "license_exception": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Required (non-null) if license is not Apache-2.0"
+    },
+    "base_model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Hugging Face id; null = trained from scratch"
+    },
+    "base_model_license": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Null when base_model is null"
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]{2}$"
+      },
+      "description": "At least one for runtime python (gate rule 1)"
+    },
+    "pipeline_tag": {
+      "type": "string"
+    },
+    "library_name": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repos": {
+      "type": "object",
+      "required": [
+        "public",
+        "staging"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "public": {
+          "type": "string",
+          "pattern": "^mobility-model-zoo/[a-z0-9-]+$"
+        },
+        "staging": {
+          "type": "string",
+          "pattern": "^mobility-model-zoo/[a-z0-9-]+-staging$"
+        }
+      }
+    },
+    "card": {
+      "type": "object",
+      "required": [
+        "intended_use",
+        "out_of_scope",
+        "input_output",
+        "install",
+        "how_to_run",
+        "limitations",
+        "citation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "intended_use": {
+          "type": "string",
+          "minLength": 1
+        },
+        "out_of_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_output": {
+          "type": "string",
+          "minLength": 1
+        },
+        "install": {
+          "type": "string",
+          "pattern": "<tag>"
+        },
+        "how_to_run": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            {
+              "pattern": "\\{repo_id\\}"
+            },
+            {
+              "pattern": "\\{revision\\}"
+            }
+          ],
+          "description": "Python code with placeholders {repo_id}, {revision} and, for runtime python, {text} (gate rule 1). {text} stands for a Python string literal. The card fills in the public repo, v<version> and the first example text; the gate fills in the staging repo and revision, runs it once per example text and uses the printed output as that example's output (SC-004, FR-018)"
+        },
+        "limitations": {
+          "type": "string",
+          "minLength": 1
+        },
+        "citation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "figures": {
+          "type": "array",
+          "maxItems": 4,
+          "description": "Optional figures shown under the summary (feature 004, 2026-10-07). Each path is a PNG committed in the repository; the card links it at the release tag, so the image cannot change after publication.",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "alt"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(docs|topics)/[a-z0-9/_.-]+\\.png$"
+              },
+              "alt": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "device_usage": {
+          "type": "string",
+          "minLength": 1,
+          "description": "C snippet calling the model on a device; required for runtime mcu (gate rule 1); may use {repo_id} and {revision}"
+        },
+        "own_data": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Python snippet that uses the model on the user's own data (feature 013); shown on the card and the website under 'Use it on your own data', never executed by the gate; may use {repo_id} and {revision}, never {text}"
+        },
+        "not_for": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Feature 014: the two or three most important things the model is not for, one short point each (at most 15 words, together at most 40). Shown in the website overview and under the card summary. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+        },
+        "limits_short": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Feature 014: the most important known failure modes in short form (at most 25 words each; together with unmet_criteria at most 5 items and 120 words). Shown first in the limits layer of the website and at the top of 'Limitations and risks' on the card. No free-standing numbers (site check F2); {metric:<kind>.<name>} placeholders resolve against the release's results."
+        },
+        "unmet_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "criterion"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "measured"
+                ]
+              },
+              {
+                "required": [
+                  "note"
+                ]
+              }
+            ],
+            "properties": {
+              "criterion": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The success criterion the release does not meet, at most 12 words, no numbers."
+              },
+              "target": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "value",
+                  "unit",
+                  "source"
+                ],
+                "properties": {
+                  "op": {
+                    "enum": [
+                      "<=",
+                      ">=",
+                      "<",
+                      ">",
+                      "="
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Repository path of the task document that defines the criterion."
+                  }
+                }
+              },
+              "measured": {
+                "type": "string",
+                "pattern": "^\\{metric:(quality|performance)\\.[a-z0-9_]+\\}$",
+                "description": "The measured value, resolved against the release's results."
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 15 words, no numbers, for example 'measured only in an emulator'."
+              }
+            }
+          },
+          "description": "Feature 014, constitution IX: every success criterion an experimental release does not meet, with its measured value. Required and non-empty for status experimental, empty for released (gate rule 18, site check D1)."
+        }
+      }
+    },
+    "runtime": {
+      "enum": [
+        "python",
+        "mcu"
+      ],
+      "default": "python",
+      "description": "python (default) or mcu (microcontroller model, int8 engine)"
+    },
+    "engine": {
+      "enum": [
+        "int8",
+        "emlearn"
+      ],
+      "default": "int8",
+      "description": "mcu models: int8 engine (npz) or emlearn tree model (C headers); gate rules 12/13 pick the path"
+    },
+    "runtime_models": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[\\w.-]+/[\\w.-]+$"
+      },
+      "description": "Third-party models the model loads at run time (ids in compliance/third-party-models.yaml)"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "license": {
+            "not": {
+              "const": "Apache-2.0"
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "license_exception": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

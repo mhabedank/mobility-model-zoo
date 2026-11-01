@@ -1,0 +1,5 @@
+model: demo-model
+version: 0.1.0
+recipe: {config: configs/beta/jtbd/recipe.yaml}
+provenance: {sources: [{dataset: ds-a}]}
+evaluation: {benchmark: cap-v2}

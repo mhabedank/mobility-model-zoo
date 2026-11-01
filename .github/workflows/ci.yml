@@ -108,7 +108,7 @@ jobs:
       - run: |
           skip=""
           [ "$TORCH" = "true" ] || skip="--no-install-package torch"
-          uv sync --extra jtbd --extra release --extra edge --extra catalog --extra labeling-api $skip
+          uv sync --extra jtbd --extra release --extra edge --extra catalog --extra labeling-api --extra tracking $skip
       - run: uv run pytest -q $TESTS
 
   # HIL suite against the native firmware simulator (no hardware, no PlatformIO).

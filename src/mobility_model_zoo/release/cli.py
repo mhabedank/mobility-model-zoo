@@ -109,11 +109,19 @@ def _mount_roadmap() -> None:
     app.add_typer(roadmap_app, name="roadmap")
 
 
+def _mount_tracking() -> None:
+    # the group imports no MLflow until a command runs (feature 017)
+    from mobility_model_zoo.tracking.cli import app as tracking_app
+
+    app.add_typer(tracking_app, name="tracking")
+
+
 _mount_compliance()
 _mount_data()
 _mount_catalog()
 _mount_site()
 _mount_roadmap()
+_mount_tracking()
 
 
 @app.command("validate")

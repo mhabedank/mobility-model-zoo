@@ -184,3 +184,16 @@ def test_rule_12_runs_against_the_staged_files(zoo_env, runner):
     record = zoo_env.record()
     assert all(record["staging"]["repo"] in code for code in runner.calls)
     assert all(record["staging"]["revision"] in code for code in runner.calls)
+
+
+def test_tracking_run_id_is_printed_not_carded(zoo_env):
+    run_id = "0123456789abcdef0123456789abcdef"
+    edit_record(
+        zoo_env, lambda d: d.update(tracking={"run_id": run_id, "experiment": "productdev/jtbd-span"})
+    )
+    lines = []
+    gate = Gate(zoo_env.reg, zoo_env.model, zoo_env.version)
+    gate.run(lines.append)
+    assert {s for s, _ in gate.results.values()} <= {"PASS", "SKIP"}
+    assert f"tracking run {run_id} (productdev/jtbd-span)" in lines
+    assert run_id not in (gate.card or "")

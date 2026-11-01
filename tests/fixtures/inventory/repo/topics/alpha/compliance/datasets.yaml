@@ -1,0 +1,39 @@
+datasets:
+- id: ds-a
+  title: Dataset A
+  licence: CC-BY-4.0
+  origin_url: https://example.org/a
+  attribution_text: Dataset A (CC BY 4.0)
+  provider: url
+  permitted_use: training_allowed
+  redistribution: unclear
+  commercial_use: true
+  status: active
+  license_check: manual
+  approx_size_mb: 12
+  used_by: []
+- id: ds-b
+  title: Dataset B
+  licence: CC-BY-NC-4.0
+  origin_url: https://example.org/b
+  attribution_text: Dataset B (CC BY-NC 4.0)
+  provider: url
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  commercial_use: false
+  status: active
+  license_check: manual
+  approx_size_mb: 3
+  used_by: []
+- id: ds-gone
+  title: Rejected dataset
+  licence: LicenseRef-unknown
+  origin_url: https://example.org/gone
+  attribution_text: gone
+  provider: url
+  permitted_use: benchmark_only
+  redistribution: not_allowed
+  commercial_use: false
+  status: rejected
+  license_check: manual
+  reason: licence unclear

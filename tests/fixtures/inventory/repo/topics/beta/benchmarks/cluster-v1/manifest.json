@@ -1,0 +1,38 @@
+{
+  "counts": {
+    "items": {
+      "dev": 5,
+      "test": 7
+    },
+    "pairs": {
+      "dev": {
+        "high": 2,
+        "random": 1
+      },
+      "test": {
+        "high": 3,
+        "random": 2
+      }
+    },
+    "sets": {
+      "dev": 1,
+      "test": 1
+    },
+    "snapshots": {
+      "dev": 1,
+      "test": 2
+    }
+  },
+  "events": [],
+  "excluded": {
+    "opt_out_items": 2,
+    "opt_out_snapshots": 1
+  },
+  "frozen_at": "2026-10-05T09:00:00+00:00",
+  "hashes": {
+    "pairs": "p1"
+  },
+  "revisions": [],
+  "state": "frozen",
+  "version": "cluster-v1"
+}

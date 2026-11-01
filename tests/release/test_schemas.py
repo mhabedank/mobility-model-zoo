@@ -10,7 +10,7 @@ import pytest
 from mobility_model_zoo.release.registry import SCHEMAS, schema_errors
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACTS = ROOT / "specs/014-model-page-layout/contracts/release"  # latest owner of the format
+CONTRACTS = ROOT / "specs/017-mlflow-data-transparency/contracts/release"  # latest owner of the format
 PACKAGED = ROOT / "src/mobility_model_zoo/release/schemas"
 
 
@@ -96,3 +96,20 @@ def test_card_short_forms_validate(zoo_env):
 def test_card_short_forms_reject(zoo_env, mutate):
     model = zoo_env.reg.model_raw(zoo_env.model)
     assert _invalid("model", model, lambda m: mutate(m["card"])) != []
+
+
+# ---- feature 017: link to the run in the private tracking store --------------------------------
+def test_tracking_link(zoo_env):
+    record = zoo_env.record()
+    assert schema_errors("release-record", record) == []  # no tracking: still valid
+    run_id = "0123456789abcdef0123456789abcdef"
+    assert not _invalid(
+        "release-record",
+        record,
+        lambda d: d.update(tracking={"run_id": run_id, "experiment": "productdev/jtbd-span"}),
+    )
+    assert _invalid("release-record", record, lambda d: d.update(tracking={"run_id": run_id[:31]}))
+    assert _invalid("release-record", record, lambda d: d.update(tracking={"experiment": "x"}))
+    assert _invalid(
+        "release-record", record, lambda d: d.update(tracking={"run_id": run_id, "url": "http://x"})
+    )

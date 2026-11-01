@@ -1,0 +1,13 @@
+sources:
+- id: src-1
+  class: forum-review
+  licence: LicenseRef-all-rights-reserved
+  permitted_use: benchmark_only
+- id: src-2
+  class: paper
+  licence: CC-BY-4.0
+  permitted_use: training_allowed
+- id: src-3
+  class: paper
+  licence: CC-BY-4.0
+  permitted_use: training_allowed
