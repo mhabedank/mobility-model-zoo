@@ -442,7 +442,9 @@ def build(
             by_slug = {n["slug"]: n for n in notes}
             for part in overview.get("parts") or []:
                 post = by_slug.get(part.get("slug") or "")
-                part["image"] = picture(post["lead_image"], None, "../") if post else None
+                part["image"] = (
+                    picture(post["lead_image"], None, "../") if post and post.get("lead_image") else None
+                )
                 if part["image"]:
                     thumbs.append(part["image"])
         hero = picture("note:series", None, "../")

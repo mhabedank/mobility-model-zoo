@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 330" width="700" height="330" role="img" aria-labelledby="d-earns-a-place-t d-earns-a-place-d">
+<title id="d-earns-a-place-t">Two entries, and the one test that tells them apart</title>
+<desc id="d-earns-a-place-d">Two pairs of a map drawn without an entry and the same map drawn with it. Top pair: without the fare-zone cause, the decision is leave the tariff page as is; with it, the decision changes to request the fare-zone document. The entry earns its place. Bottom pair: without a stray detail about the platform's paint colour, the decision is unchanged, and it stays unchanged with the detail added. The entry does not earn its place, however true it is.</desc>
+<g font-family="inherit">
+<rect x="0" y="0" width="700" height="150" rx="2" fill="var(--surface-2)"/>
+<text x="16" y="22" font-size="10.5" font-weight="650" fill="var(--muted)" letter-spacing="1.05">THE DECISION CHANGES</text>
+<rect x="24" y="36" width="300" height="96" rx="2" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1"/>
+<text x="38" y="58" font-size="12" font-weight="600" fill="var(--muted)">without the entry</text>
+<circle cx="46" cy="90" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<path d="M50,90 L120,90" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="38" y="116" font-size="12.5" font-weight="500" fill="var(--text)">decision: leave the tariff page as is</text>
+<rect x="376" y="36" width="300" height="96" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+<text x="390" y="58" font-size="12" font-weight="600" fill="var(--muted)">with the entry</text>
+<circle cx="398" cy="90" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<path d="M402,90 L440,90" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<circle cx="452" cy="90" r="9" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+<path d="M461,90 L472,90" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="390" y="116" font-size="12.5" font-weight="700" fill="var(--text)">decision: request the fare-zone document</text>
+<path d="M330,84 L370,84" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-y)"/>
+<text x="350" y="76" font-size="16" font-weight="700" fill="var(--accent)" text-anchor="middle">earns it</text>
+<rect x="0" y="178" width="700" height="150" rx="2" fill="var(--surface-2)"/>
+<text x="16" y="200" font-size="10.5" font-weight="650" fill="var(--muted)" letter-spacing="1.05">THE DECISION DOES NOT CHANGE</text>
+<rect x="24" y="214" width="300" height="96" rx="2" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1"/>
+<text x="38" y="236" font-size="12" font-weight="600" fill="var(--muted)">without the entry</text>
+<circle cx="46" cy="268" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<path d="M50,268 L120,268" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="38" y="294" font-size="12.5" font-weight="500" fill="var(--text)">decision: keep the shelter as it is</text>
+<rect x="376" y="214" width="300" height="96" rx="2" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="390" y="236" font-size="12" font-weight="600" fill="var(--muted)">with the entry</text>
+<circle cx="398" cy="268" r="4.5" fill="var(--bg)" stroke="var(--text)" stroke-width="2"/>
+<path d="M402,268 L440,268" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<circle cx="452" cy="268" r="9" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="3 2"/>
+<path d="M461,268 L472,268" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+<text x="390" y="294" font-size="12.5" font-weight="500" fill="var(--text)">decision: keep the shelter as it is</text>
+<path d="M330,262 L370,262" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-m)"/>
+<text x="350" y="254" font-size="16" font-weight="700" fill="var(--muted)" text-anchor="middle">not this one</text>
+</g>
+<defs>
+<marker id="arrow-y" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+</marker>
+<marker id="arrow-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+</marker>
+</defs>
+</svg>
