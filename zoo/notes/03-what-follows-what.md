@@ -147,4 +147,4 @@ out has a lot of empty space in it. The script that made the order look obvious 
 it without being asked. Whether it should depends on what kind of gap it is, and there turn out
 to be three.
 
-That is the next part.
+That is [the next part](../the-gaps/).
