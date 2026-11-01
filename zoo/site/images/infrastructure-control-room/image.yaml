@@ -30,7 +30,8 @@ generation:
     commit: unversioned
     image_digest: sha256:373249621b54580b0c38d284e4ddfe433d733800569e5d253b01792ad7c75bcc
 licence: CC0-1.0
-placements: []
+placements:
+- note:what-the-map-has-to-earn
 scene: Traffic control room with a wall of abstract map screens
 alt: A figure seen from behind sits at an orange-yellow console in a traffic control room with map screens
   (AI-generated image)
