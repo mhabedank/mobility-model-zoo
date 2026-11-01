@@ -7,6 +7,9 @@ date: 2026-11-01
 description: A map that is honest about its holes is not yet useful for that reason alone. The
   test this series ends on is which decision an entry would change, not whether it is true.
 author: Martin Habedank
+lead_image: note:what-the-map-has-to-earn
+lead_caption: Nothing on this wall earns its place by being there. It earns it by what gets
+  decided from this desk, which is the only test the map answers to now.
 diagrams:
   earns-a-place: Two entries and the one test that tells them apart. One changes what gets
     decided; one does not, however true it is.
