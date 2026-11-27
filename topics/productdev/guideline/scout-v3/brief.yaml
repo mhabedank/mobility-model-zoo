@@ -1,19 +1,30 @@
 teacher_task: 'Der Labeler soll herausfinden, wo Pains, Gains und Jobs to be done im text zu finden sind. diese werden dann mit weiteren feldern angereichert. siehe dafür die liste der FElder'
 reader: 'Ein Produkt Manager'
 domain:
-- source: 'Wikipedia (de), Räumliche Mobilität'
-  url: 'https://de.wikipedia.org/wiki/R%C3%A4umliche_Mobilit%C3%A4t'
-  licence: CC-BY-SA-4.0
-  text: null
-- source: 'Wikipedia (en), Transport'
-  url: 'https://en.wikipedia.org/wiki/Transport'
-  licence: CC-BY-SA-4.0
-  text: null
-- source: 'FGSV, Begriffsbestimmungen'
-  url: null
-  licence: proprietary
-  text: null
-- source: 'Spektrum, Lexikon der Geographie, Verkehrsmobilität'
-  url: 'https://www.spektrum.de/lexikon/geographie/verkehrsmobilitaet/8614'
-  licence: proprietary
-  text: null
+  owner: 'Folge der DEfinition von Mobilität, alles was dazu gehört gehört auch zu umserem Thema.'
+  drafted_by: claude
+  approval: 'owner, 2026-11-27, in chat (formal approval with hashes follows for the whole guideline package)'
+  definition: >-
+    Mobility is the movement of people, goods and animals in geographic space, together with
+    everything that enables or shapes it. It covers: the trips and transports themselves, by any
+    mode and over any distance, including walking, cycling, cars, public transport, rail, air,
+    water and freight; the options people and organisations have to move, such as access, cost,
+    time and information; the vehicles, services, infrastructure and energy used for it, such as
+    roads, stations, parking, fuel and charging; and the work, rules, business and effects that go
+    with it, such as jobs in transport and logistics, regulation, prices, congestion and emissions.
+    Transport is the movement that actually happens; mobility also includes the possibility to
+    move. Not covered: social mobility between classes or jobs, and the transmission of messages
+    or energy as such.
+  sources:
+  - source: 'Wikipedia (de), Räumliche Mobilität'
+    url: 'https://de.wikipedia.org/wiki/R%C3%A4umliche_Mobilit%C3%A4t'
+    licence: CC-BY-SA-4.0
+  - source: 'Wikipedia (en), Transport'
+    url: 'https://en.wikipedia.org/wiki/Transport'
+    licence: CC-BY-SA-4.0
+  - source: 'FGSV, Begriffsbestimmungen'
+    url: null
+    licence: proprietary
+  - source: 'Spektrum, Lexikon der Geographie, Verkehrsmobilität'
+    url: 'https://www.spektrum.de/lexikon/geographie/verkehrsmobilitaet/8614'
+    licence: proprietary
