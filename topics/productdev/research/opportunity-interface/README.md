@@ -1,6 +1,6 @@
 # The opportunity interface: what the pipeline must hand to OST and ODI
 
-Date: 2026-11-27. Status: requirements analysis, nothing built. Input to the [scout-large roadmap](../scout-large-architecture/roadmap.md) and to the next cairn feature.
+Date: 2026-11-27. Status: requirements analysis, nothing built. The owner confirmed the field list for scout-large 0.2.0 on 2026-11-27 (rows 3 to 11 and 19). Input to the [scout-large roadmap](../scout-large-architecture/roadmap.md) and to the next cairn feature.
 
 ## Why this document exists
 
