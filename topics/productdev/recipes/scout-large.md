@@ -137,4 +137,4 @@ Version 0.1.0 was trained at commit `4a7091a`, where this document was still nam
 
 ## Next version
 
-Options for a smaller, faster, better calibrated and more accurate successor (unit-level head, multilingual backbones, distillation, calibration) and the order in which to test them: [research/scout-large-architecture/](../research/scout-large-architecture/README.md).
+Options for a smaller, faster, better calibrated and more accurate successor (unit-level head, multilingual backbones, distillation, calibration) and the order in which to test them: [research/scout-large-architecture/](../research/scout-large-architecture/README.md). The plan for 0.2.0, including the clean rebuild of guideline, benchmark and training data: [roadmap](../research/scout-large-architecture/roadmap.md).
