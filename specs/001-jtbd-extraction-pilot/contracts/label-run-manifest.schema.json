@@ -188,6 +188,33 @@
         "type": "string"
       },
       "minItems": 2
+    },
+    "requested_model": {
+      "type": "string",
+      "description": "Model the run asked for (Claude gate, constitution XI)."
+    },
+    "resolved_model": {
+      "type": "string",
+      "description": "Model the backend reported (Ollama digest or provider model id)."
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "description": "Claude gate result (constitution XI, decision D-claude-ban)."
     }
   },
   "allOf": [

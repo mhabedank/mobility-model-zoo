@@ -133,7 +133,8 @@
               "enum": [
                 "teacher",
                 "reference",
-                "pii_review"
+                "pii_review",
+                "guideline_writer"
               ]
             }
           },

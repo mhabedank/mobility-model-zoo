@@ -39,7 +39,8 @@ PermittedUses = Literal["benchmark_only", "training_allowed"]
 Split = Literal["main", "holdout", "train"]
 # teacher: the pilot-recommended teacher labeling a training split; student: a trained model of
 # the task (feature 004). span: outputs written by `jtbd span label`, not by a labeling backend.
-Role = Literal["reference", "teacher_candidate", "baseline", "teacher", "student"]
+# guideline_writer: writes the text a benchmark's reference models read; never Claude (constitution XI).
+Role = Literal["reference", "teacher_candidate", "baseline", "teacher", "student", "guideline_writer"]
 BackendName = Literal[
     "claude_cli", "anthropic_api", "openrouter", "ollama", "openai_compat", "ensemble", "mock", "span"
 ]
@@ -171,6 +172,17 @@ class ExcludedChunk(BaseModel):
     reason: str
 
 
+class RunGate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["pass", "fail"]
+    reason: str = ""
+
+
+# Claude gate fields of a run manifest (constitution XI, decision D-claude-ban).
+GATE_FIELDS = ("requested_model", "resolved_model", "gate")
+
+
 class LabelRunManifest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -196,6 +208,12 @@ class LabelRunManifest(BaseModel):
     deviations: list[str] = Field(default_factory=list)
     status: Literal["running", "complete", "invalid_version_change"] = "running"
     derived_from: list[str] | None = Field(default=None, min_length=2)
+    # Claude gate (constitution XI). Optional so the records of frozen benchmarks still load; new
+    # `jtbd label` runs write them, and `labeling.gate.require_pass` refuses a run without a passing
+    # gate record.
+    requested_model: str | None = None
+    resolved_model: str | None = None
+    gate: RunGate | None = None
 
     @model_validator(mode="after")
     def _rules(self) -> LabelRunManifest:
@@ -224,8 +242,11 @@ class LabelRunManifest(BaseModel):
     @model_serializer(mode="wrap")
     def _omit_derived_from(self, handler):
         data = handler(self)
-        if data.get("derived_from") is None:
-            data.pop("derived_from", None)  # the contract allows only an array
+        # The contract allows only an array for derived_from; the gate fields are written only when
+        # set, so records stay valid against the 001 contract.
+        for key in ("derived_from", *GATE_FIELDS):
+            if data.get(key) is None:
+                data.pop(key, None)
         return data
 
 

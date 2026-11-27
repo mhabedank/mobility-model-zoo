@@ -27,3 +27,9 @@ class CrawlOnceRefused(PilotError):
 
 class BackendFailure(PilotError):
     exit_code = 6
+
+
+class ClaudeGateError(PilotError):
+    """A run would use, or did use, a Claude model (constitution Principle XI)."""
+
+    exit_code = 7

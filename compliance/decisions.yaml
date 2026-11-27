@@ -359,3 +359,37 @@ decisions:
   review_by: '2027-04-14'
   decided_by: Martin Habedank
   supersedes: null
+- id: D-claude-ban
+  date: '2026-10-13'
+  decision: Claude is never used for AI learning or extraction (constitution 3.0.0, Principle XI) - no labels,
+    benchmark references, judges, teachers, training or synthetic data, selection signals or prompt text a model
+    reads. The labeling backends claude_cli and anthropic_api are refused by the Claude gate for every new run. The
+    Claude reference labels of pilot-v1, pilot-v2, cluster-v1 and spike-v2 stay in their frozen role
+    (D-claude-risk-0.1.x).
+  rationale: 'Owner direction of 2026-10-13: "never use claude as a tool for AI learning or extraction. not even in the
+    slightest."'
+  scope:
+  - compliance/providers.yaml#claude-api
+  - compliance/providers.yaml#claude-consumer-cli
+  - configs/productdev/jtbd/models.yaml
+  - src/mobility_model_zoo/productdev/jtbd/labeling/gate.py
+  review_by: '2027-04-13'
+  decided_by: Martin Habedank
+  supersedes: D-claude-api
+- id: D-references-frontier
+  date: '2026-11-27'
+  decision: ref-qwen3.8-27b (family qwen, local) and ref-deepseek-v4.1-flash (family deepseek, hosted, OpenRouter
+    pinned to DigitalOcean) are the registered non-Claude reference labelers for new benchmarks. Redacted benchmark
+    quotes go to DigitalOcean only after the pre-send checks. Which benchmark they label, and any overlap with a
+    candidate's maker, is recorded per benchmark.
+  rationale: 'Frontier check of 2026-10-14 (Artificial Analysis Intelligence Index, open weights): Qwen3.8 27B rank 13,
+    the best fit for local hardware with the installed Ollama; DeepSeek-V4.1-Flash rank 7, too large for local
+    hardware, so hosted. Owner choices of 2026-10-14; recorded without a benchmark binding on 2026-11-27 so that
+    main carries the references independently of the cluster benchmarks (owner choice, scout-large 0.2.0 roadmap
+    phase 0).'
+  scope:
+  - configs/productdev/jtbd/models.yaml
+  - compliance/providers.yaml#deepseek-v41flash-openrouter-digitalocean
+  review_by: '2027-04-14'
+  decided_by: Martin Habedank
+  supersedes: null

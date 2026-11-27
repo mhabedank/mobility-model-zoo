@@ -31,6 +31,7 @@ routes:
   - baseline-qwen3.5-0.8b|ollama|local:spark
   - baseline-qwen3.5-4b|ollama|local:spark
   - teacher-qwen3.8|ollama|local:spark
+  - ref-qwen3.8-27b|ollama|local:spark
   owner: Martin Habedank
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
@@ -190,3 +191,33 @@ routes:
   owner: Martin Habedank
   last_reviewed: '2026-10-08'
   next_review: '2027-04-08'
+- id: deepseek-v41flash-openrouter-digitalocean
+  model_family: deepseek
+  openrouter_provider: DigitalOcean
+  model_id: ref-deepseek-v4.1-flash
+  model_version: deepseek/deepseek-v4.1-flash
+  access_path: openrouter
+  hosting_provider: DigitalOcean (DigitalOcean, LLC, US; via OpenRouter, Inc., US)
+  region: US
+  dpf_listed: true
+  zero_data_retention: true
+  training_on_inputs: false
+  dpa: false
+  terms_url: https://docs.digitalocean.com/products/inference/details/data-privacy/
+  terms_sha256: e2b9dd36c4cff5d388bb864996c0f153bd538f17865ac6d67c16353d8aa8dad1
+  terms_checked_at: '2026-10-14'
+  output_training_permitted: 'yes'
+  clause: 'DeepSeek-V4.1-Flash is MIT-licensed (HF deepseek-ai/DeepSeek-V4.1-Flash license tag, read 2026-10-14).
+    DigitalOcean AI data privacy (last verified 12 Oct 2026): model inputs and outputs are not stored (except with
+    the opt-in Signals feature, not used), never sent to the model creator, and "DigitalOcean does not use this data
+    to train, retrain, or fine-tune any model". Listed in OpenRouter''s zero-data-retention endpoint list for this
+    model (2026-10-14). DigitalOcean is an active participant of the EU-U.S. Data Privacy Framework, non-HR data
+    (dataprivacyframework.gov list, checked 2026-10-14).'
+  allowed_for: [reference]
+  signoff: {by: Martin Habedank, at: '2026-10-16'}
+  log_matches: [ref-deepseek-v4.1-flash|openrouter|DigitalOcean]
+  notes: Reference labeler (decision D-references-frontier). Receives redacted benchmark quotes after the pre-send
+    checks. Signed off by the owner in chat on 2026-10-16.
+  owner: Martin Habedank
+  last_reviewed: '2026-10-14'
+  next_review: '2027-04-14'

@@ -1,42 +1,22 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 2.3.0 → 3.0.0
-Bump rationale: MAJOR. Owner direction of 2026-10-13: "never use claude as a tool for AI
-learning or extraction. not even in the slightest." Withdraws a permission the constitution gave
-(Claude labeling within the provider's terms, Claude as a benchmark reference labeler) and adds a
-principle that admits no deviation, which changes the general deviation rule. Practice that was
-compliant under 2.3.0 is non-compliant now.
-
-Owner decisions (2026-10-13): total ban (training, teacher, synthetic data, labels, benchmark
-references, judges, selection signals, the task itself, extraction of Claude); existing Claude
-reference labels kept as they are; Claude stays a development assistant whose outputs never become
-model data.
+Version change: 3.0.0 → 3.1.0
+Bump rationale: MINOR. Owner decision of 2026-10-14 (feature 018, in chat, choice "Regel
+lockern"): a narrow carve-out in Principle XI lets Claude draft the labeling guideline, its
+fictional worked examples and the task instructions that benchmark reference labelers read, on
+condition of a recorded owner approval before any labeling run. Guidance is expanded; no practice
+that was compliant under 3.0.0 becomes non-compliant, and every other part of the Claude ban stays.
 
 Modified principles:
-- III. Measure Before Optimizing: benchmark labelers exclude Claude.
-- VI. Clean Provenance, Restrictions Carry Over: a teacher is never Claude.
-
-Added sections:
-- XI. No Claude in Model Learning or Extraction.
+- XI. No Claude in Model Learning or Extraction: new bullet "Owner-approved labeling guideline";
+  the ban on worked or few-shot examples and the development-assistant bullet name the carve-out.
 
 Modified sections:
-- Resources & Cost Discipline: inventory as of 2026-10-13, Claude subscription for development
-  assistance only; cost order and subscription-model rule exclude Claude from data work.
-- Technical Spikes: the Claude ban is listed among the rules spikes are not exempt from.
-- Development Workflow & Quality Gates: release gate checks for Claude-produced inputs; new gate
-  before labeling, data generation and evaluation runs; Principle XI admits no deviation.
+- Development Workflow & Quality Gates: the release gate and the gate before a labeling run accept
+  an owner-approved labeling guideline and still fail on any other Claude-produced input.
 
-Removed sections: none.
-
-Previous reports: 2.2.0 → 2.3.0 (MINOR, 2026-10-12) added Roadmap and Delivery Pace and its gate;
-2.1.0 → 2.2.0 (MINOR, 2026-10-10, feature 010) allowed `experimental` releases below production
-readiness; 2.0.0 → 2.1.0 (MINOR, 2026-10-10, feature 011) added the usage class of every model, NC
-models under an NC licence with the suffix `-nc`, restrictions of inputs carrying over and pinned
-third-party models; 1.4.0 → 2.0.0 made tools and budgets per task, replaced the "accuracy" ban by a
-metric naming rule and allowed dataset publication after a redistribution check; 1.3.0 → 1.4.0
-changed model naming to `<name>-<variant>`; 1.2.0 → 1.3.0 made the project the multi-topic
-`mobility-model-zoo`.
+Added sections: none. Removed sections: none.
 
 Templates reviewed (not modified; they read the constitution at runtime and quote none of the
 changed rules):
@@ -44,17 +24,28 @@ changed rules):
 - .specify/templates/spec-template.md ✅
 - .specify/templates/tasks-template.md ✅
 
-Follow-up (outside this amendment; code and records now non-compliant):
-- configs/productdev/jtbd/cluster-v1.yaml `reference_models` and topics/productdev/tasks/
-  jtbd-cluster.md name claude-reference: cluster-v1 stays as it is; the next cluster benchmark
-  version and any new labeling run need a second non-Claude family.
-- configs/productdev/jtbd/models.yaml `claude-reference`, labeling backends `claude_cli` and
-  `anthropic_api`: must be blocked for labeling, teacher, judge and data generation roles, with a
-  gate check that fails any run recording a Claude model.
-- compliance/providers.yaml `claude-api` ("future reference labeler") and decision D-claude-api
-  (future Claude reference labels via the API): superseded; record a new decision.
-- zoo check: release gate check that no input behind a model was produced by Claude, apart from
-  the labels Principle XI keeps.
+Follow-up (outside this amendment):
+- Feature 018 (specs/018-cairn-cluster-v2): the guideline package may now be drafted by Claude and
+  approved by the owner instead of written by writer-deepseek; record the approval (who, when,
+  sha256 per file) with the benchmark, make `guide check`, `freeze` and `label` refuse an
+  unapproved or changed package, and supersede decision D-cluster-v2-guideline-writer.
+- zoo check (release gate): accept an owner-approved labeling guideline as the only Claude-produced
+  input besides the labels Principle XI keeps.
+
+Open question (recorded, not decided): do guidelines and examples written in Claude sessions
+before 2026-10-14 count as approved? Concerned: the extraction guideline-v2 and examples-v2 that
+the teacher of scout-large 0.1.x read, and the cluster-v1 guideline and examples. A separate task
+investigates their provenance; the owner decides on its report.
+
+Previous reports: 2.3.0 → 3.0.0 (MAJOR, 2026-10-13) added Principle XI (total Claude ban for AI
+learning and extraction, existing Claude reference labels kept); 2.2.0 → 2.3.0 (MINOR, 2026-10-12)
+added Roadmap and Delivery Pace and its gate; 2.1.0 → 2.2.0 (MINOR, 2026-10-10, feature 010)
+allowed `experimental` releases below production readiness; 2.0.0 → 2.1.0 (MINOR, 2026-10-10,
+feature 011) added the usage class of every model, NC models under an NC licence with the suffix
+`-nc`, restrictions of inputs carrying over and pinned third-party models; 1.4.0 → 2.0.0 made
+tools and budgets per task, replaced the "accuracy" ban by a metric naming rule and allowed
+dataset publication after a redistribution check; 1.3.0 → 1.4.0 changed model naming to
+`<name>-<variant>`; 1.2.0 → 1.3.0 made the project the multi-topic `mobility-model-zoo`.
 -->
 
 # mobility-model-zoo Constitution
@@ -300,7 +291,8 @@ OpenRouter, Amazon Bedrock, Google Vertex AI).
   - evaluation judgments (model-as-judge), or any signal used for model selection, threshold
     tuning, prompt optimization or the success and kill criteria of an experiment;
   - worked or few-shot examples, gold items or label examples that a model sees as input or
-    learns from.
+    learns from, apart from the fictional worked examples of an owner-approved labeling guideline
+    (see below).
 - Claude MUST NOT perform the task of any model in the zoo (for example extracting jobs, pains,
   gains and actors from source texts, or judging whether two items belong together), not as a
   reference, a baseline, a spike, a one-off test or an example.
@@ -309,8 +301,17 @@ OpenRouter, Amazon Bedrock, Google Vertex AI).
 - Claude MAY be used as a development assistant: writing and reviewing code, specs, plans,
   documentation, model cards, compliance records and resource metadata (for example the URL,
   licence, language and permitted use of a source, without its content). What Claude writes in
-  this role MUST NOT be used as model input data, and Claude MUST NOT read source texts to label
-  or extract items for any model.
+  this role MUST NOT be used as model input data, apart from an owner-approved labeling guideline
+  (see below), and Claude MUST NOT read source texts to label or extract items for any model.
+- Owner-approved labeling guideline (amendment 3.1.0, 2026-10-14): Claude MAY draft the labeling
+  guideline, its fictional worked examples and the task instructions that the reference labelers
+  of a benchmark read. Before any labeling run uses them, the owner MUST review and explicitly
+  approve them, and the approval (who, when, sha256 of each approved file) MUST be recorded with
+  the benchmark; a labeling run MUST refuse an unapproved package or one that changed after its
+  approval. The carve-out covers only instructions for benchmark reference labelers that are not
+  Claude. It never covers examples or instructions given to a teacher, a data generator or a model
+  being trained, gold items, or anything a model learns from, and the items being labeled never
+  come from Claude.
 - The ban holds whatever the provider terms, licence, access path, cost, usage class or spike
   status. It admits no deviation (see "Development Workflow & Quality Gates").
 - Every labeling, data generation and evaluation run MUST record the model that produced its
@@ -323,7 +324,10 @@ OpenRouter, Amazon Bedrock, Google Vertex AI).
 
 Rationale: The owner rules out any use of Claude for building or teaching other AI, without
 exception. A narrow carve-out for development work keeps the assistant usable while drawing a
-hard line: nothing Claude writes is ever data a model learns from or is measured against.
+hard line: nothing Claude writes is ever data a model learns from or is measured against. The
+owner-approved labeling guideline is the one place where Claude's drafting reaches a labeler: it
+tells non-Claude references what to judge, it is reviewed by a person before use, and the labels
+themselves stay Claude-free.
 
 ## Project Scope & Iterative Delivery
 
@@ -478,9 +482,11 @@ labeled and walled off from gates and releases stops them from turning into unme
   status MUST follow Principle IX: `released` only when the task's success criteria and budgets
   are met, otherwise `experimental` with the unmet criteria on the model card. No training data,
   teacher output or evaluation behind the model was produced by Claude, apart from the existing
-  benchmark labels that Principle XI keeps as they are.
-- Gate before a labeling, data generation or evaluation run: no model in the run is Claude
-  (Principle XI).
+  benchmark labels that Principle XI keeps as they are and an owner-approved labeling guideline of
+  a benchmark's reference labelers.
+- Gate before a labeling, data generation or evaluation run: no model in the run is Claude, and
+  any Claude-drafted text in its prompt is an owner-approved labeling guideline, unchanged since
+  its approval (Principle XI).
 - Gate before rolling the roadmap forward: the pace review of the closed quarter (see "Roadmap
   and Delivery Pace") MUST be complete, and the new plan MUST state how it uses the measured pace.
 - Any violation of a principle MUST be documented in the plan's complexity or deviation
@@ -501,4 +507,4 @@ labeled and walled off from gates and releases stops them from turning into unme
   it touches. Non-compliance blocks the gate in question until it is resolved or justified
   as a documented deviation.
 
-**Version**: 3.0.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-13
+**Version**: 3.1.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-10-14
