@@ -50,6 +50,16 @@ def parse_json_text(text: str | None) -> Any | None:
 
 
 def make_backend(settings: Settings, entry: ModelEntry, backend: str, host: str | None) -> Backend:
+    """The backend for `entry`, behind the Claude gate (constitution XI): a Claude entry is refused
+    before anything is built, and an answer that reports a Claude model is refused after the call."""
+    from mobility_model_zoo.productdev.jtbd.labeling import gate
+
+    gate.require(gate.check_entry(entry), entry.model_id)
+    gate.require(gate.check_names(backend=backend), entry.model_id)
+    return gate.guard(_build(settings, entry, backend, host), entry)
+
+
+def _build(settings: Settings, entry: ModelEntry, backend: str, host: str | None) -> Backend:
     if backend != entry.backend:
         from mobility_model_zoo.productdev.jtbd.errors import UsageError
 

@@ -21,6 +21,7 @@ This file lists every command the pilot exposes. Each command reads configuratio
 | `4` | budget refusal |
 | `5` | crawl-once refusal |
 | `6` | backend failure after retries |
+| `7` | Claude gate refusal: a run would use, or did use, a Claude model (constitution XI, decision D-claude-ban) |
 
 **Logging**: human-readable messages go to stderr, and a machine summary (JSON) goes to stdout.
 
@@ -84,6 +85,7 @@ Adds the consensus and contested hashes after `pilot consensus` and sets the ben
 ### `pilot label --role <reference|teacher_candidate|baseline> --backend <claude_cli|openrouter|ollama|openai_compat|mock> --model <id> [--host <name>] [--split main|holdout] [--limit n] [--workers n] [--retry-failed]`
 
 - **Preconditions**:
+  - Claude gate, checked first and also with `--dry-run`: the registry entry and `--backend` name no Claude model, family or backend (`claude_cli`, `anthropic_api`), and every answer reports a non-Claude model (exit `7` otherwise). The manifest records `requested_model`, `resolved_model` and the `gate` result.
   - The frozen hashes match (exit `3` otherwise).
   - The budget guard passes (exit `4` otherwise).
   - The role rules hold: a reference model can never be a teacher candidate, and the families must differ (exit `1` otherwise).

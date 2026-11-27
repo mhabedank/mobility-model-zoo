@@ -1,8 +1,9 @@
 """`jtbd label`: runs one model over one split.
 
-Preconditions: frozen hashes (exit 3), budget guard (exit 4), role and family rules, holdout lock,
-passed redaction. Raw responses are written once and never overwritten; runs are resumable; a
-model-version change mid-run stops the run (exit 6).
+Preconditions: no Claude model or backend (exit 7, constitution XI), frozen hashes (exit 3),
+budget guard (exit 4), role and family rules, holdout lock, passed redaction. Raw responses are
+written once and never overwritten; runs are resumable; a model-version change mid-run stops the
+run (exit 6).
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks
 from mobility_model_zoo.productdev.jtbd.errors import BackendFailure, ValidationFailed
 from mobility_model_zoo.productdev.jtbd.freeze import schema_sha256, set_pilot_state, verify_frozen
 from mobility_model_zoo.productdev.jtbd.jsonio import read_json, write_json
+from mobility_model_zoo.productdev.jtbd.labeling import gate
 from mobility_model_zoo.productdev.jtbd.labeling.base import make_backend
 from mobility_model_zoo.productdev.jtbd.labeling.prompt import (
     approx_prompt_tokens,
@@ -29,6 +31,7 @@ from mobility_model_zoo.productdev.jtbd.schema import (
     ExcludedChunk,
     ExtractionOutput,
     LabelRunManifest,
+    RunGate,
     RunSettings,
     wire_schema,
 )
@@ -53,7 +56,7 @@ def check_roles(settings: Settings, role: str, entry: ModelEntry) -> None:
     if role == "reference" and not entry.benchmark_labeler:
         raise ValidationFailed(f"reference model {entry.model_id} must be benchmark_labeler: true")
     if role in ("teacher_candidate", "teacher"):
-        if entry.benchmark_labeler:
+        if entry.benchmark_labeler or entry.teacher_banned:
             raise ValidationFailed(
                 f"{entry.model_id} is a benchmark labeler and can never be a teacher (FR-019)"
             )
@@ -62,6 +65,14 @@ def check_roles(settings: Settings, role: str, entry: ModelEntry) -> None:
             raise ValidationFailed(f"teacher family {entry.family} equals a reference family (FR-019a)")
         if not entry.license_basis:
             raise ValidationFailed(f"record license_basis for teacher {entry.model_id} (T071)")
+    if role == "guideline_writer":
+        # The writer of a benchmark's guideline shares no family with its reference labelers.
+        refs = (settings.cluster or {}).get("reference_models", [])
+        families = {models[i].family for i in refs if i in models}
+        if entry.family in families:
+            raise ValidationFailed(
+                f"guideline writer {entry.model_id} shares family {entry.family} with a reference"
+            )
 
 
 def estimate_for(
@@ -189,6 +200,10 @@ def label(
     workers: int = 1,
 ) -> dict[str, Any]:
     entry = settings.model(model_id)
+    # Claude gate first (constitution XI): a Claude entry or backend is refused with exit code 7
+    # before role, freeze, compliance or dry-run checks can answer with anything else.
+    gate.require(gate.check_entry(entry), entry.model_id)
+    gate.require(gate.check_names(backend=backend), entry.model_id)
     check_roles(settings, role, entry)
     frozen = verify_frozen(settings)
     if role == "teacher":
@@ -266,6 +281,8 @@ def label(
             started_at=datetime.now(UTC),
             license_basis=entry.license_basis,
             deviations=list(model.deviations),
+            requested_model=entry.api_model or entry.model_id,
+            gate=RunGate(**gate.check_entry(entry).as_record()),
         )
         write_json(manifest_file, manifest.model_dump(mode="json"))
     if split == "holdout" and frozen.get("pilot_state") == "revise":
@@ -290,7 +307,7 @@ def label(
                 spent += cost
                 for version in versions:
                     if manifest.model_version == "pending":
-                        manifest.model_version = version
+                        manifest.model_version = manifest.resolved_model = version
                     elif manifest.model_version != version:
                         manifest.status = "invalid_version_change"
                         for other in futures:

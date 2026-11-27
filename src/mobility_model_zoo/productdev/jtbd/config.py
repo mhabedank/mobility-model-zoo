@@ -59,6 +59,11 @@ class ModelEntry:
     benchmark_labeler: bool = False
     quantization: str | None = None
     license_basis: str | None = None
+    # Benchmark labelers never teach or generate data (constitution III, `teacher_banned`); a
+    # reference records why it counts as a frontier model of its family ({leaderboard, url, date,
+    # rank_open_weight}).
+    teacher_banned: bool = False
+    frontier_rationale: dict[str, Any] | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
 
