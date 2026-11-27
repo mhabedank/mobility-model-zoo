@@ -1,0 +1,159 @@
+# Model heads and task formulations for span extraction with attributes (alternatives to BIO on an encoder, for "scout-large")
+
+Scope note: researched 2026-11-27 with a budget of ~15 tool calls. Where a number comes from my background knowledge and was NOT re-verified in this session, it is in "Gaps" or explicitly flagged "(unverified)". Older results (pre-2024) are marked [older].
+
+Setup recap (from the assignment): XLM-R-large + BIO head (loss weight 0.5) + document relevance head (0.5); items = whole sentences/clauses with attributes kind (job/pain/gain), actor type, evidence type (ordinal), evidence scope; DE/EN mobility texts; ~1,000 LLM-teacher-labeled chunks; 512-token windows, stride 128, stitched. Measured vs. frontier-LLM reference: relevance kappa 0.54, item-matching F1 0.59 (items get split: a multi-sentence job becomes two), attribute kappa 0.76–0.85.
+
+## 1. Span-based heads vs BIO/BIO+CRF (span enumeration, biaffine, pointer/boundary, global pointer, GLiNER family, GLiClass)
+
+### Takeaway
+Span/boundary heads beat or match BIO mainly where spans are long, overlapping, or need span-level consistency of labels; but classic span-enumeration heads (SpERT/PURE/GLiNER-v1 style) cap span width and are a poor fit for sentence-to-multi-sentence items, whereas boundary (start/end pointer, biaffine, GLiNER2.5 "boundary") heads have no width cap and are the relevant alternative. The GLiNER family (GLiNER2/2.5, GLiNER-multitask, GLiClass) gives a ready-made, Apache-2.0, multilingual (mDeBERTa) schema-prompted encoder that does spans + classification in one pass and is fine-tunable, but its published strength is zero-shot short-entity NER (CrossNER ~0.59–0.62 F1), not long clause extraction; in-domain fine-tuned models remain ahead of zero-shot universal models.
+
+### Cited Findings
+- Biaffine NER (Yu, Bohnet, Poesio, ACL 2020) [older]: scores every (start, end) token pair with a biaffine classifier (Dozat & Manning), so all candidate spans are considered; evaluated on 3 nested (ACE04, ACE05, GENIA) and 5 flat corpora (CoNLL-2002 Dutch/Spanish, CoNLL-2003 English **and German**, OntoNotes); reports SOTA on all eight with gains of up to 2.2 points. Code: juntaoy/biaffine-ner — [ACL Anthology](https://aclanthology.org/2020.acl-main.577); [arXiv 2005.07150](https://arxiv.org/abs/2005.07150v3)
+- SRL comparison of BIO tagging vs direct span scoring vs head-first-then-boundaries (SpNLP 2021) [older]: span scoring models span-level information directly but enumerating spans is computationally expensive; BIO is applicable when spans do not overlap — [ACL SpNLP 2021](https://aclweb.org/anthology/2021.spnlp-1.8.pdf)
+- Argument mining, Eger et al. 2017 [older]: standard neural BIO sequence tagging performs well for argument component extraction, token-level dependency parsing framing performs poorly; error analysis attributes inexact argument span boundaries to the BIO tagger's local independence assumptions — [arXiv 1704.06104](https://arxiv.org/pdf/1704.06104)
+- EMNLP 2022 argument-mining paper: sequence-labeling methods that predict relations/distances via token-level classification are "hard to learn and the results are suboptimal"; pipelined identification-then-relation suffers error propagation — [ACL Anthology 2022.emnlp-main.713](https://aclanthology.org/2022.emnlp-main.713v2.pdf)
+- Business-document IE: jointly learning span extraction and sequence labeling benefits the model over either alone [older] — [arXiv 2205.13434](https://arxiv.org/pdf/2205.13434)
+- ABSA (opinion/aspect spans, closest analog to pains/gains): span-level approaches mitigate polarity inconsistency because sentiment is assigned to a whole span rather than per token — [arXiv 2109.00256](https://arxiv.org/pdf/2109.00256); Span-ASTE (ACL 2021) reports span-based methods "have shown encouraging performance" on aspect-sentiment triplet extraction [older] — [ACL 2021.acl-long.367](https://aclanthology.org/2021.acl-long.367.pdf); QDSL (AAAI) replaces BIO with a span-based scheme to handle tokens belonging to multiple entities — [AAAI](https://ojs.aaai.org/index.php/AAAI/article/view/17523/17330). Per-benchmark F1 gaps were not in the retrieved excerpts.
+- GLiNER2 (Fastino; arXiv July 2025, EMNLP 2025 demos): one encoder (205M) does NER, text classification, hierarchical structure extraction (parent entities with attribute fields) and relations; schema is fed as prompt "[Task Prompt] ⊕ [SEP] ⊕ [Input Text]" with special tokens [P], [E], [C], [L]; spans up to a max width are scored against [E] embeddings via dot product + sigmoid (>0.5); an MLP predicts the number of parent instances (0–19); classification via MLP over [L] embeddings (softmax single-label / sigmoid multi-label); context 2048 tokens (GLiNER-v1: 512) — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1); [EMNLP 2025 demos](https://aclanthology.org/2025.emnlp-demos.10)
+- GLiNER2 training data: 254,334 examples = 135,698 real documents annotated with GPT-4o (news, law, Wikipedia, PubMed, arXiv) + 118,636 GPT-4o synthetic examples, i.e. the model itself is an LLM-teacher distillation — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1)
+- GLiNER2 zero-shot numbers: CrossNER avg F1 GPT-4o 0.599, GLiNER-M 0.615, GLiNER2 0.590; zero-shot classification avg GPT-4o 0.84, GLiNER2 0.72, DeBERTa-v3 (NLI) 0.69, GLiClass 0.63; CPU latency 130→208 ms for 5→50 labels (GPT-4o API 358→463 ms; NLI-DeBERTa 1714→16897 ms). Hierarchical extraction (the part analogous to item+attributes) was NOT benchmarked. Some text/table inconsistencies exist in the paper — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1)
+- GLiNER2 checkpoints (wiki, current): span-architecture gliner2-base-v1 (205M, DeBERTa-v3-base), gliner2-large-v1 (340M), **gliner2-multi-v1 (mDeBERTa-v3-base, multilingual)**; newer "boundary" architecture GLiNER2.5 (small 74M, base 194M, **gliner2.5-multi-v1 287M mDeBERTa**), plus GLiNER2.5-Decide / multi-Decide classification models. Apache-2.0. Span architecture uses a fixed-width span grid; boundary architecture has "no fixed width" (any span within the encoded window). Fine-tuning via ExtractorTrainer, JSONL with entities (optionally explicit start/end), classifications, json_structures, relations; LoRA supported. Span attributes (e.g. sentiment on entity spans) supported on GLiNER2.5. Long-document API chunks (example chunk_size=384, overlap=64) — [GLiNER2 wiki](https://github.com/fastino-ai/GLiNER2/wiki); [HF model card](https://huggingface.co/fastino/gliner2-large-v1)
+- GLiNER multi-task (Knowledgator, arXiv 2406.12925): prompt-tunable GLiNER for NER, relation extraction, QA, summarization; model card reports RE F1 ≈0.749 CrossRE / ≈0.766 DocRED for v1.0 (v0.5: 0.676 / 0.742) — [arXiv 2406.12925](https://arxiv.org/html/2406.12925v2); [HF card](https://huggingface.co/knowledgator/gliner-multitask-v1.0)
+- GLiClass (Knowledgator, arXiv 2508.07662): GLiNER adapted to sequence classification; default uni-encoder (text + all labels in one pass, so label–text interactions are captured), bi-encoder variant available; DeBERTa-v3 backbones (also "modern" variants); claims cross-encoder-level accuracy at ~10x speed; gliclass-large-v1.0 zero-shot F1 0.9404 IMDB, 0.7516 AG News (above BART-large-MNLI) — [arXiv 2508.07662](https://arxiv.org/abs/2508.07662v1); [GitHub](https://github.com/Knowledgator/GLiClass); [HF card](https://huggingface.co/knowledgator/gliclass-large-v1.0)
+- Multilingual GLiNER: original GLiNER-Multi (mDeBERTa-v3, fine-tuned on English Pile-NER only) surpassed ChatGPT zero-shot in most languages — [arXiv 2311.08526](https://arxiv.org/pdf/2311.08526); a 2026 paper cites GLiNER-Multi Multi-CoNER zero-shot F1 39.5 (German) — [arXiv 2601.06347](https://arxiv.org/html/2601.06347) (not cross-checked against original table). urchade/gliner_multi is CC-BY-NC; gliner_multi-v2.1 is Apache-2.0 — [HF](https://huggingface.co/urchade/gliner_multi/blame/main/README.md). SauerkrautLM-GLiNER (EN/DE/FR/IT/ES) self-reports +23.02 F1 over gliner_multi-v2.1 (vendor claim, unverified) — [demo](https://vagosolutions-sauerkrautlm-gliner-demo.hf.space)
+- "What Matters When Building Universal Multilingual NER Models?" (arXiv 2601.06347, Jan 2026): span-based scoring (no BIO); cross-encoder (GLiNER-style, text+labels jointly) beats bi-encoder 0.484 vs 0.460 F1; **mmBERT best backbone (0.509 avg)**, RemBERT 0.499, xlm-roberta-base 0.456 (bi) / 0.441 (cross); plain BCE suffices (focal 0.585 vs BCE 0.575, marginal); resulting "Otter" model 0.489 avg zero-shot F1 vs GLiNER-x-base 0.431, GLiNER-multi-v2.1 0.427, Qwen3-32B 0.503, Gemma3-27B 0.543; limitations: fine-tuned in-domain models remain substantially ahead of universal zero-shot models — [arXiv 2601.06347](https://arxiv.org/html/2601.06347)
+
+### Inferences
+- The scout failure mode "a job spanning several sentences becomes two items" is a boundary/segmentation-consistency problem, not a label-semantics problem. BIO with independent softmax lets the model emit B- at a sentence start inside a longer item; a CRF (or constrained Viterbi decoding) removes illegal transitions but does not strongly discourage a spurious B-. A span/boundary head that scores (start, end) pairs as a unit directly optimizes the item unit, which is what item-matching F1 measures.
+- Width matters: span-enumeration grids (SpERT, PURE, GLiNER-v1, GLiNER2 span checkpoints) enumerate spans up to a fixed max width (GLiNER-v1 default 12 words, from memory — unverified); multi-sentence items of 40–150 tokens are outside that. Use a width-free formulation: biaffine start×end scoring (Yu et al. 2020), GlobalPointer, start/end pointer heads, or GLiNER2.5 boundary checkpoints. Restricting candidate starts/ends to sentence/clause boundaries (from a sentence splitter) shrinks the O(n²) biaffine matrix to O(#units²), which is cheap and enforces "item = sentence or clause".
+- GLiNER-style label prompts ("job: what the user is trying to get done …") mostly help zero/few-shot and label-set changes. With ~1,000 in-domain labeled chunks and a fixed taxonomy, the expected advantage over a fine-tuned XLM-R-large head is small; the 2601.06347 limitation statement and GLiNER2's modest CrossNER numbers (~0.59) support treating GLiNER as a baseline/prior, not a guaranteed win. Its value here would be (a) a pre-built multi-task head (span + classification + structure) and (b) LLM-distilled pretraining similar to the scout teacher setup. Worth a bake-off: fine-tune gliner2.5-multi-v1 (boundary, mDeBERTa, 287M) on the scout data vs. the current model.
+- Backbone note: mDeBERTa-base (GLiNER multi) is much smaller than XLM-R-large; for a fair comparison, a GLiNER-style head on XLM-R-large or mmBERT may be needed. 2601.06347 suggests XLM-R is a comparatively weak backbone for GLiNER-style cross-encoders, mmBERT a strong one.
+
+### Gaps
+- Published headline numbers I recall but did not re-verify this session (treat as unverified): Yu et al. 2020 biaffine ~93.5 F1 CoNLL-2003 EN and ~91.3 OntoNotes; PURE (Zhong & Chen 2021, arXiv 2010.12812) and SpERT (Eberts & Ulges 2020, arXiv 1909.07755) entity F1 on ACE/CoNLL04; GlobalPointer (Su et al., arXiv 2208.03054) results; SpanNER (Fu et al., ACL 2021) finding that span prediction and sequence labeling are complementary and that span prediction is better on long entities. The report writer should check these tables before quoting numbers.
+- No study found that directly compares BIO vs span/boundary heads on sentence-length or multi-sentence spans (argument components, claims) with the same encoder; most span-vs-BIO evidence is on short entities or ABSA terms.
+- GLiNER2's max span width for the span architecture and the GLiNER2.5 boundary paper/benchmarks were not found (wiki only).
+- No German-specific benchmark for GLiNER2-multi / GLiNER2.5-multi found.
+
+## 2. Sentence/clause-level classification as an alternative (classify units, then merge adjacent units)
+
+### Takeaway
+Because scout items are by definition whole sentences or clauses, a "segment into units, then sequence-label the units (B/I/O at unit level, plus attributes), then merge" formulation matches the annotation unit exactly and removes intra-sentence boundary errors by construction; hierarchical sequential sentence classification with a unit-level CRF is a well-established pattern (+2–3 points on medical abstract benchmarks, older) and has been used for argument segmentation with sentence-level BIO. Direct evidence that it beats token-level BIO for argument/claim extraction was not found.
+
+### Cited Findings
+- Hierarchical sequential labeling network (Jin & Szolovits 2018) [older]: encode each sentence, contextualize sentence vectors, score with a feed-forward layer and jointly decode the label sequence with a CRF; outperforms prior SOTA by 2–3% on two sequential sentence classification benchmarks (PubMed RCT abstracts) — [arXiv 1808.06161](https://arxiv.org/pdf/1808.06161)
+- Argument search framework (Daxenberger et al. / arXiv 2112.00160) [older]: argument segmentation done as sentence-level BIO — each sentence labeled as starting an argument, continuing one, or outside; bidirectional model uses preceding and following sentences — [arXiv 2112.00160](https://arxiv.org/pdf/2112.00160)
+- Token-level alternative for argument units: AURC (Trautmann et al.) frames argument unit recognition as token-level sequence labeling — cited in [arXiv 2401.15854](https://arxiv.org/pdf/2401.15854v1)
+- Medical abstracts: segment-level and sentence-level models treated as separate tasks with distinct features — [NTU InfoSci paper](https://personal.ntu.edu.sg/xlli/publication/InfoSci.pdf)
+
+### Inferences
+- Recommended formulation for scout: (1) deterministic segmentation into sentence/clause units (character offsets preserved; e.g. a rule/UD-based splitter for DE/EN, clause split at ";", ":" and coordinating conjunctions if clause-level items are required); (2) encode the window with the encoder; pool each unit (mean or start+end token concat); (3) a small contextualizer over unit vectors (1–2 transformer layers or BiLSTM) + unit-level CRF with tags {B-job, I-job, B-pain, …, O} or simply {B, I, O} + separate kind head; (4) attributes predicted from the pooled merged item. This makes "item continues into next sentence" an explicit binary decision (I vs B) with full cross-sentence context, which is exactly where the current model fails (split items).
+- Output remains verbatim: items are unions of contiguous input units, so offsets are exact; the model never generates text.
+- Hybrid fallback for sub-sentence items: keep the token BIO head as an auxiliary loss (multi-task), or let a boundary head refine start/end inside the first/last unit only if the LLM reference labels frequently trim sentences. If the reference labels are almost always whole sentences, the unit-level model is strictly simpler.
+- Equivalent span view: the "biaffine over unit boundaries" from Q1 (score every (start-unit, end-unit) pair) is the span-classification counterpart of the unit-level CRF; both are cheap since a 512-token window has only ~15–30 units.
+
+### Gaps
+- No head-to-head comparison found between sentence-level and token-level formulations on argument mining / claim extraction / opinion extraction with the same encoder.
+- No published German-specific clause segmenters were evaluated in this session.
+
+## 3. Joint models: span + attribute classification in one pass, attribute head attachment, relevance head design
+
+### Takeaway
+Current practice (SpERT/PURE-style, GLiNER2) is to classify attributes from a pooled span representation (start/end token concat + width embedding or max/mean pooling, optionally + CLS/context), in the same forward pass as span detection; GLiNER2 additionally scores attribute/label prompts against the text, and uses an MLP over label tokens with softmax (single-label) or sigmoid (multi-label). For document relevance, there is no direct published comparison for this setup; the reasoning below favors deriving relevance from items (or pooling item/unit scores) over a lone CLS head.
+
+### Cited Findings
+- GLiNER2 does spans, classification and hierarchical structures (parent + attribute fields) in one encoder pass and one `extract(text, schema)` call; attributes on spans supported in GLiNER2.5 — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1); [GLiNER2 wiki](https://github.com/fastino-ai/GLiNER2/wiki)
+- Span-level classification gives consistent labels per span (ABSA polarity consistency) vs. token-level tagging — [arXiv 2109.00256](https://arxiv.org/pdf/2109.00256)
+- Combining span extraction with sequence labeling (multi-task) helped in business-document IE — [arXiv 2205.13434](https://arxiv.org/pdf/2205.13434)
+- Pipeline identification → classification/relations suffers from error propagation; joint models are motivated by this — [ACL 2022.emnlp-main.713](https://aclanthology.org/2022.emnlp-main.713v2.pdf)
+
+### Inferences
+- Attribute heads for scout: pool the merged item (mean over item tokens + first/last token concat + a length bucket embedding), concatenate a window-level context vector, then one linear head per attribute. For the ordinal "evidence type", use an ordinal loss (e.g. CORAL/cumulative-link or regression + thresholds) instead of plain softmax; ordinal-aware training usually raises weighted kappa (unverified for this task). Train attribute heads on gold item spans (teacher forcing) plus predicted spans late in training so they are robust to boundary noise.
+- Attribute kappa is already 0.76–0.85; the larger gain is in item boundaries (F1 0.59) and relevance (kappa 0.54). Prioritise those.
+- Relevance head options: (a) CLS of each window → aggregated over windows (current-ish; CLS of a single 512 window cannot see the whole document); (b) attention/max pooling over unit or item representations across all windows; (c) rule-derived: relevant iff ≥1 item with confidence > τ, possibly combined with (b). If the LLM teacher's relevance definition is "contains at least one job/pain/gain", (c)/(b) aligns the two heads and removes contradictions (relevant doc without items or vice versa), which is a plausible contributor to the low relevance kappa. A doc-level head should operate on aggregated multi-window features, not on a single window.
+- Loss weighting: with 0.5/0.5 weights and a token-level loss that sums over hundreds of tokens vs one doc-level term, the effective weight of relevance may be very different from the nominal ratio; check normalization (mean per token vs per doc) before tuning weights.
+
+### Gaps
+- No paper found comparing CLS-based vs pooled-item vs derived document relevance in a joint extraction model.
+- No published evidence found specific to ordinal attribute heads on spans.
+
+## 4. Long documents: sliding windows vs long-context encoders (8k), stitching and boundary effects
+
+### Takeaway
+Overlapping windows reduce entity fragmentation compared with non-overlapping chunks, but long spans near window edges remain vulnerable; long-context multilingual encoders now exist (mmBERT 8192, EuroBERT 8192, GLiNER2 2048 context) and in clinical/entity-tracking work longer context helps, but mmBERT is reported weak on NER/POS due to its tokenizer and EuroBERT itself acknowledges room for improvement on token classification. For German+English sentence-level items, a long-context encoder is attractive mainly because it removes stitching; its token-level quality must be verified on the scout data.
+
+### Cited Findings
+- Sliding-window NER (2026 preprint): overlapping windows merged into one annotation avoid fragmentation errors of non-overlapping segmentation, giving consistently higher and more stable document-level F1; evaluated four window–stride configurations on six datasets — [arXiv 2609.29682](https://arxiv.org/pdf/2609.29682)
+- Document AMR parsing with synchronous sliding windows [older]: a window as short as 200 tokens loses only 3 SMATCH points but 12 points in the coreference subscore — long-range cross-sentence links are the main casualty — [arXiv 2305.17273](https://arxiv.org/pdf/2305.17273)
+- Longer context helps with the same encoder: Longformer-large performs better when encoding documents with longer contexts (entity tracking) — [arXiv 2208.14252](https://arxiv.org/pdf/2208.14252); Clinical ModernBERT outperforms biomedical baselines on four NER datasets, attributed partly to long context — [arXiv 2504.03964](https://arxiv.org/pdf/2504.03964)
+- mmBERT (JHU, Sept 2025): ModernBERT architecture, 3T tokens, 1800+ languages, context extended to 8192; strong on XNLI/TyDiQA, README claims +2.4 avg on XTREME over XLM-R; but structured prediction (NER, POS) is a weak spot, likely due to Gemma-2 tokenizer without prefix spaces affecting word boundaries — [HF blog](https://huggingface.co/blog/mmbert); [arXiv 2509.06888](https://arxiv.org/abs/2509.06888); [GitHub](https://github.com/JHU-CLSP/mmBERT/)
+- Contrast: as a GLiNER-style span-scoring backbone (not token BIO), mmBERT was the best of five multilingual backbones in 2601.06347 (0.509 avg vs xlm-roberta-base 0.441–0.456) — [arXiv 2601.06347](https://arxiv.org/html/2601.06347)
+- EuroBERT (Mar 2025): multilingual European encoder, 8192 context, Llama-like bidirectional architecture; the paper says token classification has room for improvement; independent token-classification results were not found — [HF docs](https://huggingface.co/docs/transformers/model_doc/eurobert); [arXiv 2503.05500](https://arxiv.org/pdf/2503.05500); heise test on German (classification-style tasks): EuroBERT matched/beat older German models — [heise](https://heise.de/-10329005)
+- ModernGBERT: German-only encoder trained from scratch with 8192 context extension — [arXiv 2505.13136](https://arxiv.org/html/2505.13136v2)
+- GLiNER2 handles long texts by chunking (example chunk 384, overlap 64) — [GLiNER2 wiki](https://github.com/fastino-ai/GLiNER2/wiki)
+
+### Inferences
+- Stitching probably contributes to scout's split-item errors: a multi-sentence item crossing a window edge is seen partially in two windows; if each window emits its own B-, stitching produces two items. Mitigations without changing the encoder: (1) align window starts/ends to sentence boundaries (pack whole sentences into ≤512 tokens; overlap by whole sentences); (2) for each token/unit, take predictions from the window where it is most central ("max-context" rule, as in BERT SQuAD stride handling); (3) merge at the unit level (Q2) after stitching, using a unit-level "continues previous" decision computed with both windows' context; (4) post-hoc merge rule: adjacent same-kind items with no gap and identical actor get merged if a learned/thresholded continuation score says so.
+- Long-context option: a 2k–8k encoder lets most mobility documents fit in one pass, removing stitching and giving the relevance head the full document. Candidates: mmBERT-base/small (verify token-level quality; use unit/span pooling rather than first-subword BIO, which sidesteps the tokenizer word-boundary weakness), EuroBERT (210M/610M/2.1B), ModernGBERT (German-only, so not ideal for EN). Expect to need re-tuning; XLM-R-large remains a strong token-level baseline.
+- Unit-level heads (Q2) are less sensitive to tokenizer word-boundary issues than token BIO, which makes long-context encoders with nonstandard tokenizers more usable.
+
+### Gaps
+- No direct study varying stride vs. a long-context encoder on the same NER/span data was found.
+- No published German NER/token-classification numbers for mmBERT or EuroBERT were found in this session.
+- Distribution of scout document lengths (how many exceed 2k/8k tokens) is unknown to me.
+
+## 5. Training-signal tricks for small, LLM-labeled data (KD with soft labels, label smoothing, multiple teachers, noise-robust losses, augmentation)
+
+### Takeaway
+Evidence supports training on LLM-teacher labels (GLiNER2 itself is GPT-4o-distilled) and mixing LLM labels with any human/original data; students often denoise teacher labels and can approach but rarely exceed the teacher; plain SFT on noisy LLM labels has been reported to beat alternative KD strategies in at least one 2026 study, and true soft-label KD requires teacher token/label probabilities, which API LLMs rarely give. Approximate soft labels can be built from multiple teacher samples/teachers (vote fractions). Gains from label smoothing/noise-robust losses specific to this setting were not found.
+
+### Cited Findings
+- Distilling LLMs into small NER models: a strategic mix of LLM-distilled and original data markedly improves BERT NER; LLM hallucinations can compromise generated annotations — [arXiv 2402.09282](https://arxiv.org/html/2402.09282v3)
+- Clinical extraction: disease-extraction F1 teacher LLM 0.82, BioBERT on human labels 0.89, BioBERT distilled from the LLM 0.84 — student slightly above teacher, below human-label training — [arXiv 2402.09282](https://arxiv.org/pdf/2402.09282v2) (as summarized in search; not re-verified against the table)
+- Pseudo-label (hard) training vs KD (teacher probability distribution) are distinct; KD requires access to teacher tag distributions — [arXiv 2302.05454](https://arxiv.org/pdf/2302.05454)
+- Entity-resolution distillation (2026): supervised fine-tuning of students on noisy LLM-teacher labels consistently outperformed alternative KD strategies — [arXiv 2602.05452](https://arxiv.org/pdf/2602.05452v1)
+- "Student as an inherent denoiser of noisy teacher": students tend to converge toward cleaner teacher labels and can denoise noisy teacher labels during KD — [arXiv 2312.10185](https://arxiv.org/pdf/2312.10185)
+- GLiNER2 training set is 254k GPT-4o-annotated/synthesized examples — LLM-teacher distillation at scale works for this head family — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1)
+- For span-scoring heads, plain BCE is sufficient; focal loss gives only a marginal gain (0.585 vs 0.575) — [arXiv 2601.06347](https://arxiv.org/html/2601.06347)
+
+### Inferences
+- Scale the data before tuning tricks: ~1,000 chunks is small; the cheapest lever is more teacher-labeled chunks (the teacher is available). GLiNER2 used ~250x more.
+- Soft targets without logits: label each chunk with k teacher samples (temperature >0) and/or 2–3 different frontier LLMs; use per-unit vote fractions as soft targets for unit-level B/I/O, kind and attributes, and as relevance soft labels. This also yields a per-item agreement score usable for loss weighting (down-weight low-agreement items) — a form of noise-robust training. Evidence for gains from this exact recipe was not found; treat as a hypothesis to A/B.
+- Since reference labels for evaluation are frontier-LLM labels too, multi-teacher soft labels also reduce the student-teacher mismatch where the eval reference and training teacher disagree.
+- Boundary-aware augmentation: since items are whole sentences, augment by shuffling window offsets (random window starts), and by concatenating chunks to create items at window edges — directly targets the stitching failure mode.
+
+### Gaps
+- No direct head-to-head of soft-label vs hard-label distillation from an LLM into an encoder span extractor found.
+- No evidence found for label smoothing or specific noise-robust losses (GCE, symmetric CE, co-teaching) on LLM-labeled span extraction; recalled literature exists for noisy NER (e.g. distant supervision) but was not verified here.
+- No evidence gathered on multiple-teacher ensembling for span extraction.
+
+## 6. Published numbers on analogous tasks (CoNLL, OntoNotes, argument mining/claims, ABSA) and concrete recommendations for scout
+
+### Takeaway
+Verified numbers this session are mostly from the GLiNER family and multilingual zero-shot NER (CrossNER ~0.59–0.62 F1, multilingual zero-shot ~0.43–0.49 avg F1); classic CoNLL/OntoNotes/argument mining/ABSA head-to-head numbers were not retrieved in excerpt form and must be pulled from the original tables. The recommendation for scout is to move from token BIO to a sentence/clause-unit formulation with a unit-level CRF or unit-boundary biaffine, item-pooled attribute heads, and item-derived relevance, plus sentence-aligned windows or a long-context encoder; benchmark against a fine-tuned GLiNER2.5-multi boundary model.
+
+### Cited Findings
+- GLiNER2 CrossNER avg F1 0.590 (GPT-4o 0.599, GLiNER-M 0.615); zero-shot classification avg 0.72 (GPT-4o 0.84) — [arXiv 2507.18546](https://arxiv.org/html/2507.18546v1)
+- Otter multilingual zero-shot NER 0.489 avg F1 vs GLiNER-x-base 0.431, GLiNER-multi-v2.1 0.427, Qwen3-32B 0.503, Gemma3-27B 0.543 — [arXiv 2601.06347](https://arxiv.org/html/2601.06347)
+- GLiNER-Multi zero-shot German MultiCoNER F1 39.5 (as cited) — [arXiv 2601.06347](https://arxiv.org/html/2601.06347)
+- Biaffine: SOTA on 8 corpora incl. CoNLL-2003 German, gains up to 2.2 points [older] — [ACL 2020](https://aclanthology.org/2020.acl-main.577)
+- Sequential sentence classification hierarchical+CRF: +2–3 points over prior SOTA [older] — [arXiv 1808.06161](https://arxiv.org/pdf/1808.06161)
+- GLiNER-multitask RE F1 ≈0.749 CrossRE, ≈0.766 DocRED — [HF card](https://huggingface.co/knowledgator/gliner-multitask-v1.0)
+
+### Inferences
+Concrete recommendations (ordered by expected impact per effort for scout):
+1. Unit-level reformulation (highest expected impact on item F1 0.59): deterministic sentence/clause segmentation with offsets → pooled unit vectors from XLM-R-large → small cross-unit transformer/BiLSTM → unit-level CRF with B/I/O (+ kind either in the tag or as a separate head). Merging is then the CRF's I decision. Keep the token BIO head as an auxiliary loss only if reference items are frequently sub-sentence.
+2. Fix stitching: sentence-aligned windows with whole-sentence overlap, max-context assignment of units to windows, and unit-level merge after stitching. Optionally evaluate a long-context encoder (mmBERT-base, EuroBERT-610M) with unit pooling; document-level pass removes stitching and gives the relevance head full context.
+3. Attribute heads on pooled merged items (mean + first/last tokens + length embedding + document context); ordinal loss for evidence type.
+4. Relevance from items: document relevance = learned pooling over unit/item scores across the whole document (+ optional rule "≥1 confident item"), trained jointly; check loss normalisation between token/unit and doc losses.
+5. Data: increase teacher-labeled chunks substantially (GLiNER2 used 254k LLM-labeled examples), and use 2–3 teacher samples/teachers to make soft targets and agreement-based loss weights.
+6. Bake-off baseline: fine-tune fastino/gliner2.5-multi-v1 (boundary head, no width cap, Apache-2.0, LoRA-capable, supports classification + span attributes in one schema) on the same data with label descriptions for job/pain/gain; also run it zero-shot to see whether label descriptions alone are competitive. Do not use span-grid checkpoints (GLiNER-v1, gliner2-*-v1 span) for multi-sentence items because of fixed max width.
+7. Verbatim constraint: all options above are selection-only (units, spans, boundaries); none generates text.
+
+### Gaps
+- Published F1 for argument component identification (e.g. Persuasive Essays / AAEC, AURC) and ABSA span extraction (Span-ASTE vs BIO baselines on SemEval 14–16) were not retrieved with numbers; the writer should not quote numbers for these without checking the original tables.
+- CoNLL-2003 / OntoNotes numbers for BIO+CRF vs biaffine vs span on the same backbone were not verified in this session (recalled: biaffine ~93.5 / ~91.3 with BERT+fastText+char; unverified).
+- No 2026 survey or benchmark found specifically on "sentence/clause-granularity span extraction with attributes" in German.
+- Effect sizes for the recommended changes on scout's own data are unknown; they are hypotheses to test, not published results.
