@@ -53,7 +53,7 @@ Every piece of information has exactly one stage that can supply it. scout sees 
 - **Empty is a correct answer.** A field that the text does not state stays empty, and no metric rewards filling it. Field note 4 sets this rule for the map, and scout's own rules already require it.
 - **Each field earns its place in an agreement pilot.** The two non-Claude reference models must agree on a field above a threshold fixed before the pilot, in German and in English. A field that fails is not produced. The format documents it as absent, so the gap stays visible instead of being filled with noise. This is the rule that cairn already applies to its levels (spec 009).
 - **The core does not pay for the extras.** Item-matching F1 and relevance of the model with new fields must not fall below the same model without them, beyond the bootstrap interval.
-- **Definitions are the owner's.** This document names the information. The definitions and value lists that a teacher reads come from the owner's brief, through the route chosen for guideline v3. Whether this requirement list may seed the brief, as the lists of feature 001 may under `D-xi-rewrite-requirements`, is the owner's decision.
+- **Definitions are the owner's.** This document names the information. The definitions and value lists that a teacher reads come from the owner's brief, through the route chosen for guideline v3. The owner decided on 2026-11-27 that this requirement list may seed the brief, as the lists of feature 001 may (`D-xi-interface-requirements`, next to `D-xi-rewrite-requirements`). It seeds which information to cover, never the wording a teacher reads.
 
 ## Acceptance tests for the interface
 

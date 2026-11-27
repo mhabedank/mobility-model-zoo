@@ -359,3 +359,20 @@ decisions:
   review_by: '2027-04-14'
   decided_by: Martin Habedank
   supersedes: null
+- id: D-xi-interface-requirements
+  date: '2026-11-27'
+  decision: The requirement list of the opportunity interface (the information table of
+    topics/productdev/research/opportunity-interface/README.md, written with Claude as development assistant) may
+    seed the owner's brief for labeling guideline v3, in the same way as the feature 001 lists under
+    D-xi-rewrite-requirements. It may name which information the guideline must cover. Definitions, value lists,
+    decision rules and examples that a teacher or reference model reads come from the owner's brief and the local
+    non-Claude writer, not from that document.
+  rationale: The list is a requirements analysis (development-assistant role under Principle XI). It states what the
+    Opportunity Solution Tree and the ODI opportunity landscape need from the output, not how a model should label.
+    Keeping definitions and value lists out of it keeps Claude text out of the teacher prompt.
+  scope:
+  - topics/productdev/research/opportunity-interface/README.md
+  - topics/productdev/guideline
+  review_by: '2027-05-27'
+  decided_by: Martin Habedank
+  supersedes: null
