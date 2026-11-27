@@ -134,3 +134,7 @@ Version 0.1.0 was trained at commit `4a7091a`, where this document was still nam
 - **Training**: XLM-RoBERTa-large, 8 epochs on the DGX Spark (about 5 minutes per epoch); best validation epoch 7 (validation score 0.743).
 - **Thresholds** (tuned on the validation rows): unit 0.5, relevance 0.700.
 - **Results**: comparison composite 0.723 (best zero-shot baseline 0.667); quotes, schema and consistency 100%; on the reference machine 8.1 s for the 9,240-character text, 2.5 GB peak memory, 21.6 chunks per minute.
+
+## Next version
+
+Options for a smaller, faster, better calibrated and more accurate successor (unit-level head, multilingual backbones, distillation, calibration) and the order in which to test them: [research/scout-large-architecture/](../research/scout-large-architecture/README.md).
