@@ -56,3 +56,15 @@
   15. P11 `improve`: direction sentence removed, one line per value.
 - The owner then decided the four remaining proposals in pop-ups (2026-11-28), again taking the recommended option each time: P5 link definitions adopted (one `{from, to, relation}` encoding); P15 sentence on feelings added; P16 labeling in three passes; P17 new `drop_order`.
 - Every new wording that follows from these decisions changes approved text. It is a Claude draft under 3.2.0 and needs the owner's approval before it counts.
+- Fable review 2 (2026-11-28, `review/fable-review-2.md`; the reviewer worked alone). Of the 31 review-1 findings, 14 are resolved, 14 partly resolved and 3 open (R-18, R-24, R-29; open by decision or scope, not blocking). New: 3 blockers, 9 major, 10 minor. The owner decided all 10 questions of section 6 in pop-ups and took the recommended option every time:
+  1. The speaker is the voice the text carries (M-1).
+  2. A single event is an anecdote, whoever tells it.
+  3. A step with a stated purpose is a job of its own, linked by means_end (M-4).
+  4. A wish for a means with a verb of doing is a gain with `states_solution` true.
+  5. `society` only with explicit words for everyone, so e09 i1 and i6 become individual.
+  6. A wish about a feeling on the trip is an emotional job; `feelings` comes before `job_versus_gain`.
+  7. The time word in a frequency phrase counts as situation.
+  8. Pass 3 runs on every chunk with at least two items; the closed connective list only draws the enriched sample (M-2).
+  9. The enriched link sample is 100 chunks per language, extended once to 200 if a link type has fewer than 30 units.
+  10. Decision rule M-12: one extension; a keep-always field that would not be produced stops the pilot in that language.
+- Also adopted, following the report's verdicts on the applying agent's points: M-9 (domain test per item, R-15), M-10 (`doubt.fields` against required fields, R-22), `reader_en`, a non-printed note on R-24, and the e05 text change is kept. R-29 is picked up in the roadmap later.
