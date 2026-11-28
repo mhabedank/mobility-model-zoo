@@ -28,3 +28,43 @@ domain:
   - source: 'Spektrum, Lexikon der Geographie, Verkehrsmobilität'
     url: 'https://www.spektrum.de/lexikon/geographie/verkehrsmobilitaet/8614'
     licence: proprietary
+item_boundaries:
+  owner: 'ALso wir sochen merkmale wie pain, gain und JTBD. diese sind durch sprache vcodiert. diese sprache kann auch mehrere sätze dafür verwenden. wir beschrenken nicht nach dem Tool (Sprache) sondern nach der Sinneinheit (z.B. JTBD)'
+relevant:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  definition: >-
+    A text is relevant when it states at least one job, pain or gain of an actor within mobility
+    as defined under domain, told by the actor or reported by someone else. The topic alone is not
+    enough. Not relevant: texts that only report facts, figures, events or product features with
+    no actor who wants to get something done, struggles or hopes for something; timetables, tariffs
+    and technical specifications; a provider praising its own offer without reporting a customer's
+    need; texts where mobility is only the backdrop of something else. One passage with a need is
+    enough, even if the rest of the text is off-topic.
+kind:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  job: >-
+    Something an actor is trying to get done or achieve in a situation: a task, a goal or a change
+    of state they want. State it, where the text allows, apart from the solution used today.
+  pain: >-
+    Something that bothers the actor before, during or after getting the job done: an obstacle, a
+    cost, a risk, an annoyance, a bad outcome, or the fear of one.
+  gain: >-
+    An outcome or benefit the actor wants, expects or would welcome: something that makes the job
+    easier, faster, cheaper, safer or more pleasant, or a good outcome they already value.
+  pain_versus_negated_gain: >-
+    Label by what the text describes. A problem the actor has now is a pain, even when phrased as
+    a missing benefit. A wish for a better state is a gain, even when phrased with a negation. When
+    one passage states both the problem and the wish, label both.
+actor_type:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    The actor is who has the need, not who speaks or writes. actor_type is the coarse class;
+    executor_role marks the words that name the specific role.
+  individual: A private person acting for themselves or their household.
+  worker: A person whose need comes from their work in or around mobility.
+  organization: A company, operator, association or other non-state body acting as such.
+  public_sector: A public authority or public body acting as such.
+  society: The public at large, or an unnamed group, when the need is stated for everyone.
