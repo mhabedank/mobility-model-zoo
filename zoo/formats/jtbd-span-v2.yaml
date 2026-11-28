@@ -1,0 +1,98 @@
+# Field meanings of the output format jtbd-span-v2, for the website (feature 008, FR-008).
+# Status: DRAFT (scout-large roadmap phase 1, 2026-11-28). No release produces this format yet, so the
+# site does not render it. Field set and values follow the owner-approved guideline v3 brief
+# (topics/productdev/guideline/scout-v3/brief.yaml). A field that fails its agreement pilot is not
+# produced and is then missing from `dimensions` or `relations`. Each field names the row of the
+# opportunity interface table it serves (topics/productdev/research/opportunity-interface/README.md).
+# `zoo site build` fails if a schema path has no entry here or an entry has no schema path (check B5).
+id: jtbd-span-v2
+title: Jobs, pains and gains as verbatim spans, with attributes and links for OST and ODI
+status: draft
+schema: src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v2.schema.json
+input:
+  - A text in German or English, as one string. Any length; long texts are read in overlapping windows and the results are merged.
+  - Other languages and texts outside mobility are untested; the model still returns a valid output.
+  - The offsets in the output count characters (Unicode code points) of exactly the string you passed in.
+rules:
+  - "Every quote and every pointer is a verbatim span of the input: `text[start:end] == quote` (or `text`)."
+  - Items are sorted by `start` and never overlap. An item is one need and may run over several sentences.
+  - Every item has exactly the attribute keys listed in `dimensions`.
+  - "`relevant: false` always comes with `items: []` and `links: []`."
+  - Links only use relations listed in `relations`, and refer to items by their position in `items`, counted from 0.
+  - No field holds generated text. Every value is either from a fixed list or a verbatim span of the input.
+edge_cases:
+  - input: Empty or whitespace-only text
+    output: "A valid output with `relevant: false`, `items: []` and `links: []`."
+  - input: A text on another subject, or without jobs, pains or gains
+    output: "`relevant: false` and `items: []`. This is a correct result, not an error."
+  - input: An attribute the text does not state
+    output: An empty list, null or false. An empty field is a correct answer; no score rewards filling it.
+  - input: A very long text
+    output: Read in overlapping windows; offsets always refer to the whole text you passed in. Links are only found within one window.
+  - input: Another language
+    output: Untested. The output stays valid, but its quality is unknown.
+versioning: >-
+  Every output carries `output_format_version`. jtbd-span-v2 replaces jtbd-span-v1 for scout-large
+  0.2.0; v1 stays documented for 0.1.x. A change that breaks a parser gets a new format version.
+fields:
+  output_format_version:
+    meaning: The format of this output. Always `jtbd-span-v2` for this format.
+  language:
+    meaning: The main language of the text as a two-letter ISO 639-1 code, detected by code, not by the model. Interface row 19.
+    empty_case: A text that mixes languages gets its main language.
+  relevant:
+    meaning: Whether the text states at least one job, pain or gain of an actor in mobility. Relevance follows from the items. Interface rows 1 and 2.
+    empty_case: "`false` for empty texts, texts on other subjects and texts without items; then `items` and `links` are empty. \"Relevant but no item\" does not occur."
+  relevance_probability:
+    meaning: The model's probability that the text is relevant, from 0 to 1, calibrated on the benchmark. Interface row 18.
+  dimensions:
+    meaning: The item attributes and pointers the model produces. A field that failed its agreement pilot is left out, so its absence is visible.
+  relations:
+    meaning: The kinds of link the model produces, a subset of `actor_pair`, `means_end` and `order`. A link kind that failed its pilot is left out.
+  items:
+    meaning: The jobs, pains and gains found in the text, one object per need, sorted by `start`.
+    empty_case: An empty list is a valid result. It means the model found no item, not that something failed.
+  items[].kind:
+    meaning: "`job`: what an actor wants to get done. `pain`: what bothers the actor before, during or after the job. `gain`: an outcome or benefit the actor wants, expects or values, including how well, fast, cheaply or safely the job goes. Interface row 2."
+  items[].quote:
+    meaning: The verbatim span of the need, made of whole clauses with the words that mark it as a wish, fear or problem. It stays in the source language. Interface row 1.
+  items[].start:
+    meaning: Character offset where the quote starts in the input (inclusive, from 0).
+  items[].end:
+    meaning: Character offset where the quote ends in the input (exclusive). `text[start:end] == quote`.
+  items[].score:
+    meaning: The model's probability for this item, from 0 to 1, calibrated on the benchmark. The card reports its calibration error. Interface row 18.
+  items[].actor_type:
+    meaning: "Who has the need, not who speaks. `individual`: private persons, one or many. `worker`: a person whose need comes from work in or around mobility. `organization`: a company, operator or association, for its own need. `public_sector`: an authority or public body, for its own need. `society`: only when the need is stated for everyone. Interface row 4."
+  items[].evidence_type:
+    meaning: "How the speaker backs the need, from lowest to highest: `opinion`, `anecdote` (one event), `routine` (repeated experience), `observation` (seen across others, or an estimate), `measurement` (a counted or measured figure)."
+    notes: When the grade is uncertain, the lower grade is the correct one.
+  items[].evidence_scope:
+    meaning: "How many actors or cases the item concerns: `single`, `multiple` (without a number) or `quantified` (the quote gives a number or share of affected actors or occurrences)."
+  items[].job_kind:
+    meaning: "For jobs only: `functional` (the practical task), `emotional` (how the actor wants to feel or not feel), `social` (how the actor wants to be seen or to stand with others). Interface row 3."
+    empty_case: null for pains and gains.
+  items[].mode:
+    meaning: Every mode of transport the quote names, also when it is negated. `public_transport` when no single mode is named. Interface row 6.
+    empty_case: An empty list when the quote names no mode; a mode is never inferred from context.
+  items[].improve:
+    meaning: The dimensions the quote names or clearly describes, such as time, cost, effort or reliability. It is the theme of an ODI outcome statement; the direction is not part of the label. Interface row 8.
+    empty_case: An empty list when no dimension is stated.
+  items[].states_solution:
+    meaning: True when the quote asks for one particular thing or measure, so that only one way would satisfy it. Such an item is reframed as the need behind it, not placed in the tree as an opportunity. Interface row 9.
+    empty_case: "`false` when no particular solution is asked for."
+  items[].executor_role:
+    meaning: A pointer (`text`, `start`, `end`) to the noun phrase that names who has the need by role, such as an occupation, a life situation or an organisation type. It may lie outside the quote but within the text. Interface row 4.
+    empty_case: null when no role is named; pronouns and generic words do not count.
+  items[].situation:
+    meaning: A pointer (`text`, `start`, `end`) to the words that say where, when or on what occasion the need arises. Place comes before occasion, and occasion before time. Interface rows 7 and 15.
+    empty_case: null when none is named.
+  links:
+    meaning: Links between two items of the same text. Interface rows 5, 10 and 11.
+    empty_case: An empty list is a valid result.
+  links[].from:
+    meaning: Position of the first item in `items`, counted from 0. For `causes`, the item of the actor who causes; for `in_order_to`, the means; for `before`, the earlier item.
+  links[].to:
+    meaning: Position of the second item in `items`, counted from 0. For `causes`, the pain of the actor who suffers; for `in_order_to`, the end; for `before`, the later item.
+  links[].relation:
+    meaning: "`causes` (actor pair: one actor's way of getting the job done causes another actor's pain), `in_order_to` (means and end of the same actor, marked by connecting words), `before` or `during` (order in time, marked by time words). Order across texts is never extracted."
