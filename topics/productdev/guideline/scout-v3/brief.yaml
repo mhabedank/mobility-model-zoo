@@ -68,3 +68,47 @@ actor_type:
   organization: A company, operator, association or other non-state body acting as such.
   public_sector: A public authority or public body acting as such.
   society: The public at large, or an unnamed group, when the need is stated for everyone.
+evidence_type:
+  drafted_by: claude
+  approval: pending
+  rule: >-
+    How the text backs the need, as an ordinal scale from opinion (lowest) to measurement
+    (highest).
+  opinion: A view, belief, wish or judgement with no experience given.
+  anecdote: One concrete experience, a single event.
+  routine: Repeated or habitual experience of the actor (always, every day, usually).
+  observation: >-
+    Something seen across other people or over a longer time, stated without a figure from
+    counting or measuring.
+  measurement: A figure obtained by counting or measuring, such as a survey result, a statistic or a measured time.
+  boundaries: >-
+    Anecdote versus routine: one event is an anecdote; words of frequency or several events make it
+    routine. Observation versus measurement: a measurement needs a figure that was counted or
+    measured; an estimate such as "about half, I would say" is an observation.
+evidence_scope:
+  drafted_by: claude
+  approval: pending
+  single: One case, one actor or one event.
+  multiple: Several or many cases, stated without a number.
+  quantified: The text gives a number, share or amount for how many or how much; an estimate with a figure counts.
+quote:
+  owner_choice: 'Nur Zitat (Recommended)'
+  rule: >-
+    Each item is a verbatim quote in the source language with its offsets. No statement or
+    translation is written per item.
+doubt:
+  drafted_by: claude
+  approval: pending
+  item: >-
+    When unsure whether a passage is an item, ask whether a product manager could learn a need from
+    it. If not, leave it out. Never add context that the text does not give.
+  kind: Take the kind the text stresses; if it clearly states both a problem and a wish, label both.
+  levels: For evidence_type and evidence_scope, take the lower grade.
+  fields: When a field is not stated or you are unsure, leave it empty. An empty field is correct.
+empty_result:
+  drafted_by: claude
+  approval: pending
+  rule: >-
+    An empty item list is correct when the text states no job, pain or gain in mobility as defined
+    under domain; relevant is then false. Because relevance follows from items, "relevant but no
+    item" is not a valid result. No score rewards filling a result.
