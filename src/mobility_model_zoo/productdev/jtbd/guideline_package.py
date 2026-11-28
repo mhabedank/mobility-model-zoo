@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,8 @@ NOT_PRINTED_TOP = {
 # Sub-keys that are review-only or the owner's untranslated originals (assembly.rule).
 NOT_PRINTED_SUB = {"drafted_by", "approval", "previous_approval", "owner", "cases_owner"}
 EXAMPLE_REVIEW_KEYS = {"shows", "language"}
+# An approval must name a person; a copied placeholder such as "<your name>" names nobody.
+PLACEHOLDER = re.compile(r"[<>{}]|^(your name|dein name|name|todo|tbd|xxx)$", re.I)
 
 
 def _printable(key: str) -> bool:
@@ -176,10 +179,15 @@ def _current_hashes(package: Path, manifest: dict[str, Any]) -> dict[str, str]:
     return hashes
 
 
+def _names_a_person(name: str) -> bool:
+    name = name.strip()
+    return bool(name) and not PLACEHOLDER.search(name)
+
+
 def approve(package: Path, approved_by: str) -> dict[str, Any]:
     """Record the owner's approval of the package as it is now (constitution XI, 3.1.0/3.2.0)."""
-    if not approved_by.strip():
-        raise UsageError("--by must name the person who approves")
+    if not _names_a_person(approved_by):
+        raise UsageError(f"--by must name the person who approves, not {approved_by!r}")
     manifest = _manifest(package)
     if _current_hashes(package, manifest) != manifest["files"]:
         raise FrozenHashMismatch("package files differ from package.json: assemble again first")
@@ -222,6 +230,10 @@ def check(package: Path) -> dict[str, Any]:
         approval = json.loads(approval_path.read_text(encoding="utf-8"))
         if approval.get("files") != hashes:
             raise FrozenHashMismatch("package changed after its approval: approve again")
+        if not _names_a_person(approval.get("approved_by") or ""):
+            raise ClaudeGateError(
+                f"approval of {package} names no person ({approval.get('approved_by')!r}): "
+                "the owner approves again with `jtbd guide approve --by \"<full name>\"`")
         status |= {"approved": True, "approved_by": approval["approved_by"],
                    "approved_at": approval["approved_at"]}
     elif manifest["contains_claude_drafts"]:

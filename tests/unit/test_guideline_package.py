@@ -122,6 +122,20 @@ def test_approve_needs_a_name(sources):
         gp.approve(out, "  ")
 
 
+@pytest.mark.parametrize("name", ["<dein Name>", "<your name>", "{name}", "Name", "TODO"])
+def test_placeholder_names_are_not_an_approval(sources, name):
+    brief, examples, out = sources
+    gp.assemble(brief, examples, out)
+    with pytest.raises(UsageError):
+        gp.approve(out, name)
+    gp.approve(out, "Owner Name")
+    record = json.loads((out / "approval.json").read_text(encoding="utf-8"))
+    record["approved_by"] = name
+    (out / "approval.json").write_text(json.dumps(record), encoding="utf-8")
+    with pytest.raises(ClaudeGateError):
+        gp.check(out)
+
+
 def test_require_for_run_ignores_guidelines_outside_a_package(tmp_path):
     guideline = tmp_path / "guideline-v2.md"
     guideline.write_text("old guideline\n", encoding="utf-8")
