@@ -10,7 +10,8 @@ firmware/                        microcontroller firmware: bench/ (HIL bench), c
 hil/                             board inventory and targets of the hardware-in-the-loop bench
 scripts/                         shared scripts (HF org avatar, cloud setup, history import)
 specs/NNN-feature/               feature specs, plans, tasks
-src/mobility_model_zoo/          the package: release/, compliance/, datasets/, catalog/, edge/, <topic>/<task>/
+src/mobility_model_zoo/          the package: release/, compliance/, datasets/ (with inventory/, the data overview),
+                                 tracking/ (experiment tracking), catalog/, edge/, <topic>/<task>/
 tests/                           tests
 topics/<topic>/                  README.md, research/, tasks/, compliance/ (source classes, sources, datasets),
                                  reports/, recipes/, plus topic-specific folders

@@ -194,6 +194,18 @@ def perf_local(
     }
     name = model_id + (f"-{suffix}" if suffix else "")
     write_json(settings.analysis_dir / "perf" / f"{name}.json", result)
+    from mobility_model_zoo import tracking
+
+    tracking.record(  # a speed measurement (feature 017; no-op without a tracking URI)
+        "productdev/jtbd-span",
+        f"perf-{name}"[:120],
+        "jtbd-span",
+        "measure",
+        {k: v for k, v in result.items() if k != "hardware"},
+        topic="productdev",
+        tags={"mmz.candidate": model_id, "mmz.hardware": hardware or tracking.hardware()},
+        params={"num_thread": backend.num_thread},
+    )
     return result
 
 
@@ -345,4 +357,16 @@ def perf_span(
     tag = suffix or ("" if device == "cpu" else device)
     name = f"{run.model_id}-{sha[:12]}" + (f"-{tag}" if tag else "")
     write_json(settings.analysis_dir / "perf" / f"{name}.json", result)
+    from mobility_model_zoo import tracking
+
+    tracking.record(  # a speed measurement (feature 017; no-op without a tracking URI)
+        "productdev/jtbd-span",
+        f"perf-{name}"[:120],
+        "jtbd-span",
+        "measure",
+        {k: v for k, v in result.items() if k != "hardware"},
+        topic="productdev",
+        tags={"mmz.candidate": run.model_id, "mmz.hardware": hardware or tracking.hardware()},
+        params={"device": device, "model_sha256": sha[:16]},
+    )
     return result

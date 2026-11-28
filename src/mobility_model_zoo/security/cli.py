@@ -120,6 +120,10 @@ def evaluate(
             raise typer.Exit(1) from None
     runs.mkdir(parents=True, exist_ok=True)
     (runs / f"{detector}.json").write_text(json.dumps(result, indent=1, default=float) + "\n")
+    if not from_run:
+        from mobility_model_zoo.security.can_ids import track
+
+        track.evaluation(result, benchmark, detector)
     o = result["outcome"]
     say(f"outcome: {o['verdict']} - {' '.join(o['reasons'])}")
     if report:
@@ -227,6 +231,9 @@ def measure(
     # results/<version>/performance.json; other paths keep the version given in the file name or 0.2.0
     version = out.parent.name if out.parent.name[:1].isdigit() else "0.2.0"
     m.merge(out, new, "picket-forest", version)
+    from mobility_model_zoo.security.can_ids import track
+
+    track.measurement(new, target, board, version)
     for metric in new:
         where = f"{metric['origin']}, {metric['hardware']}"
         say(f"{metric['name']}: {metric['value']} {metric['unit']} ({where})")
@@ -273,6 +280,9 @@ def v2_export(
     ]
     target = out or derived_dir("picket-forest") / "export-v2"
     config = rx.export(target, manifest, sources, cache, road_test, table)
+    from mobility_model_zoo.security.can_ids import track
+
+    track.training(config, V2_BENCHMARK, target, None)
     say(
         json.dumps(
             {k: config[k] for k in ("frame_threshold", "decision", "tree_nodes", "parity_c_vs_python")},

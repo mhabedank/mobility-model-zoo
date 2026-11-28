@@ -111,6 +111,14 @@ catalog = [
 labeling-api = [
     "anthropic>=0.69",
 ]
+# Experiment tracking client (feature 017); the server runs on the Spark, never in the package
+tracking = [
+    "mlflow-skinny>=3.17.1,<4",
+    "numpy>=1.26",
+    "python-dotenv>=1.0",
+    "psutil>=7",
+    "nvidia-ml-py>=12",
+]
 
 [project.scripts]
 jtbd = "mobility_model_zoo.productdev.jtbd.cli:app"

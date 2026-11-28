@@ -33,7 +33,7 @@ Controller: Martin Habedank (private person), privacy@miskatonic-analytics.com. 
   - tdm-documents: Delete when the benchmark is retired; review 24 months after freeze.
   - forum-review: Delete when the benchmark is retired; review 24 months after freeze.
   - can-bus-datasets: Local cache only; delete 12 months after the last training run that used it.
-- **Technical and organisational measures:** texts stored outside the public repository on the controller's machine; identifiers redacted before labeling (pattern redaction plus a local model review); special categories quarantined; fail-closed checks before texts leave the machine; no publication of texts; suppression list; keyed hashes instead of names in request records.
+- **Technical and organisational measures:** texts stored outside the public repository on the controller's machine; identifiers redacted before labeling (pattern redaction plus a local model review); special categories quarantined; fail-closed checks before texts leave the machine; no publication of texts; suppression list; keyed hashes instead of names in request records. The private experiment tracking store on the controller's laptop (decision D-tracking-store) receives only metrics, hashes and metadata, checked by an allow-list before they are written and audited in the store afterwards; it listens on the loopback interface only, and offline run logs on training machines hold the same content.
 
 ## Processing activity: project website
 

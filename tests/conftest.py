@@ -80,3 +80,13 @@ def _numpy_error_state():
     state = np.geterr()
     yield
     np.seterr(**state)
+
+
+@pytest.fixture(autouse=True)
+def _no_tracking_from_the_developer(monkeypatch):
+    """Tests never log to a developer's tracking server or write offline logs, whatever the shell
+    or a `.env` says (feature 017); subprocesses inherit the switch. Tests that track set it up."""
+    for key in ("MLFLOW_TRACKING_URI", "MMZ_TRACKING_OFFLINE"):
+        monkeypatch.setenv(key, "")  # registers the original value, so teardown restores it
+        monkeypatch.delenv(key)
+    monkeypatch.setenv("MMZ_TRACKING_IGNORE_DOTENV", "1")

@@ -1,0 +1,3 @@
+{"rows": 10, "rows_per_split": {"train": 8, "val": 2}, "relevant_rows": 7, "items_kept": 12,
+ "items_dropped": 1, "composition": {"language": {"de": 6, "en": 4}, "source_type": {"forum": 10},
+ "sub_area": {"rail": 3, "road": 7}}}

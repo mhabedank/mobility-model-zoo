@@ -1,0 +1,3 @@
+{"id": "ds-a", "retrieved_at": "2026-10-01T10:00:00Z",
+ "files": [{"name": "b.csv", "url": "https://example.org/b.csv", "sha256": "bb", "bytes": 5},
+           {"name": "a.csv", "url": "https://example.org/a.csv", "sha256": "aa", "bytes": 7}]}

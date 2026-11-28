@@ -1,0 +1,24 @@
+{
+  "chunks": {
+    "ch-1": "h1",
+    "ch-2": "h2",
+    "ch-3": "h3"
+  },
+  "frozen_at": "2026-10-02T09:00:00+00:00",
+  "hashes": {
+    "guideline": "g1"
+  },
+  "history": [
+    {
+      "event": "frozen",
+      "ts": "2026-10-02T09:00:00+00:00"
+    }
+  ],
+  "holdout_chunks": {
+    "ch-9": "h9"
+  },
+  "state": "frozen",
+  "supersedes": null,
+  "train_chunks": {},
+  "version": "pilot-v1"
+}
