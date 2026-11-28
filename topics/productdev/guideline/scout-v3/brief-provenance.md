@@ -54,5 +54,5 @@
   13. P13 examples corrected and grown to 16.
   14. Note (f): English operative versions of the owner's German sentences, for owner approval.
   15. P11 `improve`: direction sentence removed, one line per value.
-- Not yet decided from the report: P5 (link definitions), P15 (feelings as pain or job), P16 (labeling in passes), P17 (order of `drop_order`).
+- The owner then decided the four remaining proposals in pop-ups (2026-11-28), again taking the recommended option each time: P5 link definitions adopted (one `{from, to, relation}` encoding); P15 sentence on feelings added; P16 labeling in three passes; P17 new `drop_order`.
 - Every new wording that follows from these decisions changes approved text. It is a Claude draft under 3.2.0 and needs the owner's approval before it counts.
