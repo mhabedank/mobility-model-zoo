@@ -30,3 +30,11 @@
     - (b) Does a mode named only as absent or not used count, as in "wer kein Auto hat"? [no]
     - (c) Does a quantity that is not a count of cases, such as a distance, make an item quantified? [avoided in the texts]
     - (d) The same need stated twice in one text with different evidence. [two items, e06 i1/i2]
+- Block E (pop-ups, 2026-11-28):
+  - E1: "Code setzt zusammen (Recommended)". No writer model is used; code assembles the package from a fixed template.
+  - E2: provisional thresholds approved, built on the project conventions (`configs/productdev/jtbd/decision-criteria.yaml`, criteria-v1, and `cluster-criteria.yaml`). They become final after the Fable review and before the pilot (Principle IV).
+  - E3: "Kanten zuerst (Recommended)".
+  - Notes for the Fable review:
+    - (e) For links, the threshold of 0.4 equals the floor below which a field is not produced, so links have no revise band.
+    - (f) Code assembly puts the owner's German answers verbatim into an otherwise English guideline: `teacher_task`, `domain.owner` and `item_boundaries.owner`.
+- The brief is complete (blocks A to E). Next step: the Fable review with its own agents, then the owner's formal approval of the assembled package with hashes.

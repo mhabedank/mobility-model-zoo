@@ -198,3 +198,23 @@ examples:
   file: examples.yaml
   drafted_by: claude
   approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
+assembly:
+  owner_choice: 'Code setzt zusammen (Recommended)'
+  rule: >-
+    Code assembles the guideline package from brief.yaml and examples.yaml with a fixed template.
+    Owner answers stay verbatim; review-only keys (shows, drafted_by, approval, owner_choice) are
+    stripped. The owner approves the assembled package with sha256 hashes before any labeling run.
+pilot_thresholds:
+  status: provisional
+  owner_choice: 'Freigeben (vorläufig)'
+  per: [field, language]
+  core: {relevance_kappa: 0.8, item_matching_f1: 0.7, kind_kappa: 0.6, actor_type_kappa: 0.6, evidence_scope_kappa: 0.6, evidence_type_weighted_kappa: 0.6}
+  attributes: {job_kind_kappa: 0.6, mode_kappa: 0.6, improve_kappa: 0.6, states_solution_kappa: 0.6}
+  pointers: {executor_role_span_f1: 0.6, situation_span_f1: 0.6}
+  links: {actor_pair_f1: 0.4, means_end_f1: 0.4, order_f1: 0.4}
+  revise_band: 'from 0.4 up to the threshold: one guideline revision'
+  not_produced: 'below 0.4, or fewer than 30 units'
+drop_order:
+  owner_choice: 'Kanten zuerst (Recommended)'
+  order: [actor_pair, means_end, order, situation, executor_role, mode, improve, job_kind, states_solution]
+  keep_always: [relevant, kind, quote, actor_type, evidence_type, evidence_scope]
