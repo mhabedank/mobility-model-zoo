@@ -1,0 +1,35 @@
+{
+  "approved_by": "Martin Habedank",
+  "approved_at": "2026-11-28T15:51:13+00:00",
+  "template_version": 1,
+  "sources": {
+    "brief": {
+      "path": "../brief.yaml",
+      "sha256": "2aaeab658e045e467f95da65b5a747c53226861df03dbf3ba68c6d606ff0840b"
+    },
+    "examples": {
+      "path": "../examples.yaml",
+      "sha256": "8e3f6a6a56b4f06f8b8f7b85a1644f81d9db0a3102a00ed9088b9caf43b7adf8"
+    }
+  },
+  "files": {
+    "guideline.md": "06e6b7c661f74a479293e4185eb86b92c07514a89dc8308de910066d0bf2b072",
+    "examples/01-e05.yaml": "e4fcef98982f07da835616b8e4a00acbce54957762535fc8341041cbee6eeaad",
+    "examples/02-e10.yaml": "59fa55b7b2a46a476c6f9ef748465637162cbf34b9a5e898421f6f999a3d1ead",
+    "examples/03-e01.yaml": "ef4166284757cfd82d861b479d89876cf766aed3eb9c9d50ab18af289f8a6406",
+    "examples/04-e04.yaml": "277f83f761a538d48c588f258b45ae2277677e67c50ccf0af45990a94694173e",
+    "examples/05-e13.yaml": "c841d7989be6752ead759fbf5ef7584831ccfd1d5c51ce5e056cb1c90c6ca15c",
+    "examples/06-e12.yaml": "c55f679ebbc1bce732e1e6e69fc83227fc09cb2987fcaef5409312f1cd8cb6d7",
+    "examples/07-e07.yaml": "6e2cc8498e37c9c449b466c3e69188a4e30b06b2bea13ee2e2521a36526371d4",
+    "examples/08-e02.yaml": "b5d60cf01b3e5acfd1d6a5d184011d4391f1e3805e51337106299e13e9cd82a9",
+    "examples/09-e15.yaml": "567e43a89e73d868ab14194cc313c3db6ceb46eeb217ce8003d7d839659b79f3",
+    "examples/10-e06.yaml": "013d0f4ab7dc61a22b5c5363e20ccc71176eec994c1c5e6c9e2773afd3cde5c6",
+    "examples/11-e09.yaml": "e7d0723d3c61f16e76d3eaeb35b87ecc7250957cd412cc75fe6f7ad3edf29851",
+    "examples/12-e16.yaml": "3db195508ca3c9c8689a54ae4b8e6367ec8fb47115be7bb117161e62c438c1a9",
+    "examples/13-e03.yaml": "ca7a911865143375d12b8818e5f8403229c0c7dbd1aaa14833a03a2b5c6545cc",
+    "examples/14-e14.yaml": "1e6b5cd24f35e48aa2605e45b61a16503fe9a45478b5e25c979cfd7d7d3ec307",
+    "examples/15-e11.yaml": "7e032d0a02d10218f2d1f92fb3ad2f9cfee35f5ae0120d1263239d99aa1fc0ac",
+    "examples/16-e08.yaml": "18726c50b2c8b4ac4509bc393dd9ca87131d5817c7ee46b2455081240914fab7"
+  },
+  "manifest_sha256": "e1aebe37991b816f7ad1597bdec1f41eb800e60c64ff8f33c3013fccb826808d"
+}
