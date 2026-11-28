@@ -6,6 +6,10 @@ teacher_task_en:
   drafted_by: claude
   approval: pending
 reader: 'Ein Produkt Manager'
+reader_en:
+  text: A product manager.
+  drafted_by: claude
+  approval: pending
 domain:
   owner: 'Folge der DEfinition von Mobilität, alles was dazu gehört gehört auch zu umserem Thema.'
   owner_en:
@@ -45,8 +49,15 @@ item_boundaries:
     including the words that mark it as a wish, fear or problem (such as 'I want', 'schön wäre',
     'I worry that') and the conjunction that opens a clause. A need may run over several
     sentences. A cause or consequence joined with 'so', 'because', 'weil' or 'sodass' belongs to
-    the same item unless it is a need of its own. Two needs joined by 'and' are two items. Quotes
-    of one text never overlap. Offsets are computed by code.
+    the same item unless it is a need of its own. It is a need of its own when it names another
+    burden or another actor than the clause before it. A purpose joined with 'um … zu', 'damit',
+    'in order to' or 'so that' is an item of its own, and so is the clause it depends on. The
+    opening conjunction may be of either kind ('und', 'aber', 'dass', 'and', 'but', 'that'). A
+    frame that only says who said it ('Viele sagen mir, dass', 'People tell us', 'ich schätze')
+    stays outside the quote; a source named inside the clause ('laut der Erhebung') and a verb that
+    itself states the problem ('complain', 'sich beschweren', 'worry') stay inside. Two clauses
+    joined by 'and' are two items when they name different burdens or actors. Quotes of one text
+    never overlap. Offsets are computed by code.
   drafted_by: claude
   approval: pending
 relevant:
@@ -60,7 +71,10 @@ relevant:
     no actor who wants to get something done, struggles, hopes for something or values an outcome
     they have; timetables, tariffs and technical specifications; a provider praising its own offer
     without reporting a customer's need; texts where mobility is only the backdrop of something
-    else. One passage with a need is enough, even if the rest of the text is off-topic.
+    else. One passage with a need is enough, even if the rest of the text is off-topic. The test
+    applies to each item: the need, or the trip or transport on which it arises, must lie within
+    mobility. What a mobility problem does to the actor (being late for work, feeling cut off) is
+    an item. A need about something else that is only mentioned on the way is no item.
 kind:
   drafted_by: claude
   approval: pending
@@ -78,9 +92,14 @@ kind:
     A job is what the actor wants to get done: it has its own verb of doing and stays the same when
     the means change. A wish about how well, fast, cheaply, safely or reliably it goes is a gain. A
     sentence that only reports what someone does, with no want, purpose, obstacle or judgement, is
-    not an item.
+    not an item. This test decides, whatever word the text uses ('goal', 'Ziel', 'need'). A step
+    the actor takes for a stated purpose is a job and is linked to its goal with means_end. A wish
+    for a thing or measure is a gain with states_solution true, also when it has a verb of doing
+    ('order', 'build', 'introduce').
   feelings: >-
-    A feeling reported as a fact is a pain; a feeling the actor wants or wants to avoid is a job.
+    A bad feeling reported as a fact is a pain, a good one a gain. A wish to feel or not to feel
+    something is a job with job_kind emotional, also when it is about how the trip goes; this rule
+    comes before job_versus_gain.
   pain_versus_negated_gain: >-
     Label by what the text describes. A problem the actor has now is a pain, even when phrased as
     a missing benefit. A wish for a better state is a gain, even when phrased with a negation.
@@ -102,7 +121,12 @@ actor_type:
     mobility.
   organization: A company, operator, association or other non-state body acting as such.
   public_sector: A public authority or public body acting as such.
-  society: The public at large, only when the need is stated for everyone.
+  society: >-
+    The public at large, only when the text says so in words ('alle', 'everyone', 'die
+    Allgemeinheit', 'the public'). The people of a place and generic 'man', 'one' or 'you' are
+    individual.
+# The scale orders the kind of backing, not its value; the export must not filter or sort by it
+# (Fable review 1, R-24). Review note, not printed.
 evidence_type:
   drafted_by: claude
   approval: pending
@@ -118,15 +142,23 @@ evidence_type:
     counting or measuring.
   measurement: A figure obtained by counting or measuring, such as a survey result, a statistic or a measured time.
   boundaries: >-
-    Grade by what the speaker gives as basis. A general claim with no experience or source is an
-    opinion. What others told the speaker is an observation. A share from the speaker's own
-    repeated experience is routine. Anecdote versus routine: one event is an anecdote; words of
-    frequency or several events make it routine. Observation versus measurement: a measurement
-    needs a figure that was counted or measured; an estimate such as "about half, I would say" is
-    an observation, or routine when it is a share of the speaker's own repeated experience.
+    Grade by the basis the speaker gives, and take the first line that fits. 1. A counted or
+    measured figure with its source: measurement. 2. One concrete event, whoever it happened to and
+    whoever told it: anecdote. 3. The speaker's own repeated experience, shown by a word of
+    frequency, by habitual present tense about the speaker's own trips ("I take", "wenn ich …
+    muss") or by a share of the speaker's own attempts: routine. 4. A statement about several other
+    people or a longer time, when the text says how the speaker knows it (they were told, or they
+    were there) or gives an estimated figure: observation. 5. Everything else, including a plain
+    statement of how things are ("the bus runs twice a day"): opinion. Anecdote versus routine: one
+    event is an anecdote; words of frequency or several events make it routine. Observation versus
+    measurement: a measurement needs a figure that was counted or measured; an estimate such as
+    "about half, I would say" is an observation, or routine when it is a share of the speaker's own
+    repeated experience.
   reported_speech: >-
-    In reported speech, the speaker is the person whose words are reported, not the writer who
-    reports them.
+    The speaker is the person or body whose statement the text gives: the author of a first-person
+    text, or the person a news text or minutes quote. A journalist or minute-taker who only passes a
+    statement on is not the speaker. What third persons told that speaker is graded from the
+    speaker's side, as below.
   same_need_twice: >-
     The same need stated again in a separate passage that does not overlap the first is a second
     item with its own evidence.
@@ -143,7 +175,9 @@ evidence_scope:
   quantified: >-
     The text gives a number or share of the actors or occurrences that have the need, such as
     people, trips, tours or complaints; an estimate with a figure counts. Durations, distances,
-    prices, times of day and the size of an operation do not count.
+    prices, times of day and the size of an operation do not count. A share counts when it is a
+    share of people or events; a share of a stock, such as posts or vehicles, is the size of the
+    problem.
 quote:
   owner_choice: 'Nur Zitat (Recommended)'
   rule: >-
@@ -162,7 +196,11 @@ doubt:
   levels: >-
     For evidence_type and evidence_scope, take the lower grade. evidence_scope is ordered single,
     multiple, quantified.
-  fields: When a field is not stated or you are unsure, leave it empty. An empty field is correct.
+  fields: >-
+    job_kind, mode, improve, executor_role and situation stay empty when they are not stated or you
+    are unsure; an empty field is correct. kind, actor_type, evidence_type and evidence_scope are
+    never empty: use the rules for kind and levels above, and for actor_type take the type of the
+    persons the need is about.
 empty_result:
   drafted_by: claude
   approval: 'owner, 2026-11-28, in chat'
@@ -193,9 +231,12 @@ executor_role:
     an organisation type. The pointer must lie in the text the labeler is given, inside or outside
     the item's quote. If the same words occur more than once, the occurrence inside the quote
     counts, else the one nearest before it; code resolves offsets. A role named for the same actor
-    applies to all of that actor's items. Pronouns and generic words such as "I", "we" or "people"
-    get no role. If several roles are named, take the one that has this need. Empty if no role is
-    named.
+    applies to all of that actor's items. A role named inside the quote comes before a role named
+    elsewhere for the same actor. If the words occur only after the quote, the nearest occurrence
+    after it counts. A speaker tag counts as a role only when it names the actor itself and the
+    running text names none. Pronouns and generic words such as "I", "we", "people", "members" or
+    "Leute" get no role. If several roles are named, take the one that has this need. Empty if no
+    role is named.
 link_encoding:
   drafted_by: claude
   approval: pending
@@ -222,8 +263,9 @@ mode:
     All modes named in the item's quote, as a list. Decide on the words of the quote: every mode
     named counts, also when it is negated or missing. Use public_transport when the text names
     public transport without a mode. A word that belongs to exactly one mode counts, such as a bus
-    driver for bus or a wallbox for car. Empty if the quote names no mode; do not infer one from
-    the context alone.
+    driver for bus or a wallbox for car. A verb counts when it belongs to one mode (walk, cycle,
+    fly, drive for car); 'fahren', 'ride' and 'travel' name none. Empty if the quote names no mode;
+    do not infer one from the context alone.
   boundaries: >-
     A pedelec is bicycle. E-scooters and other small electric devices are micromobility. A moped is
     motorcycle. Minibus and on-demand shuttle are bus. A freight train is train. Charger, petrol
@@ -236,12 +278,17 @@ situation:
   approval: pending
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
-    A pointer to the noun phrase (or time word), without article or preposition, with the modifiers
-    that define where, when or on what occasion the need arises: a place, a time of day, week or
-    year, or an occasion such as a trip purpose or what the actor carries. The pointer must lie in
-    the text the labeler is given, inside or outside the item's quote. If the same words occur more
-    than once, the occurrence inside the quote counts, else the one nearest before it; code
-    resolves offsets. Place before occasion before time when several are tied to the need. Not a
+    A pointer to the noun phrase (or time word), without article, possessive, demonstrative or
+    preposition, with the modifiers that define where, when or on what occasion the need arises: a
+    place, a time of day, week or year, or an occasion such as a trip purpose or what the actor
+    carries. The pointer must lie in the text the labeler is given, inside or outside the item's
+    quote. If the same words occur more than once, the occurrence inside the quote counts, else the
+    one nearest before it; code resolves offsets. Place before occasion before time when several
+    are tied to the need. A place, time or occasion counts for an item when it is named in the
+    item's sentence, or when the item points back to it ('there', 'dort', 'dabei', 'dafür'). A time
+    of day or day of the week counts also inside a phrase of frequency: from 'jeden Morgen' point
+    to 'Morgen'. For a job, its own destination or purpose is part of the need; for a pain or gain
+    on that trip, it is a situation. Weather counts as an occasion. Not a
     situation: words of frequency (every day, immer), the date of a single event, the destination
     or object that is part of the need itself, and parts of a wished solution. Empty if none is
     named.
@@ -261,12 +308,12 @@ improve:
   effort: Steps, planning and hassle needed to get it done.
   reliability: Whether it happens as planned; late, cancelled, broken down or unpredictable is reliability.
   safety: Risk of accident, injury or other harm.
-  comfort: How pleasant and calm the trip is, such as shelter, seats, crowding or arriving rushed.
+  comfort: How pleasant and calm the trip is, such as shelter, seats, crowding or noise on board.
   access: Whether a service, place or vehicle is available or within reach at all.
   information: What the actor knows or can find out, such as timetables, delays or changes.
   flexibility: Choice of time or route, including how often a service runs.
   environment: Emissions, noise and other effects of traffic on people and nature around it.
-  other: Only when the quote describes a dimension that is not on this list, such as staff.
+  other: Only when the quote describes a dimension that is not on this list, such as staff or equipment.
 states_solution:
   drafted_by: claude
   approval: pending
@@ -317,18 +364,29 @@ assembly:
   approval: pending
   rule: >-
     Code assembles the guideline package from brief.yaml and examples.yaml with a fixed template.
-    The template prints the English operative versions (teacher_task_en, domain.owner_en,
-    item_boundaries.rule); the owner's German answers (teacher_task, domain.owner,
-    item_boundaries.owner, examples.cases_owner) stay verbatim in brief.yaml and in the provenance
-    and are not printed. Review-only keys (shows, drafted_by, approval, previous_approval and the
+    The template prints the English operative versions (teacher_task_en, reader_en,
+    domain.owner_en, item_boundaries.rule); the owner's German answers (teacher_task, reader,
+    domain.owner, item_boundaries.owner, examples.cases_owner) stay verbatim in brief.yaml and in
+    the provenance and are not printed. Review-only keys (shows, drafted_by, approval, previous_approval and the
     *_choice keys) are stripped. The owner approves the assembled package with sha256 hashes before
     any labeling run.
   passes: >-
     Labeling runs in three passes. Pass 1: items with quote, kind, actor_type, evidence_type and
     evidence_scope; relevant follows from them. Pass 2: the other attributes and the pointers, on
-    the fixed items of pass 1. Pass 3: links, only on chunks in which code finds a connecting word
-    named in the link rules. A pointer that is not a verbatim part of the given text is set to empty
-    and counted, not retried. The zero-shot baselines use the same passes.
+    the fixed items of pass 1. Pass 3: links, on every chunk with at least two items. A pointer that
+    is not a verbatim part of the given text is set to empty and counted, not retried. The zero-shot
+    baselines use the same passes. In the agreement pilot each reference runs all three passes on
+    its own items; nothing is shared between the references.
+link_connectives:
+  drafted_by: claude
+  approval: pending
+  rule: >-
+    A closed list that code uses only to draw the enriched link sub-sample of the agreement pilot.
+    It does not decide whether pass 3 runs, and it does not decide a link.
+  means_end: ['um … zu', damit, deshalb, dafür, in order to, so that]
+  order: [zuerst, danach, bevor, nachdem, während, first, afterwards, before, after, while]
+  actor_pair: [weil, wegen, because, because of]
+  actor_pair_condition: together with at least two different role words in the chunk
 # Some conventions below differ from criteria-v1 (configs/productdev/jtbd/decision-criteria.yaml),
 # which stays frozen for the old pilots. Review note, not printed.
 pilot_thresholds:
@@ -341,7 +399,7 @@ pilot_thresholds:
     matching: >-
       Items of two references are matched one to one when the token IoU of their quotes is at
       least 0.5, after stripping punctuation at the edges; pairs with the highest IoU are matched
-      first.
+      first. Tokens are split at white space.
     item_matching: F1 of matched items. The F1 at any overlap is reported next to it and not used for the decision.
     relevance: >-
       Cohen's kappa over all chunks of the pilot. Raw agreement and a prevalence-robust coefficient
@@ -361,14 +419,19 @@ pilot_thresholds:
       Scored only on pairs of items that both references matched: F1 of the links between matched
       items. The end-to-end F1 is reported next to it and not used for the decision. For order, the
       relation (before or during) is reported as a separate kappa on links both references found.
+      Two links agree when both ends are matched items, the direction is the same and the relation
+      is the same.
     link_sample: >-
-      Links are scored on the random pilot plus an enriched sub-sample: chunks in which code finds
-      one of the connecting words named in the link rules. Link prevalence is never estimated from
-      the enriched sub-sample.
+      Links are scored on the random pilot plus an enriched sub-sample of 100 chunks per language:
+      chunks in which code finds a word of link_connectives. If a link type has fewer than 30 units,
+      the sub-sample is extended once, to 200 chunks per language. Link prevalence is never
+      estimated from the enriched sub-sample.
     intervals: 95 % bootstrap intervals, resampling chunks.
     units: Items or links that at least one reference filled, counted per field and language.
-    pilot_size: 100 chunks per language drawn at random, plus the enriched link sub-sample.
-    revision: After a guideline revision, fields are scored again on a fresh holdout, not on the pilot chunks.
+    pilot_size: 100 chunks per language drawn at random, plus the enriched link sub-sample (100 chunks per language, at most 200).
+    revision: >-
+      After a guideline revision, fields are scored again on a fresh holdout of the same size as the
+      pilot, not on the pilot chunks.
   thresholds:
     core:
       relevance_kappa: {threshold: 0.75, floor: 0.6}
@@ -402,14 +465,18 @@ pilot_thresholds:
   - actor_type per class, with society marked as underpowered
   decision: >-
     A field is produced when its estimate meets the threshold and the lower bound of its interval
-    meets the floor; a field with two numbers needs both. An estimate between floor and threshold
-    gets one guideline revision, and the field is then produced only if it meets this rule on the
-    holdout. An estimate below the floor means not produced. An estimate that meets the threshold
-    with a lower bound below the floor, or fewer than 30 units, means underpowered: extend the
-    sample. Too few units is never by itself a reason not to produce a field.
+    meets the floor; a field with two numbers needs both. First count the units: with fewer than 30
+    the field is underpowered whatever its estimate, and the sample is extended once, to at most
+    twice its size; a field that is still underpowered is not produced in this version and is
+    listed as not measured. With 30 or more units: an estimate below the floor means not produced;
+    an estimate between floor and threshold gets one guideline revision and is scored again on a
+    fresh holdout of the same size as the pilot, and is then produced only if it meets this rule;
+    an estimate at the threshold with a lower bound below the floor is extended once in the same
+    way.
   keep_always_stop: >-
-    A keep_always field whose estimate falls below its floor stops the pilot, and the guideline goes
-    back to the owner. It is never dropped.
+    A keep_always field that would be not produced under the decision rule, at any step, stops the
+    pilot in that language, and the guideline goes back to the owner. It is never dropped.
+    relevance_kappa stands for relevant and item_matching_f1 for quote.
   per_language: Each field is decided per language and is produced only in the languages where it passed.
 drop_order:
   owner_choice: 'Kanten zuerst (Recommended)'

@@ -10,7 +10,13 @@ Checks, per example and item:
 - links use the {from, to, relation} encoding, point to existing items and use
   a relation listed under the link field in brief.yaml;
 - relevant is true if and only if the example has items;
-- job_kind is set on jobs and only on jobs.
+- job_kind is set on jobs and only on jobs;
+- executor_role and situation do not start with an article, possessive,
+  demonstrative or preposition, and executor_role is not a generic word
+  (Fable review 2, M-7 and M-8);
+- society is used only when the quote has a word for everyone (M-6);
+- states_solution is true only on gains (M-4);
+- link_connectives in brief.yaml is a closed list for every link field (M-2).
 
 Prints the distributions of kind, actor_type, evidence_type and evidence_scope.
 Exits with status 1 if any error is found. Reads no file outside this folder.
@@ -63,6 +69,25 @@ ITEM_KEYS = [
 LINK_FIELDS = ["actor_pair", "means_end", "order"]
 EDGE_CHARS = " \t\n.,;:!?"
 
+# First words a pointer must not start with (M-7: no article, possessive,
+# demonstrative or preposition). Lower case, English and German.
+POINTER_LEADS = set(
+    (
+        "a an the this that these those my our your his her its their at by for from in"
+        " into of on to with every each"
+        " der die das den dem des ein eine einen einem einer eines mein meine meinen"
+        " meinem meiner meines unser unsere unseren unserem unserer unseres ihr ihre"
+        " ihren ihrem ihrer ihres sein seine seinen seinem seiner seines dieser diese"
+        " dieses diesem diesen jener jene jenes jenem jenen solche solchen solcher"
+        " solches solchem jeden jede jedes jedem jeder am auf aus bei beim im mit nach"
+        " von vom vor zu zum zur"
+    ).split()
+)
+# Generic words that get no role (M-8).
+GENERIC_ROLES = set("i we people members leute ich wir man you one".split())
+# Words for everyone that society needs in the quote (M-6).
+SOCIETY_WORDS = set("alle allen allgemeinheit everyone everybody public".split())
+
 
 def enum_values(brief: dict, field: str) -> set[str]:
     section = brief[field]
@@ -88,6 +113,11 @@ def main() -> int:
     for field, values in enums.items():
         if values != expected[field]:
             errors.append(f"brief.yaml: {field} values read as {sorted(values)}")
+    connectives = brief.get("link_connectives") or {}
+    for field in LINK_FIELDS:
+        words = connectives.get(field)
+        if not isinstance(words, list) or not words or not all(isinstance(x, str) for x in words):
+            errors.append(f"brief.yaml: link_connectives.{field} is not a closed list of words")
 
     seen_ids: set[str] = set()
     all_items: list[dict] = []
@@ -142,6 +172,17 @@ def main() -> int:
                 v = it.get(field)
                 if v is not None and (not isinstance(v, str) or v not in text):
                     errors.append(f"{w}: {field} not in text: {v!r}")
+                if isinstance(v, str) and v.split():
+                    if v.split()[0].lower() in POINTER_LEADS:
+                        errors.append(f"{w}: {field} starts with a determiner or preposition: {v!r}")
+                    if field == "executor_role" and v.lower() in GENERIC_ROLES:
+                        errors.append(f"{w}: generic word as executor_role: {v!r}")
+            if it.get("actor_type") == "society":
+                tokens = {t.strip(".,;:!?'\"").lower() for t in q.split()}
+                if not tokens & SOCIETY_WORDS:
+                    errors.append(f"{w}: society without a word for everyone in the quote")
+            if it.get("states_solution") is True and it.get("kind") != "gain":
+                errors.append(f"{w}: states_solution true on a {it.get('kind')}")
             for field in ("mode", "improve"):
                 v = it.get(field)
                 if not isinstance(v, list):
