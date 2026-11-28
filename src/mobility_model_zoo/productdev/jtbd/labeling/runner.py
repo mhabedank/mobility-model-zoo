@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from statistics import mean
 from typing import Any
 
-from mobility_model_zoo.productdev.jtbd import budget
+from mobility_model_zoo.productdev.jtbd import budget, guideline_package
 from mobility_model_zoo.productdev.jtbd.config import ModelEntry, Settings
 from mobility_model_zoo.productdev.jtbd.corpus.store import load_chunks
 from mobility_model_zoo.productdev.jtbd.errors import BackendFailure, ValidationFailed
@@ -204,6 +204,9 @@ def label(
     # before role, freeze, compliance or dry-run checks can answer with anything else.
     gate.require(gate.check_entry(entry), entry.model_id)
     gate.require(gate.check_names(backend=backend), entry.model_id)
+    # A guideline package with Claude drafts needs the owner's approval, unchanged since (XI, 3.2.0);
+    # this holds for every role, teacher runs included.
+    guideline_package.require_for_run(settings.paths["guideline"], settings.paths["examples"])
     check_roles(settings, role, entry)
     frozen = verify_frozen(settings)
     if role == "teacher":

@@ -33,6 +33,11 @@ app.add_typer(spike_app, name="spike")
 
 app.add_typer(span_app, name="span")
 app.add_typer(cluster_app, name="cluster")
+guide_app = typer.Typer(
+    no_args_is_help=True,
+    help="Owner-approved guideline packages: assemble from a brief, approve with hashes, check.",
+)
+app.add_typer(guide_app, name="guide")
 
 
 def _log(message: str) -> None:
@@ -489,6 +494,46 @@ def spike_report_cmd(ctx: typer.Context, sft_stats: Path = typer.Option(None, "-
     from mobility_model_zoo.productdev.jtbd.spike import spike_report
 
     _run(ctx, lambda s: spike_report(s, sft_stats))
+
+
+def _guide(fn: Callable[[], Any]) -> None:
+    try:
+        result = fn()
+    except PilotError as exc:
+        _log(f"error: {exc}")
+        raise typer.Exit(exc.exit_code) from exc
+    print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+
+
+@guide_app.command("assemble")
+def guide_assemble(
+    brief: Path = typer.Option(..., "--brief", help="Owner-approved brief.yaml"),
+    examples: Path = typer.Option(..., "--examples", help="Worked examples (examples.yaml)"),
+    out: Path = typer.Option(..., "--out", help="Package directory"),
+) -> None:
+    """Assemble the guideline package with the fixed template; drops a stale approval."""
+    from mobility_model_zoo.productdev.jtbd import guideline_package
+
+    _guide(lambda: guideline_package.assemble(brief, examples, out))
+
+
+@guide_app.command("approve")
+def guide_approve(
+    package: Path = typer.Option(..., "--package", help="Package directory"),
+    by: str = typer.Option(..., "--by", help="Name of the person who reviewed and approves it"),
+) -> None:
+    """Record the owner's approval of the package as it is now (who, when, sha256 per file)."""
+    from mobility_model_zoo.productdev.jtbd import guideline_package
+
+    _guide(lambda: guideline_package.approve(package, by))
+
+
+@guide_app.command("check")
+def guide_check(package: Path = typer.Option(..., "--package", help="Package directory")) -> None:
+    """Exit 0 if a labeling run may use the package; 3 if files changed, 7 if unapproved drafts."""
+    from mobility_model_zoo.productdev.jtbd import guideline_package
+
+    _guide(lambda: guideline_package.check(package))
 
 
 @app.command("doctor")

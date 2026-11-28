@@ -1,0 +1,51 @@
+id: e11
+text: Als mittelständische Spedition beliefern wir täglich rund 300 Filialen im Süden. Unser Ziel ist,
+  dass jede Lieferung im vereinbarten Zeitfenster ankommt. Seit die Innenstädte Lieferzonen nur noch bis
+  10 Uhr erlauben, schaffen wir das bei etwa jeder fünften Tour nicht mehr. Für uns wäre schon viel gewonnen,
+  wenn wir am Nachmittag ein zweites Fenster hätten.
+relevant: true
+items:
+- id: i1
+  kind: gain
+  quote: Unser Ziel ist, dass jede Lieferung im vereinbarten Zeitfenster ankommt
+  actor_type: organization
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: mittelständische Spedition
+  situation: null
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: Seit die Innenstädte Lieferzonen nur noch bis 10 Uhr erlauben, schaffen wir das bei etwa jeder
+    fünften Tour nicht mehr
+  actor_type: organization
+  evidence_type: routine
+  evidence_scope: quantified
+  job_kind: null
+  executor_role: mittelständische Spedition
+  situation: Innenstädte
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+- id: i3
+  kind: gain
+  quote: Für uns wäre schon viel gewonnen, wenn wir am Nachmittag ein zweites Fenster hätten
+  actor_type: organization
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: mittelständische Spedition
+  situation: null
+  mode: []
+  improve:
+  - flexibility
+  states_solution: true
+links:
+  actor_pair: []
+  means_end: []
+  order: []

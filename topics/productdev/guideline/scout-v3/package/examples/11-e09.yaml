@@ -1,0 +1,93 @@
+id: e09
+text: 'Als Bürgermeister einer kleinen Gemeinde sage ich: Bei uns ist der öffentliche Nahverkehr eigentlich
+  nicht vorhanden. Wer kein Auto hat, ist aufgeschmissen. Wir als Gemeinde können keinen eigenen Bus finanzieren,
+  und für Förderprogramme fehlt uns das Personal. Das Land müsste dafür sorgen, dass auch Dörfer angebunden
+  sind. Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man überhaupt wegkommt.'
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: Bei uns ist der öffentliche Nahverkehr eigentlich nicht vorhanden
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode:
+  - public_transport
+  improve:
+  - access
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: Wer kein Auto hat, ist aufgeschmissen
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode:
+  - car
+  improve:
+  - access
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: Wir als Gemeinde können keinen eigenen Bus finanzieren
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: Gemeinde
+  situation: null
+  mode:
+  - bus
+  improve:
+  - cost
+  states_solution: false
+- id: i4
+  kind: pain
+  quote: und für Förderprogramme fehlt uns das Personal
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: Gemeinde
+  situation: null
+  mode: []
+  improve:
+  - other
+  states_solution: false
+- id: i5
+  kind: gain
+  quote: Das Land müsste dafür sorgen, dass auch Dörfer angebunden sind
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve:
+  - access
+  states_solution: false
+- id: i6
+  kind: job
+  quote: Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man überhaupt wegkommt
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: functional
+  executor_role: null
+  situation: null
+  mode:
+  - bus
+  improve:
+  - access
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []

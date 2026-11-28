@@ -1,0 +1,65 @@
+id: e06
+text: 'Our depot runs 40 buses on the regional network. Our drivers report that passengers increasingly
+  struggle to find out about delays, and complaints about missing delay information rose by 30 percent
+  last year, according to our call centre figures. We also find it hard to recruit drivers: around a third
+  of our posts are empty, as far as we can tell. What we want is to give passengers live information they
+  can trust.'
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: that passengers increasingly struggle to find out about delays
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: passengers
+  situation: null
+  mode: []
+  improve:
+  - information
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: and complaints about missing delay information rose by 30 percent last year, according to our
+    call centre figures
+  actor_type: individual
+  evidence_type: measurement
+  evidence_scope: quantified
+  job_kind: null
+  executor_role: passengers
+  situation: null
+  mode: []
+  improve:
+  - information
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: 'We also find it hard to recruit drivers: around a third of our posts are empty'
+  actor_type: organization
+  evidence_type: observation
+  evidence_scope: single
+  job_kind: null
+  executor_role: depot
+  situation: null
+  mode: []
+  improve:
+  - other
+  states_solution: false
+- id: i4
+  kind: job
+  quote: What we want is to give passengers live information they can trust
+  actor_type: organization
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: functional
+  executor_role: depot
+  situation: null
+  mode: []
+  improve:
+  - information
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []

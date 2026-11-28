@@ -1,0 +1,91 @@
+id: e07
+text: Morgens bringe ich zuerst meine Tochter zur Kita und fahre dann mit dem Rad zum Bahnhof. Ich nehme
+  das Rad, um den Zug um 7:12 zu schaffen. Klappt das nicht, komme ich zu spät zur Arbeit. Und das ist
+  mir unangenehm, weil mein Chef jedes Mal so schaut. Ich will pünktlich sein, aber vor allem will ich
+  dabei nicht jeden Morgen gehetzt ankommen.
+relevant: true
+items:
+- id: i1
+  kind: job
+  quote: Ich nehme das Rad
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: functional
+  executor_role: null
+  situation: null
+  mode:
+  - bicycle
+  improve: []
+  states_solution: false
+- id: i2
+  kind: job
+  quote: um den Zug um 7:12 zu schaffen
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: functional
+  executor_role: null
+  situation: null
+  mode:
+  - train
+  improve: []
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: Klappt das nicht, komme ich zu spät zur Arbeit
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+- id: i4
+  kind: pain
+  quote: Und das ist mir unangenehm, weil mein Chef jedes Mal so schaut
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+- id: i5
+  kind: gain
+  quote: Ich will pünktlich sein
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+- id: i6
+  kind: job
+  quote: aber vor allem will ich dabei nicht jeden Morgen gehetzt ankommen
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: emotional
+  executor_role: null
+  situation: Morgen
+  mode: []
+  improve:
+  - comfort
+  states_solution: false
+links:
+  actor_pair: []
+  means_end:
+  - from: i1
+    to: i2
+    relation: in_order_to
+  order: []

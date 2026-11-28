@@ -1,0 +1,117 @@
+id: e15
+text: Ich bin Lkw-Fahrer und fahre für ein Bauunternehmen Kies von der Grube zu den Baustellen am Stadtrand.
+  Jeden Morgen muss ich bis sieben Uhr die erste Ladung an der Baustelle im Neubaugebiet abliefern, und
+  der einzige Weg dorthin führt durch eine Wohnstraße. Die Anwohner beschweren sich, weil ihre Fenster
+  klirren, wenn ich mit dem Laster durchfahre. Wir Fahrer verlieren außerdem jeden Morgen eine halbe Stunde
+  in der Schlange vor der Waage an der Grube. Während ich an der Baustelle oft eine Stunde warten muss,
+  bis ich abkippen darf, macht mir der Disponent am Telefon Druck wegen der nächsten Tour. Am liebsten
+  wäre mir eine eigene Baustraße, damit sich Laster, Busse und Radfahrer an der engen Kreuzung nicht mehr
+  gefährlich nahe kommen.
+relevant: true
+items:
+- id: i1
+  kind: job
+  quote: Jeden Morgen muss ich bis sieben Uhr die erste Ladung an der Baustelle im Neubaugebiet abliefern
+  actor_type: worker
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: functional
+  executor_role: Lkw-Fahrer
+  situation: Morgen
+  mode: []
+  improve: []
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: Die Anwohner beschweren sich, weil ihre Fenster klirren, wenn ich mit dem Laster durchfahre
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: Anwohner
+  situation: Wohnstraße
+  mode:
+  - truck_van
+  improve:
+  - environment
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: Wir Fahrer verlieren außerdem jeden Morgen eine halbe Stunde in der Schlange vor der Waage an
+    der Grube
+  actor_type: worker
+  evidence_type: routine
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: Fahrer
+  situation: Waage an der Grube
+  mode: []
+  improve:
+  - time
+  states_solution: false
+- id: i4
+  kind: pain
+  quote: Während ich an der Baustelle oft eine Stunde warten muss, bis ich abkippen darf
+  actor_type: worker
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: Lkw-Fahrer
+  situation: Baustelle
+  mode: []
+  improve:
+  - time
+  states_solution: false
+- id: i5
+  kind: pain
+  quote: macht mir der Disponent am Telefon Druck wegen der nächsten Tour
+  actor_type: worker
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: Lkw-Fahrer
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+- id: i6
+  kind: gain
+  quote: Am liebsten wäre mir eine eigene Baustraße
+  actor_type: worker
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: Lkw-Fahrer
+  situation: null
+  mode: []
+  improve: []
+  states_solution: true
+- id: i7
+  kind: gain
+  quote: damit sich Laster, Busse und Radfahrer an der engen Kreuzung nicht mehr gefährlich nahe kommen
+  actor_type: worker
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: Lkw-Fahrer
+  situation: engen Kreuzung
+  mode:
+  - truck_van
+  - bus
+  - bicycle
+  improve:
+  - safety
+  states_solution: false
+links:
+  actor_pair:
+  - from: i1
+    to: i2
+    relation: causes
+  means_end:
+  - from: i6
+    to: i7
+    relation: in_order_to
+  order:
+  - from: i4
+    to: i5
+    relation: during

@@ -1,0 +1,140 @@
+id: e12
+text: Thank you, Chair. I am speaking for the older residents of Millbrook. Most of our members no longer
+  drive, and the nearest supermarket is a long way off. The bus stop on the high street has no shelter,
+  so people wait in the rain, and several members have told me they have slipped on the uneven kerb there.
+  The timetable is posted in tiny print that nobody can read. Drivers are often kind, but some pull away
+  before older passengers have sat down, which frightens people. Booking the community minibus means phoning
+  a number that is only staffed on weekday mornings, and many members find that confusing. People tell
+  us they feel cut off and lonely because visiting friends has become such an effort. We would like the
+  council to talk to us before changing routes, because the last change happened without any warning.
+  Above all, our members want to get to the shops, the surgery and the library without having to depend
+  on their children.
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: Most of our members no longer drive, and the nearest supermarket is a long way off
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: null
+  mode:
+  - car
+  improve:
+  - access
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: The bus stop on the high street has no shelter, so people wait in the rain
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: high street
+  mode:
+  - bus
+  improve:
+  - comfort
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: they have slipped on the uneven kerb there
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: high street
+  mode: []
+  improve:
+  - safety
+  states_solution: false
+- id: i4
+  kind: pain
+  quote: The timetable is posted in tiny print that nobody can read
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: null
+  mode: []
+  improve:
+  - information
+  states_solution: false
+- id: i5
+  kind: pain
+  quote: but some pull away before older passengers have sat down, which frightens people
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older passengers
+  situation: null
+  mode: []
+  improve:
+  - safety
+  states_solution: false
+- id: i6
+  kind: pain
+  quote: Booking the community minibus means phoning a number that is only staffed on weekday mornings,
+    and many members find that confusing
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: null
+  mode:
+  - bus
+  improve:
+  - effort
+  - flexibility
+  states_solution: false
+- id: i7
+  kind: pain
+  quote: they feel cut off and lonely because visiting friends has become such an effort
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: visiting friends
+  mode: []
+  improve:
+  - effort
+  states_solution: false
+- id: i8
+  kind: gain
+  quote: We would like the council to talk to us before changing routes, because the last change happened
+    without any warning
+  actor_type: individual
+  evidence_type: anecdote
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: older residents
+  situation: null
+  mode: []
+  improve:
+  - information
+  states_solution: true
+- id: i9
+  kind: job
+  quote: Above all, our members want to get to the shops, the surgery and the library without having to
+    depend on their children
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: functional
+  executor_role: older residents
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []

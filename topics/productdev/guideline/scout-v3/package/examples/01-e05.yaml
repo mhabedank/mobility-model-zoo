@@ -1,0 +1,82 @@
+id: e05
+text: Herr Präsident, meine Damen und Herren, in meinem Wahlkreis haben laut der letzten Erhebung des
+  Landkreises 62 Prozent der Beschäftigten keine Alternative zum Auto. Viele Pendlerinnen und Pendler
+  sagen mir, dass die Spritpreise sie überfordern und sie trotzdem jeden Morgen im Stau stehen. Die Bahnstrecke
+  nach Norden wurde vor zwanzig Jahren stillgelegt; ich schätze, gut die Hälfte der Leute würde sofort
+  umsteigen, wenn sie wieder fährt. Deshalb fordern wir die Reaktivierung der Bahnstrecke.
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: in meinem Wahlkreis haben laut der letzten Erhebung des Landkreises 62 Prozent der Beschäftigten
+    keine Alternative zum Auto
+  actor_type: individual
+  evidence_type: measurement
+  evidence_scope: quantified
+  job_kind: null
+  executor_role: Beschäftigten
+  situation: Wahlkreis
+  mode:
+  - car
+  improve:
+  - access
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: dass die Spritpreise sie überfordern
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: Pendlerinnen und Pendler
+  situation: null
+  mode: []
+  improve:
+  - cost
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: und sie trotzdem jeden Morgen im Stau stehen
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: Pendlerinnen und Pendler
+  situation: Morgen
+  mode: []
+  improve:
+  - time
+  states_solution: false
+- id: i4
+  kind: gain
+  quote: gut die Hälfte der Leute würde sofort umsteigen, wenn sie wieder fährt
+  actor_type: individual
+  evidence_type: observation
+  evidence_scope: quantified
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve:
+  - access
+  states_solution: false
+- id: i5
+  kind: gain
+  quote: Deshalb fordern wir die Reaktivierung der Bahnstrecke
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode:
+  - train
+  improve: []
+  states_solution: true
+links:
+  actor_pair: []
+  means_end:
+  - from: i5
+    to: i4
+    relation: in_order_to
+  order: []

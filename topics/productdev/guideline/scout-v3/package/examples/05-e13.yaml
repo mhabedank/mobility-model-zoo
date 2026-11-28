@@ -1,0 +1,39 @@
+id: e13
+text: Rund 40.000 Menschen haben am Wochenende das 750-jährige Bestehen der Stadt gefeiert. Auf drei Bühnen
+  spielten Bands aus der Region, der Heimatverein zeigte altes Handwerk, und zum Abschluss gab es am Sonntagabend
+  ein Feuerwerk über dem Hafen. Die Gastronomen sprachen von einem Rekordwochenende, die Polizei meldete
+  nur wenige Einsätze. Die Stadtverwaltung räumte ein, dass ihr für Großveranstaltungen schlicht das Personal
+  für die Verkehrsplanung fehlt. Ein Sprecher des Verkehrsverbunds sagte, volle Straßen bei solchen Festen
+  seien längst ein Problem für alle. Im nächsten Jahr soll das Fest um einen Tag verlängert werden; der
+  Vorverkauf für das Abschlusskonzert beginnt im März.
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: dass ihr für Großveranstaltungen schlicht das Personal für die Verkehrsplanung fehlt
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: Stadtverwaltung
+  situation: Großveranstaltungen
+  mode: []
+  improve:
+  - other
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: volle Straßen bei solchen Festen seien längst ein Problem für alle
+  actor_type: society
+  evidence_type: opinion
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: null
+  situation: Festen
+  mode: []
+  improve: []
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []

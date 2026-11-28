@@ -1,0 +1,64 @@
+id: e10
+text: 'Since we got a wallbox, charging at home is easy. The problem is long trips: on the motorway half
+  the fast chargers I try are out of order, so I plan every journey around backup stations. That takes
+  ages. I would gladly pay a bit more for chargers that simply work.'
+relevant: true
+items:
+- id: i1
+  kind: gain
+  quote: Since we got a wallbox, charging at home is easy
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: home
+  mode:
+  - car
+  improve:
+  - effort
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: 'The problem is long trips: on the motorway half the fast chargers I try are out of order'
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: quantified
+  job_kind: null
+  executor_role: null
+  situation: motorway
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: so I plan every journey around backup stations. That takes ages
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: long trips
+  mode: []
+  improve:
+  - effort
+  - time
+  states_solution: false
+- id: i4
+  kind: gain
+  quote: I would gladly pay a bit more for chargers that simply work
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode: []
+  improve:
+  - reliability
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []
