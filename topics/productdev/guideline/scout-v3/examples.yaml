@@ -1,10 +1,49 @@
-# Fictional worked examples for guideline v3. Drafted by Claude under constitution 3.2.0;
-# every text is invented. Not valid before the owner's approval and the merge of 3.2.0.
-# The keys `shows` and this comment are for review only and are stripped before any model reads the file.
+# Fictional worked examples for guideline v3, drafted by Claude under constitution 3.2.0.
+# Every text is invented. Not valid before the owner's approval (and the merge of 3.2.0).
+# Revised after Fable review 1 (P13): re-cut and relabeled under the new rules, 4 examples added,
+# reordered. The keys `shows` and these comments are for review only and are stripped before any
+# model reads the file. Check with: uv run python topics/productdev/guideline/scout-v3/check_examples.py
 examples:
+- id: e05
+  language: de
+  shows: [measured share of affected people is measurement and quantified, what others told the speaker is observation, two needs joined by und, fuel or traffic jam do not fix a mode, estimate with a figure, frequency word is no situation, need voiced for others takes their type, solution instead of need, measure linked to its need by deshalb]
+  text: >-
+    Herr Präsident, meine Damen und Herren, in meinem Wahlkreis haben laut der letzten Erhebung des
+    Landkreises 62 Prozent der Beschäftigten keine Alternative zum Auto. Viele Pendlerinnen und
+    Pendler sagen mir, dass die Spritpreise sie überfordern und sie trotzdem jeden Morgen im Stau
+    stehen. Die Bahnstrecke nach Norden wurde vor zwanzig Jahren stillgelegt; ich schätze, gut die
+    Hälfte der Leute würde sofort umsteigen, wenn sie wieder fährt. Deshalb fordern wir die
+    Reaktivierung der Bahnstrecke.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "in meinem Wahlkreis haben laut der letzten Erhebung des Landkreises 62 Prozent der Beschäftigten keine Alternative zum Auto", actor_type: individual, evidence_type: measurement, evidence_scope: quantified, job_kind: null, executor_role: "Beschäftigten", situation: "Wahlkreis", mode: [car], improve: [access], states_solution: false}
+  - {id: i2, kind: pain, quote: "dass die Spritpreise sie überfordern", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "Pendlerinnen und Pendler", situation: null, mode: [], improve: [cost], states_solution: false}
+  - {id: i3, kind: pain, quote: "und sie trotzdem jeden Morgen im Stau stehen", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "Pendlerinnen und Pendler", situation: null, mode: [], improve: [time], states_solution: false}
+  - {id: i4, kind: gain, quote: "gut die Hälfte der Leute würde sofort umsteigen, wenn sie wieder fährt", actor_type: individual, evidence_type: observation, evidence_scope: quantified, job_kind: null, executor_role: null, situation: null, mode: [], improve: [access], states_solution: true}
+  - {id: i5, kind: gain, quote: "Deshalb fordern wir die Reaktivierung der Bahnstrecke", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [train], improve: [], states_solution: true}
+  links:
+    actor_pair: []
+    means_end: [{from: i5, to: i4, relation: in_order_to}]
+    order: []
+
+- id: e10
+  language: en
+  shows: [wallbox fixes car, charger and motorway alone fix no mode, a valued outcome they have is a gain, share from own repeated experience is routine and quantified, a consequence that is a need of its own is a second item, item over two sentences, place before occasion]
+  text: >-
+    Since we got a wallbox, charging at home is easy. The problem is long trips: on the motorway half the
+    fast chargers I try are out of order, so I plan every journey around backup stations. That takes
+    ages. I would gladly pay a bit more for chargers that simply work.
+  relevant: true
+  items:
+  - {id: i1, kind: gain, quote: "Since we got a wallbox, charging at home is easy", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: "home", mode: [car], improve: [effort], states_solution: false}
+  - {id: i2, kind: pain, quote: "The problem is long trips: on the motorway half the fast chargers I try are out of order", actor_type: individual, evidence_type: routine, evidence_scope: quantified, job_kind: null, executor_role: null, situation: "motorway", mode: [], improve: [reliability], states_solution: false}
+  - {id: i3, kind: pain, quote: "so I plan every journey around backup stations. That takes ages", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "long trips", mode: [], improve: [effort, time], states_solution: false}
+  - {id: i4, kind: gain, quote: "I would gladly pay a bit more for chargers that simply work", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [reliability], states_solution: false}
+  links: {actor_pair: [], means_end: [], order: []}
+
 - id: e01
   language: de
-  shows: [empty result, near-miss]
+  shows: [empty result, near-miss, third-person report]
   text: >-
     Die Stadtwerke haben im Oktober 14 neue Elektrobusse in Betrieb genommen. Die Fahrzeuge verkehren
     auf den Linien 3 und 7 und ersetzen ältere Dieselbusse. Der Fahrplan bleibt unverändert; die neuen
@@ -13,36 +52,9 @@ examples:
   items: []
   links: {actor_pair: [], means_end: [], order: []}
 
-- id: e02
-  language: en
-  shows: [empty result, provider praising its own offer]
-  text: >-
-    With RideNow you will never wait again. Our app finds the closest driver in seconds, and our prices
-    are the lowest in town. Download it today and enjoy stress-free travel.
-  relevant: false
-  items: []
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e03
-  language: de
-  shows: [typical, situation outside the quote, mode only implied stays empty]
-  text: >-
-    Ich wohne in einem Dorf ohne Laden, und der Bus fährt nur zweimal am Tag. Wenn ich zum Arzt in die
-    Kreisstadt muss, geht dafür fast der ganze Tag drauf. Meistens fragt mich dann die Nachbarin, ob sie
-    mich mitnehmen soll, aber ich will nicht ständig um Hilfe bitten. Schön wäre ein Bus, der wenigstens
-    stündlich fährt.
-  relevant: true
-  items:
-  - {id: i1, kind: pain, quote: "der Bus fährt nur zweimal am Tag", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "in einem Dorf ohne Laden", mode: [bus], improve: [access], states_solution: false}
-  - {id: i2, kind: job, quote: "Wenn ich zum Arzt in die Kreisstadt muss", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: null, mode: [], improve: [], states_solution: false}
-  - {id: i3, kind: pain, quote: "geht dafür fast der ganze Tag drauf", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "zum Arzt in die Kreisstadt", mode: [], improve: [time], states_solution: false}
-  - {id: i4, kind: job, quote: "ich will nicht ständig um Hilfe bitten", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: social, executor_role: null, situation: null, mode: [], improve: [], states_solution: false}
-  - {id: i5, kind: gain, quote: "Schön wäre ein Bus, der wenigstens stündlich fährt", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [bus], improve: [access], states_solution: false}
-  links: {actor_pair: [], means_end: [], order: []}
-
 - id: e04
   language: en
-  shows: [anecdote versus routine, actor pair, speaker is not the actor, solution instead of need, empty improve]
+  shows: [anecdote versus routine, actor pair from the causing item to the other actor's pain, feeling reported as a fact is a pain, multi-mode item, date of a single event is no situation, two needs joined by and, solution instead of need, a named facility without a dimension leaves improve empty]
   text: >-
     As a delivery driver in the city centre, I never find anywhere legal to stop. Every day I have to
     double-park, which risks a fine, and the cyclists get angry because I block the bike lane. Last
@@ -50,138 +62,38 @@ examples:
     bays on every street.
   relevant: true
   items:
-  - {id: i1, kind: pain, quote: "I never find anywhere legal to stop", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "delivery driver", situation: "in the city centre", mode: [], improve: [access], states_solution: false}
+  - {id: i1, kind: pain, quote: "As a delivery driver in the city centre, I never find anywhere legal to stop", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "delivery driver", situation: "city centre", mode: [], improve: [access], states_solution: false}
   - {id: i2, kind: pain, quote: "Every day I have to double-park, which risks a fine", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "delivery driver", situation: null, mode: [], improve: [cost], states_solution: false}
-  - {id: i3, kind: pain, quote: "the cyclists get angry because I block the bike lane", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "cyclists", situation: null, mode: [bicycle], improve: [access], states_solution: false}
-  - {id: i4, kind: pain, quote: "a cyclist had to swerve into traffic because of my van", actor_type: individual, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: "cyclist", situation: "Last Tuesday", mode: [bicycle], improve: [safety], states_solution: false}
-  - {id: i5, kind: pain, quote: "I felt terrible", actor_type: worker, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: "delivery driver", situation: null, mode: [], improve: [], states_solution: false}
-  - {id: i6, kind: gain, quote: "We need loading bays on every street", actor_type: worker, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "delivery driver", situation: null, mode: [], improve: [access], states_solution: true}
-  links: {actor_pair: [[i2, i3]], means_end: [], order: []}
+  - {id: i3, kind: pain, quote: "and the cyclists get angry because I block the bike lane", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "cyclists", situation: null, mode: [bicycle], improve: [access], states_solution: false}
+  - {id: i4, kind: pain, quote: "Last Tuesday a cyclist had to swerve into traffic because of my van", actor_type: individual, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: "cyclist", situation: null, mode: [bicycle, truck_van], improve: [safety], states_solution: false}
+  - {id: i5, kind: pain, quote: "and I felt terrible", actor_type: worker, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: "delivery driver", situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i6, kind: gain, quote: "We need loading bays on every street", actor_type: worker, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "delivery driver", situation: null, mode: [], improve: [], states_solution: true}
+  links:
+    actor_pair: [{from: i2, to: i3, relation: causes}]
+    means_end: []
+    order: []
 
-- id: e05
+- id: e13
   language: de
-  shows: [measurement, estimate with a figure, speaker is not the actor, two needs in one sentence, fuel or traffic jam do not fix a mode, solution instead of need]
+  shows: [third-person news text, mostly off-topic, authority with a need of its own, need stated for everyone is society, reported speech graded by the person quoted, plain asserted pain is opinion, occasion as situation, staff is other]
   text: >-
-    Herr Präsident, meine Damen und Herren, in meinem Wahlkreis pendeln laut der letzten Erhebung des
-    Landkreises 62 Prozent der Beschäftigten mit dem Auto, weil es keine Alternative gibt. Viele
-    Pendlerinnen und Pendler sagen mir, dass die Spritpreise sie überfordern und sie trotzdem jeden
-    Morgen im Stau stehen. Die Bahnstrecke nach Norden wurde vor zwanzig Jahren stillgelegt; ich schätze,
-    gut die Hälfte der Leute würde sofort umsteigen, wenn sie wieder fährt. Deshalb fordern wir die
-    Reaktivierung der Bahnstrecke.
+    Rund 40.000 Menschen haben am Wochenende das 750-jährige Bestehen der Stadt gefeiert. Auf drei
+    Bühnen spielten Bands aus der Region, der Heimatverein zeigte altes Handwerk, und zum Abschluss gab
+    es am Sonntagabend ein Feuerwerk über dem Hafen. Die Gastronomen sprachen von einem
+    Rekordwochenende, die Polizei meldete nur wenige Einsätze. Die Stadtverwaltung räumte ein, dass ihr
+    für Großveranstaltungen schlicht das Personal für die Verkehrsplanung fehlt. Ein Sprecher des
+    Verkehrsverbunds sagte, volle Straßen bei solchen Festen seien längst ein Problem für alle. Im
+    nächsten Jahr soll das Fest um einen Tag verlängert werden; der Vorverkauf für das
+    Abschlusskonzert beginnt im März.
   relevant: true
   items:
-  - {id: i1, kind: pain, quote: "pendeln laut der letzten Erhebung des Landkreises 62 Prozent der Beschäftigten mit dem Auto, weil es keine Alternative gibt", actor_type: individual, evidence_type: measurement, evidence_scope: quantified, job_kind: null, executor_role: "Beschäftigten", situation: "in meinem Wahlkreis", mode: [car], improve: [access], states_solution: false}
-  - {id: i2, kind: pain, quote: "die Spritpreise sie überfordern", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "Pendlerinnen und Pendler", situation: null, mode: [], improve: [cost], states_solution: false}
-  - {id: i3, kind: pain, quote: "sie trotzdem jeden Morgen im Stau stehen", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "Pendlerinnen und Pendler", situation: "jeden Morgen", mode: [], improve: [time], states_solution: false}
-  - {id: i4, kind: gain, quote: "Die Bahnstrecke nach Norden wurde vor zwanzig Jahren stillgelegt; ich schätze, gut die Hälfte der Leute würde sofort umsteigen, wenn sie wieder fährt", actor_type: individual, evidence_type: observation, evidence_scope: quantified, job_kind: null, executor_role: null, situation: null, mode: [train], improve: [access], states_solution: false}
-  - {id: i5, kind: gain, quote: "Deshalb fordern wir die Reaktivierung der Bahnstrecke", actor_type: public_sector, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [train], improve: [access], states_solution: true}
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e06
-  language: en
-  shows: [observation versus measurement, estimate with a figure, one meaning unit across a colon, role outside the quote, speaker is not the actor]
-  text: >-
-    Our depot runs 40 buses on the regional network. Our drivers report that passengers increasingly
-    struggle to find out about delays, and complaints about missing delay information rose by 30 percent
-    last year, according to our call centre figures. We also find it hard to recruit drivers: around a
-    third of our posts are empty, as far as we can tell. What we want is to give passengers live
-    information they can trust.
-  relevant: true
-  items:
-  - {id: i1, kind: pain, quote: "passengers increasingly struggle to find out about delays", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "passengers", situation: null, mode: [], improve: [information], states_solution: false}
-  - {id: i2, kind: pain, quote: "complaints about missing delay information rose by 30 percent last year, according to our call centre figures", actor_type: individual, evidence_type: measurement, evidence_scope: quantified, job_kind: null, executor_role: null, situation: null, mode: [], improve: [information], states_solution: false}
-  - {id: i3, kind: pain, quote: "We also find it hard to recruit drivers: around a third of our posts are empty, as far as we can tell", actor_type: organization, evidence_type: observation, evidence_scope: quantified, job_kind: null, executor_role: "depot", situation: null, mode: [], improve: [other], states_solution: false}
-  - {id: i4, kind: job, quote: "give passengers live information they can trust", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: "depot", situation: null, mode: [], improve: [information, reliability], states_solution: false}
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e07
-  language: de
-  shows: [means-end link, order link, sentence order alone makes no link, item over two sentences, job with a practical and a feeling side]
-  text: >-
-    Morgens bringe ich zuerst meine Tochter zur Kita und fahre dann mit dem Rad zum Bahnhof. Ich nehme
-    das Rad, um den Zug um 7:12 zu schaffen. Klappt das nicht, komme ich zu spät zur Arbeit. Und das ist
-    mir unangenehm, weil mein Chef jedes Mal so schaut. Ich will pünktlich sein, aber vor allem will ich
-    dabei nicht jeden Morgen gehetzt ankommen.
-  relevant: true
-  items:
-  - {id: i1, kind: job, quote: "bringe ich zuerst meine Tochter zur Kita", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: "Morgens", mode: [], improve: [], states_solution: false}
-  - {id: i2, kind: job, quote: "fahre dann mit dem Rad zum Bahnhof", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: "Morgens", mode: [bicycle], improve: [], states_solution: false}
-  - {id: i3, kind: job, quote: "den Zug um 7:12 zu schaffen", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: null, mode: [train], improve: [time], states_solution: false}
-  - {id: i4, kind: pain, quote: "Klappt das nicht, komme ich zu spät zur Arbeit. Und das ist mir unangenehm, weil mein Chef jedes Mal so schaut.", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "zur Arbeit", mode: [], improve: [reliability], states_solution: false}
-  - {id: i5, kind: job, quote: "Ich will pünktlich sein", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: null, situation: null, mode: [], improve: [reliability], states_solution: false}
-  - {id: i6, kind: job, quote: "vor allem will ich dabei nicht jeden Morgen gehetzt ankommen", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: emotional, executor_role: null, situation: "jeden Morgen", mode: [], improve: [comfort], states_solution: false}
-  links: {actor_pair: [], means_end: [[i2, i3]], order: [{from: i1, to: i2, relation: before}]}
-
-- id: e08
-  language: en
-  shows: [pain versus negated gain, irony, feared pain, social job, role and situation outside the quote]
-  text: >-
-    I am a single father of two, and on Saturdays we visit my mother on the other side of town. Great,
-    another weekend of replacement buses – I love spending an extra hour with two bored kids. It would be
-    nice if the trams did not stop running every other weekend. And honestly, I worry that one day I will
-    lose one of them in the crowd at the interchange. I just want my kids to see that we can get around
-    on our own like everyone else.
-  relevant: true
-  items:
-  - {id: i1, kind: pain, quote: "Great, another weekend of replacement buses – I love spending an extra hour with two bored kids", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: "on Saturdays", mode: [bus], improve: [time], states_solution: false}
-  - {id: i2, kind: gain, quote: "It would be nice if the trams did not stop running every other weekend", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: null, mode: [tram_metro], improve: [reliability], states_solution: false}
-  - {id: i3, kind: pain, quote: "I worry that one day I will lose one of them in the crowd at the interchange", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: "in the crowd at the interchange", mode: [], improve: [safety], states_solution: false}
-  - {id: i4, kind: job, quote: "I just want my kids to see that we can get around on our own like everyone else", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: social, executor_role: "single father of two", situation: null, mode: [], improve: [], states_solution: false}
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e09
-  language: de
-  shows: [typical, public authority as actor, unnamed group, two needs in one sentence, a mode named only as absent does not count]
-  text: >-
-    Als Bürgermeister einer kleinen Gemeinde sage ich: Bei uns ist der öffentliche Nahverkehr eigentlich
-    nicht vorhanden. Wer kein Auto hat, ist aufgeschmissen. Wir als Gemeinde können keinen eigenen Bus
-    finanzieren, und für Förderprogramme fehlt uns das Personal. Das Land müsste dafür sorgen, dass auch
-    Dörfer angebunden sind. Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man
-    überhaupt wegkommt.
-  relevant: true
-  items:
-  - {id: i1, kind: pain, quote: "Bei uns ist der öffentliche Nahverkehr eigentlich nicht vorhanden", actor_type: public_sector, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "kleinen Gemeinde", situation: null, mode: [public_transport], improve: [access], states_solution: false}
-  - {id: i2, kind: pain, quote: "Wer kein Auto hat, ist aufgeschmissen", actor_type: society, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [], improve: [access], states_solution: false}
-  - {id: i3, kind: pain, quote: "Wir als Gemeinde können keinen eigenen Bus finanzieren", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Gemeinde", situation: null, mode: [bus], improve: [cost], states_solution: false}
-  - {id: i4, kind: pain, quote: "für Förderprogramme fehlt uns das Personal", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Gemeinde", situation: null, mode: [], improve: [effort], states_solution: false}
-  - {id: i5, kind: gain, quote: "Das Land müsste dafür sorgen, dass auch Dörfer angebunden sind", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "kleinen Gemeinde", situation: null, mode: [], improve: [access], states_solution: false}
-  - {id: i6, kind: gain, quote: "Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man überhaupt wegkommt.", actor_type: society, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [], improve: [access], states_solution: false}
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e10
-  language: en
-  shows: [typical, wallbox fixes car, item over two sentences, share from own experience]
-  text: >-
-    Since we got a wallbox, charging at home is easy. The problem is long trips: on the motorway half the
-    fast chargers I try are out of order, so I plan every journey around backup stations. That takes
-    ages. I would gladly pay a bit more for chargers that simply work.
-  relevant: true
-  items:
-  - {id: i1, kind: gain, quote: "Since we got a wallbox, charging at home is easy", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "at home", mode: [car], improve: [effort], states_solution: false}
-  - {id: i2, kind: pain, quote: "on the motorway half the fast chargers I try are out of order", actor_type: individual, evidence_type: routine, evidence_scope: quantified, job_kind: null, executor_role: null, situation: "on the motorway", mode: [], improve: [reliability], states_solution: false}
-  - {id: i3, kind: pain, quote: "so I plan every journey around backup stations. That takes ages.", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "long trips", mode: [], improve: [effort, time], states_solution: false}
-  - {id: i4, kind: gain, quote: "I would gladly pay a bit more for chargers that simply work", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [reliability], states_solution: false}
-  links: {actor_pair: [], means_end: [], order: []}
-
-- id: e11
-  language: de
-  shows: [typical, organisation, estimate with a figure, solution instead of need]
-  text: >-
-    Als mittelständische Spedition beliefern wir täglich rund 300 Filialen im Süden. Unser Ziel ist, dass
-    jede Lieferung im vereinbarten Zeitfenster ankommt. Seit die Innenstädte Lieferzonen nur noch bis 10
-    Uhr erlauben, schaffen wir das bei etwa jeder fünften Tour nicht mehr. Für uns wäre schon viel
-    gewonnen, wenn wir am Nachmittag ein zweites Fenster hätten.
-  relevant: true
-  items:
-  - {id: i1, kind: job, quote: "beliefern wir täglich rund 300 Filialen im Süden", actor_type: organization, evidence_type: routine, evidence_scope: quantified, job_kind: functional, executor_role: "mittelständische Spedition", situation: null, mode: [], improve: [], states_solution: false}
-  - {id: i2, kind: job, quote: "dass jede Lieferung im vereinbarten Zeitfenster ankommt", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: "mittelständische Spedition", situation: null, mode: [], improve: [reliability], states_solution: false}
-  - {id: i3, kind: pain, quote: "Seit die Innenstädte Lieferzonen nur noch bis 10 Uhr erlauben, schaffen wir das bei etwa jeder fünften Tour nicht mehr", actor_type: organization, evidence_type: observation, evidence_scope: quantified, job_kind: null, executor_role: "mittelständische Spedition", situation: "die Innenstädte", mode: [], improve: [reliability], states_solution: false}
-  - {id: i4, kind: gain, quote: "wenn wir am Nachmittag ein zweites Fenster hätten", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "mittelständische Spedition", situation: "am Nachmittag", mode: [], improve: [flexibility], states_solution: true}
+  - {id: i1, kind: pain, quote: "dass ihr für Großveranstaltungen schlicht das Personal für die Verkehrsplanung fehlt", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Stadtverwaltung", situation: "Großveranstaltungen", mode: [], improve: [other], states_solution: false}
+  - {id: i2, kind: pain, quote: "volle Straßen bei solchen Festen seien längst ein Problem für alle", actor_type: society, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: "solchen Festen", mode: [], improve: [], states_solution: false}
   links: {actor_pair: [], means_end: [], order: []}
 
 - id: e12
   language: en
-  shows: [typical, long and dense like a real chunk, speaker is not the actor, two needs in one sentence]
+  shows: [long and dense like a real chunk, speaker is not the actor, sentences without items, one need over two clauses, two needs joined by and, a cause joined by because stays inside, reporting frame stays outside the quote, negated mode counts, role named once applies to all of that actor's items, hazard and destination are no situation, sub-clause merges into its job]
   text: >-
     Thank you, Chair. I am speaking for the older residents of Millbrook. Most of our members no longer
     drive, and the nearest supermarket is a long way off. The bus stop on the high street has no shelter,
@@ -195,15 +107,198 @@ examples:
     library without having to depend on their children.
   relevant: true
   items:
-  - {id: i1, kind: pain, quote: "Most of our members no longer drive, and the nearest supermarket is a long way off", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [], improve: [access], states_solution: false}
-  - {id: i2, kind: pain, quote: "The bus stop on the high street has no shelter, so people wait in the rain", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: "on the high street", mode: [bus], improve: [comfort], states_solution: false}
-  - {id: i3, kind: pain, quote: "several members have told me they have slipped on the uneven kerb there", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: "on the uneven kerb", mode: [], improve: [safety], states_solution: false}
+  - {id: i1, kind: pain, quote: "Most of our members no longer drive, and the nearest supermarket is a long way off", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [car], improve: [access], states_solution: false}
+  - {id: i2, kind: pain, quote: "The bus stop on the high street has no shelter, so people wait in the rain", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: "high street", mode: [bus], improve: [comfort], states_solution: false}
+  - {id: i3, kind: pain, quote: "they have slipped on the uneven kerb there", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [], improve: [safety], states_solution: false}
   - {id: i4, kind: pain, quote: "The timetable is posted in tiny print that nobody can read", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [], improve: [information], states_solution: false}
-  - {id: i5, kind: pain, quote: "some pull away before older passengers have sat down, which frightens people", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older passengers", situation: null, mode: [], improve: [safety], states_solution: false}
-  - {id: i6, kind: pain, quote: "Booking the community minibus means phoning a number that is only staffed on weekday mornings, and many members find that confusing", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [bus], improve: [effort, access], states_solution: false}
-  - {id: i7, kind: pain, quote: "People tell us they feel cut off and lonely because visiting friends has become such an effort", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: "visiting friends", mode: [], improve: [effort], states_solution: false}
-  - {id: i8, kind: gain, quote: "We would like the council to talk to us before changing routes", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [information], states_solution: true}
-  - {id: i9, kind: pain, quote: "the last change happened without any warning", actor_type: organization, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [information], states_solution: false}
-  - {id: i10, kind: job, quote: "our members want to get to the shops, the surgery and the library", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: functional, executor_role: "older residents", situation: null, mode: [], improve: [access], states_solution: false}
-  - {id: i11, kind: job, quote: "without having to depend on their children", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: social, executor_role: "older residents", situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i5, kind: pain, quote: "but some pull away before older passengers have sat down, which frightens people", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "older passengers", situation: null, mode: [], improve: [safety], states_solution: false}
+  - {id: i6, kind: pain, quote: "Booking the community minibus means phoning a number that is only staffed on weekday mornings, and many members find that confusing", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [bus], improve: [effort, flexibility], states_solution: false}
+  - {id: i7, kind: pain, quote: "they feel cut off and lonely because visiting friends has become such an effort", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: "visiting friends", mode: [], improve: [effort], states_solution: false}
+  - {id: i8, kind: gain, quote: "We would like the council to talk to us before changing routes, because the last change happened without any warning", actor_type: individual, evidence_type: anecdote, evidence_scope: multiple, job_kind: null, executor_role: "older residents", situation: null, mode: [], improve: [information], states_solution: true}
+  - {id: i9, kind: job, quote: "Above all, our members want to get to the shops, the surgery and the library without having to depend on their children", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: functional, executor_role: "older residents", situation: null, mode: [], improve: [], states_solution: false}
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e07
+  language: de
+  shows: [bare activities are no items, means-end link joined by um zu, sentence order alone makes no link, feeling reported as a fact is a pain, feeling to avoid is an emotional job, punctuality wish is a gain, time that is part of the need is no situation]
+  text: >-
+    Morgens bringe ich zuerst meine Tochter zur Kita und fahre dann mit dem Rad zum Bahnhof. Ich nehme
+    das Rad, um den Zug um 7:12 zu schaffen. Klappt das nicht, komme ich zu spät zur Arbeit. Und das ist
+    mir unangenehm, weil mein Chef jedes Mal so schaut. Ich will pünktlich sein, aber vor allem will ich
+    dabei nicht jeden Morgen gehetzt ankommen.
+  relevant: true
+  items:
+  - {id: i1, kind: job, quote: "Ich nehme das Rad", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: "Morgens", mode: [bicycle], improve: [], states_solution: false}
+  - {id: i2, kind: job, quote: "um den Zug um 7:12 zu schaffen", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: null, mode: [train], improve: [], states_solution: false}
+  - {id: i3, kind: pain, quote: "Klappt das nicht, komme ich zu spät zur Arbeit", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [reliability], states_solution: false}
+  - {id: i4, kind: pain, quote: "Und das ist mir unangenehm, weil mein Chef jedes Mal so schaut", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i5, kind: gain, quote: "Ich will pünktlich sein", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [], improve: [reliability], states_solution: false}
+  - {id: i6, kind: job, quote: "aber vor allem will ich dabei nicht jeden Morgen gehetzt ankommen", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: emotional, executor_role: null, situation: null, mode: [], improve: [comfort], states_solution: false}
+  links:
+    actor_pair: []
+    means_end: [{from: i1, to: i2, relation: in_order_to}]
+    order: []
+
+- id: e02
+  language: en
+  shows: [empty result, provider praising its own offer]
+  text: >-
+    With RideNow you will never wait again. Our app finds the closest driver in seconds, and our prices
+    are the lowest in town. Download it today and enjoy stress-free travel.
+  relevant: false
+  items: []
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e15
+  language: de
+  shows: [worker as actor, bare activity is no item, actor pair from a job to another actor's pain, routine reported for many people, during link from the earlier quote, multi-mode item, truck_van, contrast pair for states_solution (facility true, need behind it false), measure linked to its need by damit, destination and deadline are no situation]
+  text: >-
+    Ich bin Lkw-Fahrer und fahre für ein Bauunternehmen Kies von der Grube zu den Baustellen am
+    Stadtrand. Jeden Morgen muss ich bis sieben Uhr die erste Ladung an der Baustelle im Neubaugebiet
+    abliefern, und der einzige Weg dorthin führt durch eine Wohnstraße. Die Anwohner beschweren sich,
+    weil ihre Fenster klirren, wenn ich mit dem Laster durchfahre. Wir Fahrer verlieren außerdem jeden
+    Morgen eine halbe Stunde in der Schlange vor der Waage an der Grube. Während ich an der Baustelle oft
+    eine Stunde warten muss, bis ich abkippen darf, macht mir der Disponent am Telefon Druck wegen der
+    nächsten Tour. Am liebsten wäre mir eine eigene Baustraße, damit sich Laster, Busse und Radfahrer an
+    der engen Kreuzung nicht mehr gefährlich nahe kommen.
+  relevant: true
+  items:
+  - {id: i1, kind: job, quote: "Jeden Morgen muss ich bis sieben Uhr die erste Ladung an der Baustelle im Neubaugebiet abliefern", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: "Lkw-Fahrer", situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i2, kind: pain, quote: "Die Anwohner beschweren sich, weil ihre Fenster klirren, wenn ich mit dem Laster durchfahre", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "Anwohner", situation: "Wohnstraße", mode: [truck_van], improve: [environment], states_solution: false}
+  - {id: i3, kind: pain, quote: "Wir Fahrer verlieren außerdem jeden Morgen eine halbe Stunde in der Schlange vor der Waage an der Grube", actor_type: worker, evidence_type: routine, evidence_scope: multiple, job_kind: null, executor_role: "Fahrer", situation: "Waage an der Grube", mode: [], improve: [time], states_solution: false}
+  - {id: i4, kind: pain, quote: "Während ich an der Baustelle oft eine Stunde warten muss, bis ich abkippen darf", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "Lkw-Fahrer", situation: "Baustelle", mode: [], improve: [time], states_solution: false}
+  - {id: i5, kind: pain, quote: "macht mir der Disponent am Telefon Druck wegen der nächsten Tour", actor_type: worker, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "Lkw-Fahrer", situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i6, kind: gain, quote: "Am liebsten wäre mir eine eigene Baustraße", actor_type: worker, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Lkw-Fahrer", situation: null, mode: [], improve: [], states_solution: true}
+  - {id: i7, kind: gain, quote: "damit sich Laster, Busse und Radfahrer an der engen Kreuzung nicht mehr gefährlich nahe kommen", actor_type: worker, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Lkw-Fahrer", situation: "engen Kreuzung", mode: [truck_van, bus, bicycle], improve: [safety], states_solution: false}
+  links:
+    actor_pair: [{from: i1, to: i2, relation: causes}]
+    means_end: [{from: i6, to: i7, relation: in_order_to}]
+    order: [{from: i4, to: i5, relation: during}]
+
+- id: e06
+  language: en
+  shows: [observation versus measurement, the same need twice in separate passages gives two items, count of complaints is quantified, organisation's own need, a share of the actor's own posts is not quantified, estimate with a figure, role outside the quote, speaker is not the actor]
+  text: >-
+    Our depot runs 40 buses on the regional network. Our drivers report that passengers increasingly
+    struggle to find out about delays, and complaints about missing delay information rose by 30 percent
+    last year, according to our call centre figures. We also find it hard to recruit drivers: around a
+    third of our posts are empty, as far as we can tell. What we want is to give passengers live
+    information they can trust.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "that passengers increasingly struggle to find out about delays", actor_type: individual, evidence_type: observation, evidence_scope: multiple, job_kind: null, executor_role: "passengers", situation: null, mode: [], improve: [information], states_solution: false}
+  - {id: i2, kind: pain, quote: "and complaints about missing delay information rose by 30 percent last year, according to our call centre figures", actor_type: individual, evidence_type: measurement, evidence_scope: quantified, job_kind: null, executor_role: "passengers", situation: null, mode: [], improve: [information], states_solution: false}
+  - {id: i3, kind: pain, quote: "We also find it hard to recruit drivers: around a third of our posts are empty, as far as we can tell", actor_type: organization, evidence_type: observation, evidence_scope: single, job_kind: null, executor_role: "depot", situation: null, mode: [], improve: [other], states_solution: false}
+  - {id: i4, kind: job, quote: "What we want is to give passengers live information they can trust", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: "depot", situation: null, mode: [], improve: [information], states_solution: false}
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e09
+  language: de
+  shows: [public authority with needs of its own, a need of all residents stated for the place is society, negated mode counts, two needs joined by und, need voiced for others takes their type, reaching places at all is a job, staff is other]
+  text: >-
+    Als Bürgermeister einer kleinen Gemeinde sage ich: Bei uns ist der öffentliche Nahverkehr eigentlich
+    nicht vorhanden. Wer kein Auto hat, ist aufgeschmissen. Wir als Gemeinde können keinen eigenen Bus
+    finanzieren, und für Förderprogramme fehlt uns das Personal. Das Land müsste dafür sorgen, dass auch
+    Dörfer angebunden sind. Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man
+    überhaupt wegkommt.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "Bei uns ist der öffentliche Nahverkehr eigentlich nicht vorhanden", actor_type: society, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [public_transport], improve: [access], states_solution: false}
+  - {id: i2, kind: pain, quote: "Wer kein Auto hat, ist aufgeschmissen", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [car], improve: [access], states_solution: false}
+  - {id: i3, kind: pain, quote: "Wir als Gemeinde können keinen eigenen Bus finanzieren", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Gemeinde", situation: null, mode: [bus], improve: [cost], states_solution: false}
+  - {id: i4, kind: pain, quote: "und für Förderprogramme fehlt uns das Personal", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "Gemeinde", situation: null, mode: [], improve: [other], states_solution: false}
+  - {id: i5, kind: gain, quote: "Das Land müsste dafür sorgen, dass auch Dörfer angebunden sind", actor_type: individual, evidence_type: opinion, evidence_scope: multiple, job_kind: null, executor_role: null, situation: null, mode: [], improve: [access], states_solution: false}
+  - {id: i6, kind: job, quote: "Mir geht es nicht um einen Bus alle zehn Minuten, sondern darum, dass man überhaupt wegkommt", actor_type: society, evidence_type: opinion, evidence_scope: multiple, job_kind: functional, executor_role: null, situation: null, mode: [bus], improve: [access], states_solution: false}
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e16
+  language: en
+  shows: [noisy council minutes with speaker tags, cut-off sentence gives no item, authority with needs of its own, councillor voicing residents' need takes their type, size of an operation is not quantified, what others told the speaker is observation about one case, occasion as situation, before link where text order and time order differ, no actor pair when the text does not name who caused it]
+  text: >-
+    Item 4: Winter maintenance of roads and footways. CLLR HALE: Can I – sorry, is this on? Right. In
+    heavy snow the district council cannot keep up with gritting, because we only have six lorries for
+    the whole district. Residents on the hill estates were stuck for three days in January, and one of
+    them told me she missed a hospital appointment because no taxi would go up there. HIGHWAYS OFFICER:
+    That is correct. We want to order four more lorries, but first the capital budget has to be approved
+    by full council. BUS OPERATOR: And our school buses could not leave the depot for two days because
+    the access road was not gritted, and we – CHAIR: Thank you, we will come back to that under any
+    other business. Item 5: Allotment fees.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "In heavy snow the district council cannot keep up with gritting, because we only have six lorries for the whole district", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "district council", situation: "heavy snow", mode: [truck_van], improve: [], states_solution: false}
+  - {id: i2, kind: pain, quote: "Residents on the hill estates were stuck for three days in January", actor_type: individual, evidence_type: anecdote, evidence_scope: multiple, job_kind: null, executor_role: "Residents", situation: "hill estates", mode: [], improve: [access], states_solution: false}
+  - {id: i3, kind: pain, quote: "she missed a hospital appointment because no taxi would go up there", actor_type: individual, evidence_type: observation, evidence_scope: single, job_kind: null, executor_role: "Residents", situation: "hospital appointment", mode: [taxi_ridehailing], improve: [access], states_solution: false}
+  - {id: i4, kind: job, quote: "We want to order four more lorries", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: "district council", situation: null, mode: [truck_van], improve: [], states_solution: true}
+  - {id: i5, kind: job, quote: "but first the capital budget has to be approved by full council", actor_type: public_sector, evidence_type: opinion, evidence_scope: single, job_kind: functional, executor_role: "district council", situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i6, kind: pain, quote: "And our school buses could not leave the depot for two days because the access road was not gritted", actor_type: organization, evidence_type: anecdote, evidence_scope: single, job_kind: null, executor_role: "BUS OPERATOR", situation: "depot", mode: [bus], improve: [reliability], states_solution: false}
+  links:
+    actor_pair: []
+    means_end: []
+    order: [{from: i5, to: i4, relation: before}]
+
+- id: e03
+  language: de
+  shows: [typical, bare fact is no item, situation outside the quote, the same place is the destination of a job (no situation) and the place of a pain (situation), frequency of a service is flexibility, a workaround in use is no item, social job, schedule wish states a solution]
+  text: >-
+    Ich wohne in einem Dorf ohne Laden, und der Bus fährt nur zweimal am Tag. Wenn ich zum Arzt in die
+    Kreisstadt muss, geht dafür fast der ganze Tag drauf. Meistens fragt mich dann die Nachbarin, ob sie
+    mich mitnehmen soll, aber ich will nicht ständig um Hilfe bitten. Schön wäre ein Bus, der wenigstens
+    stündlich fährt.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "und der Bus fährt nur zweimal am Tag", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: "Dorf ohne Laden", mode: [bus], improve: [flexibility], states_solution: false}
+  - {id: i2, kind: job, quote: "Wenn ich zum Arzt in die Kreisstadt muss", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: functional, executor_role: null, situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i3, kind: pain, quote: "geht dafür fast der ganze Tag drauf", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: null, situation: "Kreisstadt", mode: [], improve: [time], states_solution: false}
+  - {id: i4, kind: job, quote: "aber ich will nicht ständig um Hilfe bitten", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: social, executor_role: null, situation: null, mode: [], improve: [], states_solution: false}
+  - {id: i5, kind: gain, quote: "Schön wäre ein Bus, der wenigstens stündlich fährt", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: null, situation: null, mode: [bus], improve: [flexibility], states_solution: true}
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e14
+  language: en
+  shows: [empty result, long report with figures and no need, third-person report]
+  text: >-
+    The 2025 household travel survey covered 4,812 households and 9,930 persons aged six and over in the
+    study region. Respondents recorded every trip made on an assigned reference day. On average, each
+    person made 3.1 trips a day, covering 38.4 kilometres in 81 minutes. The car accounted for 52 percent
+    of trips (39 percent as driver, 13 percent as passenger), walking for 24 percent, cycling for 13
+    percent and public transport for 11 percent. Trip rates were highest among persons aged 30 to 49 and
+    lowest among those over 75. Leisure was the most frequent purpose at 31 percent, followed by shopping
+    at 19 percent and commuting at 17 percent. Compared with the 2017 wave, the share of cycling rose by
+    two percentage points, while the share of public transport remained stable. The data were weighted by
+    household size, age, sex and district; the response rate was 21 percent. Tables by district are
+    given in Annex B.
+  relevant: false
+  items: []
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e11
+  language: de
+  shows: [organisation, bare activity is no item, how reliably the job goes is a gain, share from own repeated experience is routine and quantified, part of a wished solution is no situation, schedule wish states a solution]
+  text: >-
+    Als mittelständische Spedition beliefern wir täglich rund 300 Filialen im Süden. Unser Ziel ist, dass
+    jede Lieferung im vereinbarten Zeitfenster ankommt. Seit die Innenstädte Lieferzonen nur noch bis 10
+    Uhr erlauben, schaffen wir das bei etwa jeder fünften Tour nicht mehr. Für uns wäre schon viel
+    gewonnen, wenn wir am Nachmittag ein zweites Fenster hätten.
+  relevant: true
+  items:
+  - {id: i1, kind: gain, quote: "Unser Ziel ist, dass jede Lieferung im vereinbarten Zeitfenster ankommt", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "mittelständische Spedition", situation: null, mode: [], improve: [reliability], states_solution: false}
+  - {id: i2, kind: pain, quote: "Seit die Innenstädte Lieferzonen nur noch bis 10 Uhr erlauben, schaffen wir das bei etwa jeder fünften Tour nicht mehr", actor_type: organization, evidence_type: routine, evidence_scope: quantified, job_kind: null, executor_role: "mittelständische Spedition", situation: "Innenstädte", mode: [], improve: [reliability], states_solution: false}
+  - {id: i3, kind: gain, quote: "Für uns wäre schon viel gewonnen, wenn wir am Nachmittag ein zweites Fenster hätten", actor_type: organization, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "mittelständische Spedition", situation: null, mode: [], improve: [flexibility], states_solution: true}
+  links: {actor_pair: [], means_end: [], order: []}
+
+- id: e08
+  language: en
+  shows: [pain versus negated gain, irony, feared pain, social job, bare activity is no item, a duration is not quantified, frequency word is no situation, role and situation outside the quote]
+  text: >-
+    I am a single father of two, and on Saturdays we visit my mother on the other side of town. Great,
+    another weekend of replacement buses – I love spending an extra hour with two bored kids. It would be
+    nice if the trams did not stop running every other weekend. And honestly, I worry that one day I will
+    lose one of them in the crowd at the interchange. I just want my kids to see that we can get around
+    on our own like everyone else.
+  relevant: true
+  items:
+  - {id: i1, kind: pain, quote: "Great, another weekend of replacement buses – I love spending an extra hour with two bored kids", actor_type: individual, evidence_type: routine, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: "Saturdays", mode: [bus], improve: [time], states_solution: false}
+  - {id: i2, kind: gain, quote: "It would be nice if the trams did not stop running every other weekend", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: null, mode: [tram_metro], improve: [reliability], states_solution: false}
+  - {id: i3, kind: pain, quote: "And honestly, I worry that one day I will lose one of them in the crowd at the interchange", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: null, executor_role: "single father of two", situation: "interchange", mode: [], improve: [safety], states_solution: false}
+  - {id: i4, kind: job, quote: "I just want my kids to see that we can get around on our own like everyone else", actor_type: individual, evidence_type: opinion, evidence_scope: single, job_kind: social, executor_role: "single father of two", situation: null, mode: [], improve: [], states_solution: false}
   links: {actor_pair: [], means_end: [], order: []}
