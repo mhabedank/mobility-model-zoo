@@ -67,4 +67,4 @@
   8. Pass 3 runs on every chunk with at least two items; the closed connective list only draws the enriched sample (M-2).
   9. The enriched link sample is 100 chunks per language, extended once to 200 if a link type has fewer than 30 units.
   10. Decision rule M-12: one extension; a keep-always field that would not be produced stops the pilot in that language.
-- Also adopted, following the report's verdicts on the applying agent's points: M-9 (domain test per item, R-15), M-10 (`doubt.fields` against required fields, R-22), `reader_en`, a non-printed note on R-24, and the e05 text change is kept. R-29 is picked up in the roadmap later.
+- Not asked separately, but planned as drafts on the strength of the report's verdicts on the applying agent's points; they count only after the owner's formal approval: M-9 (domain test per item, R-15), M-10 (`doubt.fields` against required fields, R-22), `reader_en`, a non-printed note on R-24, and the e05 text change is kept. R-29 is picked up in the roadmap later.
