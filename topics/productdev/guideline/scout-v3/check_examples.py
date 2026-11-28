@@ -157,7 +157,7 @@ def main() -> int:
             all_items.append({**it, "_lang": lang})
 
         spans.sort()
-        for (s1, e1, a), (s2, e2, b) in zip(spans, spans[1:]):
+        for (_s1, e1, a), (s2, _e2, b) in zip(spans, spans[1:], strict=False):
             if s2 < e1:
                 errors.append(f"{where}: quotes {a} and {b} overlap")
 
