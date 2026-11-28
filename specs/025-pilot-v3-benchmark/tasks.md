@@ -46,7 +46,7 @@ description: "Tasks for feature 025: benchmark pilot-v3"
 - [X] T007 (owner) The owner approves the content of `pass_instructions` in a pop-up. Record the approval in `brief.yaml` and `brief-provenance.md`.
 - [X] T008 Extend `src/mobility_model_zoo/productdev/jtbd/guideline_package.py` so that `assemble` writes `instructions/pass1.md`, `pass2.md` and `pass3.md` from `pass_instructions` and leaves the key out of `guideline.md`. Add `tests/unit/test_guideline_package.py` cases: the instruction files exist, are hashed in `package.json`, and a change to one gives exit 3.
 - [X] T009 Reassemble `topics/productdev/guideline/scout-v3/package/` with `jtbd guide assemble`. The stale approval is dropped by design.
-- [ ] T010 (owner) The owner runs `uv run jtbd guide approve --package topics/productdev/guideline/scout-v3/package --by "<full name>"`. Then `jtbd guide check` exits 0. Commit `approval.json`.
+- [X] T010 (owner) The owner runs `uv run jtbd guide approve --package topics/productdev/guideline/scout-v3/package --by "<full name>"`. Then `jtbd guide check` exits 0. Commit `approval.json`.
 - [ ] T011 [P] Write `tests/unit/v3/test_schema.py`. The wire schema of each pass must equal `specs/025-pilot-v3-benchmark/contracts/labeler-pass{1,2,3}.schema.json`, and no schema node may carry `title` or `description`. Merging the passes must give an object that validates against `src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v2.schema.json` once `score` is added.
 - [ ] T012 Implement `src/mobility_model_zoo/productdev/jtbd/v3/schema.py`:
   - Pydantic models `Pass1Answer`, `Pass2Answer`, `Pass3Answer`, each with `extra="forbid"`;
