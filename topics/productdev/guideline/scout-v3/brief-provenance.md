@@ -16,3 +16,7 @@
   - B7, B8, B10 and B11: the owner chose Claude drafts (`evidence_type`, `evidence_scope`, `doubt`, `empty_result`) and approved all four unchanged.
   - B11 draws the consequence of B1, and the pop-up said so explicitly: since relevance follows from items, "relevant but no item" is no longer a valid result. It was valid in v1.
   - An estimated figure is `observation` under B7 but `quantified` under B8. The two scales are independent.
+- Block C (pop-ups, 2026-11-28):
+  - C10 (language): the owner chose "Code erkennt (Recommended)". Language is detected by code per text, is not a label and needs no agreement pilot.
+  - C1 to C9: the owner chose Claude drafts (`job_kind`, `executor_role`, `actor_pair`, `mode`, `situation`, `improve`, `states_solution`, `means_end`, `order`) and approved all nine unchanged. Claude stated the common rules: a field is filled only when the text states it, a pointer takes the shortest verbatim span, and links need connecting words in the text.
+  - The value lists of `mode` (15 values) and `improve` (11 values) are Claude drafts approved by the owner. The schema draft `jtbd-span-v2` (roadmap phase 1) can now be written from them.

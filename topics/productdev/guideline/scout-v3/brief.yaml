@@ -112,3 +112,81 @@ empty_result:
     An empty item list is correct when the text states no job, pain or gain in mobility as defined
     under domain; relevant is then false. Because relevance follows from items, "relevant but no
     item" is not a valid result. No score rewards filling a result.
+job_kind:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  applies_to: job
+  functional: The practical task or result the actor wants to get done.
+  emotional: How the actor wants to feel, or wants to avoid feeling, while getting it done.
+  social: How the actor wants to be seen by others, or to stand with them.
+  rule: >-
+    One value per job item: the one the text stresses. Empty for pains and gains. If a passage
+    states a practical and a feeling side as two separate wishes, label two jobs.
+executor_role:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A pointer to the shortest verbatim span that names who has the need by a role: a noun or noun
+    phrase that says what the person or body is, such as an occupation, a life situation or an
+    organisation type. It may lie outside the item's quote but within the same text. Pronouns and
+    generic words such as "I", "we" or "people" do not count. If several roles are named, take the
+    one that has this need. Empty if no role is named.
+actor_pair:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A link between two items of different actors when the text says that the way one actor gets
+    their job done causes the other actor's pain, at the same place, time or resource. At least one
+    of the two items is a pain. Both items must be in the text. A clash known only from general
+    knowledge is not linked.
+mode:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  values: [walk, bicycle, micromobility, motorcycle, car, taxi_ridehailing, bus, tram_metro, train, coach, public_transport, truck_van, air, water, other]
+  rule: >-
+    All modes the item names, as a list. Use public_transport when the text names public transport
+    without a mode. A word that belongs to exactly one mode counts, such as a bus driver for bus or
+    a wallbox for car. Empty if the item names no mode; do not infer one from the context alone.
+situation:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A pointer to the shortest verbatim span that says where, when or on what occasion the need
+    arises: a place, a time of day, week or year, or an occasion such as a trip purpose or what the
+    actor carries. It may lie outside the item's quote but within the same text. If several are
+    named, take the one tied to this need. Empty if none is named.
+improve:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  values: [time, cost, effort, reliability, safety, comfort, access, information, flexibility, environment, other]
+  rule: >-
+    What the actor wants more or less of, as a list, for jobs, pains and gains. The direction
+    follows from the kind: a pain asks for less of the problem, a gain for more of the benefit.
+    Only values the text states. Empty if none is stated.
+states_solution:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    True when the item names a concrete product, service, feature or measure that the actor wants,
+    instead of the need behind it. The item keeps its kind and is not dropped. The need behind it
+    is a separate item only if the text states it. False otherwise.
+means_end:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A directed link from item A to item B of the same actor when the text says that A is done or
+    wanted in order to achieve B, marked by words such as "um zu", "damit", "in order to", "so that"
+    or "because I need to". No link when the connection is only implied. Items of different actors
+    are not linked here.
+order:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  values: [before, during]
+  rule: >-
+    A directed link between two items of one text when words in the text order them in time, such
+    as "zuerst", "dann", "bevor", "während", "first", "then", "after" or "while". before means A
+    comes before B; during means A and B happen at the same time. The order of sentences alone does
+    not count. Order across texts is never labeled.
+language:
+  owner_choice: 'Code erkennt (Recommended)'
+  rule: Detected by code per text, not labeled. A mixed text gets its main language.
