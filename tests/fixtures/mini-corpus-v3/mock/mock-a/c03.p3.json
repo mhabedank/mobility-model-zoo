@@ -1,0 +1,14 @@
+{
+  "links": [
+    {
+      "from": 0,
+      "to": 1,
+      "relation": "before"
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "relation": "in_order_to"
+    }
+  ]
+}

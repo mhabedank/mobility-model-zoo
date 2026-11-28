@@ -1,0 +1,26 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "der letzte Bus um 18 Uhr",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "pain",
+      "quote": "Abends komme ich deshalb nicht mehr nach Hause",
+      "actor_type": "individual",
+      "evidence_type": "anecdote",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "gain",
+      "quote": "Ich wünsche mir einen Bus bis Mitternacht",
+      "actor_type": "individual",
+      "evidence_type": "opinion",
+      "evidence_scope": "single"
+    }
+  ]
+}

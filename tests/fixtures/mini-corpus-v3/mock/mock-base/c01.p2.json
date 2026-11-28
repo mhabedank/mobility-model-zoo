@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": null,
+      "mode": [
+        "bus"
+      ],
+      "improve": [
+        "access"
+      ],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": "Im Dorf"
+    }
+  ]
+}

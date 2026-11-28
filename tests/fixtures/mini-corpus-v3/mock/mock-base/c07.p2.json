@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": "functional",
+      "mode": [
+        "bicycle"
+      ],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    }
+  ]
+}

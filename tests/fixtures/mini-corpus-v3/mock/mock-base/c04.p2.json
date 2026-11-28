@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": null,
+      "mode": [],
+      "improve": [
+        "access"
+      ],
+      "states_solution": false,
+      "executor_role": "Paketbote",
+      "situation": null
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": null,
+      "mode": [],
+      "improve": [
+        "information"
+      ],
+      "states_solution": false,
+      "executor_role": "Passengers",
+      "situation": null
+    }
+  ]
+}

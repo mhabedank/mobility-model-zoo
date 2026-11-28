@@ -1,0 +1,12 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "parke ich in zweiter Reihe, weil es keine Ladezonen gibt",
+      "actor_type": "worker",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": "functional",
+      "mode": [],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 1,
+      "job_kind": "functional",
+      "mode": [
+        "car"
+      ],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 2,
+      "job_kind": "functional",
+      "mode": [],
+      "improve": [
+        "reliability"
+      ],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 3,
+      "job_kind": null,
+      "mode": [],
+      "improve": [
+        "time"
+      ],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": "Morgen"
+    }
+  ]
+}

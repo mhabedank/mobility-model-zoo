@@ -1,0 +1,19 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "Passengers complain that the app shows no live delays",
+      "actor_type": "individual",
+      "evidence_type": "observation",
+      "evidence_scope": "multiple"
+    },
+    {
+      "kind": "job",
+      "quote": "We want to give them reliable real-time information",
+      "actor_type": "organization",
+      "evidence_type": "opinion",
+      "evidence_scope": "single"
+    }
+  ]
+}

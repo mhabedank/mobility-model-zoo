@@ -1,0 +1,15 @@
+# Cash budget of benchmark pilot-v3 (feature 025, FR-016; owner decision 2026-11-28: EUR 25).
+# Used by configs/productdev/jtbd/pilot-v3.yaml (budget_name pilot-v3). Its own file because
+# budget.yaml is part of pilot-v1's frozen hashes. The ledger is shared; rows carry the budget name.
+# The local reference (ref-qwen3.8-27b on the DGX Spark) costs no cash and is recorded with EUR 0.
+budget_eur: 25
+# Upper bound for paid backends on the OpenRouter key. TO CONFIRM BY THE OWNER: the key's remaining
+# hard limit; set provisionally to the budget (2026-11-28).
+key_cap_eur: 25
+api_key_env: OPENROUTER_API_KEY
+openrouter_fee: 0.055
+usd_to_eur: 0.92
+# EUR per million tokens; list prices as upper bound (the ledger uses OpenRouter's reported cost).
+# Baseline prices are added when the owner picks the baselines (task T048).
+prices:
+  ref-deepseek-v4.1-flash: {input: 0.047, cached_input: null, output: 0.522}  # deepseek/deepseek-v4.1-flash USD 0.051 / 0.567 (OpenRouter list, 2026-11-28)

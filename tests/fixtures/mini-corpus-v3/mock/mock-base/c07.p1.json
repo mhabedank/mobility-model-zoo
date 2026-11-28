@@ -1,0 +1,12 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "job",
+      "quote": "I cycle to the station",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

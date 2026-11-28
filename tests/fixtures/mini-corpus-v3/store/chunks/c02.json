@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c02",
+  "snapshot_id": "snap-v3-c02",
+  "ranges": [
+    [
+      0,
+      78
+    ]
+  ],
+  "text": "Die Stadtwerke haben zwölf neue Busse gekauft. Sie fahren ab März auf Linie 4.",
+  "token_count": 14,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "near_miss",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

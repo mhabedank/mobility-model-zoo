@@ -1,0 +1,19 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "I double-park because there are no loading bays",
+      "actor_type": "worker",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "pain",
+      "quote": "cyclists get angry because I block the bike lane",
+      "actor_type": "individual",
+      "evidence_type": "observation",
+      "evidence_scope": "multiple"
+    }
+  ]
+}

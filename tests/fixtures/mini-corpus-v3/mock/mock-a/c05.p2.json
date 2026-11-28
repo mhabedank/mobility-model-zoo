@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": null,
+      "mode": [],
+      "improve": [
+        "information"
+      ],
+      "states_solution": false,
+      "executor_role": "Passengers",
+      "situation": null
+    },
+    {
+      "index": 1,
+      "job_kind": "functional",
+      "mode": [],
+      "improve": [
+        "information",
+        "reliability"
+      ],
+      "states_solution": false,
+      "executor_role": "depot",
+      "situation": null
+    }
+  ]
+}

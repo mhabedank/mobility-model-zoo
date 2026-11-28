@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": null,
+      "mode": [],
+      "improve": [
+        "access"
+      ],
+      "states_solution": false,
+      "executor_role": "delivery driver",
+      "situation": null,
+      "role": null
+    },
+    {
+      "index": 1,
+      "job_kind": null,
+      "mode": [
+        "bicycle"
+      ],
+      "improve": [
+        "safety"
+      ],
+      "states_solution": false,
+      "executor_role": "cyclists",
+      "situation": null
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "job",
+      "quote": "bringe ich die Kinder zur Schule",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "job",
+      "quote": "fahre ich mit dem Auto zur Arbeit",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "job",
+      "quote": "um pünktlich zu sein",
+      "actor_type": "individual",
+      "evidence_type": "opinion",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "pain",
+      "quote": "Der Stau kostet mich jeden Morgen",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

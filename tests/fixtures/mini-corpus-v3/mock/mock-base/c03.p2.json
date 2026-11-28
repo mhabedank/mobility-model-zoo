@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": "functional",
+      "mode": [],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    }
+  ]
+}

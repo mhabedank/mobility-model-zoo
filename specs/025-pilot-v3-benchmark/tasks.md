@@ -19,8 +19,8 @@ description: "Tasks for feature 025: benchmark pilot-v3"
 
 ## Phase 1: Setup
 
-- [ ] T001 Create the subpackage `src/mobility_model_zoo/productdev/jtbd/v3/__init__.py` and an empty Typer group in `src/mobility_model_zoo/productdev/jtbd/v3/cli.py`. Register it as `jtbd v3` in `src/mobility_model_zoo/productdev/jtbd/cli.py`.
-- [ ] T002 Add the top-level key `v3` to `TOP_LEVEL_KEYS` in `src/mobility_model_zoo/productdev/jtbd/config.py`, with these sub-keys and defaults in `V3_DEFAULTS`:
+- [X] T001 Create the subpackage `src/mobility_model_zoo/productdev/jtbd/v3/__init__.py` and an empty Typer group in `src/mobility_model_zoo/productdev/jtbd/v3/cli.py`. Register it as `jtbd v3` in `src/mobility_model_zoo/productdev/jtbd/cli.py`.
+- [X] T002 Add the top-level key `v3` to `TOP_LEVEL_KEYS` in `src/mobility_model_zoo/productdev/jtbd/config.py`, with these sub-keys and defaults in `V3_DEFAULTS`:
   - `package` (path)
   - `criteria`
   - `labeler_schemas`
@@ -30,9 +30,9 @@ description: "Tasks for feature 025: benchmark pilot-v3"
   - `seed`
 
   Then add `configs/productdev/jtbd/pilot-v3.yaml` with its own `paths.benchmarks` and data root `data/pilot-v3/` (research R8).
-- [ ] T003 [P] Add `configs/productdev/jtbd/budget-pilot-v3.yaml` with `budget_eur: 25`. Add the OpenRouter EUR prices per million tokens of `ref-deepseek-v4.1-flash` and of every baseline, read from the OpenRouter model list on the day of the commit, with the date recorded (research R11).
-- [ ] T004 [P] Add `configs/productdev/jtbd/criteria-pilot-v3.yaml` as a verbatim copy of `pilot_thresholds` from `topics/productdev/guideline/scout-v3/brief.yaml`. Add `bootstrap: {resamples: 2000, seed: 20261128}` and an empty `role_words` placeholder (research R7, R10).
-- [ ] T005 [P] Create the fixture `tests/fixtures/mini-corpus-v3/`. It needs:
+- [X] T003 [P] Add `configs/productdev/jtbd/budget-pilot-v3.yaml` with `budget_eur: 25`. Add the OpenRouter EUR prices per million tokens of `ref-deepseek-v4.1-flash` and of every baseline, read from the OpenRouter model list on the day of the commit, with the date recorded (research R11).
+- [X] T004 [P] Add `configs/productdev/jtbd/criteria-pilot-v3.yaml` as a verbatim copy of `pilot_thresholds` from `topics/productdev/guideline/scout-v3/brief.yaml`. Add `bootstrap: {resamples: 2000, seed: 20261128}` and an empty `role_words` placeholder (research R7, R10).
+- [X] T005 [P] Create the fixture `tests/fixtures/mini-corpus-v3/`. It needs:
   - 8 chunks, 4 German and 4 English, redaction passed;
   - a pilot-v3 config with `test_fixture: true`;
   - mock answers per pass (`mock/<model>/<chunk>.p<pass>.json`) for `mock-a`, `mock-b` (two families) and `mock-base`;

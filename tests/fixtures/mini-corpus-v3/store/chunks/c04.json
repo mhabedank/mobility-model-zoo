@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c04",
+  "snapshot_id": "snap-v3-c04",
+  "ranges": [
+    [
+      0,
+      129
+    ]
+  ],
+  "text": "Als Paketbote parke ich in zweiter Reihe, weil es keine Ladezonen gibt. Die Radfahrer ärgern sich, weil ich den Radweg blockiere.",
+  "token_count": 21,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

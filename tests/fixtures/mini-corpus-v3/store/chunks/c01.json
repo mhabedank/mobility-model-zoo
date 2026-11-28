@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c01",
+  "snapshot_id": "snap-v3-c01",
+  "ranges": [
+    [
+      0,
+      130
+    ]
+  ],
+  "text": "Im Dorf fährt der letzte Bus um 18 Uhr. Abends komme ich deshalb nicht mehr nach Hause. Ich wünsche mir einen Bus bis Mitternacht.",
+  "token_count": 24,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

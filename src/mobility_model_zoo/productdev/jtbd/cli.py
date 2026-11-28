@@ -18,6 +18,7 @@ from mobility_model_zoo.productdev.jtbd.cluster.cli import app as cluster_app
 from mobility_model_zoo.productdev.jtbd.config import Settings, load_settings
 from mobility_model_zoo.productdev.jtbd.errors import PilotError
 from mobility_model_zoo.productdev.jtbd.span.cli import app as span_app
+from mobility_model_zoo.productdev.jtbd.v3.cli import app as v3_app
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -38,6 +39,7 @@ guide_app = typer.Typer(
     help="Owner-approved guideline packages: assemble from a brief, approve with hashes, check.",
 )
 app.add_typer(guide_app, name="guide")
+app.add_typer(v3_app, name="v3")
 
 
 def _log(message: str) -> None:

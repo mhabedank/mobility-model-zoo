@@ -1,0 +1,26 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "job",
+      "quote": "I cycle to the station",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "job",
+      "quote": "I take the train to work",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    },
+    {
+      "kind": "pain",
+      "quote": "The train is late almost every day",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

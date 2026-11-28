@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c08",
+  "snapshot_id": "snap-v3-c08",
+  "ranges": [
+    [
+      0,
+      123
+    ]
+  ],
+  "text": "As a delivery driver I double-park because there are no loading bays, and cyclists get angry because I block the bike lane.",
+  "token_count": 22,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "UK",
+  "country": "GB",
+  "language": "en",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

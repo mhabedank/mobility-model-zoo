@@ -1,0 +1,13 @@
+examples:
+- id: x01
+  language: en
+  text: The bus is always late.
+  relevant: true
+  items:
+  - id: i1
+    kind: pain
+    quote: The bus is always late.
+  links:
+    actor_pair: []
+    means_end: []
+    order: []

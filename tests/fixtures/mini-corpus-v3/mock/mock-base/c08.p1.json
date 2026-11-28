@@ -1,0 +1,12 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "pain",
+      "quote": "I double-park because there are no loading bays",
+      "actor_type": "worker",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

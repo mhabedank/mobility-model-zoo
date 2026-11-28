@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c07",
+  "snapshot_id": "snap-v3-c07",
+  "ranges": [
+    [
+      0,
+      128
+    ]
+  ],
+  "text": "First I cycle to the station, then I take the train to work. I cycle in order to save money. The train is late almost every day.",
+  "token_count": 27,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "UK",
+  "country": "GB",
+  "language": "en",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

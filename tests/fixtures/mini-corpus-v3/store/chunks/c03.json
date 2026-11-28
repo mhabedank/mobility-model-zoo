@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c03",
+  "snapshot_id": "snap-v3-c03",
+  "ranges": [
+    [
+      0,
+      175
+    ]
+  ],
+  "text": "Zuerst bringe ich die Kinder zur Schule, danach fahre ich mit dem Auto zur Arbeit. Ich nehme das Auto, um pünktlich zu sein. Der Stau kostet mich jeden Morgen zwanzig Minuten.",
+  "token_count": 31,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "DACH",
+  "country": "DE",
+  "language": "de",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}

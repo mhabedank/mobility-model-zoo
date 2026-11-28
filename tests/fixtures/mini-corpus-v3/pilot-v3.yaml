@@ -1,0 +1,32 @@
+# Mini corpus for pilot-v3 (feature 025): 8 invented chunks, mocked backends.
+# The package is assembled and approved into `package/` by the test helper at run time.
+root: .
+benchmark_version: mini-v3
+test_fixture: true
+budget_name: mini-v3
+paths:
+  guideline: package/guideline.md
+  examples: package/examples
+  domain: domain.yaml
+  models: models.yaml
+  criteria: criteria-pilot-v3.yaml
+  teacher_scoring: teacher-scoring.yaml
+  budget: budget.yaml
+  data: store
+  benchmarks: benchmarks
+  reports: reports
+  mock: mock
+pilot:
+  max_retries: 0
+  max_output_tokens: 4096
+  assumed_output_tokens: 500
+  redaction_patterns_version: redact-v2
+  redaction_review: model
+v3:
+  benchmark: mini-v3
+  brief: brief.yaml
+  package: package
+  criteria: criteria-pilot-v3.yaml
+  pool: store/chunks
+  languages: [de, en]
+  seed: 7

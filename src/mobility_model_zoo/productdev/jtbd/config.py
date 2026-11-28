@@ -30,6 +30,7 @@ TOP_LEVEL_KEYS = {
     "budget_name",
     "span_train",
     "cluster",
+    "v3",
 }
 # Defaults of a training dataset config (feature 004, data-model.md "Training dataset").
 SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
@@ -42,6 +43,14 @@ SPAN_TRAIN_DEFAULTS: dict[str, Any] = {
 # `model`: the zoo model this dataset trains; its declared usage class decides which licences may
 # train it (constitution 2.1.0, feature 011). Without it the target counts as commercial.
 SPAN_TRAIN_KEYS = {"dataset", "exclude_benchmark", "model", *SPAN_TRAIN_DEFAULTS}
+# Benchmark pilot-v3 (feature 025, research R1, R8). Path values are relative to `root`.
+V3_DEFAULTS: dict[str, Any] = {
+    "languages": ["de", "en"],
+    "seed": 20261128,
+    "passes": [1, 2, 3],
+}
+V3_PATH_KEYS = {"package", "criteria", "labeler_schemas", "pool", "brief"}
+V3_KEYS = {*V3_DEFAULTS, *V3_PATH_KEYS, "benchmark"}
 # Benchmark config of the jtbd-cluster task (feature 009, data-model.md "Benchmark").
 CLUSTER_KEYS = {"pool", "split_by", "dev_fraction", "holdout_fraction", "seed", "pairs", "sets",
                 "reference_models", "batch_size", "max_retries", "guideline", "examples", "criteria",
@@ -78,6 +87,8 @@ class Settings:
     budget_name: str = DEFAULT_BUDGET
     span_train: dict[str, Any] | None = None
     cluster: dict[str, Any] | None = None
+    # Benchmark pilot-v3 (feature 025): three-pass labeling of the guideline v3 package.
+    v3: dict[str, Any] | None = None
 
     # ---- derived paths -------------------------------------------------------------------------
     @property
@@ -206,6 +217,7 @@ def load_settings(config_path: Path | str | None = None) -> Settings:
         budget_name=raw.get("budget_name") or DEFAULT_BUDGET,
         span_train=_span_train(path, raw.get("span_train")),
         cluster=_cluster(path, raw.get("cluster")),
+        v3=_v3(path, base, raw.get("v3")),
     )
 
 
@@ -228,3 +240,18 @@ def _cluster(path: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None:
     if unknown:
         raise UsageError(f"config {path} has unknown cluster keys: {sorted(unknown)}")
     return raw
+
+
+def _v3(path: Path, base: Path, raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raw is None:
+        return None
+    unknown = set(raw) - V3_KEYS
+    if unknown:
+        raise UsageError(f"config {path} has unknown v3 keys: {sorted(unknown)}")
+    missing = {"package", "criteria", "brief"} - set(raw)
+    if missing:
+        raise UsageError(f"config {path} is missing v3 keys: {sorted(missing)}")
+    merged = {**V3_DEFAULTS, **raw}
+    for key in V3_PATH_KEYS & set(merged):
+        merged[key] = (base / merged[key]).resolve()
+    return merged

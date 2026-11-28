@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "index": 0,
+      "job_kind": "functional",
+      "mode": [
+        "bicycle"
+      ],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 1,
+      "job_kind": "functional",
+      "mode": [
+        "train"
+      ],
+      "improve": [],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 2,
+      "job_kind": "functional",
+      "mode": [],
+      "improve": [
+        "cost"
+      ],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    },
+    {
+      "index": 3,
+      "job_kind": null,
+      "mode": [
+        "train"
+      ],
+      "improve": [
+        "reliability"
+      ],
+      "states_solution": false,
+      "executor_role": null,
+      "situation": null
+    }
+  ]
+}

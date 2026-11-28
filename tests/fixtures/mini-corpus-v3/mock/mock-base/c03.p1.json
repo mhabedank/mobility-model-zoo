@@ -1,0 +1,12 @@
+{
+  "relevant": true,
+  "items": [
+    {
+      "kind": "job",
+      "quote": "bringe ich die Kinder zur Schule",
+      "actor_type": "individual",
+      "evidence_type": "routine",
+      "evidence_scope": "single"
+    }
+  ]
+}

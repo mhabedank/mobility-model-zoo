@@ -1,0 +1,9 @@
+{
+  "links": [
+    {
+      "from": 0,
+      "to": 1,
+      "relation": "causes"
+    }
+  ]
+}

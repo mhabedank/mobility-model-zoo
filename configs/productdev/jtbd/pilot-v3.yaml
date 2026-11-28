@@ -1,0 +1,35 @@
+# Benchmark pilot-v3 (feature 025, scout-large roadmap phase 3). Paths are relative to `root`.
+# The guideline and examples are the owner-approved guideline v3 package: every labeling run checks
+# it (`jtbd guide check`, exits 3 and 7) and then labels in three passes (research R2 to R4).
+root: ../../..
+benchmark_version: pilot-v3
+test_fixture: false
+budget_name: pilot-v3
+
+paths:
+  guideline: topics/productdev/guideline/scout-v3/package/guideline.md
+  examples: topics/productdev/guideline/scout-v3/package/examples
+  domain: configs/productdev/jtbd/domain/mobility.yaml   # not used by v3 prompts; required by the loader
+  models: configs/productdev/jtbd/models.yaml
+  criteria: configs/productdev/jtbd/criteria-pilot-v3.yaml
+  teacher_scoring: configs/productdev/jtbd/teacher-scoring.yaml
+  budget: configs/productdev/jtbd/budget-pilot-v3.yaml
+  data: data/pilot-v3
+  benchmarks: topics/productdev/benchmarks-v3          # own directory: pilot-v1's `current` stays put (R8)
+  reports: topics/productdev/reports
+
+pilot:
+  max_retries: 2
+  max_output_tokens: 4096
+  assumed_output_tokens: 1500
+  redaction_patterns_version: redact-v2
+  redaction_review: model
+
+v3:
+  benchmark: pilot-v3
+  brief: topics/productdev/guideline/scout-v3/brief.yaml
+  package: topics/productdev/guideline/scout-v3/package
+  criteria: configs/productdev/jtbd/criteria-pilot-v3.yaml
+  pool: data/pilot-v3/chunks
+  languages: [de, en]
+  seed: 20261128

@@ -1,0 +1,26 @@
+{
+  "chunk_id": "c05",
+  "snapshot_id": "snap-v3-c05",
+  "ranges": [
+    [
+      0,
+      135
+    ]
+  ],
+  "text": "Our depot runs night buses. Passengers complain that the app shows no live delays. We want to give them reliable real-time information.",
+  "token_count": 22,
+  "split": "main",
+  "sub_area": "public_transport_rural",
+  "source_type": "transcript",
+  "region": "UK",
+  "country": "GB",
+  "language": "en",
+  "date": "2026-11-01",
+  "license": "invented test text",
+  "relevance_intent": "relevant",
+  "redaction": {
+    "patterns_version": "redact-v2",
+    "manual_review_at": "2026-11-28T10:00:00+00:00",
+    "check_passed": true
+  }
+}
