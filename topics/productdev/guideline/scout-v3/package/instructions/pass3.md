@@ -1,0 +1,1 @@
+The items listed after the text are fixed. Return the links between them that the guideline above defines: causes (actor pair), in_order_to (means and end) and before or during (order). Name the items by their index counted from 0. Return only links that the text marks with words; when there is none, return an empty list of links.

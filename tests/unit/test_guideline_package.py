@@ -25,6 +25,9 @@ BRIEF = {
     "kind": {"drafted_by": "claude", "approval": "owner, today", "previous_approval": "earlier",
              "job": "What an actor wants to get done.", "pain": "What bothers the actor."},
     "mode": {"values": ["bus", "car"], "rule": "Every mode named in the quote.", "owner_choice": "x"},
+    "pass_instructions": {"drafted_by": "claude", "approval": "owner, today",
+                          "pass1": "Return the items.", "pass2": "Return the attributes.",
+                          "pass3": "Return the links."},
     "pilot_thresholds": {"core": {"relevance_kappa": 0.75}},
     "assembly": {"rule": "Code assembles."},
 }
@@ -50,12 +53,16 @@ def test_assemble_is_deterministic_and_prints_only_operative_text(sources):
     guideline = (out / "guideline.md").read_text(encoding="utf-8")
     assert gp.assemble(brief, examples, out) == first
     assert first["contains_claude_drafts"] is True
-    assert sorted(first["files"]) == ["examples/01-e01.yaml", "examples/02-e02.yaml", "guideline.md"]
+    assert sorted(first["files"]) == ["examples/01-e01.yaml", "examples/02-e02.yaml", "guideline.md",
+                                      "instructions/pass1.md", "instructions/pass2.md",
+                                      "instructions/pass3.md"]
+    assert (out / "instructions/pass2.md").read_text(encoding="utf-8") == "Return the attributes.\n"
     for printed in ("Find jobs, pains and gains.", "A product manager.", "Follow the definition.",
                     "Mobility is the movement", "Wikipedia (de)", "CC-BY-SA-4.0", "`bus`, `car`"):
         assert printed in guideline
     for hidden in ("Finde Jobs", "Ein Produkt Manager", "Folge der Definition", "drafted_by",
-                   "owner, today", "earlier", "relevance_kappa", "Code assembles", "owner_choice"):
+                   "owner, today", "earlier", "relevance_kappa", "Code assembles", "owner_choice",
+                   "Return the items.", "pass_instructions"):
         assert hidden not in guideline
     example = yaml.safe_load((out / "examples/02-e02.yaml").read_text(encoding="utf-8"))
     assert "shows" not in example and "language" not in example
@@ -75,7 +82,7 @@ def test_claude_drafts_need_approval(sources):
 
 def test_package_without_claude_drafts_needs_no_approval(sources, tmp_path):
     brief, examples, out = sources
-    plain = {k: v for k, v in BRIEF.items() if k not in ("domain", "kind")}
+    plain = {k: v for k, v in BRIEF.items() if k not in ("domain", "kind", "pass_instructions")}
     brief.write_text(yaml.safe_dump(plain, allow_unicode=True), encoding="utf-8")
     gp.assemble(brief, examples, out)
     assert gp.check(out)["approved"] is False
@@ -186,3 +193,18 @@ def test_label_run_refuses_an_unapproved_package_before_anything_else(tmp_path):
     gp.approve(package, "Owner Name")
     # Approved: the run gets past the package check and stops at the missing freeze, as before.
     pilot(config, "label", "--role", "reference", "--backend", "mock", "--model", "mock-a", expect=3)
+
+
+def test_changed_or_extra_instruction_file_is_refused(sources):
+    brief, examples, out = sources
+    gp.assemble(brief, examples, out)
+    gp.approve(out, "Owner Name")
+    pass1 = out / "instructions/pass1.md"
+    pass1.write_text("Return everything.\n", encoding="utf-8")
+    with pytest.raises(FrozenHashMismatch):
+        gp.check(out)
+    pass1.write_text("Return the items.\n", encoding="utf-8")
+    gp.check(out)
+    (out / "instructions/pass4.md").write_text("extra\n", encoding="utf-8")
+    with pytest.raises(FrozenHashMismatch):
+        gp.check(out)

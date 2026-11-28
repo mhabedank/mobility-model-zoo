@@ -35,6 +35,7 @@ GUIDELINE = "guideline.md"
 
 # Keys of the brief that steer code, sampling or the pilot, not the labeler.
 NOT_PRINTED_TOP = {
+    "pass_instructions",
     "teacher_task", "reader", "language", "examples", "assembly", "link_connectives",
     "pilot_thresholds", "drop_order",
 }
@@ -124,11 +125,17 @@ def assemble(brief_path: Path, examples_path: Path, out_dir: Path) -> dict[str, 
     files: dict[str, bytes] = {GUIDELINE: render_guideline(brief).encode("utf-8")}
     for n, example in enumerate(examples, start=1):
         files[f"examples/{n:02d}-{example['id']}.yaml"] = _dump(_example_doc(example))
+    # Pass instructions (feature 025, research R2): the fixed text of each labeling pass, owner-approved
+    # inside the package because a teacher reads it (constitution 3.2.0).
+    for key, text in (brief.get("pass_instructions") or {}).items():
+        if key.startswith("pass"):
+            files[f"instructions/{key}.md"] = (str(text).strip() + "\n").encode("utf-8")
     out_dir.mkdir(parents=True, exist_ok=True)
-    old_examples = out_dir / "examples"
-    if old_examples.exists():
-        for stale in old_examples.glob("*.yaml"):
-            stale.unlink()
+    for sub, pattern in (("examples", "*.yaml"), ("instructions", "*.md")):
+        old = out_dir / sub
+        if old.exists():
+            for stale in old.glob(pattern):
+                stale.unlink()
     for rel, data in files.items():
         target = out_dir / rel
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -173,6 +180,7 @@ def _current_hashes(package: Path, manifest: dict[str, Any]) -> dict[str, str]:
             raise FrozenHashMismatch(f"package file missing: {path}")
         hashes[rel] = sha256_bytes(path.read_bytes())
     present = {f"examples/{p.name}" for p in (package / "examples").glob("*.yaml")}
+    present |= {f"instructions/{p.name}" for p in (package / "instructions").glob("*.md")}
     extra = present - set(manifest["files"])
     if extra:
         raise FrozenHashMismatch(f"files not in the package manifest: {sorted(extra)}")

@@ -4,7 +4,7 @@
   "sources": {
     "brief": {
       "path": "../brief.yaml",
-      "sha256": "2aaeab658e045e467f95da65b5a747c53226861df03dbf3ba68c6d606ff0840b"
+      "sha256": "65392ecd606eb906f70d00cc46fb9bd74e8c4cf9139549dbdeda02044346d939"
     },
     "examples": {
       "path": "../examples.yaml",
@@ -28,6 +28,9 @@
     "examples/13-e03.yaml": "ca7a911865143375d12b8818e5f8403229c0c7dbd1aaa14833a03a2b5c6545cc",
     "examples/14-e14.yaml": "1e6b5cd24f35e48aa2605e45b61a16503fe9a45478b5e25c979cfd7d7d3ec307",
     "examples/15-e11.yaml": "7e032d0a02d10218f2d1f92fb3ad2f9cfee35f5ae0120d1263239d99aa1fc0ac",
-    "examples/16-e08.yaml": "18726c50b2c8b4ac4509bc393dd9ca87131d5817c7ee46b2455081240914fab7"
+    "examples/16-e08.yaml": "18726c50b2c8b4ac4509bc393dd9ca87131d5817c7ee46b2455081240914fab7",
+    "instructions/pass1.md": "63d85367a1544df07a2d6005a4cb66c289292b19266a4c5dc2fc5752885baab3",
+    "instructions/pass2.md": "92de865713d7bf046eafa31ba4d9d1266337d757dc51b44f995202cf97d1f982",
+    "instructions/pass3.md": "a99934c1f7cf69b7992d5c5d5c27f035072ecbbd4b6ae9419faad1bb085bb608"
   }
 }
