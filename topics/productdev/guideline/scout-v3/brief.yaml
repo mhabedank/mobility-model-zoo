@@ -360,7 +360,7 @@ examples:
   previous_approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
 pass_instructions:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content; hash approval of the reassembled package follows)'
   pass1: >-
     Read the text. Find every job, pain and gain in it, as the guideline above defines them. Return
     `relevant` and the items. For each item give the quote, copied verbatim from the text in its own
