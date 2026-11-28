@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-labeler-v3-pass3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "links"
+  ],
+  "properties": {
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to",
+          "relation"
+        ],
+        "properties": {
+          "from": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "to": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "relation": {
+            "enum": [
+              "causes",
+              "in_order_to",
+              "before",
+              "during"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

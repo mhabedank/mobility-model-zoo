@@ -20,6 +20,9 @@ class OpenRouterBackend:
     name = "openrouter"
     temperature = 0.0
     structured_output = "json_schema_strict"
+    # Name of the strict JSON schema; v1 answers `extraction_output`, the pilot-v3 passes set their own
+    # (feature 025, T014) on the instance before a call.
+    schema_name = "extraction_output"
 
     def __init__(self, settings: Settings, entry: ModelEntry):
         from openai import OpenAI
@@ -95,7 +98,7 @@ class OpenRouterBackend:
                 max_tokens=self.max_tokens,
                 response_format={
                     "type": "json_schema",
-                    "json_schema": {"name": "extraction_output", "strict": True, "schema": schema},
+                    "json_schema": {"name": self.schema_name, "strict": True, "schema": schema},
                 },
                 extra_body=extra_body,
             )

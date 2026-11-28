@@ -37,3 +37,12 @@ def test_a_model_without_temperature_gets_none_and_a_deviation(fixture_dir, monk
     b.call("s", "u", {}, "ch-001")
     assert "temperature" not in sent and b.temperature == "not_settable"
     assert any("no temperature" in d for d in b.deviations)
+
+
+def test_schema_name_defaults_to_v1_and_can_be_set(fixture_dir, monkeypatch):
+    b, sent = backend(fixture_dir, monkeypatch)
+    b.call("s", "u", {}, "ch-001")
+    assert sent["response_format"]["json_schema"]["name"] == "extraction_output"
+    b.schema_name = "jtbd_labeler_v3_pass2"
+    b.call("s", "u", {}, "ch-001")
+    assert sent["response_format"]["json_schema"]["name"] == "jtbd_labeler_v3_pass2"

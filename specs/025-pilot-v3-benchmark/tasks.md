@@ -47,16 +47,16 @@ description: "Tasks for feature 025: benchmark pilot-v3"
 - [X] T008 Extend `src/mobility_model_zoo/productdev/jtbd/guideline_package.py` so that `assemble` writes `instructions/pass1.md`, `pass2.md` and `pass3.md` from `pass_instructions` and leaves the key out of `guideline.md`. Add `tests/unit/test_guideline_package.py` cases: the instruction files exist, are hashed in `package.json`, and a change to one gives exit 3.
 - [X] T009 Reassemble `topics/productdev/guideline/scout-v3/package/` with `jtbd guide assemble`. The stale approval is dropped by design.
 - [X] T010 (owner) The owner runs `uv run jtbd guide approve --package topics/productdev/guideline/scout-v3/package --by "<full name>"`. Then `jtbd guide check` exits 0. Commit `approval.json`.
-- [ ] T011 [P] Write `tests/unit/v3/test_schema.py`. The wire schema of each pass must equal `specs/025-pilot-v3-benchmark/contracts/labeler-pass{1,2,3}.schema.json`, and no schema node may carry `title` or `description`. Merging the passes must give an object that validates against `src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v2.schema.json` once `score` is added.
-- [ ] T012 Implement `src/mobility_model_zoo/productdev/jtbd/v3/schema.py`:
+- [X] T011 [P] Write `tests/unit/v3/test_schema.py`. The wire schema of each pass must equal `specs/025-pilot-v3-benchmark/contracts/labeler-pass{1,2,3}.schema.json`, and no schema node may carry `title` or `description`. Merging the passes must give an object that validates against `src/mobility_model_zoo/productdev/jtbd/span/jtbd-span-v2.schema.json` once `score` is added.
+- [X] T012 Implement `src/mobility_model_zoo/productdev/jtbd/v3/schema.py`:
   - Pydantic models `Pass1Answer`, `Pass2Answer`, `Pass3Answer`, each with `extra="forbid"`;
   - `wire_schema(pass_no)` without descriptions;
   - `labeler_schema_sha256(pass_no)`;
   - `merge(pass1, pass2, pass3) -> LabelerOutputV3`.
 
   The value lists must equal `brief.yaml` `mode.values` and `improve.values`, and the relations must be `causes|in_order_to|before|during`.
-- [ ] T013 [P] Write `tests/unit/v3/test_tokens.py`: Unicode word tokens with offsets for German and English (umlauts, ß, hyphens, digits like 7:12), the token set of a character span, and IoU. Then implement `src/mobility_model_zoo/productdev/jtbd/v3/tokens.py` (research R5).
-- [ ] T014 [P] Make the schema name configurable in `src/mobility_model_zoo/productdev/jtbd/labeling/openrouter.py`. The default stays `extraction_output` so v1 behaviour does not change. Add a test in `tests/unit/test_openrouter_schema_name.py`.
+- [X] T013 [P] Write `tests/unit/v3/test_tokens.py`: Unicode word tokens with offsets for German and English (umlauts, ß, hyphens, digits like 7:12), the token set of a character span, and IoU. Then implement `src/mobility_model_zoo/productdev/jtbd/v3/tokens.py` (research R5).
+- [X] T014 [P] Make the schema name configurable in `src/mobility_model_zoo/productdev/jtbd/labeling/openrouter.py`. The default stays `extraction_output` so v1 behaviour does not change. Add a test in `tests/unit/test_openrouter_params.py`.
 
 **Checkpoint**: the package is approved with pass instructions, and the schemas and tokens are tested.
 
