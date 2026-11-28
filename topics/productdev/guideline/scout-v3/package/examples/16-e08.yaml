@@ -1,0 +1,65 @@
+id: e08
+text: I am a single father of two, and on Saturdays we visit my mother on the other side of town. Great,
+  another weekend of replacement buses – I love spending an extra hour with two bored kids. It would be
+  nice if the trams did not stop running every other weekend. And honestly, I worry that one day I will
+  lose one of them in the crowd at the interchange. I just want my kids to see that we can get around
+  on our own like everyone else.
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: Great, another weekend of replacement buses – I love spending an extra hour with two bored kids
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: single father of two
+  situation: weekend
+  mode:
+  - bus
+  improve:
+  - time
+  states_solution: false
+- id: i2
+  kind: gain
+  quote: It would be nice if the trams did not stop running every other weekend
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: single father of two
+  situation: weekend
+  mode:
+  - tram_metro
+  improve:
+  - reliability
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: And honestly, I worry that one day I will lose one of them in the crowd at the interchange
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: single father of two
+  situation: interchange
+  mode: []
+  improve:
+  - safety
+  states_solution: false
+- id: i4
+  kind: job
+  quote: I just want my kids to see that we can get around on our own like everyone else
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: social
+  executor_role: single father of two
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order: []

@@ -1,0 +1,99 @@
+id: e16
+text: 'Item 4: Winter maintenance of roads and footways. CLLR HALE: Can I – sorry, is this on? Right.
+  In heavy snow the district council cannot keep up with gritting, because we only have six lorries for
+  the whole district. Residents on the hill estates were stuck for three days in January, and one of them
+  told me she missed a hospital appointment because no taxi would go up there. HIGHWAYS OFFICER: That
+  is correct. We want to order four more lorries, but first the capital budget has to be approved by full
+  council. BUS OPERATOR: And our school buses could not leave the depot for two days because the access
+  road was not gritted, and we – CHAIR: Thank you, we will come back to that under any other business.
+  Item 5: Allotment fees.'
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: In heavy snow the district council cannot keep up with gritting, because we only have six lorries
+    for the whole district
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: district council
+  situation: heavy snow
+  mode:
+  - truck_van
+  improve:
+  - other
+  states_solution: false
+- id: i2
+  kind: pain
+  quote: Residents on the hill estates were stuck for three days in January
+  actor_type: individual
+  evidence_type: anecdote
+  evidence_scope: multiple
+  job_kind: null
+  executor_role: Residents
+  situation: hill estates
+  mode: []
+  improve:
+  - access
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: she missed a hospital appointment because no taxi would go up there
+  actor_type: individual
+  evidence_type: anecdote
+  evidence_scope: single
+  job_kind: null
+  executor_role: Residents
+  situation: hill estates
+  mode:
+  - taxi_ridehailing
+  improve:
+  - access
+  states_solution: false
+- id: i4
+  kind: gain
+  quote: We want to order four more lorries
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: district council
+  situation: null
+  mode:
+  - truck_van
+  improve: []
+  states_solution: true
+- id: i5
+  kind: pain
+  quote: but first the capital budget has to be approved by full council
+  actor_type: public_sector
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: district council
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+- id: i6
+  kind: pain
+  quote: And our school buses could not leave the depot for two days because the access road was not gritted
+  actor_type: organization
+  evidence_type: anecdote
+  evidence_scope: single
+  job_kind: null
+  executor_role: BUS OPERATOR
+  situation: depot
+  mode:
+  - bus
+  improve:
+  - reliability
+  states_solution: false
+links:
+  actor_pair: []
+  means_end: []
+  order:
+  - from: i5
+    to: i4
+    relation: before

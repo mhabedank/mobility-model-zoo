@@ -1,0 +1,76 @@
+id: e03
+text: Ich wohne in einem Dorf ohne Laden, und der Bus fährt nur zweimal am Tag. Wenn ich zum Arzt in die
+  Kreisstadt muss, geht dafür fast der ganze Tag drauf. Meistens fragt mich dann die Nachbarin, ob sie
+  mich mitnehmen soll, aber ich will nicht ständig um Hilfe bitten. Schön wäre ein Bus, der wenigstens
+  stündlich fährt.
+relevant: true
+items:
+- id: i1
+  kind: pain
+  quote: und der Bus fährt nur zweimal am Tag
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: Dorf ohne Laden
+  mode:
+  - bus
+  improve:
+  - flexibility
+  states_solution: false
+- id: i2
+  kind: job
+  quote: Wenn ich zum Arzt in die Kreisstadt muss
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: functional
+  executor_role: null
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+- id: i3
+  kind: pain
+  quote: geht dafür fast der ganze Tag drauf
+  actor_type: individual
+  evidence_type: routine
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: Kreisstadt
+  mode: []
+  improve:
+  - time
+  states_solution: false
+- id: i4
+  kind: job
+  quote: aber ich will nicht ständig um Hilfe bitten
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: social
+  executor_role: null
+  situation: null
+  mode: []
+  improve: []
+  states_solution: false
+- id: i5
+  kind: gain
+  quote: Schön wäre ein Bus, der wenigstens stündlich fährt
+  actor_type: individual
+  evidence_type: opinion
+  evidence_scope: single
+  job_kind: null
+  executor_role: null
+  situation: null
+  mode:
+  - bus
+  improve:
+  - flexibility
+  states_solution: true
+links:
+  actor_pair: []
+  means_end: []
+  order: []
