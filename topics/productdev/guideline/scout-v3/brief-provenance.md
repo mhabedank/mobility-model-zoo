@@ -38,3 +38,21 @@
     - (e) For links, the threshold of 0.4 equals the floor below which a field is not produced, so links have no revise band.
     - (f) Code assembly puts the owner's German answers verbatim into an otherwise English guideline: `teacher_task`, `domain.owner` and `item_boundaries.owner`.
 - The brief is complete (blocks A to E). Next step: the Fable review with its own agents, then the owner's formal approval of the assembled package with hashes.
+- Fable review 1 (2026-11-28, `review/fable-review-1.md`). Seven Fable subagents ran under the lead reviewer: research, five lenses and a synthesis. Verdict: not ready for the pilot. Findings: 6 blockers, 14 major, 11 minor. The owner decided all 15 questions of section 7 in pop-ups and took the recommended option every time:
+  1. P1 item boundaries: whole clauses.
+  2. P2 job is what gets done, how well it goes is a gain, a bare activity is no item.
+  3. P14 no new field: cairn groups items, and the interface document and test I2 are corrected.
+  4. P7 Torres test for `states_solution`.
+  5. Note (a): single.
+  6. Note (b): a mode counts even when negated. This reverses the earlier reading.
+  7. Note (c): quantified only for a number of affected actors or occurrences.
+  8. Note (d): two items.
+  9. P10 the actor is whoever has the need.
+  10. P6 pointer: noun phrase, nearest occurrence before the quote.
+  11. P4 links scored on matched pairs: threshold 0.5, floor 0.3, enriched sub-sample.
+  12. P3 metric sheet with the proposed thresholds.
+  13. P13 examples corrected and grown to 16.
+  14. Note (f): English operative versions of the owner's German sentences, for owner approval.
+  15. P11 `improve`: direction sentence removed, one line per value.
+- Not yet decided from the report: P5 (link definitions), P15 (feelings as pain or job), P16 (labeling in passes), P17 (order of `drop_order`).
+- Every new wording that follows from these decisions changes approved text. It is a Claude draft under 3.2.0 and needs the owner's approval before it counts.
