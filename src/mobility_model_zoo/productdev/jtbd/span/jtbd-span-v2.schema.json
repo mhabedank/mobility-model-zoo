@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-span-v2",
+  "title": "Output of the JTBD span extractor (jtbd-span-v2, draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "output_format_version",
+    "language",
+    "relevant",
+    "relevance_probability",
+    "dimensions",
+    "relations",
+    "items",
+    "links"
+  ],
+  "properties": {
+    "output_format_version": {
+      "const": "jtbd-span-v2"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}$"
+    },
+    "relevant": {
+      "type": "boolean"
+    },
+    "relevance_probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "dimensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "actor_type",
+          "evidence_type",
+          "evidence_scope",
+          "job_kind",
+          "mode",
+          "improve",
+          "states_solution",
+          "executor_role",
+          "situation"
+        ]
+      }
+    },
+    "relations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "actor_pair",
+          "means_end",
+          "order"
+        ]
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "quote",
+          "start",
+          "end",
+          "score"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "job",
+              "pain",
+              "gain"
+            ]
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "actor_type": {
+            "enum": [
+              "individual",
+              "worker",
+              "organization",
+              "public_sector",
+              "society"
+            ]
+          },
+          "evidence_type": {
+            "enum": [
+              "opinion",
+              "anecdote",
+              "routine",
+              "observation",
+              "measurement"
+            ]
+          },
+          "evidence_scope": {
+            "enum": [
+              "single",
+              "multiple",
+              "quantified"
+            ]
+          },
+          "job_kind": {
+            "enum": [
+              "functional",
+              "emotional",
+              "social",
+              null
+            ]
+          },
+          "mode": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "walk",
+                "bicycle",
+                "micromobility",
+                "motorcycle",
+                "car",
+                "taxi_ridehailing",
+                "bus",
+                "tram_metro",
+                "train",
+                "coach",
+                "public_transport",
+                "truck_van",
+                "air",
+                "water",
+                "other"
+              ]
+            }
+          },
+          "improve": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "time",
+                "cost",
+                "effort",
+                "reliability",
+                "safety",
+                "comfort",
+                "access",
+                "information",
+                "flexibility",
+                "environment",
+                "other"
+              ]
+            }
+          },
+          "states_solution": {
+            "type": "boolean"
+          },
+          "executor_role": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "text",
+              "start",
+              "end"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "situation": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "text",
+              "start",
+              "end"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to",
+          "relation"
+        ],
+        "properties": {
+          "from": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "to": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "relation": {
+            "enum": [
+              "causes",
+              "in_order_to",
+              "before",
+              "during"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$comment": "Draft (roadmap phase 1, 2026-11-28). Semantic rules checked by code, not expressible here: every item has exactly the attribute keys listed in `dimensions`; quote == text[start:end] and the same for every pointer; start < end; items sorted by start and non-overlapping; relevant == false implies items == [] and links == []; job_kind is null unless kind is job; states_solution is true only on gains; links only use relations listed in `relations` and point to existing item indices; causes needs items of different actors and at least one pain; in_order_to needs items of the same actor; during is written with the earlier quote first."
+}

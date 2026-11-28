@@ -1,0 +1,490 @@
+teacher_task: 'Der Labeler soll herausfinden, wo Pains, Gains und Jobs to be done im text zu finden sind. diese werden dann mit weiteren feldern angereichert. siehe dafür die liste der FElder'
+teacher_task_en:
+  text: >-
+    Find where the text states pains, gains and jobs to be done. Each of them is then enriched with
+    further fields, as given in the list of fields.
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+reader: 'Ein Produkt Manager'
+reader_en:
+  text: A product manager.
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+domain:
+  owner: 'Folge der DEfinition von Mobilität, alles was dazu gehört gehört auch zu umserem Thema.'
+  owner_en:
+    text: Follow the definition of mobility; everything that belongs to it also belongs to our topic.
+    drafted_by: claude
+    approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  drafted_by: claude
+  approval: 'owner, 2026-11-27, in chat (formal approval with hashes follows for the whole guideline package)'
+  definition: >-
+    Mobility is the movement of people, goods and animals in geographic space, together with
+    everything that enables or shapes it. It covers: the trips and transports themselves, by any
+    mode and over any distance, including walking, cycling, cars, public transport, rail, air,
+    water and freight; the options people and organisations have to move, such as access, cost,
+    time and information; the vehicles, services, infrastructure and energy used for it, such as
+    roads, stations, parking, fuel and charging; and the work, rules, business and effects that go
+    with it, such as jobs in transport and logistics, regulation, prices, congestion and emissions.
+    Transport is the movement that actually happens; mobility also includes the possibility to
+    move. Not covered: social mobility between classes or jobs, and the transmission of messages
+    or energy as such.
+  sources:
+  - source: 'Wikipedia (de), Räumliche Mobilität'
+    url: 'https://de.wikipedia.org/wiki/R%C3%A4umliche_Mobilit%C3%A4t'
+    licence: CC-BY-SA-4.0
+  - source: 'Wikipedia (en), Transport'
+    url: 'https://en.wikipedia.org/wiki/Transport'
+    licence: CC-BY-SA-4.0
+  - source: 'FGSV, Begriffsbestimmungen'
+    url: null
+    licence: proprietary
+  - source: 'Spektrum, Lexikon der Geographie, Verkehrsmobilität'
+    url: 'https://www.spektrum.de/lexikon/geographie/verkehrsmobilitaet/8614'
+    licence: proprietary
+item_boundaries:
+  owner: 'ALso wir sochen merkmale wie pain, gain und JTBD. diese sind durch sprache vcodiert. diese sprache kann auch mehrere sätze dafür verwenden. wir beschrenken nicht nach dem Tool (Sprache) sondern nach der Sinneinheit (z.B. JTBD)'
+  rule: >-
+    An item is one need. Its quote is the shortest run of whole clauses that states the need,
+    including the words that mark it as a wish, fear or problem (such as 'I want', 'schön wäre',
+    'I worry that') and the conjunction that opens a clause. A need may run over several
+    sentences. A cause or consequence joined with 'so', 'because', 'weil' or 'sodass' belongs to
+    the same item unless it is a need of its own. It is a need of its own when it names another
+    burden or another actor than the clause before it. A purpose joined with 'um … zu', 'damit',
+    'in order to' or 'so that' is an item of its own, and so is the clause it depends on. The
+    opening conjunction may be of either kind ('und', 'aber', 'dass', 'and', 'but', 'that'). A
+    frame that only says who said it ('Viele sagen mir, dass', 'People tell us', 'ich schätze')
+    stays outside the quote; a source named inside the clause ('laut der Erhebung') and a verb that
+    itself states the problem ('complain', 'sich beschweren', 'worry') stay inside. Two clauses
+    joined by 'and' are two items when they name different burdens or actors. Quotes of one text
+    never overlap. Offsets are computed by code.
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+relevant:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  definition: >-
+    A text is relevant when it states at least one job, pain or gain of an actor within mobility
+    as defined under domain, told by the actor or reported by someone else. The topic alone is not
+    enough. Not relevant: texts that only report facts, figures, events or product features with
+    no actor who wants to get something done, struggles, hopes for something or values an outcome
+    they have; timetables, tariffs and technical specifications; a provider praising its own offer
+    without reporting a customer's need; texts where mobility is only the backdrop of something
+    else. One passage with a need is enough, even if the rest of the text is off-topic. The test
+    applies to each item: the need, or the trip or transport on which it arises, must lie within
+    mobility. What a mobility problem does to the actor (being late for work, feeling cut off) is
+    an item. A need about something else that is only mentioned on the way is no item.
+kind:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  job: >-
+    Something an actor is trying to get done or achieve in a situation: a task, a goal or a change
+    of state they want.
+  pain: >-
+    Something that bothers the actor before, during or after getting the job done: an obstacle, a
+    cost, a risk, an annoyance, a bad outcome, or the fear of one.
+  gain: >-
+    An outcome or benefit the actor wants, expects or would welcome: something that makes the job
+    easier, faster, cheaper, safer or more pleasant, or a good outcome they already value.
+  job_versus_gain: >-
+    A job is what the actor wants to get done: it has its own verb of doing and stays the same when
+    the means change. A wish about how well, fast, cheaply, safely or reliably it goes is a gain. A
+    sentence that only reports what someone does, with no want, purpose, obstacle or judgement, is
+    not an item. This test decides, whatever word the text uses ('goal', 'Ziel', 'need'). A step
+    the actor takes for a stated purpose is a job and is linked to its goal with means_end. A wish
+    for a thing or measure is a gain with states_solution true, also when it has a verb of doing
+    ('order', 'build', 'introduce').
+  feelings: >-
+    A bad feeling reported as a fact is a pain, a good one a gain. A wish to feel or not to feel
+    something is a job with job_kind emotional, also when it is about how the trip goes; this rule
+    comes before job_versus_gain.
+  pain_versus_negated_gain: >-
+    Label by what the text describes. A problem the actor has now is a pain, even when phrased as
+    a missing benefit. A wish for a better state is a gain, even when phrased with a negation.
+    Label both only when each has its own clause; otherwise take the kind the wording has.
+actor_type:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    The actor is who has the need, not who speaks or writes. A need voiced on behalf of others
+    takes the type of those who have it; the speaker's body is the actor only for its own need
+    (budget, staff, duties). actor_type is the coarse class; executor_role marks the words that
+    name the specific role.
+  individual: >-
+    Private persons acting for themselves or their household, one or many, including named groups
+    such as commuters or residents.
+  worker: >-
+    A person whose need comes from their work in or around mobility. Commuting is not work in
+    mobility.
+  organization: A company, operator, association or other non-state body acting as such.
+  public_sector: A public authority or public body acting as such.
+  society: >-
+    The public at large, only when the text says so in words ('alle', 'everyone', 'die
+    Allgemeinheit', 'the public'). The people of a place and generic 'man', 'one' or 'you' are
+    individual.
+# The scale orders the kind of backing, not its value; the export must not filter or sort by it
+# (Fable review 1, R-24). Review note, not printed.
+evidence_type:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    How the text backs the need, as an ordinal scale from opinion (lowest) to measurement
+    (highest).
+  opinion: A view, belief, wish or judgement with no experience given.
+  anecdote: One concrete experience, a single event.
+  routine: Repeated or habitual experience of the actor (always, every day, usually).
+  observation: >-
+    Something seen across other people or over a longer time, stated without a figure from
+    counting or measuring.
+  measurement: A figure obtained by counting or measuring, such as a survey result, a statistic or a measured time.
+  boundaries: >-
+    Grade by the basis the speaker gives, and take the first line that fits. 1. A counted or
+    measured figure with its source: measurement. 2. One concrete event, whoever it happened to and
+    whoever told it: anecdote. 3. The speaker's own repeated experience, shown by a word of
+    frequency, by habitual present tense about the speaker's own trips ("I take", "wenn ich …
+    muss") or by a share of the speaker's own attempts: routine. 4. A statement about several other
+    people or a longer time, when the text says how the speaker knows it (they were told, or they
+    were there) or gives an estimated figure: observation. 5. Everything else, including a plain
+    statement of how things are ("the bus runs twice a day"): opinion. Anecdote versus routine: one
+    event is an anecdote; words of frequency or several events make it routine. Observation versus
+    measurement: a measurement needs a figure that was counted or measured; an estimate such as
+    "about half, I would say" is an observation, or routine when it is a share of the speaker's own
+    repeated experience.
+  reported_speech: >-
+    The speaker is the person or body whose statement the text gives: the author of a first-person
+    text, or the person a news text or minutes quote. A journalist or minute-taker who only passes a
+    statement on is not the speaker. What third persons told that speaker is graded from the
+    speaker's side, as below.
+  same_need_twice: >-
+    The same need stated again in a separate passage that does not overlap the first is a second
+    item with its own evidence.
+evidence_scope:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    Scope counts actors or cases; frequency belongs to evidence_type. One person's routine is
+    single. A body speaking of its own need is one actor. The order is single, multiple,
+    quantified.
+  single: One case, one actor or one event.
+  multiple: Several or many cases, stated without a number.
+  quantified: >-
+    The text gives a number or share of the actors or occurrences that have the need, such as
+    people, trips, tours or complaints; an estimate with a figure counts. Durations, distances,
+    prices, times of day and the size of an operation do not count. A share counts when it is a
+    share of people or events; a share of a stock, such as posts or vehicles, is the size of the
+    problem.
+quote:
+  owner_choice: 'Nur Zitat (Recommended)'
+  rule: >-
+    Each item is a verbatim quote in the source language. Code computes its offsets; the labeler
+    does not count characters. No statement or translation is written per item.
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+doubt:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  item: >-
+    When unsure whether a passage is an item, ask whether a product manager could learn a need from
+    it. If not, leave it out. Never add context that the text does not give.
+  kind: Take the kind the wording has; label both only when each has its own clause.
+  levels: >-
+    For evidence_type and evidence_scope, take the lower grade. evidence_scope is ordered single,
+    multiple, quantified.
+  fields: >-
+    job_kind, mode, improve, executor_role and situation stay empty when they are not stated or you
+    are unsure; an empty field is correct. kind, actor_type, evidence_type and evidence_scope are
+    never empty: use the rules for kind and levels above, and for actor_type take the type of the
+    persons the need is about.
+empty_result:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    An empty item list is correct when the text states no job, pain or gain in mobility as defined
+    under domain; relevant is then false. Because relevance follows from items, "relevant but no
+    item" is not a valid result. No score rewards filling a result.
+job_kind:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  applies_to: job
+  functional: The practical task or result the actor wants to get done.
+  emotional: How the actor wants to feel, or wants to avoid feeling, while getting it done.
+  social: How the actor wants to be seen by others, or to stand with them.
+  rule: >-
+    One value per job item: the one the text stresses. Only jobs carry job_kind; it stays empty for
+    pains and gains, also when they have an emotional or social side. If a passage states a
+    practical and a feeling side, label two jobs only when each has its own clause; otherwise take
+    the value the wording stresses.
+executor_role:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A pointer to the noun phrase, without article, with the modifiers that define the role, that
+    names who has the need: what the person or body is, such as an occupation, a life situation or
+    an organisation type. The pointer must lie in the text the labeler is given, inside or outside
+    the item's quote. If the same words occur more than once, the occurrence inside the quote
+    counts, else the one nearest before it; code resolves offsets. A role named for the same actor
+    applies to all of that actor's items. A role named inside the quote comes before a role named
+    elsewhere for the same actor. If the words occur only after the quote, the nearest occurrence
+    after it counts. A speaker tag counts as a role only when it names the actor itself and the
+    running text names none. Pronouns and generic words such as "I", "we", "people", "members" or
+    "Leute" get no role. If several roles are named, take the one that has this need. Empty if no
+    role is named.
+link_encoding:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  rule: >-
+    Every link is written as {from, to, relation}: from and to are ids of items of the same text,
+    and relation is one of the values of the link field.
+actor_pair:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  values: [causes]
+  rule: >-
+    A directed link from the item of the actor who causes to the pain of the actor who suffers,
+    when the text says that the one causes the other at the same place, time or resource. The
+    causing item may be a job or a pain. The text must name the cause. Both items must be in the
+    text, and their actors differ. A clash known only from general knowledge is not linked.
+    Written as {from: causing item, to: pain, relation: causes}.
+mode:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  values: [walk, bicycle, micromobility, motorcycle, car, taxi_ridehailing, bus, tram_metro, train, coach, public_transport, truck_van, air, water, other]
+  rule: >-
+    All modes named in the item's quote, as a list. Decide on the words of the quote: every mode
+    named counts, also when it is negated or missing. Use public_transport when the text names
+    public transport without a mode. A word that belongs to exactly one mode counts, such as a bus
+    driver for bus or a wallbox for car. A verb counts when it belongs to one mode (walk, cycle,
+    fly, drive for car); 'fahren', 'ride' and 'travel' name none. Empty if the quote names no mode;
+    do not infer one from the context alone.
+  boundaries: >-
+    A pedelec is bicycle. E-scooters and other small electric devices are micromobility. A moped is
+    motorcycle. Minibus and on-demand shuttle are bus. A freight train is train. Charger, petrol
+    station, motorway and parking give car only together with a vehicle word. Use other only for a
+    named mode outside the list.
+# Typed situations, such as the seven trip purposes shared by the national travel surveys, are
+# planned for a later format version (Fable review 1, P12). Review note, not printed.
+situation:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    A pointer to the noun phrase (or time word), without article, possessive, demonstrative or
+    preposition, with the modifiers that define where, when or on what occasion the need arises: a
+    place, a time of day, week or year, or an occasion such as a trip purpose or what the actor
+    carries. The pointer must lie in the text the labeler is given, inside or outside the item's
+    quote. If the same words occur more than once, the occurrence inside the quote counts, else the
+    one nearest before it; code resolves offsets. Place before occasion before time when several
+    are tied to the need. A place, time or occasion counts for an item when it is named in the
+    item's sentence, or when the item points back to it ('there', 'dort', 'dabei', 'dafür'). A time
+    of day or day of the week counts also inside a phrase of frequency: from 'jeden Morgen' point
+    to 'Morgen'. For a job, its own destination or purpose is part of the need; for a pain or gain
+    on that trip, it is a situation. Weather counts as an occasion. Not a
+    situation: words of frequency (every day, immer), the date of a single event, the destination
+    or object that is part of the need itself, and parts of a wished solution. Empty if none is
+    named.
+# The export derives a direction of improvement from a polarity table in the field-meaning file of
+# the output format (Fable review 1, P11). Labelers never label a direction. Review note, not printed.
+improve:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  values: [time, cost, effort, reliability, safety, comfort, access, information, flexibility, environment, other]
+  rule: >-
+    The dimensions the item is about, as a list, for jobs, pains and gains. Only when the quote
+    names or clearly describes the dimension. When two values fit, follow the lines below. Empty if
+    no dimension is named or described.
+  time: How long it takes, including waiting and detours; a duration is time.
+  cost: Money the actor pays or lacks, such as fares, fuel, fines, prices or budgets.
+  effort: Steps, planning and hassle needed to get it done.
+  reliability: Whether it happens as planned; late, cancelled, broken down or unpredictable is reliability.
+  safety: Risk of accident, injury or other harm.
+  comfort: How pleasant and calm the trip is, such as shelter, seats, crowding or noise on board.
+  access: Whether a service, place or vehicle is available or within reach at all.
+  information: What the actor knows or can find out, such as timetables, delays or changes.
+  flexibility: Choice of time or route, including how often a service runs.
+  environment: Emissions, noise and other effects of traffic on people and nature around it.
+  other: Only when the quote describes a dimension that is not on this list, such as staff or equipment.
+states_solution:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  rule: >-
+    True when the quote asks for a particular thing or measure, so that only one way would satisfy
+    it (a named product, a new facility, a specific rule or schedule). False when it asks for a
+    property or result that several things could deliver, and false otherwise. The item keeps its
+    kind and is not dropped. The need behind it is a separate item only if the text states it.
+means_end:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  values: [in_order_to]
+  rule: >-
+    A directed link from item A to item B of the same actor when the text says that A is done or
+    wanted in order to achieve B, or that A is the measure the actor wants for B. The connecting
+    words must join the two quotes, such as "um zu", "damit", "deshalb", "in order to" or "so
+    that". No link when the connection is only implied. Items of different actors are not linked
+    here. Written as {from: A, to: B, relation: in_order_to}.
+order:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat'
+  values: [before, during]
+  rule: >-
+    A link between two items of one text when words in the text order them in time, such as
+    "zuerst", "dann", "bevor", "während", "first", "then", "after" or "while". Link only items that
+    are events. before means that from comes before to; write "A after B" as B before A. during
+    means that both happen at the same time; it has no direction, so the earlier quote is from. The
+    order of sentences alone does not count. Order across texts is never labeled.
+language:
+  owner_choice: 'Code erkennt (Recommended)'
+  rule: Detected by code per text, not labeled. A mixed text gets its main language.
+examples:
+  source_choice: 'Fiktiv, Claude entwirft'
+  cases_owner: 'überlege was edge cases sein können, das muss mit rein, denk aber auch an stratifiing. nicht dass wir 100 edge case beispiele und nur 5 beispiele für fälle haben, die 90% der echten fälle ausmachen. kein plan ob das ein problem ist, aber wenn dann sollten wir es berücksichtigen'
+  cases_choice: [Kernfälle, Kanten, Felder, Grenzfälle]
+  size_choice: '12, je 6 de/en (Recommended)'
+  size: '16, 8 de and 8 en (Fable review 1, decision 13)'
+  file: examples.yaml
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  previous_approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
+assembly:
+  owner_choice: 'Code setzt zusammen (Recommended)'
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  rule: >-
+    Code assembles the guideline package from brief.yaml and examples.yaml with a fixed template.
+    The template prints the English operative versions (teacher_task_en, reader_en,
+    domain.owner_en, item_boundaries.rule); the owner's German answers (teacher_task, reader,
+    domain.owner, item_boundaries.owner, examples.cases_owner) stay verbatim in brief.yaml and in
+    the provenance and are not printed. Review-only keys (shows, drafted_by, approval, previous_approval and the
+    *_choice keys) are stripped. The owner approves the assembled package with sha256 hashes before
+    any labeling run.
+  passes: >-
+    Labeling runs in three passes. Pass 1: items with quote, kind, actor_type, evidence_type and
+    evidence_scope; relevant follows from them. Pass 2: the other attributes and the pointers, on
+    the fixed items of pass 1. Pass 3: links, on every chunk with at least two items. A pointer that
+    is not a verbatim part of the given text is set to empty and counted, not retried. The zero-shot
+    baselines use the same passes. In the agreement pilot each reference runs all three passes on
+    its own items; nothing is shared between the references.
+link_connectives:
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  rule: >-
+    A closed list that code uses only to draw the enriched link sub-sample of the agreement pilot.
+    It does not decide whether pass 3 runs, and it does not decide a link.
+  means_end: ['um … zu', damit, deshalb, dafür, in order to, so that]
+  order: [zuerst, danach, bevor, nachdem, während, first, afterwards, before, after, while]
+  actor_pair: [weil, wegen, because, because of]
+  actor_pair_condition: together with at least two different role words in the chunk
+# Some conventions below differ from criteria-v1 (configs/productdev/jtbd/decision-criteria.yaml),
+# which stays frozen for the old pilots. Review note, not printed.
+pilot_thresholds:
+  status: provisional
+  owner_choice: 'Freigeben (vorläufig)'
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  per: [field, language]
+  definitions:
+    matching: >-
+      Items of two references are matched one to one when the token IoU of their quotes is at
+      least 0.5, after stripping punctuation at the edges; pairs with the highest IoU are matched
+      first. Tokens are split at white space.
+    item_matching: F1 of matched items. The F1 at any overlap is reported next to it and not used for the decision.
+    relevance: >-
+      Cohen's kappa over all chunks of the pilot. Raw agreement and a prevalence-robust coefficient
+      (Gwet's AC1) are reported next to it.
+    attributes: >-
+      Cohen's kappa on items matched by both references, for kind, actor_type, evidence_scope and
+      states_solution; job_kind only on matched items that both references call job. evidence_type
+      uses a weighted kappa with linear weights.
+    lists: >-
+      mode and improve: Krippendorff's alpha with the MASI set distance on matched items; both
+      empty counts as agreement. For improve, a kappa per value is reported to find values to merge.
+    pointers: >-
+      executor_role and situation: two numbers each, on matched items. A kappa of filled against
+      empty, and a token F1 on items that both references filled, comparing the pointed strings,
+      not their offsets.
+    links: >-
+      Scored only on pairs of items that both references matched: F1 of the links between matched
+      items. The end-to-end F1 is reported next to it and not used for the decision. For order, the
+      relation (before or during) is reported as a separate kappa on links both references found.
+      Two links agree when both ends are matched items, the direction is the same and the relation
+      is the same.
+    link_sample: >-
+      Links are scored on the random pilot plus an enriched sub-sample of 100 chunks per language:
+      chunks in which code finds a word of link_connectives. If a link type has fewer than 30 units,
+      the sub-sample is extended once, to 200 chunks per language. Link prevalence is never
+      estimated from the enriched sub-sample.
+    intervals: 95 % bootstrap intervals, resampling chunks.
+    units: Items or links that at least one reference filled, counted per field and language.
+    pilot_size: 100 chunks per language drawn at random, plus the enriched link sub-sample (100 chunks per language, at most 200).
+    revision: >-
+      After a guideline revision, fields are scored again on a fresh holdout of the same size as the
+      pilot, not on the pilot chunks.
+  thresholds:
+    core:
+      relevance_kappa: {threshold: 0.75, floor: 0.6}
+      item_matching_f1: {threshold: 0.6, floor: 0.45}
+      kind_kappa: {threshold: 0.6, floor: 0.4}
+      actor_type_kappa: {threshold: 0.6, floor: 0.4}
+      evidence_scope_kappa: {threshold: 0.6, floor: 0.4}
+      evidence_type_weighted_kappa: {threshold: 0.5, floor: 0.4}
+    attributes:
+      job_kind_kappa: {threshold: 0.5, floor: 0.4, on_fail: 'collapse to functional against other and score again before dropping'}
+      mode_masi_alpha: {threshold: 0.7, floor: 0.4}
+      improve_masi_alpha: {threshold: 0.5, floor: 0.35}
+      states_solution_kappa: {threshold: 0.5, floor: 0.4}
+      states_solution_true_f1: {threshold: 0.6, floor: 0.4, min_true_items: 30}
+    pointers:
+      executor_role_filled_kappa: {threshold: 0.6, floor: 0.4}
+      executor_role_token_f1: {threshold: 0.6, floor: 0.4}
+      situation_filled_kappa: {threshold: 0.6, floor: 0.4}
+      situation_token_f1: {threshold: 0.6, floor: 0.4}
+    links:
+      actor_pair_f1: {threshold: 0.5, floor: 0.3}
+      means_end_f1: {threshold: 0.5, floor: 0.3}
+      order_f1: {threshold: 0.5, floor: 0.3}
+  reported_only:
+  - relevance raw agreement and Gwet's AC1
+  - evidence_scope Gwet's AC1
+  - item F1 at any overlap
+  - end-to-end F1 of each link field
+  - order relation kappa
+  - improve kappa per value
+  - actor_type per class, with society marked as underpowered
+  decision: >-
+    A field is produced when its estimate meets the threshold and the lower bound of its interval
+    meets the floor; a field with two numbers needs both. First count the units: with fewer than 30
+    the field is underpowered whatever its estimate, and the sample is extended once, to at most
+    twice its size; a field that is still underpowered is not produced in this version and is
+    listed as not measured. With 30 or more units: an estimate below the floor means not produced;
+    an estimate between floor and threshold gets one guideline revision and is scored again on a
+    fresh holdout of the same size as the pilot, and is then produced only if it meets this rule;
+    an estimate at the threshold with a lower bound below the floor is extended once in the same
+    way.
+  keep_always_stop: >-
+    A keep_always field that would be not produced under the decision rule, at any step, stops the
+    pilot in that language, and the guideline goes back to the owner. It is never dropped.
+    relevance_kappa stands for relevant and item_matching_f1 for quote.
+  per_language: Each field is decided per language and is produced only in the languages where it passed.
+drop_order:
+  owner_choice: 'Kanten zuerst (Recommended)'
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
+  order: [actor_pair, order, means_end, executor_role, situation, states_solution, job_kind, improve, mode]
+  trigger: >-
+    The drop order applies only when the model's core-does-not-pay test fails: item-matching F1 or
+    relevance of the model with the extra fields falls below the same model without them, beyond
+    the bootstrap interval. Fields are then dropped in this order until the test passes.
+  keep_always: [relevant, kind, quote, actor_type, evidence_type, evidence_scope]
