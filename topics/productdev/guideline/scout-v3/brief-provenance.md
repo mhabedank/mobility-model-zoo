@@ -20,3 +20,13 @@
   - C10 (language): the owner chose "Code erkennt (Recommended)". Language is detected by code per text, is not a label and needs no agreement pilot.
   - C1 to C9: the owner chose Claude drafts (`job_kind`, `executor_role`, `actor_pair`, `mode`, `situation`, `improve`, `states_solution`, `means_end`, `order`) and approved all nine unchanged. Claude stated the common rules: a field is filled only when the text states it, a pointer takes the shortest verbatim span, and links need connecting words in the text.
   - The value lists of `mode` (15 values) and `improve` (11 values) are Claude drafts approved by the owner. The schema draft `jtbd-span-v2` (roadmap phase 1) can now be written from them.
+- Block D (pop-ups, 2026-11-28):
+  - D1: the owner chose "Fiktiv, Claude entwirft". D3: "12, je 6 de/en".
+  - D2: the owner asked for edge cases but also for stratification, so that typical cases are not outnumbered (stored verbatim under `examples.cases_owner`). Claude explained that in-context examples bias a labeler (majority-label and recency bias). It proposed a matrix, which the owner approved: 2 empty examples (about 15 %), 5 typical ones (one long and dense, with about 10 items) and 5 with embedded edge cases.
+  - Target distribution: counts only, from the non-Claude teacher run of span-train-v1 (1,100 chunks, `teacher-or-mimo-v2.6-pro`); no text was read. 15 % of chunks were empty, with 12.6 items per relevant chunk. Kind: pain 50 %, job 28 %, gain 22 %. Evidence: opinion 73 %. Scope: multiple 73 %. Actors: individual 44 %, organization 21 %, public_sector 19 %, worker 12 %, society 4 %. 4 % of quotes spanned more than one sentence. Caveat: that teacher read the old guideline v2.
+  - `examples.yaml`: 12 examples with 55 items. Code checked that every quote, role and situation is a verbatim substring, that all values are valid and that all links point to existing items. One rebalancing round: e09 now has a mayor as speaker. Final distribution: kind pain 56 %, job 24 %, gain 20 % (close to the target). Still off: individual 65 % (target 44 %), public_sector 9 % (19 %), opinion 42 % (73 %), single 55 % (18 %). The owner approved the examples and sent the gaps to the Fable review.
+  - Unclear points found while drafting. Claude did not decide them silently; the examples follow the reading given in brackets.
+    - (a) The scope of one person's routine: single (one actor) or multiple (several events)? [single]
+    - (b) Does a mode named only as absent or not used count, as in "wer kein Auto hat"? [no]
+    - (c) Does a quantity that is not a count of cases, such as a distance, make an item quantified? [avoided in the texts]
+    - (d) The same need stated twice in one text with different evidence. [two items, e06 i1/i2]

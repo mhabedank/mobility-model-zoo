@@ -190,3 +190,11 @@ order:
 language:
   owner_choice: 'Code erkennt (Recommended)'
   rule: Detected by code per text, not labeled. A mixed text gets its main language.
+examples:
+  source_choice: 'Fiktiv, Claude entwirft'
+  cases_owner: 'überlege was edge cases sein können, das muss mit rein, denk aber auch an stratifiing. nicht dass wir 100 edge case beispiele und nur 5 beispiele für fälle haben, die 90% der echten fälle ausmachen. kein plan ob das ein problem ist, aber wenn dann sollten wir es berücksichtigen'
+  cases_choice: [Kernfälle, Kanten, Felder, Grenzfälle]
+  size_choice: '12, je 6 de/en (Recommended)'
+  file: examples.yaml
+  drafted_by: claude
+  approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
