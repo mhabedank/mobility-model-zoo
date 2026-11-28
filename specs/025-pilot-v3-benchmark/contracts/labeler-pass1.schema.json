@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-labeler-v3-pass1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "relevant",
+    "items"
+  ],
+  "properties": {
+    "relevant": {
+      "type": "boolean"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "quote",
+          "actor_type",
+          "evidence_type",
+          "evidence_scope"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "job",
+              "pain",
+              "gain"
+            ]
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor_type": {
+            "enum": [
+              "individual",
+              "worker",
+              "organization",
+              "public_sector",
+              "society"
+            ]
+          },
+          "evidence_type": {
+            "enum": [
+              "opinion",
+              "anecdote",
+              "routine",
+              "observation",
+              "measurement"
+            ]
+          },
+          "evidence_scope": {
+            "enum": [
+              "single",
+              "multiple",
+              "quantified"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jtbd-labeler-v3-pass2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "items"
+  ],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "job_kind",
+          "mode",
+          "improve",
+          "states_solution",
+          "executor_role",
+          "situation"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "job_kind": {
+            "enum": [
+              "functional",
+              "emotional",
+              "social",
+              null
+            ]
+          },
+          "mode": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "walk",
+                "bicycle",
+                "micromobility",
+                "motorcycle",
+                "car",
+                "taxi_ridehailing",
+                "bus",
+                "tram_metro",
+                "train",
+                "coach",
+                "public_transport",
+                "truck_van",
+                "air",
+                "water",
+                "other"
+              ]
+            }
+          },
+          "improve": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "time",
+                "cost",
+                "effort",
+                "reliability",
+                "safety",
+                "comfort",
+                "access",
+                "information",
+                "flexibility",
+                "environment",
+                "other"
+              ]
+            }
+          },
+          "states_solution": {
+            "type": "boolean"
+          },
+          "executor_role": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "situation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
