@@ -4,18 +4,18 @@ teacher_task_en:
     Find where the text states pains, gains and jobs to be done. Each of them is then enriched with
     further fields, as given in the list of fields.
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
 reader: 'Ein Produkt Manager'
 reader_en:
   text: A product manager.
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
 domain:
   owner: 'Folge der DEfinition von Mobilität, alles was dazu gehört gehört auch zu umserem Thema.'
   owner_en:
     text: Follow the definition of mobility; everything that belongs to it also belongs to our topic.
     drafted_by: claude
-    approval: pending
+    approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   drafted_by: claude
   approval: 'owner, 2026-11-27, in chat (formal approval with hashes follows for the whole guideline package)'
   definition: >-
@@ -59,10 +59,10 @@ item_boundaries:
     joined by 'and' are two items when they name different burdens or actors. Quotes of one text
     never overlap. Offsets are computed by code.
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
 relevant:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   definition: >-
     A text is relevant when it states at least one job, pain or gain of an actor within mobility
@@ -77,7 +77,7 @@ relevant:
     an item. A need about something else that is only mentioned on the way is no item.
 kind:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   job: >-
     Something an actor is trying to get done or achieve in a situation: a task, a goal or a change
@@ -106,7 +106,7 @@ kind:
     Label both only when each has its own clause; otherwise take the kind the wording has.
 actor_type:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     The actor is who has the need, not who speaks or writes. A need voiced on behalf of others
@@ -129,7 +129,7 @@ actor_type:
 # (Fable review 1, R-24). Review note, not printed.
 evidence_type:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     How the text backs the need, as an ordinal scale from opinion (lowest) to measurement
@@ -164,7 +164,7 @@ evidence_type:
     item with its own evidence.
 evidence_scope:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     Scope counts actors or cases; frequency belongs to evidence_type. One person's routine is
@@ -184,10 +184,10 @@ quote:
     Each item is a verbatim quote in the source language. Code computes its offsets; the labeler
     does not count characters. No statement or translation is written per item.
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
 doubt:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   item: >-
     When unsure whether a passage is an item, ask whether a product manager could learn a need from
@@ -210,7 +210,7 @@ empty_result:
     item" is not a valid result. No score rewards filling a result.
 job_kind:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   applies_to: job
   functional: The practical task or result the actor wants to get done.
@@ -223,7 +223,7 @@ job_kind:
     the value the wording stresses.
 executor_role:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     A pointer to the noun phrase, without article, with the modifiers that define the role, that
@@ -239,13 +239,13 @@ executor_role:
     role is named.
 link_encoding:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   rule: >-
     Every link is written as {from, to, relation}: from and to are ids of items of the same text,
     and relation is one of the values of the link field.
 actor_pair:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   values: [causes]
   rule: >-
@@ -256,7 +256,7 @@ actor_pair:
     Written as {from: causing item, to: pain, relation: causes}.
 mode:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   values: [walk, bicycle, micromobility, motorcycle, car, taxi_ridehailing, bus, tram_metro, train, coach, public_transport, truck_van, air, water, other]
   rule: >-
@@ -275,7 +275,7 @@ mode:
 # planned for a later format version (Fable review 1, P12). Review note, not printed.
 situation:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     A pointer to the noun phrase (or time word), without article, possessive, demonstrative or
@@ -296,7 +296,7 @@ situation:
 # the output format (Fable review 1, P11). Labelers never label a direction. Review note, not printed.
 improve:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   values: [time, cost, effort, reliability, safety, comfort, access, information, flexibility, environment, other]
   rule: >-
@@ -316,7 +316,7 @@ improve:
   other: Only when the quote describes a dimension that is not on this list, such as staff or equipment.
 states_solution:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   rule: >-
     True when the quote asks for a particular thing or measure, so that only one way would satisfy
@@ -325,7 +325,7 @@ states_solution:
     kind and is not dropped. The need behind it is a separate item only if the text states it.
 means_end:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   values: [in_order_to]
   rule: >-
@@ -336,7 +336,7 @@ means_end:
     here. Written as {from: A, to: B, relation: in_order_to}.
 order:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat'
   values: [before, during]
   rule: >-
@@ -356,12 +356,12 @@ examples:
   size: '16, 8 de and 8 en (Fable review 1, decision 13)'
   file: examples.yaml
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
 assembly:
   owner_choice: 'Code setzt zusammen (Recommended)'
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   rule: >-
     Code assembles the guideline package from brief.yaml and examples.yaml with a fixed template.
     The template prints the English operative versions (teacher_task_en, reader_en,
@@ -379,7 +379,7 @@ assembly:
     its own items; nothing is shared between the references.
 link_connectives:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   rule: >-
     A closed list that code uses only to draw the enriched link sub-sample of the agreement pilot.
     It does not decide whether pass 3 runs, and it does not decide a link.
@@ -393,7 +393,7 @@ pilot_thresholds:
   status: provisional
   owner_choice: 'Freigeben (vorläufig)'
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   per: [field, language]
   definitions:
     matching: >-
@@ -481,7 +481,7 @@ pilot_thresholds:
 drop_order:
   owner_choice: 'Kanten zuerst (Recommended)'
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   order: [actor_pair, order, means_end, executor_role, situation, states_solution, job_kind, improve, mode]
   trigger: >-
     The drop order applies only when the model's core-does-not-pay test fails: item-matching F1 or
