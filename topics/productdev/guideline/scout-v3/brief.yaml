@@ -358,6 +358,26 @@ examples:
   drafted_by: claude
   approval: 'owner, 2026-11-28, in chat (content approval after Fable review 2; hash approval of the assembled package pending)'
   previous_approval: 'owner, 2026-11-28, in chat; distribution gaps go to the Fable review'
+pass_instructions:
+  drafted_by: claude
+  approval: pending
+  pass1: >-
+    Read the text. Find every job, pain and gain in it, as the guideline above defines them. Return
+    `relevant` and the items. For each item give the quote, copied verbatim from the text in its own
+    language, and its kind, actor_type, evidence_type and evidence_scope. List the items in the order in
+    which they appear in the text; quotes never overlap. If the text states no job, pain or gain in
+    mobility, return relevant false and an empty list of items.
+  pass2: >-
+    The items listed after the text are fixed: do not add, drop or change them. For each item, named by
+    its index counted from 0, return job_kind, mode, improve, states_solution, executor_role and
+    situation, as the guideline above defines them. executor_role and situation are words copied
+    verbatim from the text, or null. When the text does not state a field, leave it empty, null or false.
+  pass3: >-
+    The items listed after the text are fixed. Return the links between them that the guideline above
+    defines: causes (actor pair), in_order_to (means and end) and before or during (order). Name the items
+    by their index counted from 0. Return only links that the text marks with words; when there is none,
+    return an empty list of links.
+
 assembly:
   owner_choice: 'Code setzt zusammen (Recommended)'
   drafted_by: claude

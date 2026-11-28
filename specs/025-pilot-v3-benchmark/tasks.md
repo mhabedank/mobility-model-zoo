@@ -42,7 +42,7 @@ description: "Tasks for feature 025: benchmark pilot-v3"
 
 ## Phase 2: Foundational (blocks every story)
 
-- [ ] T006 Draft the three pass instructions as a new brief key `pass_instructions: {pass1, pass2, pass3, drafted_by: claude, approval: pending}` in `topics/productdev/guideline/scout-v3/brief.yaml` (research R2). The content follows `assembly.passes`. It contains no output examples beyond what the package examples show. Record the draft in `brief-provenance.md`.
+- [X] T006 Draft the three pass instructions as a new brief key `pass_instructions: {pass1, pass2, pass3, drafted_by: claude, approval: pending}` in `topics/productdev/guideline/scout-v3/brief.yaml` (research R2). The content follows `assembly.passes`. It contains no output examples beyond what the package examples show. Record the draft in `brief-provenance.md`.
 - [ ] T007 (owner) The owner approves the content of `pass_instructions` in a pop-up. Record the approval in `brief.yaml` and `brief-provenance.md`.
 - [ ] T008 Extend `src/mobility_model_zoo/productdev/jtbd/guideline_package.py` so that `assemble` writes `instructions/pass1.md`, `pass2.md` and `pass3.md` from `pass_instructions` and leaves the key out of `guideline.md`. Add `tests/unit/test_guideline_package.py` cases: the instruction files exist, are hashed in `package.json`, and a change to one gives exit 3.
 - [ ] T009 Reassemble `topics/productdev/guideline/scout-v3/package/` with `jtbd guide assemble`. The stale approval is dropped by design.
