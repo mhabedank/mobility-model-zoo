@@ -70,7 +70,7 @@ actor_type:
   society: The public at large, or an unnamed group, when the need is stated for everyone.
 evidence_type:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat'
   rule: >-
     How the text backs the need, as an ordinal scale from opinion (lowest) to measurement
     (highest).
@@ -87,7 +87,7 @@ evidence_type:
     measured; an estimate such as "about half, I would say" is an observation.
 evidence_scope:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat'
   single: One case, one actor or one event.
   multiple: Several or many cases, stated without a number.
   quantified: The text gives a number, share or amount for how many or how much; an estimate with a figure counts.
@@ -98,7 +98,7 @@ quote:
     translation is written per item.
 doubt:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat'
   item: >-
     When unsure whether a passage is an item, ask whether a product manager could learn a need from
     it. If not, leave it out. Never add context that the text does not give.
@@ -107,7 +107,7 @@ doubt:
   fields: When a field is not stated or you are unsure, leave it empty. An empty field is correct.
 empty_result:
   drafted_by: claude
-  approval: pending
+  approval: 'owner, 2026-11-28, in chat'
   rule: >-
     An empty item list is correct when the text states no job, pain or gain in mobility as defined
     under domain; relevant is then false. Because relevance follows from items, "relevant but no
